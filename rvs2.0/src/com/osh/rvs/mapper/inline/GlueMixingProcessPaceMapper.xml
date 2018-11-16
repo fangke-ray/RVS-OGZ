@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.inline.GlueMixingProcessPaceMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	<insert id="insert" parameterType="GlueMixingProcessPaceEntity">
+	<![CDATA[
+		INSERT INTO glue_mixing_process_pace
+		(
+		glue_mixing_process_id,
+		pace,
+		mixing_operator_id,
+		mixing_action_time
+		)
+		VALUES
+		(
+		#{glue_mixing_process_id},
+		#{pace},
+		#{mixing_operator_id},
+		#{mixing_action_time}
+		)
+	]]>
+	</insert>
+	
+	<!-- 根据胶水调制作业ID获取胶水调制作业最大分段 -->
+	<select id="getMaxPaceByGlueMixingProcessId" parameterType="String" resultType="int">
+	<![CDATA[
+		SELECT 
+			MAX(pace) 
+		FROM 
+			glue_mixing_process_pace 
+		WHERE 
+			glue_mixing_process_id = #{glue_mixing_process_id}
+	]]>
+	</select>
+	
+	<!-- 更新新建胶水调制作业分段时间 -->
+	<update id="update" parameterType="GlueMixingProcessPaceEntity">
+	<![CDATA[
+		UPDATE 
+			glue_mixing_process_pace
+		SET
+			mixing_operator_id = #{mixing_operator_id},
+			mixing_finish_time = #{mixing_finish_time}
+		WHERE 
+			glue_mixing_process_id = #{glue_mixing_process_id} AND pace = #{pace}
+	]]>
+	</update>
+	
+	<!-- 根据胶水调制作业ID获取胶水调制作业时间未完成信息 -->
+	<select id="getUnFinishById" parameterType="String"  resultType="GlueMixingProcessPaceEntity">
+	<![CDATA[
+		SELECT
+			glue_mixing_process_id,
+			pace,
+			mixing_operator_id,
+			mixing_action_time,
+			mixing_finish_time
+		FROM
+			glue_mixing_process_pace
+		WHERE
+			glue_mixing_process_id = #{glue_mixing_process_id} AND mixing_finish_time IS NULL
+	]]>
+	</select>
+
+</mapper>

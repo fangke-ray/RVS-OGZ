@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.qf.AcceptanceMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<insert id="insertMaterial" parameterType="MaterialEntity">
+		<![CDATA[ 
+		INSERT INTO Material (
+				omr_notifi_no, 
+				model_id,
+				serial_no,
+				ocm,
+				ocm_rank,
+				level,
+				direct_flg,
+				ocm_deliver_date,
+				osh_deliver_date,
+				customer_id,
+				agreed_date,
+				scheduled_date,
+				service_repair_flg,
+				fix_type,
+				reception_time,
+				selectable,
+				area,
+				bound_out_ocm
+		) VALUES (
+			#{sorc_no}, 
+			#{model_id}, 
+			#{serial_no}, 
+			#{ocm},
+			#{ocm_rank}, 
+			#{level}, 
+			#{direct_flg}, 
+			#{ocm_deliver_date}, 
+			#{osh_deliver_date}, 
+			#{customer_id}, 
+			#{agreed_date}, 
+			#{scheduled_date}, 
+			#{service_repair_flg}, 
+			#{fix_type},
+			Now(),
+			#{selectable}, 
+			#{area},
+			#{bound_out_ocm}
+		);
+		]]>
+	</insert>
+
+	<update id="updateMaterial" parameterType="MaterialEntity">
+		<![CDATA[ 
+		UPDATE Material SET 
+				omr_notifi_no = #{sorc_no},  
+				model_id = #{model_id}, 
+				serial_no = #{serial_no}, 
+				ocm = #{ocm}, 
+				ocm_rank = #{ocm_rank},
+				customer_id = #{customer_id},
+				ocm_deliver_date = #{ocm_deliver_date},
+				osh_deliver_date = #{osh_deliver_date},
+				level = #{level}, 
+				direct_flg = #{direct_flg}, 
+				service_repair_flg = #{service_repair_flg}, 
+				selectable = #{selectable}, 
+				fix_type = #{fix_type},
+				area = #{area},
+				bound_out_ocm = #{bound_out_ocm}
+		WHERE material_id = #{material_id};
+		]]>
+		
+	</update>
+
+	<select id="checkSorcNo" resultType="String" parameterType="MaterialEntity">
+		<![CDATA[ 
+			SELECT material_id from Material 
+			where (omr_notifi_no =  #{sorc_no}) 
+		]]>
+		<if test="ticket_flg == 1 ">
+		<![CDATA[ 
+			AND break_back_flg = 0
+			AND outline_time IS NULL;
+		]]>
+		</if> 
+	</select>
+
+	<select id="checkModelSerialNo" resultType="String" parameterType="MaterialEntity">
+		<![CDATA[ 
+			SELECT material_id from Material where model_id = #{model_id} and serial_no = #{serial_no} AND break_back_flg = 0 AND outline_time IS NULL;
+		]]>
+	</select>
+
+	<select id="getTodayMaterialDetail" resultType="MaterialEntity">
+		<![CDATA[ 
+			SELECT
+				a.reception_time, (select name from model where model_id = a.model_id) as model_name,
+				a.serial_no,a.ocm,(select name from operator where operator_id = b.operator_id) as operator_name,
+				a.direct_flg,a.service_repair_flg,a.fix_type
+			FROM material a, production_feature b
+			where a.material_id = b.material_id
+			and b.position_id = 9
+			and a.break_back_flg = 0
+			and b.action_time > current_date
+			order by reception_time
+		]]>
+	</select>
+
+	<update id="updateFormalReception">
+		<![CDATA[ 
+			UPDATE material m
+			SET reception_time = (select finish_time from production_feature where material_id = m.material_id and position_id = 9)
+			WHERE m.material_id in
+ 		]]>
+		<foreach item="material_id" index="index" collection="array" open="(" separator="," close=")">
+			#{material_id}
+		</foreach>
+ 		;
+	</update>
+
+	<update id="updateOcmShippingBySorc" parameterType="MaterialEntity">
+		<![CDATA[ 
+			UPDATE Material SET
+			ocm_shipping_date = #{ocm_shipping_date}
+			where (omr_notifi_no =  #{sorc_no})
+			AND ocm_shipping_date IS NULL; --  AND break_back_flg = 0
+		]]>
+	</update>
+
+	<update id="updateOcmShippingByID" parameterType="MaterialEntity">
+		<![CDATA[ 
+			UPDATE Material SET
+			ocm_shipping_date = #{ocm_shipping_date}
+			where material_id = #{material_id}
+			AND ocm_shipping_date IS NULL; --  AND break_back_flg = 0
+		]]>
+	</update>
+
+	<select id="getAllAgreedDate" resultType="MaterialEntity">
+		<![CDATA[ 
+			SELECT omr_notifi_no as sorc_no,agreed_date,level,fix_type FROM Material WHERE inline_time is null
+			AND break_back_flg = 0;
+		]]>
+	</select>
+
+	<update id="updateAgreedDate" parameterType="MaterialEntity">
+		<![CDATA[ 
+			UPDATE Material SET
+			agreed_date = #{agreed_date},
+			scheduled_date = CASE WHEN scheduled_expedited = 0 THEN #{scheduled_date} ELSE scheduled_date END,
+			level = coalesce(#{level}, level)
+			where omr_notifi_no = #{sorc_no}
+		]]>
+	</update>
+
+	<update id="changeSorc">
+		<![CDATA[ 
+			UPDATE Material SET
+			wip_location = null,
+			outline_time = current_timestamp,
+			break_back_flg = 1
+			where material_id in
+		]]>
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+			#{id}
+		</foreach> 
+	</update>
+</mapper>

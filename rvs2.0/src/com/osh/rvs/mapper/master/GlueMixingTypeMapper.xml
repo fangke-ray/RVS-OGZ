@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.master.GlueMixingTypeMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<!-- 获取胶水调制种类基本信息 -->
+	<select id="getGlueMixingTypeInfo" resultType="GlueMixingTypeEntity" parameterType="GlueMixingTypeEntity">
+	<![CDATA[ 
+	SELECT
+		glue_mixing_type_id,
+		binder_name,
+		partial_id,
+		env_t_lower_limit,
+		env_t_upper_limit,
+		env_h_lower_limit,
+		env_h_upper_limit,
+		hsd_lower_limit,
+		hsd_upper_limit,
+		guarantee,
+		delete_flg,
+		update_by,
+		update_time
+	FROM 
+		glue_mixing_type
+	WHERE
+		 delete_flg = 0 AND partial_id = #{partial_id} AND binder_name = #{binder_name}
+	]]>
+	</select>
+	
+	<!-- 新建胶水调制种类 -->
+	<insert id="insert" parameterType="GlueMixingTypeEntity">
+	<![CDATA[
+		INSERT INTO glue_mixing_type(binder_name,partial_id,update_by) VALUES (#{binder_name},#{partial_id},#{update_by})
+	]]>
+	</insert>
+	
+	<select id="getBinderNameAutoCompletes" resultType="String" parameterType="String">
+	<![CDATA[ 
+		SELECT binder_name FROM (
+		SELECT binder_name, COUNT(1) as cnt FROM glue_mixing_type gmt 
+		JOIN glue_mixing_process gmp ON gmt.glue_mixing_type_id = gmp.glue_mixing_type_id
+		WHERE delete_flg = 0 AND partial_id = #{partial_id} 
+		GROUP BY gmp.glue_mixing_type_id
+		HAVING cnt > 1
+		ORDER BY cnt DESC, binder_name
+		) cnted
+		LIMIT 4
+		;
+	]]>
+	</select>
+	
+	<!-- 根据胶水调制种类ID查询胶水调制种类信息 -->
+	<select id="getGlueMixingTypeById" parameterType="String" resultType="GlueMixingTypeEntity">
+	<![CDATA[
+	SELECT
+		glue_mixing_type_id,
+		binder_name,
+		partial_id,
+		env_t_lower_limit,
+		env_t_upper_limit,
+		env_h_lower_limit,
+		env_h_upper_limit,
+		hsd_lower_limit,
+		hsd_upper_limit,
+		guarantee,
+		delete_flg,
+		update_by,
+		update_time
+	FROM 
+		glue_mixing_type
+	WHERE
+		 glue_mixing_type_id = #{glue_mixing_type_id}
+	]]> 
+	</select>
+
+</mapper>

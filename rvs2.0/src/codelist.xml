@@ -1,0 +1,681 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<codelist-config>
+	<codelist name="category_kind">
+		<value code="1">粗镜</value>
+		<value code="2">电子细镜</value>
+		<value code="3">纤维镜</value>
+		<value code="4">混合细镜</value>
+		<value code="5">超声镜</value>
+		<value code="6">硬性镜</value>
+		<value code="7">周边设备</value>
+	</codelist>
+
+	<codelist name="material_fix_type">
+		<value code="1">流水线</value>
+		<value code="2">非流水线</value>
+	</codelist>
+	
+	<codelist name="material_service_repair">
+		<value code="1">保内返修</value>
+		<value code="2">QIS</value>
+		<value code="3">备品</value>
+	</codelist>
+	
+	<codelist name="material_direct">
+		<value code="1">直送</value>
+	</codelist>
+	
+	<codelist name="material_ocm">
+		<value code="3">OCM-GZ RC</value>
+		<value code="2">OCM-BJ RC</value>
+		<value code="1">OCM-SH RC</value>
+		<value code="4">OCM-SY RC</value>
+	</codelist>
+	
+	<codelist name="material_level">
+		<value code="1">S1</value>
+		<value code="2">S2</value>
+		<value code="3">S3</value>
+		<!--value code="4">S3(单追组件)</value-->
+		<value code="6">A</value>
+		<value code="7">B</value>
+		<value code="8">C</value>
+		<value code="9">D</value>
+		<value code="91">D1</value>
+		<value code="92">D2</value>
+		<value code="93">D3</value>
+		<value code="99">DW</value>
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<!--value code="58">E3</value-->
+		<value code="59">EW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="material_level_inline">
+		<value code="1">S1</value>
+		<value code="2">S2</value>
+		<value code="3">S3</value>
+		<value code="9">D/M</value>
+		<value code="5">E</value>
+	</codelist>
+
+	<codelist name="material_level_heavy">
+		<value code="1">S1</value>
+		<value code="2">S2</value>
+		<value code="3">S3</value>
+	</codelist>
+
+	<codelist name="material_level_light">
+		<value code="9">D</value>
+		<value code="91">D1</value>
+		<value code="92">D2</value>
+		<value code="93">D3</value>
+		<value code="99">DW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="material_level_endoscope">
+		<value code="1">S1</value>
+		<value code="2">S2</value>
+		<value code="3">S3</value>
+		<value code="6">A</value>
+		<value code="7">B</value>
+		<value code="8">C</value>
+		<value code="9">D</value>
+		<value code="91">D1</value>
+		<value code="92">D2</value>
+		<value code="93">D3</value>
+		<value code="99">DW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="material_level_peripheral">
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<!--value code="58">E3</value-->
+		<value code="59">EW</value>
+	</codelist>
+
+	<codelist name="material_level_cell">
+		<value code="6">A</value>
+		<value code="7">B</value>
+		<value code="8">C</value>
+		<value code="9">D</value>
+		<value code="96">M-1</value>
+		<value code="97">M-2</value>
+		<value code="98">M-3</value>
+	</codelist>
+
+	<codelist name="material_ocm_rank">
+		<value code="1">A</value>
+		<value code="2">B</value>
+		<value code="3">C</value>
+	</codelist>
+	
+	<codelist name="material_ocm_direct_rank">
+		<value code="1">A</value>
+		<value code="2">B</value>
+		<value code="3">C</value>
+		<value code="4">D</value>
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<value code="59">EW</value>
+		<value code="96">M-1</value>
+		<value code="97">M-2</value>
+		<value code="98">M-3</value>
+	</codelist>
+
+	<codelist name="material_operate_result">
+		<value code="0">等待作业</value>
+		<value code="1">进行中</value>
+		<value code="2">完成</value>
+		<value code="3">中断</value>
+		<value code="4">暂停</value>
+		<value code="5">辅助终了</value>
+		<value code="6">不通过</value>
+		<value code="7">放置中</value><!-- 消毒/灭菌 进行中 -->
+		<value code="8">发生返工</value>
+	</codelist>
+
+	<codelist name="material_scheduled_expedited">
+		<value code="1">加急</value>
+	</codelist>
+
+	<codelist name="alarm_level">
+		<value code="1">工程内</value>
+		<value code="2">生产课内</value>
+		<value code="3">技术判定</value>
+	</codelist>
+
+	<codelist name="alarm_reason">
+		<value code="1">异常中断</value>
+		<value code="2">工位超时</value>
+		<value code="3">工程超时</value>
+		<value code="4">等待区超量</value>
+		<value code="5">品保不通过</value>
+		<!-- value code="6">中断(先端)</value -->
+		<value code="7">投线延迟</value>
+		<!-- value code="8">零件签收异常</value -->
+		<!-- value code="9">点检不合格</value -->
+	</codelist>
+
+	<codelist name="pause_reason">
+		<value code="49">其他</value>
+		<value code="50">M1:5S</value>
+		<value code="51">M2:作业标准指导</value>
+		<value code="52">M3:日常定期点检</value>
+		<value code="53">M4:日常定期管理</value>
+		<value code="54">M5:零件清点管理</value>
+		<value code="55">M6:教育培训</value>
+		<value code="56">M7:文件记录归档</value>
+		<value code="57">M8:领零件</value>
+		<value code="60">H1:饮水、厕所等</value>
+		<value code="61">H2:迟到、早退等</value>
+		<value code="62">H3:等待指示、零件</value>
+		<value code="63">H4:停电、设备故障</value>
+		<value code="64">H5:休假、事病假、怠工等</value>
+		<value code="65">H6:午饭、休息时间</value>
+		<value code="69">DT0:其他直接工时</value>
+		<value code="58">DT1:胶水调胶</value>
+		<value code="59">DT2:打角度</value>
+		<value code="66">DT3:胶水硬度测试</value>
+		<value code="67">DT4:护套制作</value>
+		<value code="68">DT5:总组签收零件</value>
+	</codelist>
+
+	<codelist name="break_reason">
+		<value code="00">其他</value>
+		<value code="01">技术鉴定</value>
+		<value code="02">新品零件不良</value>
+		<value code="03">工程内发现</value>
+		<value code="04">工程内不良</value>
+	</codelist>
+
+	<codelist name="plan_break_reason">
+		<value code="10">客户要求中断</value>
+		<value code="09">计划要求中断</value>
+		<value code="08">零件签收异常</value>
+	</codelist>
+
+	<codelist name="plan_overwork_reason">
+		<value code="40">O1:平日加班</value>
+		<value code="41">O2:休日加班</value>
+	</codelist>
+
+	<!-- 正常中断(>70) 》 暂停(40,50,60) 》  其他暂停(30) 》 未处理(20) 》 异常中断(00,10) -->
+	<codelist name="all_break_reason">
+		<value code="40">O1:平日加班</value>
+		<value code="41">O2:休日加班</value>
+		<value code="49">其他</value>
+		<value code="50">M1:5S</value>
+		<value code="51">M2:作业标准指导</value>
+		<value code="52">M3:日常定期点检</value>
+		<value code="53">M4:日常定期管理</value>
+		<value code="54">M5:零件清点管理</value>
+		<value code="55">M6:教育培训</value>
+		<value code="56">M7:文件记录归档</value>
+		<value code="57">M8:领零件</value>
+		<value code="60">H1:饮水、厕所等</value>
+		<value code="61">H2:迟到、早退等</value>
+		<value code="62">H3:等待指示、零件</value>
+		<value code="63">H4:停电、设备故障</value>
+		<value code="64">H5:休假、事病假、怠工等</value>
+		<value code="65">H6:午饭、休息时间</value>
+		<value code="69">DT0:其他直接工时</value>
+		<value code="58">DT1:胶水调胶</value>
+		<value code="59">DT2:打角度</value>
+		<value code="66">DT3:胶水硬度测试</value>
+		<value code="67">DT4:护套制作</value>
+		<value code="68">DT5:总组签收零件</value>
+		<value code="00">其他</value>
+		<value code="01">技术鉴定</value>
+		<value code="02">新品零件不良</value>
+		<value code="03">工程内发现</value>
+		<value code="04">工程内不良</value>
+		<value code="10">客户要求中断</value>
+		<value code="09">计划要求中断</value>
+		<value code="08">零件签收异常</value>
+	</codelist>
+
+	<!--codelist name="alarm_reason">
+			<value code="01">不良</value>
+			<value code="02">工位超时</value>
+			<value code="03">工程超时</value>
+			<value code="04">等待区超量</value>
+			<value code="05">品保不通过</value>
+		</codelist-->
+
+	<codelist name="alarm_symbol">
+		<value code="1">※</value>
+		<value code="2">▲</value>
+		<value code="3">★</value>
+	</codelist>
+	
+	<codelist name="bo_flg">
+		<value code="0">无BO</value>
+		<value code="1">有BO</value>
+		<value code="2">BO解决</value>
+		<value code="9">订购中</value>
+	</codelist>
+	
+	<codelist name="service_free_flg">
+		<value code="1">有偿</value>
+		<value code="2">无偿</value>
+		<value code="3">部分有偿</value>
+		<value code="9">待定</value>
+	</codelist>
+	
+	<codelist name="qa_material_service_repair">
+		<value code="1">保修期内不良</value>
+		<value code="2">QIS不良品</value>
+		<value code="3">保修期外不良</value>
+	</codelist>
+
+	<codelist name="workshop">
+		<value code="1">BJ</value>
+		<value code="2">BJRC</value>
+		<value code="11">SH</value>
+		<value code="12">SHRC</value>
+		<value code="21">GZ</value>
+		<value code="22">GZRC</value>
+		<value code="31">SY</value>
+		<value code="32">SYRC</value>
+		<value code="51">C-TEC</value>
+		<value code="52">C-TEC'</value>
+		<value code="80">直送</value>
+	</codelist>
+
+	<codelist name="workshop_new">
+		<value code="1">BJ</value>
+		<value code="11">SH</value>
+		<value code="21">GZ</value>
+		<value code="31">SY</value>
+		<value code="80">直送</value>
+		<value code="90">OSH</value>
+	</codelist>
+
+	<codelist name="value_currency">
+		<value code="1">USD</value>
+		<value code="2">RMB</value>
+		<value code="3">EUR</value>		
+	</codelist>
+
+	<codelist name="disinfection_manage_no">
+		<value code="00000000121">B035</value>
+		<!--value code="00000000101">B006</value>
+		<value code="00000000932">B007</value-->
+		<value code="00000001170">B072</value>
+		<value code="00000000000">(手动)</value>
+	</codelist>
+
+	<codelist name="material_direct_ocm">
+		<value code="1">OCM-SH RC</value>
+		<value code="11">上海</value>
+		<value code="12">江苏</value>
+		<value code="13">浙江</value>
+		<value code="14">安徽</value>
+		<value code="15">福建</value>
+		<value code="16">江西</value>
+		<value code="2">OCM-BJ RC</value>
+		<value code="21">新疆</value>
+		<value code="22">青海</value>
+		<value code="23">甘肃</value>
+		<value code="24">宁夏</value>
+		<value code="25">陕西</value>
+		<value code="26">山西</value>
+		<value code="27">河南</value>
+		<value code="61">北京</value>
+		<value code="62">天津</value>
+		<value code="63">河北</value>
+		<value code="64">山东</value>
+		<value code="65">内蒙古</value>
+		<value code="3">OCM-GZ RC</value>
+		<value code="31">湖南</value>
+		<value code="32">湖北</value>
+		<value code="33">广东</value>
+		<value code="34">广西</value>
+		<value code="35">重庆</value>
+		<value code="36">四川</value>
+		<value code="37">贵州</value>
+		<value code="38">云南</value>
+		<value code="39">西藏</value>
+		<value code="70">海南</value>
+		<value code="4">OCM-SY RC</value>
+		<value code="41">辽宁</value>
+		<value code="42">吉林</value>
+		<value code="43">黑龙江</value>
+		<value code="80">备品中心</value>
+	</codelist>
+
+	<codelist name="material_large_area">
+		<value code="0">全国</value>
+		<value code="6">华北</value>
+		<value code="1">华东</value>
+		<value code="5">华南</value>
+		<value code="4">东北</value>
+		<value code="2">西北</value>
+		<value code="7">西南</value>
+		<value code="3">两湖</value>
+	</codelist>
+
+	<codelist name="material_direct_area">
+		<value code="11">上海</value>
+		<value code="12">江苏</value>
+		<value code="13">浙江</value>
+		<value code="14">安徽</value>
+		<value code="15">福建</value>
+		<value code="16">江西</value>
+		<value code="21">新疆</value>
+		<value code="22">青海</value>
+		<value code="23">甘肃</value>
+		<value code="24">宁夏</value>
+		<value code="25">陕西</value>
+		<value code="26">山西</value>
+		<value code="27">河南</value>
+		<value code="61">北京</value>
+		<value code="62">天津</value>
+		<value code="63">河北</value>
+		<value code="64">山东</value>
+		<value code="65">内蒙古</value>
+		<value code="31">湖南</value>
+		<value code="32">湖北</value>
+		<value code="33">广东</value>
+		<value code="34">广西</value>
+		<value code="35">重庆</value>
+		<value code="36">四川</value>
+		<value code="37">贵州</value>
+		<value code="38">云南</value>
+		<value code="39">西藏</value>
+		<value code="70">海南</value>
+		<value code="41">辽宁</value>
+		<value code="42">吉林</value>
+		<value code="43">黑龙江</value>
+		<value code="80">备品中心</value>
+	</codelist>
+
+	<codelist name="material_direct_area_extra">
+		<value code="65">内蒙</value>
+		<value code="641">青岛</value>
+		<value code="642">济南</value>
+		<value code="421">长春</value>
+		<value code="331">深圳</value>
+	</codelist>
+
+	<codelist name="echelon_code">
+		<!-- value code="0">单元机种</value -->
+		<value code="1">第一梯队</value>
+		<value code="2">第二梯队</value>
+		<value code="3">第三梯队</value>
+		<value code="4">第四梯队</value>
+	</codelist>
+
+	<codelist name="echelon_report_code">
+		<value code="1">1st Tier</value>
+		<value code="2">2nd Tier</value>
+		<value code="3">3rd Tier</value>
+		<value code="4">4th Tier</value>
+	</codelist>
+
+	<codelist name="partial_append_belongs">
+		<value code="1">BOM</value>
+		<value code="2">分室追加</value>
+		<value code="3">报价追加</value>
+		<value code="4">分解追加</value>
+		<value code="5">ＮＳ追加</value>
+		<value code="6">工程内发现</value>
+		<value code="7">工程内不良</value>
+		<value code="8">新品零件不良</value>
+		<value code="9">保修期内返品</value>
+		<value code="10">最终检查不良</value>
+	</codelist>
+
+	<codelist name="loss_belongs">
+		<value code="3">报价</value>
+		<value code="4">分解</value>
+		<value code="5">NS</value>
+		<value code="6">工程内发现</value>
+		<value code="7">工程内不良</value>
+		<value code="8">新品零件不良</value>
+		<value code="9">保修期内不良</value>
+		<value code="10">最终检查不良</value>
+	</codelist>
+
+	<codelist name="privacy_system_module">
+		<value code="1">系统管理</value>
+		<value code="11">进度查询</value>
+		<value code="12">受理报价</value>
+		<value code="13">现品管理</value>
+		<value code="14">计划管理</value>
+		<value code="15">在线作业</value>
+		<value code="20">零件管理</value>
+		<value code="30">品保作业</value>
+		<value code="40">文档管理</value>
+		<value code="50">设备管理</value>
+		<value code="80">展示</value>
+	</codelist>
+
+	<codelist name="analysis_result">
+		<value code="11">零件问题</value>
+		<value code="12">修理问题</value>
+		<value code="21">用户问题</value>
+		<value code="31">修理风险</value>
+		<value code="32">非上次修理部分发生故障</value>
+		<value code="91">并未发现问题</value>
+		<value code="99">其他</value>
+	</codelist>
+
+	<codelist name="liability_flg">
+		<value code="1">自责</value>
+		<value code="2">他责</value>
+		<value code="3">非自责</value>
+		<value code="9">其他</value>
+	</codelist>
+	
+	<codelist name="identification">
+		<value code="1">SORC-WH</value>
+		<value code="2">OGZ</value>
+		<value code="3">消耗品仓库</value>
+		<value code="4">OSH-WH2P</value>
+		<value code="5">OCM</value>
+	</codelist>
+
+	<codelist name="access_place">
+		<value code="1">日常</value>
+		<value code="2">定期</value>
+		<value code="9">使用前</value>
+	</codelist>
+	
+	<codelist name="cycle_type">
+		<!--value code="-1">日/月</value-->
+		<value code="1">周/月</value>
+		<value code="4">半月/年</value>
+		<value code="2">月/年</value>
+		<value code="3">半期/年</value>
+	</codelist>
+
+	<codelist name="role_rank_kind">
+		<value code="1">系统管理员</value>
+		<value code="2">进度</value>
+		<value code="3">零件</value>
+		<value code="4">现场操作和管理</value>
+		<value code="5">设备管理</value>
+		<value code="6">阅览权限</value>
+	</codelist>
+
+	<codelist name="offline_reason">
+		<value code="1">缺零件</value>
+		<value code="2">中断提出</value>
+		<value code="3">中断上报</value>
+		<value code="4">中断追加零件</value>
+		<value code="5">品保不通过</value>
+		<value code="8">客户要求暂停修理</value>
+		<value code="9">未修理返还</value>
+	</codelist>
+
+	<codelist name="product_content">
+		<value code="1">无影响</value>
+		<value code="2">观察</value>
+		<value code="3">有影响，需停线确认波及范围</value>
+	</codelist>
+	
+	<codelist name="position_handle">
+		<value code="1">借用</value>
+		<value code="2">手工作业</value>
+		<value code="3">暂停工位</value>
+		<value code="4">有备品，无需更换</value>
+	</codelist>
+	
+	<codelist name="object_handle">
+		<value code="1">废弃</value>
+		<value code="2">维修</value>
+		<value code="3">更换</value>
+	</codelist>
+	
+	<codelist name="object_final_handle_result">
+		<value code="1">废弃</value>
+		<value code="2">维修</value>
+		<value code="4">校验</value>
+		<value code="5">出借</value>
+		<value code="3">更换</value>
+	</codelist>
+
+	<codelist name="devices_manage_level">
+		<value code="1">A</value>
+		<value code="2">B</value>
+		<value code="3">C</value>
+	</codelist>
+	
+	<codelist name="devices_status">
+		<value code="1">使用中</value>
+		<value code="2">损坏</value>
+		<value code="3">遗失</value>
+		<value code="4">保管中</value>
+		<value code="5">周边点检使用中</value>
+	</codelist>
+	
+	<codelist name="checked_status">
+		<value code="0"></value>
+		<value code="1">○</value>
+		<value code="2">×</value>
+		<value code="3">△</value>
+		<value code="4">●</value>
+	</codelist>	
+	
+	<codelist name="effect_interval">
+		<value code="1">半年</value>
+		<value code="2">1年</value>
+		<value code="4">2年</value>
+		<value code="6">3年</value>
+		<value code="12">6年</value>
+	</codelist>
+	
+	<codelist name="organization_type">
+		<value code="1">校验机构</value>
+		<value code="2">国内厂商校验</value>
+		<value code="3">国外厂商校验</value>
+		<value code="9">定期更换</value>
+	</codelist>
+
+	<codelist name="check_file_filing_means">
+		<value code="1">单独</value>
+		<value code="2">按工位</value>
+		<value code="3">按工程</value>
+	</codelist>
+
+	<codelist name="torsion_device_hp_scale">
+		<value code="1">HP-100</value>
+		<value code="2">HP-10</value>
+	</codelist>
+
+	<codelist name="electric_iron_kind">
+		<value code="1">成形电烙铁</value>
+		<value code="2">电气焊接</value>
+		<value code="3">机械焊接</value>
+	</codelist>
+
+	<codelist name="electric_iron_kind_simple">
+		<value code="1">成形</value>
+		<value code="2">电气</value>
+		<value code="3">机械</value>
+	</codelist>
+
+	<codelist name="system_image_type">
+		<value code="pcs">工程检查票内图</value>
+		<value code="sign">员工姓名章</value>
+		<!--value code="tcs">点检单内图</value-->
+	</codelist>
+
+	<codelist name="pcs_request_change_mean">
+		<value code="1">新建(新机型)</value>
+		<value code="2">改图</value>
+		<value code="3">新建(替代)</value>
+		<value code="4">格式调整</value>
+	</codelist>
+	
+	<codelist name="account_type">
+		<value code="1">直接工作帐号</value>
+		<value code="2">其他帐号</value>
+		<value code="3">培训帐号</value>
+		<value code="4">超级员工</value>
+	</codelist>
+	
+	<codelist name="checked_file_storage_branch">
+		<value code="1">点检记录</value>
+		<value code="2">附表</value>
+	</codelist>
+
+	<codelist name="material_partial_bo_flg">
+		<value code="7">预提</value>
+		<value code="8">待定位</value>
+		<value code="9">待发放</value>
+		<value code="0">无BO</value>
+		<value code="1">有BO</value>
+		<value code="2">BO解决</value>
+	</codelist>
+
+	<codelist name="material_partial_status">
+		<value code="0">待定位</value>
+		<value code="1">待发放</value>
+		<value code="2">无BO</value>
+		<value code="3">有BO</value>
+		<value code="4">BO解决</value>
+	</codelist>
+
+	<codelist name="consumable_type">
+		<value code="1">CCD 玻璃</value>
+		<value code="2">密封圈</value>
+		<value code="3">螺丝</value>
+		<value code="4">电阻/电容</value>
+		<value code="5">电线</value>
+		<value code="6">热缩管</value>
+		<value code="7">垫圈/垫片</value>
+		<value code="8">乙材</value>
+		<value code="9">国内耗材</value>
+	</codelist>
+
+	<codelist name="consumable_supply_cycle">
+		<value code="5">每周一次</value>
+		<value code="10">二周一次</value>
+		<value code="20">每月一次</value>
+		<value code="41">二月一次</value>
+		<value code="61">三月一次</value>
+	</codelist>
+
+	<codelist name="consumable_supply_day">
+		<value code="2">每周一</value>
+		<value code="3">每周二</value>
+	</codelist>
+
+	<codelist name="consumable_apply_method">
+		<value code="1">即时</value>
+		<value code="2">定点</value>
+	</codelist>
+	
+</codelist-config>

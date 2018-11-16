@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.osh.rvs.mapper.manage.CapacityMapper">
+	
+	<!--查询产能设定的课室-->
+	<select id="searchSectionName" resultType="ScheduleEntity">
+	<![CDATA[
+		SELECT 
+		    name AS section_name,
+		    section_id
+		FROM
+		    section
+		WHERE
+		    inline_flg = 1 AND delete_flg = 0
+		ORDER BY section_id
+	]]>
+	</select>
+	
+	<!--查询所有产能-->
+	<select id="searchCapacitySetting" resultType="ScheduleEntity">
+	<![CDATA[
+		SELECT 
+		    c.category_name,
+		    cc.line_id,
+		    c.category_id,
+		    GROUP_CONCAT(cc.section_id, ':', cc.upper_limit
+		        ORDER BY cc.section_id
+		        SEPARATOR ';') as upper_limit
+		FROM
+		    (SELECT 
+		        category_id, name AS category_name
+		    FROM
+		        category
+		    WHERE
+		        delete_flg = 0 AND kind not in ('00', '07')) AS c
+			LEFT JOIN
+		    (SELECT 
+		        line_id, category_id, section_id, upper_limit
+		    FROM
+		        capacity
+		    WHERE
+		        line_id in (select line_id from line where in_advance = 0)) AS cc ON cc.category_id = c.category_id
+		GROUP BY c.category_id
+	]]>
+	</select>
+	
+	<!--更新修改的最大产能-->
+	<update id="updateUpperLimit" parameterType="ScheduleEntity">
+	<![CDATA[
+		UPDATE 
+			capacity 
+		SET 
+		    upper_limit = #{upper_limit}
+		WHERE
+		    line_id = #{line_id} 
+	    AND category_id =#{category_id}
+	    AND section_id = #{section_id}
+	]]>
+	</update>
+
+	<!--判断数据是否已经存在-->
+	<select id="checkIsExist" parameterType="ScheduleEntity" resultType="String">
+	<![CDATA[
+		SELECT 
+			line_id
+		FROM
+		    capacity
+	    WHERE 
+	    	line_id = #{line_id}
+	    	AND category_id = #{category_id}
+	    	AND section_id = #{section_id}
+	]]>
+	</select>
+	
+	<!--新建产能数据-->
+	<insert id="insertCapacity" parameterType="ScheduleEntity">
+	<![CDATA[
+		INSERT INTO capacity
+			(line_id,
+			category_id,
+			section_id,
+			upper_limit) 
+		VALUES 
+			(#{line_id},
+			 #{category_id},
+			 #{section_id},
+			 #{upper_limit}) 
+	]]>
+	</insert>
+
+	<delete id="deleteCapacity" parameterType="ScheduleEntity">
+	<![CDATA[ 
+		DELETE from capacity WHERE line_id = #{line_id} AND category_id = #{category_id} AND section_id = #{section_id}
+	]]>
+	</delete>
+</mapper>

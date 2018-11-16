@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.GlueMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<!-- 获取胶水基本信息 -->
+	<select id="getGlueInfo" parameterType="GlueEntity" resultType="GlueEntity">
+	<![CDATA[
+		SELECT
+			glue_id,
+			partial_id,
+			fmg_in,
+			expiration,
+			unseal_date,
+			abandon_date,
+			abandon_operator_id,
+			location,
+			section_id,
+			line_id,
+			lot_no
+		FROM 
+			glue
+		WHERE
+			partial_id = #{partial_id} AND lot_no = #{lot_no}
+	]]>
+	</select>
+
+	<!-- 新建胶水 -->
+	<insert id="insert" parameterType="GlueEntity">
+	<![CDATA[
+		INSERT INTO glue(partial_id,expiration,lot_no) VALUES (#{partial_id},#{expiration},#{lot_no})
+	]]>
+	</insert>
+	
+	<select id="getGlueByGlueId" parameterType="String" resultType="GlueEntity">
+	<![CDATA[
+		SELECT
+			glue_id,
+			partial_id,
+			fmg_in,
+			expiration,
+			unseal_date,
+			abandon_date,
+			abandon_operator_id,
+			location,
+			section_id,
+			line_id,
+			lot_no
+		FROM 
+			glue
+		WHERE
+			glue_id = #{glue_id}
+	]]>
+	</select>
+
+</mapper>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.master.QualityTipMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="search" resultType="QualityTipEntity">
+		<![CDATA[ 
+			SELECT 
+				qt.quality_tip_id,
+			    qt.title,
+			    qt.position_id,
+			    p.name as position_name,
+			    group_concat(coalesce(c.name, m.name)) as bind_name,
+			    o.name as updated_by,
+			    qt.updated_time
+			FROM
+			    quality_tip qt
+			        join
+			    quality_tip_bind qtb ON qt.quality_tip_id = qtb.quality_tip_id
+			        join
+			    position p ON qt.position_id = p.position_id
+			        join
+			    operator o ON qt.updated_by = o.operator_id 
+			        left join
+			    category c ON qtb.bind_id = c.category_id
+			        and qtb.bind_type = 1
+			        left join
+			    model m ON qtb.bind_id = m.model_id
+			        and qtb.bind_type = 2
+			WHERE
+			    qt.delete_flg = 0
+		]]>
+		<if test="title != null and title != '' ">
+			AND qt.title LIKE CONCAT('%', #{title}, '%')
+		</if>
+		<if test="position_id != null and position_id != '' ">
+			AND qt.position_id = #{position_id}
+		</if>
+		<if test="category_id != null and category_id != '' ">
+	        AND qt.quality_tip_id in (
+	        	select 
+	            	qtb.quality_tip_id
+		        from
+		            quality_tip_bind qtb
+		                join
+		            category c ON qtb.bind_id = c.category_id and qtb.bind_type = 1
+		        where
+		            qtb.bind_id = #{category_id})
+		</if>
+		<if test="model_id != null and model_id != '' ">
+	        AND qt.quality_tip_id in (
+	        	select 
+	            	qtb.quality_tip_id
+		        from
+		            quality_tip_bind qtb
+		                join
+		            model m ON qtb.bind_id = m.model_id and qtb.bind_type = 2
+		        where
+		            qtb.bind_id = #{model_id})
+		</if>
+		<![CDATA[ 
+			GROUP BY qtb.quality_tip_id
+		]]>
+	</select>
+
+	<insert id="insertQualityTip" parameterType="QualityTipEntity">
+		<![CDATA[ 
+		INSERT INTO quality_tip
+			(title, position_id, delete_flg, updated_by, updated_time) 
+		VALUES 
+			(#{title}, #{position_id}, 0, #{updated_by}, current_timestamp);
+		]]>
+	</insert>
+
+	<select id="getQualityTipByID" resultType="QualityTipEntity">
+		<![CDATA[ 
+			SELECT 
+			    qt.quality_tip_id,
+			    qt.title,
+			    qt.position_id,
+			    p.name as position_name,
+			    o.name as updated_by,
+			    qt.updated_time
+			FROM
+			    quality_tip qt
+			    	join
+			    position p ON qt.position_id = p.position_id
+			        join
+			    operator o ON qt.updated_by = o.operator_id 
+			WHERE
+			    qt.delete_flg = 0
+			    AND qt.quality_tip_id = #{quality_tip_id};
+		]]>
+	</select>
+
+	<select id="getQualityTipBindByID" resultType="QualityTipEntity">
+		<![CDATA[ 
+			SELECT 
+			    qtb.bind_type,
+			    qtb.bind_id,
+			    coalesce(c.name, m.name) as bind_name,
+			    m.category_name as category_name
+			FROM
+			    quality_tip_bind qtb
+			        left join
+			    category c ON qtb.bind_id = c.category_id
+			        and qtb.bind_type = 1
+			        left join
+			    v_model m ON qtb.bind_id = m.model_id
+			        and qtb.bind_type = 2
+			WHERE
+			    qtb.quality_tip_id = #{quality_tip_id};
+		]]>
+	</select>
+
+	<update id="updateQualityTip" parameterType="QualityTipEntity">
+		<![CDATA[ 
+		UPDATE quality_tip SET
+			title = #{title},
+			position_id = #{position_id},
+			updated_by = #{updated_by},
+			updated_time = current_timestamp
+			WHERE quality_tip_id = #{quality_tip_id};
+		]]>
+	</update>
+
+	<update id="deleteQualityTip" parameterType="QualityTipEntity">
+		<![CDATA[ 
+		UPDATE quality_tip SET delete_flg = 1,
+			updated_by = #{updated_by},
+			updated_time = current_timestamp
+		WHERE quality_tip_id = #{quality_tip_id};
+		]]>
+	</update>
+
+	<insert id="insertQualityTipBind" parameterType="QualityTipEntity">
+		<![CDATA[ 
+		INSERT INTO quality_tip_bind
+			(quality_tip_id, bind_type, bind_id) 
+		VALUES 
+			(#{quality_tip_id}, #{bind_type}, #{bind_id});
+		]]>
+	</insert>
+
+	<update id="deleteQualityTipBind">
+		<![CDATA[ 
+		DELETE FROM quality_tip_bind
+		WHERE quality_tip_id = #{quality_tip_id};
+		]]>
+	</update>
+
+	<select id="getQualityTipOfMaterialAtPosition" resultType="QualityTipEntity">
+		<![CDATA[ 
+			select qt.quality_tip_id, qtb.bind_type, title from quality_tip qt 
+			join quality_tip_bind qtb on qt.quality_tip_id = qtb.quality_tip_id
+			join (
+				select mdl.model_id, category_id from model mdl join material ma on mdl.model_id = ma.model_id
+				where ma.material_id = #{material_id}
+			) target
+			on (bind_type = 1 and bind_id = target.category_id) or (bind_type = 2 and bind_id = target.model_id)
+			where qt.delete_flg = 0 
+			and position_id = #{position_id}
+			order by bind_type desc
+			limit 1
+			;
+		]]>
+	</select>
+</mapper>

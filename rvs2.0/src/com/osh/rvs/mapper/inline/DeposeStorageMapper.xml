@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.inline.DeposeStorageMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getMaxStorage" parameterType="String" resultType="String">
+		<![CDATA[ 
+			SELECT 
+				max(case_code) as case_code
+			FROM depose_storage
+			WHERE material_id IS NOT null
+		]]>
+		<if test="case_code !=null">
+			AND case_code like concat(#{case_code} ,'%')
+		</if>
+	</select>
+
+	<select id="getNextEmptyStorage" parameterType="String" resultType="String">
+		<![CDATA[ 
+			SELECT 
+				case_code
+			FROM depose_storage
+			WHERE material_id IS null
+		]]>
+		<if test="case_code !=null">
+			AND case_code like concat(LEFT(#{case_code}, 2) ,'%')
+			AND case_code > #{case_code}
+		</if>
+		<![CDATA[ 
+			ORDER by case_code
+			limit 1
+			;
+		]]>
+	</select>
+
+	<update id="putIntoStorage" parameterType="String">
+		<![CDATA[ 
+			UPDATE depose_storage
+			SET material_id = #{material_id},
+			refresh_time = current_timestamp
+			WHERE
+			case_code = #{case_code}
+			;
+		]]>
+	</update>
+
+	<update id="removeFromStorage" parameterType="String">
+		<![CDATA[ 
+			UPDATE depose_storage
+			SET material_id = null,
+			refresh_time = null
+			WHERE
+			material_id = #{material_id}
+			;
+		]]>
+	</update>
+
+	<select id="getDeposeStorageByCode" parameterType="String" resultType="map">
+		<![CDATA[ 
+			SELECT 
+				case_code, shelf_name, omr_notifi_no, 
+				date_format(refresh_time, '%m-%d') as refresh_time
+			FROM depose_storage ds
+			LEFT JOIN material ma
+				ON ds.material_id = ma.material_id 
+			WHERE case_code = #{case_code}
+			;
+		]]>
+	</select>
+
+	<select id="getDecomStorageCount" resultType="int">
+		<![CDATA[ 
+			select count(1) from depose_storage where material_id is not null;
+		]]>
+	</select>
+</mapper>

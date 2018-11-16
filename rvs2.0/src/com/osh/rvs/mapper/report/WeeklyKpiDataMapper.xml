@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.report.WeeklyKpiDataMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="searchAll" resultType="WeeklyKpiDataEntity">
+	<![CDATA[ 
+		select count_date_start,count_date_end,weekly_of_year from weekly_kpi_data order by count_date_end desc
+	]]>
+	</select>
+
+	<select id="searchDetails" resultType="WeeklyKpiDataEntity" parameterType="WeeklyKpiDataEntity">
+	<![CDATA[ 
+		SELECT count_date_start,
+		    count_date_end,
+		    weekly_of_year,
+		    registration,
+		    user_agreement,
+		    return_to_osh,
+		    unrepair,
+		    shipment,
+		    work_in_process,
+		    work_in_storage,
+		    intime_complete_rate,
+		    average_repair_lt,
+		    intime_work_out_rate,
+		    average_work_lt,
+		    bo_rate,
+		    bo_3day_rate,
+		    inline_passthrough_rate,
+		    final_check_pass_count,
+		    final_check_forbid_count,
+		    final_inspect_pass_rate,
+		    service_repair_back_rate,
+		    comment
+		FROM weekly_kpi_data
+		WHERE count_date_start <= #{count_date_start}
+		AND count_date_end <= #{count_date_end}
+	]]>
+		<if test="weekly_of_year!= null and weekly_of_year!= '' ">
+	<![CDATA[ 
+		order by count_date_end desc, count_date_start desc
+		limit #{weekly_of_year};
+	]]>
+		</if>
+	</select>
+	
+	<update id="update" parameterType="WeeklyKpiDataEntity">
+		<![CDATA[
+			update 
+				weekly_kpi_data
+			set
+			    registration = #{registration},
+			    user_agreement = #{user_agreement},
+			    return_to_osh = #{return_to_osh},
+			    unrepair = #{unrepair},
+			    shipment = #{shipment},
+			    work_in_process = #{work_in_process},
+			    work_in_storage = #{work_in_storage},
+			    intime_complete_rate = #{intime_complete_rate},
+			    average_repair_lt = #{average_repair_lt},
+			    intime_work_out_rate = #{intime_work_out_rate},
+			    average_work_lt = #{average_work_lt},
+			    bo_rate = #{bo_rate},
+			    bo_3day_rate = #{bo_3day_rate},
+			    inline_passthrough_rate = #{inline_passthrough_rate},
+			    final_check_pass_count = #{final_check_pass_count},
+			    final_check_forbid_count = #{final_check_forbid_count},
+			    final_inspect_pass_rate = #{final_inspect_pass_rate},
+			    service_repair_back_rate = #{service_repair_back_rate}
+		   where
+		   	count_date_start = #{count_date_start} and count_date_end = #{count_date_end}
+		]]>
+	</update>
+	
+	<select id="checkCountDateEndExist" parameterType="WeeklyKpiDataEntity" resultType="int">
+		<![CDATA[
+			select count(1) from weekly_kpi_data where count_date_end = #{count_date_end}
+		]]>
+	</select>
+
+</mapper>

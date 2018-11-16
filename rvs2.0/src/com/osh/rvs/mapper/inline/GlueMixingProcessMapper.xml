@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.inline.GlueMixingProcessMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<!-- 新建胶水调制作业 -->
+	<insert id="insert" parameterType="GlueMixingProcessEntity">
+	<![CDATA[
+		INSERT INTO glue_mixing_process
+		(
+		glue_mixing_type_id,
+		glue_id,
+		mixing_operator_id,
+		mixing_action_time
+		)
+		VALUES
+		(
+		#{glue_mixing_type_id},
+		#{glue_id},
+		#{mixing_operator_id},
+		#{mixing_action_time}
+		);
+	]]>
+	</insert>
+
+	<!-- 更新调制完了时间 -->
+	<select id="update" parameterType="GlueMixingProcessEntity">
+	<![CDATA[
+		UPDATE 
+			glue_mixing_process 
+		SET 
+			mixing_operator_id = #{mixing_operator_id},
+			mixing_finish_time = #{mixing_finish_time}
+		WHERE 
+			glue_mixing_process_id = #{glue_mixing_process_id}
+	]]>
+	</select>
+	
+	<!-- 获取未调制完成的胶水 -->
+	<select id="getUnFinishGlueMixing" resultType="GlueMixingProcessEntity" parameterType="String">
+	<![CDATA[
+		SELECT
+			glue_mixing_process_id,
+			glue_mixing_type_id,
+			glue_id,
+			mixing_operator_id,
+			mixing_action_time,
+			mixing_finish_time
+		FROM 
+			glue_mixing_process
+		WHERE
+			mixing_finish_time IS NULL AND mixing_operator_id = #{mixing_operator_id}
+	]]>
+	</select>
+
+</mapper>
