@@ -22,6 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
+<script type="text/javascript" src="js/common/pcs_editor.js"></script>
 <script type="text/javascript" src="js/common/material_detail_pcs_fix.js"></script>
 <script type="text/javascript" src="js/admin/pcs_fix_order.js"></script>
 <title>工程检查票输入修正</title>

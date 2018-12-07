@@ -95,8 +95,6 @@ public class PositionPanelAction extends BaseAction {
 			// 进入的页面不是选择的工程
 		}
 
-		// String position_id = user.getPosition_id();
-
 		listResponse.put("checkToken", errors); //TODO random
 
 		// 检查发生错误时报告错误信息
@@ -131,10 +129,11 @@ public class PositionPanelAction extends BaseAction {
 		String level = user.getPx();
 		String process_code = user.getProcess_code();
 
-//		if ("121".equals(process_code) || "131".equals(process_code) || "141".equals(process_code)
-//				|| "171".equals(process_code) || "302".equals(process_code)) { // 现品管理科
-//			section_id = "3"; // 全部暂定3课
-//		}
+		if (position_id == null) {
+			actionForward = mapping.findForward("exit");
+			log.info("PositionPanelAction.init break");
+			return;
+		}
 
 		// 取得工位信息
 		req.setAttribute("position", service.getPositionMap(section_id, position_id, level, conn));
@@ -626,6 +625,8 @@ public class PositionPanelAction extends BaseAction {
 			service.checkSupporting(workingPf.getMaterial_id(), workingPf.getPosition_id(), errors, conn);
 		}
 
+		String comments = bfService.checkPauseForm(req.getParameter("comments"), errors);
+
 		if (errors.size() == 0) {
 	
 			try {
@@ -643,7 +644,7 @@ public class PositionPanelAction extends BaseAction {
 					String reasonText = sReason;
 					// 不良理由
 					if (iReason < 10) {
-						reasonText = req.getParameter("comments");
+						reasonText = comments;
 					} else if (iReason < 10) {
 						reasonText = CodeListUtils.getValue("break_reason", "0" + iReason);
 					} else {
@@ -653,7 +654,7 @@ public class PositionPanelAction extends BaseAction {
 				}
 	
 				// 制作暂停信息
-				bfService.createPauseFeature(workingPf, sReason, req.getParameter("comments"), alarm_messsage_id, conn);
+				bfService.createPauseFeature(workingPf, sReason, comments, alarm_messsage_id, conn);
 	
 				if (iReason > 70) { // 业务流程-非直接工步操作
 	
@@ -830,6 +831,14 @@ public class PositionPanelAction extends BaseAction {
 				info.setErrmsg(e.getMessage());
 				infoes.add(info);
 				conn.rollback();
+			}
+
+			String process_code = user.getProcess_code();
+			if ("311".equals(process_code) 
+					|| "411".equals(process_code)) {
+				MaterialService ms = new MaterialService();
+				MaterialEntity mEntity = ms.loadSimpleMaterialDetailEntity(conn, workingPf.getMaterial_id());
+				service.updatePutinBalance(mEntity.getModel_name(), mEntity.getCategory_name(), mEntity.getPat_id(), user.getSection_id(), user.getLine_id(), user.getPosition_id(), conn);
 			}
 		}
 

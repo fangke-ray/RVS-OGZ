@@ -417,4 +417,36 @@
 		ORDER BY COALESCE(action_time, "9999/12/31");
 	]]>
 	</select-->
+
+	<select id="getRecentLineProcessCost" resultType="java.math.BigDecimal" parameterType="String">
+	<![CDATA[ 
+		select avg(sum_seconds) / 60 from (
+		select pf.material_id, sum(use_seconds) as sum_seconds from material_process mp
+		join production_feature pf
+		on mp.material_id = pf.material_id
+		where mp.line_id = #{line_id}
+		and pf.use_seconds is not null
+		and pf.position_id in (select position_id from position where line_id = #{line_id}
+		and process_code not in ('301', '302')
+		)
+		group by pf.material_id
+		order by mp.finish_date desc, mp.material_id desc
+		limit 10
+		) sample;
+	]]>
+	</select>
+
+	<select id="getRecentInputModels" resultType="MaterialEntity" parameterType="String">
+	<![CDATA[ 
+		select pat_id, mdl.model_id, mdl.name as model_name, category_name from production_feature pf join material ma
+		on pf.material_id = ma.material_id
+		join v_model mdl
+		on ma.model_id = mdl.model_id
+		where pf.operate_result = 2
+		and position_id = #{position_id}
+		order by finish_time desc
+		limit 6;
+	]]>
+	</select>
+
 </mapper>

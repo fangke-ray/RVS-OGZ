@@ -10,6 +10,7 @@ var oOptions = {};
 
 var pauseOptions = "";
 var stepOptions = "";
+var allowScan = false;
 
 var downPdf = function(sorc_no) {
 	if ($("iframe").length > 0) {
@@ -287,6 +288,10 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				treatStart(resInfo);
 			} else {
 				$("#uld_listarea").addClass("waitForStart");
+				allowScan = true;
+				if ($("#scanner_inputer").val()) {
+					doStart();
+				}
 			}
 		}
 	} catch (e) {
@@ -530,6 +535,7 @@ var doStart_ajaxSuccess=function(xhrobj){
 };
 
 var doStart=function(material_id){
+	if (!allowScan) return;
 	var data = {
 		material_id : material_id || $("#scanner_inputer").val()
 	}

@@ -274,36 +274,36 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 //					}
 
 					// 小修理修改过流程
-					if ($("#flowcase div.pos span.rework").not(".point").length > 0) {
-						var count=0;
-						var chainHead = null;
-						var chain = {};
-						var total = $("#flowcase div.pos span").length;
-
-						$("#flowcase div.pos span").each(function(index,ele){
-							var $span = $(ele);
-							if($span.hasClass("point") || $span.hasClass("rework")){
-								var $posData = $span.parent();
-								var code = $posData.attr("code");
-								if (code != "25") {
-									var item = {code: code};
-									if ($posData.attr("prevcode") == "0" && $posData.parents(".just-multi").length == 0) {
-										chainHead = item;
-									}
-									item["prev"] = getPrevPos($posData);
-									chain[code] = item;
-								}
-								data["material_process_assign.position_id[" + count + "]"] = code;
-								if (count > 0) {
-									data["material_process_assign.next_position_id[" + (count-1) + "]"] = code;
-								}
-								if (count < (total - 1)) {
-									data["material_process_assign.prev_position_id[" + (count+1) + "]"] = code;
-								}
-								count++;
-							}
-						});
-					}
+//					if ($("#flowcase div.pos span.rework").not(".point").length > 0) {
+//						var count=0;
+//						var chainHead = null;
+//						var chain = {};
+//						var total = $("#flowcase div.pos span").length;
+//
+//						$("#flowcase div.pos span").each(function(index,ele){
+//							var $span = $(ele);
+//							if($span.hasClass("point") || $span.hasClass("rework")){
+//								var $posData = $span.parent();
+//								var code = $posData.attr("code");
+//								if (code != "25") {
+//									var item = {code: code};
+//									if ($posData.attr("prevcode") == "0" && $posData.parents(".just-multi").length == 0) {
+//										chainHead = item;
+//									}
+//									item["prev"] = getPrevPos($posData);
+//									chain[code] = item;
+//								}
+//								data["material_process_assign.position_id[" + count + "]"] = code;
+//								if (count > 0) {
+//									data["material_process_assign.next_position_id[" + (count-1) + "]"] = code;
+//								}
+//								if (count < (total - 1)) {
+//									data["material_process_assign.prev_position_id[" + (count+1) + "]"] = code;
+//								}
+//								count++;
+//							}
+//						});
+//					}
 
 					// Ajax提交
 					$.ajax({

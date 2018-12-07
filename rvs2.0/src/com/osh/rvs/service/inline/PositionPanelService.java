@@ -1,5 +1,6 @@
 package com.osh.rvs.service.inline;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,8 +21,10 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
+import com.osh.rvs.bean.inline.PutinBalanceBound;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
+import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsUtils;
@@ -33,6 +36,7 @@ import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
+import com.osh.rvs.service.MaterialService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
@@ -46,6 +50,8 @@ import framework.huiqing.common.util.validator.LongTypeValidator;
 
 public class PositionPanelService {
 	protected static final Logger _log = Logger.getLogger("Production");
+
+	private static Map<String, PutinBalanceBound> putinBalanceBounds = new HashMap<String, PutinBalanceBound>(); 
 
 	/**
 	 * 取得工位当前基本信息
@@ -412,11 +418,25 @@ public class PositionPanelService {
 	 * @param conn
 	 * @return
 	 */
-	public List<WaitingEntity> getWaitingMaterial(String section_id, String position_id, String line_id,
+	public List<WaitingEntity> getWaitingMaterial(String section_id, String position_id, String ar_line_id,
 			String operator_id, String level, String process_code, SqlSession conn) {
 		PositionPanelMapper dao = conn.getMapper(PositionPanelMapper.class);
 
-		List<WaitingEntity> ret = dao.getWaitingMaterial(line_id, section_id, position_id, operator_id, level);
+		List<WaitingEntity> ret = dao.getWaitingMaterial(ar_line_id, section_id, position_id, operator_id, level);
+
+		PutinBalanceBound putinBalanceBound = null;
+		BigDecimal closestBalance = null; String closestBalanceWaiting = null;  
+		if (process_code.equals("211") || process_code.equals("411")) { // 311 or 411
+			String ar_position_id = position_id;
+			if (process_code.equals("211")) {
+				ar_line_id = "00000000013";
+				ar_position_id = "00000000026";
+			}
+			if (!putinBalanceBounds.containsKey(ar_line_id)) {
+				createPutinBalanceBound(section_id, ar_position_id, ar_line_id, conn);	
+			}
+			putinBalanceBound = putinBalanceBounds.get(ar_line_id);
+		}
 
 		for (WaitingEntity we : ret) {
 			if ("0".equals(we.getWaitingat())) we.setWaitingat("未处理");
@@ -437,10 +457,30 @@ public class PositionPanelService {
 			else if ("7".equals(we.getWaitingat())) we.setWaitingat("库位放置中");
 			else if ("9".equals(we.getWaitingat())) we.setWaitingat("前序部分完成");
 
-//			if (we.getExpedited() == null || we.getExpedited() == 0) 
-//				we.setExpedited(2);
-//			if ((we.getToday() == null || we.getToday() != 1))
-//				we.setExpedited(-we.getExpedited());
+			if (putinBalanceBound != null && !"3".equals(we.getWaitingat())) {
+				if ("00000000013".equals(ar_line_id) && we.getLevel() == 1) {
+					continue;
+				}
+				MaterialService ms = new MaterialService();
+				MaterialEntity me = ms.loadSimpleMaterialDetailEntity(conn, we.getMaterial_id());
+				int erestingStandard = getPatLineStandard(me.getModel_name(), me.getCategory_name()
+						, me.getPat_id(), ar_line_id, conn);
+				we.setLine_minutes(erestingStandard);
+				BigDecimal balanceDiff = putinBalanceBound.evalBalanceDiff(erestingStandard).abs();
+				if (closestBalance == null || closestBalance.compareTo(balanceDiff) < 0) {
+					closestBalance = balanceDiff;
+					closestBalanceWaiting = we.getMaterial_id();
+				}
+			}
+		}
+
+		if (closestBalanceWaiting != null) {
+			for (WaitingEntity we : ret) {
+				if (we.getMaterial_id().equals(closestBalanceWaiting)) {
+					we.setLine_minutes(- we.getLine_minutes()); // 标记为最适合
+					break;
+				}
+			}
 		}
 		return ret;
 	}
@@ -1038,5 +1078,78 @@ public class PositionPanelService {
 					, firstMaterial.getSorc_no()));
 			errors.add(msgInfo);
 		}
+	}
+
+	public void updatePutinBalance(String model_name, String category_name, String pat_id, String section_id, String line_id, String position_id, SqlSession conn) {
+		if (!putinBalanceBounds.containsKey(line_id)) {
+			createPutinBalanceBound(section_id, position_id, line_id, conn);	
+		}
+		PutinBalanceBound putinBalanceBound = putinBalanceBounds.get(line_id);
+		int newStandard = getPatLineStandard(model_name, category_name, pat_id, line_id, conn);
+		putinBalanceBound.putNowBalance(newStandard);
+	}
+
+	private void createPutinBalanceBound(String section_id, String position_id,
+			String ar_line_id, SqlSession conn) {
+		/// 从数据库中查询记录
+		PositionPanelMapper dao = conn.getMapper(PositionPanelMapper.class);
+
+		// 计算近期工程完成平均值
+		// BigDecimal cntAvgCost = dao.getRecentLineProcessCost(ar_line_id);
+		// 计算最近投入维修品流程
+		List<MaterialEntity> recentInputPats = dao.getRecentInputModels(position_id);
+		List<Integer> cntRecentInputs = new ArrayList<Integer>();
+		for (MaterialEntity me : recentInputPats) {
+			int patLineStandard = getPatLineStandard(me.getModel_name(), me.getCategory_name(), me.getPat_id(), ar_line_id, conn);
+			if(patLineStandard > 0) cntRecentInputs.add(patLineStandard);
+		}
+
+		PutinBalanceBound putinBalanceBound = new PutinBalanceBound(null, cntRecentInputs);
+
+		putinBalanceBounds.put(ar_line_id, putinBalanceBound);
+	}
+
+	private static Map<String, Integer> patLineStandards = new HashMap<String, Integer>();
+	public static void clearPatLineStandards() {
+		patLineStandards.clear();
+	}
+	/**
+	 * 取得型号+流程的工程总标准工时
+	 * @param model_name
+	 * @param category_name
+	 * @param pat_id
+	 * @param line_id
+	 * @param conn
+	 * @return
+	 */
+	private int getPatLineStandard(String model_name, String category_name, String pat_id, String line_id,
+			SqlSession conn) {
+		String key = model_name + "_" + pat_id + "_" + line_id;
+		if (!patLineStandards.containsKey(key)) {
+			ProcessAssignMapper posMapper = conn.getMapper(ProcessAssignMapper.class);
+			List<PositionEntity> positions = posMapper.getAllPositionsOfPatInLine(pat_id, line_id);
+
+			int iSum = 0;
+			for (PositionEntity position : positions) {
+				String processCode = position.getProcess_code();
+				try {
+					String sLevel = RvsUtils.getLevelOverLine(model_name, category_name, "3", null, processCode);
+					if (sLevel != null) {
+						Integer iLevel = Integer.parseInt(sLevel);
+						if (iLevel > 0) {
+							iSum += iLevel;
+						}
+					}
+				} catch (Exception e) {
+					_log.error(e.getMessage(), e);
+				}
+			}
+			patLineStandards.put(key, iSum);
+		}
+
+		if (!patLineStandards.containsKey(key)) {
+			return 0;
+		}
+		return patLineStandards.get(key);
 	}
 }

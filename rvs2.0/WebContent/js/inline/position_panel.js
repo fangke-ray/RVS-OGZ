@@ -199,7 +199,7 @@ var makeBreak = function() {
 var makePauseDialog = function(jBreakDialog) {
 	jBreakDialog.dialog({
 		title : "暂停信息编辑",
-		width : 480,
+		width : 760,
 		show: "blind",
 		height : 'auto' ,
 		resizable : false,
@@ -423,7 +423,7 @@ var treatUsesnout = function(xhrobj) {
 
 			if (resInfo.leagal_overline) {
 				leagal_overline = (resInfo.leagal_overline || 120);
-				$("#material_details td:eq(9)").text(minuteFormat(leagal_overline) + ":00");
+				$("#material_details td:eq(9)").text(minuteFormat(leagal_overline) + (leagal_overline ? ":00" : ""));
 			
 				var nspent_mins = convertMinute($("#dtl_process_time label").text());
 				var frate = parseInt(nspent_mins / leagal_overline * 100);
@@ -486,7 +486,7 @@ var treatPause = function(resInfo) {
 	
 			$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
 		}
-		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
+		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) +  + (leagal_overline ? ":00" : ""));
 		leagal_overline = resInfo.leagal_overline;
 	
 		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
@@ -522,8 +522,14 @@ var treatStart = function(resInfo) {
 	$("#scanner_container").hide();
 	$("#material_details").show();
 	$("#other_px_change_button").disable();
-	$("#position_status").text("处理中");
-	$("#position_status").css("background-color", "#58b848");
+	with($("#position_status")) {
+		if (hasClass("simple")) {
+			text("处理中");
+		} else {
+			text("修理中");
+		}
+		css("background-color", "#58b848");
+	}
 
 	$("#material_details td:eq(0) input:hidden").val(resInfo.mform.material_id);
 	$("#material_details td:eq(1)").text(resInfo.mform.sorc_no);
@@ -539,7 +545,7 @@ var treatStart = function(resInfo) {
 
 		$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
 	}
-	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
+	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + (leagal_overline ? ":00" : ""));
 	leagal_overline = resInfo.leagal_overline;
 
 	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
@@ -795,6 +801,18 @@ var getBlock = function(block_status) {
 		var retDiv = "<div class='pa_flags'>";
 		if (block_status == 1) retDiv += "<div class='bo_flg'><span>BO</span></div>";
 		if (block_status == 2) retDiv += "<div class='bo_flg'><span>PA</span></div>";
+		retDiv += "</div>";
+		return retDiv;
+	} else {
+		return "";
+	}
+}
+
+var getLineMinutes = function(line_minutes){
+	if (line_minutes) {
+		var retDiv = "<div class='plan_advise'>";
+		if (line_minutes > 0) retDiv += "<span>" + minuteFormat(line_minutes) + "</span>";
+		if (line_minutes < 0) retDiv += "<span class='osusume'>" + minuteFormat(-line_minutes) + "</span>";
 		retDiv += "</div>";
 		return retDiv;
 	} else {
@@ -1336,6 +1354,8 @@ var ctime=function(){
 		} else {
 			liquid.addClass("tube-yellow");
 		}
+	} else {
+		liquid.addClass("tube-green");
 	}
 
 	$("#p_operator_cost").text(minuteFormat(t_operator_cost));
@@ -1349,6 +1369,7 @@ var ttime=function(){
 };
 
 var minuteFormat =function(iminute) {
+	if (!iminute) return "-";
 	var hours = parseInt(iminute / 60);
 	var minutes = iminute % 60;
 
@@ -1426,8 +1447,9 @@ var showWaitings = function(waitings, waitingsOtherPx){
 								+ getLevel(waiting.level) + "<span>"
 								+ (waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no
 								+ (waiting.shelf_name ? (' | 存放于：' + waiting.shelf_name) : '') + "</span>"
-								+ getFlags(waiting.expedited, waiting.direct_flg, waiting.light_fix, waiting.reworked) +
-								getBlock(waiting.block_status) +
+								+ getFlags(waiting.expedited, waiting.direct_flg, waiting.light_fix, waiting.reworked)
+								+ getBlock(waiting.block_status)
+								+ getLineMinutes(waiting.line_minutes) +
 							'</div>' +
 						'</div>'
 	}
@@ -1486,7 +1508,6 @@ function takeWs() {
 
 var pxChange = function() {
 	if ($("#material_details").is(":visible")) {
-		
 		return;
 	}
 	$.ajax({

@@ -66,10 +66,10 @@
 				and a.level = #{level}
 			</if>
 			<if test="level!= null and level == 9">
-				and a.level in (9,91,92,93,96,97,98)
+				and a.level in (9,91,92,93,96,97,98,99)
 			</if>
 			<if test="level!= null and level == 5">
-				and a.level in (56,57,58)
+				and a.level in (56,57,58,59)
 			</if>
 			<if test="section_id!=null and section_id!='' ">
 				and a.section_id = #{section_id}
@@ -145,12 +145,12 @@
 			</if>
 			<if test="expedition_diff!= null and expedition_diff == 1">
 				<![CDATA[
-				and a.scheduled_date < current_date
+				and c.scheduled_date < c.scheduled_assign_date
 				]]>
 			</if>
 			<if test="expedition_diff!= null and expedition_diff == 0">
 				<![CDATA[
-				and (a.scheduled_date >= current_date or a.scheduled_date IS NULL)
+				and (c.scheduled_date >= c.scheduled_assign_date or c.scheduled_assign_date IS NULL)
 				]]>
 			</if>
 			<if test="support_date!= null">
