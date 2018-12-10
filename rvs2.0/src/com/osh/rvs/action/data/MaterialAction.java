@@ -523,7 +523,7 @@ public class MaterialAction extends BaseAction {
 		String newLevel = newForm.getLevel();
 		String oldPatID = oldForm.getPat_id();
 		String newPatID = newForm.getPat_id();
-		
+
 		if (!newSectionId.equals(oldSectionId) || !newLevel.equals(oldLevel) || !newPatID.equals(oldPatID)) {
 			log.info("OLD LEVEL :" + oldLevel + " NEW LEVEL :" + newLevel);
 			log.info("OLD SECTION :" + oldSectionId + " NEW SECTION :" + newSectionId);
@@ -737,28 +737,6 @@ public class MaterialAction extends BaseAction {
 		listResponse.put("result", lcf);
 		listResponse.put("pat_id", pat_id);
 
-//		if (isLightFix) {
-//			
-//			listResponse.put("isLightFix", isLightFix);
-//
-//			MaterialProcessAssignService mpas = new MaterialProcessAssignService();
-//
-//			Set<String> ccdModels = RvsUtils.getCcdModels(conn);
-//			if (ccdModels != null && ccdModels.contains(mEntity.getModel_id())) {
-//				listResponse.put("isCcdModel", true);
-//			}
-//
-//			// LG 目镜对应机型
-//			ModelService ms = new ModelService();
-//			ModelForm model = ms.getDetail(mEntity.getModel_id(), conn);
-//			if (model.getKind().equals("01")) {
-//				listResponse.put("isLgModel", true);
-//			}
-//
-//			List<MaterialProcessAssignForm> processAssigns = mpas.searchMaterialProcessAssign(form, conn);
-//			listResponse.put("mProcessAssigns", processAssigns);
-//
-//		}
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

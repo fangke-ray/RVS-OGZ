@@ -302,7 +302,8 @@ public class UploadAction extends BaseAction {
 				FileUtils.copyFile(fileName, fileName.replaceAll(".properties", ".setting"));
 				FileUtils.copyFile(tempfilename, fileName);
 
-				PathConsts.load();
+				PathConsts.loadWithCheck();
+
 				RvsUtils.initAll(conn);
 				PositionPanelService.clearPatLineStandards();
 

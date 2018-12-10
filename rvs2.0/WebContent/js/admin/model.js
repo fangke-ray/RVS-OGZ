@@ -782,7 +782,7 @@ var update_end_date = function(level,data) {
 			"确定":function(){
                 if($("#edit_date_form").valid()){
                    var date = $("#edit_date").val();
-                   update_avaliable_end_date(level,date);
+                   update_avaliable_end_date(level,date,1);
                 }
 			}, 
 			"关闭":function(){ 
@@ -798,11 +798,12 @@ var update_end_date = function(level,data) {
  * @param {} date 日期
  * @param {} flg 终止标记
  */
-var update_avaliable_end_date=function(level,date){
+var update_avaliable_end_date=function(level,date,flg){
 	var data={
 		"id" :$("#label_edit_id").text(),
 		"level":level,
 		"avaliable_end_date":date,
+        "flg":flg,
         "category_id":$("#input_category_id").val()
 	};
     

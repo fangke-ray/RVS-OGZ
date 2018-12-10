@@ -68,7 +68,7 @@ public class ScheduleProcessService {
 					//retForm
 					String material_id = retForm.getMaterial_id();
 					AlarmMesssageService service = new AlarmMesssageService();
-					List<AlarmMesssageEntity> messages = service.getAlarmMessagesByMaterial(material_id, conn);
+					List<AlarmMesssageEntity> messages = service.getUnredAlarmMessagesByMaterial(material_id, conn);
 
 					List<String> spareBreakMessages = new ArrayList<String>();
 					AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);

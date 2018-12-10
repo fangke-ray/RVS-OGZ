@@ -309,7 +309,7 @@ public class AlarmMesssageService {
 		return dao.getAlarmMessageBySendation(operator_id);
 	}
 
-	public List<AlarmMesssageEntity> getAlarmMessagesByMaterial(String material_id, SqlSession conn) {
+	public List<AlarmMesssageEntity> getUnredAlarmMessagesByMaterial(String material_id, SqlSession conn) {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 
 		List<AlarmMesssageEntity> amEntities = dao.getBreakAlarmMessages(material_id);

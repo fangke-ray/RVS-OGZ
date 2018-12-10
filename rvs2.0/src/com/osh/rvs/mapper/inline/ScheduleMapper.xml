@@ -242,7 +242,13 @@
 			mp.order_date,
 			a.section_id,
 			sc.name as section_name,
-			dismantle.action_time as dismantle_time,
+			-- [dismantle.action_time as dismantle_time,]
+			(
+			select min(action_time) from production_feature
+			where position_id in (16 ,91)
+			and material_id = a.material_id
+			group by material_id
+			) as dismantle_time,
 			(select p1.process_code from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id <>13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
 			(select p1.process_code from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id =13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as ns_processing_position,
 			mpd.scheduled_date as dec_plan_date,
@@ -266,8 +272,9 @@
 			on a.model_id = mdl.model_id
 		left join section sc
 			on a.section_id = sc.section_id
-		left join (select * from service_repair_manage where material_id like '0%') srm
-			on cast(a.material_id as char) = `srm`.material_id
+		left join (select cast(material_id as unsigned) as material_id, service_repair_flg 
+			from service_repair_manage where material_id like '0%') srm
+			on a.material_id = `srm`.material_id
 		left join (SELECT
 			mpd.material_id,
 			CASE
@@ -311,12 +318,6 @@
 			WHERE line_id in (select line_id from line where in_advance = 0)
 			) mpc
 			on a.material_id = mpc.material_id
-		left join (
-			select material_id, min(action_time) as action_time from production_feature
-			where position_id in (select position_id from position where special_page = 'dismantle')
-			group by material_id
-			) dismantle
-			on a.material_id = dismantle.material_id
 		LEFT JOIN 
 			(SELECT
 			    fsa.`material_id`,
@@ -375,8 +376,8 @@
 				(select scheduled_assign_date from material_process where line_id in (select line_id from line where in_advance = 0) and  material_id = a.material_id) as com_finish_date,
 				(mrt.remain_before_com_minutes + mrt.remain_minutes) as remain_minutes,
 				mrt.expected_finish_time,
-				sh.plan_day_period as schedule_period,
-				DATE_FORMAT(vcf.finish_time, '%H:%i') as ns_processing_position
+				4 as schedule_period,
+				DATE_FORMAT((select vcf.finish_time from v_com_finish vcf WHERE a.material_id = vcf.material_id), '%H:%i') as ns_processing_position				DATE_FORMAT(vcf.finish_time, '%H:%i') as ns_processing_position
 				FROM material a
 				JOIN material_process b ON a.material_id = b.material_id
 				JOIN model mdl ON a.model_id = mdl.model_id
@@ -386,10 +387,6 @@
 				LEFT JOIN
 					material_remain_time mrt
 					ON a.material_id = mrt.material_id
-				LEFT JOIN schedule_history sh
-					ON a.material_id = sh.material_id AND sh.scheduled_date = #{scheduled_assign_date}
-				LEFT JOIN v_com_finish vcf
-					ON a.material_id = vcf.material_id
 				WHERE b.line_id IS NOT NULL
 		]]>
 		<if test="line_id != null and line_id != ''">			
@@ -400,10 +397,10 @@
 		</if>
 		<choose>
 			<when test="scheduled_assign_date !=null">
-				and DATE_FORMAT(b.SCHEDULED_ASSIGN_DATE, '%Y-%m-%d') = DATE_FORMAT(#{scheduled_assign_date}, '%Y-%m-%d')
+				and b.SCHEDULED_ASSIGN_DATE = #{scheduled_assign_date}
 			</when>
 			<otherwise>
-				and DATE_FORMAT(b.SCHEDULED_ASSIGN_DATE, '%Y-%m-%d') = DATE_FORMAT(#{tomorrow}, '%Y-%m-%d')
+				and b.SCHEDULED_ASSIGN_DATE = date_add(current_date, interval 1 day)
 			</otherwise>
 		</choose>
 		group by a.material_id, b.line_id

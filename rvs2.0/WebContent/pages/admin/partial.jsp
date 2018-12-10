@@ -36,6 +36,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
  .overdue_row{
  background-color:#CCCCCC;
  }
+ #standard_dialog input.ui-widget-content{
+ width:60px;
+ }
+ .hidden{
+ visibility: hidden;
+ }
 </style>
 <div id="searcharea">
 	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
@@ -54,12 +60,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content"><input type="text" name="code" id="search_code" class="ui-widget-content"/></td>
 					<td class="ui-state-default td-title">零件名称</td>
 					<td class="td-content"><input type="text" name="name" id="search_name" maxlength="120" class="ui-widget-content"></td>
-					<td class="ui-state-default td-title">消耗品</td>
-					<td class="td-content" id="search_consumable_flg">
-						<input type="radio" name="consumable_flg" alt="消耗品" id="search_consumable_flg_all" value="" class="ui-widget-content" checked/><label for="search_consumable_flg_all" radio>(全部)</label>
-						<input type="radio" name="consumable_flg" alt="消耗品" id="search_consumable_flg_yes" value="1" class="ui-widget-content" /><label for="search_consumable_flg_yes" radio>是</label>
-						<input type="radio" name="consumable_flg" alt="消耗品" id="search_consumable_flg_no" value="2" class="ui-widget-content" /><label for="search_consumable_flg_no" radio>否</label>
-					</td>
+					<td class="ui-state-default td-title">规格种别</td>
+					<td class="td-content"><select id="search_spec_kind" class="ui-widget-content">${specKind}</select></td>
 				</tr>
 			</table>
 				<div style="height:44px">
@@ -100,22 +102,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="ui-state-default td-title">最新价格</td>
 					<td class="td-content"><label id="label_price"></label></td>
 				</tr>
-					<tr>
-					<td class="ui-state-default td-title">订购对象</td>
-					<td class="td-content" id="edit_order_flg">
-						<input type="radio" name="order_flg" alt="订购对象" id="edit_order_flg_yes" value="1" class="ui-widget-content"
-<% if (!isOperator) { %> disabled<% } %>>
-						<label for="edit_order_flg_yes" radio>是</label>
-						<input type="radio" name="order_flg" alt="订购对象" id="edit_order_flg_yes_no" value="0" class="ui-widget-content"
-<% if (!isOperator) { %> disabled<% } %>>
-						<label for="edit_order_flg_yes_no" radio>否</label>
-					</td>
+				<tr>
+					<td class="ui-state-default td-title">规格种别</td>
+					<td class="td-content"><select id="edit_spec_kind" class="ui-widget-content">${specKind}</select></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">显示消耗品</td>
-					<td class="td-content">
-						<label id="edit_consumable_flg"></label>
+					<td class="ui-state-default td-title">是否分装</td>
+					<td class="td-content" id="edit_unpack">
+						<input type="radio" name="unpack" id="edit_unpack_yes" value="1" class="ui-widget-content">
+						<label for="edit_unpack_yes" radio>是</label>
+						<input type="radio" name="unpack" id="edit_unpack_no" value="0" class="ui-widget-content">
+						<label for="edit_unpack_no" radio>否</label>
 					</td>
+				</tr>
+				<tr style="display: none;">
+					<td class="ui-state-default td-title">分装数量</td>
+					<td class="td-content"><input name="split_quantity" alt="分装数量" id="edit_split_quantity" class="ui-widget-content"/></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">最后更新人</td>
@@ -163,9 +165,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="ui-widget-header areabase"style="width:992px;padding-top:4px;margin-top:0px;">
 			      <div id="executes" style="margin-left:4px;margin-top:2px;">
 					<input type="button" id="waste_revision_button" class="ui-button ui-widget ui-state-default ui-corner-all"  value="改废增" role="button">
+					<input type="button" id="standard_button" class="ui-button" value="零件入库工时标准">
 				  </div>
 			</div>
 		</div>
+		<input type="hidden" id="hide_grid_spec_kind" value="${gridSpecKind }">
 		<div id="confirmmessage"></div>
 <div class="clear areaencloser"></div>
 	<form id="abandon_modify" style="display:none">
@@ -222,5 +226,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<input type="hidden" id="edit_position_id"/>
 			
 	</form>
+	<div id="standard_dialog" style="display: none;">
+		<div class="ui-widget-content">
+			<table class="condform">
+				<thead>
+					<tr>
+						<th class="ui-state-default td-title" style="width:200px;">规格种别</th>
+						<th class="ui-state-default td-title" style="width:260px;">装箱数量</th>
+						<th class="ui-state-default td-title">收货</th>
+						<th class="ui-state-default td-title">核对</th>
+						<th class="ui-state-default td-title" style="width:290px;">上架</th>
+						<th class="ui-state-default td-title">分装</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
 </body>
 </html>

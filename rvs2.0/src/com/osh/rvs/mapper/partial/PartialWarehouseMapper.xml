@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.PartialWarehouseMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<select id="search" parameterType="PartialWarehouseEntity" resultType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+			`key`,
+			warehouse_date,
+			dn_no,
+			step
+		FROM
+			partial_warehouse
+	]]>
+	<where>
+	<if test="warehouse_date_start!=null and warehouse_date_start!=''">
+	<![CDATA[
+		AND	warehouse_date >= #{warehouse_date_start}
+	]]>
+	</if>
+	<if test="warehouse_date_end!=null and warehouse_date_end!=''">
+	<![CDATA[
+		warehouse_date < DATE_ADD(#{warehouse_date_start},INTERVAL 1 DAY)
+	]]>
+	</if>
+	<if test="dn_no!=null and dn_no!=''">
+	<![CDATA[
+		dn_no = #{dn_no}
+	]]>
+	</if>
+	</where>
+	</select>
+
+	<!-- 新建零件入库单 -->
+	<insert id="insert" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		INSERT INTO partial_warehouse (warehouse_date,dn_no,step) VALUES (#{warehouse_date},#{dn_no},#{step})
+	]]>
+	</insert>
+
+	<!-- 删除零件入库单 -->
+	<delete id="delete" parameterType="string">
+	<![CDATA[
+		DELETE FROM partial_warehouse WHERE `key` = #{key}
+	]]>
+	</delete>
+
+	<!-- 更新入库进展 -->
+	<update id="updateStep" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		UPDATE partial_warehouse SET step = #{step} WHERE `key` = #{key}
+	]]>
+	</update>
+
+	<!-- 根据DN编号查询零件入库单信息 -->
+	<select id="getByDnNo" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT `key`,warehouse_date,dn_no,step FROM partial_warehouse WHERE dn_no = #{dn_no}
+	]]>
+	</select>
+
+	<!-- 根据key查询零件入库单信息 -->
+	<select id="getByKey" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT `key`,warehouse_date,dn_no,step FROM partial_warehouse WHERE `key` = #{key}
+	]]>
+	</select>
+
+	<!-- 查询当前入库进展信息 -->
+	<select id="searchStepPartialWarehouse" resultType="PartialWarehouseEntity" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT 
+		    pw.key,
+			pw.warehouse_date,
+			pw.dn_no,
+			pw.step
+		FROM
+		    partial_warehouse pw
+		LEFT JOIN
+			fact_production_feature fpf
+		ON
+			pw.key = fpf.partial_warehouse_key
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND 
+			pw.step = #{step}
+		GROUP BY
+			pw.key
+	]]>
+	</select>
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.FactProductionCommentMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<!-- 新建现品作业备注 -->
+	<insert id="insert" parameterType="FactProductionCommentEntity">
+	<![CDATA[
+		INSERT INTO fact_production_comment (fact_pf_key,comment) VALUES (#{fact_pf_key},#{comment})
+	]]>
+	</insert>
+</mapper>

@@ -75,6 +75,7 @@ public class PcsRequestAction extends BaseAction {
 		String mReferChooser = modelService.getOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 
+		req.setAttribute("hMLevelEo", CodeListUtils.getGridOptions("material_level"));
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

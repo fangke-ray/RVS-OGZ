@@ -95,9 +95,4 @@ public class PositionPanel5Action extends PositionPanelAction {
 			HttpServletResponse res, SqlSession conn) throws Exception {
 		super.refreshWaitings(mapping, form, req, res, conn);
 	}
-
-	public void pxChange(ActionMapping mapping, ActionForm form, HttpServletRequest req,
-			HttpServletResponse res, SqlSession conn) throws Exception {
-		super.pxChange(mapping, form, req, res, conn);
-	}
 }

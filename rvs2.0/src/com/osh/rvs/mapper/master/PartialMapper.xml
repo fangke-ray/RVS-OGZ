@@ -6,14 +6,13 @@
 	<select id="getPartialByID" resultType="PartialEntity" parameterType="String">
 	<![CDATA[ 
 		SELECT 
-			p.order_flg,
-			p.consumable_flg,
 			p.PARTIAL_ID,
 			p.CODE,
 			p.NAME,
 			p.PRICE,
 			p.UPDATED_BY,
-			p.UPDATED_TIME
+			p.UPDATED_TIME,
+			p.spec_kind
 		FROM 
 			`v_partial` p 
 		WHERE p.PARTIAL_ID = #{partial_id}
@@ -31,7 +30,7 @@
 				O.NAME AS UPDATED_BY,
 				P.UPDATED_TIME,
 				1 as is_exists,
-				P.consumable_flg
+				P.spec_kind
 		  FROM 
 				  PARTIAL P
 		  LEFT JOIN
@@ -55,7 +54,12 @@
 			<![CDATA[
 				  AND p.code LIKE CONCAT('%',#{code},'%')
 			]]>
-			</if>		
+			</if>
+			<if test="spec_kind !=null and spec_kind!=''">
+			<![CDATA[
+				AND p.spec_kind = #{spec_kind}
+			]]>
+			</if>
 		</where>
 		 ORDER BY updated_time DESC
 		<if test="(name==null or name=='') and (code ==null or code=='')">
@@ -82,14 +86,13 @@
 	<select id="getPartialByCode" resultType="PartialEntity" parameterType="String">
 	<![CDATA[ 
 		SELECT
-			p.order_flg,
-			p.consumable_flg,
 			p.PARTIAL_ID,
 			p.CODE,
 			p.NAME,
 			p.PRICE,
 			p.UPDATED_BY,
-			p.UPDATED_TIME
+			p.UPDATED_TIME,
+			p.spec_kind
 		FROM `partial` p
 		WHERE `code` = #{code}
 	]]>
@@ -103,17 +106,15 @@
 				(`code`, 
 				 `name`,
 				  price,
-				  order_flg,
-				  consumable_flg,
 				 updated_by,
+				 spec_kind,
 				 UPDATED_TIME) 					
 		VALUES 
 				(#{code},
 				 #{name},
 				 #{price},
-				 #{order_flg},
-				 #{consumable_flg},
 				 #{updated_by},
+				 #{spec_kind},
 				 current_timestamp); 
 	]]>
 	</insert>
@@ -144,8 +145,8 @@
 			`name`=#{name},
 			`price`=#{price},
 			updated_by =#{updated_by},
-			order_flg=#{order_flg},
-			updated_time = current_timestamp
+			updated_time = current_timestamp,
+			spec_kind = #{spec_kind}
 		WHERE 
 			partial_id=#{partial_id}
 	]]>

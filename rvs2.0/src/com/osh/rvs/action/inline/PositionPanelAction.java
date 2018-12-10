@@ -126,7 +126,6 @@ public class PositionPanelAction extends BaseAction {
 
 		String section_id = user.getSection_id();
 		String position_id = user.getPosition_id();
-		String level = user.getPx();
 		String process_code = user.getProcess_code();
 
 		if (position_id == null) {
@@ -136,7 +135,7 @@ public class PositionPanelAction extends BaseAction {
 		}
 
 		// 取得工位信息
-		req.setAttribute("position", service.getPositionMap(section_id, position_id, level, conn));
+		req.setAttribute("position", service.getPositionMap(section_id, position_id, null, conn));
 
 		String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
 
@@ -316,8 +315,7 @@ public class PositionPanelAction extends BaseAction {
 			} else {
 				// 暂停中的话
 				// 判断是否有在进行中的维修对象
-				ProductionFeatureEntity pauseingPf = service.getPausingPf(user,
-						conn);
+				ProductionFeatureEntity pauseingPf = service.getPausingPf(user, conn);
 				if (pauseingPf != null) {
 					// 取得作业信息
 					service.getProccessingData(listResponse,
@@ -595,7 +593,6 @@ public class PositionPanelAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-
 		List<String> triggerList = new ArrayList<String>();
 
 		// 取得用户信息
@@ -1330,33 +1327,5 @@ public class PositionPanelAction extends BaseAction {
 
 		returnJsonResponse(res, callbackResponse);
 		log.info("PositionPanelAction.refreshWaitings end");
-	}
-
-	public void pxChange(ActionMapping mapping, ActionForm form, HttpServletRequest req,
-			HttpServletResponse res, SqlSession conn) throws Exception {
-
-		log.info("PositionPanelAction.pxChange start");
-		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
-
-		// 取得用户信息
-		HttpSession session = req.getSession();
-		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
-
-		String px = user.getPx();
-		if ("1".equals(px)) {
-			user.setPx("2");
-			session.setAttribute(RvsConsts.SESSION_USER, user);
-			callbackResponse.put("redirect", "position_panel.do");
-		} else if ("2".equals(px)) {
-			user.setPx("1");
-			session.setAttribute(RvsConsts.SESSION_USER, user);
-			callbackResponse.put("redirect", "position_panel.do");
-		}
-
-		callbackResponse.put("errors", infoes);
-
-		returnJsonResponse(res, callbackResponse);
-		log.info("PositionPanelAction.pxChange end");
 	}
 }

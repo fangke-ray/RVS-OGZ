@@ -100,4 +100,37 @@ public class CopyByPoi {
 			}
 		}
 	}
+	
+	/**
+	 * 根据单元格不同属性返回字符串
+	 * 
+	 * @param cell
+	 *            Excel单元格
+	 * @return String 单元格数据内容
+	 */
+	public static String getCellStringValue(HSSFCell cell) {
+		if (cell == null) {
+	           return "";
+	    }
+		String strCell = "";
+		switch (cell.getCellType()) {
+		case HSSFCell.CELL_TYPE_STRING:
+			strCell = cell.getStringCellValue();
+			break;
+		case HSSFCell.CELL_TYPE_NUMERIC:
+			strCell = String.valueOf((double) cell.getNumericCellValue());
+			break;
+		case HSSFCell.CELL_TYPE_BOOLEAN:
+			strCell = String.valueOf(cell.getBooleanCellValue());
+			break;
+		case HSSFCell.CELL_TYPE_BLANK:
+			strCell = "";
+			break;
+		default:
+			strCell = "";
+			break;
+		}
+		
+		return strCell;
+	}
 }

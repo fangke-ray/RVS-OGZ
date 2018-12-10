@@ -78,6 +78,10 @@
 		<form-bean name="ElectricIronDeviceForm" type="com.osh.rvs.form.infect.ElectricIronDeviceForm"></form-bean>
 		<form-bean name="WeeklyKpiDataForm" type="com.osh.rvs.form.report.WeeklyKpiDataForm"></form-bean>
 		<form-bean name="GlueMixingForm" type="com.osh.rvs.form.inline.GlueMixingForm"></form-bean>
+		
+		<form-bean name="PartialBussinessStandardForm" type="com.osh.rvs.form.master.PartialBussinessStandardForm"></form-bean>
+		<form-bean name="FactProductionFeatureForm" type="com.osh.rvs.form.partial.FactProductionFeatureForm"></form-bean>
+		<form-bean name="PartialWarehouseForm" type="com.osh.rvs.form.partial.PartialWarehouseForm"></form-bean>
 	</form-beans>
 
 
@@ -773,6 +777,85 @@
 				scope="request"
 				parameter="method"
 				validate="false">
+		</action>
+		
+		<!-- 零件出入库工时标准 -->
+		<action path="/partial_bussiness_standard"
+				type="com.osh.rvs.action.master.PartialBussinessStandardAction"
+				name="PartialBussinessStandardForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+		</action>
+		
+		<!-- 现品作业信息 -->
+		<action path="/fact_production_feature"
+				type="com.osh.rvs.action.partial.FactProductionFeatureAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/fact_production_feature.jsp"/>
+		</action>
+		
+		<!-- 零件收货 -->
+		<action path="/partial_recept"
+				type="com.osh.rvs.action.partial.PartialReceptAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_recept.jsp"/>
+		</action>
+		
+		<!-- 零件核对 -->
+		<action path="/partial_collation"
+				type="com.osh.rvs.action.partial.PartialCollationAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_collation.jsp"/>
+		</action>
+		
+		<!-- 零件分装 -->
+		<action path="/partial_unpack"
+				type="com.osh.rvs.action.partial.PartialUnpackAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_unpack.jsp"/>
+		</action>
+		
+		<!-- 零件上架 -->
+		<action path="/partial_on_shelf"
+				type="com.osh.rvs.action.partial.PartialOnShelfAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_on_shelf.jsp"/>
+		</action>
+		
+		<!-- 零件其他 -->
+		<action path="/partial_other"
+				type="com.osh.rvs.action.partial.PartialOtherAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_other.jsp"/>
+		</action>
+		
+		<!-- 零件入库单管理 -->
+		<action path="/partial_warehouse"
+				type="com.osh.rvs.action.master.PartialWarehouseAction"
+				name="PartialWarehouseForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/admin/partial_warehouse.jsp"/>
 		</action>
 		
 	</action-mappings>

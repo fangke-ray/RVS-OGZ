@@ -154,7 +154,7 @@ public class PcsTemplateAction extends BaseAction {
 		callbackResponse.put("tempFile", service.getPcsesBlankXls(modelName, conn));
 
 		returnJsonResponse(res, callbackResponse);
-		log.info("PcsTemplateAction.refer end");
+		log.info("PcsTemplateAction.makeTemplateFiles end");
 	}
 	
 }

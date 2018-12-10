@@ -15,6 +15,7 @@ import com.osh.rvs.bean.master.PartialEntity;
 import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.PartialForm;
+import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.master.PartialMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -49,13 +50,12 @@ public class PartialService {
 			MsgInfo error = new MsgInfo();
 			error.setComponentid("code");
 			error.setErrcode("dbaccess.columnNotUnique");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "零件编码",
-					conditionBean.getCode(), "零件"));
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "零件编码", conditionBean.getCode(), "零件"));
 			errors.add(error);
 		}
 	}
 
-	public void insert(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
+	public String insert(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
 			throws Exception {
 		PartialEntity insertBean = new PartialEntity();
 		BeanUtil.copyToBean(form, insertBean, null);
@@ -66,10 +66,15 @@ public class PartialService {
 		PartialMapper dao = conn.getMapper(PartialMapper.class);
 		dao.insertPartial(insertBean);
 
+		CommonMapper cDao = conn.getMapper(CommonMapper.class);
+		String partial_id =cDao.getLastInsertID();////取得本连接最后取得的自增ID
+
+
+		return partial_id;
 		/*
 		 * CommonMapper cDao = conn.getMapper(CommonMapper.class); String partial_id =
-		 * cDao.getLastInsertID();//取得本连接最后取得的自增ID
-		 * 
+		 * cDao.getLastInsertID();
+		 *
 		 * insertBean.setPartial_id(partial_id); dao.insertPartialPrice(insertBean);
 		 */
 	}
@@ -93,8 +98,7 @@ public class PartialService {
 		}
 	}
 
-	public void delete(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
-			throws Exception {
+	public void delete(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		PartialEntity updateBean = new PartialEntity();
 		BeanUtil.copyToBean(form, updateBean, null);
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -106,8 +110,7 @@ public class PartialService {
 
 	/* 双击修改页面内容 */
 
-	public void update(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
-			throws Exception {
+	public void update(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		PartialEntity updateBean = new PartialEntity();
 		BeanUtil.copyToBean(form, updateBean, null);
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -120,13 +123,13 @@ public class PartialService {
 		// 清空反查缓存
 		ReverseResolution.partialRever.clear();
 		/*
-		 * //如果返回的是false则只执行更新PartialPrice表 if ("false".equals(priceNotChanged)) { dao.updatePartialPrice(updateBean); }
+		 * //如果返回的是false则只执行更新PartialPrice表 if ("false".equals(priceNotChanged))
+		 * { dao.updatePartialPrice(updateBean); }
 		 */
 	}
 
 	/* 零件partial的code和name更新 */
-	public void updatePartialCodeName(ActionForm form, String judgeHistorylimitdate, HttpSession session,
-			SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
+	public void updatePartialCodeName(ActionForm form, String judgeHistorylimitdate, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		PartialEntity updateBean = new PartialEntity();
 		PartialEntity updateBeanForPrice = new PartialEntity();
 		BeanUtil.copyToBean(form, updateBean, CopyOptions.COPYOPTIONS_NOEMPTY);
@@ -144,6 +147,7 @@ public class PartialService {
 			dao.insertPartialCodeName(updateBean);
 		}
 	}
+
 	/** 零件集合 **/
 	public List<Map<String, String>> getPartialAutoCompletes(String code, SqlSession conn) {
 		PartialMapper dao = conn.getMapper(PartialMapper.class);

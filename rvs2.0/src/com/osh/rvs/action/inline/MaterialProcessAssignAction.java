@@ -39,7 +39,7 @@ import framework.huiqing.common.util.validator.Validators;
  */
 public class MaterialProcessAssignAction extends BaseAction {
 	private Logger log = Logger.getLogger(getClass());
-	
+
 	/**
 	 * 获取修理维修内容流程
 	 * @param mapping
@@ -51,21 +51,21 @@ public class MaterialProcessAssignAction extends BaseAction {
 	 */
 	public void getDetail(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn)throws Exception{
 		log.info("MaterialProcessAssignAction.getDetail start");
-		
+
 		// Ajax响应对象
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		
+
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
-		
+
 		if(errors.size()==0){
 			MaterialProcessAssignService service = new MaterialProcessAssignService();
 			List<MaterialProcessAssignForm> processAssigns = service.searchMaterialProcessAssign(form, conn);
-			
+
 			MaterialService materialService = new MaterialService();
 			MaterialProcessAssignForm materialProcessAssignForm = (MaterialProcessAssignForm)form;
 			MaterialForm materialForm = materialService.loadSimpleMaterialDetail(conn, materialProcessAssignForm.getMaterial_id());
-			
+
 			callbackResponse.put("processAssigns", processAssigns);
 			callbackResponse.put("materialForm", materialForm);
 		}
@@ -93,12 +93,12 @@ public class MaterialProcessAssignAction extends BaseAction {
 
 		// 查询结果放入Ajax响应对象
 		callbackResponse.put("list", positions);
-		
+
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
 		// 返回Json格式回馈信息
 		returnJsonResponse(response, callbackResponse);
-		
+
 		log.info("MaterialProcessAssignAction.getDetail end");
 	}
 
@@ -106,7 +106,7 @@ public class MaterialProcessAssignAction extends BaseAction {
 		log.info("MaterialProcessAssignAction.doUpdateMaterialProcessAssign start");
 		// Ajax响应对象
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		
+
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
 
@@ -116,13 +116,13 @@ public class MaterialProcessAssignAction extends BaseAction {
 		if(errors.size()==0){
 			service.update(form, request, conn);
 		}
-		
+
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
 		// 返回Json格式回馈信息
 		returnJsonResponse(response, callbackResponse);
-		
+
 		log.info("MaterialProcessAssignAction.doUpdateMaterialProcessAssign start");
 	}
-	
+
 }

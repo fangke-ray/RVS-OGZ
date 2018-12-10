@@ -142,7 +142,19 @@
 			JOIN `position` p
 			  ON `am`.position_id = `p`.position_id
 			WHERE `am`.material_id = #{material_id}
+		]]>
+			<if test="position_id!= null">
+		<![CDATA[ 
+			AND `am`.position_id = #{position_id}
+		]]>
+			</if>
+			<if test="position_id == null">
+		<![CDATA[ 
 			  AND NOT EXISTS (SELECT 1 FROM alarm_messsage_sendation ams WHERE `ams`.`alarm_messsage_id` = `am`.`alarm_messsage_id` AND `ams`.`red_flg` = 1)
+		]]>
+			</if>
+
+		<![CDATA[ 
 			;
 		]]>
 	</select>
@@ -318,7 +330,7 @@ ON ams.sendation_id = osd.operator_id
 			</if>
 			<if test="occur_time_to!= null ">
 			<![CDATA[ 
-				AND date_format(am.OCCUR_TIME, '%Y-%m-%d') <= date_format(#{occur_time_to}, '%Y-%m-%d')
+				AND am.OCCUR_TIME < date_add(#{occur_time_to}, interval 1 day)
 			]]>
 			</if>
 			<if test="reason!= null and reason!= '' ">

@@ -265,6 +265,7 @@ public class AlarmMessageAction extends BaseAction {
 		log.info("AlarmMessageAction.doreleasebeak start");
 
 		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<String> triggerList = new ArrayList<String>();
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", new ArrayList<MsgInfo>());
@@ -286,6 +287,11 @@ public class AlarmMessageAction extends BaseAction {
 			} else {
 				fsaService.solveBreak(fsaBean, user.getOperator_id(), conn);
 			}
+		}
+
+		if (triggerList.size() > 0 && errors.size() == 0) {
+			conn.commit();
+			RvsUtils.sendTrigger(triggerList);
 		}
 
 		// 返回Json格式响应信息

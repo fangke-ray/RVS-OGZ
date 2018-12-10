@@ -116,6 +116,7 @@ public class OperatorProductionAction extends BaseAction {
 	
 	@Privacies(permit={1, 0})
 	public void getDetail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
+
 		log.info("OperatorProductionAction.getDetail start");
 		// Ajax回馈对象	
 		Map<String, Object> listResponse = new HashMap<String, Object>();

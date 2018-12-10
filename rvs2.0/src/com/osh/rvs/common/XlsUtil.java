@@ -101,6 +101,9 @@ public class XlsUtil {
 
 	// 保存并关闭Excel文档
 	public void SaveCloseExcel(boolean f) {
+		SaveCloseExcel(f, true);
+	}
+	public void SaveCloseExcel(boolean f, boolean release) {
 		try {
 			Dispatch.call(workbook, "Save");
 			Dispatch.call(workbook, "Close", new Variant(f));
@@ -108,19 +111,22 @@ public class XlsUtil {
 			e.printStackTrace();
 		} finally {
 			xl.invoke("Quit", new Variant[] {});
-			ComThread.Release();
+			if (release) ComThread.Release();
 		}
 	}
 
 	// 关闭Excel文档
 	public void CloseExcel(boolean f) {
+		CloseExcel(f, true);
+	}
+	public void CloseExcel(boolean f, boolean release) {
 		try {
 			Dispatch.call(workbook, "Close", new Variant(f));
 			xl.invoke("Quit", new Variant[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			ComThread.Release();
+			if (release) ComThread.Release();
 		}
 	}
 
@@ -174,6 +180,12 @@ public class XlsUtil {
 		String value = Dispatch.get(cell, "Value").toString();
 
 		return value;
+	}
+
+	// 取得位置地址
+	public String GetAddress(Dispatch range) {
+		String address = Dispatch.get(range, "Address").toString();
+		return address;
 	}
 
 	// 另存为Pdf格式
@@ -468,5 +480,9 @@ public class XlsUtil {
          xl.invoke("Quit", new Variant[] {});
          
          ComThread.Release();
+	}
+
+	public void setCheckCompatibility(){
+		Dispatch.put(workbook,"CheckCompatibility",false);
 	}
 }
