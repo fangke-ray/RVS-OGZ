@@ -78,6 +78,8 @@ public class HeaderAction extends BaseAction {
 			retNeedMessageBox = "1";
 		}
 
+		retPartialLink = "1";
+
 		req.setAttribute("needMenu", retNeedMenu);
 		req.setAttribute("needMessageBox", retNeedMessageBox);
 		req.setAttribute("retPartialLink", retPartialLink);

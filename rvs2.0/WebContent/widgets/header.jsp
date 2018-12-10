@@ -122,6 +122,8 @@ background-size: 10px 60px;*/
 			<input type="hidden" id="submenu" value="${retSub}"/>
 			</div>
 			<div class="menulink icon-help">查询</div>
+			<div class="menulink icon-list">点检</div>
+			${(retPartialLink eq "1") ? '<div class="menulink icon-cog">零件</div>' : ''}
 			${(needMenu eq "1") ? '<div class="menulink icon-calendar-2">菜单<div class="expland-menu ui-accordion" id="accordion"></div></div>' : ''}
 			<div style="height:29px;line-height:29px;float:right;margin-right: 16px;">
 				<span style="color:white;font-size:14px;">您好! ${userdata.name}${userdata.role_name}。</span>
@@ -134,7 +136,7 @@ background-size: 10px 60px;*/
 			<div class="lightBox" style="display:none;">
 				<table>
 					<thead><tr>
-						<th colspan="3">等待作业相关小修理</th>
+						<th colspan="3">等待作业相关中小修</th>
 					</tr></thead>
 					<tbody></tbody>
 				</table>
