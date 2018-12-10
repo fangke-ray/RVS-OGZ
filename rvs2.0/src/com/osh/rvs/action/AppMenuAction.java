@@ -43,7 +43,7 @@ public class AppMenuAction extends BaseAction {
 
 	/**
 	 * 菜单初始表示处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -130,7 +130,7 @@ public class AppMenuAction extends BaseAction {
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////
-		
+
 		// 计划管理
 		menuLinks.put("计划管理", false);
 
@@ -170,7 +170,7 @@ public class AppMenuAction extends BaseAction {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("decomposeline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_DECOM, section_id);
 				inlinePosition += links;
@@ -184,7 +184,7 @@ public class AppMenuAction extends BaseAction {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("nsline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_NS, section_id);
 				inlinePosition += links;
@@ -200,7 +200,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("composeline", true);
 				menuLinks.put("在线作业", true);
 				// 总组库位
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_COM, section_id);
 				inlinePosition += links;
@@ -211,12 +211,12 @@ public class AppMenuAction extends BaseAction {
 		}
 
 		menuLinks.put("spline", false);
-		// 外科硬镜修理工程 
+		// 外科硬镜修理工程
 		if (LINE_SURGI.equals(user.getLine_id())) {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("spline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_SURGI, section_id);
 				inlinePosition += links;
@@ -224,12 +224,12 @@ public class AppMenuAction extends BaseAction {
 		}
 
 		menuLinks.put("lmline", false);
-		// 中小修修理工程 
+		// 中小修修理工程
 		if (LINE_LIGHTMED.equals(user.getLine_id())) {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("lmline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_LIGHTMED, section_id);
 				inlinePosition += links;
@@ -242,7 +242,7 @@ public class AppMenuAction extends BaseAction {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("febdecomline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_FEB_DECOM, section_id);
 				inlinePosition += links;
@@ -250,12 +250,12 @@ public class AppMenuAction extends BaseAction {
 		}
 
 		menuLinks.put("febcomline", false);
-		// 纤维镜总组工程 
+		// 纤维镜总组工程
 		if (LINE_FEB_COM.equals(user.getLine_id())) {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("febcomline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_FEB_COM, section_id);
 				inlinePosition += links;
@@ -263,12 +263,12 @@ public class AppMenuAction extends BaseAction {
 		}
 
 		menuLinks.put("periline", false);
-		// 周边设备修理工程 
+		// 周边设备修理工程
 		if (LINE_PERI.equals(user.getLine_id())) {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("periline", true);
 				menuLinks.put("在线作业", true);
-			} 
+			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 				links = getLinksByPositions(userPositions, LINE_PERI, section_id);
 				inlinePosition += links;
@@ -376,20 +376,20 @@ public class AppMenuAction extends BaseAction {
 		StringBuffer ret = new StringBuffer("");
 		for (PositionEntity position : positions) {
 			if (line_id.equals(position.getLine_id())) {
-				if ("00000000001".equals(section_id) && position.getLight_division_flg() != null 
+				if ("00000000001".equals(section_id) && position.getLight_division_flg() != null
 						&& position.getLight_division_flg() == 1) {
-					ret.append("<a href=\"javascript:getPositionWork('" 
+					ret.append("<a href=\"javascript:getPositionWork('"
 							+ position.getPosition_id() + "', 1);\">" +
-							position.getProcess_code() + " " + position.getName() + 
+							position.getProcess_code() + " " + position.getName() +
 							" A线</a><br>");
-					ret.append("<a href=\"javascript:getPositionWork('" 
+					ret.append("<a href=\"javascript:getPositionWork('"
 							+ position.getPosition_id() + "', 2);\">" +
-							position.getProcess_code() + " " + position.getName() + 
+							position.getProcess_code() + " " + position.getName() +
 							" B线</a><br>");
 				} else {
-					ret.append("<a href=\"javascript:getPositionWork('" 
+					ret.append("<a href=\"javascript:getPositionWork('"
 							+ position.getPosition_id() + "');\">" +
-							position.getProcess_code() + " " + position.getName() + 
+							position.getProcess_code() + " " + position.getName() +
 							"</a><br>");
 				}
 			}
@@ -399,7 +399,7 @@ public class AppMenuAction extends BaseAction {
 
 	/**
 	 * 零件菜单初始表示处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -424,7 +424,26 @@ public class AppMenuAction extends BaseAction {
 			// 迁移到页面
 			actionForward = mapping.findForward("partial");
 		}
+
+		// 取得登录用户权限
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies = user.getPrivacies();
+
 		Map<String, Boolean> menuLinks = new HashMap<String, Boolean>();
+
+		// 零件管理
+		if (privacies.contains(RvsConsts.PRIVACY_PARTIAL_MANAGER)) {
+			menuLinks.put("partial_admin", true);
+		} else {
+			menuLinks.put("partial_admin", false);
+		}
+
+		// 现品 (管理/订购)
+		if (privacies.contains(RvsConsts.PRIVACY_PARTIAL_ORDER)) {
+			menuLinks.put("fact", true);
+		} else {
+			menuLinks.put("fact", false);
+		}
 
 		// 可用链接设定到画面
 		req.setAttribute("menuLinks", menuLinks);
@@ -432,10 +451,10 @@ public class AppMenuAction extends BaseAction {
 
 		log.info("AppMenuAction.pinit end");
 	}
-	
+
 	/**
 	 * 设备工具+治具初始表示处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form

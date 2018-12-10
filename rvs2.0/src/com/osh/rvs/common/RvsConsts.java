@@ -22,6 +22,8 @@ public class RvsConsts extends BaseConst {
 	public static final Integer PRIVACY_INFO_EDIT = 110; // 信息汇总操作
 	public static final Integer PRIVACY_INFO_VIEW = 111; // 信息汇总浏览
 	public static final Integer PRIVACY_FILING = 113;
+	public static final Integer PRIVACY_PARTIAL_MANAGER = 115; // 零件管理
+	public static final Integer PRIVACY_PARTIAL_ORDER = 117; // 零件订购
 	public static final Integer PRIVACY_SCHEDULE_VIEW = 118;
 	public static final Integer PRIVACY_READFILE = 120; // 文档查看
 	public static final Integer PRIVACY_OVEREDIT = 121; // 系统管理员更新操作

@@ -1,4 +1,4 @@
-package com.osh.rvs.action.master;
+package com.osh.rvs.action.partial;
 
 import java.util.HashMap;
 import java.util.List;

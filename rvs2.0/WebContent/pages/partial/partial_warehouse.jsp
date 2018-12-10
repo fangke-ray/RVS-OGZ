@@ -19,7 +19,7 @@
 <script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/admin/partial_warehouse.js"></script>
+<script type="text/javascript" src="js/partial/partial_warehouse.js"></script>
 
 <title>零件入库单管理</title>
 </head>

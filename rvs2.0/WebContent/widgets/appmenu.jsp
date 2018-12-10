@@ -141,8 +141,6 @@ $(function() {
 		        <a href="wip.do" title="返还，WIP出库">WIP管理</a><br>
 	<% } %>
 		        <a href="materialPartial.do" title="现品零件BO管理">零件订购信息</a><br>
-		        <a href="fact_production_feature.do" title="现品作业信息">现品作业信息</a><br>
-		        <a href="partial_warehouse.do" title="零件入库单管理">零件入库单管理</a><br>
     </div>
 <% } %>
 
