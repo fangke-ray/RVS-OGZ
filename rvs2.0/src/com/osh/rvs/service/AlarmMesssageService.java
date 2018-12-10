@@ -596,6 +596,22 @@ public class AlarmMesssageService {
 		List<String> reworkPositions = new AutofillArrayList<String>(String.class);
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String entity = m.group(1);
+				if ("rework".equals(entity)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+
+					// TODO 全
+					if ("positions".equals(column)) {
+						reworkPositions.set(icounts, parameterMap.get(parameterKey)[0]);
+					}
+				}
+			}
+		}
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
 		// Add in Rvs2 Start
@@ -603,7 +619,7 @@ public class AlarmMesssageService {
 		String pat_id = req.getParameter("pat_id");
 		String pcs_signed = req.getParameter("pcs_signed");
 		String append_parts = req.getParameter("append_parts");
-//		String position_id = req.getParameter("position_id");
+//		String breakPositionId = req.getParameter("position_id");
 
 		MaterialEntity entity = null;
 		if (pat_id != null) {
@@ -620,25 +636,6 @@ public class AlarmMesssageService {
 
 			ProductionFeatureService featureService = new ProductionFeatureService();
 
-//			// 旧流程有NS，新流程没有时
-//			boolean nsClose = false;
-//
-//
-//			ProcessAssignService pas = new ProcessAssignService();
-//
-//			boolean oldHasNs = pas.checkPatHasNs(entity.getPat_id(), conn);
-//			boolean newHasNs = pas.checkPatHasNs(pat_id, conn);
-//			if (oldHasNs && !newHasNs) {
-//				// 旧流程有NS，新流程没有时
-//				nsClose = true;
-//			}
-//
-//			// 单追组件后，NS工程算当时结束
-//			if (nsClose) {
-//				MaterialProcessService mpService = new MaterialProcessService();
-//				mpService.finishMaterialProcess(material_id, "00000000013", triggerList, conn);
-//			}
-
 			MaterialProcessService mpService = new MaterialProcessService();
 			List<String> oldHasLines = mpService.loadMaterialProcessLineIds(material_id, conn); // 取得已存在工程
 			if (oldHasLines != null && oldHasLines.size() > 0) {
@@ -649,6 +646,10 @@ public class AlarmMesssageService {
 
 			// 删除目前的等待作业
 			featureService.removeWorking(material_id, null, conn);
+//		} else if (reworkPositions.size() > 0) {
+//			// 删除目前的等待作业
+//			ProductionFeatureService featureService = new ProductionFeatureService();
+//			featureService.removeWorking(material_id, breakPositionId, conn);
 		}
 
 		// 需要在工程检查票建立错误处理记录时
@@ -680,22 +681,6 @@ public class AlarmMesssageService {
 		}
 		// Add in Rvs2+ End
 
-		// 整理提交数据
-		for (String parameterKey : parameterMap.keySet()) {
-			Matcher m = p.matcher(parameterKey);
-			if (m.find()) {
-				String group = m.group(1);
-				if ("rework".equals(group)) {
-					String column = m.group(2);
-					int icounts = Integer.parseInt(m.group(3));
-
-					// TODO 全
-					if ("positions".equals(column)) {
-						reworkPositions.set(icounts, parameterMap.get(parameterKey)[0]);
-					}
-				}
-			}
-		}
 
 		// 如果没有选择返工，处理逻辑同closebreak TODELETE
 		if (reworkPositions.size() == 0) {

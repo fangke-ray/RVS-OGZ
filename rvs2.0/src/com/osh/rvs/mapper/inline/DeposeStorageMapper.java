@@ -16,6 +16,7 @@ public interface DeposeStorageMapper {
 	
 	public Map<String, String> getDeposeStorageByCode(@Param("case_code") String case_code);
 	/**  */
+	public Map<String, String> getDeposeStorageByMaterial(@Param("material_id") String material_id);
 
 	public int getDecomStorageCount();
 	

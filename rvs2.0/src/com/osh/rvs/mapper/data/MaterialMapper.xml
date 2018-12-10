@@ -39,7 +39,13 @@
 				omr_notifi_no as sorc_no,
 				`m`.model_id,
 				mdl.name as model_name,
-				(select date_format(finish_time, '%Y-%m-%d') from production_feature where position_id in (select position_id from position where special_page = 'quotation') 
+				(select finish_time from production_feature where position_id in (select position_id from position where special_page = 'quotation') 
+				and production_feature.material_id in 
+		]]>
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+              #{id}
+		</foreach> 
+		<![CDATA[ 
 					and material_id = `m`.material_id order by finish_time desc limit 1) as finish_time,
 				`m`.serial_no,
 				`m`.ocm,

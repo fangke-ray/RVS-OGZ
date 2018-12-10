@@ -879,7 +879,24 @@ border-right:none;
 width: 2em;
 box-shadow: 2px 2px 12px #1e5799;
 }
-
+.tube-liquid .plan_advise {
+	background-color: transparent;
+	position: absolute;
+	right: -4em;
+	text-align: center;
+	border:1px solid black;
+	top: -0.1em;
+	border-radius:8px;
+}
+.tube-liquid .plan_advise span{
+	background-color : white;
+	border-radius:8px;
+	padding:0 2px 0 2px;
+	cursor:default;
+}
+.tube-liquid .plan_advise span.osusume{
+	background-color : yellow;
+}
 .side-edge {
 	position : fixed;
 	

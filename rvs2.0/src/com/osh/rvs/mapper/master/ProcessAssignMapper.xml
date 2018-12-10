@@ -255,7 +255,7 @@
 		<![CDATA[ 
 SELECT count(*)
 FROM PRODUCTION_FEATURE pf
-WHERE `pf`.POSITION_ID = #{position_id} AND `pf`.material_id = #{material_id} AND `pf`.operate_result <> 5 AND `pf`.FINISH_TIME IS NULL ;
+WHERE `pf`.POSITION_ID = #{position_id} AND `pf`.material_id = #{material_id} AND `pf`.operate_result not in (5, 9) AND `pf`.FINISH_TIME IS NULL ;
 		]]>
 	</select>
 
@@ -299,6 +299,16 @@ WHERE `pf`.POSITION_ID = #{position_id} AND `pf`.material_id = #{material_id} AN
 		]]>
 	</select>
 	
+	<select id="getAllPositionsOfPatInLine" resultType="PositionEntity">
+		<![CDATA[ 
+		SELECT process_code
+		FROM PROCESS_ASSIGN pa
+		JOIN `position` pos
+		  ON `pa`.position_id = pos.position_id
+		WHERE `pos`.line_id = #{line_id}
+		  AND refer_id = #{pat_id}
+		]]>
+	</select>
 	<select id="getFinishedCountByPositions" resultType="int">
 		<![CDATA[ 
 		SELECT COUNT(position_id) as operator_name 

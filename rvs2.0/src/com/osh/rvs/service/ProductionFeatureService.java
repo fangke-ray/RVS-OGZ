@@ -21,7 +21,6 @@ import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.bean.partial.MaterialPartialEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.ProductionFeatureForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
@@ -425,16 +424,20 @@ public class ProductionFeatureService {
 		} else { // 维修流程上
 			if ("00000000016".equals(position_id)) { // 零件分解库位
 				DeposeStorageMapper dsMapper = conn.getMapper(DeposeStorageMapper.class);
-				String caseCode = null;
-				if (level == 1) {
-					caseCode = dsMapper.getNextEmptyStorage("S1");
-				} else {
-					String maxUsedCaseCode = dsMapper.getMaxStorage("S3");
-					caseCode = dsMapper.getNextEmptyStorage(maxUsedCaseCode);
-					if (caseCode == null) {
-						caseCode = dsMapper.getNextEmptyStorage("S3");
+
+				// 返工等情况，判断已放入
+				Map<String, String> materiaIncase = dsMapper.getDeposeStorageByMaterial(material_id);
+				if (materiaIncase == null) {
+					String caseCode = null;
+					if (level == 1) {
+						caseCode = dsMapper.getNextEmptyStorage("S1");
+					} else {
+						String maxUsedCaseCode = dsMapper.getMaxStorage("S3");
+						caseCode = dsMapper.getNextEmptyStorage(maxUsedCaseCode);
+						if (caseCode == null) {
+							caseCode = dsMapper.getNextEmptyStorage("S3");
+						}
 					}
-				}
 					if (caseCode == null) {
 						if (isFact) {
 							throw new Exception(ApplicationMessage.WARNING_MESSAGES.getMessage("info.deposeStorage.full"));
@@ -446,6 +449,9 @@ public class ProductionFeatureService {
 						Map<String, String> dsMap = dsMapper.getDeposeStorageByCode(caseCode);
 						ret.add("[内镜分解库位：" + dsMap.get("shelf_name") + "]");
 					}
+				} else {
+					ret.add("[内镜分解库位：" + materiaIncase.get("shelf_name") + "]");
+				}
 			} else
 			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || "00000000093".equals(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
@@ -636,36 +642,6 @@ public class ProductionFeatureService {
 		}
 
 		return ret;
-	}
-
-	/** 
-	 * 判断A线是否还有容量
-	 * @param section_id
-	 * @param ret_position_id
-	 * @param process_code
-	 * @param conn
-	 * @return
-	 */
-	private boolean checkSwitchPx(String section_id, String ret_position_id,
-			String process_code, SqlSessionManager conn) {
-		String waitingflow = RvsUtils.getWaitingflow(section_id, null, process_code);
-		Integer iwaitingflow = null;
-		try {
-			iwaitingflow = Integer.parseInt(waitingflow);
-		} catch (NumberFormatException e) {
-		} catch (NullPointerException e) {
-		}
-
-		if (iwaitingflow == null) {
-			return true;
-		}
-
-		ProductionFeatureMapper mapper = conn.getMapper(ProductionFeatureMapper.class);
-		int iwaitingFact = mapper.getPositionHeap(section_id, ret_position_id, "A");
-		if (iwaitingFact > iwaitingflow) {
-			return false;
-		}
-		return true;
 	}
 
 	/**

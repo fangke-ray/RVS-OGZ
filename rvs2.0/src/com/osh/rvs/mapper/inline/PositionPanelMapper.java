@@ -1,5 +1,6 @@
 package com.osh.rvs.mapper.inline;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -83,4 +84,7 @@ public interface PositionPanelMapper {
 
 	public List<ProductionFeatureEntity> getWorkingBatch(@Param("position_id") String position_id, @Param("operator_id") String operator_id);
 
+	public BigDecimal getRecentLineProcessCost(String line_id);
+
+	public List<MaterialEntity> getRecentInputModels(String position_id);
 }

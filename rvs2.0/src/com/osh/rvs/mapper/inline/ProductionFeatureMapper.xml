@@ -514,7 +514,7 @@ and a.inline_time is null -- [SpeedUp]
 		AND POSITION_ID = #{position_id}
 		</if>
 		<![CDATA[ 
-		-- AND ACTION_TIME IS NULL
+		-- [AND ACTION_TIME IS NULL]
 		AND FINISH_TIME IS NULL
 		;
 		]]>

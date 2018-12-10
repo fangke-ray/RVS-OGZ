@@ -79,4 +79,7 @@ public interface ProcessAssignMapper {
 
 	/** 所在线(工程线)的所有关联工位是否都有完成记录 */
 	public boolean getWorkedLine(@Param("material_id") String material_id, @Param("line_id") String line_id);
+
+	public List<PositionEntity> getAllPositionsOfPatInLine(@Param("pat_id") String pat_id,
+			@Param("line_id") String line_id);
 }

@@ -33,6 +33,7 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.UploadForm;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.service.UploadService;
+import com.osh.rvs.service.inline.PositionPanelService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
@@ -303,6 +304,7 @@ public class UploadAction extends BaseAction {
 
 				PathConsts.load();
 				RvsUtils.initAll(conn);
+				PositionPanelService.clearPatLineStandards();
 
 				List<String> triggerList = new ArrayList<String>();
 				triggerList.add("http://localhost:8080/rvspush/trigger/prop/" + propName + "/" + new Date().getTime());

@@ -25,6 +25,7 @@ public class WaitingEntity implements Serializable {
 	private Integer block_status;
 	private String shelf_name;
 	private Integer level;
+	private Integer line_minutes;
 
 	public String getMaterial_id() {
 		return material_id;
@@ -133,6 +134,12 @@ public class WaitingEntity implements Serializable {
 	}
 	public void setLevel(Integer level) {
 		this.level = level;
+	}
+	public Integer getLine_minutes() {
+		return line_minutes;
+	}
+	public void setLine_minutes(Integer line_minutes) {
+		this.line_minutes = line_minutes;
 	}
 	
 }
