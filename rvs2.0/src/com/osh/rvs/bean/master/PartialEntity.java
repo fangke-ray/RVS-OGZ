@@ -10,14 +10,7 @@ public class PartialEntity implements Serializable {
 	 * 零件管理
 	 */
 	private static final long serialVersionUID = 8890673720525630453L;
-	
-	
-	/*订购对象标记*/	
-	private Integer order_flg;
-	
-	/*消耗品标记*/	
-	private Integer consumable_flg;
-	
+
 	/* 最新价格 */
 	private BigDecimal new_price;
 	/* 通货 */
@@ -34,25 +27,14 @@ public class PartialEntity implements Serializable {
 	private String updated_by;
 	/* 最后更新时间 */
 	private Timestamp updated_time;
-	
-	/*有效截止日期*/
-	private Integer is_exists;  
-	
-	public Integer getOrder_flg() {
-		return order_flg;
-	}
 
-	public void setOrder_flg(Integer order_flg) {
-		this.order_flg = order_flg;
-	}
+	/* 有效截止日期 */
+	private Integer is_exists;
 
-	public Integer getConsumable_flg() {
-		return consumable_flg;
-	}
-
-	public void setConsumable_flg(Integer consumable_flg) {
-		this.consumable_flg = consumable_flg;
-	}
+	/**
+	 * 规格种别
+	 */
+	private Integer spec_kind;
 
 	public Integer getIs_exists() {
 		return is_exists;
@@ -126,6 +108,12 @@ public class PartialEntity implements Serializable {
 		this.price = price;
 	}
 
+	public Integer getSpec_kind() {
+		return spec_kind;
+	}
 
-	
+	public void setSpec_kind(Integer spec_kind) {
+		this.spec_kind = spec_kind;
+	}
+
 }

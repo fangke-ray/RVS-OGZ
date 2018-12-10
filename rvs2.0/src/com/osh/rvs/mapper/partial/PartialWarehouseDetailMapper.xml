@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.PartialWarehouseDetailMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<insert id="insert" parameterType="PartialWarehouseDetailEntity">
+	<![CDATA[
+		INSERT INTO partial_warehouse_detail
+			(`key`,partial_id,quantity,fact_pf_key,collation_quantity)
+		VALUES
+			(#{key},#{partial_id},#{quantity},#{fact_pf_key},#{collation_quantity})
+	]]>
+	</insert>
+	
+	<select id="searchByKey" resultType="PartialWarehouseDetailEntity" parameterType="string">
+	<![CDATA[
+		SELECT
+			pwd.key,
+			pwd.partial_id,
+			pwd.quantity,
+			pwd.collation_quantity,
+			pwd.fact_pf_key,
+			v_partial.code,
+			v_partial.name AS partial_name,
+			pbs.spec_kind,
+			pbs.on_shelf
+		FROM
+			partial_warehouse_detail pwd
+		LEFT JOIN
+			v_partial
+		ON
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pwd.key = #{key}
+	]]>
+	</select>
+	
+	<delete id="delete" parameterType="string">
+	<![CDATA[
+		DELETE FROM partial_warehouse_detail WHERE `key` = #{key}
+	]]>
+	</delete>
+	
+	<update id="update" parameterType="PartialWarehouseDetailEntity">
+	<![CDATA[
+		UPDATE
+			partial_warehouse_detail
+		SET
+			fact_pf_key = #{fact_pf_key},
+			collation_quantity = #{collation_quantity}
+	]]>
+	<if test="quantity!=null and quantity!=''">
+	<![CDATA[
+			,quantity = #{quantity}
+	]]>
+	</if>
+	<![CDATA[
+		WHERE
+			`key` = #{key} 
+		AND 
+			partial_id = #{partial_id}
+	]]>
+	</update>
+	
+	<select id="countQuantityOfSpecKind" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
+	<![CDATA[
+		SELECT 
+			v_partial.spec_kind,
+		    CASE
+				WHEN pbs.box_count = -1 THEN 1
+		        ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)
+		    END AS quantity
+		FROM 
+			partial_warehouse_detail pwd
+		LEFT JOIN 
+		    v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		LEFT JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+	]]>
+	<where>
+	<if test="key!= null and key!= '' ">
+	<![CDATA[ 
+		AND `key` = #{key}
+	]]>
+	</if>
+	</where>
+	<![CDATA[
+		GROUP BY 
+			v_partial.spec_kind
+	]]>
+	</select>
+	
+	<select id="searchUnpackByKey" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
+	<![CDATA[
+		SELECT
+			pwd.key,
+			pwd.partial_id,
+		    pwd.fact_pf_key,
+			pwd.quantity,
+		    v_partial.code,
+			v_partial.name AS partial_name,
+		    pu.split_quantity,
+		    ABS(pwd.collation_quantity) * pu.split_quantity AS total_split_quantity,
+		    v_partial.spec_kind
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			partial_unpack pu
+		ON
+			pwd.partial_id = pu.partial_id
+		JOIN
+			v_partial
+		ON
+			pwd.partial_id = v_partial.partial_id
+		WHERE 
+			pwd.key = #{key}
+	]]>
+	</select>
+	
+	<select id="countUnpackOfSpecKindByKey" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
+		SELECT
+			v_partial.spec_kind,
+			SUM(ABS(pwd.collation_quantity) * pu.split_quantity) AS total_split_quantity
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			partial_unpack pu
+		ON
+			pwd.partial_id = pu.partial_id
+		JOIN
+			v_partial
+		ON
+			pwd.partial_id = v_partial.partial_id
+		WHERE 
+			pwd.key = #{key}
+		GROUP BY 
+			v_partial.spec_kind
+	</select>
+	
+</mapper>

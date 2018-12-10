@@ -66,6 +66,14 @@
 
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.qa.ServiceRepairManageEntity"/>
 		<typeAlias alias="WeeklyKpiDataEntity" type="com.osh.rvs.bean.report.WeeklyKpiDataEntity"/>
+		
+		<typeAlias alias="PartialBussinessStandardEntity" type="com.osh.rvs.bean.master.PartialBussinessStandardEntity"/>
+		<typeAlias alias="PartialUnpackEntity" type="com.osh.rvs.bean.master.PartialUnpackEntity"/>
+		<typeAlias alias="FactProductionFeatureEntity" type="com.osh.rvs.bean.partial.FactProductionFeatureEntity"/>
+		<typeAlias alias="PartialWarehouseEntity" type="com.osh.rvs.bean.partial.PartialWarehouseEntity"/>
+		<typeAlias alias="PartialWarehouseDetailEntity" type="com.osh.rvs.bean.partial.PartialWarehouseDetailEntity"/>
+		<typeAlias alias="FactPartialWarehouseEntity" type="com.osh.rvs.bean.partial.FactPartialWarehouseEntity"/>
+		<typeAlias alias="FactProductionCommentEntity" type="com.osh.rvs.bean.partial.FactProductionCommentEntity"/>
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -147,5 +155,13 @@
 		<mapper resource="com/osh/rvs/mapper/master/GlueMixingTypeMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/inline/GlueMixingProcessMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/inline/GlueMixingProcessPaceMapper.xml"/>
+		
+		<mapper resource="com/osh/rvs/mapper/master/PartialBussinessStandardMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/master/PartialUnpackMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/partial/FactProductionFeatureMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseDetailMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/partial/FactPartialWarehouseMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/partial/FactProductionCommentMapper.xml"/>
 	</mappers>
 </configuration> 

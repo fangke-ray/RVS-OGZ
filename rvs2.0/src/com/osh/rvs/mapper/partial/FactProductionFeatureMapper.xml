@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.FactProductionFeatureMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<insert id="insert" parameterType="FactProductionFeatureEntity">
+	<![CDATA[
+		INSERT INTO fact_production_feature
+		(
+			production_type,
+			operator_id,
+			action_time,
+			finish_time,
+			partial_warehouse_key,
+			material_id,
+			occur_times
+		)
+		VALUES
+		(
+			#{production_type},
+			#{operator_id},
+			#{action_time},
+			#{finish_time},
+			#{partial_warehouse_key},
+			#{material_id},
+			#{occur_times}
+		)
+	]]>
+	</insert>
+	
+	<delete id="delete" parameterType="string" >
+	<![CDATA[
+		DELETE FROM fact_production_feature WHERE fact_pf_key = #{fact_pf_key}
+	]]>
+	</delete>
+	
+	<update id="updateFinishTime" parameterType="FactProductionFeatureEntity">
+	<![CDATA[
+		UPDATE 
+			fact_production_feature 
+		SET
+			finish_time = CURRENT_TIMESTAMP()
+		WHERE
+			fact_pf_key = #{fact_pf_key}
+	]]>
+	</update>
+
+	<select id="searchUnFinishedProduction" parameterType="FactProductionFeatureEntity" resultType="FactProductionFeatureEntity">
+	<![CDATA[
+		SELECT
+			fpf.fact_pf_key,
+			fpf.production_type,
+			fpf.operator_id,
+			fpf.action_time,
+			fpf.finish_time,
+			fpf.partial_warehouse_key,
+			fpf.material_id,
+			fpf.occur_times,
+            pw.warehouse_date,
+            pw.dn_no
+		FROM
+			fact_production_feature fpf
+		LEFT JOIN
+			partial_warehouse pw
+		ON
+			fpf.partial_warehouse_key = pw.key
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.finish_time IS NULL
+	]]>
+	</select>
+	
+	<update id="updateKey" parameterType="FactProductionFeatureEntity">
+	<![CDATA[
+		UPDATE 
+			fact_production_feature 
+		SET
+			partial_warehouse_key = #{partial_warehouse_key}
+		WHERE
+			fact_pf_key = #{fact_pf_key}
+	]]>
+	</update>
+
+</mapper>
