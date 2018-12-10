@@ -19,8 +19,10 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.PartialEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.PartialForm;
+import com.osh.rvs.form.master.PartialUnpackForm;
 import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.PartialService;
+import com.osh.rvs.service.PartialUnpackService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -32,13 +34,14 @@ import framework.huiqing.common.util.validator.Validators;
 
 public class PartialAction extends BaseAction {
 
-	private Logger log = Logger.getLogger(getClass());
+	private final Logger log = Logger.getLogger(getClass());
 
-	private PartialService service = new PartialService();
+	private final PartialService service = new PartialService();
+	private final PartialUnpackService partialUnpackService = new PartialUnpackService();
 
 	/**
 	 * 零件管理画面初始表示处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -66,6 +69,10 @@ public class PartialAction extends BaseAction {
 		String mReferChooser = modelService.getOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);// 维修对象型号集合
 
+		//规格种别
+		req.setAttribute("specKind", CodeListUtils.getSelectOptions("partial_spec_kind",null,""));
+		req.setAttribute("gridSpecKind", CodeListUtils.getGridOptions("partial_spec_kind"));
+
 		// 数据到页面
 		req.setAttribute("sValue_currency", CodeListUtils.getSelectOptions("value_currency", null, ""));
 		req.setAttribute("govalue_currency", CodeListUtils.getGridOptions("value_currency"));
@@ -73,24 +80,24 @@ public class PartialAction extends BaseAction {
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
-		
+
 		//权限区分
 		List<Integer> privacies = user.getPrivacies();
-		if (privacies.contains(RvsConsts.PRIVACY_SA) 
+		if (privacies.contains(RvsConsts.PRIVACY_SA)
 //				|| privacies.contains(RvsConsts.PRIVACY_PARTIAL_MANAGER)
 				|| privacies.contains(RvsConsts.PRIVACY_ADMIN)) {
 			req.setAttribute("role", "operator");
 		}else{
 			req.setAttribute("role", "other");
 		}
-		
+
 		actionForward = mapping.findForward(FW_INIT);
 		log.info("PartialAction.init end");
 	}
 
 	/**
 	 * 零件管理查询一览处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -130,7 +137,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 废改订编辑
-	 * 
+	 *
 	 * @param mapping
 	 * @param form
 	 * @param request
@@ -164,7 +171,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件管理双击获取数据
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -188,15 +195,23 @@ public class PartialAction extends BaseAction {
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ONLYKEY);
 		List<MsgInfo> errors = v.validate();
 		PartialEntity partialEntity = new PartialEntity();
-		
+
 		BeanUtil.copyToBean(form, partialEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
-		
+
 		if (errors.size() == 0) {
 			/*取得本零件的详细信息*/
 			PartialForm resultForm = service.getDetail(partialEntity, conn, errors);
 			if (resultForm != null) {
 				listResponse.put("partialForm", resultForm);
+
+				PartialUnpackForm partialUnpackForm = new PartialUnpackForm();
+				partialUnpackForm.setPartial_id(resultForm.getPartial_id());
+				partialUnpackForm = partialUnpackService.getPartialUnpack(partialUnpackForm, conn);
+
+				listResponse.put("partialUnpackForm", partialUnpackForm);
 			}
+
+
 		}
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
@@ -208,7 +223,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件管理新建页面一览处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -234,9 +249,26 @@ public class PartialAction extends BaseAction {
 		/* 验证零件编码和零件是否输入值 */
 		service.customValidate(form, conn, errors);
 
-		if (errors.size() == 0) {
-			service.insert(form, req.getSession(), conn, errors);
+		PartialForm partialForm = (PartialForm)form;
 
+		PartialUnpackForm partialUnpackForm = new PartialUnpackForm();
+		partialUnpackForm.setSplit_quantity(partialForm.getSplit_quantity());
+
+		if("1".equals(partialForm.getUnpack_flg())){
+			v = BeanUtil.createBeanValidators(partialUnpackForm, BeanUtil.CHECK_TYPE_PASSEMPTY);
+			v.add("split_quantity", v.required("分装数量"));
+			errors = v.validate();
+		}
+
+		if (errors.size() == 0) {
+			String partialID = service.insert(form, req.getSession(), conn, errors);
+
+			if("1".equals(partialForm.getUnpack_flg())){
+				partialUnpackForm.setPartial_id(partialID);
+
+				partialUnpackService.insert(partialUnpackForm, conn);
+
+			}
 		}
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);
@@ -248,7 +280,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件管理删除一览处理
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -282,7 +314,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件管理更新一览处理（更新partial表里的code和name字段）
-	 * 
+	 *
 	 * @param mapping
 	 *            ActionMapping
 	 * @param form
@@ -304,10 +336,33 @@ public class PartialAction extends BaseAction {
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ALL);
 		List<MsgInfo> errors = v.validate();
 		service.customValidate(form, conn, errors);
+
+		PartialForm partialForm = (PartialForm)form;
+
+		PartialUnpackForm partialUnpackForm = new PartialUnpackForm();
+		partialUnpackForm.setSplit_quantity(partialForm.getSplit_quantity());
+
+		if("1".equals(partialForm.getUnpack_flg())){
+			v = BeanUtil.createBeanValidators(partialUnpackForm, BeanUtil.CHECK_TYPE_PASSEMPTY);
+			v.add("split_quantity", v.required("分装数量"));
+			errors = v.validate();
+		}
+
 		// 无错误时更新数据
 		if (errors.size() == 0) {
 			// 更新数据时从前台的传递一个参数，该参数返回值是true or false获取这个返回值 传递给service 执行service的判断
 			service.update(form, req.getSession(), conn, errors);
+
+			partialUnpackForm.setPartial_id(partialForm.getPartial_id());
+
+			PartialUnpackForm respForm = partialUnpackService.getPartialUnpack(partialUnpackForm, conn);
+			if(respForm == null){
+				partialUnpackService.insert(partialUnpackForm, conn);
+			}else{
+				partialUnpackService.update(partialUnpackForm, conn);
+			}
+
+
 		}
 		callbackResponse.put("errors", errors);
 		returnJsonResponse(res, callbackResponse);
@@ -316,7 +371,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件管理双击修改内容(partial表code和name、partial_price表value_currency和price)
-	 * 
+	 *
 	 * @param mapping
 	 * @param form
 	 *            表单
@@ -346,7 +401,7 @@ public class PartialAction extends BaseAction {
 
 	/**
 	 * 零件集合(autocomplete)
-	 * 
+	 *
 	 * @param mapping
 	 * @param form
 	 * @param request
