@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.LineLeaderMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<select id="getWorkingOfPositions" resultType="map">
+		<![CDATA[
+			SELECT 
+			    CAST(`p`.POSITION_ID as char) as POSITION_ID,
+			    `p`.NAME,
+			    `p`.PROCESS_CODE,
+				CASE WHEN pos.SECTION_ID = 1
+					THEN CAST(`p`.LIGHT_DIVISION_FLG as char)
+				ELSE '0'
+				end as LIGHT_DIVISION_FLG,
+			    cast(coalesce(`pf`.material_count, 0) as char) as material_count,
+			    cast(coalesce(`pf2`.material_count, 0) as char) as light_fix_count,
+			    qf.quotation_first
+			FROM
+			    `position` p
+			JOIN
+				(Select 0 as quotation_first from dual union Select 1 as quotation_first from dual) qf
+	        LEFT JOIN
+			    (SELECT 
+			        count(p.material_id) as material_count, p.position_id, m.quotation_first
+			    FROM
+			        production_feature p
+			    join material m ON m.material_id = p.material_id
+			    WHERE
+			        p.finish_time IS NULL
+			            AND p.operate_result not in (5, 7)
+			            AND p.SECTION_ID = #{section_id}
+			            and m.level in (9 , 91, 92, 93)
+			    GROUP BY p.position_id, m.quotation_first) pf2 
+			    ON `p`.position_id = pf2.position_id
+			    AND qf.quotation_first = pf2.quotation_first
+			LEFT JOIN
+			    (SELECT 
+			        count(p.material_id) as material_count, p.position_id, m.quotation_first
+			    FROM
+			        production_feature p
+			    join material m ON m.material_id = p.material_id
+			    WHERE
+			        p.finish_time IS NULL
+			            AND p.operate_result not in (5, 7)
+			            AND p.SECTION_ID = #{section_id}
+			            and m.level not in (9 , 91, 92, 93)
+						AND (p.position_id != 77 or (action_time is not null and finish_time is null))
+			    GROUP BY p.position_id, m.quotation_first) pf
+			    ON `p`.position_id = pf.position_id
+			    AND qf.quotation_first = pf.quotation_first
+			JOIN
+			    position_of_section pos ON p.position_id = pos.position_id
+			        AND pos.SECTION_ID = #{section_id}
+			WHERE
+			    DELETE_FLG = 0
+		]]>
+		<if test="line_id!= null and line_id!= '' ">
+		<![CDATA[
+			    AND LINE_ID = #{line_id}
+		]]>
+		</if>
+		<if test="line_id!= null and line_id== '00000000014' ">
+		<![CDATA[
+			    AND PROCESS_CODE like '4%'
+		]]>
+		</if>
+		<if test="line_id!= null and line_id== '00000000012' ">
+		<![CDATA[
+			    -- [AND p.process_code <> '211']
+		]]>
+		</if>
+			ORDER BY `p`.PROCESS_CODE, quotation_first;
+	</select>
+
+	<select id="getWorkingMaterials" resultType="LineLeaderEntity">
+		<![CDATA[
+			SELECT `m`.agreed_date, (`m`.scheduled_expedited * 10 + `mp`.line_expedited) as expedited,
+				`m`.omr_notifi_no as sorc_no, `mb1`.order_date as partical_order_date, exists(SELECT 1 FROM material_partial mb2 WHERE `mb2`.material_id = `m`.material_id AND bo_flg = 1) as partical_bo,
+			  `mb3`.arrival_plan_date, '' as symbol, `m`.material_id,
+				`m`.`level`, `m`.serial_no, `c`.name as category_name, `mdl`.name as model_name,
+			  `mp`.scheduled_date ,
+			  `ppf1`.operate_result, `ppf1`.process_code, `ppf1`.position_id
+ 			  ,(select process_code from position where position_id =(select position_id from production_feature where material_id = m.material_id and position_id not in (select position_id from position where line_id = #{line_id}) and operate_result not in (5, 8) order by (1-ISNULL(action_time)), action_time desc, operate_result desc limit 1)) as otherline_process_code,
+ 			  (`mp`.`rework_trigger_position_id` IS NOT NULL) as is_reworking, (`mp`.`scheduled_assign_date` = current_date) as is_today
+			FROM material m
+			JOIN material_process mp
+			  ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			LEFT JOIN material_partial mb1
+			  ON `m`.material_id = `mb1`.material_id AND `mb1`.occur_times = 1
+			LEFT JOIN material_partial mb3
+			  ON `m`.material_id = `mb3`.material_id AND `mb3`.occur_times = 1
+			JOIN model mdl
+			  ON `m`.model_id = `mdl`.model_id
+			JOIN category c
+			  ON `mdl`.category_id = `c`.category_id
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result
+					FROM production_feature pf
+					JOIN `position` p
+					ON `pf`.position_id = `p`.position_id
+					  AND `p`.line_id = #{line_id}
+					WHERE operate_result not in (5, 8)
+					  AND (`pf`.operate_result = 3 OR `pf`.finish_time is null)
+					  AND `pf`.section_id = #{section_id}
+					ORDER BY (1-ISNULL(`pf`.action_time)) ,
+					`pf`.action_time DESC, (`pf`.operate_result = 3) DESC, `pf`.operate_result DESC
+				) pfp
+				GROUP BY `pfp`.material_id) ppf1
+				ON `m`.material_id = `ppf1`.material_id
+			WHERE `m`.section_id = #{section_id}
+			AND `m`.outline_time IS NULL
+			-- [AND `m`.fix_type = 1]
+			AND (`mp`.`finish_date` IS NULL OR (`mp`.`rework_trigger_position_id` IS NOT NULL AND `ppf1`.operate_result != 2))
+		]]>
+		<if test="position_id!= null and position_id!= '' ">
+		<![CDATA[
+			AND (ppf1.position_id = #{position_id} 
+				OR EXISTS (SELECT operate_result, process_code, position_id FROM production_feature WHERE material_id = `m`.material_id 
+				AND position_id = #{position_id} AND finish_time IS NULL))
+		]]>
+		</if>
+		<![CDATA[
+			ORDER BY `m`.agreed_date, `ppf1`.PROCESS_CODE;
+		]]>
+	</select>
+
+	<select id="getWorkingMaterialCounts" resultType="long">
+		<![CDATA[
+			SELECT count(distinct m.material_id)
+			FROM material m
+			JOIN material_process mp
+			  ON `m`.material_id = `mp`.material_id 
+		]]>
+		<if test="line_id!= null and line_id!= '' ">
+		<![CDATA[
+			  AND `mp`.line_id = #{line_id}
+		]]>
+		</if>
+		<![CDATA[
+			JOIN `production_feature` pf
+				ON `m`.material_id = `pf`.material_id
+				AND operate_result not in (5, 8)
+				AND pf.position_id not in (25, 60)
+			JOIN
+				`position` p
+				ON pf.position_id = p.position_id
+			WHERE `m`.section_id = #{section_id}
+			AND `m`.outline_time IS NULL
+			AND (`mp`.`finish_date` IS NULL OR (`mp`.`rework_trigger_position_id` IS NOT NULL and operate_result != 2))
+		]]>
+		<if test="line_id!= null and line_id!= '' ">
+		<![CDATA[
+			    AND p.`line_id` = #{line_id}
+		]]>
+		</if>
+		<if test="line_id!= null and line_id== '00000000014' ">
+		<![CDATA[
+			    AND m.model_id not in (select model_id from v_model where kind = '03')
+		]]>
+		</if>
+			;
+	</select>
+
+	<select id="getTodayPlanMaterialCounts" resultType="long">
+		<![CDATA[
+			SELECT COUNT(1)
+			FROM material m
+			JOIN material_process mp
+			  ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN v_model vm
+			  ON m.model_id = vm.model_id
+			WHERE `m`.section_id = #{section_id}
+			AND `mp`.scheduled_assign_date = current_date
+		]]>
+		<if test="kind != null and kind != ''">
+		<![CDATA[
+			AND vm.kind = #{kind}
+		]]>
+		</if>
+	</select>
+
+	<select id="getTodayCompleteMaterialCounts" resultType="long">
+		<![CDATA[
+			SELECT COUNT(1)
+			FROM material m
+			JOIN material_process mp
+			  ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN v_model vm
+			  ON m.model_id = vm.model_id
+			WHERE `m`.section_id = #{section_id}
+			AND `mp`.finish_date = current_date
+		]]>
+		<if test="kind != null and kind != ''">
+		<![CDATA[
+			AND vm.kind = #{kind}
+		]]>
+		</if>
+		<if test="line_id!= null and line_id== '00000000014' ">
+		<![CDATA[
+			    AND m.model_id not in (select model_id from v_model where kind = '03')
+		]]>
+		</if>
+	</select>
+
+	<select id="getBreakingMaterials" resultType="LineLeaderEntity">
+		<![CDATA[
+			SELECT m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.direct_flg, m.level
+			FROM material m
+			JOIN material_process mp
+				ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN model mdl
+				ON `m`.model_id = `mdl`.model_id
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result
+					FROM production_feature pf
+					JOIN `position` p
+					ON `pf`.position_id = `p`.position_id
+					  AND `p`.line_id = #{line_id}
+					WHERE operate_result not in (5, 8)
+					  AND `pf`.section_id = #{section_id}
+					ORDER BY (1-ISNULL(`pf`.action_time)) ,
+					`pf`.action_time DESC, `pf`.operate_result DESC
+				) pfp
+				GROUP BY `pfp`.material_id) ppf1
+				ON `m`.material_id = `ppf1`.material_id
+			WHERE `m`.section_id = #{section_id}
+			AND ppf1.operate_result = 3
+			AND (`mp`.`finish_date` IS NULL)
+		]]>
+	</select>
+
+	<select id="getExpeditingMaterials" resultType="LineLeaderEntity">
+		<![CDATA[
+			SELECT m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.direct_flg, m.level
+			FROM material m
+			JOIN material_process mp
+				ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN model mdl
+				ON `m`.model_id = `mdl`.model_id
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result
+					FROM production_feature pf
+					JOIN `position` p
+					ON `pf`.position_id = `p`.position_id
+					  AND `p`.line_id = #{line_id}
+					WHERE operate_result not in (5, 8)
+					  AND `pf`.section_id = #{section_id}
+					ORDER BY (1-ISNULL(`pf`.action_time)) ,
+					`pf`.action_time DESC, `pf`.operate_result DESC
+				) pfp
+				GROUP BY `pfp`.material_id) ppf1
+				ON `m`.material_id = `ppf1`.material_id
+			WHERE `m`.section_id = #{section_id}
+			AND (`m`.scheduled_expedited = 1 OR `mp`.line_expedited = 1)
+			AND (`mp`.`finish_date` IS NULL)
+		]]>
+	</select>
+
+	<select id="getPlanOutlineMaterials" resultType="LineLeaderEntity">
+		<![CDATA[
+			SELECT m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.direct_flg, m.level
+			FROM material m
+			JOIN material_process mp
+				ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN model mdl
+				ON `m`.model_id = `mdl`.model_id
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result
+					FROM production_feature pf
+					JOIN `position` p
+					ON `pf`.position_id = `p`.position_id
+					  AND `p`.line_id = #{line_id}
+					WHERE operate_result not in (5, 8)
+					  AND `pf`.section_id = #{section_id}
+					ORDER BY (1-ISNULL(`pf`.action_time)) ,
+					`pf`.action_time DESC, `pf`.operate_result DESC
+				) pfp
+				GROUP BY `pfp`.material_id) ppf1
+				ON `m`.material_id = `ppf1`.material_id
+			JOIN
+			(select f_addworkdays(current_date, -in_advance div 8) as `day` from line where line_id = #{line_id}) bq
+			WHERE `m`.section_id = #{section_id}
+			AND `mp`.scheduled_date <= bq.`day`
+			AND (`mp`.`finish_date` IS NULL)
+		]]>
+	</select>
+
+	<select id="getOtherLineFinishMaterials" resultType="LineLeaderEntity">
+		<![CDATA[
+			SELECT m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.direct_flg, m.level
+			FROM material m
+			JOIN material_process mp
+				ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+			JOIN model mdl
+				ON `m`.model_id = `mdl`.model_id
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result
+					FROM production_feature pf
+					JOIN `position` p
+					ON `pf`.position_id = `p`.position_id
+					  AND `p`.line_id = #{line_id}
+					WHERE operate_result not in (5, 8)
+					  AND `pf`.section_id = #{section_id}
+					ORDER BY (1-ISNULL(`pf`.action_time)) ,
+					`pf`.action_time DESC, `pf`.operate_result DESC
+				) pfp
+				GROUP BY `pfp`.material_id) ppf1
+				ON `m`.material_id = `ppf1`.material_id
+			WHERE `m`.section_id = #{section_id}
+			AND EXISTS (SELECT 1 FROM PRODUCTION_FEATURE WHERE material_id = m.material_id AND position_id = 23 AND section_id = #{section_id}
+				AND operate_result = 2)
+			AND (`mp`.`finish_date` IS NULL)
+		]]>
+	</select>
+
+	<select id="getComAndNsMatch" resultType="map">
+		<![CDATA[
+		select m.omr_notifi_no as sorc_no, mdl.name as model_name, cast(m.direct_flg as char) as direct_flg
+		, cast(m.level as char) as level
+		, DATE_FORMAT(mp12.finish_date, "%m-%d") as com_finish_date
+		, DATE_FORMAT(mp13.finish_date, "%m-%d") as ns_finish_date
+		, p12.process_code as com_process_code, p13.process_code as ns_process_code
+		from material m
+		JOIN material_process mp12 
+			ON m.material_id = mp12.material_id
+			AND mp12.line_id = 12
+		JOIN material_process mp13 
+			ON m.material_id = mp13.material_id
+			AND mp13.line_id = 13
+		JOIN production_feature pf12
+			ON m.material_id = pf12.material_id
+			AND pf12.finish_time is null
+		JOIN production_feature pf13
+			ON m.material_id = pf13.material_id
+			AND pf13.finish_time is null
+		LEFT JOIN position p12
+			ON pf12.position_id = p12.position_id
+			AND p12.line_id = 12
+		LEFT JOIN position p13
+			ON pf13.position_id = p13.position_id
+			AND p13.line_id = 13
+		JOIN `model` mdl
+			ON m.model_id = mdl.model_id
+		WHERE 
+		m.section_id = #{section_id}
+		AND (mp12.finish_date IS NULL OR mp13.finish_date IS NULL)
+		AND EXISTS (SELECT 1 FROM production_feature WHERE position_id = 30 AND operate_result <> 0 AND material_id = m.material_id)
+		AND NOT EXISTS (SELECT 1 FROM material_partial WHERE bo_flg = 1 AND material_id = m.material_id)
+		ORDER BY sorc_no
+		]]>
+	</select>
+
+	<select id="getNsAndComMatch" resultType="map">
+		<![CDATA[
+		select m.omr_notifi_no as sorc_no, mdl.name as model_name, cast(m.direct_flg as char) as direct_flg
+		, cast(m.level as char) as level
+		, DATE_FORMAT(mp12.finish_date, "%m-%d") as com_finish_date
+		, DATE_FORMAT(mp13.finish_date, "%m-%d") as ns_finish_date
+		, p12.process_code as com_process_code, p13.process_code as ns_process_code
+		from material m
+		JOIN material_process mp12 
+			ON m.material_id = mp12.material_id
+			AND mp12.line_id = 12
+		JOIN material_process mp13 
+			ON m.material_id = mp13.material_id
+			AND mp13.line_id = 13
+		JOIN production_feature pf12
+			ON m.material_id = pf12.material_id
+			AND pf12.finish_time is null
+		JOIN production_feature pf13
+			ON m.material_id = pf13.material_id
+			AND pf13.finish_time is null
+		LEFT JOIN position p12
+			ON pf12.position_id = p12.position_id
+			AND p12.line_id = 12
+		LEFT JOIN position p13
+			ON pf13.position_id = p13.position_id
+			AND p13.line_id = 13
+		JOIN `model` mdl
+			ON m.model_id = mdl.model_id
+		WHERE 
+		m.level <> 1 AND m.section_id = #{section_id}
+		AND (mp13.finish_date IS NULL)
+		AND EXISTS (SELECT 1 FROM production_feature WHERE position_id = 00000000023 AND operate_result <> 0 AND material_id = m.material_id)
+		AND NOT EXISTS (SELECT 1 FROM material_partial WHERE bo_flg = 1 AND material_id = m.material_id)
+		ORDER BY sorc_no
+		]]>
+	</select>
+
+	<select id="getPlanPeriod" resultType="int">
+		SELECT count(1) FROM schedule_history sh 
+		join material ma
+		on sh.material_id = ma.material_id
+		where sh.scheduled_date = current_date
+		and remove_flg = 0
+		and ma.section_id = #{section_id}
+		and sh.plan_day_period = #{out_period};
+	</select>
+
+	<select id="getOutPeriod" resultType="int">
+		select 
+		    count(1)
+		from
+		    (select 
+		        ma.material_id, max(finish_time) as finish_time
+				,
+				exists (select 1 from production_feature pfi join position posi 
+				ON pfi.position_id = posi.position_id
+				where ma.material_id = pfi.material_id
+				AND posi.line_id = #{line_id} and posi.position_id not in (25, 60)
+		        AND pfi.section_id = #{section_id}
+				limit 1) indeed_work_in_section
+		    from
+		        production_feature pf
+			join position pos
+				on pf.position_id = pos.position_id
+		    join material ma 
+				ON pf.material_id = ma.material_id
+				and ma.break_back_flg = 0
+			join material_process mp 
+				ON mp.material_id = ma.material_id
+				and mp.line_id = #{line_id}
+		    where
+				mp.finish_date = current_date
+				AND pos.line_id = #{line_id}
+		<if test="line_id!= null and line_id== '00000000014' ">
+		<![CDATA[
+			    AND ma.model_id not in (select model_id from v_model where kind = '03')
+		]]>
+		</if>
+		    group by ma.material_id
+			order by finish_time desc
+		) m14
+		where
+			indeed_work_in_section = 1
+		    and m14.finish_time >= current_date
+			<if test="out_period == 1">
+		<![CDATA[
+		and time(finish_time) < '10:00:00'
+		]]>
+			</if>
+			<if test="out_period == 2">
+		<![CDATA[
+		and time(finish_time) between '10:00:00' and '12:00:00'
+		]]>
+			</if>
+			<if test="out_period == 3">
+		<![CDATA[
+		and time(finish_time) between '12:00:00' and '15:00:00'
+		]]>
+			</if>
+			<if test="out_period == 4">
+		<![CDATA[
+		and time(finish_time) > '15:00:00'
+		]]>
+			</if>
+		;
+	</select>
+
+	<select id="getProduceActualOfDecByBoard" resultType="int">
+		<![CDATA[
+		SELECT 
+			COUNT(1) 
+		FROM
+			material
+		join 
+			material_process
+		on 
+			material.material_id=material_process.material_id and material_process.line_id = 12
+		WHERE 
+			material.break_back_flg = 0 
+			AND material.fix_type = 1
+			AND material.section_id = #{section_id}
+			AND material_process.finish_date = CURRENT_DATE
+		]]>
+	</select>
+	<select id="getProduceActualOfNsByBoard" resultType="int">
+		SELECT 
+		    COUNT(1)
+		FROM
+		    material
+		        join
+		    material_process ON material.material_id = material_process.material_id
+		        and material_process.line_id = 13
+		WHERE
+		    material.break_back_flg = 0
+	        AND material.fix_type = 1
+	        AND material_process.finish_date = CURRENT_DATE
+			AND exists (SELECT 1 From production_feature where material_id = material.material_id 
+				and position_id = 00000000031 and section_id = #{section_id})
+	</select>
+
+	<select id="getComninedCount" resultType="int">
+		SELECT 
+		    COUNT(distinct material_id)
+		FROM
+		    production_feature pf
+		JOIN
+			position p
+		ON
+			pf.position_id = p.position_id
+		WHERE
+		    pf.section_id = #{section_id}
+		AND
+			pf.finish_time is null
+		AND
+			p.process_code in 
+     <foreach collection="process_code_set" item="value"  open="(" separator="," close=")">     
+        #{value}      
+     </foreach>
+	</select>
+
+</mapper>

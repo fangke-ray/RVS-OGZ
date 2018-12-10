@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.ServiceRepairManageMapper">
+	<select id="searchServiceRepair" parameterType="ServiceRepairManageEntity" resultType="int">
+		<![CDATA[
+			SELECT
+				count(*)
+			FROM
+				service_repair_manage srm
+			LEFT JOIN
+				material ma
+			ON 
+				srm.material_id=ma.material_id
+			LEFT JOIN 
+				service_repair_past_material srpm
+			ON 
+				srm.model_name=srpm.model_name
+			    AND srm.serial_no=srpm.serial_no 
+			    AND srm.rc_mailsend_date=srpm.rc_mailsend_date
+		]]>
+		<where>
+		<if test="service_repair_flg!=null and service_repair_flg!='' ">
+			<![CDATA[
+				AND srm.service_repair_flg=#{service_repair_flg}
+			]]>
+		</if>
+		<if test="qa_referee_time_start==null ">
+			AND srm.qa_referee_time>= current_date
+		</if>
+		<if test="qa_referee_time_start!=null and qa_referee_time_start!='' ">
+			<![CDATA[
+				AND srm.qa_referee_time>=#{qa_referee_time_start}
+			]]>
+		</if>
+		<if test="qa_referee_time_end!=null and qa_referee_time_end!='' ">
+			<![CDATA[
+				AND DATE(srm.qa_referee_time)<=DATE(#{qa_referee_time_end})
+			]]>
+		</if>
+		<if test="qa_referee_time!=null and qa_referee_time!='' ">
+			<![CDATA[
+				AND qa_referee_time IS NOT NULL
+			]]>
+		</if>
+		<if test="answer_in_deadline!=null and answer_in_deadline!='' ">
+			 <choose>
+		 		 <when test="answer_in_deadline==-1 ">
+		 		 	<![CDATA[
+						AND srm.answer_in_deadline > 0
+					]]>
+		 		 </when>
+		 		 <otherwise>
+		 		 		<![CDATA[
+							AND srm.answer_in_deadline=#{answer_in_deadline}
+						]]>
+		 		 </otherwise>
+			 </choose>
+		</if>
+		</where>
+	</select>
+	
+	<select id="searchCurrentData" resultType="int">
+		SELECT
+				count(*)
+			FROM
+				service_repair_manage srm
+			LEFT JOIN
+				material ma
+			ON 
+				srm.material_id=ma.material_id
+			LEFT JOIN 
+				service_repair_past_material srpm
+			ON 
+				srm.model_name=srpm.model_name
+			    AND srm.serial_no=srpm.serial_no 
+			    AND srm.rc_mailsend_date=srpm.rc_mailsend_date
+			WHERE
+				srm.qa_reception_time IS NOT NULL
+			AND srm.qa_referee_time IS NULL
+	</select>
+	
+	<select id="searchAnalyseWaitting" resultType="int">
+		<![CDATA[
+			SELECT
+				count(*)
+			FROM
+				service_repair_manage srm
+			LEFT JOIN
+				material ma
+			ON 
+				srm.material_id=ma.material_id
+			LEFT JOIN 
+				service_repair_past_material srpm
+			ON 
+				srm.model_name=srpm.model_name
+			    AND srm.serial_no=srpm.serial_no 
+			    AND srm.rc_mailsend_date=srpm.rc_mailsend_date
+			WHERE
+				srm.qa_reception_time IS NULL
+		]]>
+	</select>
+</mapper>

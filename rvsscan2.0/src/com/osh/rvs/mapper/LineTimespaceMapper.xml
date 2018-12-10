@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.LineTimespaceMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getProductionFeatures" resultType="map">
+		<![CDATA[
+select ma.material_id, ma.level, mdl.name as model_name, mdl.category_name, 
+timestampdiff(minute, current_date, pf.action_time) as action_time, l.name as line_name,
+timestampdiff(minute, current_date, coalesce(pf.finish_time, current_timestamp)) as finish_time,
+pos.process_code, mp.finish_date, pf.operate_result, pf.rework,
+CASE WHEN 
+	operate_result = 1 THEN -1
+ELSE
+	pf.use_seconds
+END as use_seconds
+from production_feature pf
+join material ma on pf.material_id = ma.material_id
+join v_model mdl on ma.model_id = mdl.model_id
+join position pos on pf.position_id = pos.position_id
+join material_process mp on ma.material_id = mp.material_id and mp.line_id = #{line_id}
+join line l on l.line_id = #{line_id}
+where action_time > current_date
+and pos.line_id = #{line_id}
+and pf.operate_result not in (5,8)
+and not (pf.operate_result = 4 AND pf.finish_time is null)
+order by process_code, action_time;
+		]]>
+	</select>
+
+	<select id="getLineBalancing" resultType="map" parameterType="String">
+		<![CDATA[
+select 
+pos.process_code, 
+use_seconds 
+from production_feature pf
+join position pos on pf.position_id = pos.position_id
+where material_id = #{material_id}
+and operate_result in (2)
+and pos.line_id = #{line_id}
+and pos.process_code not in ('211','251','252','302','303','321')
+;
+		]]>
+	</select>
+
+	<select id="getWorkingStandingRate" resultType="java.math.BigDecimal" parameterType="String">
+		<![CDATA[
+select 
+Round((1 - (use_seconds / 60 + cast(#{drying_time} as unsigned)) /
+f_diff_factwork_minutes(action_time, finish_time, #{line_id})) * 100, 1) as wtr FROM
+(select sum(
+	case 
+	when use_seconds is null then 0
+	when operate_result = 5 then (unix_timestamp(action_time) - unix_timestamp(finish_time))
+	else use_seconds end
+) as use_seconds, max(finish_time) as finish_time, min(action_time) as action_time
+from production_feature pf
+join position pos on pf.position_id = pos.position_id
+where material_id = #{material_id}
+and pos.line_id = #{line_id}
+and pos.process_code not in ('211','302','303')
+) mwt;
+		]]>
+	</select>
+
+	<select id="getDecWorkingStandingRate" resultType="java.math.BigDecimal" parameterType="String">
+		<![CDATA[
+select 
+Round((1 - (use_seconds / 60 + cast(#{drying_time} as unsigned) + f_diff_factwork_minutes(cpj.action_time, cpj.finish_time, #{line_id})) /
+f_diff_factwork_minutes(mwt.action_time, mwt.finish_time, #{line_id})) * 100, 1) as wtr FROM
+(select sum(use_seconds * (pos.process_code not in ('221', '222','231','241'))) as use_seconds, 
+max(finish_time) as finish_time, min(action_time) as action_time
+from production_feature pf
+join position pos on pf.position_id = pos.position_id
+where material_id = #{material_id}
+and pos.line_id = #{line_id}
+and pos.process_code not in ('211','302','303')
+) mwt
+join
+(select 
+max(finish_time) as finish_time, min(action_time) as action_time
+from production_feature pf
+join position pos on pf.position_id = pos.position_id
+where material_id = #{material_id}
+and pos.line_id = #{line_id}
+and pos.process_code in ('221', '222','231','241')
+) cpj
+;
+		]]>
+	</select>
+
+	<select id="getOperatorFeatures" resultType="map">
+		<![CDATA[
+		SELECT o.name as operator_name, o.job_no as job_no, (o.WORK_COUNT_FLG + 0) as WORK_COUNT_FLG, 
+		p.process_code, 
+timestampdiff(minute, current_date, cnt.action_time) as action_time,
+timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)) as finish_time,
+		cnt.sorc_no, cnt.d_type FROM
+			(SELECT
+				a.operator_id,
+				a.position_id,
+				a.section_id,
+				a.action_time as action_time,
+				a.finish_time as finish_time,
+				am.omr_notifi_no as sorc_no,
+				a.operate_result,
+				1 as d_type
+			FROM production_feature a
+			JOIN material am
+			ON a.material_id = am.material_id
+			WHERE a.action_time >= current_date
+			and not (a.operate_result = 4 AND a.finish_time is null)
+			AND a.position_id <> 24 -- 先端预制特别显示
+			union ALL
+			SELECT
+				b.operator_id,
+				null as position_id,
+				null as section_id,
+				b.pause_start_time as action_time,
+				b.pause_finish_time as finish_time,
+				'' as sorc_no,
+				null as operate_result,
+				CASE
+					WHEN reason in (58, 59, 66, 67, 68, 69) THEN 2 -- 直接作业工时
+					WHEN reason in (50, 51, 52, 53, 54, 55, 56, 57) THEN 3 -- 准备中
+					WHEN reason in (62) THEN 4 -- 等待指示
+					WHEN reason in (60, 65) THEN 5 -- 休息
+					WHEN reason in (61, 64) THEN 6 -- 出勤变动
+					WHEN reason in (63) THEN 7 -- 环境问题
+					ELSE 0 -- Unknown 
+				END as d_type
+			FROM pause_feature b
+			WHERE b.pause_start_time >= current_date
+			AND (b.reason between 49 and 70)
+			union ALL
+			SELECT
+				spf.operator_id,
+				spf.position_id as position_id,
+				spf.section_id,
+				spf.action_time,
+				spf.finish_time,
+				CONCAT(
+				CASE 
+					WHEN spf.position_id = 24 THEN "先端组件:"
+					WHEN spf.position_id = 51 THEN "返品机身号:"
+					ELSE ""
+				END
+				, spf.serial_no) as sorc_no,
+				spf.operate_result,
+				1 as d_type
+				FROM solo_production_feature spf
+				WHERE spf.action_time >= current_date
+				AND used = 0
+			union ALL
+			SELECT 
+				gmpp.mixing_operator_id as operator_id,
+				'' AS position_id,
+				'' AS section_id,
+				gmpp.mixing_action_time as action_time,
+				gmpp.mixing_finish_time as finish_time,
+				gmt.binder_name AS sorc_no,
+				null as operate_result,
+				2 as d_type
+			FROM 
+				glue_mixing_process_pace gmpp
+			JOIN
+				glue_mixing_process gmp
+			ON
+				gmpp.glue_mixing_process_id = gmp.glue_mixing_process_id
+			JOIN
+				glue
+			ON
+				gmp.glue_id = glue.glue_id
+			JOIN
+				glue_mixing_type gmt
+			ON
+				gmt.glue_mixing_type_id = gmp.glue_mixing_type_id
+			JOIN
+				partial
+			ON
+				partial.partial_id = glue.partial_id
+			WHERE
+				gmpp.mixing_action_time >= current_date
+			) cnt
+		JOIN `v_operator_named` o
+		ON cnt.operator_id = o.operator_id
+		LEFT JOIN `position` p
+		ON cnt.position_id = p.position_id
+		WHERE o.line_id = #{line_id}
+		ORDER BY o.WORK_COUNT_FLG = 4, o.WORK_COUNT_FLG = 0, cnt.operator_id, cnt.action_time, cnt.finish_time;
+		]]>
+	</select>
+
+	<select id="checkNoDrying" resultType="boolean" parameterType="String">
+		<![CDATA[
+select 
+    exists( select 
+            1
+        from
+            production_feature pf
+                join
+            position p ON pf.position_id = p.position_id
+        where
+            material_id = #{material_id} AND line_id = #{line_id} and pcs_comments like '%无烘干√%') nodrying
+from dual;
+		]]>
+	</select>
+
+	<select id="getLevels" resultType="map">
+		<![CDATA[
+SELECT code, value FROM `user_define_codes` where code like 'LINE_%_LEVER';
+		]]>
+	</select>
+</mapper>

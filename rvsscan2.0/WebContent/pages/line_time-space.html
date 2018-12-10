@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../css/custom.css">
+<link rel="stylesheet" type="text/css" href="../css/olympus/jquery-ui-1.9.1.custom.css">
+
+<style>
+#performance_container {
+	height: 600px;
+	position:relative;
+}
+#axis_base {
+	height: 560px;
+	border-left : 2px solid black;
+	box-shadow: 0px 2px black;;
+	position: absolute;
+	z-index:1;
+	left: 3em;
+	top: 8px;
+	width: 942px;
+}
+#axis_base #time_axis {
+	height: 100%;
+	width: 3em;
+	position: absolute;
+	left: -3em;
+}
+#axis_base #time_axis .time_axis_point {
+	position: absolute;
+}
+#axis_base #pre_work {
+	width: 100%;
+	position: absolute;
+	background-color: #C4E6E3;
+	height: 5px;
+	bottom:0;
+}
+#axis_base #suf_work {
+	width: 100%;
+	position: absolute;
+	background-color: #C8C9E1;
+	height: 15px;
+	top:0;
+}
+#axis_base .y_column {
+	height : 100%;
+	width : 70px;
+	position: absolute;
+}
+#axis_base .y_column:nth-child(1) {
+	left:4px;
+}
+#axis_base .y_column:nth-child(2) {
+	left:100px;
+}
+#axis_base .y_column:nth-child(3) {
+	left:186px;
+}
+#axis_base .y_column:nth-child(4) {
+	left:272px;
+}
+#axis_base .y_column:nth-child(5) {
+	left:358px;
+}
+#axis_base .y_column:nth-child(6) {
+	left:444px;
+}
+#axis_base .y_column:nth-child(7) {
+	left:530px;
+}
+#axis_base .y_column:nth-child(8) {
+	left:616px;
+}
+
+#axis_base .y_column .position_intro,
+#axis_base .y_result_column .position_intro {
+	font-size:larger;
+	width : 100%;
+	height: auto;
+	position: absolute;
+	bottom: -1.5em;
+	text-align:center;
+	font-weight: bold;
+}
+#standard_column > div {position:absolute; width:100%; height:100%;}
+#standard_column > div > div {
+	width: 100%;
+	position:absolute;
+	background-color : #55C8FF;
+	box-shadow: -1px -1px 1px black,
+				1px -1px 1px black,
+				1px 1px 1px black,
+				-1px 1px 1px black
+	;
+}
+#standard_column > div > div.exceed {
+	background-color : blue;
+}
+#standard_column > div > div:nth-child(1) {bottom: 5px; height: 26px;}
+#standard_column > div > div:nth-child(2) {bottom: 31px; height: 26px;}
+#standard_column > div > div:nth-child(3) {bottom: 57px; height: 25px;}
+#standard_column > div > div:nth-child(4) {bottom: 82px; height: 36px;}
+#standard_column > div > div:nth-child(5) {bottom: 118px; height: 25px;}
+#standard_column > div > div:nth-child(6) {bottom: 143px; height: 25px;}
+#standard_column > div > div:nth-child(7) {bottom: 168px; height: 27px;}
+#standard_column > div > div:nth-child(8) {bottom: 195px; height: 25px;}
+#standard_column > div > div:nth-child(9) {bottom: 220px; height: 86px;}
+#standard_column > div > div:nth-child(10) {bottom: 306px; height: 25px;}
+#standard_column > div > div:nth-child(11) {bottom: 331px; height: 26px;}
+#standard_column > div > div:nth-child(12) {bottom: 357px; height: 26px;}
+#standard_column > div > div:nth-child(13) {bottom: 383px; height: 35px;}
+#standard_column > div > div:nth-child(14) {bottom: 418px; height: 26px;}
+#standard_column > div > div:nth-child(15) {bottom: 444px; height: 25px;}
+#standard_column > div > div:nth-child(16) {bottom: 469px; height: 26px;}
+#standard_column > div > div:nth-child(17) {bottom: 495px; height: 26px;}
+#standard_column > div > div:nth-child(18) {bottom: 521px; height: 24px;}
+
+#axis_base .y_result_column {
+	height : 100%;
+	width : 20em;
+	position: absolute;
+	box-shadow: -1px 0px black;
+	right:0;
+}
+#axis_base .y_result_column .result_material {
+	width : 100%;
+	position: absolute;
+	line-height: 2em;
+}
+#axis_base .y_result_column .result_material:hover {
+	z-index:10;
+}
+#axis_base .y_result_column .result_material .result_model {
+	width : 7.5em;
+	float : left;
+	padding-left:.5em;
+}
+#axis_base .y_result_column .result_material .result_summary {
+	width : 11.5em;
+	float : right;
+	padding-left:.5em;
+}
+#axis_base .y_result_column .result_material .result_summary[res=safe] {
+	background-color: blue;
+	color:white;
+}
+#axis_base .y_result_column .result_material .result_summary[res=warn] {
+	background-color: orange;
+	color:white;
+}
+#axis_base .y_result_column .result_material .result_summary[res=poor] {
+	background-color: red;
+	color:white;
+}
+#axis_base .y_result_column .position_intro {
+	box-shadow: -1px 0px black;;
+}
+.production_feature {
+	width : 100%;
+	position: absolute;
+	box-shadow: -3px -3px 1px blue,
+				3px -3px 1px blue,
+				3px 3px 1px blue,
+				-3px 3px 1px blue
+	;
+}
+.production_feature[overtime] {
+	box-shadow: -3px -3px 1px red,
+				3px -3px 1px red,
+				3px 3px 1px red,
+				-3px 3px 1px red
+	;
+}
+
+#axis_base .y_result_column .result_material .result_model[model=BF],
+.production_feature[model=BF] /*支气管*/
+{
+	background-color: #DDDDFF;
+}
+#axis_base .y_result_column .result_material .result_model[model=CF],
+.production_feature[model=CF] /*结肠 PCF */
+{
+	background-color: #FEAA14;
+}
+#axis_base .y_result_column .result_material .result_model[model=CHF],
+.production_feature[model=CHF] /* 胆道镜 */
+{
+	background-color: #88C985;
+}
+#axis_base .y_result_column .result_material .result_model[model=CYF],
+.production_feature[model=CYF] /* 膀胱镜 */
+{
+	background-color: #E0CB07;
+}
+#axis_base .y_result_column .result_material .result_model[model=ENF],
+.production_feature[model=ENF] /* 鼻咽喉镜 */
+{
+	background-color: #E0CBE7;
+}
+#axis_base .y_result_column .result_material .result_model[model=GF],
+.production_feature[model=GF] /* 超声镜 */
+{
+	background-color: #3C5FB4;
+}
+#axis_base .y_result_column .result_material .result_model[model=GIF],
+.production_feature[model=GIF] /* 胃镜 */
+{
+	background-color: #F6DE58;
+}
+#axis_base .y_result_column .result_material .result_model[model=HYF],
+.production_feature[model=HYF] /* 宫腔镜 */
+{
+	background-color: #F3473D;
+}
+#axis_base .y_result_column .result_material .result_model[model=JF],
+.production_feature[model=JF] /* 十二指肠镜 TJF */
+{
+	background-color: #FFAD88;
+}
+#axis_base .y_result_column .result_material .result_model[model=LF],
+.production_feature[model=LF] /* 气管插管镜 */
+{
+	background-color: #24B8FF;
+}
+#axis_base .y_result_column .result_material .result_model[model=LTF],
+.production_feature[model=LTF] /* 电子腹腔镜 */
+{
+	background-color: #FFFF80;
+}
+#axis_base .y_result_column .result_material .result_model[model=SIF],
+.production_feature[model=SIF] /* 小肠镜 */
+{
+	background-color: #FF59C9;
+}
+#axis_base .y_result_column .result_material .result_model[model=URF],
+.production_feature[model=URF] /* 尿路镜 */
+{
+	background-color: #7F7F7F;
+}
+#axis_base .y_result_column .result_material .result_model[model=Other],
+.production_feature[model=Other]
+{
+	background-color: black;
+	color : white;
+}
+.pause_feature {
+	width : 3px;
+	left: 50%;
+	position: absolute;
+	background: orange;
+}
+</style>
+
+<script type="text/javascript" src="../js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="../js/utils.js"></script>
+<script type="text/javascript" src="../js/jquery-plus.js"></script>
+
+<title>总组工程进度管理板</title>
+</head>
+<body class="outer scan1024">
+
+	<div style="align: center; margin: auto; margin-top: 16px;">
+		<div id="basearea" class="dwidth-full" style="margin: auto;"></div>
+		<script type="text/javascript">
+			$("#basearea").load("widgets/header.jsp",
+				function(responseText, textStatus, XMLHttpRequest) {
+				$("#moduleName").text("总组工程进度管理板");
+			});
+		</script>
+
+		<div class="ui-widget-panel dwidth-full" style="align: center; margin: auto; padding: 16px;" id="body-3">
+			<div id="workarea">
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
+					<span class="areatitle">进度管理板</span>
+				</div>
+				<div class="ui-widget-content" style="position:relative;">
+					<div id="performance_container">
+						<div id="axis_base">
+							<div id="time_axis">
+								<div class="time_axis_point" style="bottom: -2.5px;">&nbsp;8:00</div>
+								<div class="time_axis_point" style="bottom: 122.5px;">10:00</div>
+								<div class="time_axis_point" style="bottom: 242.5px;">12:00</div>
+								<div class="time_axis_point" style="bottom: 422.5px;">15:00</div>
+								<div class="time_axis_point" style="bottom: 542.5px;">17:00</div>
+								<div class="time_axis_point" style="display:none; bottom: 660px;">19:00</div>
+							</div>
+							<div id="pre_work"></div>
+							<div id="suf_work"></div>
+							<div class="y_columns">
+								<div class="y_column" id="standard_column">
+									<div class="position_intro">计划</div>
+										<div>
+<div class="exceed"></div><div class="exceed"></div><div class="exceed"></div><div class="exceed"></div><div class="exceed"></div>
+<div class="exceed"></div><div class="exceed"></div>    <div></div>    <div></div>    <div></div>   <div></div>    
+<div></div>    
+<div></div>    
+<div></div>    
+<div></div><div></div><div></div><div></div>
+									</div> 
+								</div>
+								<div class="y_column" for="">
+									<div class="position_intro">411</div>
+									<div class="production_feature" title="CF"    model="CF" style="bottom:5px;height:30px;"></div>    
+									<div class="pause_feature" style="bottom:35px;height:10px;"></div>    
+									<div class="production_feature" title="CHF"   model="CHF" style="bottom:45px;height:32px;"></div>   
+									<div class="pause_feature" style="bottom:77px;height:18px;"></div>    
+									<div class="production_feature" title="CYF"   model="CYF" style="bottom:95px;height:40px;" overtime></div>   
+									<div class="pause_feature" style="bottom:135px;height:10px;"></div>    
+									<div class="production_feature" title="ENF"   model="ENF" style="bottom:145px;height:18px;"></div>   
+									<div class="pause_feature" style="bottom:163px;height:19px;"></div>    
+									<div class="production_feature" title="JF"   model="JF" style="bottom:182px;height:12px;"></div>  
+								</div>
+								<div class="y_column">
+									<div class="position_intro">421</div>
+									<div class="production_feature" title="BF"    model="BF" style="bottom:5px;height:10px;"></div>     
+									<div class="pause_feature" style="bottom:15px;height:30px;"></div>    
+									<div class="production_feature" title="CF"    model="CF" style="bottom:45px;height:34px;"></div> 
+									<div class="pause_feature" style="bottom:79px;height:11px;"></div>    
+									<div class="production_feature" title="CHF"   model="CHF" style="bottom:90px;height:31px;"></div>
+									<div class="pause_feature" style="bottom:121px;height:21px;"></div>    
+ 									<div class="production_feature" title="CYF"   model="CYF" style="bottom:142px;height:23px;"></div>   
+ 									<div class="production_feature" title="ENF"   model="ENF" style="bottom:167px;height:18px;"></div>   
+									<div class="pause_feature" style="bottom:185px;height:14px;"></div>    
+ 								</div>
+								<div class="y_column">
+									<div class="position_intro">431</div>
+									<div class="pause_feature" style="bottom: 5px;height:20px;"></div>    
+									<div class="production_feature" title="BF"    model="BF" style="bottom:25px;height:74px;" overtime></div>     
+									<div class="production_feature" title="CF"    model="CF" style="bottom:105px;height:28px;"></div>    
+									<div class="production_feature" title="CHF"   model="CHF" style="bottom:140px;height:25px;"></div>
+									<div class="pause_feature" style="bottom: 165px;height:27px;"></div>    
+ 									<div class="production_feature" title="ENF"   model="ENF" style="bottom:192px;height:2px;"></div>   
+								</div>
+								<div class="y_column">
+									<div class="position_intro">441</div>
+									<div class="production_feature" title="LF"    model="LF" style="bottom:15px;height:10px;"></div>   
+									<div class="production_feature" title="BF"    model="BF" style="bottom:108px;height:14px;"></div>     
+									<div class="production_feature" title="CF"    model="CF" style="bottom:145px;height:20px;"></div>    
+									<div class="production_feature" title="CHF"   model="CHF" style="bottom:170px;height:25px;"></div>
+								</div>
+								<div class="y_column">
+									<div class="position_intro">451</div>
+									<div class="production_feature" title="SIF"   model="SIF" style="bottom:7px;height:18px;"></div>  
+									<div class="production_feature" title="LF"   model="LF" style="bottom:37px;height:18px;"></div>  
+									<div class="production_feature" title="BF"    model="BF" style="bottom:128px;height:17px;"></div>     
+									<div class="production_feature" title="CF"    model="CF" style="bottom:175px;height:20px;"></div>    
+								</div>
+								<div class="y_column">
+									<div class="position_intro">461</div>
+									<div class="production_feature" model="BF" style="bottom:2px;height:30px;"></div>
+									<div class="production_feature" title="SIF"   model="SIF" style="bottom:47px;height:18px;"></div>  
+									<div class="production_feature" title="LF"   model="LF" style="bottom:77px;height:18px;"></div>  
+									<div class="production_feature" title="BF"    model="BF" style="bottom:150px;height:25px;"></div>     
+									<div class="production_feature" title="CF"    model="CF" style="bottom:190px;height:4px;"></div>    
+								</div>
+								<div class="y_column">
+									<div class="position_intro">471</div>
+									<div class="production_feature" model="JF" style="bottom:5px;height:34px;" overtime></div>
+									<div class="production_feature" model="BF" style="bottom:49px;height:31px;"></div>
+									<div class="production_feature" title="SIF"   model="SIF" style="bottom:87px;height:28px;"></div>  
+									<div class="production_feature" title="LF"   model="LF" style="bottom:121px;height:19px;"></div>  
+									<div class="production_feature" title="BF"    model="BF" style="bottom:182px;height:13px;"></div>     
+								</div>
+								<div class="y_result_column">
+									<div class="position_intro">结果</div>
+									<div class="result_material" style="bottom: 18px;">
+										<div class="result_model" model="JF">
+											JF-xxx
+										</div>
+										<div class="result_summary" res="warn">
+											LB: 87% / WTR: 42%
+										</div>
+									</div>
+									<div class="result_material" style="bottom: 58px;">
+										<div class="result_model" model="BF">
+											BF-xxx
+										</div>
+										<div class="result_summary" res="safe">
+											LB: 90% / WTR: 25%
+										</div>
+									</div>
+									<div class="result_material" style="bottom: 92px;">
+										<div class="result_model" model="SIF">
+											SIF-xxx
+										</div>
+										<div class="result_summary" res="poor">
+											LB: 83% / WTR: 45%
+										</div>
+									</div>
+									<div class="result_material" style="bottom: 119px;">
+										<div class="result_model" model="LF">
+											LF-xxx
+										</div>
+										<div class="result_summary" res="safe">
+											LB: 92% / WTR: 7%
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ui-state-default ui-corner-bottom areaencloser"></div>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+
+<script type="text/javascript">
+
+
+$(document).ready(function() {
+
+	setInterval(refresh, 20000);
+});
+
+var refresh = function() {
+	
+}
+</script>
+
+</body>
+</html>

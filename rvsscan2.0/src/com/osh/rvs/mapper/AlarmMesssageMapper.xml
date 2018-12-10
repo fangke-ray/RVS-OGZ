@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.AlarmMesssageMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getBreakLevelByMaterialId" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT `am`.LEVEL
+		FROM alarm_messsage am
+		WHERE `am`.MATERIAL_ID = #{material_id}
+		]]>
+		<if test="position_id!= null">
+			AND `am`.POSITION_ID = #{position_id}
+		</if>
+		<![CDATA[ 
+		AND `am`.REASON = 1
+		AND NOT EXISTS (SELECT 1 FROM alarm_messsage_sendation ams WHERE `ams`.`alarm_messsage_id` = `am`.`alarm_messsage_id` AND `ams`.`red_flg` = 1)
+		LIMIT 1
+		;
+		]]>
+	</select>
+
+</mapper>

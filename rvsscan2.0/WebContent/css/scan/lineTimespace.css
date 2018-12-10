@@ -1,0 +1,305 @@
+#performance_container {
+	height: 600px;
+	position:relative;
+}
+#axis_base {
+	height: 560px;
+	border-left : 2px solid black;
+	box-shadow: 0px 2px black;;
+	position: absolute;
+	z-index:1;
+	left: 3em;
+	top: 8px;
+	width: 942px;
+}
+#axis_base.overwork {
+	height: 695px;
+	transform: scaleY(0.81);
+    transform-origin: 0 0 0;
+}
+#axis_base #time_axis {
+	height: 100%;
+	width: 3em;
+	position: absolute;
+	left: -3em;
+}
+#axis_base #time_axis .time_axis_point {
+	position: absolute;
+}
+#axis_base #time_axis .time_axis_point.overwork {
+	display: none;
+}
+#axis_base.overwork #time_axis .time_axis_point.overwork {
+	display: block;
+}
+#axis_base #now_period {
+	width: 100%;
+	position: absolute;
+	bottom:5px;
+/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0b161c+5,b0c2c9+10,a7bcc1+25,dbe8df+90 */
+background: #b0c2c9; /* Old browsers */
+background: -moz-linear-gradient(top,  #b0c2c9 8%, #a7bcc1 25%, #dbe8df 90%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  #b0c2c9 8%,#a7bcc1 25%,#dbe8df 90%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  #b0c2c9 8%,#a7bcc1 25%,#dbe8df 90%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0c2c9', endColorstr='#dbe8df',GradientType=0 ); /* IE6-9 */
+	box-shadow: 0 7px 10px #234658 inset;
+	z-index: -1;
+}
+#axis_base #pre_work {
+	width: 100%;
+	position: absolute;
+	background-color: #C4E6E3;
+	height: 5px;
+	bottom:0;
+}
+#axis_base .rest_work {
+	width: 100%;
+	position: absolute;
+	background-color: #EFDBC2;
+}
+#axis_base #suf_work {
+	width: 100%;
+	position: absolute;
+	background-color: #C8C9E1;
+	height: 15px;
+	top:0;
+}
+
+#axis_base .y_column {
+	height : 100%;
+	width : 70px;
+	position: absolute;
+}
+
+#axis_base .y_column:before {
+	position: absolute;
+	background-color: yellow;
+	width: 100%;
+	height: 2em;
+	line-height: 2em;
+	text-align: center;
+	z-index: 4;
+	top: -38px;
+	border-radius: .5em;
+	content: attr(work-rate);
+}
+#axis_base [leader]:before {
+	background-color: orange;
+}
+
+#axis_base [super]:before {
+	background-color: golden;
+}
+
+#axis_base.overwork .y_column:before {
+	top: -42px;
+}
+#axis_base #standard_column:before {
+	display:none;
+}
+#axis_base .y_column:nth-child(3) .production_feature.alerting {
+	transition-delay: .1s;
+}
+#axis_base .y_column:nth-child(4) .production_feature.alerting {
+	transition-delay: .2s;
+}
+#axis_base .y_column:nth-child(5) .production_feature.alerting {
+	transition-delay: .3s;
+}
+#axis_base .y_column:nth-child(6) .production_feature.alerting {
+	transition-delay: .4s;
+}
+#axis_base .y_column:nth-child(7) .production_feature.alerting {
+	transition-delay: .5s;
+}
+#axis_base .y_column:nth-child(8) .production_feature.alerting {
+	transition-delay: .6s;
+}
+#axis_base .y_column .position_intro,
+#axis_base .y_result_column .position_intro {
+	font-size:larger;
+	width : 100%;
+	height: auto;
+	position: absolute;
+	bottom: -1.5em;
+	text-align:center;
+	font-weight: bold;
+}
+#standard_column > div {position:absolute; width:100%; height:100%;}
+#standard_column > div > div {
+	width: 100%;
+	position:absolute;
+	background-color : transparent;  /* #55C8FF */
+	box-shadow: -1px -1px 1px black,
+				1px -1px 1px black,
+				1px 1px 1px black,
+				-1px 1px 1px black
+	;
+}
+.count_no {
+	width:1.5em;
+	height:1.5em;
+	text-align:center;
+	border-bottom-right-radius: 0.5em;
+}
+#standard_column > div > div > .count_no {
+	display : none;
+}
+#standard_column > div > div.exceed > .count_no {
+	background-color: #55C8FF;
+	display : block;
+}
+#axis_base .y_result_column {
+	height : 100%;
+	width : 20em;
+	position: absolute;
+	box-shadow: -1px 0px black;
+	right:0;
+}
+#axis_base .y_result_column .result_material {
+	width : 100%;
+	position: absolute;
+	line-height: 2em;
+}
+#axis_base .y_result_column .result_material:hover {
+	z-index:10;
+}
+#axis_base .y_result_column .result_material.alerting {
+	z-index:12;
+}
+#axis_base .y_result_column .result_material .result_model {
+	width : 7.5em;
+	float : left;
+	padding-left:.5em;
+}
+#axis_base .y_result_column .result_material .result_summary {
+	width : 5.5em;
+	float : left;
+	padding-left:.5em;
+}
+#axis_base .y_result_column .result_material .result_summary[res=undefined] {
+	background-color: seagreen;
+	color:white;
+}
+#axis_base .y_result_column .result_material .result_summary[res=warn] {
+	background-color: orange;
+	color:white;
+}
+#axis_base .y_result_column .result_material .result_summary[res=alarm] {
+	background-color: red;
+	color:white;
+}
+#axis_base .y_result_column .position_intro {
+	box-shadow: -1px 0px black;;
+}
+.production_feature {
+	width : 100%;
+	position: absolute;
+	box-shadow: -1px -1px 1px white,
+				1px -1px 1px white,
+				1px 1px 1px white,
+				-1px 1px 1px white;
+}
+.production_feature.pre-alerting {
+	z-index: 2;
+}
+.production_feature.alerting {
+	box-shadow: -2px -2px 1px #007BB6,
+				2px -2px 1px #007BB6,
+				2px 2px 1px #007BB6,
+				-2px 2px 1px #007BB6;
+	transition-duration : .6s;
+	z-index : 2;
+}
+.production_feature[overtime] {
+	box-shadow: -3px -3px 1px red,
+				3px -3px 1px red,
+				3px 3px 1px red,
+				-3px 3px 1px red;
+	z-index: 1;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="1"],
+.production_feature[lamp_no="1"]
+{
+	background-color: #B47171;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="1"],
+.production_feature[lamp_no="1"] .count_no,
+.production_feature[lamp_no="1"].alerting
+{
+	background-color: #FF6F6F;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="2"],
+.production_feature[lamp_no="2"]
+{
+	background-color: #EFAD77;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="2"],
+.production_feature[lamp_no="2"] .count_no,
+.production_feature[lamp_no="2"].alerting
+{
+	background-color: #FFC89B;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="3"],
+.production_feature[lamp_no="3"]
+{
+	background-color: #DFD799;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="3"],
+.production_feature[lamp_no="3"] .count_no,
+.production_feature[lamp_no="3"].alerting
+{
+	background-color: #FFF38F;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="4"],
+.production_feature[lamp_no="4"]
+{
+	background-color: #AACFA8;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="4"],
+.production_feature[lamp_no="4"] .count_no,
+.production_feature[lamp_no="4"].alerting
+{
+	background-color: #A4FF9F;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="5"],
+.production_feature[lamp_no="5"]
+{
+	background-color: #A8B4CF;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="5"],
+.production_feature[lamp_no="5"] .count_no,
+.production_feature[lamp_no="5"].alerting
+{
+	background-color: #9BE0FF;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="6"],
+.production_feature[lamp_no="6"]
+{
+	background-color: #948FBF;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="6"],
+.production_feature[lamp_no="6"] .count_no,
+.production_feature[lamp_no="6"].alerting
+{
+	background-color: #BDC7DD;
+}
+#axis_base .y_result_column .result_material .result_model[lamp_no="7"],
+.production_feature[lamp_no="7"]
+{
+	background-color: #BFA7B8;
+}
+#axis_base .y_result_column .result_material.alerting .result_model[lamp_no="7"],
+.production_feature[lamp_no="7"] .count_no,
+.production_feature[lamp_no="7"].alerting
+{
+	background-color: #FFBFEC;
+}
+
+.pause_feature {
+	width : 3px;
+	left: 50%;
+	position: absolute;
+/*	background: orange; */
+	z-index : 2;
+}

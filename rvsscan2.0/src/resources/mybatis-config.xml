@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties />
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="true" />
+		<setting name="defaultExecutorType" value="SIMPLE" />
+	</settings>
+	<typeAliases>
+		<typeAlias alias="WipEntity" type="com.osh.rvs.bean.WipEntity" />
+		<typeAlias alias="LineLeaderEntity" type="com.osh.rvs.bean.LineLeaderEntity" />
+		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.ServiceRepairManageEntity" />
+	</typeAliases>
+	<typeHandlers />
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<!--property name="url" value="jdbc:mysql://10.220.130.100:3306/rvsdb?autoReconnect=true" /-->
+				<property name="url" value="jdbc:mysql://localhost:3306/rvsgdb?autoReconnect=true" />
+				<property name="username" value="dbma" />
+				<property name="password" value="FEDur7s#" />
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource="com/osh/rvs/mapper/GlobalProgressMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/AcceptFactMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/WipProgressMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/AlarmMesssageMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/LineLeaderMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/AllPositionsMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/ServiceRepairManageMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/QualityAssuranceMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/LineRepairMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/UserDefineCodesMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/LineTimespaceMapper.xml" />
+	</mappers>
+</configuration> 

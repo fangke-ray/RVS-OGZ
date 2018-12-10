@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.LineRepairMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getWaitingRepairMaterialCounts" resultType="long">
+		<![CDATA[
+			SELECT 
+			    count(1)
+			FROM
+			    material ma
+			        JOIN
+			    v_model mdl ON ma.model_id = mdl.model_id
+			WHERE
+			    break_back_flg = 0
+			    and fix_type = 1
+		        and inline_time is null
+		        and outline_time is null
+		        and EXISTS( SELECT
+		        		1
+			        FROM
+			            production_feature
+			        WHERE
+			            material_id = ma.material_id
+		                and position_id in (select position_id from position where special_page = 'quotation')
+		                and operate_result = 2)
+			        	and kind in (6 , 7)
+		]]>
+	</select>
+
+	<select id="getWaitingPartsMaterialCounts" resultType="long">
+		<![CDATA[
+			SELECT 
+			    count(1)
+			FROM
+			    material ma
+			        JOIN
+			    v_model mdl ON ma.model_id = mdl.model_id
+			WHERE
+			    break_back_flg = 0
+			    and fix_type = 1
+		        and outline_time is null
+		        and section_id = #{section_id}
+		        and EXISTS( SELECT 
+			            1
+			        FROM
+			            material_partial
+			        WHERE
+			            material_id = ma.material_id
+			            and bo_flg not in (0 , 2))
+			        	and kind in (6 , 7)
+		]]>
+	</select>
+
+</mapper>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+<struts-config>
+
+
+	<!-- ================================================ Form Bean Definitions -->
+
+	<form-beans>
+		
+	</form-beans>
+
+
+	<!-- ========================================= Global Exception Definitions -->
+
+	<global-exceptions>
+		<!-- sample exception handler <exception key="expired.password" type="app.ExpiredPasswordException" 
+			path="/changePassword.jsp"/> end sample -->
+	</global-exceptions>
+
+
+	<!-- =========================================== Global Forward Definitions -->
+
+	<global-forwards>
+		<!-- Default forward to "Welcome" action -->
+		<forward name="error" path="/pages/error.jsp" />
+		<forward name="logout" path="/pages/login.jsp" />
+	</global-forwards>
+
+
+	<!-- =========================================== Action Mapping Definitions -->
+
+	<action-mappings>
+
+		<action path="/globalProgress1" type="com.osh.rvs.action.GlobalProgressAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/globalProgress.jsp" />
+			<forward name="success" path="/pages/globalProgress.jsp" />
+ 		</action>
+
+		<action path="/globalProgress" type="com.osh.rvs.action.GlobalProgressAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/globalProgress1.jsp" />
+			<forward name="success" path="/pages/globalProgress1.jsp" />
+ 		</action>
+
+		<action path="/acceptFact" type="com.osh.rvs.action.AcceptFactAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/acceptFact.jsp" />
+			<forward name="success" path="/pages/acceptFact.jsp" />
+ 		</action>
+
+		<action path="/wipProgress" type="com.osh.rvs.action.WipProgressAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/wipProgress.jsp" />
+			<forward name="success" path="/pages/wipProgress.jsp" />
+ 		</action>
+
+		<action path="/lineSituation" type="com.osh.rvs.action.LineSituationAction" parameter="method" validate="false">
+		</action>
+		<action path="/lineSituationC1" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationP1" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationN1" type="com.osh.rvs.action.LineSituationNAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationD1" type="com.osh.rvs.action.LineSituationAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationC3" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationP3" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationN3" type="com.osh.rvs.action.LineSituationNAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationD3" type="com.osh.rvs.action.LineSituationAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationS1" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationS3" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="success" path="/pages/lineSituation.jsp" />
+			<forward name="decompose" path="/pages/decLineSituation.jsp" />
+			<forward name="ns" path="/pages/nsLineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+
+		<action path="/allPositions" type="com.osh.rvs.action.AllPositionsAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/allPositions.jsp" />
+		</action> 
+
+		<!-- 146P保修期内返品+QIS品分析 -->
+		<action path="/service_repair_manageIn" type="com.osh.rvs.action.ServiceRepairManageAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/serviceRepairManageIn.jsp" />
+		</action>
+
+		
+		<action path="/finalCheckIn" type="com.osh.rvs.action.FinalCheckAction" parameter="method" scope="request"
+				validate="false">
+		    <forward name="init" path="/pages/finalCheckIn.jsp"/>
+		    <forward name="success" path="/pages/finalCheckIn.jsp"/>
+		</action>
+		
+		<action path="/service_repair_manage" type="com.osh.rvs.action.ServiceRepairManageAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/serviceRepairManage.jsp" />
+		</action>
+
+		<action path="/finalCheck" type="com.osh.rvs.action.FinalCheckAction" parameter="method" scope="request"
+				validate="false">
+		    <forward name="init" path="/pages/finalCheck.jsp"/>
+		    <forward name="success" path="/pages/finalCheck.jsp"/>
+		</action>
+		
+		<action path="/qaChart" type="org.apache.struts.actions.ForwardAction" parameter="/pages/qaLoad.jsp" validate="false">
+		</action>
+
+		<action path="/lineTimeSpace" type="com.osh.rvs.action.LineTimeSpaceAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineTimeSpace.jsp" />
+			<forward name="init_dec" path="/pages/lineTimeSpace_dec.jsp" />
+			<forward name="init_ns" path="/pages/lineTimeSpace_ns.jsp" />
+		</action>
+
+		<action path="/lineWorkDuration" type="com.osh.rvs.action.LineWorkDurationAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineWorkDuration.jsp" />
+		</action>
+
+	</action-mappings>
+	<!-- ======================================== Message Resources Definitions -->
+
+	<message-resources parameter="resources.message" key="message" />
+
+	<!-- =============================================== Plug Ins Configuration -->
+</struts-config>

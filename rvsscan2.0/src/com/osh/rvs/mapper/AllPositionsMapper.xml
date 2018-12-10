@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.AllPositionsMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getHeapAndWork" resultType="map">
+		<![CDATA[ 
+		select p.process_code, pos.section_id, cast(p.position_id as char) as position_id,
+		outcome.today_work, outcome.avg_cost, heap.w_count, heap.h_count, heap.l_count,
+		am.alarm_messsage_id
+		from v_position p 
+		JOIN
+		position_of_section pos
+		ON p.position_id = pos.position_id
+		LEFT JOIN
+		(select
+			position_id, section_id, count(material_id) as today_work , round(avg(use_seconds) / 60) as avg_cost
+		from
+		    production_feature pf
+		where
+			operate_result in (2,6)
+			and finish_time >= current_date
+		group by
+			position_id, section_id) outcome
+		ON p.position_id = outcome.position_id
+		AND (pos.section_id = outcome.section_id or p.line_id = 15)
+		LEFT JOIN
+		(
+		select position_id, section_id, count(1) as w_count, sum(not is_light_fix) as h_count, sum(is_light_fix) as l_count
+		from (
+			select 
+				position_id, pf.section_id, level in (9,91,92,93) as is_light_fix
+			from
+				production_feature pf 
+			JOIN
+				material ma
+			ON
+				pf.material_id = ma.material_id
+			where
+				finish_time IS NULL AND operate_result <> 5 AND (operate_result <> 7 AND position_id not in (10, 11))
+			and ma.qa_check_time IS NULL
+		) pfmix
+		group by
+			position_id, section_id
+		) heap
+		ON p.position_id = heap.position_id
+		AND (pos.section_id = heap.section_id or p.line_id = 15)
+		LEFT JOIN
+		(select 
+		    alarm_messsage_id, reason, position_id, section_id
+		from
+		    alarm_messsage
+		where
+		    reason in (1, 5, 6, 8)
+		and not exists( select 
+			1
+		from
+			alarm_messsage_sendation
+		where
+			alarm_messsage_id = alarm_messsage.alarm_messsage_id
+		and
+			red_flg = 1)
+		and exists (select 1 from material where material_id = alarm_messsage.material_id and (outline_time is null or outline_time >= current_date))
+		) am
+		ON p.position_id = am.position_id
+		AND pos.section_id = am.section_id
+		;
+		]]>
+	</select>
+
+	<select id="getAlarmMessage" resultType="map">
+		<![CDATA[ 
+		select 
+			am.reason, pf.reason as p_reason, pf.comments, coalesce(m.omr_notifi_no, concat('机身号:' , m.serial_no)) as material_name
+		from
+			alarm_messsage am
+		LEFT JOIN
+			pause_feature pf
+		ON am.alarm_messsage_id = pf.alarm_messsage_id
+		and pf.reason < 20
+		JOIN material m
+		ON am.material_id = m.material_id
+		where
+		am.alarm_messsage_id = #{alarm_messsage_id};
+		]]>
+	</select>
+
+	<select id="getWipCount" resultType="int">
+		<![CDATA[ 
+		select 
+			count(material_id)
+		from
+			material
+		where wip_location IS NOT NULL
+		;
+		]]>
+	</select>
+
+	<select id="getAgreeCount" resultType="int">
+		<![CDATA[ 
+		select 
+			count(material_id)
+		from
+			material m
+		where date(agreed_date) = current_date
+		AND break_back_flg = 0
+		AND unrepair_flg = 0
+		;
+		]]>
+	</select>
+
+	<select id="getWaitInline" resultType="int">
+		<![CDATA[ 
+		select 
+			count(material_id)
+		from
+			material m
+		where agreed_date IS not null
+		AND break_back_flg = 0
+		AND unrepair_flg = 0
+		AND inline_time IS null
+		AND outline_time IS null
+		AND exists (Select 1 FROM production_feature where material_id=m.material_id AND position_id in (select position_id from position where special_page = 'quotation'))
+		;
+		]]>
+	</select>
+
+	<select id="getInlineToday" resultType="int">
+		<![CDATA[ 
+		select 
+			count(material_id)
+		from
+			material
+		where date(inline_time) = current_date
+		;
+		]]>
+	</select>
+
+	<select id="getWaitShipping" resultType="int">
+		Select 
+		    count(pf.material_id)
+		FROM
+		    production_feature pf
+		JOIN
+			material m 
+		ON 
+			pf.material_id = m.material_id
+		where position_id = 47
+		and m.break_back_flg = 0
+		and action_time IS NULL;
+	</select>
+
+	<select id="getShippingToday" resultType="int">
+		Select 
+		    count(pf.material_id)
+		FROM
+		    production_feature pf
+		JOIN
+			material m 
+		ON 
+			pf.material_id = m.material_id
+		where position_id = 47
+		and m.break_back_flg = 0
+		and finish_time >= current_date
+	</select>
+
+	<select id="getFinishToday" resultType="int">
+		Select 
+		    count(pf.material_id)
+		FROM
+		    production_feature pf
+		JOIN
+			material m 
+		ON 
+			pf.material_id = m.material_id
+		where position_id = 47
+		and finish_time >= current_date
+	</select>
+
+	<select id="getLineOutcome" resultType="int">
+		Select 
+		    count(mp.material_id)
+		FROM
+			material_process mp
+		JOIN
+			material m 
+		ON 
+			mp.material_id = m.material_id
+		WHERE
+			line_id = #{line_id}
+		and
+			finish_date = current_date
+		and
+			m.section_id = #{section_id};
+	</select>
+
+	<select id="QaResult" resultType="int">
+		Select 
+		    count(material_id)
+		FROM
+		    production_feature
+		where position_id in (select position_id from position where special_page = 'qualityAssurance')
+		and operate_result = #{operate_result}
+		and finish_time >= current_date
+	</select>
+
+	<select id="getPlanToday" resultType="int">
+		Select 
+		    count(mp.material_id)
+		FROM
+			material_process mp
+		JOIN
+			material m 
+		ON 
+			mp.material_id = m.material_id
+		WHERE
+			line_id in (select line_id from line where in_advance = 0)
+		and
+			scheduled_assign_date = current_date
+		and
+			m.section_id = #{section_id};
+	</select>
+
+	<select id="getErrorAlarms" resultType="map">
+		<![CDATA[ 
+		select
+			coalesce(m.omr_notifi_no, concat('机身号:' , m.serial_no)) as material_name,
+			date_format(pf.pause_start_time, '%m-%d %k:%i') as start_time,
+			unix_timestamp(current_timestamp) - unix_timestamp(pf.pause_start_time) as seconds
+		from
+			alarm_messsage am
+		LEFT JOIN
+			pause_feature pf
+		ON am.alarm_messsage_id = pf.alarm_messsage_id
+		and pf.reason < 20
+		JOIN material m
+		ON am.material_id = m.material_id
+		JOIN position p
+		ON am.position_id = p.position_id
+		where
+		p.process_code = #{process_code} 
+		]]>
+			<if test="section_id!= null and section_id!= '' ">
+		<![CDATA[ 
+			and am.section_id = #{section_id}
+		]]>
+			</if>
+		<![CDATA[ 
+		and not exists(select 1 from alarm_messsage_sendation where alarm_messsage_id = am.alarm_messsage_id and red_flg = 1)
+		order by pf.pause_start_time;
+		]]>
+	</select>
+
+	<select id="getBoMaterialsOfSectionLine" resultType="map">
+		<![CDATA[ 
+		select ma.section_id, mp.material_id, count(distinct mp.material_id) as cnt, l.line_id
+		from material_partial mp
+		JOIN material ma
+		ON mp.material_id = ma.material_id
+		JOIN (select line_id from line where inline_flg = 1) as l
+		ON mp.bo_contents like concat("%\"", l.line_id , "\":%")
+		where bo_flg = 1
+		and ma.outline_time is null
+		and ma.section_id is not null
+		group by ma.section_id, l.line_id
+		]]>
+		<!-- 
+		select line_id, section_id, count(1) as cnt from
+			(select ma.material_id, ma.section_id,min(p.process_code) as process_code, p.line_id from material ma
+			join production_feature pf
+			on ma.material_id = pf.material_id
+			and pf.finish_time is null
+			join material_partial mpa
+			on ma.material_id = mpa.material_id
+			join position p
+			on pf.position_id = p.position_id
+			where ma.outline_time is null
+			and mpa.bo_flg = 1
+			group by ma.material_id) mss
+		group by line_id, section_id
+		-->
+	</select>
+
+	<select id="getBoMaterialsAll" resultType="int">
+		<![CDATA[ 
+			select count(distinct ma.material_id) from material ma
+			join material_partial mpa
+			on ma.material_id = mpa.material_id
+			where ma.outline_time is null
+			and mpa.bo_flg = 1
+		]]>
+	</select>
+
+	<select id="getDecomStorageCount" resultType="int">
+		<![CDATA[ 
+			select count(1) from depose_storage where material_id is not null;
+		]]>
+	</select>
+</mapper>

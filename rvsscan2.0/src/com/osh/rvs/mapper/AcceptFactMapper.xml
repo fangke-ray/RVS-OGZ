@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.AcceptFactMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getAcceptResult" resultType="map">
+		select cast(count(*) as char) as count_direct_flg, cast((m.direct_flg IS NOT NULL AND m.direct_flg = 1) as char) as direct_flg from production_feature pf join material m on pf.material_id = m.material_id
+		where position_id = 9 and operate_result = 2 and finish_time >= current_date
+		and m.break_back_flg != 1
+		group by (m.direct_flg IS NOT NULL AND m.direct_flg = 1)
+	</select>
+
+	<select id="getQuatationResult" resultType="map">
+		select position_id, count(*) as count_position_id from production_feature pf
+		where position_id in (10,11,13,14) and operate_result = 2 and finish_time >= current_date
+		group by position_id
+	</select>
+
+	<select id="getNotreachResult" resultType="int">
+		select count(material_id) as count_notreach from material m
+		where not exists( select 1 from production_feature pf where position_id = 9 and material_id = m.material_id)
+		and break_back_flg = 0;
+	</select>
+
+	<select id="getQuatationWaitingResult" resultType="int" parameterType="int">
+		<![CDATA[ 
+		select 
+			count(pf.material_id) as count_quotation_waiting
+		from
+			(select * from production_feature
+			where
+				position_id in (select position_id from position where special_page = 'quotation')
+				and action_time IS NULL
+			) pf
+		left join
+			(select * from pause_feature
+			where pause_finish_time is null
+			and position_id in (select position_id from position where special_page = 'quotation')
+			) paf
+		ON pf.material_id = paf.material_id
+		]]>
+		<if test="value == 0">
+			where (paf.reason is null or paf.reason not in (73 , 74))
+		</if>
+		<if test="value == 73">
+			where paf.reason = 73
+		</if>
+		<if test="value == 74">
+			where paf.reason = 74
+		</if>
+		;
+	</select>
+
+	<select id="getInlineWaitingResult" resultType="map">
+		<![CDATA[ 
+		select level, 
+		count(material_id) as count_inline_waiting from material m
+		where m.inline_time is null and m.agreed_date is not null
+		and unrepair_flg <> 1
+		and break_back_flg = 0
+		and exists (select 1 from production_feature
+		where position_id in (13,14) and operate_result = 2 and material_id = m.material_id)
+		group by level;
+		]]>
+	</select>
+
+	<select id="getUnrepairOrderResult" resultType="int">
+		select count(material_id) as count_inline_waiting from material m
+		where m.inline_time is null and m.agreed_date is not null
+		and unrepair_flg = 1
+		and break_back_flg = 0;
+	</select>
+
+	<select id="getInlineResult" resultType="map">
+		<![CDATA[ 
+		select level, 
+		count(material_id) as count_inline_fit from material m
+		where date(inline_time) = current_date
+		and break_back_flg = 0
+		group by level;
+		]]>
+	</select>
+	
+	<select id="getReceptionInWeek" resultType="map">
+		<![CDATA[ 
+		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level=9 or m.level=91 or m.level=92 or m.level=93)) light_fix,
+		sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level is null or (m.level<>9 and m.level<>91 and m.level<>92 and m.level<>93))) heavy_fix,
+		sum(m.fix_type = 1 and vm.kind = 06) endoeye_sum,
+		sum(m.fix_type = 2) as cell_sum,
+		sum(m.fix_type = 1 and vm.kind = 07) as peripheral
+		from production_feature pf
+		join material m
+		on pf.material_id = m.material_id
+		join v_model vm
+		on m.model_id = vm.model_id
+		where m.break_back_flg in (0,2)
+		and pf.position_id = 9 and pf.action_time >= #{date} and pf.operate_result = 2
+		]]>
+	</select>
+
+	<select id="getShippingInWeek" resultType="map">
+		<![CDATA[ 
+		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level=9 or m.level=91 or m.level=92 or m.level=93)) light_fix,
+		sum(m.fix_type=1 and vm.kind not in (06, 07) and m.level<>9 and m.level<>91 and m.level<>92 and m.level<>93) heavy_fix,
+		sum(m.fix_type = 1 and vm.kind = 06) endoeye_sum,
+		sum(m.fix_type = 2) as cell_sum,
+		sum(m.fix_type = 1 and vm.kind = 07) as peripheral
+		from production_feature pf
+		join material m
+		on pf.material_id = m.material_id
+		join v_model vm
+		on m.model_id = vm.model_id
+		where m.break_back_flg = 0
+		and pf.position_id = 47 and pf.action_time >= #{date} and pf.operate_result = 2
+		]]>
+	</select>
+
+	<select id="getWorkingSterilization" resultType="int">
+		select count(material_id) as count_working_sterilization 
+		from production_feature pf
+		where pf.position_id = 11 and pf.action_time >= current_date and pf.finish_time Is NULL;
+	</select>
+	
+	<select id="searchQuatationResult" resultType="map">
+		select 
+		    level, count(*) as count_position_id
+		from
+		    production_feature pf
+		join
+			material
+		on
+			pf.material_id = material.material_id
+		where
+			position_id = 13
+	        and operate_result = 2
+	        and finish_time >= current_date
+		group by material.level
+	</select>
+	
+	<select id="getDisinfectionWaitingResult" resultType="int">
+		<![CDATA[ 
+			SELECT 
+				COUNT(m.material_id)
+			FROM 
+				material m
+			JOIN
+				production_feature pf
+			ON 
+				m.material_id = pf.material_id
+			WHERE
+				m.break_back_flg = 0
+				AND pf.position_id= 10
+				AND pf.action_time IS NULL
+		]]>
+	</select>
+	
+	<select id="getSterilizeWaitingResult" resultType="int">
+		<![CDATA[ 
+			SELECT 
+				COUNT(m.material_id)
+			FROM 
+				material m
+			JOIN
+				production_feature pf
+			ON 
+				m.material_id = pf.material_id
+			WHERE
+				m.break_back_flg = 0
+				AND pf.position_id= 11
+				AND pf.action_time IS NULL
+		]]>
+	</select>
+	
+	<select id="getReceptionRCInWeek" resultType="map">
+		<![CDATA[ 
+			SELECT
+			   sum(m.ocm = 1) sh_sum,
+			   sum(m.ocm = 2) bj_sum,
+			   sum(m.ocm = 3) gz_sum,
+			   sum(m.ocm = 4) sy_sum
+			FROM
+			    production_feature pf
+			        JOIN
+			    material m ON pf.material_id = m.material_id
+			WHERE
+			    m.break_back_flg IN (0 , 2)
+		        AND pf.position_id = 9
+		        AND pf.action_time >= #{date}
+		        AND pf.operate_result = 2
+		]]>
+	</select>
+	
+	<select id="getShippingRCInWeek" resultType="map">
+		<![CDATA[ 
+			SELECT
+			   sum(m.ocm = 1) sh_sum,
+			   sum(m.ocm = 2) bj_sum,
+			   sum(m.ocm = 3) gz_sum,
+			   sum(m.ocm = 4) sy_sum
+			FROM
+			    production_feature pf
+			        JOIN
+			    material m ON pf.material_id = m.material_id
+			WHERE
+			    m.break_back_flg = 0
+		        AND pf.position_id = 47 
+		        AND pf.action_time >= #{date}
+		        AND pf.operate_result = 2
+		]]>
+	</select>
+</mapper>

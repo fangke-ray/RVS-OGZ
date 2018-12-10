@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.QualityAssuranceMapper">
+    <select id="getCurrentPassCount" resultType="int" >
+     <![CDATA[
+       	Select 
+	    count(material_id)
+		FROM
+		    production_feature
+		where position_id in (select position_id from position where line_id = 15)
+        and operate_result = 2
+		and finish_time >= current_date
+     ]]>
+    </select>
+    
+     <select id="getCurrentUnqualifiedCount" resultType="int" >
+     <![CDATA[
+       	Select 
+	    count(material_id)
+		FROM
+		    production_feature
+		where position_id in (select position_id from position where line_id = 15)
+        and operate_result = 6
+		and finish_time >= current_date
+     ]]>
+    </select>
+
+	<select id="getWorkresult" resultType="map" parameterType="date">
+		<![CDATA[
+			SELECT COALESCE(SUM(operate_result = 2),0) as process_count,
+				COALESCE(SUM(operate_result = 6),0) as fail_count
+			FROM production_feature
+			WHERE position_id in (select position_id from position where special_page = 'qualityAssurance')
+			AND finish_time >= #{start_Date}
+			AND finish_time < #{end_Date}
+			AND operate_result in (2, 6);
+		]]>
+	</select>
+
+    <select id="getCurrentWaitingCount" resultType="int" parameterType="boolean">
+     <![CDATA[
+       	Select 
+	    count(pf.material_id)
+		FROM
+		    production_feature pf
+		JOIN
+			material m
+		ON pf.material_id = m.material_id
+		where position_id in (select position_id from position where line_id = 15)
+		and finish_time is null
+	 ]]>
+	<if test="value eq true">
+		and `m`.qa_check_time IS NULL
+	</if>
+	<if test="value eq false">
+		and `m`.qa_check_time IS NOT NULL
+	</if>
+    </select>
+
+</mapper>

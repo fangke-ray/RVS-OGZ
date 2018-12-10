@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.WipProgressMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getWipMaterials" resultType="WipEntity">
+		<![CDATA[ 
+		select m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.wip_location,
+		m.wip_date <= date_add(current_date, interval -30 day) as wip_overceed
+		from material m
+		join model mdl
+		  ON m.model_id = mdl.model_id
+		where wip_location Is Not Null
+		Order by Lpad(m.wip_location,4,'0');
+		]]>
+	</select>
+
+</mapper>

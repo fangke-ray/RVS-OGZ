@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+  <!DOCTYPE web-app PUBLIC
+	"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_4.dtd">
+
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<display-name>Repair Visualization System Monitor Scanner</display-name>
+
+	<servlet>
+	  <description>文件系统目录使用设置</description>
+	  <servlet-name>InitFilePathServlet</servlet-name>
+	  <servlet-class>com.osh.rvs.common.InitFilePathServlet</servlet-class>
+	  <init-param>
+	    <description>文件系统根目录</description>
+	    <param-name>BASE_PATH</param-name>
+	    <param-value>E:\rvs</param-value>
+	    <!--param-value>C:\Work\rvsG</param-value-->
+	  </init-param>
+	  <init-param>
+	    <description>用户可修改配置</description>
+	    <param-name>PROPERTIES</param-name>
+	    <param-value>\Properties</param-value>
+	  </init-param>
+	  <load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<!-- Standard Action Servlet Configuration -->
+	<servlet>
+		<servlet-name>action</servlet-name>
+		<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+		<init-param>
+			<param-name>config</param-name>
+			<param-value>/WEB-INF/struts-config.xml</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<!-- Standard Action Servlet Mapping -->
+	<servlet-mapping>
+		<servlet-name>action</servlet-name>
+		<url-pattern>*.scan</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>trigger</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.TriggerServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>trigger</servlet-name>
+		<url-pattern>/trigger/*</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<!--
+		字符码设定Filter
+		-->
+		<filter-name>EncodeFilter</filter-name>
+
+		<filter-class>framework.huiqing.common.util.filters.SetCharacterEncodingFilter</filter-class>
+
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<!--
+	全URL Pattern都进行的Filter处理
+	-->
+	<filter-mapping>
+		<filter-name>EncodeFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- The Usual Welcome File List -->
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+	<session-config>  
+		<session-timeout>600</session-timeout>  
+	</session-config> 
+
+<jsp-config>     
+    <jsp-property-group>     
+    	<url-pattern>*.jsp</url-pattern>     
+    	<el-ignored>false</el-ignored>     
+    </jsp-property-group>     
+</jsp-config>
+
+</web-app>

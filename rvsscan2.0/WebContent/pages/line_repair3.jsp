@@ -1,0 +1,192 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<%
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
+%>
+<base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Pragma" content="no-cache"> <meta http-equiv="Cache-Control" content="no-cache">
+
+<link rel="stylesheet" type="text/css" href="css/custom.css">
+<link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
+<link rel="stylesheet" type="text/css" href="css/donuts.css">
+<!--link rel="stylesheet" type="text/css" href="css/hexaflip.css"-->
+<style>
+.scan1024 .td-content {
+	width : auto;
+	padding: 1px;
+	padding-left: 3px;
+}
+
+.scan1024 table {
+	background-color : white;
+}
+span.areacount {
+	float : right;
+	font-size:12px;
+	margin: .3em .4em .2em .3em;
+	background-color : white;
+	padding: .1em .3em .1em .3em;
+}
+</style>
+
+<title>${section_name} ${line_name}</title>
+</head>
+<body class="outer scan1024">
+<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
+<script type="text/javascript" src="js/highcharts.js"></script>
+<script type="text/javascript" src="js/jquery.flipCounter.1.2.pack.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/jquery-plus.js"></script>
+<script type="text/javascript" src="js/donuts.js"></script>
+<script type="text/javascript" src="js/scan/line_repair3.js"></script>
+
+<div class="width-full" style="align:center;margin:auto;margin-top:16px;">
+<div id="basearea" class="dwidth-full" style="margin:auto;">
+</div>
+<script type="text/javascript">
+	$("#basearea").load("widgets/header.jsp",
+		function(responseText, textStatus, XMLHttpRequest) {
+		$("#moduleName").text("工程展示");
+	});
+</script>
+
+<div class="ui-widget-panel width-full" style="align:center;padding-top:16px;overflow-x: hidden;margin:auto;" id="body-3">
+	
+	<div class="ui-widget-header dwidth-full" style="align:center;padding-top:6px;padding-bottom:6px;margin-bottom:16px;text-align:center;">
+		<span>${section_name} ${line_name}</span>
+	</div>
+
+	<div style="width:1900px;">
+		<div id="workarea" class="dwidth-half" style="float:left;margin-left:14px;margin-bottom:16px;font-weight: bolder;">
+			<div id="endoEye_plan_complete">
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">EndoEye</span>
+				</div>
+				<div class="clear areaencloser dwidth-half"></div>
+				<div style="float:left">
+					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-left : 16px;">
+						<span class="areatitle">今日计划台数</span>
+					</div>
+					<div id="endoEye_plan_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #92D050; margin-left : 16px;-webkit-box-shadow: 0 -1px 2px #292929;">
+					</div>
+				</div>
+				<div style="float:left">
+					<div class="donut donut-big" style="margin-top: 45px; margin-left : 12px;">
+					    <div class="donut-arrow" data-percentage="0"></div>
+					</div>
+					<div id="endoEye_completed_rate" style="
+						font-size: 350%;
+						margin: 16px 0 0 8px;
+						font-family: Georgia;
+						background: rgba(0, 0, 128, 0.4);
+						text-align: center;
+						width: 3em;
+						border: 4px solid rgb(255, 255, 255);
+						left: 10px;
+						border-radius: 14px">0%</div>
+					<div class="clear"></div>
+				</div>
+				<div style="float:left">
+					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-left : 8px;">
+						<span class="areatitle">今日产出台数</span>
+					</div>
+					<div id="endoEye_plan_finish_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0080C0; margin-left : 8px;-webkit-box-shadow: 0 -1px 2px #292929;">
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="clear areaencloser dwidth-half"></div>
+
+			<div id="device_plan_complete">
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">周边设备</span>
+				</div>
+				<div class="clear areaencloser dwidth-half"></div>
+				<div style="float:left">
+					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-left : 16px;">
+						<span class="areatitle">今日计划台数</span>
+					</div>
+					<div id="device_plan_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #92D050; margin-left : 16px;-webkit-box-shadow: 0 -1px 2px #292929;">
+					</div>
+				</div>
+				<div style="float:left">
+					<div class="donut donut-big" style="margin-top: 45px; margin-left : 12px;">
+					    <div class="donut-arrow" data-percentage="0"></div>
+					</div>
+					<div id="device_completed_rate" style="
+						font-size: 350%;
+						margin: 16px 0 0 8px;
+						font-family: Georgia;
+						background: rgba(0, 0, 128, 0.4);
+						text-align: center;
+						width: 3em;
+						border: 4px solid rgb(255, 255, 255);
+						left: 10px;
+						border-radius: 14px">0%</div>
+					<div class="clear"></div>
+				</div>
+				<div style="float:left">
+					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-left : 8px;">
+						<span class="areatitle">今日产出台数</span>
+					</div>
+					<div id="device_plan_finish_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0080C0; margin-left : 8px;-webkit-box-shadow: 0 -1px 2px #292929;">
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="clear"><input type="hidden" id="page_line_id" value="${line_id}" /><input type="hidden" id="page_section_id" value="${section_id}" /></div>
+		</div>
+	
+		<div id="storagearea" style="float:left;margin-left:16px;margin-bottom:16px;">
+			<div>
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">等待投线</span>
+				</div>
+				<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
+					<span style="font-size:16px;"><label id="waiting_cast"></label> 台</span>
+				</div>
+				<div class="clear areaencloser dwidth-half"></div>
+			</div>
+			<div>
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">等待维修</span>
+				</div>
+				<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
+					<span style="font-size:16px;"><label id="waiting_repair"></label> 台</span>
+				</div>
+				<div class="clear areaencloser dwidth-half"></div>
+			</div>
+			<div>
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">等待零件</span>
+				</div>
+				<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
+					<span style="font-size:16px;"><label id="waiting_parts"></label> 台</span>
+				</div>
+				<div class="clear areaencloser dwidth-half"></div>
+			</div>
+		
+			<div>
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
+					<span class="areatitle">当前仕挂分布</span>
+				</div>
+				<div class="ui-widget-content dwidth-half">
+					<div id="processing_container"></div>
+				</div>
+				<div class="ui-state-default ui-corner-bottom areaencloser dwidth-half"></div>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+</div>
+</div>
+
+</body></html>

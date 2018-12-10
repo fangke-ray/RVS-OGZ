@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.GlobalProgressMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getShippingInPeriodResult" resultType="int" parameterType="Date">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+		JOIN production_feature pf on m.material_id = pf.material_id and pf.position_id = 47
+		and break_back_flg = 0
+		WHERE pf.finish_time >= #{period_start}
+		]]>
+	</select>
+
+	<select id="getShippingInMonthResult" resultType="int">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+		JOIN production_feature pf on m.material_id = pf.material_id and pf.position_id = 47
+		and break_back_flg = 0
+		WHERE pf.finish_time >= #{month_start}
+		]]>
+	</select>
+	
+	<select id="getInlineTotalResult" resultType="map">
+	<![CDATA[ 
+		SELECT
+			COALESCE(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+		FROM(
+			SELECT 
+			    v_model.kind AS kind,
+				COUNT(material.material_id) AS num
+			FROM
+			    material 
+			JOIN
+				section
+			ON
+				material.section_id = section.section_id
+			
+				JOIN
+					v_model 
+				ON 
+					material.model_id = v_model.model_id
+			WHERE
+				section.section_id = 1
+			    AND material.inline_time IS NOT NULL
+			    AND material.outline_time IS NULL
+			    AND material.break_back_flg = 0
+			GROUP BY 
+				v_model.kind
+		) temp
+	]]>
+	</select>
+
+	<select id="getInlineReagalResult" resultType="map">
+		<![CDATA[ 
+		SELECT
+			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+		FROM(
+		SELECT  
+			v_model.kind AS kind,
+			COUNT(m.material_id) AS num
+			FROM material m
+			JOIN section s ON m.section_id = s.section_id AND s.section_id = 1
+			JOIN material_process mp ON m.material_id = mp.material_id AND mp.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+					v_model 
+				ON 
+					m.model_id = v_model.model_id
+			WHERE inline_time IS NOT NULL AND outline_time IS NULL
+			AND NOT EXISTS (SELECT 1 FROM production_feature
+				WHERE operate_result = 3 AND finish_time IS NULL AND material_id = m.material_id)
+			AND mp.scheduled_date >= CURRENT_DATE
+			AND m.break_back_flg = 0
+			AND m.material_id NOT IN (SELECT m.material_id FROM material m
+			JOIN material_partial mp ON m.material_id = mp.material_id AND mp.occur_times = 1
+			WHERE inline_time IS NOT NULL AND outline_time IS NULL
+			AND NOT EXISTS (SELECT 1 FROM production_feature WHERE material_id = m.material_id AND position_id = 21 AND operate_result = 2)
+			AND break_back_flg = 0)
+		GROUP BY 
+				v_model.kind
+		) temp
+		]]>
+	</select>
+
+	<select id="getInlineFaultResult" resultType="map">
+		<![CDATA[ 
+		SELECT
+			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+		FROM(
+			SELECT 
+				v_model.kind AS kind,
+				COUNT(m.material_id) AS num
+			FROM material m
+			JOIN section s on m.section_id = s.section_id and s.section_id = 1
+			JOIN
+					v_model 
+				ON 
+					m.model_id = v_model.model_id
+			WHERE inline_time IS NOT NULL AND outline_time IS NULL
+			AND EXISTS (SELECT 1 FROM production_feature
+				WHERE operate_result = 3 AND finish_time IS NULL AND material_id = m.material_id)
+			AND break_back_flg = 0
+			GROUP BY 
+					v_model.kind
+		) temp
+		]]>
+	</select>
+
+	<select id="getInlineOvertimeResult" resultType="map">
+		<![CDATA[ 
+		SELECT
+			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+		FROM(
+		SELECT 
+				v_model.kind AS kind,
+				COUNT(m.material_id) AS num
+			FROM material m
+			JOIN section s on m.section_id = s.section_id and s.section_id = 1
+			JOIN material_process mp on m.material_id = mp.material_id and mp.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+				v_model 
+			ON 
+				m.model_id = v_model.model_id
+			WHERE inline_time IS NOT NULL AND outline_time IS NULL
+			AND mp.scheduled_date < current_date
+			AND break_back_flg = 0
+			GROUP BY 
+			v_model.kind
+		) temp
+		]]>
+	</select>
+
+	<select id="getInlinePartialWaitingResult" resultType="map">
+		<![CDATA[ 
+		SELECT
+			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+		FROM(
+		SELECT 		
+			v_model.kind AS kind,
+			COUNT(m.material_id) AS num
+		FROM material m
+		JOIN section s on m.section_id = s.section_id and s.section_id = 1
+		JOIN material_partial mp on m.material_id = mp.material_id and mp.occur_times = 1
+			JOIN
+				v_model 
+			ON 
+				m.model_id = v_model.model_id
+		WHERE inline_time IS NOT NULL AND outline_time IS NULL
+		AND NOT EXISTS (SELECT 1 FROM production_feature WHERE material_id = m.material_id AND position_id in (21,79) AND operate_result = 2)
+		AND break_back_flg = 0
+		GROUP BY 
+				v_model.kind
+		) temp
+		]]>
+	</select>
+
+	<select id="getTodayRecieveResult" resultType="int">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+		JOIN production_feature pf on m.material_id = pf.material_id and pf.position_id = 9
+		WHERE pf.finish_time >= current_date;
+		]]>
+	</select>
+
+	<select id="getTodayShippingResult" resultType="int">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+		JOIN production_feature pf on m.material_id = pf.material_id and pf.position_id = 47 and pf.operate_result = 2
+		WHERE pf.finish_time >= current_date
+		;
+		]]>
+	</select>
+
+	<select id="getTodayWipResult" resultType="map">
+	<![CDATA[ 
+		SELECT
+			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
+			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
+			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+		FROM(
+			SELECT 
+				v_model.kind AS kind,
+				COUNT(m.material_id) AS num
+			FROM
+				material m
+			JOIN
+				v_model 
+			ON 
+				m.model_id = v_model.model_id
+			WHERE
+				m.wip_location IS NOT NULL
+			GROUP BY 
+				v_model.kind
+		) temp
+	]]>
+	</select>
+
+	<select id="getTodayWipAgreedResult" resultType="map">
+	<![CDATA[ 
+		SELECT
+			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
+			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
+			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+		FROM(
+			SELECT 
+				v_model.kind AS kind,
+				COUNT(m.material_id) AS num
+			FROM
+				material m
+			JOIN
+				v_model 
+			ON 
+				m.model_id = v_model.model_id
+			WHERE
+				m.wip_location IS NOT NULL
+				and m.agreed_date IS NOT NULL
+			GROUP BY 
+				v_model.kind
+		) temp
+	]]>
+	</select>
+
+	<select id="getTodayInlineResult" resultType="int">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+ 		WHERE m.inline_time >= current_date
+		AND break_back_flg = 0;
+		]]>
+	</select>
+
+	<select id="getTodaAgreedDateResult" resultType="int">
+		<![CDATA[ 
+		SELECT count(m.material_id) FROM material m
+ 		WHERE m.agreed_date = current_date
+ 		AND m.unrepair_flg = 0
+		AND break_back_flg = 0;
+		]]>
+	</select>
+	
+	<select id="getTodayOnRepairWipResult" resultType="map">
+	<![CDATA[
+		SELECT
+			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
+			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
+			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+		FROM(
+			SELECT 
+				v_model.kind AS kind,
+				COUNT(m.material_id) AS num
+			FROM 
+				material m
+			JOIN
+				v_model 
+			ON 
+				m.model_id = v_model.model_id
+	 		WHERE 
+	 			m.break_back_flg = 0 
+	 			AND m.agreed_date IS NOT NULL
+	 			AND m.outline_time IS NULL
+	 		GROUP BY 
+			v_model.kind
+		) temp
+	]]>
+	</select>
+
+	<select id="getPlanAmountOfPeriod" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT cast(sum(shipment) AS CHAR) FROM repair_plan where (plan_year,plan_month) in (${value});
+		]]>
+	</select>
+</mapper>
