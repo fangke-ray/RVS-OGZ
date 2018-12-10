@@ -33,8 +33,8 @@
 		
 		<div class="ui-widget-panel ui-corner-all width-full" style="align: center; padding-top: 16px; padding-bottom: 16px;" id="body-2">
 			<div id="body-lft" style="width: 256px; float: left;">
-				<jsp:include page="/appmenu.do" flush="true">
-					<jsp:param name="linkto" value="现品管理"/>
+				<jsp:include page="/appmenu.do?method=pinit" flush="true">
+					<jsp:param name="linkto" value="零件入出库"/>
 				</jsp:include>
 			</div>
 			<div id="body-mdl" style="width: 994px; float: left;">
