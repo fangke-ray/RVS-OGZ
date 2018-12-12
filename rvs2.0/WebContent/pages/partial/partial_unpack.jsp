@@ -20,7 +20,24 @@
 			<input type="button" class="ui-button" id="endbutton" value="结束">
 		</div>
 	</div>
-	
+	<div class="ui-widget-content" id="partial_details" style="display: none;">
+		<table class="condform">
+			<tr style="display: table-row;">
+				<td class="ui-state-default td-title">开始时间</td>
+				<td class="td-content-text"></td>
+				<td class="ui-state-default td-title">作业标准时间</td>
+				<td class="td-content-text"></td>
+				<td class="ui-state-default td-title">作业经过时间</td>
+				<td class="td-content-text" id="dtl_process_time"><label style="float:right;"></label></td>
+			</tr>
+			<tr>
+				<td class="ui-state-default td-title">完成度</td>
+				<td colspan="5" class="td-content-text slim">
+					<div class="waiting tube" id="p_rate" style="height: 20px; margin: auto;"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
 	
 	<div class="areaencloser"></div>
 	

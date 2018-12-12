@@ -365,6 +365,15 @@ function reset(){
 	allPartialMap.clear();
 	updateData.clear();
 	searchlist = [];
+	
+	$("#partial_details").hide();
+	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("");
+	$("#dtl_process_time label").text("");
+	clearInterval(oInterval);
+	oInterval = null;
+	$("#p_rate div:animated").stop();
+	p_time = 0;
+	leagal_overline = null;
 };
 
 function collationInit(){
@@ -415,6 +424,7 @@ function collationInit(){
 						// 零件入库明细
 						var partialWarehouseDetailList = resInfo.partialWarehouseDetailList;
 						list(partialWarehouseDetailList);
+						setRate(fact_production_feature,resInfo.leagal_overline,resInfo.spent_mins);
 					}else{
 						reset();
 					}
@@ -422,6 +432,28 @@ function collationInit(){
 			}catch(e){}
 		}
 	});
+};
+
+function setRate(factProductionFeature,leagalOverline,spent_mins){
+	$("#partial_details").show();
+	//开始时间
+	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
+	leagal_overline = leagalOverline;
+	
+	var frate = parseInt(spent_mins / leagal_overline * 100);
+	if (frate > 99) {
+		frate = 99;
+	}
+	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+	
+	p_time = spent_mins;
+	
+	//作业标准时间
+	$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
+	ctime();
+	clearInterval(oInterval);
+	oInterval = null;
+	oInterval = setInterval(ctime,iInterval);
 };
 
 function chooseKind(){

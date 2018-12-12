@@ -3,13 +3,17 @@ package com.osh.rvs.service.partial;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -23,7 +27,9 @@ import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.mapper.manage.UserDefineCodesMapper;
 import com.osh.rvs.mapper.master.PartialMapper;
+import com.osh.rvs.service.PartialBussinessStandardService;
 import com.osh.rvs.service.UploadService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -44,6 +50,8 @@ public class PartialReceptService {
 	private final String DATE_EXPRESSION = "\\d{4}/\\d{2}/\\d{2}";
 	/** yyyy-MM-dd **/
 	private final String ISO_DATE_EXPRESSION = "\\d{4}-\\d{2}-\\d{2}";
+
+	private final PartialBussinessStandardService partialBussinessStandardService = new PartialBussinessStandardService();
 
 	public void upload(ActionForm form, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) {
 		UploadService uService = new UploadService();
@@ -338,6 +346,60 @@ public class PartialReceptService {
 
 		// 收货步骤为0
 		partialWarehouseForm.setStep("0");
+	}
+
+	/**
+	 * 作业标准时间
+	 *
+	 * @param list
+	 * @param conn
+	 * @return
+	 */
+	public String getStandardTime(List<PartialWarehouseDetailForm> list, SqlSession conn) {
+		Map<Integer, BigDecimal> map = partialBussinessStandardService.getReceptStandardTime(conn);
+
+		// 总时间
+		BigDecimal totalTime = new BigDecimal("0");
+
+		for (PartialWarehouseDetailForm form : list) {
+			Integer specKind = Integer.valueOf(form.getSpec_kind());
+
+			// 标准工时
+			BigDecimal time = map.get(specKind);
+
+			totalTime = totalTime.add(time);
+		}
+
+		UserDefineCodesMapper dao = conn.getMapper(UserDefineCodesMapper.class);
+
+		// 收货搬运移动标准工时
+		String value = dao.searchUserDefineCodesValueByCode("PARTIAL_RECEPT_MOVE_COST");
+		totalTime = totalTime.add(new BigDecimal(value));
+
+		// 向上取整
+		totalTime = totalTime.setScale(0, RoundingMode.UP);
+		return totalTime.toString();
+	}
+
+	/**
+	 * 作业经过时间
+	 *
+	 * @param time
+	 * @return
+	 */
+	public String getSpentTimes(String time) {
+		Calendar cal = Calendar.getInstance();
+
+		// 相差毫秒数
+		long millisecond = cal.getTimeInMillis() - DateUtil.toDate(time, DateUtil.DATE_TIME_PATTERN).getTime();
+
+		BigDecimal diff = new BigDecimal(millisecond);
+		// 1分钟
+		BigDecimal oneMinute = new BigDecimal(60000);
+
+		BigDecimal spent = diff.divide(oneMinute, RoundingMode.UP);
+
+		return spent.toString();
 	}
 
 	private MsgInfo getFormatError() {

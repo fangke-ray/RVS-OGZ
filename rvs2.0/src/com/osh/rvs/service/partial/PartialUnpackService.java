@@ -1,5 +1,8 @@
 package com.osh.rvs.service.partial;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.ibatis.session.SqlSession;
 
 import com.osh.rvs.bean.partial.FactPartialWarehouseEntity;
+import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
 import com.osh.rvs.form.partial.FactPartialWarehouseForm;
+import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
+import com.osh.rvs.mapper.partial.FactProductionFeatureMapper;
+import com.osh.rvs.service.PartialBussinessStandardService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -31,6 +38,7 @@ import framework.huiqing.common.util.validator.Validators;
 public class PartialUnpackService {
 	private final PartialWarehouseDetailService partialWarehouseDetailService = new PartialWarehouseDetailService();
 	private final FactPartialWarehouseService factPartialWarehouseService = new FactPartialWarehouseService();
+	private final PartialBussinessStandardService partialBussinessStandardService = new PartialBussinessStandardService();
 
 	/**
 	 * 检查分装是否完成
@@ -145,5 +153,60 @@ public class PartialUnpackService {
 				}
 			}
 		}
+	}
+
+	public String getStandardTime(List<PartialWarehouseDetailForm> list, SqlSession conn) {
+		Map<Integer, BigDecimal> map = partialBussinessStandardService.getUnpackStandardTime(conn);
+
+		// 总时间
+		BigDecimal totalTime = new BigDecimal("0");
+
+		for (PartialWarehouseDetailForm form : list) {
+			Integer specKind = Integer.valueOf(form.getSpec_kind());
+
+			// 标准工时
+			BigDecimal time = map.get(specKind);
+			if(time == null){
+				continue;
+			}
+
+			totalTime = totalTime.add(time);
+		}
+
+		// 向上取整
+		totalTime = totalTime.setScale(0, RoundingMode.UP);
+		return totalTime.toString();
+
+	}
+
+	public String getSpentTimes(FactProductionFeatureForm form, SqlSession conn) {
+		FactProductionFeatureMapper factProductionFeatureMapper = conn.getMapper(FactProductionFeatureMapper.class);
+		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
+
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		entity.setProduction_type(30);
+		// 相差毫秒数
+		long millisecond = 0;
+
+		List<FactProductionFeatureEntity> list = factProductionFeatureMapper.searchWorkRecord(entity);
+
+		for (int i = 0; i < list.size(); i++) {
+			entity = list.get(i);
+
+			if (entity.getFinish_time() == null) {
+				Calendar cal = Calendar.getInstance();
+				millisecond += cal.getTimeInMillis() - entity.getAction_time().getTime();
+			} else {
+				millisecond += entity.getFinish_time().getTime() - entity.getAction_time().getTime();
+			}
+		}
+
+		BigDecimal diff = new BigDecimal(millisecond);
+		// 1分钟
+		BigDecimal oneMinute = new BigDecimal(60000);
+
+		BigDecimal spent = diff.divide(oneMinute, RoundingMode.UP);
+
+		return spent.toString();
 	}
 }

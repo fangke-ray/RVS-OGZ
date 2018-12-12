@@ -100,6 +100,14 @@ public class PartialCollationAction extends BaseAction {
 			List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialCollationService.filterCollation(list, productionType);
 
 			callbackResponse.put("partialWarehouseDetailList", partialWarehouseDetailList);
+
+			// 作业标准时间
+			String leagal_overline = partialCollationService.getStandardTime(list, conn);
+			callbackResponse.put("leagal_overline", leagal_overline);
+
+			// 作业经过时间
+			String spent_mins = partialCollationService.getSpentTimes(factProductionFeature, conn);
+			callbackResponse.put("spent_mins", spent_mins);
 		}
 
 		/* 检查错误时报告错误信息 */

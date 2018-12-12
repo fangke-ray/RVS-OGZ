@@ -1,6 +1,8 @@
 package com.osh.rvs.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -226,4 +228,80 @@ public class PartialBussinessStandardService {
 		return respForm;
 
 	}
+
+	private List<PartialBussinessStandardEntity> getStandardTime(SqlSession conn) {
+		PartialBussinessStandardMapper dao = conn.getMapper(PartialBussinessStandardMapper.class);
+		List<PartialBussinessStandardEntity> list = dao.search();
+
+		if (list == null) {
+			list = new ArrayList<PartialBussinessStandardEntity>();
+		}
+
+		return list;
+	}
+
+	/**
+	 * 查询收货工时标准
+	 *
+	 * @param conn
+	 * @return
+	 */
+	public Map<Integer, BigDecimal> getReceptStandardTime(SqlSession conn) {
+		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
+		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
+
+		for (PartialBussinessStandardEntity entity : list) {
+			map.put(entity.getSpec_kind(), entity.getRecept());
+		}
+		return map;
+	}
+
+	/**
+	 * 查询核对工时标准
+	 *
+	 * @param conn
+	 * @return
+	 */
+	public Map<Integer, BigDecimal> getCollationStandardTime(SqlSession conn) {
+		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
+		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
+
+		for (PartialBussinessStandardEntity entity : list) {
+			map.put(entity.getSpec_kind(), entity.getCollation());
+		}
+		return map;
+	}
+
+	/**
+	 * 查询上架工时标准
+	 *
+	 * @param conn
+	 * @return
+	 */
+	public Map<Integer, BigDecimal> getOnShelfStandardTime(SqlSession conn) {
+		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
+		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
+
+		for (PartialBussinessStandardEntity entity : list) {
+			map.put(entity.getSpec_kind(), entity.getOn_shelf());
+		}
+		return map;
+	}
+
+	/**
+	 * 查询分装工时标准
+	 *
+	 * @param conn
+	 * @return
+	 */
+	public Map<Integer, BigDecimal> getUnpackStandardTime(SqlSession conn) {
+		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
+		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
+
+		for (PartialBussinessStandardEntity entity : list) {
+			map.put(entity.getSpec_kind(), entity.getUnpack());
+		}
+		return map;
+	}
+
 }
