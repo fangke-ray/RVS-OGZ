@@ -79,7 +79,7 @@ public class PartialCollationService {
 	 * @param conn
 	 * @return
 	 */
-	public String getStandardTime(List<PartialWarehouseDetailForm> list, SqlSession conn) {
+	public String getStandardTime(List<PartialWarehouseDetailForm> list, String productionType, SqlSession conn) {
 		Map<Integer, BigDecimal> map = partialBussinessStandardService.getCollationStandardTime(conn);
 
 		// 总时间
@@ -87,9 +87,20 @@ public class PartialCollationService {
 
 		for (PartialWarehouseDetailForm form : list) {
 			Integer specKind = Integer.valueOf(form.getSpec_kind());
-
+			// 上架
+			Integer onShelf = Integer.valueOf(form.getOn_shelf());
 			// 标准工时
-			BigDecimal time = map.get(specKind);
+			BigDecimal time = new BigDecimal("0");
+
+			// 【B1：核对+上架】
+			if ("20".equals(productionType)) {
+				if (onShelf < 0)
+					time = map.get(specKind);
+
+			} else if ("21".equals(productionType)) {// 【B2：核对】
+				if (onShelf > 0)
+					time = map.get(specKind);
+			}
 
 			totalTime = totalTime.add(time);
 		}
@@ -110,8 +121,6 @@ public class PartialCollationService {
 		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
 
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-		entity.setProduction_type(null);
-		entity.setProduction_types(new Integer[] { 20, 21 });
 		// 相差毫秒数
 		long millisecond = 0;
 

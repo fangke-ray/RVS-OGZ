@@ -22,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.master.PartialEntity;
+import com.osh.rvs.bean.partial.PartialWarehouseDetailEntity;
 import com.osh.rvs.common.CopyByPoi;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
@@ -29,6 +30,7 @@ import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.manage.UserDefineCodesMapper;
 import com.osh.rvs.mapper.master.PartialMapper;
+import com.osh.rvs.mapper.partial.PartialWarehouseDetailMapper;
 import com.osh.rvs.service.PartialBussinessStandardService;
 import com.osh.rvs.service.UploadService;
 
@@ -355,17 +357,27 @@ public class PartialReceptService {
 	 * @param conn
 	 * @return
 	 */
-	public String getStandardTime(List<PartialWarehouseDetailForm> list, SqlSession conn) {
+	public String getStandardTime(String key, SqlSession conn) {
 		Map<Integer, BigDecimal> map = partialBussinessStandardService.getReceptStandardTime(conn);
+
+		PartialWarehouseDetailMapper partialWarehouseDetailMapper = conn.getMapper(PartialWarehouseDetailMapper.class);
+
+		PartialWarehouseDetailEntity entity = new PartialWarehouseDetailEntity();
+		entity.setKey(key);
+		List<PartialWarehouseDetailEntity> list = partialWarehouseDetailMapper.countQuantityOfSpecKind(entity);
 
 		// 总时间
 		BigDecimal totalTime = new BigDecimal("0");
 
-		for (PartialWarehouseDetailForm form : list) {
-			Integer specKind = Integer.valueOf(form.getSpec_kind());
+		for (int i = 0; i < list.size(); i++) {
+			Integer specKind = list.get(i).getSpec_kind();
+
+			// 箱数
+			Integer quantity = list.get(i).getQuantity();
 
 			// 标准工时
 			BigDecimal time = map.get(specKind);
+			time = time.multiply(new BigDecimal(quantity));
 
 			totalTime = totalTime.add(time);
 		}

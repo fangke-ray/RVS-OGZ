@@ -29,12 +29,6 @@
 			production_type = #{production_type}
 	]]>
 	</if>
-	<if test="production_types!=null and production_types!=''">
-		AND production_type IN
-		<foreach item="production_type" collection="production_types" open="(" separator="," close=")">
-			#{production_type}
-		</foreach> 
-	</if>
 	</select>
 
 	<insert id="insert" parameterType="FactProductionFeatureEntity">

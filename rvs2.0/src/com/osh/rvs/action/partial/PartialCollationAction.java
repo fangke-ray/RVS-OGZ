@@ -17,7 +17,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
-import com.osh.rvs.bean.master.PartialEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.PartialBussinessStandardForm;
 import com.osh.rvs.form.master.PartialForm;
@@ -102,7 +101,7 @@ public class PartialCollationAction extends BaseAction {
 			callbackResponse.put("partialWarehouseDetailList", partialWarehouseDetailList);
 
 			// 作业标准时间
-			String leagal_overline = partialCollationService.getStandardTime(list, conn);
+			String leagal_overline = partialCollationService.getStandardTime(list, productionType, conn);
 			callbackResponse.put("leagal_overline", leagal_overline);
 
 			// 作业经过时间
@@ -173,11 +172,10 @@ public class PartialCollationAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		PartialEntity partialEntity = new PartialEntity();
-		partialEntity.setPartial_id(req.getParameter("partial_id"));
+		String code = req.getParameter("code");
 
 		// 零件信息
-		PartialForm partialForm = partialService.getDetail(partialEntity, conn, errors);
+		PartialForm partialForm = partialService.getDetail(code, conn, errors);
 
 		if (errors.size() == 0) {
 			// 零件出入库工时标准

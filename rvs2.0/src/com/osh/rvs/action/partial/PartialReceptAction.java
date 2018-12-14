@@ -90,7 +90,7 @@ public class PartialReceptAction extends BaseAction {
 				callbackResponse.put("counttQuantityList", counttQuantityList);
 
 				// 作业标准时间
-				String leagal_overline = partialReceptService.getStandardTime(partialWarehouseDetailList, conn);
+				String leagal_overline = partialReceptService.getStandardTime(key,conn);
 				callbackResponse.put("leagal_overline", leagal_overline);
 			}
 
