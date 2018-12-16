@@ -55,8 +55,7 @@ public class PartialService {
 		}
 	}
 
-	public String insert(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
-			throws Exception {
+	public String insert(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		PartialEntity insertBean = new PartialEntity();
 		BeanUtil.copyToBean(form, insertBean, null);
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -67,15 +66,15 @@ public class PartialService {
 		dao.insertPartial(insertBean);
 
 		CommonMapper cDao = conn.getMapper(CommonMapper.class);
-		String partial_id =cDao.getLastInsertID();////取得本连接最后取得的自增ID
-
+		String partial_id = cDao.getLastInsertID();// //取得本连接最后取得的自增ID
 
 		return partial_id;
 		/*
-		 * CommonMapper cDao = conn.getMapper(CommonMapper.class); String partial_id =
-		 * cDao.getLastInsertID();
+		 * CommonMapper cDao = conn.getMapper(CommonMapper.class); String
+		 * partial_id = cDao.getLastInsertID();
 		 *
-		 * insertBean.setPartial_id(partial_id); dao.insertPartialPrice(insertBean);
+		 * insertBean.setPartial_id(partial_id);
+		 * dao.insertPartialPrice(insertBean);
 		 */
 	}
 
@@ -96,6 +95,26 @@ public class PartialService {
 			BeanUtil.copyToForm(partial, pf, null);
 			return pf;
 		}
+	}
+
+	public PartialForm getDetail(String code, SqlSession conn, List<MsgInfo> errors) {
+		PartialMapper dao = conn.getMapper(PartialMapper.class);
+
+		List<PartialEntity> list = dao.getPartialByCode(code);
+
+		if (list == null || list.size() == 0) {
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("partial_id");
+			error.setErrcode("dbaccess.recordNotExist");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", "零件对象型号"));
+			errors.add(error);
+			return null;
+		} else {
+			PartialForm pf = new PartialForm();
+			BeanUtil.copyToForm(list.get(0), pf, null);
+			return pf;
+		}
+
 	}
 
 	public void delete(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {

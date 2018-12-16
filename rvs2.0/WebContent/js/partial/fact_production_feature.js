@@ -1,3 +1,12 @@
+// 已启动作业时间
+var p_time = 0;
+// 定时处理对象
+var oInterval, ttInterval;
+// 定时处理间隔（1分钟）
+var iInterval = 60000;
+// 取到的标准作业时间
+var leagal_overline;
+
 $(function () {
 	let servicePaths = {
 		"receptbutton" : "partial_recept.do",
@@ -113,3 +122,34 @@ function step (production_type) {
 		break;
 	}
 };
+
+//进行中效果
+var ctime=function(){
+	p_time++;
+	$("#dtl_process_time label").text(minuteFormat(p_time));
+
+	var rate = parseInt((p_time + 1) / leagal_overline * 100);
+	if (rate == 99) return;
+	if (rate >= 100) rate = 99;
+	var liquid = $("#p_rate div");
+	liquid.animate({width : rate + "%"}, iInterval, "linear");
+	if (rate > 80) {
+		liquid.removeClass("tube-green");
+		if (rate > 95) {
+			liquid.removeClass("tube-yellow");
+			liquid.addClass("tube-orange");
+		} else {
+			liquid.addClass("tube-yellow");
+		}
+	} else {
+		liquid.addClass("tube-green");
+	}
+};
+
+var minuteFormat =function(iminute) {
+	if (!iminute) return "-";
+	var hours = parseInt(iminute / 60);
+	var minutes = iminute % 60;
+
+	return fillZero(hours, 2) + ":" + fillZero(minutes, 2);
+}

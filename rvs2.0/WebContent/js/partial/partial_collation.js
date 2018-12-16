@@ -25,13 +25,13 @@ $(function(){
 	$("#endbutton").click(doEnd);
 	
 	// 输入框触发，配合浏览器
-	$("#scanner_inputer").keypress(function(){
-		if (this.value.length === 11) {
+	$("#scanner_inputer").keypress(function(e){
+		if(e.keyCode == 13){
 			startScanner();
 		}
 	});
-	$("#scanner_inputer").keyup(function(){
-		if (this.value.length >= 11) {
+	$("#scanner_inputer").keyup(function(e){
+		if(e.keyCode == 13){
 			startScanner();
 		}
 	});
@@ -41,7 +41,7 @@ $(function(){
 
 function startScanner(){
 	var data = {
-		"partial_id" : $("#scanner_inputer").val().trim()
+		"code" : $("#scanner_inputer").val().trim()
 	};
 	
 	$.ajax({
@@ -78,14 +78,14 @@ function startScanner(){
 						type = "21";
 					}
 					
-					if(allPartialMap.has(data.partial_id)){
+					if(allPartialMap.has(data.code)){
 						var production_type = $("#hide_production_type").val();
 						if(production_type != type){
 							var errorData = `零件编码[${partialForm.code}]不适用于当前作业内容！`;
 							errorPop(errorData);
 						}else{
 							// 更新一览数据
-							updateList(data.partial_id);
+							updateList(partialForm.partial_id);
 						}
 					}else{
 						var warnData = `零件编码[${partialForm.code}]在零件入库单DN编号为[${dn_no}]中不存在，是否加入此单中！`;
@@ -95,7 +95,7 @@ function startScanner(){
 								var errorData = `零件编码[${partialForm.code}]不适用于当前作业内容！`;
 								errorPop(errorData);
 							}else{
-								allPartialMap.set(partialForm.partial_id,partialForm.partial_id);
+								allPartialMap.set(code,code);
 								var obj = {
 										"key":$("#hide_key").val(),
 										"partial_id":partialForm.partial_id,
@@ -365,6 +365,15 @@ function reset(){
 	allPartialMap.clear();
 	updateData.clear();
 	searchlist = [];
+	
+	$("#partial_details").hide();
+	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("");
+	$("#dtl_process_time label").text("");
+	clearInterval(oInterval);
+	oInterval = null;
+	$("#p_rate div:animated").stop();
+	p_time = 0;
+	leagal_overline = null;
 };
 
 function collationInit(){
@@ -409,12 +418,13 @@ function collationInit(){
 						allPartialMap.clear();
 						var allPartialList = resInfo.allPartialList;
 						allPartialList.forEach(function(item,index){
-							allPartialMap.set(item.partial_id,item.partial_id);
+							allPartialMap.set(item.code,item.code);
 						});
 						
 						// 零件入库明细
 						var partialWarehouseDetailList = resInfo.partialWarehouseDetailList;
 						list(partialWarehouseDetailList);
+						setRate(fact_production_feature,resInfo.leagal_overline,resInfo.spent_mins);
 					}else{
 						reset();
 					}
@@ -422,6 +432,28 @@ function collationInit(){
 			}catch(e){}
 		}
 	});
+};
+
+function setRate(factProductionFeature,leagalOverline,spent_mins){
+	$("#partial_details").show();
+	//开始时间
+	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
+	leagal_overline = leagalOverline;
+	
+	var frate = parseInt(spent_mins / leagal_overline * 100);
+	if (frate > 99) {
+		frate = 99;
+	}
+	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+	
+	p_time = spent_mins;
+	
+	//作业标准时间
+	$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
+	ctime();
+	clearInterval(oInterval);
+	oInterval = null;
+	oInterval = setInterval(ctime,iInterval);
 };
 
 function chooseKind(){

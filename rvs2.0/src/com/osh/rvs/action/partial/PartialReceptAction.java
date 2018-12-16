@@ -72,21 +72,31 @@ public class PartialReceptAction extends BaseAction {
 		callbackResponse.put("unfinished", factProductionFeature);
 
 		// 存在现品作业信息
-		if (factProductionFeature != null && !CommonStringUtil.isEmpty(factProductionFeature.getPartial_warehouse_key())) {
+		if (factProductionFeature != null) {
 			String key = factProductionFeature.getPartial_warehouse_key();
 
-			// 查询零件入库明细
-			List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialWarehouseDetailService.searchByKey(key, conn);
+			if (!CommonStringUtil.isEmpty(key)) {
+				// 查询零件入库明细
+				List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialWarehouseDetailService.searchByKey(key, conn);
 
-			PartialWarehouseDetailForm partialWarehouseDetailForm = new PartialWarehouseDetailForm();
-			partialWarehouseDetailForm.setKey(key);
-			// 统计各个规格种别总数量
-			List<PartialWarehouseDetailForm> counttQuantityList = partialWarehouseDetailService.countQuantityOfSpecKind(partialWarehouseDetailForm, conn);
+				PartialWarehouseDetailForm partialWarehouseDetailForm = new PartialWarehouseDetailForm();
+				partialWarehouseDetailForm.setKey(key);
+				// 统计各个规格种别总数量
+				List<PartialWarehouseDetailForm> counttQuantityList = partialWarehouseDetailService.countQuantityOfSpecKind(partialWarehouseDetailForm, conn);
 
-			// 零件入库明细
-			callbackResponse.put("partialWarehouseDetailList", partialWarehouseDetailList);
-			// 各个规格种别总数量
-			callbackResponse.put("counttQuantityList", counttQuantityList);
+				// 零件入库明细
+				callbackResponse.put("partialWarehouseDetailList", partialWarehouseDetailList);
+				// 各个规格种别总数量
+				callbackResponse.put("counttQuantityList", counttQuantityList);
+
+				// 作业标准时间
+				String leagal_overline = partialReceptService.getStandardTime(key,conn);
+				callbackResponse.put("leagal_overline", leagal_overline);
+			}
+
+			// 作业经过时间
+			String spent_mins = partialReceptService.getSpentTimes(factProductionFeature.getAction_time());
+			callbackResponse.put("spent_mins", spent_mins);
 		}
 
 		/* 检查错误时报告错误信息 */

@@ -123,6 +123,7 @@ function receptInit(){
 						}
 						
 						list(partialWarehouseDetailList);
+						setRate(factProductionFeature,resInfo.leagal_overline,resInfo.spent_mins);
 					}
 				}
 			}catch(e){}
@@ -138,6 +139,51 @@ function reset(){
 	$("#label_dn_no").text("");
 	$("#content tbody tr:nth-child(2)").remove();
 	list([]);
+	
+	$("#partial_details").hide();
+	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("");
+	$("#dtl_process_time label").text("");
+	clearInterval(oInterval);
+	oInterval = null;
+	$("#p_rate div:animated").stop();
+	p_time = 0;
+	leagal_overline = null;
+};
+
+function setRate(factProductionFeature,leagalOverline,spent_mins){
+	$("#partial_details").show();
+	//开始时间
+	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
+	p_time = spent_mins;
+	if(factProductionFeature.partial_warehouse_key){
+		leagal_overline = leagalOverline;
+		//作业标准时间
+		$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
+		
+		var frate = parseInt(spent_mins / leagal_overline * 100);
+		if (frate > 99) {
+			frate = 99;
+		}
+		$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+		
+		ctime();
+		clearInterval(oInterval);
+		oInterval = null;
+		oInterval = setInterval(ctime,iInterval);
+	}else{
+		$("#p_rate").html("<div class='tube-liquid tube-green' style='width:0%;text-align:right;'></div>");
+		
+		if(p_time == 0) p_time = 1;
+		$("#dtl_process_time label").text(minuteFormat(p_time));
+		clearInterval(oInterval);
+		oInterval = null;
+		oInterval = setInterval(function(){
+			p_time++;
+			$("#dtl_process_time label").text(minuteFormat(p_time));
+		},iInterval);
+		$("#partial_details td:eq(3)").text("");
+		$("#p_rate div:animated").css("width","0%").stop();
+	}
 };
 
 function doStart() {
@@ -164,9 +210,7 @@ function doStart() {
 					// 共通出错信息框
 					treatBackMessages(null, resInfo.errors);
 				} else {
-					$("#file,#uploadbutton,#endbutton,#restartbutton").enable().removeClass("ui-state-focus");
-					$("#startbutton").disable().removeClass("ui-state-focus");
-					enableMenu("receptbutton");
+					receptInit();
 				}
 			} catch (e) {}
 		}

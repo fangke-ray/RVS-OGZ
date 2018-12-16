@@ -30,6 +30,15 @@ function reset(){
 	
 	$("#hide_key").val("");
 	$("#kind_quantity").find("tbody tr:nth-child(n+2)").remove();
+	
+	$("#partial_details").hide();
+	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("");
+	$("#dtl_process_time label").text("");
+	clearInterval(oInterval);
+	oInterval = null;
+	$("#p_rate div:animated").stop();
+	p_time = 0;
+	leagal_overline = null;
 }
 
 function unpackInit(){
@@ -67,6 +76,8 @@ function unpackInit(){
 						list(resInfo.partialWarehouseDetailList);
 						setSpecKindQuantity(resInfo.specKindQuantityList,resInfo.packList);
 						enableMenu("unpackbutton");
+						
+						setRate(fact_production_feature,resInfo.leagal_overline,resInfo.spent_mins);
 					}else{
 						enableMenu("");
 						reset();
@@ -75,6 +86,28 @@ function unpackInit(){
 			}catch(e){}
 		}
 	});
+};
+
+function setRate(factProductionFeature,leagalOverline,spent_mins){
+	$("#partial_details").show();
+	//开始时间
+	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
+	leagal_overline = leagalOverline;
+	
+	var frate = parseInt(spent_mins / leagal_overline * 100);
+	if (frate > 99) {
+		frate = 99;
+	}
+	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+	
+	p_time = spent_mins;
+	
+	//作业标准时间
+	$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
+	ctime();
+	clearInterval(oInterval);
+	oInterval = null;
+	oInterval = setInterval(ctime,iInterval);
 };
 
 function doStart(){

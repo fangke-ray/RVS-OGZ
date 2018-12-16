@@ -66,6 +66,8 @@ public class FactProductionFeatureEntity implements Serializable {
 	 */
 	private String dn_no;
 
+	private Integer[] production_types;
+
 	public String getFact_pf_key() {
 		return fact_pf_key;
 	}
@@ -144,6 +146,14 @@ public class FactProductionFeatureEntity implements Serializable {
 
 	public void setDn_no(String dn_no) {
 		this.dn_no = dn_no;
+	}
+
+	public Integer[] getProduction_types() {
+		return production_types;
+	}
+
+	public void setProduction_types(Integer[] production_types) {
+		this.production_types = production_types;
 	}
 
 }

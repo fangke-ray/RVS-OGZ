@@ -101,6 +101,15 @@ public class PartialUnpackAction extends BaseAction {
 			// 统计不同规格种别已经分装总数
 			List<FactPartialWarehouseForm> packList = factPartialWarehouseService.countQuantityOfSpecKind(factPartialWarehouseForm, conn);
 			callbackResponse.put("packList", packList);
+
+			// 作业标准时间
+			String leagal_overline = partialUnpackService.getStandardTime(partialWarehouseDetailList, conn);
+			callbackResponse.put("leagal_overline", leagal_overline);
+
+			// 作业经过时间
+			String spent_mins = partialUnpackService.getSpentTimes(factProductionFeature, conn);
+			callbackResponse.put("spent_mins", spent_mins);
+
 		}
 
 		/* 检查错误时报告错误信息 */
