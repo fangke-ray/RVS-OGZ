@@ -1,5 +1,7 @@
 package com.osh.rvs.mapper.partial;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
@@ -11,6 +13,14 @@ import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
  *
  */
 public interface FactProductionFeatureMapper {
+	/**
+	 * 查询作业记录
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public List<FactProductionFeatureEntity> searchWorkRecord(FactProductionFeatureEntity entity);
+
 	/**
 	 * 新建现品作业信息
 	 *

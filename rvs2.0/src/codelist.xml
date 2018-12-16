@@ -696,5 +696,31 @@
 		<value code="51">E2：分解工程出库</value>
 		<value code="99">O：其它</value>
 	</codelist>
-	
+
+	<codelist name="specialized_device_type">
+		<value code="1">电烙铁工具</value>
+		<value code="2">力矩工具</value>
+		<value code="3">消毒设备</value>
+		<value code="4">灭菌设备</value>
+		<value code="5">烘干设备</value>
+		<value code="6">周边维修周点检设备</value>
+	</codelist>
+
+	<codelist name="device_hazardous_classification">
+		<value code="1">机械</value>
+		<value code="2">电气</value>
+		<value code="3">温度</value>
+		<value code="4">压力</value>
+		<value code="5">噪声	</value>
+		<value code="6">振动</value>
+		<value code="7">辐射</value>
+		<value code="8">物质</value>
+	</codelist>
+
+	<codelist name="brand_business_relationship">
+		<value code="1">制造商</value>
+		<value code="2">经销商</value>
+		<value code="3">维修商</value>
+	</codelist>
+
 </codelist-config>

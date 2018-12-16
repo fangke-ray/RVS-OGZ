@@ -35,12 +35,13 @@
 		<form-bean name="partialForm" type="com.osh.rvs.form.master.PartialForm"></form-bean>
 		<form-bean name="devicesTypeForm" type="com.osh.rvs.form.master.DevicesTypeForm"></form-bean>
 		<form-bean name="devicesManageForm" type="com.osh.rvs.form.master.DevicesManageForm"></form-bean>
-		<form-bean name="toolsTypeForm" type="com.osh.rvs.form.master.ToolsTypeForm"></form-bean>
 		<form-bean name="toolsManageForm" type="com.osh.rvs.form.master.ToolsManageForm"></form-bean>
 		<form-bean name="CheckFileManageForm" type="com.osh.rvs.form.master.CheckFileManageForm"></form-bean>
 		<form-bean name="SystemImageManageForm" type="com.osh.rvs.form.master.SystemImageManageForm"></form-bean>
 		<form-bean name="PcsRequestForm" type="com.osh.rvs.form.master.PcsRequestForm"></form-bean>
 		<form-bean name="QualityTipForm" type="com.osh.rvs.form.master.QualityTipForm"></form-bean>
+
+		<form-bean name="brandForm" type="com.osh.rvs.form.master.BrandForm" />
 
 		<form-bean name="materialForm" type="com.osh.rvs.form.data.MaterialForm" />
 		<form-bean name="productionFeatureForm" type="com.osh.rvs.form.data.ProductionFeatureForm" />
@@ -395,6 +396,7 @@
 			<forward name="init" path="/widgets/header.jsp" />
 			<forward name="success" path="/widgets/header.jsp" />
 			<forward name="post_confirm" path="/widgets/header.jsp" />
+			<forward name="partialManage" path="/partialManage.do?method=init" />
 			<forward name="materialPartial" path="/materialPartial.do?method=init" />
 			<forward name="infect" path="/devices_distribute.do?method=init" />
 			<forward name="infectM" path="/devices_manage.do?method=init" />
@@ -402,9 +404,11 @@
 
 		<action path="/appmenu" type="com.osh.rvs.action.AppMenuAction" parameter="method" validate="false">
 			<forward name="init" path="/widgets/appmenu.jsp" />
+			<forward name="partial" path="/widgets/partialmenu.jsp" />
 			<forward name="tools" path="/widgets/toolsmenu.jsp" />
 			<forward name="success" path="/widgets/appmenu.jsp" />
 			<forward name="init-ex" path="/widgets/appmenu-ex.jsp" />
+			<forward name="partial-ex" path="/widgets/partialmenu-ex.jsp" />
 			<forward name="tools-ex" path="/widgets/toolsmenu-ex.jsp" />
 		</action>
 
@@ -476,6 +480,9 @@
 				name="partialForm"
 				validate="false">
 			<forward name="init" path="/pages/admin/partial.jsp" />
+		</action>
+		
+		<action path="/partialManage" type="org.apache.struts.actions.ForwardAction" parameter="/pages/partial/partial-page.jsp" validate="false">
 		</action>
 
 		<!-- data 标准工时 -->
@@ -775,7 +782,18 @@
 				parameter="method"
 				validate="false">
 		</action>
-		
+
+		<!-- 厂商通讯录管理 -->
+		<action path="/brand"
+				type="com.osh.rvs.action.master.BrandAction"
+				name="brandForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/admin/brand.jsp"></forward>	
+				<forward name="success" path="/pages/admin/brand.jsp"></forward>		
+		</action>
+
 		<!-- 零件出入库工时标准 -->
 		<action path="/partial_bussiness_standard"
 				type="com.osh.rvs.action.master.PartialBussinessStandardAction"
@@ -847,12 +865,12 @@
 		
 		<!-- 零件入库单管理 -->
 		<action path="/partial_warehouse"
-				type="com.osh.rvs.action.master.PartialWarehouseAction"
+				type="com.osh.rvs.action.partial.PartialWarehouseAction"
 				name="PartialWarehouseForm"
 				scope="request"
 				parameter="method"
 				validate="false">
-				<forward name="init" path="/pages/admin/partial_warehouse.jsp"/>
+				<forward name="init" path="/pages/partial/partial_warehouse.jsp"/>
 		</action>
 		
 	</action-mappings>

@@ -28,6 +28,8 @@ public class RvsConsts extends BaseConst {
 	public static final Integer PRIVACY_READFILE = 120; // 文档查看
 	public static final Integer PRIVACY_OVEREDIT = 121; // 系统管理员更新操作
 	public static final Integer PRIVACY_VIEW = 122; // 展示
+	public static final Integer PRIVACY_DT_MANAGE = 123;//设备管理(各工程)
+	public static final Integer PRIVACY_TECHNOLOGY=124;//设备管理(设备管理画面)
 
 	public static final int OPERATE_RESULT_NOWORK_WAITING = 0; // 等待区且未操作
 	public static final int OPERATE_RESULT_WORKING = 1; // 当前人在作业中

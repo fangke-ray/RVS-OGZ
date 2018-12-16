@@ -4,6 +4,32 @@
 
 	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
 		</cache -->
+	<select id="searchWorkRecord" parameterType="FactProductionFeatureEntity" resultType="FactProductionFeatureEntity">
+	<![CDATA[
+		SELECT
+			fact_pf_key,
+			production_type,
+			operator_id,
+			action_time,
+			finish_time,
+			partial_warehouse_key,
+			material_id,
+			occur_times
+		FROM
+			fact_production_feature
+		WHERE
+			operator_id = #{operator_id}
+		AND
+			partial_warehouse_key = #{partial_warehouse_key}
+		
+	]]>
+	<if test="production_type!=null and production_type!=''">
+	<![CDATA[
+		AND
+			production_type = #{production_type}
+	]]>
+	</if>
+	</select>
 
 	<insert id="insert" parameterType="FactProductionFeatureEntity">
 	<![CDATA[

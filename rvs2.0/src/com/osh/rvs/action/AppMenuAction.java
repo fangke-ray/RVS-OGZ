@@ -482,6 +482,16 @@ public class AppMenuAction extends BaseAction {
 
 		Map<String, Boolean> menuLinks = new HashMap<String, Boolean>();
 
+		// 取得登录用户权限
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies = user.getPrivacies();
+
+		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
+			menuLinks.put("dt_admin", true);
+		} else {
+			menuLinks.put("dt_admin", false);
+		}
+
 		// 可用链接设定到画面
 		req.setAttribute("menuLinks", menuLinks);
 		req.setAttribute("linkto", req.getParameter("linkto"));

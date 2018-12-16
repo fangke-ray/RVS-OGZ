@@ -10,7 +10,9 @@ function decodeText(text) {
 	if (text == null) {
 		return "";
 	}
-	return ((text.replace(/<(.+?)>/gi,"&lt;$1&gt;")).replace(/ /gi,"&nbsp;")).replace(/\n/gi,"<br>");
+	return ((text.replace(/<(.+?)>/gi,"&lt;$1&gt;")).replace(/ /gi,"&nbsp;")).replace(/\n/gi,"<br>")
+	.replace(/\[lick(.+?)\]/gi,"<span class='textlink' $1</span>")
+	;
 };
 
 /*

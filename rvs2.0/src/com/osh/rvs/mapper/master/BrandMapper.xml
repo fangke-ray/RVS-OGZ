@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.master.BrandMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+
+	<select id="searchBrand" resultType="BrandEntity">
+		<![CDATA[ 
+		SELECT `brand_id`,
+			NAME,
+			`business_relationship`,
+			`address`,
+			`email`,
+			`tel`,
+			`contacts`,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM Brand
+		]]>
+		<where>
+			DELETE_FLG = 0
+			<if test="brand_id!= null and brand_id!= '' ">
+				AND `brand_id` = #{brand_id}
+			</if>
+			<if test="name!=null and name!='' ">
+				AND `NAME` LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="business_relationship!= null and business_relationship!= '' ">
+				AND `business_relationship` = #{business_relationship}
+			</if>
+		</where> 
+		<![CDATA[ 
+		ORDER BY KIND, UPDATED_TIME DESC;
+		]]>
+	</select>
+
+	<insert id="insertBrand" parameterType="BrandEntity">
+		<![CDATA[ 
+		INSERT INTO Brand 
+			(NAME, `business_relationship`, `address`, `email`, `tel`, `contacts`, UPDATED_BY, UPDATED_TIME) 
+		VALUES 
+			(#{name}, #{business_relationship}, #{address}, #{email}, #{tel}, #{contacts} , #{updated_by}, current_timestamp);
+		]]>
+	</insert>
+
+	<update id="updateBrand" parameterType="BrandEntity">
+		<![CDATA[ 
+		UPDATE Brand SET NAME = #{name},
+			business_relationship = #{business_relationship},
+			address = #{address},
+			email = #{email},
+			tel = #{tel},
+			contacts = #{contacts},
+			UPDATED_BY = #{updated_by},
+			UPDATED_TIME = current_timestamp
+		WHERE brand_id = #{brand_id};
+		]]>
+	</update>
+
+	<update id="deleteBrand" parameterType="BrandEntity">
+		<![CDATA[ 
+		UPDATE Brand SET DELETE_FLG = 1,
+			UPDATED_BY = #{updated_by},
+			UPDATED_TIME = current_timestamp
+		WHERE brand_id = #{brand_id};
+		]]>
+	</update>
+
+</mapper>
