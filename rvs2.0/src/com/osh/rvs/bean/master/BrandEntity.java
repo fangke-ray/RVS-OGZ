@@ -9,6 +9,7 @@ public class BrandEntity implements Serializable{
 
 	private String brand_id;
 
+	private String name;
 	// 业务关系
 	private Integer business_relationship;
 
@@ -81,5 +82,11 @@ public class BrandEntity implements Serializable{
 	}
 	public void setUpdated_time(Timestamp updated_time) {
 		this.updated_time = updated_time;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 }

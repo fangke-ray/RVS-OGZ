@@ -15,7 +15,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery.validate.js"></script>
+<script type="text/javascript" src="js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="js/jquery.dialog.js"></script>
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
@@ -66,6 +66,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div style="height:44px">
 				<input id="resetbutton"  type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" style="float:right;right:2px" aria-disabled="false" role="button" value="清除">
 				<input id="searchbutton" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
+				<input type="hidden" id="goBusinessRelationship">
 			</div>
 		</form>		
 	</div> 

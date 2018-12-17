@@ -45,8 +45,8 @@ public class BrandAction extends BaseAction {
 		log.info("BrandAction.init start");
 
 		//特定设备工具种类
-		req.setAttribute("specializedDeviceType", CodeListUtils.getSelectOptions("specialized_device_type",null,""));
-		req.setAttribute("gSpecializedDeviceType",CodeListUtils.getGridOptions("specialized_device_type"));
+		req.setAttribute("businessRelationship", CodeListUtils.getSelectOptions("brand_business_relationship",null,""));
+		req.setAttribute("goBusinessRelationship",CodeListUtils.getGridOptions("brand_business_relationship"));
 
 		//特定设备工具种类
 		req.setAttribute("deviceHazardousClassification", CodeListUtils.getSelectOptions("device_hazardous_classification",null,""));

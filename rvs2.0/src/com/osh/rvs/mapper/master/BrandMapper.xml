@@ -32,7 +32,7 @@
 			</if>
 		</where> 
 		<![CDATA[ 
-		ORDER BY KIND, UPDATED_TIME DESC;
+		ORDER BY `business_relationship`, UPDATED_TIME DESC;
 		]]>
 	</select>
 

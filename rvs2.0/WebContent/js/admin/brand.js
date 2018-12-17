@@ -100,7 +100,7 @@ function filed_list(finished){
 				{name:'name',index:'name',width : 150},
 				{name:'business_relationship',index:'business_relationship',width : 35,formatter : 'select',
 					editoptions : {
-						value : $("#opBusinessRelationship").val()
+						value : $("#goBusinessRelationship").val()
 					}
 				},
 				{name:'address',index:'address',width : 150},
@@ -141,7 +141,7 @@ var showAdd = function() {
 	//默认画面变化
 	top.document.title = "新建" + modelname;
 	$("#searcharea,#searchform,#listarea,#editform tr:not(:has(input,textarea,select))").hide();
-	$("#editform input, #editform textarea").val("");
+	$("#editform input:text, #editform input:hidden, #editform textarea").val("");
 	$("#edit_business_relationship").val("").trigger("change");
 	$("#editarea span.areatitle").html("新建" + modelname);
 	$("#editarea").show();
@@ -169,7 +169,11 @@ var showAdd = function() {
 			warningConfirm("确认要新建该厂商["+$("#edit_name").val()+"]记录吗？", function() {
 				var data={
 					"name":$("#edit_name").val(),
-					"specialized":$("#edit_specialized").val()
+					"business_relationship":$("#edit_business_relationship").val(),
+					"address":$("#edit_address").val(),
+					"email":$("#edit_email").val(),
+					"tel":$("#edit_tel").val(),
+					"contacts":$("#edit_contacts").val()
 				}
 				// Ajax提交
 				$.ajax({

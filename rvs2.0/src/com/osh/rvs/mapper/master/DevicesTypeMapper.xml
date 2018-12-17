@@ -3,7 +3,7 @@
 <mapper namespace="com.osh.rvs.mapper.master.DevicesTypeMapper">
 
     <!-- 设备工具品名详细 -->
-    <select id="searchDeviceType" resultType="DevicesTypeEntity" parameterType="DevicesTypeEntity">
+    <select id="searchDeviceType" resultType="DeviceTypeEntity" parameterType="DeviceTypeEntity">
 		<![CDATA[ 
 	   SELECT 
 		    dt.device_type_id, dt.name, dt.delete_flg, dt.specialized, o.name as updated_by, dt.updated_time
@@ -29,7 +29,7 @@
 	</select>	
 	
 	<!-- 新建设备工具品名 -->
-	<insert id="insertDevicesType" parameterType="DevicesTypeEntity">
+	<insert id="insertDevicesType" parameterType="DeviceTypeEntity">
 		   <![CDATA[
 		    INSERT INTO 
 		    	device_type
@@ -43,7 +43,7 @@
 	</insert>
 	 
 	<!-- 删除页面条数据 -->
-	<update id="deleteDevicesType" parameterType="DevicesTypeEntity">
+	<update id="deleteDevicesType" parameterType="DeviceTypeEntity">
 	   <![CDATA[
 	     UPDATE device_type SET 
 			updated_by =#{updated_by},
@@ -55,7 +55,7 @@
 	</update>
 	
 	<!-- 双击页面修改 -->
-	<update id="updateDevicesType" parameterType="DevicesTypeEntity">
+	<update id="updateDevicesType" parameterType="DeviceTypeEntity">
 	   <![CDATA[
 	    UPDATE device_type SET  
 			name=#{name},
@@ -68,7 +68,7 @@
 	</update>
 	
 	<!-- 查询所有的设备工具品名 -->
-	 <select id="getAllDeviceName" resultType="DevicesTypeEntity">
+	 <select id="getAllDeviceName" resultType="DeviceTypeEntity">
 	  <![CDATA[
 	   SELECT device_type_id,name FROM device_type where delete_flg=0
 	  ]]>
@@ -83,7 +83,7 @@
 	  ]]>
 	 </select>	 
 
-	<insert id="insertHazardousCaution" parameterType="DevicesTypeEntity">
+	<insert id="insertHazardousCaution" parameterType="DeviceTypeEntity">
 	<![CDATA[
 		INSERT INTO `device_hazardous_caution`
 		(`device_type_id`,
