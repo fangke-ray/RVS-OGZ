@@ -44,6 +44,15 @@ public class PartialUnpackService {
 		dao.update(entity);
 	}
 
+	public void delete(ActionForm form, SqlSessionManager conn) throws Exception {
+		PartialUnpackMapper dao = conn.getMapper(PartialUnpackMapper.class);
+		PartialUnpackEntity entity = new PartialUnpackEntity();
+
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		dao.delete(entity);
+	}
+
 	public PartialUnpackForm getPartialUnpack(ActionForm form, SqlSession conn) {
 		PartialUnpackMapper dao = conn.getMapper(PartialUnpackMapper.class);
 		PartialUnpackEntity entity = new PartialUnpackEntity();

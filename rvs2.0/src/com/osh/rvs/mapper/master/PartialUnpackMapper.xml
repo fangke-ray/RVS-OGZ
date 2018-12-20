@@ -17,6 +17,12 @@
 	]]>
 	</update>
 	
+	<select id="delete" parameterType="PartialUnpackEntity">
+	<![CDATA[
+		DELETE FROM partial_unpack WHERE partial_id = #{partial_id}
+	]]>
+	</select>
+	
 	<select id="getPartialUnpack" parameterType="PartialUnpackEntity" resultType="PartialUnpackEntity">
 	<![CDATA[
 		SELECT partial_id,split_quantity FROM partial_unpack WHERE partial_id = #{partial_id}

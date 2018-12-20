@@ -42,21 +42,15 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理画面初始表示处理
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
 	@Privacies(permit = { 1, 0 })
-	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
-			SqlSession conn) throws Exception {
+	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("PartialAction.init start");
 
 		PartialForm partialForm = (PartialForm) form;
@@ -69,8 +63,8 @@ public class PartialAction extends BaseAction {
 		String mReferChooser = modelService.getOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);// 维修对象型号集合
 
-		//规格种别
-		req.setAttribute("specKind", CodeListUtils.getSelectOptions("partial_spec_kind",null,""));
+		// 规格种别
+		req.setAttribute("specKind", CodeListUtils.getSelectOptions("partial_spec_kind", null, ""));
 		req.setAttribute("gridSpecKind", CodeListUtils.getGridOptions("partial_spec_kind"));
 
 		// 数据到页面
@@ -81,13 +75,13 @@ public class PartialAction extends BaseAction {
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
-		//权限区分
+		// 权限区分
 		List<Integer> privacies = user.getPrivacies();
 		if (privacies.contains(RvsConsts.PRIVACY_SA)
-//				|| privacies.contains(RvsConsts.PRIVACY_PARTIAL_MANAGER)
+		// || privacies.contains(RvsConsts.PRIVACY_PARTIAL_MANAGER)
 				|| privacies.contains(RvsConsts.PRIVACY_ADMIN)) {
 			req.setAttribute("role", "operator");
-		}else{
+		} else {
 			req.setAttribute("role", "other");
 		}
 
@@ -98,20 +92,14 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理查询一览处理
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response, SqlSession conn) throws Exception {
+	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PartialAction.search start");
 
 		PartialForm partialForm = (PartialForm) form;
@@ -145,8 +133,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	public void edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response,
-			SqlSession conn) throws Exception {
+	public void edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PartialAction.edit start");
 
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -172,20 +159,14 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理双击获取数据
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
-			SqlSession conn) throws Exception {
+	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PartialAction.detail start");
 
@@ -199,7 +180,7 @@ public class PartialAction extends BaseAction {
 		BeanUtil.copyToBean(form, partialEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		if (errors.size() == 0) {
-			/*取得本零件的详细信息*/
+			/* 取得本零件的详细信息 */
 			PartialForm resultForm = service.getDetail(partialEntity, conn, errors);
 			if (resultForm != null) {
 				listResponse.put("partialForm", resultForm);
@@ -210,7 +191,6 @@ public class PartialAction extends BaseAction {
 
 				listResponse.put("partialUnpackForm", partialUnpackForm);
 			}
-
 
 		}
 		// 检查发生错误时报告错误信息
@@ -224,20 +204,14 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理新建页面一览处理
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
-			SqlSessionManager conn) throws Exception {
+	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doinsert start");
 		/* Ajax反馈对象 */
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
@@ -249,12 +223,12 @@ public class PartialAction extends BaseAction {
 		/* 验证零件编码和零件是否输入值 */
 		service.customValidate(form, conn, errors);
 
-		PartialForm partialForm = (PartialForm)form;
+		PartialForm partialForm = (PartialForm) form;
 
 		PartialUnpackForm partialUnpackForm = new PartialUnpackForm();
 		partialUnpackForm.setSplit_quantity(partialForm.getSplit_quantity());
 
-		if("1".equals(partialForm.getUnpack_flg())){
+		if ("1".equals(partialForm.getUnpack_flg())) {
 			v = BeanUtil.createBeanValidators(partialUnpackForm, BeanUtil.CHECK_TYPE_PASSEMPTY);
 			v.add("split_quantity", v.required("分装数量"));
 			errors = v.validate();
@@ -263,7 +237,7 @@ public class PartialAction extends BaseAction {
 		if (errors.size() == 0) {
 			String partialID = service.insert(form, req.getSession(), conn, errors);
 
-			if("1".equals(partialForm.getUnpack_flg())){
+			if ("1".equals(partialForm.getUnpack_flg())) {
 				partialUnpackForm.setPartial_id(partialID);
 
 				partialUnpackService.insert(partialUnpackForm, conn);
@@ -281,20 +255,14 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理删除一览处理
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response, SqlSessionManager conn) throws Exception {
+	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.dodelete start");
 		// 盛放错误信息
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
@@ -315,20 +283,14 @@ public class PartialAction extends BaseAction {
 	/**
 	 * 零件管理更新一览处理（更新partial表里的code和name字段）
 	 *
-	 * @param mapping
-	 *            ActionMapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
-			SqlSessionManager conn) throws Exception {
+	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doupdate start");
 		// 盛放错误信息
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
@@ -337,12 +299,12 @@ public class PartialAction extends BaseAction {
 		List<MsgInfo> errors = v.validate();
 		service.customValidate(form, conn, errors);
 
-		PartialForm partialForm = (PartialForm)form;
+		PartialForm partialForm = (PartialForm) form;
 
 		PartialUnpackForm partialUnpackForm = new PartialUnpackForm();
 		partialUnpackForm.setSplit_quantity(partialForm.getSplit_quantity());
 
-		if("1".equals(partialForm.getUnpack_flg())){
+		if ("1".equals(partialForm.getUnpack_flg())) {
 			v = BeanUtil.createBeanValidators(partialUnpackForm, BeanUtil.CHECK_TYPE_PASSEMPTY);
 			v.add("split_quantity", v.required("分装数量"));
 			errors = v.validate();
@@ -350,18 +312,25 @@ public class PartialAction extends BaseAction {
 
 		// 无错误时更新数据
 		if (errors.size() == 0) {
-			// 更新数据时从前台的传递一个参数，该参数返回值是true or false获取这个返回值 传递给service 执行service的判断
+			// 更新数据时从前台的传递一个参数，该参数返回值是true or false获取这个返回值 传递给service
+			// 执行service的判断
 			service.update(form, req.getSession(), conn, errors);
 
 			partialUnpackForm.setPartial_id(partialForm.getPartial_id());
 
 			PartialUnpackForm respForm = partialUnpackService.getPartialUnpack(partialUnpackForm, conn);
-			if(respForm == null){
-				partialUnpackService.insert(partialUnpackForm, conn);
-			}else{
-				partialUnpackService.update(partialUnpackForm, conn);
-			}
 
+			if ("1".equals(partialForm.getUnpack_flg())) {
+				if (respForm == null) {
+					partialUnpackService.insert(partialUnpackForm, conn);
+				} else {
+					partialUnpackService.update(partialUnpackForm, conn);
+				}
+			} else {
+				if (respForm != null) {
+					partialUnpackService.delete(partialUnpackForm, conn);
+				}
+			}
 
 		}
 		callbackResponse.put("errors", errors);
@@ -373,26 +342,20 @@ public class PartialAction extends BaseAction {
 	 * 零件管理双击修改内容(partial表code和name、partial_price表value_currency和price)
 	 *
 	 * @param mapping
-	 * @param form
-	 *            表单
-	 * @param req
-	 *            页面请求
-	 * @param res
-	 *            页面响应
-	 * @param conn
-	 *            数据库会话
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void doupdatePartial(ActionMapping mapping, ActionForm form, HttpServletRequest req,
-			HttpServletResponse res, SqlSessionManager conn) throws Exception {
+	public void doupdatePartial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doupdatePartial start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		List<MsgInfo> errors = v.validate();
 		if (errors.size() == 0) {
 			/* req.getParameter("judgeHistorylimitdate")从前台传递的有效截至日期 */
-			service.updatePartialCodeName(form, req.getParameter("judgeHistorylimitdate"), req.getSession(), conn,
-					errors);
+			service.updatePartialCodeName(form, req.getParameter("judgeHistorylimitdate"), req.getSession(), conn, errors);
 		}
 		callbackResponse.put("errors", errors);
 		returnJsonResponse(res, callbackResponse);
@@ -409,8 +372,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	public void getAutocomplete(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response, SqlSession conn) throws Exception {
+	public void getAutocomplete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PartialAction.getAutocomplete start");
 
 		Map<String, Object> listResponse = new HashMap<String, Object>();

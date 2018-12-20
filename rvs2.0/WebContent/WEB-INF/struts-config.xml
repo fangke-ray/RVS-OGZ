@@ -400,6 +400,7 @@
 			<forward name="materialPartial" path="/materialPartial.do?method=init" />
 			<forward name="infect" path="/devices_distribute.do?method=init" />
 			<forward name="infectM" path="/devices_manage.do?method=init" />
+			<forward name="partialAssign" path="/fact_production_feature.do?method=init" />
 		</action>
 
 		<action path="/appmenu" type="com.osh.rvs.action.AppMenuAction" parameter="method" validate="false">

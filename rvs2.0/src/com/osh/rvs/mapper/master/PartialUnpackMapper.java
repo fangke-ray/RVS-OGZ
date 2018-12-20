@@ -12,6 +12,8 @@ public interface PartialUnpackMapper {
 
 	public void update(PartialUnpackEntity entity) throws Exception;
 
+	public void delete(PartialUnpackEntity entity) throws Exception;
+
 	public PartialUnpackEntity getPartialUnpack(PartialUnpackEntity entity);
 
 }
