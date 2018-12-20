@@ -13,6 +13,7 @@ $(function () {
 		"collationbutton" : "partial_collation.do",
 		"unpackbutton" : "partial_unpack.do",
 		"onshelfbutton" : "partial_on_shelf.do",
+		"outstoragebutton" : "partial_out_storage.do",
 		"otherbutton" : "partial_other.do"
 	};
 
@@ -114,6 +115,10 @@ function step (production_type) {
 		break;
 	case "40":
 		$("#onshelfbutton").trigger("click");
+		break;
+	case "50":
+	case "51":
+		$("#outstoragebutton").trigger("click");
 		break;
 	case "99":
 		$("#otherbutton").trigger("click");

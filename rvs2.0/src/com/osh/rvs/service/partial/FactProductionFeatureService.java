@@ -1,5 +1,8 @@
 package com.osh.rvs.service.partial;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ibatis.session.SqlSession;
@@ -121,6 +124,31 @@ public class FactProductionFeatureService {
 
 		// 更新零件入库单 KEY
 		dao.updateKey(entity);
+	}
+
+	/**
+	 * 零件待出库
+	 *
+	 * @param conn
+	 * @return
+	 */
+	public List<FactProductionFeatureForm> searchWaitOutStorage(ActionForm form, SqlSession conn) {
+		// 数据库连接对象
+		FactProductionFeatureMapper dao = conn.getMapper(FactProductionFeatureMapper.class);
+
+		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
+		// 复制表单数据到数据模型
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		List<FactProductionFeatureEntity> list = dao.searchWaitOutStorage(entity);
+
+		List<FactProductionFeatureForm> respList = new ArrayList<FactProductionFeatureForm>();
+
+		if (list != null && list.size() > 0) {
+			BeanUtil.copyToFormList(list, respList, CopyOptions.COPYOPTIONS_NOEMPTY, FactProductionFeatureForm.class);
+		}
+
+		return respList;
 	}
 
 }

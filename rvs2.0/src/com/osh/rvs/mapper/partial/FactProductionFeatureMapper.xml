@@ -19,14 +19,23 @@
 			fact_production_feature
 		WHERE
 			operator_id = #{operator_id}
+	]]>
+	<if test="partial_warehouse_key!=null and partial_warehouse_key!=''">
+	<![CDATA[
 		AND
 			partial_warehouse_key = #{partial_warehouse_key}
-		
 	]]>
+	</if>
 	<if test="production_type!=null and production_type!=''">
 	<![CDATA[
 		AND
 			production_type = #{production_type}
+	]]>
+	</if>
+	<if test="material_id!=null and material_id!=''">
+	<![CDATA[
+		AND
+			material_id = #{material_id}
 	]]>
 	</if>
 	</select>
@@ -47,7 +56,7 @@
 		(
 			#{production_type},
 			#{operator_id},
-			#{action_time},
+			CURRENT_TIMESTAMP,
 			#{finish_time},
 			#{partial_warehouse_key},
 			#{material_id},
@@ -109,5 +118,46 @@
 			fact_pf_key = #{fact_pf_key}
 	]]>
 	</update>
+	
+	<select id="searchWaitOutStorage" resultType="FactProductionFeatureEntity" parameterType="FactProductionFeatureEntity">
+	<![CDATA[
+	SELECT
+		pf.material_id,
+		pf.section_id,
+	    pf.pace,
+	    pf.rework,
+	    pf.position_id,
+		v_position.line_name,
+		v_position.process_code,
+		material.omr_notifi_no,
+		material.level,
+		material_partial.order_date,
+		material_partial.bo_flg,
+		material_partial.bo_contents,
+		material_partial.occur_times
+	FROM
+	    production_feature pf
+	JOIN
+		v_position 
+	ON
+		v_position.position_id = pf.position_id
+	JOIN
+		material
+	ON
+		material.material_id = pf.material_id
+	JOIN
+		material_partial
+	ON
+		material_partial.material_id = material.material_id AND material_partial.occur_times = 1
+	WHERE
+		v_position.process_code IN(252,321,504)
+	AND
+		pf.finish_time IS NULL
+	]]>
+	<if test="material_id!=null and material_id!=''">
+		AND
+			pf.material_id = #{material_id}
+	</if>
+	</select>
 
 </mapper>

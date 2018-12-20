@@ -57,4 +57,10 @@ public interface FactProductionFeatureMapper {
 	 */
 	public void updateKey(FactProductionFeatureEntity entity) throws Exception;
 
+	/**
+	 * 零件待出库
+	 *
+	 * @return
+	 */
+	public List<FactProductionFeatureEntity> searchWaitOutStorage(FactProductionFeatureEntity entity);
 }

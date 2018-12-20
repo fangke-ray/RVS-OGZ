@@ -1,7 +1,6 @@
 package com.osh.rvs.action.partial;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import com.osh.rvs.service.partial.FactProductionFeatureService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
-import framework.huiqing.common.util.copy.DateUtil;
 
 public class FactProductionFeatureAction extends BaseAction {
 	private final Logger log = Logger.getLogger(getClass());
@@ -98,8 +96,6 @@ public class FactProductionFeatureAction extends BaseAction {
 		FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
 		// 操作者 ID
 		factProductionFeatureForm.setOperator_id(user.getOperator_id());
-		// 处理开始时间
-		factProductionFeatureForm.setAction_time(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_TIME_PATTERN));
 
 		// 新建现品作业信息
 		factProductionFeatureService.insert(factProductionFeatureForm, conn);

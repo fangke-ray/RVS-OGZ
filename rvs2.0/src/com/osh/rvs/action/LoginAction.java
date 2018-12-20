@@ -219,9 +219,9 @@ public class LoginAction extends BaseAction {
 
 	/**
 	 * 做成登录的Session项目
-	 * 
+	 *
 	 * @param operator
-	 * @param conn 
+	 * @param conn
 	 * @param company
 	 * @param errorsDto
 	 * @return 是否多角色
@@ -272,7 +272,8 @@ public class LoginAction extends BaseAction {
 		if (errors.isEmpty()) {
 			OperatorService oservice = new OperatorService();
 			Map<String, String> uRoles = oservice.getUserRoles(loginData.getOperator_id(), conn);
-			if (uRoles != null && uRoles.size() > 0) {
+			if (uRoles != null && uRoles.size() > 0
+					&& !RvsConsts.ROLE_FACTINLINE.equals(loginData.getRole_id())) {
 				// 判断是否有进行中工作，如果有则按工位直接决定角色
 				ProductionFeatureEntity workingPf = getWoringPf(loginData, conn);
 				if (workingPf != null) {
@@ -350,14 +351,14 @@ public class LoginAction extends BaseAction {
 				positionsList.add(p);
 			}
 		}
-		
+
 		loginData.setPositions(positionsList);
 
 		List<LineEntity> linesList = new ArrayList<LineEntity>();
 
 		Set<String> line_ids = new HashSet<String>();
 		for (PositionEntity position : positionsList) {
-			// PositionEntity position = 
+			// PositionEntity position =
 			String line_id = position.getLine_id();
 			if (!line_ids.contains(line_id) && !"00000000000".equals(line_id)) {
 				line_ids.add(line_id);
@@ -429,9 +430,9 @@ public class LoginAction extends BaseAction {
 
 	/**
 	 * 做成登录的Session项目
-	 * 
+	 *
 	 * @param operator
-	 * @param conn 
+	 * @param conn
 	 * @param company
 	 * @param errorsDto
 	 * @return 权限集

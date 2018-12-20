@@ -98,6 +98,10 @@ ul{
 								<label for="onshelfbutton">上架</label>
 							</li>
 							<li>
+								<input type="radio" name="works" class="ui-button ui-corner-left" id="outstoragebutton">
+								<label for="outstoragebutton">出库</label>
+							</li>
+							<li>
 								<input type="radio" name="works" class="ui-button ui-corner-left" id="otherbutton">
 								<label for="otherbutton">其它</label>
 							</li>

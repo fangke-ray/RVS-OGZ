@@ -428,6 +428,7 @@
 			<forward name="material" path="/material.do?method=init" />
 			<forward name="partialm" path="/partialManage.do?method=init" />
 			<forward name="success" path="/panel.do?method=init" />
+			<forward name="partialAccept" path="/fact_production_feature.do?method=init" />
 		</action>
 
 		<!-- common 密码 -->
@@ -852,6 +853,16 @@
 				parameter="method"
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_on_shelf.jsp"/>
+		</action>
+		
+		<!-- 零件出库 -->
+		<action path="/partial_out_storage"
+				type="com.osh.rvs.action.partial.PartialOutStorageAction"
+				name="FactProductionFeatureForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/partial/partial_out_storage.jsp"/>
 		</action>
 		
 		<!-- 零件其他 -->

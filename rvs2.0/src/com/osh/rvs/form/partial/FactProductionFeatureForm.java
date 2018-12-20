@@ -89,6 +89,46 @@ public class FactProductionFeatureForm extends UploadForm {
 	 */
 	private String production_type_name;
 
+	/**
+	 * 工程名称
+	 */
+	@BeanField(title = "工程名称", name = "line_name")
+	private String line_name;
+
+	@BeanField(title = "修理单号", name = "omr_notifi_no")
+	private String omr_notifi_no;
+
+	/**
+	 * 等级
+	 */
+	@BeanField(title = "等级", name = "level", type = FieldType.Integer)
+	private String level;
+
+	/**
+	 * 订购日期
+	 */
+	@BeanField(title = "订购日期", name = "order_date", type = FieldType.Date)
+	private String order_date;
+
+	/**
+	 * 零件BO
+	 */
+	@BeanField(title = "零件BO", name = "bo_flg", type = FieldType.Integer)
+	private String bo_flg;
+
+	/**
+	 * 零件缺品备注
+	 */
+	@BeanField(title = "零件缺品备注", name = "bo_contents")
+	private String bo_contents;
+
+	private String level_name;
+
+	private String bo_flg_name;
+
+	@BeanField(title = "工位代码", name = "process_code")
+	private String process_code;
+
 	public String getFact_pf_key() {
 		return fact_pf_key;
 	}
@@ -187,6 +227,84 @@ public class FactProductionFeatureForm extends UploadForm {
 
 	public void setDn_no(String dn_no) {
 		this.dn_no = dn_no;
+	}
+
+	public String getLine_name() {
+		return line_name;
+	}
+
+	public void setLine_name(String line_name) {
+		this.line_name = line_name;
+	}
+
+	public String getOmr_notifi_no() {
+		return omr_notifi_no;
+	}
+
+	public void setOmr_notifi_no(String omr_notifi_no) {
+		this.omr_notifi_no = omr_notifi_no;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public String getOrder_date() {
+		return order_date;
+	}
+
+	public void setOrder_date(String order_date) {
+		this.order_date = order_date;
+	}
+
+	public String getBo_flg() {
+		return bo_flg;
+	}
+
+	public void setBo_flg(String bo_flg) {
+		this.bo_flg = bo_flg;
+	}
+
+	public String getBo_contents() {
+		return bo_contents;
+	}
+
+	public void setBo_contents(String bo_contents) {
+		this.bo_contents = bo_contents;
+	}
+
+	public String getLevel_name() {
+		if (level != null) {
+			return CodeListUtils.getValue("material_level", level);
+		}
+		return level_name;
+	}
+
+	public void setLevel_name(String level_name) {
+		this.level_name = level_name;
+	}
+
+	public String getBo_flg_name() {
+		if (bo_flg != null) {
+			return CodeListUtils.getValue("bo_flg", bo_flg);
+		}
+		return bo_flg_name;
+	}
+
+	public void setBo_flg_name(String bo_flg_name) {
+		this.bo_flg_name = bo_flg_name;
+	}
+
+	public String getProcess_code() {
+		return process_code;
+	}
+
+	public void setProcess_code(String process_code) {
+		this.process_code = process_code;
 	}
 
 }

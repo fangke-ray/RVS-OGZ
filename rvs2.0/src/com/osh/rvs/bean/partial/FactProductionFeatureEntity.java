@@ -66,7 +66,39 @@ public class FactProductionFeatureEntity implements Serializable {
 	 */
 	private String dn_no;
 
-	private Integer[] production_types;
+	/**
+	 * 工程名称
+	 */
+	private String line_name;
+
+	private String omr_notifi_no;
+
+	/**
+	 * 等级
+	 */
+	private Integer level;
+
+	/**
+	 * 订购日期
+	 */
+	private Date order_date;
+
+	/**
+	 * 零件BO
+	 */
+	private Integer bo_flg;
+
+	/**
+	 * 零件缺品备注
+	 */
+	private String bo_contents;
+
+	private String process_code;
+
+	private String section_id;
+	private Integer pace;
+	private Integer rework;
+	private String position_id;
 
 	public String getFact_pf_key() {
 		return fact_pf_key;
@@ -148,12 +180,92 @@ public class FactProductionFeatureEntity implements Serializable {
 		this.dn_no = dn_no;
 	}
 
-	public Integer[] getProduction_types() {
-		return production_types;
+	public String getLine_name() {
+		return line_name;
 	}
 
-	public void setProduction_types(Integer[] production_types) {
-		this.production_types = production_types;
+	public void setLine_name(String line_name) {
+		this.line_name = line_name;
+	}
+
+	public String getOmr_notifi_no() {
+		return omr_notifi_no;
+	}
+
+	public void setOmr_notifi_no(String omr_notifi_no) {
+		this.omr_notifi_no = omr_notifi_no;
+	}
+
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+
+	public Date getOrder_date() {
+		return order_date;
+	}
+
+	public void setOrder_date(Date order_date) {
+		this.order_date = order_date;
+	}
+
+	public Integer getBo_flg() {
+		return bo_flg;
+	}
+
+	public void setBo_flg(Integer bo_flg) {
+		this.bo_flg = bo_flg;
+	}
+
+	public String getBo_contents() {
+		return bo_contents;
+	}
+
+	public void setBo_contents(String bo_contents) {
+		this.bo_contents = bo_contents;
+	}
+
+	public String getProcess_code() {
+		return process_code;
+	}
+
+	public void setProcess_code(String process_code) {
+		this.process_code = process_code;
+	}
+
+	public String getSection_id() {
+		return section_id;
+	}
+
+	public void setSection_id(String section_id) {
+		this.section_id = section_id;
+	}
+
+	public Integer getPace() {
+		return pace;
+	}
+
+	public void setPace(Integer pace) {
+		this.pace = pace;
+	}
+
+	public Integer getRework() {
+		return rework;
+	}
+
+	public void setRework(Integer rework) {
+		this.rework = rework;
+	}
+
+	public String getPosition_id() {
+		return position_id;
+	}
+
+	public void setPosition_id(String position_id) {
+		this.position_id = position_id;
 	}
 
 }

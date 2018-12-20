@@ -41,7 +41,7 @@ import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class PanelAction extends BaseAction {
 
-	private Logger log = Logger.getLogger(getClass());
+	private final Logger log = Logger.getLogger(getClass());
 
 	/**
 	 * 菜单初始表示处理
@@ -112,7 +112,9 @@ public class PanelAction extends BaseAction {
 			actionForward = mapping.findForward("qualityAssurance");
 		} else if (RvsConsts.ROLE_PARTIAL_MANAGER.equals(roleId)) {
 			actionForward = mapping.findForward("partialm");
-		} else {
+		} else if(RvsConsts.ROLE_FACTINLINE.equals(roleId)){
+			actionForward = mapping.findForward("partialAccept");
+		}else {
 			actionForward = mapping.findForward("success");
 		}
 
@@ -187,10 +189,10 @@ public class PanelAction extends BaseAction {
 //							user.setRole_id(RvsConsts.ROLE_QUOTATOR);
 //							refreshRole(user, conn);
 //							callResponse.put("refresh", "1");
-//					}				
+//					}
 //				}
 
-				
+
 //				if (RvsConsts.POSITION_ACCEPTANCE.equals(new_position_id)) { // 受理
 //					if (RvsConsts.ROLE_QUOTATOR.equals(org_role_id)
 //						|| RvsConsts.ROLE_OPERATOR.equals(org_role_id)
