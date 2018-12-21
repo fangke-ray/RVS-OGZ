@@ -151,3 +151,13 @@ function loadCss(path, callback) {
 		callback();
 	}
 }
+
+function fillZero(s, l) {
+	if (s == null) return "0";
+	if (typeof(s) !== "string") s = "" + s;
+	if (l == null) l = 2;
+	for (var idx=s.length; idx<l; idx++) {
+		s = "0" + s;
+	}
+	return s;
+}

@@ -173,6 +173,10 @@
 		<action path="/lineWorkDuration" type="com.osh.rvs.action.LineWorkDurationAction" parameter="method" validate="false">
 			<forward name="init" path="/pages/lineWorkDuration.jsp" />
 		</action>
+		
+		<action path="/partialWarehouse" type="com.osh.rvs.action.PartialWarehouseAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/partial_warehouse.jsp" />
+		</action>
 
 	</action-mappings>
 	<!-- ======================================== Message Resources Definitions -->

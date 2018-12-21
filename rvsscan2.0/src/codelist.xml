@@ -178,5 +178,16 @@
 		<value code="2">▲</value>
 		<value code="3">★</value>
 	</codelist>
+	
+	<codelist name="fact_production_type">
+		<value code="10">A：收货</value>
+		<value code="20">B1：核对+上架</value>
+		<value code="21">B2：核对</value>
+		<value code="30">C：分装</value>
+		<value code="40">D：上架</value>
+		<value code="50">E1：NS 工程出库</value>
+		<value code="51">E2：分解工程出库</value>
+		<value code="99">O：其它</value>
+	</codelist>
 
 </codelist-config>

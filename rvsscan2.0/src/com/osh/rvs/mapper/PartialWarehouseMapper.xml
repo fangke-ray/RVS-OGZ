@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.PartialWarehouseMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+	
+	<select id="getOperatorFeatures" resultType="map" parameterType="string">
+	<![CDATA[
+		SELECT
+			fpf.production_type,
+			fpf.operator_id,
+			op.name AS operator_name,
+			TIMESTAMPDIFF(MINUTE, CURRENT_DATE, fpf.action_time) as action_time,
+			TIMESTAMPDIFF(MINUTE, CURRENT_DATE, COALESCE(fpf.finish_time, CURRENT_TIMESTAMP)) as finish_time
+		FROM
+			fact_production_feature fpf
+		JOIN
+			operator op
+		ON
+			op.operator_id = fpf.operator_id
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			action_time >= CURRENT_DATE
+	]]>
+	</select>
+	
+	
+	<select id="searchUnFinish" parameterType="string" resultType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+			fpf.operator_id,
+		    operator.name AS operator_name,
+		    fpf.production_type,
+		    pw.dn_no,
+		    pw.`key`,
+		    fpf.material_id
+		FROM
+		    fact_production_feature fpf
+		LEFT JOIN
+			partial_warehouse pw
+		ON
+			pw.key = fpf.partial_warehouse_key
+		JOIN
+			operator
+		ON 
+			fpf.operator_id = operator.operator_id
+		WHERE
+			fpf.finish_time IS NULL
+		AND
+			fpf.operator_id = #{operator_id}
+	]]>
+	</select>
+
+	<select id="searchReceptStandardTime" resultType="java.math.BigDecimal" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+			SUM(temp.recept)
+		FROM
+		(
+		SELECT
+		     CASE
+				WHEN pbs.box_count = -1 THEN 1 * pbs.recept
+				ELSE CEIL(pwd.quantity / pbs.box_count)  * pbs.recept
+			END AS recept
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id = #{operator_id} 
+		AND 
+			fpf.production_type = 10 
+	]]>
+	<if test="isNow == 1">
+		AND
+			fpf.finish_time IS NULL
+	</if>
+	<if test="isNow == 2">
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	</if>
+		) temp
+	</select>
+
+	<select id="searchStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
+		SELECT
+		<if test="production_type == 20">
+			SUM(pbs.collation)
+		</if>
+		<if test="production_type == 21">
+			SUM(pbs.collation)
+		</if>
+		<if test="production_type == 30">
+			SUM(pbs.unpack)
+		</if>
+		<if test="production_type == 40">
+			SUM(pbs.on_shelf)
+		</if>
+	<![CDATA[
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+	]]>
+		<if test="production_type == 30">
+		JOIN
+			partial_unpack
+		ON
+			partial_unpack.partial_id = pwd.partial_id
+		</if>
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.production_type = #{production_type}
+		<if test="isNow == 1">
+		AND
+			fpf.finish_time IS NULL
+		</if>
+		<if test="isNow == 2">
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+		</if>
+		<if test="production_type == 20">
+	<![CDATA[
+		AND
+			pbs.on_shelf < 0
+	]]>
+		</if>
+		<if test="production_type == 21">
+		AND
+			pbs.on_shelf > 0
+		</if>
+		<if test="production_type == 40">
+		AND
+			pbs.on_shelf > 0
+		</if>
+	</select>
+
+	<select id="searchSpentMins" parameterType="PartialWarehouseEntity" resultType="Integer">
+	<![CDATA[
+		SELECT
+			CEIL(SUM(TIMESTAMPDIFF(SECOND,action_time,
+											CASE 
+												WHEN finish_time IS NOT NULL THEN finish_time 
+											ELSE 
+												NOW() 
+											END)) / 60 )
+		FROM
+	    	fact_production_feature
+		WHERE
+			operator_id = #{operator_id}
+	    AND
+	    	production_type = #{production_type}
+	]]>
+	<choose>
+	<when test="production_type == 50 or production_type == 51">
+		<if test="isNow == 1">
+		AND
+			material_id = #{material_id}
+		</if>
+	</when>
+	<otherwise>
+		<if test="isNow == 1">
+		AND
+			partial_warehouse_key = #{key}
+	</if>
+	</otherwise>
+	</choose>
+	<if test="isNow == 2">
+		AND
+			action_time >= CURRENT_DATE
+		AND
+			finish_time IS NOT NULL
+	</if>
+	<if test="isNow == 3">
+		AND
+			finish_time IS NULL
+	</if>
+	</select>
+	
+    <!-- 当日收货数量 -->
+	<select id="searchCurrentReceptQuantity" parameterType="string" resultType="Integer">
+	<![CDATA[
+		SELECT
+			SUM(temp.box)
+		FROM
+		(
+		SELECT 
+		    CASE
+				WHEN pbs.box_count = -1 THEN 1 
+				ELSE CEIL(pwd.quantity / pbs.box_count) 
+			END AS box
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id  = #{operator_id}
+		AND 
+			fpf.production_type = 10
+		AND	
+			fpf.action_time >= CURRENT_DATE 
+		AND
+			fpf.finish_time IS NOT NULL
+		) temp
+	]]>
+	</select>
+	
+	<select id="searchCurrentCollationQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
+	<![CDATA[
+		SELECT
+	 		SUM(pwd.collation_quantity)
+		FROM
+			fact_production_feature pfp
+		JOIN
+			 partial_warehouse_detail pwd
+		ON
+			pfp.fact_pf_key = pwd.fact_pf_key
+		JOIN 
+			v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pfp.operator_id = #{operator_id}
+		AND 
+			pfp.production_type = #{production_type}
+		AND 
+			pfp.action_time >= CURRENT_DATE
+	]]>
+	</select>
+	
+	<select id="searchQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
+	<![CDATA[
+		SELECT
+			 SUM(fpw.quantity)
+		FROM
+			fact_production_feature pfp
+		JOIN
+			fact_partial_warehouse fpw
+		ON
+			pfp.fact_pf_key = fpw.fact_pf_key
+		WHERE
+			pfp.operator_id = #{operator_id}
+		AND 
+			pfp.production_type = #{production_type}
+		AND 
+			pfp.action_time >= CURRENT_DATE
+    
+	]]>
+	</select>
+	
+	<select id="waittingProcess" resultType="PartialWarehouseEntity">
+	<![CDATA[
+	SELECT 
+	    dn_no,
+	    step,
+	    EXISTS (SELECT 1 FROM partial_warehouse_detail WHERE fact_pf_key IS NOT NULL AND `key` = partial_warehouse.key) AS collation,
+	    EXISTS (SELECT 1 FROM 
+					fact_production_feature fpf 
+	            JOIN 
+					fact_partial_warehouse fpw 
+				ON 
+					fpw.fact_pf_key = fpf.fact_pf_key 
+				WHERE 
+					fpf.partial_warehouse_key = partial_warehouse.key AND fpf.production_type = 30
+	            ) AS unpack,
+		EXISTS (SELECT 1 FROM 
+					fact_production_feature fpf 
+				JOIN 
+					fact_partial_warehouse fpw 
+				ON 
+					fpw.fact_pf_key = fpf.fact_pf_key 
+				WHERE 
+					fpf.partial_warehouse_key = partial_warehouse.key AND fpf.production_type = 40
+				) AS on_shelf
+	FROM
+	    partial_warehouse
+	WHERE
+		step < 3
+	]]>
+	</select>
+	
+	<select id="countOutLineQuantity" parameterType="PartialWarehouseEntity" resultType="int">
+	<![CDATA[
+	SELECT
+		COUNT(material_id)
+	FROM
+		fact_production_feature pfp
+	WHERE
+		operator_id = #{operator_id}
+	AND
+		production_type = #{production_type}
+	AND	
+		action_time >= CURRENT_DATE
+	AND
+		finish_time IS NOT NULL
+	]]>
+	</select>
+
+	<select id="waittingOutLine" resultType="PartialWarehouseEntity">
+	<![CDATA[
+	SELECT
+        material.omr_notifi_no,
+		v_position.process_code,
+        pf.action_time
+	FROM
+	    production_feature pf
+	JOIN
+		v_position 
+	ON
+		v_position.position_id = pf.position_id
+	JOIN
+		material
+	ON
+		material.material_id = pf.material_id
+	JOIN
+		material_partial
+	ON
+		material_partial.material_id = material.material_id AND material_partial.occur_times = 1
+	WHERE
+		v_position.process_code IN(252,321,504)
+	AND
+		pf.finish_time IS NULL
+	]]>
+	</select>
+
+</mapper>
