@@ -557,7 +557,6 @@
 	<codelist name="devices_manage_level">
 		<value code="1">A</value>
 		<value code="2">B</value>
-		<value code="3">C</value>
 	</codelist>
 	
 	<codelist name="devices_status">

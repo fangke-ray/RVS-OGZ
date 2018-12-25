@@ -9,30 +9,31 @@
 	<select id="searchBrand" resultType="BrandEntity">
 		<![CDATA[ 
 		SELECT `brand_id`,
-			NAME,
+			b.NAME,
 			`business_relationship`,
 			`address`,
-			`email`,
+			b.`email`,
 			`tel`,
 			`contacts`,
-			UPDATED_BY,
-			UPDATED_TIME
-		FROM Brand
+			o.name as UPDATED_BY,
+			b.UPDATED_TIME
+		FROM Brand b
+		JOIN operator o ON b.UPDATED_BY = o.operator_id
 		]]>
 		<where>
-			DELETE_FLG = 0
+			b.DELETE_FLG = 0
 			<if test="brand_id!= null and brand_id!= '' ">
 				AND `brand_id` = #{brand_id}
 			</if>
 			<if test="name!=null and name!='' ">
-				AND `NAME` LIKE CONCAT('%', #{name}, '%')
+				AND b.`NAME` LIKE CONCAT('%', #{name}, '%')
 			</if>
 			<if test="business_relationship!= null and business_relationship!= '' ">
 				AND `business_relationship` = #{business_relationship}
 			</if>
 		</where> 
 		<![CDATA[ 
-		ORDER BY `business_relationship`, UPDATED_TIME DESC;
+		ORDER BY b.`NAME`, b.UPDATED_TIME DESC;
 		]]>
 	</select>
 

@@ -16,27 +16,31 @@ $(function(){
 	$("#waste_old_products").buttonset();
 	
 	/*品名*/
-	setReferChooser($("#hidden_search_name"),$("#search_name_referchooser"));
-	setReferChooser($("#hidden_update_name"),$("#update_name_referchooser"));
-    setReferChooser($("#hidden_add_name"),$("#add_name_referchooser"));
+	setReferChooser($("#hidden_search_name"),$("#name_referchooser"));
+	setReferChooser($("#hidden_update_name"),$("#name_referchooser"));
+    setReferChooser($("#hidden_add_name"),$("#name_referchooser"));
     
     /*管理员*/
-    setReferChooser($("#hidden_search_manager_operator_id"),$("#search_operator_name_referchooser"));
-    setReferChooser($("#hidden_add_manager_operator_id"),$("#add_operator_name_referchooser"));
-    setReferChooser($("#hidden_update_manager_operator_id"),$("#update_operator_name_referchooser"));
-	setReferChooser($("#hidden_deliver_manager_operator_id"),$("#deliver_manager_operator_referchooser"));
-	setReferChooser($("#hidden_to_manager_operator_id"),$("#to_manager_operator_referchooser"));
+    setReferChooser($("#hidden_search_manager_operator_id"),$("#operator_name_referchooser"));
+    setReferChooser($("#hidden_add_manager_operator_id"),$("#operator_name_referchooser"));
+    setReferChooser($("#hidden_update_manager_operator_id"),$("#operator_name_referchooser"));
+	setReferChooser($("#hidden_deliver_manager_operator_id"),$("#operator_name_referchooser"));
+	setReferChooser($("#hidden_to_manager_operator_id"),$("#operator_name_referchooser"));
     
     /*责任工位*/
-    setReferChooser($("#hidden_search_position_id"),$("#search_position_name_referchooser"));
-    setReferChooser($("#hidden_update_position_id"),$("#update_position_name_referchooser"));
-    setReferChooser($("#hidden_add_position_id"),$("#add_position_name_referchooser"));
-    setReferChooser($("#hidden_deliver_position_id"),$("#deliver_position_referchooser"));
-    setReferChooser($("#hidden_to_position_id"),$("#to_position_referchooser"));
+    setReferChooser($("#hidden_search_position_id"),$("#position_name_referchooser"));
+    setReferChooser($("#hidden_update_position_id"),$("#position_name_referchooser"));
+    setReferChooser($("#hidden_add_position_id"),$("#position_name_referchooser"));
+    setReferChooser($("#hidden_deliver_position_id"),$("#position_name_referchooser"));
+    setReferChooser($("#hidden_to_position_id"),$("#position_name_referchooser"));
     
     /*责任人员*/
-    setReferChooser($("#hidden_update_responsible_operator_id"),$("#update_responsible_operato_referchooser"));
-    setReferChooser($("#hidden_add_responsible_operator_id"),$("#add_responsible_operato_referchooser"));
+    setReferChooser($("#hidden_update_responsible_operator_id"),$("#responsible_operato_referchooser"));
+    setReferChooser($("#hidden_add_responsible_operator_id"),$("#responsible_operato_referchooser"));
+
+    setReferChooser($("#hidden_add_brand_id"),$("#brand_referchooser"));
+    setReferChooser($("#hidden_update_brand_id"),$("#brand_referchooser"));
+    setReferChooser($("#hidden_replace_brand_id"),$("#brand_referchooser"));
 
     $("#add_import_date,#add_waste_date,#add_updated_time," +
 	  "#update_import_date,#update_waste_date,#update_provide_date," +
@@ -407,6 +411,7 @@ var replace = function(){
 	$("#replace_products_code").val(rowData.products_code);
     //厂商
     $("#replace_brand").val(rowData.brand); 
+    $("#hidden_replace_brand_id").val(rowData.brand_id); 
      //状态
     $("#replace_status").val(rowData.status).trigger("change"); 
     
@@ -470,7 +475,8 @@ var replace = function(){
        				"asset_no":$("#replace_asset_no").val(),
 			        "manage_content":$("#replace_manage_content").val(), 
 			        "products_code": $("#replace_products_code").val(),
-			        "brand": $("#replace_brand ").val(), 
+			       //"brand": $("#replace_brand ").val(), 
+			        "brand_id" : $("#hidden_replace_brand_id").val(),
 			        "section_id":$("#replace_section_id ").val(),
 			        "line_id": $("#replace_line_id ").val(), 
 			        "position_id": $("#hidden_replace_position_id").val(),
@@ -837,62 +843,49 @@ var showAdd = function(){
     /*确认*/	
 	$("#confirebutton").click(function(){
 	  if ($("#add_form").valid()) {
-		$("#dialog_confrim").html("");
-		$("#dialog_confrim").html("是否新建管理编号为"+$("#add_manage_code").val()+",品名为"+$("#add_name").val()+"的设备工具?");
-		$("#dialog_confrim").dialog({
-			position : 'center',
-			title : "新建确认",
-			width :350,
-			height : 150,
-			resizable : false,
-			modal : true,
-			buttons : {
-				"确定":function(){
-					 $(this).dialog("close");
-                     var data={
-				        "manage_code": $("#add_manage_code").val(),
-				        "devices_type_id": $("#hidden_add_name ").val(), 
-				       //"name":$("#add_name").val(), 
-				        "model_name":$("#add_model_name ").val(),
-				        "manager_operator_id": $("#hidden_add_manager_operator_id").val(),
-				        "manage_level":$("#add_manage_level").val(),
-				        "asset_no":$("#add_asset_no").val(),
-				        "manage_content":$("#add_manage_content").val(), 
-				        "products_code": $("#add_products_code").val(),
-				        "brand": $("#add_brand ").val(), 
-				        "section_id":$("#add_section_id ").val(),
-				        "line_id": $("#add_line_id ").val(), 
-				        "position_id": $("#hidden_add_position_id").val(),
-				        "responsible_operator_id": $("#hidden_add_responsible_operator_id").val(),
-				        "import_date": $("#add_import_date").val(),
-				        "waste_date":$("#add_waste_date").val(),
-				        "delete_flg":$("#add_delete_flg").val(),
-				        "updated_by":$("#add_updated_by").val(),
-				        "updated_time":$("#add_updated_time ").val(),
-				        "status":$("#add_status").val(), 
-				        "comment": $("#add_comment").val()  
-				    }
-                     // Ajax提交
-                     $.ajax({
-                        beforeSend : ajaxRequestType,
-                        async : true,
-                        url : servicePath + '?method=doinsert',
-                        cache : false,
-                        data :data,
-                        type : "post",
-                        dataType : "json",
-                        success : ajaxSuccessCheck,
-                        error : ajaxError,
-                        complete : insert_handleComplete
-                     });
-				},
-				"取消":function(){
-						$("#dialog_confrim").html("");
-						$("#dialog_confrim").dialog('close');
-				}
-			}
-		});
-		}
+		warningConfirm("是否新建管理编号为"+$("#add_manage_code").val()+", 品名为"+$("#add_name").val()+"的设备工具?", 
+			function() {
+	            var data={
+			        "manage_code": $("#add_manage_code").val(),
+			        "devices_type_id": $("#hidden_add_name ").val(), 
+			       //"name":$("#add_name").val(), 
+			        "model_name":$("#add_model_name ").val(),
+			        "manager_operator_id": $("#hidden_add_manager_operator_id").val(),
+			        "manage_level":$("#add_manage_level").val(),
+			        "asset_no":$("#add_asset_no").val(),
+			        "manage_content":$("#add_manage_content").val(), 
+			        "products_code": $("#add_products_code").val(),
+			       //"brand": $("#add_brand ").val(), 
+			        "brand_id" : $("#hidden_add_brand_id").val(),
+			        "section_id":$("#add_section_id ").val(),
+			        "line_id": $("#add_line_id ").val(), 
+			        "position_id": $("#hidden_add_position_id").val(),
+			        "responsible_operator_id": $("#hidden_add_responsible_operator_id").val(),
+			        "import_date": $("#add_import_date").val(),
+			        "waste_date":$("#add_waste_date").val(),
+			        "delete_flg":$("#add_delete_flg").val(),
+			        "updated_by":$("#add_updated_by").val(),
+			        "updated_time":$("#add_updated_time ").val(),
+			        "status":$("#add_status").val(), 
+			        "comment": $("#add_comment").val()  
+			    }
+	            // Ajax提交
+	            $.ajax({
+	                beforeSend : ajaxRequestType,
+	                async : true,
+	                url : servicePath + '?method=doinsert',
+	                cache : false,
+	                data :data,
+	                type : "post",
+	                dataType : "json",
+	                success : ajaxSuccessCheck,
+	                error : ajaxError,
+	                complete : insert_handleComplete
+	            });
+			}, function() {
+			// $("#editbutton").enable();
+			}, "新建确认"
+		)};
 	});	
 };
 var insert_handleComplete = function(xhrobj, textStatus) {
@@ -1052,88 +1045,75 @@ var showEdit = function(){
 	  if ($("#update_form").valid()) {
         $("#dialog_confrim").html("");
 		warningConfirm("是否修改管理编号为"+$("#update_manage_code").val()+",品名为"+$("#update_name").val()+"的设备工具？", 
-		function(){
-			var data={
-				"compare_status":rowData.status==$("#update_status").val(),
-				"devices_manage_id": $("#hidden_devices_manage_id ").val(), 
-				"manage_code": $("#update_manage_code").val(),
-				"devices_type_id": $("#hidden_update_name").val(), 
-				"model_name":$("#update_model_name ").val(),
-				"manager_operator_id":$("#hidden_update_manager_operator_id").val(),
-				"manage_level":$("#update_manage_level").val(),
-				"asset_no":$("#update_asset_no").val(),
-				"manage_content":$("#update_manage_content").val(), 
-				"products_code": $("#update_products_code").val(),
-				"brand": $("#update_brand ").val(), 
-				"section_id":$("#update_section_id ").val(),
-				"line_id": $("#update_line_id ").val(), 
-				"position_id": $("#hidden_update_position_id").val(),
-				"responsible_operator_id":$("#hidden_update_responsible_operator_id").val(),
-				"import_date":$("#update_import_date").val(),
-				"provide_date":$("#update_provide_date ").text(),
-				"waste_date":$("#update_waste_date ").val(),
-				"delete_flg":$("#update_delete_flg ").val(),
-				"updated_by":$("#update_updated_by ").val(),
-				"status":$("#update_status").val(), 
-				"comment": $("#update_comment").val()  
-			}
-           
-            // Ajax提交
-		    $.ajax({
-		        beforeSend : ajaxRequestType,
-		        async : true,
-		        url : servicePath + '?method=doupdate',
-		        cache : false,
-		        data :data,
-		        type : "post",
-		        dataType : "json",
-		        success : ajaxSuccessCheck,
-		        error : ajaxError,
-		        complete : update_handleComplete
-		    });
-		}, 
-        null, 
-  		"修改确认");
-      }
+			function(){
+				var data={
+					"compare_status":rowData.status==$("#update_status").val(),
+					"devices_manage_id": $("#hidden_devices_manage_id ").val(), 
+					"manage_code": $("#update_manage_code").val(),
+					"devices_type_id": $("#hidden_update_name").val(), 
+					"model_name":$("#update_model_name ").val(),
+					"manager_operator_id":$("#hidden_update_manager_operator_id").val(),
+					"manage_level":$("#update_manage_level").val(),
+					"asset_no":$("#update_asset_no").val(),
+					"manage_content":$("#update_manage_content").val(), 
+					"products_code": $("#update_products_code").val(),
+			       //"brand": $("#update_brand ").val(), 
+			        "brand_id" : $("#hidden_update_brand_id").val(),
+					"section_id":$("#update_section_id ").val(),
+					"line_id": $("#update_line_id ").val(), 
+					"position_id": $("#hidden_update_position_id").val(),
+					"responsible_operator_id":$("#hidden_update_responsible_operator_id").val(),
+					"import_date":$("#update_import_date").val(),
+					"provide_date":$("#update_provide_date ").text(),
+					"waste_date":$("#update_waste_date ").val(),
+					"delete_flg":$("#update_delete_flg ").val(),
+					"updated_by":$("#update_updated_by ").val(),
+					"status":$("#update_status").val(), 
+					"comment": $("#update_comment").val()  
+				}
+
+	            // Ajax提交
+			    $.ajax({
+			        beforeSend : ajaxRequestType,
+			        async : true,
+			        url : servicePath + '?method=doupdate',
+			        cache : false,
+			        data :data,
+			        type : "post",
+			        dataType : "json",
+			        success : ajaxSuccessCheck,
+			        error : ajaxError,
+			        complete : update_handleComplete
+			    });
+			}, 
+	        null, 
+	  		"修改确认");
+    	}
 	});	
 
 	/*确认删除*/
 	$("#delbutton").click(function(){
-		$("#dialog_confrim").html("");
-		$("#dialog_confrim").html("确认删除管理编号为"+$("#update_manage_code").val()+",品名为"+$("#update_name").val()+"的设备工具？");
-		$("#dialog_confrim").dialog({
-			position : 'center',
-			title : "删除确认",
-			width :350,
-			height : 150,
-			resizable : false,
-			modal : true,
-			buttons : {
-				"确定":function(){
-					 $(this).dialog("close");
-                     var data={
-                        "devices_manage_id": $("#hidden_devices_manage_id ").val()
-                     }
-                      // Ajax提交
-                     $.ajax({
-                        beforeSend : ajaxRequestType,
-                        async : true,
-                        url : servicePath + '?method=dodelete',
-                        cache : false,
-                        data :data,
-                        type : "post",
-                        dataType : "json",
-                        success : ajaxSuccessCheck,
-                        error : ajaxError,
-                        complete : delete_handleComplete
-                     });
-				},
-				"取消":function(){
-						$("#dialog_confrim").html("");
-						$("#dialog_confrim").dialog('close');
-				}
-			}
-		});
+		warningConfirm("确认删除管理编号为"+$("#update_manage_code").val()+",品名为"+$("#update_name").val()+"的设备工具？", 
+			function() {
+                 var data={
+                    "devices_manage_id": $("#hidden_devices_manage_id").val()
+                 }
+                  // Ajax提交
+                 $.ajax({
+                    beforeSend : ajaxRequestType,
+                    async : true,
+                    url : servicePath + '?method=dodelete',
+                    cache : false,
+                    data :data,
+                    type : "post",
+                    dataType : "json",
+                    success : ajaxSuccessCheck,
+                    error : ajaxError,
+                    complete : delete_handleComplete
+                 });
+			},null,
+			"删除确认"
+		);
 	});
 };
 

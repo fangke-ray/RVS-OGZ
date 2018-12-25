@@ -28,23 +28,23 @@ $(function() {
 	<div class="ui-widget-content dwidth-left">
 		<div id="accordion">
 			
-			<h3 style="padding-left:30px;">设备工具/治具信息管理</h3>
+			<h3 style="padding-left:30px;">设备工具•专用工具信息管理</h3>
 		    <div>
 <% if(links.get("dt_admin")){ %>
 			   <a target="_parent" href="brand.do">厂商通讯录</a><br>
-			   <a target="_parent" href="devices_type.do">设备工具品名</a><br>
-		       <a target="_parent" href="devices_manage.do">设备工具管理</a><br>		      
-		       <a target="_parent" href="tools_manage.do">治具管理</a><br>		      
+			   <a target="_parent" href="devices_type.do">设备・一般工具品名</a><br>
+		       <a target="_parent" href="devices_manage.do">设备・一般工具管理</a><br>		      
+		       <a target="_parent" href="tools_manage.do">专用工具管理</a><br>		      
 			   <a target="_parent" href="torsion_device.do">力矩工具一览</a><br>
-			   <a target="_parent" href="electric_iron_device.do">电烙铁工具一览</a><br>	 
-			   <a target="_parent" href="drying_oven_device_forward.do">烘箱一览</a><br>
+			   <a target="_parent" href="electric_iron_device.do">电烙铁工具一览</a><br>
+			   <a target="_parent" href="drying_oven_device_forward.do">烘干工具一览</a><br>
 <% } else { %>
-		       <a target="_parent" href="devices_distribute.do">设备工具分布</a><br>		      
-		       <a target="_parent" href="tools_distribute.do">治具分布</a><br>
+		       <a target="_parent" href="devices_distribute.do">设备・一般工具分布</a><br>		      
+		       <a target="_parent" href="tools_distribute.do">专用工具分布</a><br>
 <% } %>
 		    </div>
 		   
-		    <h3 style="padding-left:30px;">设备工具/治具点检</h3>
+		    <h3 style="padding-left:30px;">设备工具•专用工具点检</h3>
 		    <div>
 <% if(links.get("dt_admin")){ %>
 				<a target="_parent" href="check_file_manage.do">点检表管理</a><br>
@@ -52,7 +52,7 @@ $(function() {
 				<a target="_parent" href="usage_check.do">点检操作</a><br>
 				<a target="_parent" href="daily_check_result.do">日常点检结果</a><br>
 				<a target="_parent" href="device_regularly_check_result.do">定期点检结果</a><br>
-				<a target="_parent" href="tools_check_result.do">治具点检结果</a><br>
+				<a target="_parent" href="tools_check_result.do">专用工具点检结果</a><br>
 				<a target="_parent" href="check_unqualified_record.do">点检不合格记录</a><br>
 <% if(links.get("dt_admin")){ %>
 				<a target="_parent" href="external_adjustment.do">检查机器校验</a><br>

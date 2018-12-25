@@ -29,7 +29,7 @@ public class DeviceTypeEntity implements Serializable {
 		return device_type_id;
 	}
 
-	public void setDevices_type_id(String devices_type_id) {
+	public void setDevice_type_id(String devices_type_id) {
 		this.device_type_id = devices_type_id;
 	}
 

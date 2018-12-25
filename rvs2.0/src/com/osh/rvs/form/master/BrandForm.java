@@ -1,7 +1,5 @@
 package com.osh.rvs.form.master;
 
-import java.sql.Timestamp;
-
 import org.apache.struts.action.ActionForm;
 
 import framework.huiqing.bean.annotation.BeanField;
@@ -14,11 +12,11 @@ public class BrandForm extends ActionForm{
 	@BeanField(title = "厂商信息 ID", name = "brand_id", primaryKey = true, length = 11)
 	private String brand_id;
 
-	@BeanField(title = "厂商名称", name = "name", length = 100, type = FieldType.String)
+	@BeanField(title = "厂商名称", name = "name", length = 100, notNull=true, type = FieldType.String)
 	private String name;
 
-	@BeanField(title = "业务关系", name = "business_relationship", type = FieldType.Integer, length = 1)
-	private Integer business_relationship;
+	@BeanField(title = "业务关系", name = "business_relationship", notNull=true, type = FieldType.Integer, length = 1)
+	private String business_relationship;
 
 	@BeanField(title = "地址", name = "address", length = 150, type = FieldType.String)
 	private String address;
@@ -32,22 +30,23 @@ public class BrandForm extends ActionForm{
 	@BeanField(title = "联系人", name = "contacts", length = 10, type = FieldType.String)
 	private String contacts;
 
-	/** 删除标记 */
-	private boolean delete_flg = false;
 	/** 最后更新人 */
+	@BeanField(title = "更新者", name = "updated_by")
 	private String updated_by;
 	/** 最后更新时间 */
-	private Timestamp updated_time;
+	@BeanField(title = "更新时间", name = "updated_time", type = FieldType.TimeStamp)
+	private String updated_time;
+
 	public String getBrand_id() {
 		return brand_id;
 	}
 	public void setBrand_id(String brand_id) {
 		this.brand_id = brand_id;
 	}
-	public Integer getBusiness_relationship() {
+	public String getBusiness_relationship() {
 		return business_relationship;
 	}
-	public void setBusiness_relationship(Integer business_relationship) {
+	public void setBusiness_relationship(String business_relationship) {
 		this.business_relationship = business_relationship;
 	}
 	public String getAddress() {
@@ -74,22 +73,16 @@ public class BrandForm extends ActionForm{
 	public void setContacts(String contacts) {
 		this.contacts = contacts;
 	}
-	public boolean isDelete_flg() {
-		return delete_flg;
-	}
-	public void setDelete_flg(boolean delete_flg) {
-		this.delete_flg = delete_flg;
-	}
 	public String getUpdated_by() {
 		return updated_by;
 	}
 	public void setUpdated_by(String updated_by) {
 		this.updated_by = updated_by;
 	}
-	public Timestamp getUpdated_time() {
+	public String getUpdated_time() {
 		return updated_time;
 	}
-	public void setUpdated_time(Timestamp updated_time) {
+	public void setUpdated_time(String updated_time) {
 		this.updated_time = updated_time;
 	}
 	public String getName() {

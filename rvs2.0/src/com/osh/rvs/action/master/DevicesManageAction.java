@@ -18,6 +18,7 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.DevicesManageForm;
+import com.osh.rvs.service.BrandService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.LineService;
@@ -96,7 +97,11 @@ public class DevicesManageAction extends BaseAction {
 		//管理员
 		String oReferChooser = service.getDevicesManageroptions(conn);
 		req.setAttribute("oReferChooser", oReferChooser);
-		
+
+		// 廠商
+		BrandService bService = new BrandService();
+		req.setAttribute("bReferChooser", bService.getOptions(conn));
+
 		/*//责任人
 		String rReferChooser =operatorService.getAllOperatorName(conn);
 		req.setAttribute("rReferChooser", rReferChooser);*/

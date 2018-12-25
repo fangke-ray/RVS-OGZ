@@ -38,7 +38,7 @@ public class DevicesManageEntity implements Serializable {
 	private String responsible_operator;
 	
 	//设备工具管理ID
-	private String device_manage_id;        
+	private String devices_manage_id;        
 	//管理编号      
 	private String manage_code;              
 	//设备工具品名ID
@@ -58,7 +58,8 @@ public class DevicesManageEntity implements Serializable {
 	//出厂编号      
 	private String products_code;            
 	//厂商          
-	private String brand;                    
+	private String brand_id;                    
+	private String brand_name;                    
 	//分发课室      
 	private String section_id;               
 	//责任工程      
@@ -151,11 +152,11 @@ public class DevicesManageEntity implements Serializable {
 	public void setManager(String manager) {
 		this.manager = manager;
 	}
-	public String getDevice_manage_id() {
-		return device_manage_id;
+	public String getDevices_manage_id() {
+		return devices_manage_id;
 	}
-	public void setDevice_manage_id(String devices_manage_id) {
-		this.device_manage_id = devices_manage_id;
+	public void setDevices_manage_id(String devices_manage_id) {
+		this.devices_manage_id = devices_manage_id;
 	}
 	public String getManage_code() {
 		return manage_code;
@@ -211,11 +212,11 @@ public class DevicesManageEntity implements Serializable {
 	public void setProducts_code(String products_code) {
 		this.products_code = products_code;
 	}
-	public String getBrand() {
-		return brand;
+	public String getBrand_id() {
+		return brand_id;
 	}
-	public void setBrand(String brand) {
-		this.brand = brand;
+	public void setBrand_id(String brand) {
+		this.brand_id = brand;
 	}
 	public String getSection_id() {
 		return section_id;
@@ -324,5 +325,11 @@ public class DevicesManageEntity implements Serializable {
 	}
 	public void setAsset_no(String asset_no) {
 		this.asset_no = asset_no;
+	}
+	public String getBrand_name() {
+		return brand_name;
+	}
+	public void setBrand_name(String brand_name) {
+		this.brand_name = brand_name;
 	}
 }

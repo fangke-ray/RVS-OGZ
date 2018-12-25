@@ -75,20 +75,20 @@ var search_handleComplete = function(xhrObj, textStatus) {
 			// 共通出错信息框
 			treatBackMessages("#searcharea", resInfo.errors);
 		} else {
-			var listdata = resInfo.devicesTypeForms;
+			var listdata = resInfo.brandForms;
 			filed_list(listdata);
 		}
 	}catch (e) {console.log("81:" + e.message)};
 }
 
 /*jqgrid表格*/
-function filed_list(finished){
+function filed_list(listData){
 	if ($("#gbox_list").length > 0) {
 		$("#list").jqGrid().clearGridData();
-		$("#list").jqGrid('setGridParam',{data:finished}).trigger("reloadGrid", [{current:false}]);
+		$("#list").jqGrid('setGridParam',{data:listData}).trigger("reloadGrid", [{current:false}]);
 	} else {
 		$("#list").jqGrid({
-			data:finished,
+			data:listData,
 			height: 461,
 			width: 992,
 			rowheight: 23,
@@ -97,18 +97,18 @@ function filed_list(finished){
 			colModel:[
 				{name:'myac',fixed:true,width:40,sortable:false,resize:false,formatter:'actions',formatoptions:{keys:true, editbutton:false}},
 				{name:'brand_id',index:'brand_id', hidden:true},
-				{name:'name',index:'name',width : 150},
+				{name:'name',index:'name',width : 145},
 				{name:'business_relationship',index:'business_relationship',width : 35,formatter : 'select',
 					editoptions : {
 						value : $("#goBusinessRelationship").val()
-					}
+					}, align:'center'
 				},
 				{name:'address',index:'address',width : 150},
 				{name:'email',index:'email',width : 60},
 				{name:'tel',index:'tel',width : 60},
 				{name:'contacts',index:'contacts',width : 60},
 				{name:'delete_flg',index:'delete_flg',hidden:true},
-				{name:'updated_by',index:'updated_by',width : 35},
+				{name:'updated_by',index:'updated_by',width : 40},
 				{name:'updated_time',index:'updated_time',width : 50}
 			],
 			rowNum: 20,
@@ -141,11 +141,11 @@ var showAdd = function() {
 	//默认画面变化
 	top.document.title = "新建" + modelname;
 	$("#searcharea,#searchform,#listarea,#editform tr:not(:has(input,textarea,select))").hide();
-	$("#editform input:text, #editform input:hidden, #editform textarea").val("");
 	$("#edit_business_relationship").val("").trigger("change");
 	$("#editarea span.areatitle").html("新建" + modelname);
 	$("#editarea").show();
-	$("#editform input[type!='button']").val("");
+	$("#editform input:text, #editform input:hidden, #editform textarea").val("");
+
 	$("#editbutton").val("新建");
 	$("#editbutton").enable();
 	$(".errorarea-single").removeClass("errorarea-single");
@@ -155,7 +155,10 @@ var showAdd = function() {
 		rules:{
 			name:{
 				required:true,
-				maxlength:32
+				maxlength:100
+			},
+			business_relationship:{
+				required:true
 			}
 		}
 	});
@@ -230,8 +233,14 @@ var showEdit = function() {
 	// 默认画面变化 s
 	top.document.title = modelname + "修改";
 
+	$("#hidden_brand_id").val(rowData.brand_id);
 	$("#edit_name").val(rowData.name);
-	$("#edit_specialized").val(rowData.specialized).trigger("change");
+	$("#edit_business_relationship").val(rowData.business_relationship).trigger("change");
+	$("#edit_address").val(rowData.address);
+	$("#edit_email").val(rowData.email);
+	$("#edit_tel").val(rowData.tel);
+	$("#edit_contacts").val(rowData.contacts);
+
 	// TODO edit_hazardous_cautions
 	$("#label_updated_by").text(rowData.updated_by);
 	$("#label_updated_time").text(rowData.updated_time);
@@ -256,7 +265,11 @@ var showEdit = function() {
 				function() {
 					var data={
 					"name":$("#edit_name").val(),
-					"specialized":$("#edit_specialized").val(),
+					"business_relationship":$("#edit_business_relationship").val(),
+					"address":$("#edit_address").val(),
+					"email":$("#edit_email").val(),
+					"tel":$("#edit_tel").val(),
+					"contacts":$("#edit_contacts").val(),
 					"brand_id":$("#hidden_brand_id").val()
 				}
 				// Ajax提交
@@ -289,6 +302,7 @@ var update_handleComplete = function(xhrObj, textStatus) {
 		if (resInfo.errors.length > 0) {
 			// 共通出错信息框
 			treatBackMessages("#searcharea", resInfo.errors);
+			$("#editbutton").enable();
 		} else {
 			infoPop("修改已经完成。");
 			findit();

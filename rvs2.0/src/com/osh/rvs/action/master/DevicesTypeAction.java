@@ -42,7 +42,7 @@ public class DevicesTypeAction extends BaseAction {
 	 */
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
-		log.info("DevicesTypeAction .init start");
+		log.info("DevicesTypeAction.init start");
 
 		//特定设备工具种类
 		req.setAttribute("specializedDeviceType", CodeListUtils.getSelectOptions("specialized_device_type",null,""));
@@ -53,7 +53,7 @@ public class DevicesTypeAction extends BaseAction {
 
 		actionForward = mapping.findForward(FW_INIT);
 
-		log.info("DevicesTypeAction .init end");
+		log.info("DevicesTypeAction.init end");
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class DevicesTypeAction extends BaseAction {
 	 * @param conn
 	 */
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request,HttpServletResponse response, SqlSession conn) {
-		log.info("DevicesTypeAction .search start");
+		log.info("DevicesTypeAction.search start");
 
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
@@ -83,7 +83,7 @@ public class DevicesTypeAction extends BaseAction {
 		listResponse.put("errors", errors);
 		returnJsonResponse(response, listResponse);
 
-		log.info("DevicesTypeAction .search end");
+		log.info("DevicesTypeAction.search end");
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class DevicesTypeAction extends BaseAction {
 	 */
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
-		log.info("DevicesTypeAction .doupdate start");
+		log.info("DevicesTypeAction.doupdate start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		
 		/*验证*/
@@ -107,11 +107,16 @@ public class DevicesTypeAction extends BaseAction {
 		// 插入新建设备工具品名
 		service.insertDevicesType(form,conn,request.getSession(),errors);
 
+		String hazardous_cautions = request.getParameter("hazardous_cautions");
+		if (hazardous_cautions != null) {
+			service.insertHazardousCautions(null, hazardous_cautions, conn);
+		}
+
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);
 		/* 返回Json格式响应信息 */
 		returnJsonResponse(response, callbackResponse);
-		log.info("DevicesTypeAction .doupdate end");
+		log.info("DevicesTypeAction.doupdate end");
 	}
 	
 	/**
@@ -161,6 +166,9 @@ public class DevicesTypeAction extends BaseAction {
 		List<MsgInfo> errors = v.validate();
 		
 		service.updateDevicesType(form, conn, request.getSession(),errors);
+
+		String hazardous_cautions = request.getParameter("hazardous_cautions");
+		service.insertHazardousCautions(request.getParameter("devices_type_id"), hazardous_cautions, conn);
 
 		callbackResponse.put("errors", errors);
 		returnJsonResponse(response, callbackResponse);

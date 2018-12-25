@@ -1,7 +1,9 @@
 package com.osh.rvs.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -16,6 +18,8 @@ import com.osh.rvs.form.master.BrandForm;
 import com.osh.rvs.mapper.master.BrandMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 
@@ -80,6 +84,36 @@ public class BrandService {
 		BrandMapper mapper = conn.getMapper(BrandMapper.class);
 		mapper.updateBrand(brandEntity);
 		
+	}
+
+	/**
+	 * 取得全部厂商(参照列表)
+	 * @param conn
+	 * @return
+	 */
+	public String getOptions(SqlSession conn) {
+		List<String[]> bList = new ArrayList<String[]>();
+		List<BrandForm> allBrand = this.searchBrand(new BrandEntity(), conn);
+
+		Map<String, String> cdBusinessRelationship = new HashMap<String, String>();
+		
+		for (BrandForm brand: allBrand) {
+			String[] bline = new String[4];
+			bline[0] = brand.getBrand_id();
+			bline[1] = brand.getName();
+			String cBusinessRelationship = brand.getBusiness_relationship();
+			if (!cdBusinessRelationship.containsKey(cBusinessRelationship)) {
+				String vBusinessRelationship = CodeListUtils.getValue("brand_business_relationship", cBusinessRelationship);
+				cdBusinessRelationship.put(cBusinessRelationship, vBusinessRelationship);
+			}
+			bline[2] = cdBusinessRelationship.get(cBusinessRelationship);
+			bline[3] = CommonStringUtil.nullToAlter(brand.getContacts(), " ");
+			bList.add(bline);
+		}
+
+		String mReferChooser = CodeListUtils.getReferChooser(bList);
+
+		return mReferChooser;
 	}
 
 }

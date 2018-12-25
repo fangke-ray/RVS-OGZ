@@ -66,7 +66,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div style="height:44px">
 				<input id="resetbutton"  type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" style="float:right;right:2px" aria-disabled="false" role="button" value="清除">
 				<input id="searchbutton" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
-				<input type="hidden" id="goBusinessRelationship">
+				<input type="hidden" id="goBusinessRelationship" value="${goBusinessRelationship}">
 			</div>
 		</form>		
 	</div> 

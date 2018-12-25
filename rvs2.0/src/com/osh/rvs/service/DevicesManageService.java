@@ -336,7 +336,7 @@ public class DevicesManageService {
 				errors.add(error);
 			}else{
 				for(String devicesManageId :keys){
-					conditionEntity.setDevice_manage_id(devicesManageId);
+					conditionEntity.setDevices_manage_id(devicesManageId);
 					conditionEntity.setUpdated_by(user.getOperator_id());
 					dao.deliverDevicesManage(conditionEntity);
 				}

@@ -1,7 +1,9 @@
 package com.osh.rvs.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -13,6 +15,7 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.DeviceTypeEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.DevicesTypeForm;
+import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.master.DevicesTypeMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -39,8 +42,14 @@ public class DevicesTypeService {
 
 		List<DeviceTypeEntity> devicesTypeEntities = dao.searchDeviceType(devicesTypeEntity);
 
-		BeanUtil.copyToFormList(devicesTypeEntities, devicesTypeForms, CopyOptions.COPYOPTIONS_NOEMPTY,
-				DevicesTypeForm.class);
+		for(DeviceTypeEntity entity : devicesTypeEntities) {
+			DevicesTypeForm devicesTypeForm = new DevicesTypeForm();
+			BeanUtil.copyToForm(entity, devicesTypeForm, CopyOptions.COPYOPTIONS_NOEMPTY);
+			if (entity.getClassification() != null) {
+				devicesTypeForm.setHazardous_cautions(getClassificationText(entity.getClassification()));
+			}
+			devicesTypeForms.add(devicesTypeForm);
+		}
 
 		return devicesTypeForms;
 	}
@@ -143,6 +152,56 @@ public class DevicesTypeService {
 			return pReferChooser;
 		} else {
 			return "";
+		}
+	}
+
+	/**
+	 * 危险归类文字取得
+	 */
+	private Map<String, String> classificationText = new HashMap<String, String>(); // Not static
+	private String getClassificationText(Integer classification) {
+		String codeString = Integer.toBinaryString(classification);
+		String ret = "";
+		int length = codeString.length();
+		for (int i = 0; i < length; i++) {
+			if (codeString.charAt(i) == '1') {
+				String cd = "" + (length - i - 1);
+				if (!classificationText.containsKey(cd)) {
+					classificationText.put(cd, CodeListUtils.getValue("device_hazardous_classification", cd) + " ");
+				}
+				ret = classificationText.get(cd) + ret;
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * 插入设备危险标示
+	 * @param device_type_id
+	 * @param hazardous_cautions
+	 * @param conn
+	 */
+	public void insertHazardousCautions(String device_type_id,
+			String hazardous_cautions, SqlSessionManager conn) {
+		DevicesTypeMapper dao = conn.getMapper(DevicesTypeMapper.class);
+	
+		if (device_type_id == null) {
+			if (hazardous_cautions != null) {
+				CommonMapper cMapper = conn.getMapper(CommonMapper.class);
+				device_type_id = cMapper.getLastInsertID();
+			}
+		} else {
+			dao.removeHazardousCautionById(device_type_id);
+		}
+
+		if (hazardous_cautions != null) {
+			String[] hazardousCautionArray = hazardous_cautions.split(",");
+			DeviceTypeEntity devicesTypeEntity = new DeviceTypeEntity();
+			devicesTypeEntity.setDevice_type_id(device_type_id);
+			for (String hazardousCaution : hazardousCautionArray) {
+				devicesTypeEntity.setClassification(Integer.parseInt(hazardousCaution));
+				dao.insertHazardousCaution(devicesTypeEntity);
+			}
 		}
 	}
 }

@@ -68,7 +68,7 @@ public class DevicesManageForm extends ActionForm {
 	@BeanField(title = "管理编号", name = "manage_code", type = FieldType.String, notNull = true)
 	private String manage_code;
 	// 设备工具品名ID
-	@BeanField(title = "设备工具品名ID", name = "devices_type_id", type = FieldType.String, length = 11, notNull = true)
+	@BeanField(title = "设备工具品名ID", name = "device_type_id", type = FieldType.String, length = 11, notNull = true)
 	private String devices_type_id;
 	// 品名
 	@BeanField(title = "品名", name = "name", type = FieldType.String, length = 32)
@@ -92,7 +92,9 @@ public class DevicesManageForm extends ActionForm {
 	@BeanField(title = "出厂编号", name = "products_code", type = FieldType.String, length = 15)
 	private String products_code;
 	// 厂商
-	@BeanField(title = "厂商", name = "brand", type = FieldType.String, length = 32)
+	@BeanField(title = "厂商", name = "brand_id", type = FieldType.String, length = 11)
+	private String brand_id;
+	@BeanField(title = "厂商", name = "brand_name", type = FieldType.String)
 	private String brand;
 	// 分发课室
 	@BeanField(title = "分发课室 ", name = "section_id", type = FieldType.String, length = 11, notNull = true)
@@ -447,6 +449,14 @@ public class DevicesManageForm extends ActionForm {
 
 	public void setWaste_old_products(String waste_old_products) {
 		this.waste_old_products = waste_old_products;
+	}
+
+	public String getBrand_id() {
+		return brand_id;
+	}
+
+	public void setBrand_id(String brand_id) {
+		this.brand_id = brand_id;
 	}
 
 }

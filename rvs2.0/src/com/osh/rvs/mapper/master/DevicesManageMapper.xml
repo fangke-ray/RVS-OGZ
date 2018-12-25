@@ -22,7 +22,8 @@
 		    dm.manage_level,
 		    dm.asset_no,
 		    dm.products_code,
-		    dm.brand,
+		    dm.brand_id,
+		    b.name as brand_name,
 		    dm.section_id,
 		    dm.line_id,
 		    dm.position_id,
@@ -62,6 +63,8 @@
 				AND (dm.status = 1)
 				and cfm_r.delete_flg != 1
 				AND (cfm_r.specified_model_name IS NULL OR cfm_r.specified_model_name LIKE concat('%', dm.model_name, '%'))
+
+				left join brand b ON dm.brand_id = b.brand_id
 		]]>
 		<where>		
 		        dm.delete_flg=0
@@ -152,7 +155,7 @@
 				manage_level=#{manage_level},
 				asset_no=#{asset_no},
 				products_code =#{products_code},
-				brand =#{brand},
+				brand_id =#{brand_id},
 				section_id=#{section_id},
 				line_id =#{line_id},
 				position_id =#{position_id},
@@ -215,9 +218,9 @@
 				model_name,
 				manager_operator_id,
 				manage_level,
-				asset_no，
+				asset_no,
 				products_code,
-				brand,
+				brand_id,
 				section_id,
 				line_id,
 				position_id,
@@ -242,7 +245,7 @@
 				#{manage_level},
 				#{asset_no},
 				#{products_code},
-				#{brand},
+				#{brand_id},
 				#{section_id},
 				#{line_id},
 				#{position_id},
@@ -271,7 +274,7 @@
 				manage_level,
 				asset_no,
 				products_code,
-				brand,
+				brand_id,
 				section_id,
 				line_id,
 				position_id,
@@ -295,7 +298,7 @@
 				#{manage_level},
 				#{asset_no},
 				#{products_code},
-				#{brand},
+				#{brand_id},
 				#{section_id},
 				#{line_id},
 				#{position_id},
@@ -350,7 +353,8 @@
 		    dm.`manage_level`,
 		    dm.`asset_no`,
 		    dm.`products_code`,
-		    dm.`brand`,
+		    dm.`brand_id`,
+		    b.`name` as `brand_name`,
 		    dm.`section_id`,
 		    dm.`line_id`,
 		    dm.`position_id`,
@@ -366,6 +370,8 @@
 		FROM `devices_manage` dm
 		JOIN `device_type` dt
 		ON dm.device_type_id = dt.device_type_id
+		LEFT JOIN brand b
+		ON dm.brand_id = b.brand_id
 		WHERE dm.`devices_manage_id` = #{devices_manage_id}
 		;
 		]]>
@@ -376,7 +382,7 @@
 	   <![CDATA[
 		INSERT INTO `devices_manage`
 		(`manage_code`, `device_type_id`, `device_name`, `model_name`, `location`,
-		`manager_operator_id`, `manage_level`, `asset_no` `products_code`, `brand`, `section_id`, `line_id`, `position_id`,
+		`manager_operator_id`, `manage_level`, `asset_no` `products_code`, `brand_id`, `section_id`, `line_id`, `position_id`,
 		`responsible_operator_id`, `import_date`, `provide_date`, `waste_date`, `delete_flg`, `updated_by`,
 		`updated_time`, `status`, `comment`)
 		SELECT 
@@ -389,7 +395,7 @@
 		    `odm`.`manage_level`,
 		    `odm`.`asset_no`,
 		    `odm`.`products_code`,
-		    `odm`.`brand`,
+		    `odm`.`brand_id`,
 		    `odm`.`section_id`,
 		    `odm`.`line_id`,
 		    `odm`.`position_id`,
