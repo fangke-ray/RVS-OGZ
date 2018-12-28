@@ -71,6 +71,10 @@
 	<select id="countQuantityOfSpecKind" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		SELECT 
+	temp.spec_kind,
+	COUNT(temp.quantity)
+	FROM(
+		SELECT 
 			v_partial.spec_kind,
 		    CASE
 				WHEN pbs.box_count = -1 THEN SUM(1)
@@ -95,8 +99,9 @@
 	</if>
 	</where>
 	<![CDATA[
+	) temp
 		GROUP BY 
-			v_partial.spec_kind
+			temp.spec_kind
 	]]>
 	</select>
 	
