@@ -1,7 +1,9 @@
 package com.osh.rvs.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -17,23 +19,25 @@ import org.apache.struts.action.ActionForm;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
-import com.osh.rvs.bean.master.ToolsManageEntity;
+import com.osh.rvs.bean.master.JigManageEntity;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.form.master.ToolsManageForm;
 import com.osh.rvs.mapper.master.OperatorMapper;
-import com.osh.rvs.mapper.master.ToolsManageMapper;
+import com.osh.rvs.mapper.master.JigManageMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
+import framework.huiqing.common.util.FileUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
-public class ToolsManageService {
+public class JigManageService {
 
 	/**
 	 * 治具管理一览详细
@@ -44,15 +48,15 @@ public class ToolsManageService {
 	 * @return
 	 */
 	public List<ToolsManageForm> searchToolsManage(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 	
 		BeanUtil.copyToBean(form, toolsManageEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		List<ToolsManageForm> toolsManageForms = new ArrayList<ToolsManageForm>();
 
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
 
-		List<ToolsManageEntity>  toolsManageEntities= dao.searchToolsManage(toolsManageEntity);
+		List<JigManageEntity>  toolsManageEntities= dao.searchJigManage(toolsManageEntity);
 
 		BeanUtil.copyToFormList(toolsManageEntities, toolsManageForms, CopyOptions.COPYOPTIONS_NOEMPTY,
 				ToolsManageForm.class);
@@ -69,8 +73,8 @@ public class ToolsManageService {
 	 */
 	public void updateToolsManage(String compare_status,ToolsManageForm toolsManageForm, SqlSessionManager conn, HttpSession session,
 			List<MsgInfo> errors) {
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 
 		Calendar calendar = Calendar.getInstance();
 
@@ -102,13 +106,13 @@ public class ToolsManageService {
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
-		dao.updateToolsManage(toolsManageEntity);
+		dao.updateJigManage(toolsManageEntity);
 	}
 	
 	/* 验证管理编号不能重复 */
 	public void customValidate(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 		
 		/* 数据复制 */
 		BeanUtil.copyToBean(form, toolsManageEntity ,(new CopyOptions()).include("tools_manage_id", "manage_code"));
@@ -126,21 +130,19 @@ public class ToolsManageService {
 	
 	/*验证选择状态是保管中时，工程和工位必须2选1*/
 	public void validateStatus(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 		/* 数据复制 */
 		BeanUtil.copyToBean(form, toolsManageEntity,CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		//管理等级是A或者B
-		if(toolsManageEntity.getManage_level()==1 ||toolsManageEntity.getManage_level()==2){
-			//如果状态是使用中，则工程和工位必须2选1
-			if ("1".equals(toolsManageEntity.getStatus()) && CommonStringUtil.isEmpty(toolsManageEntity.getPosition_id()) && CommonStringUtil.isEmpty(toolsManageEntity.getResponsible_operator_id())){
-					MsgInfo error = new MsgInfo();
-					error.setComponentid("devices_manage_id");
-					error.setErrcode("info.tools.choosePositionOperator");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.tools.choosePositionOperator", "",
-							toolsManageEntity.getPosition_id(), ""));
-					errors.add(error);		
-			} 		
+		//如果状态是使用中，则工程和工位必须2选1
+		if ("1".equals(toolsManageEntity.getStatus()) && CommonStringUtil.isEmpty(toolsManageEntity.getPosition_id()) && CommonStringUtil.isEmpty(toolsManageEntity.getResponsible_operator_id())){
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("devices_manage_id");
+			error.setErrcode("info.tools.choosePositionOperator");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.tools.choosePositionOperator", "",
+					toolsManageEntity.getPosition_id(), ""));
+			errors.add(error);
 		}
 	}
 	/**
@@ -151,8 +153,8 @@ public class ToolsManageService {
 	 */
 	public void insertToolsManage(ToolsManageForm toolsManageForm, SqlSessionManager conn, HttpSession session,
 			List<MsgInfo> errors) {
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 
 		Calendar calendar = Calendar.getInstance();
 		//如果新建状态值为1(使用中)，则发放日期是当前日期
@@ -179,7 +181,7 @@ public class ToolsManageService {
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
-		dao.insertToolsManage(toolsManageEntity);
+		dao.insertJigManage(toolsManageEntity);
 	}
 	
 	/**
@@ -191,15 +193,15 @@ public class ToolsManageService {
 	 * @param errors
 	 */
 	public void deleteToolsManage(ActionForm form, SqlSessionManager conn, HttpSession session, List<MsgInfo> errors) {
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 		BeanUtil.copyToBean(form, toolsManageEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		// 当前操作者ID
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
-		dao.deleteToolsManage(toolsManageEntity);
+		dao.deleteJigManage(toolsManageEntity);
 	}
 	
 	// 取得责任人员
@@ -222,7 +224,7 @@ public class ToolsManageService {
 	
 	//查询最大管理编号
 	public String searchMaxManageCode(ActionForm form,SqlSession conn){
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 		//复制表单对象到数据
 		BeanUtil.copyToBean(form, toolsManageEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 		
@@ -233,7 +235,7 @@ public class ToolsManageService {
 		}
 		
 		
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
 		List<String> list=dao.searchMaxManageCode(toolsManageEntity);
 		String manage_code=list.get(0);
 		
@@ -254,8 +256,8 @@ public class ToolsManageService {
 	
 	//替换新品
 	public void replace(String compare_status,String old_manage_code,ToolsManageForm toolsManageForm, SqlSessionManager conn, HttpServletRequest request){
-		ToolsManageMapper dao = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity toolsManageEntity = new ToolsManageEntity();
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		JigManageEntity toolsManageEntity = new JigManageEntity();
 
 		Calendar calendar = Calendar.getInstance();
 
@@ -276,7 +278,7 @@ public class ToolsManageService {
 		dao.replace(toolsManageEntity);
 		
 		//同时废弃掉旧品--选择是(1)--则进行废弃旧品操作
-		toolsManageEntity = new ToolsManageEntity();
+		toolsManageEntity = new JigManageEntity();
 		BeanUtil.copyToBean(toolsManageForm, toolsManageEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 		if("1".equals(toolsManageForm.getWaste_old_products())){
 			toolsManageEntity.setUpdated_by(user.getOperator_id());
@@ -287,8 +289,8 @@ public class ToolsManageService {
 
 	//批量交付
 	public void deliverToolsManage(ToolsManageForm toolsManageForm,SqlSessionManager conn, HttpSession session, List<MsgInfo> errors,HttpServletRequest request) {
-		ToolsManageMapper dao  = conn.getMapper(ToolsManageMapper.class);
-		ToolsManageEntity conditionEntity = new ToolsManageEntity();	
+		JigManageMapper dao  = conn.getMapper(JigManageMapper.class);
+		JigManageEntity conditionEntity = new JigManageEntity();	
 		
 		BeanUtil.copyToBean(toolsManageForm, conditionEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 		// 当前操作者ID
@@ -304,9 +306,9 @@ public class ToolsManageService {
 				errors.add(error);
 			}else{
 				for(String toolsManageId :keys){
-					conditionEntity.setTools_manage_id(toolsManageId);
+					conditionEntity.setJig_manage_id(toolsManageId);
 					conditionEntity.setUpdated_by(user.getOperator_id());
-					dao.deliverToolsManage(conditionEntity);
+					dao.deliverJigManage(conditionEntity);
 				}
 			}
 			
@@ -344,4 +346,17 @@ public class ToolsManageService {
 
 		return keys;
 	}
+
+
+	public void copyPhoto(String manage_id, String photo_file_name) {
+		// 把图片拷贝到目标文件夹下
+		String today = DateUtil.toString(new Date(), "yyyyMM");
+		String tempFilePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + today + "\\" + photo_file_name;
+		String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\jig\\" + manage_id;
+		File confFile = new File(tempFilePath);
+		if (confFile.exists()) {
+			FileUtils.copyFile(tempFilePath, targetPath, true);
+		}
+	}
+
 }

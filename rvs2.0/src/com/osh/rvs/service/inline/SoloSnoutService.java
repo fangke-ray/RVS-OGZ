@@ -34,6 +34,7 @@ import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.service.MaterialService;
+import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.PostMessageService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -121,19 +122,12 @@ public class SoloSnoutService {
 	}
 
 	public String getSnoutsMakerReferChooser(SqlSession conn) {
-		List<String[]> lst = new ArrayList<String[]>();
 		
 		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 		List<OperatorNamedEntity> allOperator = dao.getSnoutsMaker();
-		
-		for (OperatorNamedEntity operator: allOperator) {
-			String[] p = new String[3];
-			p[0] = operator.getOperator_id();
-			p[1] = operator.getName();
-			p[2] = operator.getRole_name();
-			lst.add(p);
-		}
-		
+
+		List<String[]> lst = OperatorService.getSetReferChooser(allOperator, false);
+
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 		
 		return pReferChooser;

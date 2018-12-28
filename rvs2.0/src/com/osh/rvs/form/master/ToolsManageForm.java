@@ -1,11 +1,11 @@
 package com.osh.rvs.form.master;
 
-import org.apache.struts.action.ActionForm;
+import com.osh.rvs.form.UploadForm;
 
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
 
-public class ToolsManageForm extends ActionForm {
+public class ToolsManageForm extends UploadForm {
 
 	/**
 	 * 治具管理
@@ -37,33 +37,31 @@ public class ToolsManageForm extends ActionForm {
 	// 工位
 	@BeanField(title = "工位", name = "process_code", type = FieldType.String)
 	private String process_code;
+	private String position_name;
 	// 发放者
 	@BeanField(title = "发放者", name = "provider", type = FieldType.String, length = 11)
 	private String provider;
 	// 治具管理ID
-	@BeanField(title = "治具管理ID", name = "tools_manage_id", type = FieldType.String, length = 11)
+	@BeanField(title = "治具管理ID", name = "jig_manage_id", type = FieldType.String, length = 11)
 	private String tools_manage_id;
 	// 管理编号
 	@BeanField(title = "管理编号", name = "manage_code", type = FieldType.String, notNull = true)
 	private String manage_code;
 	// 治具NO.
-	@BeanField(title = "治具NO. ", name = "tools_no", type = FieldType.String, notNull = true)
+	@BeanField(title = "治具NO. ", name = "jig_no", type = FieldType.String, notNull = true)
 	private String tools_no;
-	// 治具品名ID
-	@BeanField(title = "治具品名ID", name = "tools_type_id", type = FieldType.String, length = 11)
-	private String tools_type_id;
 	// 治具名称
-	@BeanField(title = "治具名称", name = "tools_name", type = FieldType.String)
+	@BeanField(title = "治具名称", name = "jig_name", type = FieldType.String)
 	private String tools_name;
+
+	@BeanField(title = "数量", name = "count_in", type = FieldType.Integer, notNull = true)
+	private String count_in;
 
 	@BeanField(title = "总价", name = "total_price", length = 11, type = FieldType.Double)
 	private String total_price;
 	// 分类
 	@BeanField(title = "分类", name = "classify", type = FieldType.String)
 	private String classify;
-	// 管理等级
-	@BeanField(title = "管理等级", name = "manage_level", type = FieldType.Integer, notNull = true)
-	private String manage_level;
 	// 管理员
 	@BeanField(title = "管理员", name = "manager_operator_id", type = FieldType.String, length = 11)
 	private String manager_operator_id;
@@ -243,14 +241,6 @@ public class ToolsManageForm extends ActionForm {
 		this.tools_no = tools_no;
 	}
 
-	public String getTools_type_id() {
-		return tools_type_id;
-	}
-
-	public void setTools_type_id(String tools_type_id) {
-		this.tools_type_id = tools_type_id;
-	}
-
 	public String getTools_name() {
 		return tools_name;
 	}
@@ -265,14 +255,6 @@ public class ToolsManageForm extends ActionForm {
 
 	public void setTotal_price(String total_price) {
 		this.total_price = total_price;
-	}
-
-	public String getManage_level() {
-		return manage_level;
-	}
-
-	public void setManage_level(String manage_level) {
-		this.manage_level = manage_level;
 	}
 
 	public String getManager_operator_id() {
@@ -457,5 +439,21 @@ public class ToolsManageForm extends ActionForm {
 
 	public void setWaste_old_products(String waste_old_products) {
 		this.waste_old_products = waste_old_products;
+	}
+
+	public String getCount_in() {
+		return count_in;
+	}
+
+	public void setCount_in(String count_in) {
+		this.count_in = count_in;
+	}
+
+	public String getPosition_name() {
+		return position_name;
+	}
+
+	public void setPosition_name(String position_name) {
+		this.position_name = position_name;
 	}
 }

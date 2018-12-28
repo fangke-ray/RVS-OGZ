@@ -64,13 +64,14 @@ $(function(){
     var manage_level =$("#add_manage_level").html();
     var status =$("#search_status").html();
     
-    //状态默认是使用中和保管中
-	$("#search_status option[value='1']").attr("selected","selected").trigger("change");
-	$("#search_status option[value='4']").attr("selected","selected").trigger("change");
+    //状态默认是使用中和保管中 + 周边使用中
+	$("#search_status option[value='1']").attr("selected","selected");
+	$("#search_status option[value='4']").attr("selected","selected");
+	$("#search_status option[value='5']").attr("selected","selected").trigger("change");
 
     $("#add_name_button").click(function(){
-	      $("#text_name").show();
-		  $("#add_name").hide();
+		$("#text_name").show();
+		$("#add_name").hide();
 	});
 
 	$("#search_manage_level,#update_manage_rank,#add_manage_level,#deliver_section_name,#deliver_line_name,#to_section_name,#to_line_name").select2Buttons();

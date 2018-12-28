@@ -32,7 +32,7 @@
 		<typeAlias alias="SystemImageManageEntity" type="com.osh.rvs.bean.master.SystemImageManageEntity"/>
 		<typeAlias alias="PcsRequestEntity" type="com.osh.rvs.bean.master.PcsRequestEntity"/>
 		<typeAlias alias="PartialEntity" type="com.osh.rvs.bean.master.PartialEntity"/>
-		<typeAlias alias="ToolsManageEntity" type="com.osh.rvs.bean.master.ToolsManageEntity"/>
+		<typeAlias alias="JigManageEntity" type="com.osh.rvs.bean.master.JigManageEntity"/>
 		<typeAlias alias="BrandEntity" type="com.osh.rvs.bean.master.BrandEntity"/>
 		<typeAlias alias="DeviceTypeEntity" type="com.osh.rvs.bean.master.DeviceTypeEntity"/>
 		<typeAlias alias="DevicesManageEntity" type="com.osh.rvs.bean.master.DevicesManageEntity"/>
@@ -112,7 +112,7 @@
 		<mapper resource="com/osh/rvs/mapper/master/BrandMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/master/DevicesTypeMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/master/DevicesManageMapper.xml" />
-		<mapper resource="com/osh/rvs/mapper/master/ToolsManageMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/master/JigManageMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/SystemImageManageMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/QualityTipMapper.xml"/>
 

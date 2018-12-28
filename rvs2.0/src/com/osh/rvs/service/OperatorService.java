@@ -358,18 +358,11 @@ public class OperatorService {
 	}
 
 	public String getResolverReferChooser(SqlSession conn) {
-		List<String[]> lst = new ArrayList<String[]>();
 
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
 		List<OperatorNamedEntity> allOperator = dao.getResolver();
 
-		for (OperatorNamedEntity operator : allOperator) {
-			String[] p = new String[3];
-			p[0] = operator.getOperator_id();
-			p[1] = operator.getName();
-			p[2] = operator.getRole_name();
-			lst.add(p);
-		}
+		List<String[]> lst = getSetReferChooser(allOperator, false);
 
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 
@@ -392,54 +385,57 @@ public class OperatorService {
 	
 	//取得所有的操作人员
 	public String getAllOperatorName(SqlSession conn){
-		List<String[]> lst = new ArrayList<String[]>();
 
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
 		List<OperatorNamedEntity> allOperator = dao.searchOperator(null);
 
-		for (OperatorNamedEntity operator : allOperator) {
-			String[] p = new String[4];
-			p[0] = operator.getOperator_id();
-			p[1] = operator.getName();
-			p[2] = operator.getRole_name();
-			if(CommonStringUtil.isEmpty(operator.getLine_name())){
-				p[3] ="";
-			}else{
-				p[3] = operator.getLine_name();
-			}
-			
-			lst.add(p);
-		}
+		List<String[]> lst = getSetReferChooser(allOperator, true);
 
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 
 		return pReferChooser;
 	}
 	
-	   //取得所有治具点检人员
-		public String getAllToolsOperatorName(SqlSession conn){
-			List<String[]> lst = new ArrayList<String[]>();
+	// 取得所有治具点检人员
+	public String getAllJigOperatorName(SqlSession conn) {
 
-			OperatorMapper dao = conn.getMapper(OperatorMapper.class);
-			List<OperatorNamedEntity> allOperator = dao.searchToolsOperator(null);
+		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
+		List<OperatorNamedEntity> allJigOperator = dao.searchToolsOperator(null);
 
-			for (OperatorNamedEntity operator : allOperator) {
-				String[] p = new String[4];
-				p[0] = operator.getOperator_id();
-				p[1] = operator.getName();
-				p[2] = operator.getRole_name();
+		List<String[]> lst = getSetReferChooser(allJigOperator, true);
+
+		String pReferChooser = CodeListUtils.getReferChooser(lst);
+
+		return pReferChooser;
+	}
+
+	/**
+	 * 集中处理人员的选择参照
+	 * @param conn
+	 * @return
+	 */
+	public static List<String[]> getSetReferChooser(List<OperatorNamedEntity> result, boolean withLine) {
+		List<String[]> lst = new ArrayList<String[]>();
+
+		// 重名处理 TODO
+
+		int arraySize = withLine ? 4 : 3;
+		for (OperatorNamedEntity operator : result) {
+			String[] p = new String[arraySize];
+			p[0] = operator.getOperator_id();
+			p[1] = operator.getName();
+			p[2] = operator.getRole_name();
+			if (withLine) {
 				if(CommonStringUtil.isEmpty(operator.getLine_name())){
-					p[3] = "";
+					p[3] ="";
 				}else{
 					p[3] = operator.getLine_name();
 				}
-				
-				lst.add(p);
 			}
 
-			String pReferChooser = CodeListUtils.getReferChooser(lst);
-
-			return pReferChooser;
+			lst.add(p);
 		}
 
+		return lst;
+	}
 }

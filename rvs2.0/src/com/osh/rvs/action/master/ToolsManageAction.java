@@ -20,7 +20,8 @@ import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.LineService;
 import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.SectionService;
-import com.osh.rvs.service.ToolsManageService;
+import com.osh.rvs.service.JigManageService;
+import com.osh.rvs.service.UploadService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -39,7 +40,7 @@ public class ToolsManageAction extends BaseAction {
 
 	private OperatorService operatorService = new OperatorService();
 
-	private ToolsManageService service = new ToolsManageService();
+	private JigManageService service = new JigManageService();
 	
 	private DevicesManageService devicesManageService = new DevicesManageService();
 
@@ -73,12 +74,6 @@ public class ToolsManageAction extends BaseAction {
 		// 责任工程
 		String lineOptions = lineService.getOptions(conn);
 		req.setAttribute("lineOptions", lineOptions);
-
-		// 管理等级(有不选)
-		req.setAttribute("manageLevel", CodeListUtils.getSelectOptions("devices_manage_level", null, ""));
-		// 管理等级(无不选)
-		req.setAttribute("nCmanageLevel", CodeListUtils.getSelectOptions("devices_manage_level",""));
-		req.setAttribute("goManageLevel", CodeListUtils.getGridOptions("devices_manage_level"));
 
 		// 状态(有不选)
 		req.setAttribute("status", CodeListUtils.getSelectOptions("devices_status", null, ""));
@@ -308,4 +303,36 @@ public class ToolsManageAction extends BaseAction {
 		returnJsonResponse(response, listResponse);
 		log.info("ToolsManageAction.dodeliver end");
 	}
+
+	/**
+	 * 上传照片
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void sourceImage(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+		log.info("ToolsManageAction.sourceImage start");
+
+		// Ajax回馈对象
+		Map<String, Object> jsonResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		UploadService fservice = new UploadService();
+		String tempFilePath = fservice.getFile2Local(form, errors);
+
+		String photo_file_name = tempFilePath.substring(tempFilePath.lastIndexOf("\\") + 1);
+		service.copyPhoto(req.getParameter("tools_manage_id"), photo_file_name);
+
+		// 检查发生错误时报告错误信息
+		jsonResponse.put("errors", errors);
+		// 返回Json格式响应信息
+		returnJsonResponse(res, jsonResponse);
+
+		log.info("ToolsManageAction.sourceImage end");
+	}
+
 }

@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 
-public class ToolsManageEntity implements Serializable {
+public class JigManageEntity implements Serializable {
 
 	/**
 	 * 治具管理
@@ -22,21 +22,19 @@ public class ToolsManageEntity implements Serializable {
 	//发放者
 	private String provider;
 	//治具管理ID
-	private String tools_manage_id;                 
+	private String jig_manage_id;                 
 	//管理编号  
 	private String manage_code;                     
 	//治具NO.   
-	private String tools_no;                        
-	//治具品名ID
-	private String tools_type_id;
+	private String jig_no;                        
 	//治具名称  
-	private String tools_name;                      
+	private String jig_name;
+	// 数量
+	private Integer count_in;
 	//总价      
 	private BigDecimal total_price; 
 	//分类
 	private String classify;
-	//管理等级  
-	private Integer manage_level;                    
 	//管理员    
 	private String manager_operator_id;             
 	private String manager_name;
@@ -45,7 +43,8 @@ public class ToolsManageEntity implements Serializable {
 	//责任工程  
 	private String line_id;                         
 	//责任工位  
-	private String position_id;         
+	private String position_id;
+	private String position_name;
 	//放置位置  
 	private String location;                        
 	//导入日期  
@@ -117,11 +116,11 @@ public class ToolsManageEntity implements Serializable {
 	public void setProvider(String provider) {
 		this.provider = provider;
 	}
-	public String getTools_manage_id() {
-		return tools_manage_id;
+	public String getJig_manage_id() {
+		return jig_manage_id;
 	}
-	public void setTools_manage_id(String tools_manage_id) {
-		this.tools_manage_id = tools_manage_id;
+	public void setJig_manage_id(String jig_manage_id) {
+		this.jig_manage_id = jig_manage_id;
 	}
 	public String getManage_code() {
 		return manage_code;
@@ -129,35 +128,23 @@ public class ToolsManageEntity implements Serializable {
 	public void setManage_code(String manage_code) {
 		this.manage_code = manage_code;
 	}
-	public String getTools_no() {
-		return tools_no;
+	public String getJig_no() {
+		return jig_no;
 	}
-	public void setTools_no(String tools_no) {
-		this.tools_no = tools_no;
+	public void setJig_no(String jig_no) {
+		this.jig_no = jig_no;
 	}
-	public String getTools_type_id() {
-		return tools_type_id;
+	public String getJig_name() {
+		return jig_name;
 	}
-	public void setTools_type_id(String tools_type_id) {
-		this.tools_type_id = tools_type_id;
-	}
-	public String getTools_name() {
-		return tools_name;
-	}
-	public void setTools_name(String tools_name) {
-		this.tools_name = tools_name;
+	public void setJig_name(String jig_name) {
+		this.jig_name = jig_name;
 	}
 	public BigDecimal getTotal_price() {
 		return total_price;
 	}
 	public void setTotal_price(BigDecimal total_price) {
 		this.total_price = total_price;
-	}
-	public Integer getManage_level() {
-		return manage_level;
-	}
-	public void setManage_level(Integer manage_level) {
-		this.manage_level = manage_level;
 	}
 	public String getManager_operator_id() {
 		return manager_operator_id;
@@ -298,6 +285,18 @@ public class ToolsManageEntity implements Serializable {
 	}
 	public void setManager_name(String manager_name) {
 		this.manager_name = manager_name;
+	}
+	public Integer getCount_in() {
+		return count_in;
+	}
+	public void setCount_in(Integer count_in) {
+		this.count_in = count_in;
+	}
+	public String getPosition_name() {
+		return position_name;
+	}
+	public void setPosition_name(String position_name) {
+		this.position_name = position_name;
 	}
 
 }

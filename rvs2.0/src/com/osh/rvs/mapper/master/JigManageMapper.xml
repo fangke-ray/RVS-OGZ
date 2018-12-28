@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.osh.rvs.mapper.master.ToolsManageMapper">
+<mapper namespace="com.osh.rvs.mapper.master.JigManageMapper">
 
-    <select id="getByKey" resultType="ToolsManageEntity" parameterType="String">
+    <select id="getByKey" resultType="JigManageEntity" parameterType="String">
 		<![CDATA[ 
-		SELECT `tools_manage_id`,
+		SELECT `jig_manage_id`,
 		    `manage_code`,
-		    `tools_no`,
-		    `tools_type_id`,
-		    `tool_name`,
+		    `jig_no`,
+		    `jig_name`,
+		    `count_in`,
 		    `total_price`,
-		    `manage_level`,
 		    `manager_operator_id`,
 		    `section_id`,
 		    `line_id`,
@@ -25,30 +24,29 @@
 		    `status`,
 		    `responsible_operator_id`,
 		    `comment`,
-		    `classify`,
-		    `order_date`
-		FROM `tools_manage`
-		WHERE tools_manage_id = #{key};
+		    `classify`
+		FROM `jig_manage`
+		WHERE jig_manage_id = #{key};
 	    ]]>
 	</select>	
 
     <!-- 治具管理详细 -->
-    <select id="searchToolsManage" resultType="ToolsManageEntity" parameterType="ToolsManageEntity">
+    <select id="searchJigManage" resultType="JigManageEntity" parameterType="JigManageEntity">
 		<![CDATA[ 
 		select 	       
                 ot.name as responsible_operator,		
 		        l.name as line_name,
                 s.name as section_name,
 				p.process_code,
-			    tm.tool_name as tools_name,			    
+				p.name as position_name,
+			    tm.jig_name,
+			    tm.`count_in`,			    
 				o.name as manager_name,
-			    tm.tools_manage_id,
+			    tm.jig_manage_id,
 				tm.manage_code,
-				tm.tools_no,
-				tm.tools_type_id,
+				tm.jig_no,
 				tm.total_price,
 				tm.classify,
-				tm.manage_level,
 				tm.manager_operator_id,
 				tm.section_id,
 				tm.line_id,
@@ -62,13 +60,9 @@
 				tm.updated_time,
 				tm.status,
 				tm.responsible_operator_id,
-				tm.comment,
-				tm.order_date
+				tm.comment
 		from
-		    tools_manage tm
-		left join 
-		    tools_type tt
-		on tt.tools_type_id =tm.tools_type_id
+		    jig_manage tm
 	    left join
 			OPERATOR O ON tm.manager_operator_id = O.OPERATOR_ID
 		left join
@@ -94,19 +88,14 @@
 				and  tm.manage_code LIKE CONCAT('%',#{manage_code},'%')
 			    ]]>
 			</if>     
-			<if test="tools_no!=null and tools_no!='' ">
+			<if test="jig_no!=null and jig_no!='' ">
 				<![CDATA[
-				    and tm.tools_no LIKE CONCAT('%',#{tools_no},'%')
+				    and tm.jig_no LIKE CONCAT('%',#{jig_no},'%')
 			    ]]>
 			</if>
-			<if test="tools_name!=null and tools_name!='' ">
+			<if test="jig_name!=null and jig_name!='' ">
 				<![CDATA[
-				    and tm.tool_name LIKE CONCAT('%',#{tools_name},'%')
-			    ]]>
-			</if>
-			<if test="tools_type_id!=null and tools_type_id!='' ">
-				<![CDATA[
-				    and tm.tools_type_id =#{tools_type_id}
+				    and tm.jig_name LIKE CONCAT('%',#{jig_name},'%')
 			    ]]>
 			</if>
 			<if test="section_id!=null and section_id!='' ">
@@ -117,11 +106,6 @@
 			<if test="line_id!=null and line_id!='' ">
 				<![CDATA[
 				    and tm.line_id =#{line_id}
-			    ]]>
-			</if>
-			<if test="manage_level!=null and manage_level!='' ">
-				<![CDATA[
-				    and tm.manage_level = #{manage_level}
 			    ]]>
 			</if>
 			<if test="manager_operator_id!=null and manager_operator_id!='' ">
@@ -138,16 +122,6 @@
 				<![CDATA[
 				    and tm.responsible_operator_id =#{responsible_operator_id}
 			    ]]>
-			</if>
-			<if test="order_date_start!=null and order_date_start!=''">
-				<![CDATA[
-					and tm.order_date>=#{order_date_start}
-				]]>
-			</if>
-			<if test="order_date_end!=null and order_date_end!=''">
-				<![CDATA[
-					and tm.order_date<=#{order_date_end}
-				]]>
 			</if>
 			<if test="import_date_start!=null and import_date_start!=''">
 				<![CDATA[
@@ -174,16 +148,15 @@
 	</select>	
 
 	 <!-- 双击页面修改 -->
-	<update id="updateToolsManage" parameterType="ToolsManageEntity">
+	<update id="updateJigManage" parameterType="JigManageEntity">
 	   <![CDATA[
-	   UPDATE tools_manage SET 				
-				tools_manage_id=#{tools_manage_id},
+	   UPDATE jig_manage SET 				
+				jig_manage_id=#{jig_manage_id},
 				manage_code=#{manage_code},
-				tools_no=#{tools_no},
-				tools_type_id=#{tools_type_id},
-				tool_name=#{tools_name},
+				jig_no=#{jig_no},
+				jig_name=#{jig_name},
+				count_in=#{count_in},
 				total_price=#{total_price},
-				manage_level=#{manage_level},
 				classify=#{classify},
 				section_id=#{section_id},
 				line_id=#{line_id},
@@ -197,17 +170,16 @@
 				updated_time=#{updated_time},
 				status=#{status},
 				responsible_operator_id=#{responsible_operator_id},
-				comment=#{comment},
-				order_date=#{order_date},
+				comment=#{comment}
 				manager_operator_id=#{manager_operator_id}
-		WHERE   tools_manage_id=#{tools_manage_id}
+		WHERE   jig_manage_id=#{jig_manage_id}
 	   ]]>
 	</update>
 	
     <!--批量交付 -->
-	<update id="deliverToolsManage" parameterType="ToolsManageEntity">
+	<update id="deliverJigManage" parameterType="JigManageEntity">
 	   <![CDATA[
-	   UPDATE tools_manage SET 
+	   UPDATE jig_manage SET 
 	   	]]>
 	       <if test="section_id!= null and section_id!= '' ">
 				<![CDATA[ 
@@ -239,37 +211,35 @@
 				updated_time=current_timestamp,
 				delete_flg=0
 		    WHERE
-	   		    tools_manage_id=#{tools_manage_id}
+	   		    jig_manage_id=#{jig_manage_id}
 	     ]]>
 	</update>
 	
 	<!-- 查询管理编号 -->
-    <select id="searchManageCode" resultType="String" parameterType="ToolsManageEntity">
+    <select id="searchManageCode" resultType="String" parameterType="JigManageEntity">
      <![CDATA[ 
-			  SELECT manage_code FROM tools_manage
+			  SELECT manage_code FROM jig_manage
 			  WHERE manage_code= #{manage_code} and delete_flg = 0
 		]]>
-		<if test="tools_manage_id!= null and tools_manage_id!= '' ">
+		<if test="jig_manage_id!= null and jig_manage_id!= '' ">
 			<![CDATA[ 
-				and tools_manage_id <> #{tools_manage_id}
+				and jig_manage_id <> #{jig_manage_id}
 			]]>
 		</if>
     </select>
 		
 	<!-- 新建治具管理数据 -->
-	<insert id="insertToolsManage" parameterType="ToolsManageEntity">
+	<insert id="insertJigManage" parameterType="JigManageEntity">
 		   <![CDATA[
 		    INSERT INTO 
-		    	tools_manage
+		    	jig_manage
 		    	(
-		    	tools_manage_id,
 				manage_code,
-				tools_no,
-				tools_type_id,
-				tool_name,
+				jig_no,
+				jig_name,
+				count_in,
 				total_price,
 				classify,
-				manage_level,
 				manager_operator_id,
 				section_id,
 				line_id,
@@ -283,19 +253,16 @@
 				updated_time,
 				status,
 				responsible_operator_id,
-				comment,
-				order_date
+				comment
 				)
 		   VALUES(
 			]]>
-			    #{tools_manage_id},
 				#{manage_code},
-				#{tools_no},
-				#{tools_type_id},
-				#{tools_name},
+				#{jig_no},
+				#{jig_name},
+				#{count_in},
 				#{total_price},
 				#{classify},
-				#{manage_level},
 				#{manager_operator_id},
 				#{section_id},
 				#{line_id},
@@ -309,30 +276,29 @@
 				#{updated_time},
 				#{status},
 				#{responsible_operator_id},
-				#{comment},
-				#{order_date}
+				#{comment}
 				)
 	 </insert>
 	
 	<!-- 删除页面条数据 -->
-	<update id="deleteToolsManage" parameterType="ToolsManageEntity">
+	<update id="deleteJigManage" parameterType="JigManageEntity">
 	   <![CDATA[
-	     UPDATE tools_manage SET 
+	     UPDATE jig_manage SET 
 			updated_by =#{updated_by},
 			updated_time = current_timestamp,
 			delete_flg=1
 		 WHERE 
-		    tools_manage_id=#{tools_manage_id}
+		    jig_manage_id=#{jig_manage_id}
 	   ]]>
 	</update>
 	
 	<!-- 查询最大管理编号 -->
-	<select id="searchMaxManageCode"  parameterType="ToolsManageEntity" resultType="String">
+	<select id="searchMaxManageCode"  parameterType="JigManageEntity" resultType="String">
 		<![CDATA[
 			SELECT 
 				manage_code 
 			FROM 
-				tools_manage
+				jig_manage
 			WHERE
 				manage_code LIKE CONCAT('%',#{manage_code},'%')
 			ORDER BY 
@@ -340,18 +306,17 @@
 		]]>
 	</select>
 
-	<insert id="replace" parameterType="ToolsManageEntity">
+	<insert id="replace" parameterType="JigManageEntity">
 		<![CDATA[
 			    INSERT INTO 
-		    	tools_manage
+		    	jig_manage
 		    	(
 		    		manage_code,
-					tools_no,
-					tools_type_id,
-					tool_name,
+					jig_no,
+					jig_name,
+					count_in,
 					total_price,
 					classify,
-					manage_level,
 					manager_operator_id,
 					section_id,
 					line_id,
@@ -364,17 +329,15 @@
 					updated_time,
 					status,
 					responsible_operator_id,
-					comment,
-					order_date
+					comment
 		    	)
 		    	VALUES(
 			    	#{manage_code},
-					#{tools_no},
-					#{tools_type_id},
-					#{tools_name},
+					#{jig_no},
+					#{jig_name},
+					#{count_in},
 					#{total_price},
 					#{classify},
-					#{manage_level},
 					#{manager_operator_id},
 					#{section_id},
 					#{line_id},
@@ -387,8 +350,7 @@
 					CURRENT_TIMESTAMP(),
 					#{status},
 					#{responsible_operator_id},
-					#{comment},
-					#{order_date}
+					#{comment}
 		    	 )
 		]]>
 	</insert>
@@ -433,30 +395,30 @@
 	</select>
 
 
-	<select id="checkProvideInPeriod"  parameterType="Date" resultType="ToolsManageEntity">
+	<select id="checkProvideInPeriod"  parameterType="Date" resultType="JigManageEntity">
 	 <![CDATA[
-		select provide_date from tools_manage dm 
-		WHERE tools_manage_id=#{tools_manage_id} dm.provide_date between #{provide_date_start} and #{provide_date_end};
+		select provide_date from jig_manage dm 
+		WHERE jig_manage_id=#{jig_manage_id} dm.provide_date between #{provide_date_start} and #{provide_date_end};
 	]]>
 	</select>
 
-	<select id="checkWasteInPeriod"  parameterType="Date" resultType="ToolsManageEntity">
+	<select id="checkWasteInPeriod"  parameterType="Date" resultType="JigManageEntity">
 	 <![CDATA[
-		select waste_date from tools_manage dm 
-		WHERE tools_manage_id=#{tools_manage_id} dm.waste_date between #{provide_date_start} and #{provide_date_end};
+		select waste_date from jig_manage dm 
+		WHERE jig_manage_id=#{jig_manage_id} dm.waste_date between #{provide_date_start} and #{provide_date_end};
 	]]>
 	</select>
 	
 	 <!-- 简单废弃  -->
-	<update id="disband" parameterType="DevicesManageEntity">
+	<update id="disband" parameterType="JigManageEntity">
 	   <![CDATA[
-		UPDATE tools_manage SET 				
+		UPDATE jig_manage SET 				
 			waste_date=current_date,
 			updated_by=#{updated_by},
 			updated_time=current_timestamp,
 			status= 2,
 			comment = concat(comment, '\n使用者替换于', current_date)
-		WHERE tools_manage_id=#{tools_manage_id}
+		WHERE jig_manage_id=#{jig_manage_id}
 	   ]]>
 	</update>
 </mapper>

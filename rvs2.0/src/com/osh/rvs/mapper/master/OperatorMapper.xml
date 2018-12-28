@@ -326,10 +326,11 @@
 		]]>
 	</select>
 	
-	<select id="getOperatorWithPrivacy" resultType="OperatorEntity" parameterType="int">
+	<select id="getOperatorWithPrivacy" resultType="OperatorNamedEntity" parameterType="int">
 		<![CDATA[
 			select 
 			    op.operator_id,
+			    op.job_no,
 			    op.name,
 				ro.name as role_name   
 			from
@@ -344,13 +345,15 @@
 			    op.delete_flg = 0
 			        and priv.privacy_id = #{privacy_id}
 			union select distinct
-			    op.operator_id, op.name,ro.name as role_name
+			    op.operator_id, 
+			    op.job_no,
+			    op.name,ro.name as role_name
 			from
 			   operator op
 			        join
 			    role_of_operator roo ON roo.operator_id = op.operator_id
 			        join
-			    role ro ON roo.role_id = ro.role_id
+			    role ro ON roo.role_id = ro.role_id AND op.role_id != ro.role_id 
 			        join
 			    privacy_of_role pr ON ro.role_id = pr.role_id
 			        join

@@ -17,6 +17,7 @@ import org.apache.struts.action.ActionForm;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
+import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
@@ -266,15 +267,9 @@ public class DevicesManageService {
 		List<String[]> lst = new ArrayList<String[]>();
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
 		int privacy_id = RvsConsts.PRIVACY_DT_MANAGE;// 设备管理
-		List<OperatorEntity> list = dao.getOperatorWithPrivacy(privacy_id);
+		List<OperatorNamedEntity> list = dao.getOperatorWithPrivacy(privacy_id);
 
-		for (OperatorEntity operatorEntity : list) {
-			String[] p = new String[3];
-			p[0] = operatorEntity.getOperator_id();
-			p[1] = operatorEntity.getName();
-			p[2] = operatorEntity.getRole_name();
-			lst.add(p);
-		}
+		lst = OperatorService.getSetReferChooser(list, false);
 
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 		return pReferChooser;
