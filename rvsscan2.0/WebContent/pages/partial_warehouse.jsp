@@ -185,6 +185,14 @@ ${standard_column.css}
 	box-sizing: border-box;
 }
 
+.result .item.low{
+	color:red;
+}
+
+.result .item.over{
+	color:#4ABD62;
+}
+
 .result .item:last-child {
 	border-right: none;
 }
@@ -220,6 +228,15 @@ ${standard_column.css}
 	height: 50%;
 	line-height: 17px;
 }
+
+.result .item .per.low {
+	color:red;
+}
+
+.result .item .per.over {
+	color:orange;
+}
+
 .wait .wait-box:nth-child(odd) {
 	background-color: #CFD6E6;
 }
