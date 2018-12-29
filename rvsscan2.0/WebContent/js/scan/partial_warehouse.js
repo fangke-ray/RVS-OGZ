@@ -44,22 +44,27 @@ var refreshSuccess = function(xhrObj) {
 		// 仓管人员工作当前进度
 		setProcess(resInfo.process);
 		
-		setChart(resInfo.productionFeatures);
+		setChart(resInfo);
 		
 		// 仓管人员工作今日成果
 		setCurrentResult(resInfo.resultList);
 		
-		setPercent(resInfo.percentList);
+		setPercent(resInfo);
 		
 		setWait(resInfo.waitList);
 	}
 };
 
-function setChart(productionFeatures){
+function setChart(resInfo){
+	// 仓管人员负荷率警报标志上线
+	var strHighLever = resInfo.strHighLever;
+	// 仓管人员负荷率警报标志下线
+	var strLowLever = resInfo.strLowLever;
+	
 	var $y_columns = $(".y_columns .operator_flex").detach();
 	$y_columns.html("");
 	
-	var pfs = productionFeatures;
+	var pfs = resInfo.productionFeatures;
 	var dirxTime = {};
 	var elapse = parseInt(((new Date().getTime() + 28800000) % 86400000) / 60000) - 480;
 	
@@ -118,9 +123,18 @@ function setChart(productionFeatures){
 		var $y_column = $(this);
 		var operatorId = $y_column.attr("for");
 		var rate = checkDirxTime(dirxTime[operatorId]);
-		
 		operatorId = operatorId.padStart(11,"0");
-		$("#resultarea .result:last-child").find(".item[for=" + operatorId + "] .per:last-child").text(rate);
+		
+		rate = rate * 1;
+		var className = "";
+		if(rate < strLowLever){
+			className = "low";
+		}else if(rate > strHighLever){
+			className = "over";
+		}
+		
+		$("#resultarea .result:last-child").find(".item[for=" + operatorId + "] .per:last-child")
+		.removeClass("over low").text(rate).addClass(className);
 	});
 	
 	$(".y_columns").append($y_columns);
@@ -212,16 +226,101 @@ function setCurrentResult(list){
 	});
 };
 
-function setPercent(list){
-	list.forEach(function(item,index){
-		if(item.accept_percent) $("#resultarea .result:eq(1)").find(".item[for=" + item.operator_id + "]").next().text(item.accept_percent +" %");
-		if(item.collation_shelf_percent) $("#resultarea .result:eq(2)").find(".item[for=" + item.operator_id + "]").next().text(item.collation_shelf_percent +" %");
-		if(item.collation_percent) $("#resultarea .result:eq(3)").find(".item[for=" + item.operator_id + "]").next().text(item.collation_percent +" %");
-		if(item.unpack_percent) $("#resultarea .result:eq(4)").find(".item[for=" + item.operator_id + "]").next().text(item.unpack_percent +" %");
-		if(item.on_shelf_percent) $("#resultarea .result:eq(5)").find(".item[for=" + item.operator_id + "]").next().text(item.on_shelf_percent +" %");
-		if(item.ns_outline_percent) $("#resultarea .result:eq(6)").find(".item[for=" + item.operator_id + "]").next().text(item.ns_outline_percent +" %");
-		if(item.dec_outline_percent) $("#resultarea .result:eq(7)").find(".item[for=" + item.operator_id + "]").next().text(item.dec_outline_percent +" %");
-		if(item.total_percent) $("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next().find(".per").eq(1).text(item.total_percent +" %");
+function setPercent(resInfo){
+	// 仓管人员能率警报标志上线
+	var efHighLever = resInfo.efHighLever;
+	// 仓管人员能率警报标志下线
+	var efLowLever = resInfo.efLowLever;
+	
+	resInfo.percentList.forEach(function(item,index){
+		if(item.accept_percent){
+			var accept_percent = item.accept_percent * 1;
+			var className = "";
+			if(accept_percent < efLowLever){
+				className = "low";
+			}else if(accept_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(1)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(accept_percent +" %").addClass(className);
+		}
+		if(item.collation_shelf_percent) {
+			var collation_shelf_percent = item.collation_shelf_percent * 1;
+			var className = "";
+			if(collation_shelf_percent < efLowLever){
+				className = "low";
+			}else if(collation_shelf_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(2)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(collation_shelf_percent +" %").addClass(className);
+		}
+		if(item.collation_percent) {
+			var collation_percent = item.collation_percent * 1;
+			var className = "";
+			if(collation_percent < efLowLever){
+				className = "low";
+			}else if(collation_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(3)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(collation_percent +" %").addClass(className);
+		}
+		if(item.unpack_percent) {
+			var unpack_percent = item.unpack_percent * 1;
+			var className = "";
+			if(unpack_percent < efLowLever){
+				className = "low";
+			}else if(unpack_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(4)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(unpack_percent +" %").addClass(className);
+		}
+		if(item.on_shelf_percent) {
+			var on_shelf_percent = item.on_shelf_percent * 1;
+			var className = "";
+			if(on_shelf_percent < efLowLever){
+				className = "low";
+			}else if(on_shelf_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(5)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(on_shelf_percent +" %").addClass(className);
+		}
+		if(item.ns_outline_percent) {
+			var ns_outline_percent = item.ns_outline_percent * 1;
+			var className = "";
+			if(ns_outline_percent < efLowLever){
+				className = "low";
+			}else if(ns_outline_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(6)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(ns_outline_percent +" %").addClass(className);
+		}
+		if(item.dec_outline_percent) {
+			var dec_outline_percent = item.dec_outline_percent * 1;
+			var className = "";
+			if(dec_outline_percent < efLowLever){
+				className = "low";
+			}else if(dec_outline_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(7)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(dec_outline_percent +" %").addClass(className);
+		}
+		if(item.total_percent) {
+			var total_percent = item.total_percent * 1;
+			var color = "";
+			if(total_percent < efLowLever){
+				color = "red";
+			}else if(total_percent > efHighLever){
+				color = "#4ABD62";
+			}
+			$("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next()
+			.find(".per").eq(1).text(total_percent +" %").css({"color":color});
+		}
 	});
 };
 

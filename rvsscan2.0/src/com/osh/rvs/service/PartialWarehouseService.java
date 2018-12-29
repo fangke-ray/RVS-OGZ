@@ -34,6 +34,22 @@ public class PartialWarehouseService {
 		// 收货搬运移动标准工时
 		String move = userDefineCodesMapper.getValue("PARTIAL_RECEPT_MOVE_COST");
 
+		// 仓管人员能率警报标志上线
+		String efHighLever = userDefineCodesMapper.getValue("FACT_PROCESS_EF_HIGH_LEVER");
+		listResponse.put("efHighLever", new BigDecimal(efHighLever));
+
+		// 仓管人员能率警报标志下线
+		String efLowLever = userDefineCodesMapper.getValue("FACT_PROCESS_EF_LOW_LEVER");
+		listResponse.put("efLowLever", new BigDecimal(efLowLever));
+
+		// 仓管人员负荷率警报标志上线
+		String strHighLever = userDefineCodesMapper.getValue("FACT_PROCESS_STR_HIGH_LEVER");
+		listResponse.put("strHighLever", new BigDecimal(strHighLever));
+
+		// 仓管人员负荷率警报标志下线
+		String strLowLever = userDefineCodesMapper.getValue("FACT_PROCESS_STR_LOW_LEVER");
+		listResponse.put("strLowLever", new BigDecimal(strLowLever));
+
 		// 00000000197:高雁梅,00000000198:叶昭杏
 		String[] operatorIDs = { "00000000197", "00000000198" };
 
