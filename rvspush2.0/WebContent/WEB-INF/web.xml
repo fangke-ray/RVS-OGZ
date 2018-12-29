@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <!DOCTYPE web-app PUBLIC
+	"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<display-name>Repair Visualization System Message Sender</display-name>
+
+	<!-- Standard Action Servlet Configuration -->
+	<servlet>
+		<servlet-name>positionws</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.PositionPanelWsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>positionws</servlet-name>
+		<url-pattern>/position</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+	  <description>文件系统目录使用设置</description>
+	  <servlet-name>InitFilePathServlet</servlet-name>
+	  <servlet-class>com.osh.rvs.common.InitFilePathServlet</servlet-class>
+	  <init-param>
+	    <description>文件系统根目录</description>
+	    <param-name>BASE_PATH</param-name>
+	    <param-value>E:\rvs</param-value>
+	    <!--param-value>C:\Work\rvsG</param-value-->
+	  </init-param>
+	  <init-param>
+	    <description>带格式的报表对应模板</description>
+	    <param-name>REPORT_TEMPLATE</param-name>
+	    <param-value>\ReportTemplates</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>日常报表</description>
+	    <param-name>REPORT</param-name>
+	    <param-value>\Reports</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>上传下载时临时文件</description>
+	    <param-name>LOAD_TEMP</param-name>
+	    <param-value>\LoadFiles</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>工程检查票模板</description>
+	    <param-name>PCS_TEMPLATE</param-name>
+	    <param-value>\PcsTemplates</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>工程检查票成果</description>
+	    <param-name>PCS</param-name>
+	    <param-value>\Pcs</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>用户可修改配置</description>
+	    <param-name>PROPERTIES</param-name>
+	    <param-value>\Properties</param-value>
+	  </init-param>
+	  <init-param>
+	   <description>点检表文件</description>
+	  	 <param-name>DEVICEINFECTION</param-name>
+	    <param-value>\DeviceInfection</param-value>
+	  </init-param>
+	  
+	  <init-param>
+	   <description>点检结果文档</description>
+	  	 <param-name>INFECTIONS</param-name>
+	    <param-value>\Infections</param-value>
+	  </init-param>
+	  
+	  <init-param>
+	   <description>图片</description>
+	  	 <param-name>IMAGES</param-name>
+	    <param-value>\Images</param-value>
+	  </init-param>
+	  
+	  <load-on-startup>1</load-on-startup>
+	</servlet>
+	<!-- Standard Action Servlet Mapping -->
+  	<servlet-mapping>
+	    <servlet-name>InitFilePathServlet</servlet-name>
+	    <url-pattern>/servlet/InitFilePathServlet</url-pattern>
+ 	</servlet-mapping>
+
+	<!-- Standard Action Servlet Configuration -->
+	<servlet>
+		<servlet-name>operatorws</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.OperatorMessageWsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>operatorws</servlet-name>
+		<url-pattern>/operator</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>trigger</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.TriggerServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>trigger</servlet-name>
+		<url-pattern>/trigger/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>initServlet</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.InitServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet> 
+
+	<servlet>
+		<servlet-name>console</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.ConsoleServlet</servlet-class>
+	</servlet> 
+	<servlet-mapping>
+		<servlet-name>console</servlet-name>
+		<url-pattern>/console</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<!--
+		字符码设定Filter
+		-->
+		<filter-name>EncodeFilter</filter-name>
+
+		<filter-class>framework.huiqing.common.util.filters.SetCharacterEncodingFilter</filter-class>
+
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<!--
+	全URL Pattern都进行的Filter处理
+	-->
+	<filter-mapping>
+		<filter-name>EncodeFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+</web-app>

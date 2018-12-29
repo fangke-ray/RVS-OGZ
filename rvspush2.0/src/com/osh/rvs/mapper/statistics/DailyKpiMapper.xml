@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.statistics.DailyKpiMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getFinalInspectPassRate" parameterType="java.util.Date" resultType="decimal">
+		select round(sum(operate_result = 2) / count(1) * 100, 2) 
+		from production_feature pf 
+		join position pos
+		on pf.position_id = pos.position_id
+		where 
+		pos.line_id = 15
+		and pf.finish_time >= #{count_date}
+		and operate_result in (2,6);
+	</select>
+
+	<select id="getIntimeCompleteRate" parameterType="java.util.Date" resultType="decimal">
+		select 
+		round(sum(
+		case 
+		when m.am_pm = 1 THEN 
+			date_add(m.scheduled_date, interval 12 hour) >= m.outline_time
+		ELSE
+			m.scheduled_date >= #{count_date}
+		END
+		)
+		/ count(1) * 100, 1)
+		from material m where
+		m.outline_time >= #{count_date}
+		and m.break_back_flg = 0
+		and m.fix_type = 1;
+	</select>
+
+	<select id="getPlanProcessedRate" parameterType="map" resultType="decimal">
+		select
+		
+		round((select count(1) from material_process mp
+		join material ma
+		on mp.material_id = ma.material_id
+		and mp.line_id in (select line_id from line where in_advance = 0)
+		where finish_date = #{count_date}
+		<if test="section_id != null and section_id != ''">
+			and ma.section_id = #{section_id}
+		</if>
+		)
+		/ 
+		(select count(1) from schedule_history sh
+		join material ma
+		on sh.material_id = ma.material_id
+		and sh.remove_flg = 0
+		where sh.scheduled_date = #{count_date}
+		<if test="section_id != null and section_id != ''">
+			and ma.section_id = #{section_id}
+		</if>
+		)
+		* 100, 1) from dual
+		;
+	</select>
+
+	<select id="getQuotationLtRate" parameterType="java.util.Date" resultType="decimal">
+	<![CDATA[ 
+		select 
+		round(sum(f_getworkdays(pf111.finish_time, pf151.finish_time) <= 3) / count(1) * 100, 1) from material ma 
+		join production_feature pf111
+		on ma.material_id = pf111.material_id
+		and pf111.position_id = 9
+		and pf111.operate_result = 2
+		join production_feature pf151
+		on ma.material_id = pf151.material_id
+		and pf151.position_id = 13
+		and pf151.operate_result = 2
+		where 
+		ma.break_back_flg in (0, 2)
+		and
+		pf151.finish_time >= #{count_date}
+	]]>
+	</select>
+
+	<select id="getDirectQuotationLtRate" parameterType="java.util.Date" resultType="decimal">
+	<![CDATA[ 
+		select 
+		round(sum(f_getworkdays(pf111.finish_time, pf161.finish_time) <= 3) / count(1) * 100, 1) from material ma 
+		join production_feature pf111
+		on ma.material_id = pf111.material_id
+		and pf111.position_id = 9
+		and pf111.operate_result = 2
+		join production_feature pf161
+		on ma.material_id = pf161.material_id
+		and pf161.position_id = 14
+		and pf161.operate_result = 2
+		where 
+		ma.break_back_flg in (0, 2)
+		and
+		pf161.finish_time >= #{count_date}
+	]]>
+	</select>
+
+	<select id="getByDate" parameterType="java.util.Date" resultType="DailyKpiDataEntity">
+	<![CDATA[ 
+		SELECT `count_date`,
+		    `service_repair_back_rate`,
+		    `final_inspect_pass_rate`,
+		    `intime_complete_rate`,
+		    `intime_complete_slt_rate`,
+		    `intime_complete_medium_rate`,
+		    `intime_complete_light_rate`,
+		    `total_plan_processed_rate`,
+		    `inline_passthrough_rate`,
+		    `service_repair_analysis_lt24_rate`,
+		    `service_repair_analysis_lt48_rate`,
+		    half_period_complete,
+		    month_complete, comment
+		FROM `daily_kpi_data`
+		WHERE `count_date` = #{count_date};
+	]]>
+	</select>
+
+	<select id="getOutCount" parameterType="java.util.Date" resultType="int">
+	<![CDATA[ 
+		SELECT count(1) FROM material WHERE
+		ocm_shipping_date between #{start_date} and #{end_date};
+	]]>
+	</select>
+
+	<select id="getShippingPlan" parameterType="String" resultType="int">
+		<![CDATA[
+			select `shipment` from `repair_plan` 
+			where `plan_year` = #{planYear}
+			and `plan_month` = #{planMonth}
+		]]>
+	</select>
+
+	<select id="getPlanAmountOfPeriod" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT cast(sum(shipment) AS CHAR) FROM repair_plan where (plan_year,plan_month) in (${value});
+		]]>
+	</select>
+
+</mapper>

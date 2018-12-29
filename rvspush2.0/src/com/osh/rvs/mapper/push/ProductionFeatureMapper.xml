@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.ProductionFeatureMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+
+	<select id="getWorkings" resultType="map">
+		<![CDATA[ 
+			SELECT mdl.`name` as model_name, mdl.category_name as category_name, 
+			cast(m.`level` as char) as `level`, p.process_code 
+			FROM production_feature pf
+			JOIN material m
+			ON m.material_id = pf.material_id
+			JOIN v_model mdl
+			ON m.model_id = mdl.model_id
+			JOIN position p
+			ON p.position_id = pf.position_id
+			WHERE pf.action_time is NOT NULL
+			AND pf.finish_time is NULL
+			AND operate_result not in (5, 7)
+			AND NOT EXISTS (
+				SELECT(1) FROM alarm_messsage
+				WHERE material_id = pf.material_id
+				AND position_id = pf.position_id
+				AND reason = 2
+			);
+		]]>
+	</select>
+
+	<select id="getNonfinishedPositions" resultType="PositionEntity">
+		<![CDATA[ 
+		select p.process_code,p.line_id
+		from material m
+		JOIN process_assign pa
+		ON m.pat_id = pa.refer_id
+		AND pa.refer_type = 1
+		JOIN `position` p
+		ON pa.position_id = p.position_id
+
+		WHERE material_id = #{material_id}
+		AND NOT EXISTS 
+			(SELECT 1 FROM production_feature 
+			WHERE material_id = m.material_id
+			AND position_id = p.position_id
+			AND operate_result = 2)
+		]]>
+		<if test="line_id != null">
+			and p.line_id = #{line_id}
+		</if>
+	</select>
+
+</mapper>

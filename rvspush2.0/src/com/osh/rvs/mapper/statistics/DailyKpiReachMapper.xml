@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.statistics.DailyKpiReachMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+		
+	<!-- 最终检查合格率 -->
+	<select id="getFinalInspectPassRate" resultType="decimal" parameterType="java.util.Date">
+		<![CDATA[
+			SELECT 
+			    ROUND(SUM(operate_result = 2) / COUNT(1) * 100,2)
+			FROM
+			    production_feature pf
+			JOIN
+			    position pos ON pf.position_id = pos.position_id
+			WHERE
+			    pos.line_id = 15 AND pf.finish_time >= CURRENT_DATE AND operate_result IN (2 , 6)
+		]]>
+	</select>
+	
+	<!-- 一周最终检查合格率 -->
+	<select id="getFinalInspectPassWeekRate" resultType="decimal" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+			    ROUND(SUM(operate_result = 2) / COUNT(1) * 100,2)
+			FROM
+			    production_feature pf
+			JOIN
+			    position pos ON pf.position_id = pos.position_id
+			WHERE
+			    pos.line_id = 15 AND pf.finish_time >= #{count_date_start} AND pf.finish_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) AND operate_result IN (2 , 6)
+		]]>
+	</select>
+	
+	<!-- 纳期遵守比率 -->
+	<select id="getIntimeCompleteRate" resultType="decimal">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+			    	SUM(
+			    		CASE WHEN m.scheduled_expedited = 2
+				    		THEN
+				    		f_getworkdays(m.agreed_date ,m.outline_time) <= 5
+				    		ELSE
+				    		m.scheduled_date >= #{count_date}
+			    		END
+			    	) / COUNT(1) * 100,1)
+			FROM
+			    material m
+			WHERE
+			    m.outline_time >= #{count_date}
+			    AND m.break_back_flg = 0
+				AND m.level IN
+		]]>
+		<foreach item="level" index="index" collection="levels" open="(" separator="," close=")">
+			#{level}
+		</foreach>
+	</select>
+	<select id="getIntimeCompleteSltRate" resultType="decimal">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+			    	SUM(
+			    		f_getworkdays(m.agreed_date ,m.outline_time) <= 6
+			    	) / COUNT(1) * 100,1)
+			FROM
+			    material m
+			WHERE
+			    m.outline_time >= #{count_date}
+			    AND m.break_back_flg = 0
+				AND m.fix_type = 1
+				AND m.level IN
+		]]>
+		<foreach item="level" index="index" collection="levels" open="(" separator="," close=")">
+			#{level}
+		</foreach>
+	</select>
+
+	<!-- 一周纳期遵守比率 -->
+	<select id="getIntimeCompleteWeekRate" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+			    	SUM(
+				    	m.scheduled_date >= date(m.outline_time)
+				    ) / COUNT(1) * 100,1) as intime_complete_rate,
+				ROUND(AVG(f_getworkdays(m.agreed_date ,m.outline_time)), 1) as average_repair_lt
+			FROM
+			    material m JOIN v_model mdl ON m.model_id= mdl.model_id
+			WHERE
+			    m.outline_time >= #{count_date_start} AND m.outline_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) 
+			    AND m.break_back_flg = 0
+				AND m.fix_type = 1
+				AND m.level IN (1,2,3)
+				AND mdl.kind <> '06'
+		]]>
+	</select>
+
+	<!-- 每日生产计划达成数 -->
+	<select id="getPlanProcessedCount" resultType="decimal">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+					   (SELECT 
+							COUNT(1)
+						FROM
+							material_process mp
+						JOIN
+							material ma ON mp.material_id = ma.material_id AND mp.line_id in (select line_id from line where in_advance = 0)
+						WHERE
+							finish_date = #{count_date}
+						) 
+						* 100,1)
+			FROM DUAL
+		]]>
+	</select>
+	
+	<!-- 一周生产计划达成率 -->
+	<select id="getPlanProcessedWeekRate" resultType="decimal" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+					   (SELECT 
+							COUNT(1)
+						FROM
+							material_process mp
+						JOIN
+							material ma ON mp.material_id = ma.material_id AND mp.line_id in (select line_id from line where in_advance = 0)
+						JOIN v_model mdl ON ma.model_id= mdl.model_id
+						WHERE
+							finish_date >= #{count_date_start} AND finish_date <= #{count_date_end}
+						AND mdl.kind <> '06'
+						) 
+						/ 
+						(SELECT 
+							COUNT(1)
+						FROM
+							schedule_history sh
+						JOIN
+							material ma ON sh.material_id = ma.material_id AND sh.remove_flg = 0
+						WHERE
+							sh.scheduled_date >= #{count_date_start} AND sh.scheduled_date <= #{count_date_end}
+						) * 100,1)
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="getServiceRepairAnalysislTRate" parameterType="DailyKpiDataEntity" resultType="decimal">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+					   (SELECT 
+							COUNT(1)
+						FROM
+							service_repair_manage 
+						WHERE
+							DATE(qa_referee_time) = #{count_date} 
+		]]>
+		<if test="status!=null and status==48">
+							AND answer_in_deadline > 0
+		</if>
+		<if test="status!=null and status==24">
+							AND answer_in_deadline = 2
+		</if>
+		<![CDATA[
+						
+						) 
+						/ 
+						(SELECT 
+							COUNT(1)
+						FROM
+							service_repair_manage 
+						WHERE
+							DATE(qa_referee_time) = #{count_date}
+						) * 100,1)
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="getServiceRepairAnalysisWeeklTRate" parameterType="DailyKpiDataEntity" resultType="decimal">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+					   (SELECT 
+							COUNT(1)
+						FROM
+							service_repair_manage 
+						WHERE
+							qa_referee_time >= #{count_date_start} AND qa_referee_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY)
+		]]>
+		<if test="status!=null and status==48">
+							AND answer_in_deadline > 0
+		</if>
+		<if test="status!=null and status==24">
+							AND answer_in_deadline = 2
+		</if>
+		<![CDATA[
+						
+						) 
+						/ 
+						(SELECT 
+							COUNT(1)
+						FROM
+							service_repair_manage 
+						WHERE
+							qa_referee_time >= #{count_date_start} AND qa_referee_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY)
+						) * 100,1)
+			FROM DUAL
+		]]>
+	</select>
+	
+	
+	<!-- 检查记录是否存在 -->
+	<select id="checkDailyKpiIsExist" parameterType="java.util.Date" resultType="int">
+		<![CDATA[
+			SELECT COUNT(1) FROM daily_kpi_data WHERE count_date = #{count_date}
+		]]>
+	</select>
+
+	<insert id="insertDailyKpi" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			INSERT INTO daily_kpi_data
+				(count_date,
+				final_inspect_pass_rate,
+				intime_complete_rate,
+				intime_complete_slt_rate,
+				intime_complete_medium_rate,
+				intime_complete_light_rate,
+				total_plan_processed_rate,
+				inline_passthrough_rate,
+				service_repair_analysis_lt24_rate,
+				service_repair_analysis_lt48_rate,
+				half_period_complete,
+				month_complete
+				)
+				VALUES
+				(
+				#{count_date},
+				#{final_inspect_pass_rate},
+				#{intime_complete_rate},
+				#{intime_complete_slt_rate},
+				#{intime_complete_medium_rate},
+				#{intime_complete_light_rate},
+				#{total_plan_processed_rate},
+				#{inline_passthrough_rate},
+				#{service_repair_analysis_lt24_rate},
+				#{service_repair_analysis_lt48_rate},
+				#{half_period_complete},
+				#{month_complete}
+				)
+			
+		]]>
+	</insert>
+	
+	<update id="updateDailyKpi" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			UPDATE 
+				daily_kpi_data
+			SET	
+				final_inspect_pass_rate = #{final_inspect_pass_rate},
+				intime_complete_rate = #{intime_complete_rate},
+				intime_complete_slt_rate = #{intime_complete_slt_rate},
+				intime_complete_medium_rate = #{intime_complete_medium_rate},
+				intime_complete_light_rate = #{intime_complete_light_rate},
+				total_plan_processed_rate = #{total_plan_processed_rate},
+				inline_passthrough_rate = #{inline_passthrough_rate},
+				service_repair_analysis_lt24_rate = #{service_repair_analysis_lt24_rate},
+				service_repair_analysis_lt48_rate = #{service_repair_analysis_lt48_rate},
+				half_period_complete = #{half_period_complete},
+				month_complete = #{month_complete}
+			WHERE 
+				count_date = #{count_date}
+		]]>
+	</update>
+	
+	<insert id="insertWeeklyKpi" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			INSERT INTO `weekly_kpi_data`
+			(`count_date_start`,
+			`count_date_end`,
+			`weekly_of_year`,
+			`registration`,
+			`user_agreement`,
+			`return_to_osh`,
+			`unrepair`,
+			`shipment`,
+			`work_in_process`,
+			`work_in_storage`,
+			`intime_complete_rate`,
+			`average_repair_lt`,
+			`intime_work_out_rate`,
+			`average_work_lt`,
+			`bo_rate`,
+			`bo_3day_rate`,
+			`inline_passthrough_rate`,
+			`final_check_pass_count`,
+			`final_check_forbid_count`,
+			`final_inspect_pass_rate`,
+			`service_repair_back_rate`
+			)
+			VALUES
+			(
+				#{count_date_start},
+				#{count_date_end},
+				#{weekly_of_year},
+				#{registration},
+				#{user_agreement},
+				#{return_to_osh},
+				#{unrepair},
+				#{shipment},
+				#{work_in_process},
+				#{work_in_storage},
+				#{intime_complete_rate},
+				#{average_repair_lt},
+				#{intime_work_out_rate},
+				#{average_work_lt},
+				#{bo_rate},
+				#{bo_3day_rate},
+				#{inline_passthrough_rate},
+				#{final_check_pass_count},
+				#{final_check_forbid_count},
+				#{final_inspect_pass_rate},
+				#{service_repair_back_rate}
+			);
+		]]>
+	</insert>
+	
+	<select id="checkWeeklyKpiIsExist" parameterType="DailyKpiDataEntity" resultType="int">
+		<![CDATA[
+			SELECT COUNT(1) FROM weekly_kpi_data WHERE count_date_start = #{count_date_start} and count_date_end = #{count_date_end}
+		]]>
+	</select>
+	
+	<update id="updateWeeklyKpi" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			update 
+				weekly_kpi_data
+			set
+			    registration = #{registration},
+			    user_agreement = #{user_agreement},
+			    return_to_osh = #{return_to_osh},
+			    unrepair = #{unrepair},
+			    shipment = #{shipment},
+			    work_in_process = #{work_in_process},
+			    work_in_storage = #{work_in_storage},
+			    intime_complete_rate = #{intime_complete_rate},
+			    average_repair_lt = #{average_repair_lt},
+			    intime_work_out_rate = #{intime_work_out_rate},
+			    average_work_lt = #{average_work_lt},
+			    bo_rate = #{bo_rate},
+			    bo_3day_rate = #{bo_3day_rate},
+			    inline_passthrough_rate = #{inline_passthrough_rate},
+			    final_check_pass_count = #{final_check_pass_count},
+			    final_check_forbid_count = #{final_check_forbid_count},
+			    final_inspect_pass_rate = #{final_inspect_pass_rate},
+			    service_repair_back_rate = #{service_repair_back_rate}
+			where
+				count_date_start = #{count_date_start} and count_date_end = #{count_date_end}
+		]]>
+	</update>
+	
+	<delete id="deleteWeeklyKpi" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			delete from weekly_kpi_data where count_date_start = #{count_date_start} and count_date_end = #{count_date_end}
+		]]>
+	</delete>
+
+	<!-- 一周纳期遵守比率 -->
+	<select id="getIntimeCompleteWeekRateR" resultType="decimal" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+			    	SUM(
+			    		CASE WHEN m.scheduled_expedited = 2
+				    		THEN
+				    		f_getworkdays(m.agreed_date ,m.outline_time) <= 6
+				    		ELSE
+				    		m.scheduled_date >= #{count_date_start} AND m.scheduled_date <= #{count_date_end}
+			    		END
+			    	) / COUNT(1) * 100,1)
+			FROM
+			    material m JOIN v_model mdl ON m.model_id= mdl.model_id
+			WHERE
+			    m.outline_time >= #{count_date_start} AND m.outline_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) 
+			    AND m.break_back_flg = 0
+				AND m.fix_type = 1
+				AND m.level IN (1,2,3)
+				AND mdl.kind <> '06'
+		]]>
+	</select>
+
+	<select id="getPeriodComplete" resultType="int" parameterType="date">
+		<![CDATA[
+			select count(1) from material m JOIN v_model mdl ON m.model_id= mdl.model_id 
+				JOIN production_feature pf
+			ON m.material_id = pf.material_id and pf.position_id in (select position_id from position where special_page = 'qualityAssurance') and pf.operate_result = 2
+			where break_back_flg = 0
+			and pf.finish_time >= #{period_start_date} AND pf.finish_time < DATE_ADD(#{period_end_date},INTERVAL 1 DAY) 
+			-- AND mdl.kind <> '06'
+			;
+		]]>
+	</select>
+
+	<select id="getRegistrationOfPeriod" resultType="int" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			select count(1) from material m join production_feature pf
+			on m.material_id = pf.material_id and pf.position_id = 9 and pf.operate_result = 2
+			where break_back_flg in (0, 2)
+			and pf.finish_time >= #{count_date_start} AND pf.finish_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) ;
+		]]>
+	</select>
+
+	<select id="getuser_agreementOfPeriod" resultType="int" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			select count(1) from material m where break_back_flg = 0
+			and m.agreed_date >= #{count_date_start} AND m.agreed_date <= #{count_date_end};
+		]]>
+	</select>
+
+	<!-- 按711工位时间 -->
+	<select id="getFinishesOfPeriod" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+				sum(break_back_flg = 1) as return_to_osh ,
+				sum(break_back_flg = 2) as unrepair ,
+				sum(break_back_flg = 0) as shipment 
+				FROM (
+				select break_back_flg, case WHEN break_back_flg = 1 THEN m.outline_time ELSE pf.finish_time END as outline_time
+				from material m
+				LEFT JOIN production_feature pf ON m.material_id = pf.material_id AND pf.position_id = 47 AND pf.operate_result = 2
+				) pfm
+			where outline_time >= #{count_date_start} AND outline_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY);
+		]]>
+	</select>
+
+<!-- 总数，有没有受理全算 -->
+	<select id="getWipsOfPeriod" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			select 
+				sum(reception_time < days.fri) as work_in_all,
+				sum(wip_date <= #{count_date_end} and (m.inline_time is null or m.inline_time >= days.fri)) as work_in_storage,
+				sum(m.agreed_date <= #{count_date_end}) as work_in_process
+			from material m JOIN v_model mdl ON m.model_id= mdl.model_id 
+			JOIN (SELECT DATE_ADD(#{count_date_end}, INTERVAL 1 DAY) AS fri FROM DUAL) days
+			-- LEFT JOIN production_feature pf ON m.material_id = pf.material_id AND pf.position_id = 47 AND pf.operate_result = 2
+			where break_back_flg = 0
+			-- and (pf.finish_time is null or pf.finish_time >= days.fri)
+			and (m.outline_time is null or m.outline_time >= days.fri)
+			AND mdl.kind <> '06'
+			;
+		]]>
+	</select>
+
+<!-- 直行率 -->
+	<select id="getInline_passthrough_rate" resultType="decimal" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+select (sum(append_part + reworked = 0)) / count(1) * 100 as inline_passthrough_rate
+from
+(
+		select 
+			exists (select 1 from material_partial where material_id = m.material_id and occur_times > 1) as append_part,
+			exists (select 1 from material_process where material_id = m.material_id and rework_trigger_position_id is not null) as reworked
+		from material m
+		JOIN (SELECT DATE_ADD(#{count_date_end}, INTERVAL 1 DAY) AS fri FROM DUAL) days
+		JOIN production_feature pf ON m.material_id = pf.material_id AND pf.position_id = 47 AND pf.operate_result = 2
+		where break_back_flg = 0
+		and pf.finish_time between #{count_date_start} and days.fri
+) passthough;
+		]]>
+	</select>
+
+<!-- 252 开始作业时间起算 + 固定加1小时 -->
+	<!-- 零件到达后4天内出货比率率 -->
+	<select id="getIntimeWorkWeekRate" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			SELECT 
+			    ROUND(
+			    	SUM(
+				    	f_getworkdays(ma.arrival_plan_date , date(ma.outline_time)) <= 4
+				    ) / COUNT(1) * 100,1) as intime_work_out_rate,
+				ROUND(AVG(f_getworkdays(ma.arrival_plan_date ,ma.outline_time)), 1) as average_work_lt
+			FROM
+			(
+				SELECT
+					max(arrival_plan_date) as arrival_plan_date, m.outline_time
+				FROM
+				    material m
+				JOIN
+					material_partial mp
+				ON
+					m.material_id = mp.material_id
+				JOIN v_model mdl ON m.model_id= mdl.model_id
+				WHERE
+				    m.outline_time >= #{count_date_start} AND m.outline_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) 
+				    AND m.break_back_flg = 0
+					AND m.fix_type = 1
+					AND m.level IN (1,2,3)
+					AND mdl.kind <> '06'
+				GROUP by m.material_id
+			) ma
+			WHERE ma.arrival_plan_date is not null;
+		]]>
+	</select>
+
+	<!-- 一周纳期遵守比率 -->
+	<select id="getBo_rateOfPeriod" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[ 
+		select 
+		round(avg(bo_flg in (1,2)) * 100, 1) as bo_rate,
+		round(avg(bo_flg in (1,2) and 
+			(all_signin_date is null or all_signin_date='9999/12/31' 
+			or f_getworkdays(order_date,all_signin_date) > 3) * 100), 1) as bo_3day_rate
+		from 
+		(select 
+			mp.bo_flg,
+			mp.arrival_plan_date
+				as all_signin_date, 
+			order_date
+		from
+		    material_partial mp
+		JOIN material m ON mp.material_id= m.material_id
+		JOIN v_model mdl ON m.model_id= mdl.model_id
+		where
+		    bo_flg in (0 , 1, 2) and order_date >= #{count_date_start}
+			and order_date <= #{count_date_end}
+			AND mdl.kind <> '06'
+		group by mp.material_id, mp.occur_times) ords
+		;
+		]]> 
+	</select>
+
+	<select id="getFinalChecksOfPeriod" resultType="map" parameterType="DailyKpiDataEntity">
+		<![CDATA[
+			select sum(pf.operate_result = 2) as final_check_pass_count, sum(pf.operate_result = 6) as final_check_forbid_count
+			from material m join production_feature pf
+			on m.material_id = pf.material_id and pf.position_id in (select position_id from position where special_page = 'qualityAssurance') and pf.operate_result in (2, 6)
+			where break_back_flg = 0
+			and pf.finish_time >= #{count_date_start} AND pf.finish_time < DATE_ADD(#{count_date_end},INTERVAL 1 DAY) ;
+		]]>
+	</select>
+
+</mapper>

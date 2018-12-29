@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.statistics.InfectMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getSingleOfMonth" resultType="map">
+		<![CDATA[ 
+			select dm.devices_manage_id, 
+			dm.manage_code, cfm.check_manage_code, cfm.sheet_file_name,
+			cfm.check_file_manage_id from devices_manage dm join
+			(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
+and checked_status <> 0
+			group by manage_id,check_file_manage_id) cim
+			on dm.devices_manage_id = cim.manage_id
+			join check_file_manage cfm
+			on dm.devices_type_id = cfm.devices_type_id
+			and cfm.filing_means = 1 and cycle_type in (0,1)
+			and cim.check_file_manage_id = cfm.check_file_manage_id
+			order by dm.provide_date
+			;
+		]]>
+	</select>
+
+	<select id="getOnPositionOfMonth" resultType="map">
+		<![CDATA[ 
+select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
+dm.section_id, dm.position_id from devices_manage dm join
+(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
+and checked_status <> 0
+group by manage_id,check_file_manage_id) cim
+on dm.devices_manage_id = cim.manage_id
+join check_file_manage cfm
+on dm.devices_type_id = cfm.devices_type_id
+and cfm.filing_means = 2 and cycle_type in (0,1)
+			and cim.check_file_manage_id = cfm.check_file_manage_id
+order by section_id, position_id, check_file_manage_id
+;
+		]]>
+	</select>
+
+	<select id="getOnLineOfMonth" resultType="map">
+		<![CDATA[ 
+select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
+dm.section_id, dm.line_id from devices_manage dm join
+(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
+and checked_status <> 0
+group by manage_id,check_file_manage_id) cim
+on dm.devices_manage_id = cim.manage_id
+join check_file_manage cfm
+on dm.devices_type_id = cfm.devices_type_id
+and cfm.filing_means = 3 and cycle_type in (0,1)
+			and cim.check_file_manage_id = cfm.check_file_manage_id
+order by section_id, line_id, check_file_manage_id
+;
+		]]>
+	</select>
+
+	<insert id="recordFileData" parameterType="CheckedFileStorageEntity">
+REPLACE INTO `checked_file_storage`
+(`check_file_manage_id`,
+`filing_date`,
+`devices_manage_id`,
+`start_record_date`,
+`storage_file_name`)
+VALUES
+(#{check_file_manage_id},
+#{filing_date},
+#{devices_manage_id},
+#{start_record_date},
+#{storage_file_name});
+	</insert>
+
+	<select id="getSingleOfPeriod" resultType="map">
+		<![CDATA[ 
+			select dm.devices_manage_id, 
+			dm.manage_code, cfm.check_manage_code, cfm.sheet_file_name,
+			cfm.check_file_manage_id from devices_manage dm join
+			(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
+			group by manage_id,check_file_manage_id) cim
+			on dm.devices_manage_id = cim.manage_id
+			join check_file_manage cfm
+			on dm.devices_type_id = cfm.devices_type_id
+			and cfm.filing_means = 1 and cycle_type in (2,3)
+			and cim.check_file_manage_id = cfm.check_file_manage_id
+			order by dm.provide_date
+			;
+		]]>
+	</select>
+
+	<select id="getOnPositionOfPeriod" resultType="map">
+		<![CDATA[ 
+select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
+dm.section_id, dm.position_id from devices_manage dm join
+(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
+and checked_status <> 0
+group by manage_id,check_file_manage_id) cim
+on dm.devices_manage_id = cim.manage_id
+join check_file_manage cfm
+on dm.devices_type_id = cfm.devices_type_id
+and cfm.filing_means = 2 and cycle_type in (4)
+and cim.check_file_manage_id = cfm.check_file_manage_id
+order by section_id, position_id, check_file_manage_id
+;
+		]]>
+	</select>
+
+	<select id="getOnLineOfPeriod" resultType="map">
+		<![CDATA[ 
+select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
+dm.section_id, dm.line_id from devices_manage dm join
+(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
+and checked_status <> 0
+group by manage_id,check_file_manage_id) cim
+on dm.devices_manage_id = cim.manage_id
+join check_file_manage cfm
+on dm.devices_type_id = cfm.devices_type_id
+and cfm.filing_means = 3 and cycle_type in (2,3, 4)
+			and cim.check_file_manage_id = cfm.check_file_manage_id
+order by section_id, line_id, check_file_manage_id
+;
+		]]>
+	</select>
+</mapper>

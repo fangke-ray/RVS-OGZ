@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.statistics.ScheduleHistoryMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<insert id="setFirstSchedule" parameterType="java.util.Date">
+		<![CDATA[ 			
+			INSERT INTO schedule_history
+			(scheduled_date, material_id, in_schedule_means, remove_flg, arrival_plan_date, scheduled_expedited)
+			SELECT #{schedule_date} as scheduled_date, m.material_id, 1 as in_schedule_means, 
+				0 as remove_flg, mpar.arrival_plan_date, coalesce(m.scheduled_expedited, 0) as scheduled_expedited FROM 
+			material m
+			JOIN
+			material_process mpro
+			ON m.material_id = mpro.material_id
+			AND mpro.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+			material_partial mpar
+			ON m.material_id = mpar.material_id
+			AND mpar.occur_times = 1
+			WHERE mpro.scheduled_assign_date = #{schedule_date};
+		]]>
+	</insert>
+
+	<update id="setPostponeSchedule" parameterType="java.util.Date">
+		<![CDATA[
+			INSERT INTO schedule_history
+			(scheduled_date, material_id, in_schedule_means, remove_flg, arrival_plan_date, scheduled_expedited)
+			SELECT #{nextDay} as scheduled_date, m.material_id, 2 as in_schedule_means, 
+				0 as remove_flg, mpar.arrival_plan_date, m.scheduled_expedited FROM 
+			material m
+			JOIN
+			material_process mpro
+			ON m.material_id = mpro.material_id
+			AND mpro.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+			material_partial mpar
+			ON m.material_id = mpar.material_id
+			AND mpar.occur_times = 1
+			WHERE mpro.scheduled_assign_date = #{nextDay} AND mpro.finish_date is null
+			AND NOT EXISTS(
+				select 1 from schedule_history
+				where scheduled_date = #{nextDay}
+				and material_id = m.material_id
+			);
+		]]>
+	</update>
+
+	<select id="getUnfinishedDates" resultType="java.util.Date">
+		<![CDATA[ 
+			SELECT DISTINCT sh.scheduled_date FROM schedule_history sh
+			JOIN material m
+				ON sh.material_id = m.material_id
+			WHERE 
+				(m.outline_time is null or m.outline_time = #{today}) 
+			AND sh.scheduled_date <= #{today}
+		]]>
+	</select>
+
+	<select id="getScheduleHistory" resultType="ScheduleHistoryEntity">
+		<![CDATA[ 
+			SELECT sh.scheduled_date, sh.material_id, sh.in_schedule_means, sh.remove_flg, sh.arrival_plan_date,
+				f_addworkdays(sh.arrival_plan_date, 4) as partial_expire_date, sh.scheduled_expedited,
+				m.omr_notifi_no as sorc_no, m.serial_no, m.`level`, m.ocm, m.agreed_date, m.scheduled_date as scheduled_expire_date,
+				vm.`name` as model_name, vm.category_name, s.`name` as section_name, date(m.outline_time) as outline_date
+			FROM schedule_history sh
+			JOIN material m
+				ON sh.material_id = m.material_id
+			JOIN v_model vm
+				ON m.model_id = vm.model_id
+			JOIN section s
+				ON m.section_id = s.section_id
+			WHERE sh.scheduled_date = #{schedule_date}
+		]]>
+	</select>
+
+	<select id="getAtline" resultType="int" parameterType="java.util.Date">
+		<![CDATA[ 
+			SELECT COUNT(1)
+			FROM material m
+			WHERE 
+				break_back_flg = 0 AND inline_time IS NOT NULL AND outline_time IS NULL
+		]]>
+	</select>
+
+	<select id="getAgreed" resultType="int" parameterType="java.util.Date">
+		<![CDATA[ 
+			SELECT COUNT(1)
+			FROM material m
+			WHERE 
+				break_back_flg = 0 AND agreed_date = #{date}
+		]]>
+	</select>
+
+	<select id="getInline" resultType="int" parameterType="java.util.Date">
+		<![CDATA[ 
+			SELECT COUNT(1)
+			FROM material m
+			WHERE 
+				break_back_flg = 0 AND date(inline_time) = #{date}
+		]]>
+	</select>
+
+	<select id="getDelay" resultType="int" parameterType="java.util.Date">
+		<![CDATA[ 
+			SELECT COUNT(1)
+			FROM material m
+			WHERE 
+				break_back_flg = 0 AND inline_time IS NOT NULL AND outline_time IS NULL
+			AND
+				scheduled_date <= #{date}
+		]]>
+	</select>
+
+	<select id="getBo" resultType="int" parameterType="java.util.Date">
+		<![CDATA[ 
+			SELECT COUNT(1)
+			FROM material m
+			JOIN material_partial mp
+				ON m.material_id = mp.material_id
+				AND mp.occur_times = 1
+			WHERE 
+				m.break_back_flg = 0 AND m.inline_time IS NOT NULL AND m.outline_time IS NULL
+				AND (mp.bo_flg = 1 or mp.arrival_plan_date > #{date})
+		]]>
+	</select>
+
+<!-- select avg(f_getworkdays(agreed_date, outline_time)) from material -->
+	<select id="getLt" resultType="double" parameterType="java.util.Date">
+		<![CDATA[ 
+			select avg(f_getworkdays(agreed_date, outline_time) <= 8) from material 
+			WHERE 
+				break_back_flg = 0 AND date(outline_time) = #{date}
+			]]>
+	</select>
+
+	<select id="getNewStatusOfMaterial" resultType="MaterialEntity">
+		<![CDATA[ 
+		SELECT 
+			m.scheduled_expedited,
+			(select p1.process_code
+				from
+					position p1
+				join
+					production_feature p2 ON p1.position_id = p2.position_id
+				where
+					p2.material_id = m.material_id
+						and p1.line_id <> 13
+						and p2.operate_result not in (5 , 8)
+				order by (1 - ISNULL(p2.action_time)) , p2.action_time desc
+				limit 1) as processing_position,
+			mpro.scheduled_assign_date,
+			mpar.arrival_plan_date,
+			(select group_concat(pf.comments separator '\r\n')
+				FROM alarm_messsage am
+					JOIN
+				pause_feature pf ON am.alarm_messsage_id = pf.alarm_messsage_id
+					WHERE am.material_id = m.material_id) as scheduled_manager_comment
+		FROM
+			material m
+				JOIN
+			material_process mpro ON m.material_id = mpro.material_id
+				AND mpro.line_id in (select line_id from line where in_advance = 0)
+				JOIN
+			material_partial mpar ON m.material_id = mpar.material_id
+				AND mpar.occur_times = 1
+		WHERE
+			m.material_id = #{material_id}
+		;
+		]]>
+	</select>
+
+	<select id="getScheduleSort" resultType="map">
+		<![CDATA[ 
+		SELECT sh.material_id, ma.section_id, coalesce(ma.direct_flg,0) as direct_flg, ma.scheduled_expedited, vm.category_id,
+			datediff(#{today}, ma.scheduled_date) todaydiff,
+			CASE
+			WHEN expected_finish_time IS NULL THEN
+				480
+			ELSE
+				timestampdiff(minute, date_add(sh.scheduled_date, interval 8*60+45 minute), expected_finish_time) 
+			END as remain_time,
+			count(fsa.reason) as reason, coalesce(sum(fsa.reason=4),0) append
+		FROM rvsdb.schedule_history sh
+		LEFT join material_remain_time mrt
+		on sh.material_id = mrt.material_id
+		join material ma
+		on sh.material_id = ma.material_id
+		join v_model vm
+		on ma.model_id = vm.model_id
+		left join for_solution_area fsa
+		on ma.material_id = fsa.material_id 
+		AND fsa.solved_time is null
+		where sh.scheduled_date = #{today}
+		group by ma.material_id
+		order by expected_finish_time 
+		;
+		]]>
+	</select>
+
+	<update id="updateScheduleSort" parameterType="ScheduleHistoryEntity">
+		update schedule_history set plan_day_period = #{plan_day_period}
+		WHERE scheduled_date = #{scheduled_date}
+		AND material_id = #{material_id}
+	</update>
+
+	<update id="removeCompleteNow" parameterType="java.util.Date">
+		<![CDATA[
+update 
+material_process mp
+set scheduled_assign_date = null
+where line_id in (select line_id from line where in_advance = 0) and scheduled_assign_date = #{nextDay}
+and exists (select 1 from production_feature where position_idin (select position_id from position where special_page = 'qualityAssurance') and operate_result in (1,2) and material_id = mp.material_id)
+;
+		]]>
+	</update>
+
+	<select id="getCapacity" resultType="map">
+		SELECT category_id,section_id,upper_limit FROM rvsdb.capacity;
+	</select>
+</mapper>

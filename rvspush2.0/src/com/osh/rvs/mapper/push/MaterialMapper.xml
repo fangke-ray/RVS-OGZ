@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.MaterialMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<select id="getMaterialDetail" resultType="MaterialEntity">
+		<![CDATA[ 
+			SELECT 
+				`m`.material_id,
+				`m`.omr_notifi_no as sorc_no,
+				`m`.model_id,
+				`mdl`.name as model_name,
+				`m`.serial_no,
+				`ctg`.name as category_name
+			 FROM MATERIAL m
+			 JOIN MODEL mdl
+			 	ON `m`.model_id = `mdl`.model_id
+			 JOIN CATEGORY ctg
+			 	ON `mdl`.category_id = `ctg`.category_id
+			 WHERE `m`.material_id = #{id};
+		]]>
+	</select>
+
+	<select id="getTodayDelayMaterials" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[ 
+			SELECT m.material_id, m.omr_notifi_no as sorc_no, m.`level`, s.name as section_name, m.scheduled_date, mdl.name as model_name, m.serial_no, m.agreed_date,
+				mm.arrival_plan_date, mp.scheduled_assign_date, m.scheduled_manager_comment, mp.line_id FROM material m
+				JOIN material_process mp on m.material_id = mp.material_id 
+				and mp.line_id in (select line_id from line where in_advance = 0)
+				JOIN model mdl ON mdl.model_id = m.model_id
+				LEFT JOIN material_partial as mm ON mm.material_id = m.material_id and mm.occur_times = 1
+				JOIN section s ON s.section_id = m.section_id
+				WHERE inline_time IS NOT NULL AND outline_time IS NULL
+				AND m.scheduled_date <= current_date
+				AND mp.finish_date is null
+				AND break_back_flg = 0
+			ORDER BY m.scheduled_date asc;
+		]]>
+	</select>
+
+	<select id="getCloserDelayMaterials" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[ 
+			SELECT m.material_id, m.omr_notifi_no as sorc_no, m.`level`, s.name as section_name, m.scheduled_date, mdl.name as model_name, m.serial_no, m.agreed_date,
+				mm.arrival_plan_date, mp.scheduled_assign_date, m.scheduled_manager_comment FROM material m
+				JOIN material_process mp on m.material_id = mp.material_id 
+				and mp.line_id in (select line_id from line where in_advance = 0)
+				JOIN model mdl ON mdl.model_id = m.model_id
+				LEFT JOIN material_partial as mm ON mm.material_id = m.material_id and mm.occur_times = 1
+				JOIN section s ON s.section_id = m.section_id
+				WHERE inline_time IS NOT NULL AND outline_time IS NULL
+				AND f_getworkdays(m.scheduled_date , current_date) = -1
+				AND mp.finish_date is null
+				AND break_back_flg = 0
+			ORDER BY m.scheduled_date asc;
+		]]>
+	</select>
+
+	<select id="getCloserDelayByPartialMaterials" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[ 
+			SELECT * from(			
+				SELECT m.material_id, m.omr_notifi_no as sorc_no, m.`level`, s.name as section_name, m.scheduled_date, mdl.name as model_name, m.serial_no, m.agreed_date,
+					mm.arrival_plan_date, mp.scheduled_assign_date, m.scheduled_manager_comment FROM material m
+					JOIN material_process mp on m.material_id = mp.material_id and mp.line_id in (select line_id from line where in_advance = 0)
+					JOIN model mdl ON mdl.model_id = m.model_id
+					JOIN material_partial as mm ON mm.material_id = m.material_id and mm.occur_times = 1
+					AND mm.arrival_plan_date is not NULL
+					JOIN section s ON s.section_id = m.section_id
+					WHERE inline_time IS NOT NULL AND outline_time IS NULL
+					AND mp.finish_date is null
+					AND break_back_flg = 0
+					ORDER BY m.scheduled_date asc) t
+			where f_getworkdays(t.arrival_plan_date , current_date) = 3
+			;
+		]]>
+	</select>
+
+	<select id="getMaterialEntityByKey" resultType="MaterialEntity">
+	<![CDATA[
+		select `m`.`material_id`,`m`.omr_notifi_no as sorc_no,`m`.`model_id`,
+		`m`.`serial_no`,`m`.`ocm`,`m`.`level`,`m`.`reception_time`,
+		`m`.`agreed_date`,`m`.`inline_time`,`m`.`package_no`,
+		`m`.`storager`,`m`.`fix_type`,`m`.`service_repair_flg`,
+		`m`.`section_id`,`m`.`wip_location` as wip_location,`m`.`direct_flg`,
+		`m`.`am_pm`,`m`.`scheduled_expedited`,`m`.`scheduled_manager_comment`,
+		`m`.`outline_time`,`m`.`break_back_flg`,`m`.`pat_id`
+		FROM MATERIAL `m`
+		WHERE `m`.`material_id` = #{material_id};
+	]]>
+	</select>
+
+	<select id="getMaterialNamedEntityByKey" resultType="MaterialEntity">
+	<![CDATA[
+		select `m`.`material_id`,`m`.omr_notifi_no as sorc_no,`m`.`model_id`,
+		`m`.`serial_no`,`m`.`ocm`,`m`.`level`,`m`.`reception_time`,
+		`m`.`agreed_date`,`m`.`inline_time`,`m`.`package_no`,
+		`m`.`storager`,`m`.`fix_type`,`m`.`service_repair_flg`,
+		`m`.`section_id`,`m`.`wip_location`,`m`.`direct_flg`,
+		`m`.`am_pm`,`m`.`scheduled_expedited`,`m`.`scheduled_manager_comment`,
+		`m`.`outline_time`,`m`.`break_back_flg`,`m`.`pat_id`,
+		`mdl`.`name` as model_name, `ctg`.`category_id`, `ctg`.`name` as category_name
+		FROM MATERIAL `m` JOIN `MODEL` mdl
+			ON `m`.`model_id` = `mdl`.`model_id`
+		JOIN `CATEGORY` ctg
+			ON `mdl`.`category_id` = `ctg`.`category_id`
+		WHERE `m`.`material_id` = #{material_id};
+	]]>
+	</select>
+
+	<select id="getMaterialInlineLater" resultType="MaterialEntity">
+	<![CDATA[
+		select `m`.`material_id`,`m`.omr_notifi_no as sorc_no,`m`.`model_id`,
+		`m`.`serial_no`,`m`.`ocm`,`m`.`level`,`m`.`reception_time`,
+		`m`.`agreed_date`,`m`.`inline_time`,
+		`m`.`fix_type`,`m`.`service_repair_flg`,
+		`m`.`section_id`,`m`.`wip_location`,`m`.`direct_flg`,
+		`m`.`scheduled_expedited`,`m`.`scheduled_manager_comment`,
+		`m`.`outline_time`,`m`.`break_back_flg`,`m`.`pat_id`,
+		`mdl`.`name` as model_name, `ctg`.`category_id`, `ctg`.`name` as category_name
+		FROM MATERIAL `m` JOIN `MODEL` mdl
+			ON `m`.`model_id` = `mdl`.`model_id`
+		JOIN `CATEGORY` ctg
+			ON `mdl`.`category_id` = `ctg`.`category_id`
+		JOIN (select f_addworkdays(current_date, -3 - (hour(current_timestamp) < 12)) as t, 
+		f_addworkdays(current_date, -2 - (hour(current_timestamp) < 12)) as d, f_addworkdays(current_date, -1) as o) time_lever
+		WHERE `m`.`outline_time` IS NULL
+		AND `m`.`agreed_date` IS NOT NULL
+		AND `m`.`break_back_flg` = 0
+		AND `m`.`inline_time` IS NULL
+		AND unrepair_flg = 0
+		AND (
+			(`m`.level not in (1,2,3) AND 
+				(`agreed_date` < time_lever.o 
+					or (`agreed_date` = time_lever.o AND hour(current_timestamp) > 12)
+				)
+			)
+			OR
+			(`m`.level in (1) AND `agreed_date` <= time_lever.t)
+			OR
+			(`m`.level in (2,3) AND `agreed_date` <= time_lever.d)
+		)
+		;
+	]]>
+	</select>
+
+	<select id="countWipAgreed" resultType="int">
+	<![CDATA[
+		select count(1) from material m
+		where (date(m.outline_time) > #{end_date} or m.outline_time is null)
+		and date(m.inline_time) <= #{end_date}
+		and m.unrepair_flg = 0 and break_back_flg = 0 and fix_type = 1
+	]]>
+	<if test="section_id != null and section_id !=''">
+	<![CDATA[
+		and m.section_id = #{section_id};
+	]]>
+	</if>
+	</select>
+
+	<select id="getCountRecieptInPeriod" resultType="java.math.BigDecimal">
+	<![CDATA[
+		select count(1) from material m
+		JOIN production_feature pf
+		ON m.material_id = pf.material_id
+		AND pf.position_id = 9
+		AND pf.operate_result = 2
+		where pf.finish_time >= #{start_date}
+		and date(pf.finish_time) <= #{end_date}
+	]]>
+	<if test="isDirect != null and isDirect !=''">
+	<![CDATA[
+		and m.direct_flg = 1;
+	]]>
+	</if>
+	</select>
+
+	<update id="setSchedulePostpone" parameterType="java.util.Date">
+	<![CDATA[
+	update MATERIAL_PROCESS mpp 
+	JOIN 
+		(select 
+			m.material_id
+		from
+			MATERIAL m
+		JOIN
+			(SELECT 
+				material_id
+			FROM
+				MATERIAL_PROCESS
+			WHERE
+				line_id in (select line_id from line where in_advance = 0)
+				and scheduled_assign_date <= #{today}
+				and finish_date is null) mp 
+		ON m.material_id = mp.material_id
+		where
+			m.fix_type = 1
+			and m.outline_time is null) cond
+	on cond.material_id = mpp.material_id AND mpp.line_id in (select line_id from line where in_advance = 0)
+	set 
+	    mpp.scheduled_assign_date = #{nextDay}
+	]]>
+	</update>
+
+	<select id="getPartialReachNextDay" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[ 
+			select m.material_id, m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, m.`level`, m.scheduled_date,
+				s.name as section_name,mpd.waiting_quantity as symbol1,p.code as category_name
+			from material m
+			JOIN material_partial mp
+				ON m.material_id = mp.material_id and mp.occur_times = 1
+			JOIN model mdl
+				ON m.model_id = mdl.model_id
+			JOIN section s
+				ON m.section_id = s.section_id
+			JOIN material_partial_detail mpd
+				ON mp.material_id = mpd.material_id
+					and mp.occur_times = mpd.occur_times
+					and mpd.status = 3
+			JOIN partial p
+				ON mpd.partial_id = p.partial_id
+			WHERE m.outline_time IS NULL
+			AND (
+			mpd.arrival_plan_date = f_addworkdays(current_date ,1)
+			)
+			order by m.scheduled_date
+		]]>
+	</select>
+
+	<select id="getMaterialEntityByModelAndSerial" resultType="MaterialEntity">
+	<![CDATA[
+		select `m`.`material_id`,`m`.omr_notifi_no as sorc_no,`m`.`model_id`,
+		`m`.`serial_no`,`m`.`ocm`,`m`.`level`,`m`.`reception_time`,
+		`m`.`agreed_date`,`m`.`inline_time`,`m`.`package_no`,
+		`m`.`storager`,`m`.`fix_type`,`m`.`service_repair_flg`,
+		`m`.`section_id`,`m`.`wip_location` as wip_location,`m`.`direct_flg`,
+		`m`.`am_pm`,`m`.`scheduled_expedited`,`m`.`scheduled_manager_comment`,
+		`m`.`outline_time`,`m`.`break_back_flg`,`m`.`pat_id`
+		FROM MATERIAL `m`
+		WHERE `m`.`serial_no` = #{serial_no} AND `m`.`break_back_flg` in ( 0, 2) 
+	]]>
+	<if test="sorc_no != null and sorc_no !=''">
+	<![CDATA[
+		and m.omr_notifi_no = #{sorc_no}
+	]]>
+	</if>
+	<if test="model_name == null or model_name ==''">
+		AND `model_id` IN (select `model_id` from `model` where `name` = #{model_name})
+	</if>
+	<![CDATA[
+		order by abs(f_getworkdays(`m`.`reception_time` , #{rc_mailsend_date}))
+		LIMIT 1;
+	]]>
+	</select>
+	
+	<!-- 出货 -->
+	<select id="searchShipping" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[ 
+			SELECT
+				pf.finish_time,
+				ma.omr_notifi_no, 
+				mo.name AS model_name,
+				ma.serial_no,
+				operator.job_no,
+				ma.ocm,
+				ma.area,
+				ma.bound_out_ocm,
+				ma.break_back_flg,
+				cst.name as customer_name
+			FROM 
+				material Ma
+			JOIN
+				production_feature pf
+			ON 
+				ma.material_id = pf.material_id 
+			JOIN
+				model mo
+			ON
+				mo.model_id=ma.model_id
+			JOIN
+				operator
+			ON
+				operator.operator_id = pf.operator_id
+			JOIN customer cst
+			ON cst.customer_id = ma.customer_id
+			WHERE 
+				 pf.position_id = 47 AND ma.break_back_flg IN (0, 2) 
+				 AND pf.finish_time between #{finish_time} and date_add(#{finish_time},interval 1 day)
+			ORDER BY 
+				pf.finish_time
+		]]>
+	</select>
+
+	<select id="searchInlineMaterial" parameterType="String" resultType="MaterialEntity" >
+		<![CDATA[ 
+		SELECT 
+			a.material_id,
+			a.omr_notifi_no as sorc_no,
+			a.model_id,
+			(select name from model where model_id = a.model_id) as model_name,
+			(select name from section where section_id = a.section_id) as section_name,
+			a.serial_no,
+			a.level,
+			a.agreed_date,
+			a.direct_flg,
+			a.fix_type,
+			a.wip_location,
+			a.inline_time
+		 FROM material a 
+		 WHERE date(a.inline_time) = #{inline_time}
+	]]>
+		
+	</select>
+
+	<select id="getTwoDaysOfLines" parameterType="java.lang.String" resultType="java.lang.String">
+		<![CDATA[ 			
+			select
+			`f_getworkdays`(agreed_date, inline_time) <=
+				CASE WHEN level in (56,57,58) THEN 1
+				WHEN level = 1 THEN 3
+				ELSE 2 END as intime
+			from material where material_id=#{material_id}; 
+		]]>
+	</select>
+
+	<insert id="setFirstSchedule" parameterType="java.util.Date">
+		<![CDATA[ 			
+			INSERT INTO schedule_history
+			(scheduled_date, material_id, in_schedule_means, remove_flg, arrival_plan_date, scheduled_expedited)
+			SELECT #{schedule_date} as scheduled_date, m.material_id, 1 as in_schedule_means, 
+				0 as remove_flg, mpar.arrival_plan_date, m.scheduled_expedited FROM 
+			material m
+			JOIN
+			material_process mpro
+			ON m.material_id = mpro.material_id
+			AND mpro.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+			material_partial mpar
+			ON m.material_id = mpar.material_id
+			AND mpar.occur_times = 1
+			WHERE mpro.scheduled_assign_date = #{schedule_date};
+		]]>
+	</insert>
+
+	<update id="setPostponeSchedule" parameterType="java.util.Date">
+	<![CDATA[
+			INSERT INTO schedule_history
+			(scheduled_date, material_id, in_schedule_means, remove_flg, arrival_plan_date, scheduled_expedited)
+			SELECT f_addworkdays(#{today} ,1) as scheduled_date, m.material_id, 2 as in_schedule_means, 
+				0 as remove_flg, mpar.arrival_plan_date, m.scheduled_expedited FROM 
+			material m
+			JOIN
+			material_process mpro
+			ON m.material_id = mpro.material_id
+			AND mpro.line_id in (select line_id from line where in_advance = 0)
+			JOIN
+			material_partial mpar
+			ON m.material_id = mpar.material_id
+			AND mpar.occur_times = 1
+			WHERE mpro.scheduled_assign_date = f_addworkdays(#{today} ,1)
+			AND NOT EXISTS(
+				select 1 from schedule_history
+				where scheduled_date = f_addworkdays(#{today} ,1)
+				and material_id = m.material_id
+			);
+		]]>
+	</update>
+	
+	<select id="getInlineMaterials" resultType="MaterialEntity">
+		<![CDATA[ 			
+			SELECT 
+				ma.material_id,
+				ma.level,
+				ma.direct_flg,
+				vm.name as model_name,
+				vm.category_name,
+				1 as symbol1,
+				max(mp.arrival_plan_date) as arrival_plan_date,
+				ma.pat_id in (206, 211) as pat_id
+				FROM rvsdb.material ma
+			join v_model vm
+				ON ma.model_id = vm.model_id
+			left join material_partial mp
+				ON ma.material_id = mp.material_id
+			where inline_time is not null and outline_time is null and break_back_flg = 0
+			group by material_id
+			;		
+		]]>
+	</select>
+	
+	<delete id="deleteRemainTime">
+		<![CDATA[ 			
+			DELETE FROM material_remain_time
+			WHERE material_id in (SELECT material_id from material where outline_time > current_date)
+			;
+		]]>
+	</delete>
+
+	<insert id="insertRemainTime" parameterType="java.util.Date">
+		<![CDATA[ 			
+			REPLACE INTO material_remain_time
+			(material_id, remain_before_com_minutes, remain_minutes, expected_finish_time)
+			VALUES(#{material_id}, #{remain_before_com_minutes}, #{remain_minutes}, #{expected_finish_time})
+			;
+		]]>
+	</insert>
+	
+	<select id="unRepairAdjust" resultType="MaterialEntity">
+		<![CDATA[
+			select 
+			    m.omr_notifi_no as sorc_no,
+			    mdl.name as model_name,
+			    m.serial_no,
+			    m.wip_location,
+				m.ocm
+			from
+			    material m
+			join
+			    model mdl 
+			ON 
+				m.model_id = mdl.model_id
+			where
+			    wip_location IS Not Null
+			Order by 
+				Lpad(m.wip_location, 4, '0')
+		]]>
+	</select>
+
+	<update id="sendToBLine" parameterType="String">
+	<![CDATA[
+	update MATERIAL
+	set 
+	    quotation_first = 1
+	Where
+		material_id = #{material_id}
+	]]>
+	</update>
+	
+	<select id="getMinFinishTime" parameterType="String" resultType="java.util.Date">
+		<![CDATA[
+			select 
+				min(spf.finish_time)
+			from
+				solo_production_feature spf
+			join
+				leader_pcs_input lpi
+			on
+				lpi.snout_serial_no = spf.serial_no and lpi.pcs_inputs like '%"LN00011":"1"%'
+				AND spf.position_id = 24 AND spf.used = 1
+			join
+				production_feature pf
+			on
+				pf.material_id = lpi.material_id and pf.position_id = 28 and pf.operate_result = 2
+			where 
+				pf.finish_time between #{date} and date_add(#{date},interval 1 month)
+		]]>
+	</select>
+	
+	<select id="searchAdvancedRecovery" parameterType="String" resultType="MaterialEntity">
+		<![CDATA[
+			select 
+				spf.finish_time,
+				model.name as model_name,
+				ma.serial_no,
+				ma.omr_notifi_no as repair_notifi_no,
+				spf.serial_no as manage_serial_no,
+				material.omr_notifi_no
+			from
+				snout_origin so
+			join
+				material ma
+			on
+				ma.material_id = so.material_id
+			join 
+				model
+			on
+				model.model_id = ma.model_id
+			join
+				solo_production_feature spf
+			on
+				so.manage_serial_no = spf.serial_no and spf.operate_result = 2
+			left join
+				leader_pcs_input lpi
+			on
+				lpi.snout_serial_no = spf.serial_no and lpi.pcs_inputs like '%"LN00011":"1"%'
+			left join
+				material
+			on
+				material.material_id = lpi.material_id
+			where 
+				spf.finish_time between #{date} and date_add(#{date},interval 1 month)
+			order by
+				manage_serial_no
+		]]>
+	</select>
+
+	<select id="getInlinePlan" resultType="MaterialEntity">
+select 
+m.material_id, mdl.name as model_name, category_name, serial_no, level, agreed_date,
+coalesce(m.wip_location, ip.wip_location) as wip_location, m.fix_type, mdl.kind,
+wip_date, ip.section_id, direct_flg,
+scheduled_expedited, coalesce(ip.pat_id, m.pat_id, mdl.default_pat_id) as pat_id,
+(m.level in (9,56,57,58,91,92,93) and 
+(not exists (select 1 from material_partial where material_id = m.material_id)
+or 
+exists (select 1 from material_partial where material_id = m.material_id and bo_flg not in (0,2))
+)) as partial_need
+from material m
+join v_model mdl
+on m.model_id = mdl.model_id
+left join process_assign_template pat
+on coalesce(pat_id, mdl.default_pat_id) = pat.process_assign_template_id
+left join inline_plan ip
+on m.material_id = ip.material_id
+where break_back_flg = 0
+and agreed_date is not null
+and inline_time is null
+and outline_time is null
+and unrepair_flg = 0
+and mdl.kind not in (06, 07)
+and exists(select 1 from production_feature where material_id = m.material_id and position_id in (select position_id from position where special_page = 'quotation') and operate_result = 2)
+order by 
+partial_need,
+scheduled_expedited desc,
+agreed_date,
+direct_flg desc,
+reception_time
+;
+	</select>
+	<insert id="createInlinePlan" parameterType="MaterialEntity">
+INSERT INTO `rvsdb`.`inline_plan`
+(`material_id`,
+`wip_location`,
+`section_id`,
+`pat_id`)
+VALUES
+(#{material_id},
+#{wip_location},
+#{section_id},
+#{pat_id});
+	</insert>
+	
+	<select id="searchAcceptDisinfectSterilize" resultType="MaterialEntity" parameterType="String">
+		<![CDATA[
+			select
+			    pf9.finish_time as accept_finish_time,
+				op9.job_no as accept_job_no,
+			    mo.name AS model_name,
+			    ma.serial_no,
+			    pf10.finish_time as disinfect_finish_time,
+				op10.job_no as disinfect_job_no,
+				pf10.pcs_inputs
+			FROM
+			    material Ma
+			LEFT JOIN
+			    production_feature pf9 
+			ON 
+			    ma.material_id = pf9.material_id and pf9.position_id=9
+		    LEFT JOIN
+			    operator op9 ON op9.operator_id = pf9.operator_id 
+			LEFT JOIN
+			    model mo 
+			ON 
+			    mo.model_id = ma.model_id
+		    LEFT JOIN
+				production_feature pf10 
+		    ON 
+				ma.material_id = pf10.material_id and pf10.position_id in(10,11)
+			LEFT JOIN
+			    operator op10 
+			ON 
+			    op10.operator_id = pf10.operator_id 
+			WHERE
+			    ma.break_back_flg IN (0 , 2) AND DATE(pf10.finish_time) = #{finish_time} 
+			ORDER BY 
+				pf10.finish_time
+		]]>
+	</select>
+	
+	
+</mapper>

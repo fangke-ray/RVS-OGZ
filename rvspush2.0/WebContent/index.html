@@ -1,0 +1,96 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+Repair Visualization System Message Sender Of Olympus Guangzhou
+<br>
+<db>
+</db>
+<path>
+</path>
+<hr>
+<operator_ws>
+</operator_ws>
+<position_ws>
+</position_ws>
+<hr>
+<alarm_clocks>
+</alarm_clocks>
+<script>
+var first = true;
+function ajax(){
+  var postData = {};
+  if(first) postData["getDb"] = "true";
+  var ajaxData = { 
+    type: "GET", 
+    url: "./console", 
+    async: "true", 
+    data: postData, 
+    dataType: "json", 
+    contentType: "application/x-www-form-urlencoded",
+    success: function(response){
+    	if (response.getDb) {
+    		if (response.getDb == "OK") {
+    			document.getElementsByTagName("db")[0].innerText = "DB 连接正常。";
+    			document.getElementsByTagName("db")[0].textContent = "DB 连接正常。";
+    		} else {
+    			document.getElementsByTagName("db")[0].innerText = "DB 连接异常！";
+    			document.getElementsByTagName("db")[0].textContent = "DB 连接异常！";
+    		}
+    	}
+     	if (response.basePath) {
+    		if (response.basePath == "not exists") {
+    			document.getElementsByTagName("path")[0].innerText = "BASE目录异常！";
+    			document.getElementsByTagName("path")[0].textContent = "BASE目录异常！";
+    		} else {
+    			document.getElementsByTagName("path")[0].innerText = "BASE目录[" + response.basePath + "]";
+    			document.getElementsByTagName("path")[0].textContent = "BASE目录[" + response.basePath + "]";
+    		}
+    	}
+    	document.getElementsByTagName("operator_ws")[0].innerText = "使用者后台服务数：" + (response.opCount || 0);
+    	document.getElementsByTagName("position_ws")[0].innerText = "工位后台服务数：" + (response.psCount || 0);
+    	document.getElementsByTagName("alarm_clocks")[0].innerText = response.alarm_clocks;
+    	document.getElementsByTagName("operator_ws")[0].textContent = "使用者后台服务数：" + (response.opCount || 0);
+    	document.getElementsByTagName("position_ws")[0].textContent = "工位后台服务数：" + (response.psCount || 0);
+    	document.getElementsByTagName("alarm_clocks")[0].textContent = response.alarm_clocks;
+    	first = false;
+    }, 
+    error: function(){} 
+  }
+  if(first) ajaxData.url = ajaxData.url + "?" + convertData(ajaxData.data);
+
+  var xhr = createxmlHttpRequest();  
+  xhr.responseType=ajaxData.dataType; 
+  xhr.open(ajaxData.type,ajaxData.url,ajaxData.async);  
+  xhr.setRequestHeader("Content-Type",ajaxData.contentType);  
+  xhr.send();  
+  xhr.onreadystatechange = function() {  
+    if (xhr.readyState == 4) {  
+      if(xhr.status == 200){ 
+        ajaxData.success(xhr.response) 
+      }else{ 
+        ajaxData.error() 
+      }  
+    } 
+  }  
+} 
+  
+function createxmlHttpRequest() {  
+  if (window.ActiveXObject) {  
+    return new ActiveXObject("Microsoft.XMLHTTP");  
+  } else if (window.XMLHttpRequest) {  
+    return new XMLHttpRequest();  
+  }  
+} 
+  
+function convertData(data){ 
+  if( typeof data === 'object' ){ 
+    var convertResult = "" ;  
+    for(var c in data){  
+      convertResult+= c + "=" + data[c] + "&";  
+    }  
+    convertResult=convertResult.substring(0,convertResult.length-1) 
+    return convertResult; 
+  }else{ 
+    return data; 
+  } 
+}
+setInterval(ajax, 5000);
+</script>

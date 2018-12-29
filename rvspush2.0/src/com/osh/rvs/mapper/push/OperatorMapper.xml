@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.OperatorMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getOperatorByID" resultType="OperatorEntity" parameterType="String">
+		<![CDATA[ 
+		SELECT OPERATOR_ID,
+			NAME,
+			JOB_NO,
+			WORK_COUNT_FLG,
+			SECTION_ID,
+			LINE_ID,
+			ROLE_ID,
+			POSITION_ID,
+			EMAIL,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM OPERATOR
+		WHERE DELETE_FLG = 0
+		AND OPERATOR_ID = #{operator_id};
+		]]>
+	</select>
+
+	<select id="getAllActivingOperator" resultType="OperatorEntity">
+		<![CDATA[ 
+		SELECT OPERATOR_ID,
+			NAME,
+			JOB_NO,
+			WORK_COUNT_FLG,
+			SECTION_ID,
+			LINE_ID,
+			ROLE_ID,
+			POSITION_ID,
+			EMAIL,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM OPERATOR
+		WHERE OPERATOR_ID <> 1
+		AND (DELETE_FLG = 0 OR (DELETE_FLG = 1 AND UPDATED_TIME >= #{monthStart}))
+		ORDER BY UPDATED_TIME DESC;
+		]]>
+	</select>
+
+	<select id="searchOperator" resultType="OperatorEntity">
+		<![CDATA[ 
+		SELECT OPERATOR_ID,
+			NAME,
+			JOB_NO,
+			WORK_COUNT_FLG,
+			SECTION_NAME,
+			LINE_NAME,
+			ROLE_NAME,
+			EMAIL,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM V_OPERATOR_NAMED
+		]]>
+		<where>
+			DELETE_FLG = 0
+			<if test="operator_id!= null and operator_id!= '' ">
+				AND OPERATOR_ID = #{operator_id}
+			</if>
+			<if test="name!=null and name!='' ">
+				AND NAME LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="job_no!= null and job_no!= '' ">
+				AND JOB_NO = #{job_no}
+			</if>
+			<if test="work_count_flg!= null and work_count_flg!= '' ">
+				AND WORK_COUNT_FLG = #{work_count_flg}
+			</if>
+			<if test="section_id!= null and section_id!= '' ">
+				AND SECTION_ID = #{section_id}
+			</if>
+			<if test="line_id!= null and line_id!= '' ">
+				AND LINE_ID = #{line_id}
+			</if>
+			<if test="role_id!= null and role_id!= '' ">
+				AND ROLE_ID = #{role_id}
+			</if>
+		</where> 
+		<![CDATA[ 
+		AND OPERATOR_ID <> 1
+		ORDER BY UPDATED_TIME DESC;
+		]]>
+	</select>
+
+	<select id="searchOperatorProcessInMonth" resultType="map">
+		<![CDATA[ 
+		SELECT cnt.action_date, o.name as oname, o.job_no as job_no, o.WORK_COUNT_FLG, 
+		coalesce(s.name, o.section_name) as sname, coalesce(l.name, o.line_name) as lname,-- concat(s.name , l.name) as section_line_name,
+		p.process_code, cnt.action_time, cnt.finish_time, cnt.sorc_no, cnt.`level`, cnt.model_name,
+		cnt.reason as pause_reason, cnt.comments, cnt.d_type, cnt.minutes FROM
+			(SELECT
+				date_format(a.action_time, '%Y-%m-%d') as action_date,
+				a.operator_id,
+				a.position_id,
+				a.section_id,
+				date_format(a.action_time, '%H:%i') as action_time,
+				date_format(a.finish_time, '%H:%i') as finish_time,
+				-- (unix_timestamp(finish_time) - unix_timestamp(action_time)) / 60 as minutes ,
+				use_seconds / 60 as minutes ,
+				(select name from model where model_id = am.model_id) as model_name,
+				am.omr_notifi_no as sorc_no,
+				am.`level`,
+				null as reason,
+				'' as comments,
+				a.operate_result,
+				a.pace,
+				1 as d_type
+			FROM production_feature a
+			JOIN material am
+			ON a.material_id = am.material_id
+			WHERE a.action_time >= #{start_date}
+			AND a.position_id <> 24 -- 先端预制特别显示
+			union ALL
+			SELECT
+				date_format(b.pause_start_time, '%Y-%m-%d') as action_date,
+				b.operator_id,
+				null as position_id,
+				null as section_id,
+				date_format(b.pause_start_time, '%H:%i') as action_time,
+				date_format(b.pause_finish_time, '%H:%i') as finish_time,
+				null as minutes,
+				'' as model_name,
+				'' as sorc_no,
+				null as `level`,
+				b.reason,
+				b.comments,
+				null as operate_result,
+				null as pace,
+				2 as d_type
+			FROM pause_feature b
+			WHERE b.pause_start_time >= #{start_date}
+			AND (b.reason between 40 and 70)
+			union ALL
+			SELECT
+				date_format(spf.action_time, '%Y-%m-%d') as action_date,
+				spf.operator_id,
+				spf.position_id as position_id,
+				spf.section_id,
+				date_format(spf.action_time, '%H:%i') as action_time,
+				date_format(spf.finish_time, '%H:%i') as finish_time,
+				(unix_timestamp(finish_time) - unix_timestamp(action_time)) / 60 as minutes ,
+				(select name from model where model_id = spf.model_id) as model_name,
+				CONCAT(
+				CASE 
+					WHEN spf.position_id = 24 THEN "先端组件:"
+					WHEN spf.position_id = 51 THEN "返品机身号:"
+					ELSE ""
+				END
+				, spf.serial_no) as sorc_no,
+				null as `level`,
+				null as reason,
+				'' as comments,
+				spf.operate_result,
+				spf.pace,
+				1 as d_type
+			FROM solo_production_feature spf
+			WHERE spf.action_time >= #{start_date}
+			AND used = 0
+			UNION ALL
+			SELECT 
+				date_format(gmpp.mixing_action_time, '%Y-%m-%d') as action_date,
+				gmpp.mixing_operator_id as operator_id,
+				'' AS position_id,
+				'' AS section_id,
+				date_format(gmpp.mixing_action_time, '%H:%i') as action_time,
+				date_format(gmpp.mixing_finish_time, '%H:%i') as finish_time,
+				(unix_timestamp(gmpp.mixing_finish_time) - unix_timestamp(gmpp.mixing_action_time)) / 60 as minutes ,
+				partial.code AS model_name,
+				glue.lot_no AS sorc_no,
+				date_format(glue.expiration, '%m%d%Y') as `level`,
+				58 AS reason,
+				gmt.binder_name AS comments,
+				'' AS operate_result,
+				gmpp.pace,
+				2 as d_type
+			FROM 
+				glue_mixing_process_pace gmpp
+			JOIN
+				glue_mixing_process gmp
+			ON
+				gmpp.glue_mixing_process_id = gmp.glue_mixing_process_id
+			JOIN
+				glue
+			ON
+				gmp.glue_id = glue.glue_id
+			JOIN
+				glue_mixing_type gmt
+			ON
+				gmt.glue_mixing_type_id = gmp.glue_mixing_type_id
+			JOIN
+				partial
+			ON
+				partial.partial_id = glue.partial_id
+			WHERE
+				gmpp.mixing_action_time >= #{start_date}
+			) cnt
+		JOIN `v_operator_named` o
+		ON cnt.operator_id = o.operator_id
+		LEFT JOIN `position` p
+		ON cnt.position_id = p.position_id
+		LEFT JOIN `line` l
+		ON p.line_id = l.line_id
+		LEFT JOIN `section` s
+		ON cnt.section_id = s.section_id
+		ORDER BY cnt.action_date, o.section_id, cnt.operator_id, cnt.action_time, cnt.finish_time;
+		]]>
+	</select>
+
+	<select id="getCountWorkOperator" resultType="OperatorEntity">
+		<![CDATA[ 
+		SELECT OPERATOR_ID,
+			NAME,
+			JOB_NO,
+			WORK_COUNT_FLG,
+			SECTION_ID,
+			LINE_ID,
+			ROLE_ID,
+			POSITION_ID,
+			EMAIL,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM OPERATOR
+		WHERE DELETE_FLG = 0
+		AND OPERATOR_ID <> 1
+		AND WORK_COUNT_FLG = 1
+		ORDER BY UPDATED_TIME DESC;
+		]]>
+	</select>
+
+	<select id="getOperatorByPositionForLight" resultType="OperatorEntity">
+		select o.operator_id,o.fix_response,o.position_id,pf.action_time from operator o 
+		left join production_feature pf on
+		pf.finish_time is null
+		and o.operator_id = pf.operator_id and pf.action_time is not null 
+		where 
+		o.section_id = #{section_id}
+		AND (o.position_id = #{position_id}
+		or exists (select 1 from operator_abilities where operator_id = o.operator_id and position_id = #{position_id}))
+		and o.delete_flg = 0 and o.work_count_flg = 1;
+	</select>
+
+	<select id="getLeadersByPosition" resultType="OperatorEntity">
+		select o.operator_id from operator o
+		join position p
+		on o.line_id = p.line_id 
+		where 
+		o.section_id = #{section_id}
+		AND p.position_id = #{position_id}
+		and o.delete_flg = 0 and o.role_id = 5;
+	</select>
+</mapper>

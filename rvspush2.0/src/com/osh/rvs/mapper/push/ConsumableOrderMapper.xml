@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.ConsumableOrderMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="searchConsumableManage" resultType="ConsumableOrderEntity" parameterType="ConsumableOrderEntity">
+		<![CDATA[
+			SELECT 
+			    cm.partial_id,
+			    cm.benchmark - cm.available_inventory - cm.on_passage AS supply_quantity
+			FROM
+			    consumable_manage cm
+			WHERE
+			    cm.supply_day = #{supply_day} AND (cm.available_inventory + cm.on_passage <= cm.safety_lever) AND cm.supply_cycle = 5 
+			UNION 
+			SELECT 
+			    cm.partial_id,
+			    cm.benchmark - cm.available_inventory - cm.on_passage AS supply_quantity
+			FROM
+			    consumable_manage cm
+			WHERE
+				cm.supply_day = #{supply_day} AND (cm.available_inventory + cm.on_passage <= cm.safety_lever) AND cm.supply_cycle NOT IN (0 , 5)
+	        AND NOT EXISTS( 
+	        	SELECT 
+		            MAX(create_time) AS max_create_time
+		        FROM
+		            consumable_order co
+		        JOIN
+		            consumable_order_detail cod
+		        ON 
+		        	co.consumable_order_key = cod.consumable_order_key
+		        WHERE
+		            co.sent = 1 AND cod.partial_id = cm.partial_id
+		        HAVING 
+		        	F_GETWORKDAYS(max_create_time, CURRENT_DATE) < supply_cycle
+		        )
+			
+		]]>
+	</select>
+	
+	
+	<select id="getMaxOrderNo" parameterType="ConsumableOrderEntity" resultType="string">
+		<![CDATA[
+			SELECT MAX(order_no) FROM consumable_order WHERE order_no LIKE CONCAT(#{order_no},'%')
+		]]>
+	</select>
+	
+	<insert id="insertConsumableOrder" parameterType="ConsumableOrderEntity">
+		INSERT INTO consumable_order(order_no,create_time,comfirmer_id,sent) VALUES (#{order_no},CURRENT_TIMESTAMP,0,0)
+	</insert>
+	
+	<insert id="insertConsumableOrderDetail" parameterType="ConsumableOrderEntity">
+		INSERT INTO consumable_order_detail(consumable_order_key,partial_id,order_quantity) VALUES(#{consumable_order_key},#{partial_id},#{order_quantity})
+	</insert>
+
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.PositionMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getPositionByID" resultType="PositionEntity" parameterType="String">
+		<![CDATA[ 
+		SELECT POSITION_ID,
+			NAME,
+			LINE_ID,
+			LINE_NAME,
+			PROCESS_CODE,
+			light_division_flg,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM V_POSITION
+		WHERE DELETE_FLG = 0
+		AND POSITION_ID = #{position_id};
+		]]>
+	</select>
+
+	<select id="getAllPosition" resultType="PositionEntity">
+		<![CDATA[ 
+		SELECT POSITION_ID,
+			NAME,
+			LINE_ID,
+			LINE_NAME,
+			PROCESS_CODE,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM V_POSITION
+		WHERE DELETE_FLG = 0
+		ORDER BY PROCESS_CODE;
+		]]>
+	</select>
+
+	<select id="searchPosition" resultType="PositionEntity">
+		<![CDATA[ 
+		SELECT POSITION_ID,
+			NAME,
+			LINE_ID,
+			LINE_NAME,
+			PROCESS_CODE,
+			UPDATED_BY,
+			UPDATED_TIME
+		FROM V_POSITION
+		]]>
+		<where>
+			DELETE_FLG = 0
+			<if test="position_id!= null and position_id!= '' ">
+				AND POSITION_ID = #{position_id}
+			</if>
+			<if test="line_id!= null and line_id!= '' ">
+				AND LINE_ID = #{line_id}
+			</if>
+			<if test="name!=null and name!='' ">
+				AND NAME LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="process_code!= null and process_code!= '' ">
+				AND PROCESS_CODE = #{process_code}
+			</if>
+		</where> 
+		<![CDATA[ 
+		ORDER BY PROCESS_CODE, UPDATED_TIME DESC;
+		]]>
+	</select>
+
+	<select id="getPositionHeap" resultType="int">
+		<![CDATA[ 
+		SELECT Count(1)
+		FROM production_feature p
+		join Material ma
+		ON p.material_id = ma.material_id
+		WHERE position_id = #{position_id}
+		]]>
+		<if test="section_id!= null and section_id!= '' ">
+		AND p.section_id = #{section_id}
+		</if>
+		<if test='px!= null and px eq "A" '>
+		AND quotation_first = 0
+		</if>
+		<if test='px!= null and px eq "B" '>
+		AND quotation_first = 1
+		</if>
+		<![CDATA[ 
+		AND finish_time is NULL AND operate_result not in (5, 7, 8)
+		;
+		]]>
+	</select>
+
+	<select id="getPositionWithSectionByID" resultType="String">
+		select concat(s.name, ' ', p.process_code, ' ', p.name) from position p 
+		join position_of_section pos
+		on p.position_id = pos.position_id
+		join section s
+		on pos.section_id = s.section_id
+		where p.position_id = #{position_id}
+		and s.section_id = #{section_id}
+	</select>
+
+	<select id="getLineWithSectionByID" resultType="String">
+		select concat(s.name, ' ', l.name) from line l 
+		join section s
+		where l.line_id = #{line_id}
+		and s.section_id = #{section_id}
+	</select>
+
+</mapper>
