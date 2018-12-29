@@ -313,18 +313,13 @@ function setPercent(resInfo){
 		if(item.total_percent) {
 			var total_percent = item.total_percent * 1;
 			var color = "";
-			if(dec_outline_percent < efLowLever){
+			if(total_percent < efLowLever){
 				color = "red";
-			}else if(dec_outline_percent > efHighLever){
+			}else if(total_percent > efHighLever){
 				color = "#4ABD62";
 			}
-			if(color){
-				$("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next()
-				.find(".per").eq(1).text(item.total_percent +" %").css({"color":color});
-			}else{
-				$("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next()
-				.find(".per").eq(1).text(item.total_percent +" %");
-			}
+			$("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next()
+			.find(".per").eq(1).text(total_percent +" %").css({"color":color});
 		}
 	});
 };
