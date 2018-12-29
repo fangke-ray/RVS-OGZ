@@ -71,25 +71,25 @@
 	<select id="countQuantityOfSpecKind" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		SELECT 
-	temp.spec_kind,
-	COUNT(temp.quantity)
-	FROM(
-		SELECT 
-			v_partial.spec_kind,
-		    CASE
-				WHEN pbs.box_count = -1 THEN SUM(1)
-		        ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)
-		    END AS quantity
-		FROM 
-			partial_warehouse_detail pwd
-		LEFT JOIN 
-		    v_partial 
-		ON 
-			pwd.partial_id = v_partial.partial_id
-		JOIN
-			partial_bussiness_standard pbs
-		ON
-			pbs.spec_kind = v_partial.spec_kind
+			temp.spec_kind,
+			COUNT(temp.quantity)
+		FROM(
+			SELECT 
+				v_partial.spec_kind,
+			    CASE
+					WHEN pbs.box_count = -1 THEN 1
+			        ELSE CEIL(pwd.quantity / pbs.box_count)
+			    END AS quantity
+			FROM 
+				partial_warehouse_detail pwd
+			LEFT JOIN 
+			    v_partial 
+			ON 
+				pwd.partial_id = v_partial.partial_id
+			JOIN
+				partial_bussiness_standard pbs
+			ON
+				pbs.spec_kind = v_partial.spec_kind
 	]]>
 	<where>
 	<if test="key!= null and key!= '' ">
