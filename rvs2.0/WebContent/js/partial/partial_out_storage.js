@@ -31,8 +31,13 @@ $(function () {
 });
 
 function startScanner () {
+	var id = $("#scanner_inputer").val().trim();
+	$("#scanner_inputer").val("");
+	if (!id) {
+		return;
+	}
 	var data = {
-		"material_id" : $("#scanner_inputer").val().trim()
+		"material_id" : id
 	};
 
 	$.ajax({
@@ -119,9 +124,10 @@ function outInit () {
 					
 					// 现品作业信息
 					var fact_production_feature = resInfo.unfinish;
-					list(resInfo.materialList);
-					
+
 					if(fact_production_feature){//进行中作业
+						list(resInfo.materialList, 10);
+
 						$("#scanner_container").hide();
 						$("#result").show();
 						
@@ -149,9 +155,13 @@ function outInit () {
 						
 						enableMenu("outstoragebutton");
 						
-						$("#hide_fact_pf_key").val(fact_production_feature.fact_pf_key)
+						$("#hide_fact_pf_key").val(fact_production_feature.fact_pf_key);
+
 					}else{
+						list(resInfo.materialList, 20);
+
 						$("#scanner_container").show();
+						$("#scanner_inputer").focus();
 						$("#result").hide();
 						enableMenu("");
 						
@@ -190,14 +200,16 @@ function setRate(factProductionFeature,leagalOverline,spent_mins){
 	oInterval = setInterval(ctime,iInterval);
 };
 
-function list (listdata) {
+function list (listdata, rowNum) {
 	if ($("#gbox_outlist").length > 0) {
 		$("#outlist").jqGrid().clearGridData();// 清除
-		$("#outlist").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
+		$("#outlist").jqGrid('setGridParam', {data : listdata, 'rowNum': rowNum})
+			.trigger("reloadGrid", [ {current : false} ]);// 刷新列表
+		$("#gbox_outlist .ui-jqgrid-bdiv").css({"height" : 23 * rowNum + 1});
 	} else {
 		$("#outlist").jqGrid({
 			data : listdata,// 数据
-			height : 461,// rowheight*rowNum+1
+			height : 23 * rowNum + 1,// rowheight*rowNum+1
 			width : 1178,
 			rowheight : 23,
 			shrinkToFit : true,
@@ -208,7 +220,7 @@ function list (listdata) {
 			             {name : 'line_name',index : 'line_name',width : 100}, 
 			             {name : 'level_name',index : 'level_name',width : 100,align : 'center'},
 			             {name : 'order_date',index : 'order_date',width : 100,align : 'center'},
-			             {name : 'bo_flg_name',index : 'bo_flg_name',width : 100}, 
+			             {name : 'bo_flg_name',index : 'bo_flg_name',width : 100,align : 'center'}, 
 			             {name : 'bo_contents',index : 'bo_contents',width : 400,formatter : function (value, options, rData) {
 							var content = "";
 							if (value) {
@@ -221,7 +233,7 @@ function list (listdata) {
 							}
 							return content;
 						}}],
-			rowNum : 20,
+			rowNum : rowNum,
 			toppager : false,
 			pager : "#outlistpager",
 			viewrecords : true,

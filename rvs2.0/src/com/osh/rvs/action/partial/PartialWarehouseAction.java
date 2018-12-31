@@ -1,5 +1,6 @@
 package com.osh.rvs.action.partial;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,9 @@ import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -42,6 +45,14 @@ public class PartialWarehouseAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PartialWarehouseAction.init start");
+
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		req.setAttribute("default_warehouse_date_start",
+				DateUtil.toString(cal.getTime(), DateUtil.DATE_PATTERN));// 本月
+
+		//返修分类
+		req.setAttribute("goStep", CodeListUtils.getGridOptions("partial_warehouse_step"));
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

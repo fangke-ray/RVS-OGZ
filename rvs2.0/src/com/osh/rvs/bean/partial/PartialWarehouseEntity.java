@@ -45,6 +45,16 @@ public class PartialWarehouseEntity implements Serializable {
 
 	private Date warehouse_date_end;
 
+	/**
+	 * 完成上架日期
+	 */
+	private Date finish_date_start;
+	private Date finish_date_end;
+
+	private Integer quantity;
+	private Integer collation_quantity;
+	private Integer match;
+
 	public String getKey() {
 		return key;
 	}
@@ -99,6 +109,46 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setWarehouse_date_end(Date warehouse_date_end) {
 		this.warehouse_date_end = warehouse_date_end;
+	}
+
+	public Date getFinish_date_start() {
+		return finish_date_start;
+	}
+
+	public void setFinish_date_start(Date finish_date_start) {
+		this.finish_date_start = finish_date_start;
+	}
+
+	public Date getFinish_date_end() {
+		return finish_date_end;
+	}
+
+	public void setFinish_date_end(Date finish_date_end) {
+		this.finish_date_end = finish_date_end;
+	}
+
+	public Integer getMatch() {
+		return match;
+	}
+
+	public void setMatch(Integer match) {
+		this.match = match;
+	}
+
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+
+	public Integer getCollation_quantity() {
+		return collation_quantity;
+	}
+
+	public void setCollation_quantity(Integer collation_quantity) {
+		this.collation_quantity = collation_quantity;
 	}
 
 }

@@ -128,7 +128,7 @@ public class PartialOutStorageService {
 
 		if (list == null || list.size() == 0) {
 			MsgInfo error = new MsgInfo();
-			error.setErrmsg("此维修对象零件不存在待出库！");
+			error.setErrmsg("此维修对象目前没有零件待出库。");
 			errors.add(error);
 			return null;
 		}
@@ -147,7 +147,7 @@ public class PartialOutStorageService {
 
 		if (entity.getBo_flg() == 1) {
 			MsgInfo error = new MsgInfo();
-			error.setErrmsg("此维修对象零件有BO！");
+			error.setErrmsg("此维修对象零件目前有BO。");
 			errors.add(error);
 			return null;
 		}

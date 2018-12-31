@@ -48,11 +48,32 @@ public class PartialWarehouseForm extends ActionForm {
 	@BeanField(title = "操作者 ID", name = "operator_id", length = 11)
 	private String operator_id;
 
-	@BeanField(title = "开始日期", name = "warehouse_date_start", type = FieldType.Date)
+	@BeanField(title = "入库单日期开始", name = "warehouse_date_start", type = FieldType.Date)
 	private String warehouse_date_start;
 
-	@BeanField(title = "结束日期", name = "warehouse_date_end", type = FieldType.Date)
+	@BeanField(title = "入库单日期结束", name = "warehouse_date_end", type = FieldType.Date)
 	private String warehouse_date_end;
+
+	@BeanField(title = "完成上架日期开始", name = "finish_date_start", type = FieldType.Date)
+	private String finish_date_start;
+
+	@BeanField(title = "完成上架日期结束", name = "finish_date_end", type = FieldType.Date)
+	private String finish_date_end;
+
+	/**
+	 * 数量
+	 */
+	@BeanField(title = "数量", name = "quantity", type = FieldType.Integer)
+	private String quantity;
+
+	/**
+	 * 核对数量
+	 */
+	@BeanField(title = "核对数量", name = "collation_quantity", type = FieldType.Integer)
+	private String collation_quantity;
+
+	@BeanField(title = "核对一致", name = "match", type = FieldType.Integer)
+	private String match;
 
 	public String getKey() {
 		return key;
@@ -108,6 +129,46 @@ public class PartialWarehouseForm extends ActionForm {
 
 	public void setWarehouse_date_end(String warehouse_date_end) {
 		this.warehouse_date_end = warehouse_date_end;
+	}
+
+	public String getFinish_date_start() {
+		return finish_date_start;
+	}
+
+	public void setFinish_date_start(String finish_date_start) {
+		this.finish_date_start = finish_date_start;
+	}
+
+	public String getFinish_date_end() {
+		return finish_date_end;
+	}
+
+	public void setFinish_date_end(String finish_date_end) {
+		this.finish_date_end = finish_date_end;
+	}
+
+	public String getMatch() {
+		return match;
+	}
+
+	public void setMatch(String match) {
+		this.match = match;
+	}
+
+	public String getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(String quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getCollation_quantity() {
+		return collation_quantity;
+	}
+
+	public void setCollation_quantity(String collation_quantity) {
+		this.collation_quantity = collation_quantity;
 	}
 
 }

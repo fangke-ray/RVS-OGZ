@@ -19,9 +19,9 @@ $(function(){
 	
 	// 开始
 	$("#startbutton").click(doStart);
-	
+
 	$("#breakbutton").click(doBreak)
-	
+
 	$("#endbutton").click(doEnd);
 	
 	// 输入框触发，配合浏览器
@@ -62,9 +62,9 @@ function startScanner(){
 				if (resInfo.errors.length > 0) {
 					// 共通出错信息框
 					treatBackMessages(null, resInfo.errors);
-					$("#scanner_inputer").val("");
+					$("#scanner_inputer").val("").focus();
 				} else {
-					$("#scanner_inputer").val("");
+					$("#scanner_inputer").val("").focus();
 					var dn_no = $("#label_dn_no").text(),
 					    partialForm = resInfo.partialForm;
 					    code = partialForm.code;
@@ -165,7 +165,7 @@ function updateList(partial_id){
 		rules : {
 			collation_quantity : {
 				digits:true,
-				min:1,
+				min:0,
 				maxlength:5
 			}
 		}
@@ -405,14 +405,14 @@ function collationInit(){
 						$("#breakbutton,#endbutton").enable().removeClass("ui-state-focus");
 						
 						$("#scanner_container").show();
-						$("#scanner_inputer").val("");
-						
+						$("#scanner_inputer").val("").focus();
+
 						$("#label_warehouse_date").text(fact_production_feature.warehouse_date);
 						$("#label_dn_no").text(fact_production_feature.dn_no);
 						$("#label_production_type_name").text(fact_production_feature.production_type_name);
 						$("#hide_key").val(fact_production_feature.partial_warehouse_key);
 						$("#hide_production_type").val(fact_production_feature.production_type);
-						
+
 						enableMenu("collationbutton");
 						
 						allPartialMap.clear();
@@ -425,6 +425,7 @@ function collationInit(){
 						var partialWarehouseDetailList = resInfo.partialWarehouseDetailList;
 						list(partialWarehouseDetailList);
 						setRate(fact_production_feature,resInfo.leagal_overline,resInfo.spent_mins);
+
 					}else{
 						reset();
 					}
@@ -592,13 +593,13 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['','','零件编码','零件名称','数量','核对数量',''],
+			colNames : ['','','零件编码','零件名称','数量','已核对数量',''],
 			colModel : [{name : 'key',index : 'key',hidden : true},
 			            {name : 'partial_id',index : 'partial_id',hidden : true},
-			            {name : 'code',index : 'code',width:200},
+			            {name : 'code',index : 'code',width:50},
 			            {name : 'partial_name',index : 'partial_name',width:200},
-			            {name : 'quantity',index : 'quantity',width:200,align:'right'},
-			            {name : 'collation_quantity',index : 'collation_quantity',width:200,align:'right',formatter : function(value, options, rData){
+			            {name : 'quantity',index : 'quantity',width:50,align:'right'},
+			            {name : 'collation_quantity',index : 'collation_quantity',width:50,align:'right',formatter : function(value, options, rData){
 							if(value < 0){
 								rData.flg = "0";
 								return  value * -1;

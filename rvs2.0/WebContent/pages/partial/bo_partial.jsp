@@ -43,6 +43,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div id="basearea" class="dwidth-full" style="margin: auto;">
 			<jsp:include page="/header.do" flush="true">
 				<jsp:param name="part" value="1"/>
+				<jsp:param name="sub" value="p"/>
 			</jsp:include>
 	</div>
 

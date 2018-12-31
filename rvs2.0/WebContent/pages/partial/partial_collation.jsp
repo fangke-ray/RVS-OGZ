@@ -16,7 +16,15 @@
 		<div style="float:left;width:150px;height:20px;font-size:14px;">：此入库单中不存在</div>
 		<div class="clear"></div>
 	</div>
-	
+
+	<div class="ui-widget-content" id="scanner_container" style="min-height: 80px;display: none;" >
+		<div class="ui-state-default td-title">扫描录入区域</div>
+		<input type="text" id="scanner_inputer" title="扫描前请点入此处" class="scanner_inputer_inline" style="width: 70%;float: left;height: 55px;"></input>
+		<div style="text-align: center;">
+			<img src="images/barcode.png" style="margin: auto; width: 150px; padding-top: 4px;">
+		</div>
+	</div>
+
 	<div class="areaencloser"></div>
 	
 	<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
@@ -63,17 +71,6 @@
 				</tr>
 			</tbody>
 		</table>
-	</div>
-	
-	
-	<div class="areaencloser"></div>
-	
-	<div class="ui-widget-content" id="scanner_container" style="min-height: 215px;display: none;" >
-		<div class="ui-state-default td-title">扫描录入区域</div>
-		<input type="text" id="scanner_inputer" title="扫描前请点入此处" class="scanner_inputer" style="width: 99.5%"></input>
-		<div style="text-align: center;">
-			<img src="images/barcode.png" style="margin: auto; width: 150px; padding-top: 4px;">
-		</div>
 	</div>
 	
 	<div id="partial_warehouse_dialog" style="display: none;">

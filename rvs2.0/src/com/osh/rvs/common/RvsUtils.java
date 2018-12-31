@@ -255,7 +255,7 @@ public class RvsUtils {
 			sOverline = "-1";
 		}
 
-		return sOverline;
+		return sOverline.trim();
 	}
 	
 	public static String getLevelOverLine(String model_name, String category_name, String level, LoginData user, String spprocess_code) throws Exception {
@@ -317,6 +317,7 @@ public class RvsUtils {
 //			sOverline = getZeroOverLine(model_name, category_name, user, process_code);
 //		}
 
+		sOverline = sOverline.trim();
 		overLineCache.put(cacheKey, sOverline);
 
 		return sOverline;

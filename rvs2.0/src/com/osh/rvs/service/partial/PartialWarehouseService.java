@@ -164,4 +164,14 @@ public class PartialWarehouseService {
 		return respList;
 	}
 
+	/**
+	 * 查询当前入库进展信息
+	 * （表格内容：序号/入库单日期/DN 编号/零件编号/零件名称/入库单数量/核对数量/核对日期/核对人员）
+	 * 
+	 * @param conn 数据库连接
+	 */
+	public void createUnmatchReport() {
+		
+	}
+
 }

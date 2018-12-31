@@ -22,7 +22,7 @@
 		    <div class="ui-accordion-content ui-helper-reset ui-widget-content">
 	
 	<% if(links.get("fact")){ %>
-		        <a target="_parent" href="fact_production_feature.do" title="现品作业信息">现品作业信息</a><br>
+		        <a target="_parent" href="fact_production_feature.do" title="现品作业">现品作业</a><br>
 	<% }%>
 	 			<a target="_parent" href="partial_warehouse.do" title="零件入库单管理">零件入库单管理</a><br>
 		        <a target="_parent" href="materialPartial.do">零件订购·签收管理</a>

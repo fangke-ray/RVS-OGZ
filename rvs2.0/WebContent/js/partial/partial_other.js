@@ -11,7 +11,20 @@ $(function(){
 	});
 	
 	$("#partial_other .ui-button").button();
-	
+	$("#comment_keyboard").on("click", "input:button", function(){
+		var v = this.value;
+		if (v === "换行") v = "\n";
+		var dComment = $("#comment").focus()[0];
+		if(dComment.selectionStart) {
+			var start = dComment.selectionStart;
+			$("#comment").val(dComment.value.substring(0, dComment.selectionStart) + v 
+				+ dComment.value.substring(dComment.selectionEnd, dComment.value.length));
+			dComment.selectionEnd = dComment.selectionStart = start + v.length;
+		} else {
+			$("#comment").val(dComment.value + v);
+		}
+	}).children("input:button").button();
+
 	$("#startbutton").click(doStart);
 	$("#endbutton").click(doEnd);
 	reset();
@@ -45,7 +58,8 @@ function otherInit(){
 						$("#startbutton").disable().removeClass("ui-state-focus");
 						$("#endbutton").enable().removeClass("ui-state-focus");
 						$("#comment").val("").enable();
-						
+						$("#comment_keyboard input").enable();
+					
 						enableMenu("otherbutton");
 					}else{
 						reset();
@@ -60,6 +74,7 @@ function reset(){
 	$("#startbutton").enable().removeClass("ui-state-focus");
 	$("#endbutton").disable().removeClass("ui-state-focus");
 	$("#comment").val("").disable();
+	$("#comment_keyboard input").disable();
 	enableMenu("");
 };
 
@@ -95,6 +110,12 @@ function doStart(){
 };
 
 function doEnd(){
+
+	if (!$("#comment").val()) {
+		errorPop("请填写作业备注内容", $("#comment"));
+		return;
+	}
+
 	var data = {
 		"comment" : $("#comment").val()
 	};

@@ -696,6 +696,13 @@
 		<value code="99">O：其它</value>
 	</codelist>
 
+	<codelist name="partial_warehouse_step">
+		<value code="0">收货中</value>
+		<value code="1">核对中</value>
+		<value code="2">上架中</value>
+		<value code="3">入库完成</value>
+	</codelist>
+
 	<codelist name="specialized_device_type">
 		<value code="1">电烙铁工具</value>
 		<value code="2">力矩工具</value>

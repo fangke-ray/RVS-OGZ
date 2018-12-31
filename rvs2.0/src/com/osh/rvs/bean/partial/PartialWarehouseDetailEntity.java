@@ -1,6 +1,7 @@
 package com.osh.rvs.bean.partial;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * 零件入库明细
@@ -73,7 +74,7 @@ public class PartialWarehouseDetailEntity implements Serializable {
 	/**
 	 * 上架
 	 */
-	private Integer on_shelf;
+	private BigDecimal on_shelf;
 
 	public String getKey() {
 		return key;
@@ -163,11 +164,11 @@ public class PartialWarehouseDetailEntity implements Serializable {
 		this.total_split_quantity = total_split_quantity;
 	}
 
-	public Integer getOn_shelf() {
+	public BigDecimal getOn_shelf() {
 		return on_shelf;
 	}
 
-	public void setOn_shelf(Integer on_shelf) {
+	public void setOn_shelf(BigDecimal on_shelf) {
 		this.on_shelf = on_shelf;
 	}
 

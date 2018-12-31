@@ -95,7 +95,7 @@ public class PartialWarehouseDetailForm extends ActionForm {
 	/**
 	 * 上架
 	 */
-	@BeanField(title = "上架", name = "on_shelf", type = FieldType.Integer)
+	@BeanField(title = "上架", name = "on_shelf", type = FieldType.Double)
 	private String on_shelf;
 
 	private String flg;

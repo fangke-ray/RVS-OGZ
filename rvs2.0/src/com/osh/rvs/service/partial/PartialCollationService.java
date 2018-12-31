@@ -57,14 +57,14 @@ public class PartialCollationService {
 		// 过滤核对的数据
 		for (PartialWarehouseDetailForm form : list) {
 			// 上架
-			Integer onShelf = Integer.valueOf(form.getOn_shelf());
+			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
 
 			// 【B1：核对+上架】
 			if ("20".equals(productionType)) {
-				if (onShelf < 0)
+				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
 					respList.add(form);
 			} else if ("21".equals(productionType)) {// 【B2：核对】
-				if (onShelf > 0)
+				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
 					respList.add(form);
 			}
 		}
@@ -88,17 +88,17 @@ public class PartialCollationService {
 		for (PartialWarehouseDetailForm form : list) {
 			Integer specKind = Integer.valueOf(form.getSpec_kind());
 			// 上架
-			Integer onShelf = Integer.valueOf(form.getOn_shelf());
+			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
 			// 标准工时
 			BigDecimal time = new BigDecimal("0");
 
 			// 【B1：核对+上架】
 			if ("20".equals(productionType)) {
-				if (onShelf < 0)
+				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
 					time = map.get(specKind);
 
 			} else if ("21".equals(productionType)) {// 【B2：核对】
-				if (onShelf > 0)
+				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
 					time = map.get(specKind);
 			}
 

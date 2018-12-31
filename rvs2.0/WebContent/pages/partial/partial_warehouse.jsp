@@ -54,10 +54,15 @@
 										<td class="td-content">
 											<input id="search_dn_no" type="text" class="ui-widget-content">
 										</td>													
-										<td class="ui-state-default td-title">日期</td>
+										<td class="ui-state-default td-title">入库单日期</td>
 										<td class="td-content">
-											<input type="text" class="ui-widget-content" id="search_warehouse_date_start" readonly="readonly">起<br>
+											<input type="text" class="ui-widget-content" id="search_warehouse_date_start" readonly="readonly" value="${default_warehouse_date_start}">起<br>
 											<input type="text" class="ui-widget-content" id="search_warehouse_date_end" readonly="readonly">止
+										</td>
+										<td class="ui-state-default td-title">完成上架日期</td>
+										<td class="td-content">
+											<input type="text" class="ui-widget-content" id="search_finish_date_start" readonly="readonly">起<br>
+											<input type="text" class="ui-widget-content" id="search_finish_date_end" readonly="readonly">止
 										</td>
 								   </tr>
 								</tbody>
@@ -65,6 +70,7 @@
 							<div style="height:44px">
 								<input type="button" class="ui-button" id="resetbutton" value="清除" style="float:right;right:2px">
 								<input type="button" class="ui-button" id="searchbutton" value="检索" style="float:right;right:2px">					
+								<input type="hidden" value="${goStep}" id="goStep">					
 							</div>
 						</form>	
 					</div>

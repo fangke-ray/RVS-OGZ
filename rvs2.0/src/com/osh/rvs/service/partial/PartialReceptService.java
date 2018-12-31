@@ -39,6 +39,7 @@ import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
+import framework.huiqing.common.util.validator.IntegerTypeValidator;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -386,7 +387,13 @@ public class PartialReceptService {
 
 		// 收货搬运移动标准工时
 		String value = dao.searchUserDefineCodesValueByCode("PARTIAL_RECEPT_MOVE_COST");
-		totalTime = totalTime.add(new BigDecimal(value));
+		BigDecimal bdPartialReceptMoveCost = null;
+		try {
+			bdPartialReceptMoveCost = new BigDecimal(value);
+		} catch (Exception e) {
+			bdPartialReceptMoveCost = new BigDecimal(12);
+		}
+		totalTime = totalTime.add(bdPartialReceptMoveCost);
 
 		// 向上取整
 		totalTime = totalTime.setScale(0, RoundingMode.UP);

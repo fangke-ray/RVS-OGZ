@@ -164,12 +164,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div id="listpager"></div>
 			<div class="ui-widget-header areabase"style="width:992px;padding-top:4px;margin-top:0px;">
 			      <div id="executes" style="margin-left:4px;margin-top:2px;">
-					<input type="button" id="waste_revision_button" class="ui-button ui-widget ui-state-default ui-corner-all"  value="改废增" role="button">
+					<!--input type="button" id="waste_revision_button" class="ui-button ui-widget ui-state-default ui-corner-all"  value="改废增" role="button"-->
 					<input type="button" id="standard_button" class="ui-button" value="零件入库工时标准">
 				  </div>
 			</div>
 		</div>
-		<input type="hidden" id="hide_grid_spec_kind" value="${gridSpecKind }">
+		<input type="hidden" id="hide_grid_spec_kind" value="${gridSpecKind}">
 		<div id="confirmmessage"></div>
 <div class="clear areaencloser"></div>
 	<form id="abandon_modify" style="display:none">
@@ -233,10 +233,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<tr>
 						<th class="ui-state-default td-title" style="width:200px;">规格种别</th>
 						<th class="ui-state-default td-title" style="width:260px;">装箱数量</th>
-						<th class="ui-state-default td-title">收货</th>
-						<th class="ui-state-default td-title">核对</th>
-						<th class="ui-state-default td-title" style="width:290px;">上架</th>
-						<th class="ui-state-default td-title">分装</th>
+						<th class="ui-state-default td-title">收货标准工时(分钟/箱)</th>
+						<th class="ui-state-default td-title">核对标准工时(分钟/个)</th>
+						<th class="ui-state-default td-title" style="width:290px;">上架标准工时(分钟/个)</th>
+						<th class="ui-state-default td-title">分装标准工时(分钟/袋)</th>
 					</tr>
 				</thead>
 				<tbody></tbody>

@@ -7,30 +7,70 @@
 	<select id="search" parameterType="PartialWarehouseEntity" resultType="PartialWarehouseEntity">
 	<![CDATA[
 		SELECT
-			`key`,
+			pw.`key`,
 			warehouse_date,
 			dn_no,
-			step
+			step,
+			sum(dtl.quantity) as quantity,
+			sum(abs(dtl.collation_quantity)) as collation_quantity,
+			sum(dtl.quantity <> dtl.collation_quantity) as flg
 		FROM
-			partial_warehouse
+			partial_warehouse pw
+		JOIN
+			partial_warehouse_detail dtl
+		ON pw.key = dtl.key
 	]]>
 	<where>
 	<if test="warehouse_date_start!=null and warehouse_date_start!=''">
 	<![CDATA[
-		AND	warehouse_date >= #{warehouse_date_start}
+		AND warehouse_date >= #{warehouse_date_start}
 	]]>
 	</if>
 	<if test="warehouse_date_end!=null and warehouse_date_end!=''">
 	<![CDATA[
-		warehouse_date < DATE_ADD(#{warehouse_date_start},INTERVAL 1 DAY)
+		AND warehouse_date <= #{warehouse_date_end}
 	]]>
 	</if>
 	<if test="dn_no!=null and dn_no!=''">
 	<![CDATA[
-		dn_no = #{dn_no}
+		AND dn_no = #{dn_no}
 	]]>
 	</if>
+	<if test="(finish_date_start!=null and finish_date_start!='') or (finish_date_end!=null and finish_date_end!='')">
+	<![CDATA[
+		AND (SELECT max(finish_time) FROM fact_production_feature 
+			WHERE partial_warehouse_key = pw.key and production_type in (20,40)) 
+			BETWEEN
+	]]>
+		<if test="finish_date_start!=null and finish_date_start!=''">
+		<![CDATA[
+			#{finish_date_start}
+		]]>
+		</if>
+		<if test="finish_date_start eq null or finish_date_start eq ''">
+		<![CDATA[
+			'2000-1-1'
+		]]>
+		</if>
+	<![CDATA[
+			AND
+	]]>
+		<if test="finish_date_end!=null and finish_date_end!=''">
+		<![CDATA[
+			DATE_ADD(#{finish_date_end},INTERVAL 1 DAY)
+		]]>
+		</if>
+		<if test="finish_date_end eq null or finish_date_end eq ''">
+		<![CDATA[
+			'2100-1-1'
+		]]>
+		</if>
+	</if>
 	</where>
+	<![CDATA[
+		GROUP BY
+			pw.key
+	]]>
 	</select>
 
 	<!-- 新建零件入库单 -->

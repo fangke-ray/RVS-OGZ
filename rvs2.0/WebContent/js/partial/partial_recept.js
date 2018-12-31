@@ -112,7 +112,7 @@ function receptInit(){
 								let specKindName = item.spec_kind_name;
 								let quantity = item.quantity;
 								content += `<td class="ui-state-default td-title">${specKindName}:</td>
-											<td class="td-content">${quantity}箱</td>`;
+											<td class="td-content">${quantity} 箱</td>`;
 							});
 							content += "</td>";
 							
@@ -141,7 +141,7 @@ function reset(){
 	list([]);
 	
 	$("#partial_details").hide();
-	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("");
+	$("#partial_details td:eq(1),#partial_details td:eq(3)").text("(缺入库单信息)");
 	$("#dtl_process_time label").text("");
 	clearInterval(oInterval);
 	oInterval = null;
@@ -181,7 +181,7 @@ function setRate(factProductionFeature,leagalOverline,spent_mins){
 			p_time++;
 			$("#dtl_process_time label").text(minuteFormat(p_time));
 		},iInterval);
-		$("#partial_details td:eq(3)").text("");
+		$("#partial_details td:eq(3)").text("(缺入库单信息)");
 		$("#p_rate div:animated").css("width","0%").stop();
 	}
 };

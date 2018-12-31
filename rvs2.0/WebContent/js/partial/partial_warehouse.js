@@ -13,7 +13,7 @@ $(function(){
 		}
 	});
     
-    $("#search_warehouse_date_start,#search_warehouse_date_end").datepicker({
+    $("#search_warehouse_date_start,#search_warehouse_date_end,#search_finish_date_start,#search_finish_date_end").datepicker({
 		showButtonPanel:true,
 		dateFormat: "yy/mm/dd",
 		currentText: "今天"
@@ -36,14 +36,16 @@ $(function(){
 });
 
 function reset(){
-	$("#search_dn_no,#search_warehouse_date_start,#search_warehouse_date_end").val("");
+	$("#search_dn_no,#search_warehouse_date_start,#search_warehouse_date_end,#search_finish_date_start,#search_finish_date_end").val("");
 };
 
 function findit(){
 	var data = {
 		"dn_no" : $("#search_dn_no").val(),
 		"warehouse_date_start" : $("#search_warehouse_date_start").val(),
-		"warehouse_date_end" : $("#search_warehouse_date_start").val()
+		"warehouse_date_end" : $("#search_warehouse_date_end").val(),
+		"finish_date_start" : $("#search_finish_date_start").val(),
+		"finish_date_end" : $("#search_finish_date_end").val()
 	};
 	
 	$.ajax({
@@ -84,10 +86,20 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['','日期','DN 编号'],
+			colNames : ['','日期','DN 编号', '入库单总数量', '核对总数量', '入库进展', '核对一致'],
 			colModel : [{name : 'key',index : 'key',hidden:true},
-			            {name : 'warehouse_date',index : 'warehouse_date',width:200},
-			            {name : 'dn_no',index : 'dn_no',width:200}
+			            {name : 'warehouse_date',index : 'warehouse_date',width:30},
+			            {name : 'dn_no',index : 'dn_no',width:50},
+			            {name : 'quantity',index : 'quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
+			            {name : 'collation_quantity',index : 'collation_quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
+			            {name : 'step',index : 'step', align:'center', width:30, formatter:'select', editoptions:{value:$("#goStep").val()}},
+			            {name : 'match',index : 'match', align:'center', formatter : function(value, options, rData){
+							if(value == 0){
+								return '一致';
+							}else{
+								return '差异';
+							}
+						}, width:30}
 			],
 			rowNum : 20,
 			toppager : false,
@@ -162,11 +174,11 @@ function detaillist(listdata){
 			shrinkToFit:true,
 			datatype : "local",
 			colNames : ['零件编号','零件名称','规格种别','数量','核对数量',''],
-			colModel : [{name : 'code',index : 'code',width:200},
+			colModel : [{name : 'code',index : 'code',width:50},
 			            {name : 'partial_name',index : 'partial_name',width:200},
-			            {name : 'spec_kind_name',index : 'spec_kind_name',width:200},
-			            {name : 'quantity',index : 'quantity',width:200,align : 'right'},
-			            {name : 'collation_quantity',index : 'collation_quantity',width:200,align:'right',formatter : function(value, options, rData){
+			            {name : 'spec_kind_name',index : 'spec_kind_name', align:'center',width:50},
+			            {name : 'quantity',index : 'quantity',sorttype:'integer',width:50,align : 'right'},
+			            {name : 'collation_quantity',index : 'collation_quantity',sorttype:'integer',width:50,align:'right',formatter : function(value, options, rData){
 							if(value < 0){
 								rData.flg = "0";
 								return  value * -1;

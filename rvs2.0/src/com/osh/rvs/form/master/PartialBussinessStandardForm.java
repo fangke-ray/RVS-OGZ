@@ -35,25 +35,25 @@ public class PartialBussinessStandardForm extends ActionForm implements Serializ
 	/**
 	 * 收货
 	 */
-	@BeanField(title = "收货", name = "recept", type = FieldType.Double, length = 5, scale = 1, notNull = true)
+	@BeanField(title = "收货", name = "recept", type = FieldType.Double, length = 5, scale = 2, notNull = true)
 	private String recept;
 
 	/**
 	 * 核对
 	 */
-	@BeanField(title = "核对", name = "collation", type = FieldType.Double, length = 5, scale = 1, notNull = true)
+	@BeanField(title = "核对", name = "collation", type = FieldType.Double, length = 5, scale = 2, notNull = true)
 	private String collation;
 
 	/**
 	 * 上架
 	 */
-	@BeanField(title = "上架", name = "on_shelf", type = FieldType.Double, length = 5, scale = 1, notNull = true)
+	@BeanField(title = "上架", name = "on_shelf", type = FieldType.Double, length = 5, scale = 2, notNull = true)
 	private String on_shelf;
 
 	/**
 	 * 分装
 	 */
-	@BeanField(title = "分装", name = "unpack", type = FieldType.Double, length = 5, scale = 1)
+	@BeanField(title = "分装", name = "unpack", type = FieldType.Double, length = 5, scale = 2)
 	private String unpack;
 
 	/**

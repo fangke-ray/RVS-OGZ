@@ -14,6 +14,47 @@
 						<textarea id="comment" style="resize:none" rows="4" cols="130" class="ui-widget-content"></textarea>
 					</td>
 				</tr>
+				<tr>
+					<td class="ui-state-default td-title">常用作业:</td>
+					<td class="td-content" id="comment_keyboard">
+<input type="button" value="乙材">
+<input type="button" value="螺丝">
+<input type="button" value="胶水">
+<input type="button" value="消耗品">
+<input type="button" value="订购牌">
+<input type="button" value="实物">
+<input type="button" value="冰箱">
+<input type="button" value="干燥箱">
+<input type="button" value="温湿度">
+<input type="button" value="镜头纸">
+<input type="button" value="溶液">
+<input type="button" value="酒精">
+<input type="button" value="阿波罗液">
+<input type="button" value="台车">
+<input type="button" value="空瓶">
+<input type="button" value="收货">
+<input type="button" value="搬运">
+<input type="button" value="开箱">
+<input type="button" value="核对">
+<input type="button" value="上架">
+<input type="button" value="拿取">
+<input type="button" value="移动">
+<input type="button" value="信息记录">
+<input type="button" value="捆绑">
+<input type="button" value="点检">
+<input type="button" value="推动">
+<input type="button" value="收集">
+<input type="button" value="补充">
+<input type="button" value="放置">
+<br>
+<input type="button" value="到实物">
+<input type="button" value="消耗品区域">
+<input type="button" value=" " style="width: 436px;">
+<input type="button" value="换行" style="color: darkgray;">
+<input type="button" value="总务仓库">
+<input type="button" value="到指定位置">
+					</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
