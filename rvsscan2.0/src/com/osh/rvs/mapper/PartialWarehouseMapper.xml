@@ -59,9 +59,11 @@
 		FROM
 		(
 		SELECT
+			pwd.key,
+			v_partial.spec_kind,
 		     CASE
 				WHEN pbs.box_count = -1 THEN 1 * pbs.recept
-				ELSE CEIL(pwd.quantity / pbs.box_count)  * pbs.recept
+				ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)  * pbs.recept
 			END AS recept
 		FROM
 			fact_production_feature fpf
@@ -91,6 +93,14 @@
 			fpf.action_time >= CURRENT_DATE
 		AND
 			fpf.finish_time IS NOT NULL
+	</if>
+	<if test="isNow == 1">
+		GROUP BY 
+			v_partial.spec_kind
+	</if>
+	<if test="isNow == 2">
+		GROUP BY 
+			pwd.key,v_partial.spec_kind
 	</if>
 		) temp
 	</select>
