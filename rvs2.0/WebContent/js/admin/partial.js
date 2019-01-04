@@ -100,11 +100,12 @@ var search_BussinessStandardComplete = function(xhrobj,textStatus){
 					spec_kind_name = standard.spec_kind_name,//规格种别名称
 					box_count = standard.box_count,//装箱数量
 					recept = standard.recept,//收货
+					collect_case = standard.collect_case,//拆盒
 					collation = standard.collation,//核对
 					on_shelf = standard.on_shelf,//上架
 					unpack = standard.unpack || "";//分装
 				
-				map.set(spec_kind,{box_count,recept,collation,on_shelf,unpack});
+				map.set(spec_kind,{box_count,recept,collect_case,collation,on_shelf,unpack});
 					
 				content += `<tr spec_kind="${spec_kind}">
 						  		<td class="ui-state-default td-title">${spec_kind_name}</td>
@@ -116,6 +117,9 @@ var search_BussinessStandardComplete = function(xhrobj,textStatus){
 						  		<td class="td-content">
 						  			<input type="text" class="ui-widget-content recept"/>
 						  		</td>
+						  		<td class="td-content">
+					  				<input type="text" class="ui-widget-content collect-case"/>
+					  			</td>
 						  		<td class="td-content">
 						  			<input type="text" class="ui-widget-content collation"/>
 						  		</td>
@@ -153,6 +157,9 @@ var search_BussinessStandardComplete = function(xhrobj,textStatus){
 				//收货
 				$tr.find(".recept").val(obj.recept);
 				
+				//拆盒
+				$tr.find(".collect-case").val(obj.collect_case);
+				
 				//核对
 				$tr.find(".collation").val(obj.collation);
 				
@@ -187,7 +194,7 @@ var search_BussinessStandardComplete = function(xhrobj,textStatus){
 				resizable : false,
 				modal : true,
 				title : "零件入库工时标准",
-				width : 900,
+				width : 1000,
 				buttons : {
 					"确认" : function() {
 						var data={};
@@ -195,6 +202,7 @@ var search_BussinessStandardComplete = function(xhrobj,textStatus){
 							var $tr = $(tr);
 							data["partial_bussiness_standard.spec_kind[" + index + "]"] = $tr.attr("spec_kind");
 							data["partial_bussiness_standard.box_count[" + index + "]"] = $tr.find(".box-count").val().trim();
+							data["partial_bussiness_standard.collect_case[" + index + "]"] = $tr.find(".collect-case").val().trim();
 							
 							if($tr.find(".box-count-input").prop("checked") == true){
 								data["partial_bussiness_standard.box_count_flg[" + index + "]"] = "1";

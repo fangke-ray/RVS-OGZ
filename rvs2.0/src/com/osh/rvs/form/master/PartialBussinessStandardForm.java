@@ -39,6 +39,12 @@ public class PartialBussinessStandardForm extends ActionForm implements Serializ
 	private String recept;
 
 	/**
+	 * 拆盒
+	 */
+	@BeanField(title = "拆盒", name = "collect_case", type = FieldType.Double, length = 5, scale = 2, notNull = true)
+	private String  collect_case;
+
+	/**
 	 * 核对
 	 */
 	@BeanField(title = "核对", name = "collation", type = FieldType.Double, length = 5, scale = 2, notNull = true)
@@ -95,6 +101,14 @@ public class PartialBussinessStandardForm extends ActionForm implements Serializ
 
 	public void setRecept(String recept) {
 		this.recept = recept;
+	}
+
+	public String getCollect_case() {
+		return collect_case;
+	}
+
+	public void setCollect_case(String collect_case) {
+		this.collect_case = collect_case;
 	}
 
 	public String getCollation() {

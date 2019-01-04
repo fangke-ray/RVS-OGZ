@@ -76,6 +76,7 @@ public class PartialBussinessStandardService {
 				form.setSpec_kind_name(specKindMap.get(key));
 				form.setBox_count("");
 				form.setRecept("");
+				form.setCollect_case("");
 				form.setCollation("");
 				form.setOn_shelf("");
 				form.setUnpack("");
@@ -115,6 +116,8 @@ public class PartialBussinessStandardService {
 						formList.get(icounts).setBox_count(value[0]);
 					} else if ("recept".equals(column)) {
 						formList.get(icounts).setRecept(value[0]);
+					} else if ("collect_case".equals(column)) {
+						formList.get(icounts).setCollect_case(value[0]);
 					} else if ("collation".equals(column)) {
 						formList.get(icounts).setCollation(value[0]);
 					} else if ("on_shelf".equals(column)) {
@@ -151,6 +154,9 @@ public class PartialBussinessStandardService {
 				// 收货
 				String recept = form.getRecept();
 
+				// 拆盒
+				String collectCase = form.getCollect_case();
+
 				// 核对
 				String collation = form.getCollation();
 
@@ -173,6 +179,13 @@ public class PartialBussinessStandardService {
 					MsgInfo error = new MsgInfo();
 					error.setErrcode("validator.invalidParam.invalidMoreThanZero");
 					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", CodeListUtils.getValue(PARTIAL_SPEC_KIND, form.getSpec_kind()) + "收货"));
+					errors.add(error);
+				}
+
+				if (Double.valueOf(collectCase) <= 0) {
+					MsgInfo error = new MsgInfo();
+					error.setErrcode("validator.invalidParam.invalidMoreThanZero");
+					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", CodeListUtils.getValue(PARTIAL_SPEC_KIND, form.getSpec_kind()) + "拆盒"));
 					errors.add(error);
 				}
 
@@ -252,6 +265,21 @@ public class PartialBussinessStandardService {
 
 		for (PartialBussinessStandardEntity entity : list) {
 			map.put(entity.getSpec_kind(), entity.getRecept());
+		}
+		return map;
+	}
+
+	/**
+	 * 查询拆盒工时标准
+	 * @param conn
+	 * @return
+	 */
+	public Map<Integer, BigDecimal> getCollectCaseStandardTime(SqlSession conn) {
+		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
+		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
+
+		for (PartialBussinessStandardEntity entity : list) {
+			map.put(entity.getSpec_kind(), entity.getCollect_case());
 		}
 		return map;
 	}

@@ -164,11 +164,15 @@ public class PartialUnpackService {
 		for (PartialWarehouseDetailForm form : list) {
 			Integer specKind = Integer.valueOf(form.getSpec_kind());
 
+			Integer quantity = Integer.valueOf(form.getQuantity());
+
 			// 标准工时
 			BigDecimal time = map.get(specKind);
 			if(time == null){
 				continue;
 			}
+
+			time = time.multiply(new BigDecimal(quantity));
 
 			totalTime = totalTime.add(time);
 		}

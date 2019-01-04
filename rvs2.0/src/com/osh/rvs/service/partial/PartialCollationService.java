@@ -87,6 +87,8 @@ public class PartialCollationService {
 
 		for (PartialWarehouseDetailForm form : list) {
 			Integer specKind = Integer.valueOf(form.getSpec_kind());
+
+			Integer quantity = Integer.valueOf(form.getQuantity());
 			// 上架
 			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
 			// 标准工时
@@ -96,10 +98,12 @@ public class PartialCollationService {
 			if ("20".equals(productionType)) {
 				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
 					time = map.get(specKind);
+					time = time.multiply(new BigDecimal(quantity));
 
 			} else if ("21".equals(productionType)) {// 【B2：核对】
 				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
 					time = map.get(specKind);
+					time = time.multiply(new BigDecimal(quantity));
 			}
 
 			totalTime = totalTime.add(time);

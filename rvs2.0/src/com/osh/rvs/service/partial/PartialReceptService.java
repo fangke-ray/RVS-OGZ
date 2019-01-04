@@ -39,7 +39,6 @@ import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
-import framework.huiqing.common.util.validator.IntegerTypeValidator;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -359,7 +358,8 @@ public class PartialReceptService {
 	 * @return
 	 */
 	public String getStandardTime(String key, SqlSession conn) {
-		Map<Integer, BigDecimal> map = partialBussinessStandardService.getReceptStandardTime(conn);
+		Map<Integer, BigDecimal> receptMap = partialBussinessStandardService.getReceptStandardTime(conn);
+		Map<Integer, BigDecimal> collectCaseMap = partialBussinessStandardService.getCollectCaseStandardTime(conn);
 
 		PartialWarehouseDetailMapper partialWarehouseDetailMapper = conn.getMapper(PartialWarehouseDetailMapper.class);
 
@@ -377,7 +377,21 @@ public class PartialReceptService {
 			Integer quantity = list.get(i).getQuantity();
 
 			// 标准工时
-			BigDecimal time = map.get(specKind);
+			BigDecimal time = receptMap.get(specKind);
+			time = time.multiply(new BigDecimal(quantity));
+
+			totalTime = totalTime.add(time);
+		}
+
+		list = partialWarehouseDetailMapper.searchByKey(key);
+		for (int i = 0; i < list.size(); i++) {
+			Integer specKind = list.get(i).getSpec_kind();
+
+			//数量
+			Integer quantity = list.get(i).getQuantity();
+
+			// 标准工时
+			BigDecimal time = collectCaseMap.get(specKind);
 			time = time.multiply(new BigDecimal(quantity));
 
 			totalTime = totalTime.add(time);

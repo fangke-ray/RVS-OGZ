@@ -171,8 +171,12 @@ public class PartialOnShelfService {
 		for (PartialWarehouseDetailForm form : list) {
 			Integer specKind = Integer.valueOf(form.getSpec_kind());
 
+			Integer quantity = Integer.valueOf(form.getQuantity());
+
 			// 标准工时
 			BigDecimal time = map.get(specKind);
+
+			time = time.multiply(new BigDecimal(quantity));
 
 			totalTime = totalTime.add(time);
 		}

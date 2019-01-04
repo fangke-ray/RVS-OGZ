@@ -19,11 +19,25 @@ public interface PartialWarehouseMapper {
 	public PartialWarehouseEntity searchUnFinish(@Param("operator_id") String operator_id);
 
 	/**
+	 * 收货次数
+	 * @param entity
+	 * @return
+	 */
+	public Integer countRecept(PartialWarehouseEntity entity);
+
+	/**
 	 * 零件出入库收货工时标准
 	 *
 	 * @return
 	 */
 	public BigDecimal searchReceptStandardTime(PartialWarehouseEntity entity);
+
+	/**
+	 * 零件出入库拆盒工时标准
+	 *
+	 * @return
+	 */
+	public BigDecimal searchCollectCaseStandardTime(PartialWarehouseEntity entity);
 
 	/**
 	 * 零件出入库工时标准

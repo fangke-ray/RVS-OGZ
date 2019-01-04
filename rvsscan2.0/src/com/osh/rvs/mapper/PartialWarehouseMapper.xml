@@ -51,6 +51,23 @@
 			fpf.operator_id = #{operator_id}
 	]]>
 	</select>
+	
+	<select id="countRecept" resultType="int" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+			COUNT(1)
+		FROM
+			fact_production_feature
+		WHER
+			operator_id = #{operator_id} 
+		AND 
+			production_type = 10
+		AND
+			action_time >= CURRENT_DATE
+		AND
+			finish_time IS NOT NULL
+	]]>
+	</select>
 
 	<select id="searchReceptStandardTime" resultType="java.math.BigDecimal" parameterType="PartialWarehouseEntity">
 	<![CDATA[
@@ -104,20 +121,54 @@
 	</if>
 		) temp
 	</select>
+	
+	<select id="searchCollectCaseStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+		    SUM(pwd.quantity * pbs.collect_case)
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		JOIN
+			fact_production_feature fpf
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		WHERE
+	]]>
+	<if test="isNow == 1">
+			pwd.key = #{key}
+	</if>
+	<if test="isNow == 2">
+			fpf.operator_id = #{operator_id} 
+		AND 
+			fpf.production_type = 10
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	</if>
+	</select>
 
 	<select id="searchStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
 		SELECT
 		<if test="production_type == 20">
-			SUM(pbs.collation)
+			SUM(pwd.quantity * pbs.collation)
 		</if>
 		<if test="production_type == 21">
-			SUM(pbs.collation)
+			SUM(pwd.quantity * pbs.collation)
 		</if>
 		<if test="production_type == 30">
-			SUM(pbs.unpack)
+			SUM(pwd.quantity * pbs.unpack)
 		</if>
 		<if test="production_type == 40">
-			SUM(pbs.on_shelf)
+			SUM(pwd.quantity * pbs.on_shelf)
 		</if>
 	<![CDATA[
 		FROM

@@ -31,6 +31,11 @@ public class PartialBussinessStandardEntity implements Serializable {
 	private BigDecimal recept;
 
 	/**
+	 * 拆盒
+	 */
+	private BigDecimal  collect_case;
+
+	/**
 	 * 核对
 	 */
 	private BigDecimal collation;
@@ -77,6 +82,14 @@ public class PartialBussinessStandardEntity implements Serializable {
 
 	public void setRecept(BigDecimal recept) {
 		this.recept = recept;
+	}
+
+	public BigDecimal getCollect_case() {
+		return collect_case;
+	}
+
+	public void setCollect_case(BigDecimal collect_case) {
+		this.collect_case = collect_case;
 	}
 
 	public BigDecimal getCollation() {

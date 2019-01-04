@@ -234,6 +234,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<th class="ui-state-default td-title" style="width:200px;">规格种别</th>
 						<th class="ui-state-default td-title" style="width:260px;">装箱数量</th>
 						<th class="ui-state-default td-title">收货标准工时(分钟/箱)</th>
+						<th class="ui-state-default td-title">拆盒标准工时(分钟/盒)</th>
 						<th class="ui-state-default td-title">核对标准工时(分钟/个)</th>
 						<th class="ui-state-default td-title" style="width:290px;">上架标准工时(分钟/个)</th>
 						<th class="ui-state-default td-title">分装标准工时(分钟/袋)</th>
