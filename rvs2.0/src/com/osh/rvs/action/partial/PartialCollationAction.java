@@ -1,5 +1,6 @@
 package com.osh.rvs.action.partial;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -436,6 +437,21 @@ public class PartialCollationAction extends BaseAction {
 
 		// 更新处理结束时间
 		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
+
+		int b1= 0;
+		List<PartialWarehouseDetailForm> allPartialList = partialWarehouseDetailService.searchByKey(key, conn);
+		for (PartialWarehouseDetailForm partialWarehouseDetailForm : allPartialList) {
+			// 上架
+			BigDecimal onShelf = new BigDecimal(partialWarehouseDetailForm.getOn_shelf());
+			if (onShelf.compareTo(BigDecimal.ZERO) < 0){// 【B1：核对+上架】
+				b1++;
+			}
+		}
+
+		//订购单零件都是B1时，step为3
+		if(b1 == allPartialList.size()){
+			step = "3";
+		}
 
 		// 结束核对单
 		PartialWarehouseForm partialWarehouseForm = new PartialWarehouseForm();

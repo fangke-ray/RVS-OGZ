@@ -32,8 +32,51 @@ $(function(){
     	$("#detail").hide();
     });
     
+    $("#exportButton").click(function(){
+    	reportUnmatch();
+    });
+    
     findit();
 });
+
+function reportUnmatch(){
+	var data = {
+		"dn_no" : $("#search_dn_no").val(),
+		"warehouse_date_start" : $("#search_warehouse_date_start").val(),
+		"warehouse_date_end" : $("#search_warehouse_date_end").val(),
+		"finish_date_start" : $("#search_finish_date_start").val(),
+		"finish_date_end" : $("#search_finish_date_end").val()
+	};
+	
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=report',
+		cache : false,
+		data : data,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj, textStatus) {
+			var resInfo = null;
+			eval("resInfo=" + xhrobj.responseText);
+			if (resInfo && resInfo.fileName) {
+				if ($("iframe").length > 0) {
+					$("iframe").attr("src", "download.do" + "?method=output&filePath=" + resInfo.filePath+"&fileName="+resInfo.fileName);
+				} else {
+					var iframe = document.createElement("iframe");
+					iframe.src = "download.do" + "?method=output&filePath=" + resInfo.filePath+"&fileName="+resInfo.fileName;
+					iframe.style.display = "none";
+					document.body.appendChild(iframe);
+				}
+			} else {
+				errorPop("文件导出失败！"); // TODO dialog
+			}
+		}
+	});
+	
+}
 
 function reset(){
 	$("#search_dn_no,#search_warehouse_date_start,#search_warehouse_date_end,#search_finish_date_start,#search_finish_date_end").val("");

@@ -55,6 +55,10 @@ public class PartialWarehouseEntity implements Serializable {
 	private Integer collation_quantity;
 	private Integer match;
 
+	private String code;
+	private String partial_name;
+	private String operator_name;
+
 	public String getKey() {
 		return key;
 	}
@@ -149,6 +153,30 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setCollation_quantity(Integer collation_quantity) {
 		this.collation_quantity = collation_quantity;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getPartial_name() {
+		return partial_name;
+	}
+
+	public void setPartial_name(String partial_name) {
+		this.partial_name = partial_name;
+	}
+
+	public String getOperator_name() {
+		return operator_name;
+	}
+
+	public void setOperator_name(String operator_name) {
+		this.operator_name = operator_name;
 	}
 
 }

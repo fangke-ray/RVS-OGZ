@@ -86,6 +86,12 @@
 				
 					<table id="list"></table>
 					<div id="listpager"></div>
+					
+					<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
+						<div style="margin-left:4px;margin-top:6px;">
+							<input type="button" id="exportButton" class="ui-button" value="入库单核对不一致导出" style="float:right;margin-right:10px;"/>
+						</div>
+					</div>
 				</div>
 				
 				<div id="detail" style="display: none;">

@@ -60,4 +60,6 @@ public interface PartialWarehouseMapper {
 	 */
 	public List<PartialWarehouseEntity> searchStepPartialWarehouse(PartialWarehouseEntity entity);
 
+	public List<PartialWarehouseEntity> searchUnmatch(PartialWarehouseEntity entity);
+
 }

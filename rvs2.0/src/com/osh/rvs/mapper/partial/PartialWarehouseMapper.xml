@@ -13,7 +13,7 @@
 			step,
 			sum(dtl.quantity) as quantity,
 			sum(abs(dtl.collation_quantity)) as collation_quantity,
-			sum(dtl.quantity <> dtl.collation_quantity) as flg
+			sum(dtl.quantity <> dtl.collation_quantity) as `match`
 		FROM
 			partial_warehouse pw
 		JOIN
@@ -128,6 +128,89 @@
 			pw.step = #{step}
 		GROUP BY
 			pw.key
+	]]>
+	</select>
+	
+	<select id="searchUnmatch" resultType="PartialWarehouseEntity" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+	SELECT
+		pw.warehouse_date,
+		pw.dn_no,
+        v_partial.code,
+        v_partial.name AS partial_name,
+		dtl.quantity,
+		dtl.collation_quantity,
+        fpf.action_time AS finish_date_start,
+        operator.name AS operator_name
+	FROM
+		partial_warehouse pw
+	JOIN 
+		partial_warehouse_detail dtl
+	ON 
+		pw.key = dtl.key
+    JOIN
+		v_partial
+	ON
+		v_partial.partial_id = dtl.partial_id
+	JOIN
+		fact_production_feature fpf
+	ON
+		fpf.fact_pf_key = dtl.fact_pf_key
+	JOIN
+		operator
+	ON
+		operator.operator_id = fpf.operator_id
+	WHERE 
+		dtl.quantity <> dtl.collation_quantity
+	]]>
+	<if test="warehouse_date_start!=null and warehouse_date_start!=''">
+	<![CDATA[
+		AND pw.warehouse_date >= #{warehouse_date_start}
+	]]>
+	</if>
+	<if test="warehouse_date_end!=null and warehouse_date_end!=''">
+	<![CDATA[
+		AND pw.warehouse_date <= #{warehouse_date_end}
+	]]>
+	</if>
+	<if test="dn_no!=null and dn_no!=''">
+	<![CDATA[
+		AND pw.dn_no = #{dn_no}
+	]]>
+	</if>
+	<if test="(finish_date_start!=null and finish_date_start!='') or (finish_date_end!=null and finish_date_end!='')">
+	<![CDATA[
+		AND (SELECT max(finish_time) FROM fact_production_feature 
+			WHERE partial_warehouse_key = pw.key and production_type in (20,40)) 
+			BETWEEN
+	]]>
+		<if test="finish_date_start!=null and finish_date_start!=''">
+		<![CDATA[
+			#{finish_date_start}
+		]]>
+		</if>
+		<if test="finish_date_start eq null or finish_date_start eq ''">
+		<![CDATA[
+			'2000-1-1'
+		]]>
+		</if>
+	<![CDATA[
+			AND
+	]]>
+		<if test="finish_date_end!=null and finish_date_end!=''">
+		<![CDATA[
+			DATE_ADD(#{finish_date_end},INTERVAL 1 DAY)
+		]]>
+		</if>
+		<if test="finish_date_end eq null or finish_date_end eq ''">
+		<![CDATA[
+			'2100-1-1'
+		]]>
+		</if>
+	</if>
+	<![CDATA[
+	ORDER BY
+		pw.dn_no
 	]]>
 	</select>
 </mapper>

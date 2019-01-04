@@ -1,5 +1,6 @@
 package com.osh.rvs.action.partial;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -115,6 +116,29 @@ public class PartialWarehouseAction extends BaseAction {
 		returnJsonResponse(res, listResponse);
 
 		log.info("PartialWarehouseAction.detail end");
+	}
+
+	public void report(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSession conn) throws Exception {
+		log.info("PartialWarehouseAction.report start");
+
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		PartialWarehouseService service = new PartialWarehouseService();
+
+		String fileName ="入库单核对不一致一览.xlsx";
+		String filePath = service.createUnmatchReport(form, conn);
+		listResponse.put("fileName", fileName);
+		listResponse.put("filePath", filePath);
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(response, listResponse);
+
+		log.info("PartialWarehouseAction.report end");
 	}
 
 }
