@@ -15,8 +15,10 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.mapper.partial.FactProductionFeatureMapper;
 
+import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.message.ApplicationMessage;
 
 /**
  * 现品作业信息
@@ -149,6 +151,38 @@ public class FactProductionFeatureService {
 		}
 
 		return respList;
+	}
+
+	/**
+	 * 判断此作业已开始
+	 * @param form
+	 * @param errors
+	 * @param conn
+	 */
+	public void checkWorking(ActionForm form, List<MsgInfo> errors,
+			SqlSessionManager conn) {
+		// 数据库连接对象
+		FactProductionFeatureMapper dao = conn.getMapper(FactProductionFeatureMapper.class);
+
+		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
+		// 复制表单数据到数据模型
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		if (entity.getMaterial_id() == null && entity.getPartial_warehouse_key() == null) {
+			return;
+		}
+
+		List<FactProductionFeatureEntity> fpfs = dao.searchWorkRecord(entity);
+		for (FactProductionFeatureEntity fpf : fpfs) {
+			if (fpf.getFinish_time() == null) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("partial_warehouse_key");
+				error.setErrcode("info.factwork.workingAlready");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.factwork.workingAlready"));
+				errors.add(error);
+				break;
+			}
+		}
 	}
 
 }

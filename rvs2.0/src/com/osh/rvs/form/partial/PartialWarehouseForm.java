@@ -75,6 +75,9 @@ public class PartialWarehouseForm extends ActionForm {
 	@BeanField(title = "核对一致", name = "match", type = FieldType.Integer)
 	private String match;
 
+	@BeanField(title = "作业内容", name = "production_type", type = FieldType.Integer, length = 2)
+	private String production_type;
+
 	public String getKey() {
 		return key;
 	}
@@ -169,6 +172,14 @@ public class PartialWarehouseForm extends ActionForm {
 
 	public void setCollation_quantity(String collation_quantity) {
 		this.collation_quantity = collation_quantity;
+	}
+
+	public String getProduction_type() {
+		return production_type;
+	}
+
+	public void setProduction_type(String production_type) {
+		this.production_type = production_type;
 	}
 
 }

@@ -293,6 +293,7 @@ public class PartialCollationAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		List<PartialWarehouseDetailForm> partialMapList = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
 		Map<String, String> partialMap = new HashMap<String, String>();
 		Map<String, String[]> parameters = req.getParameterMap();
 
@@ -303,16 +304,18 @@ public class PartialCollationAction extends BaseAction {
 				if ("partial_warehouse_detail".equals(entity)) {
 					String column = m.group(2);
 					String[] value = parameters.get(parameterKey);
-					String partialID = "";
-					String collationQuantity = "";
+					int icounts = Integer.parseInt(m.group(3));
 					if ("partial_id".equals(column)) {
-						partialID = value[0];
+						partialMapList.get(icounts).setPartial_id(value[0]);
 					} else if ("collation_quantity".equals(column)) {
-						collationQuantity = value[0];
+						partialMapList.get(icounts).setCollation_quantity(value[0]);
 					}
-					partialMap.put(partialID, collationQuantity);
 				}
 			}
+		}
+
+		for (PartialWarehouseDetailForm o : partialMapList) {
+			partialMap.put(o.getPartial_id(), o.getCollation_quantity());
 		}
 
 		// 进行中的作业信息
@@ -331,7 +334,7 @@ public class PartialCollationAction extends BaseAction {
 			// 未核对
 			if (CommonStringUtil.isEmpty(factPfKey)) {
 				MsgInfo error = new MsgInfo();
-				error.setErrmsg("此单未核对完毕！");
+				error.setErrmsg("此单尚有零件" + partialWarehouseDetailForm.getCode() + "未核对完毕，不能完成核对。如要进行另一部分的核对，请先中断作业。");
 				errors.add(error);
 				break;
 			}

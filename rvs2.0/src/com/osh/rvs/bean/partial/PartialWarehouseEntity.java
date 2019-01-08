@@ -59,6 +59,8 @@ public class PartialWarehouseEntity implements Serializable {
 	private String partial_name;
 	private String operator_name;
 
+	private Integer production_type;
+
 	public String getKey() {
 		return key;
 	}
@@ -177,6 +179,14 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setOperator_name(String operator_name) {
 		this.operator_name = operator_name;
+	}
+
+	public Integer getProduction_type() {
+		return production_type;
+	}
+
+	public void setProduction_type(Integer production_type) {
+		this.production_type = production_type;
 	}
 
 }

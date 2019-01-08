@@ -90,15 +90,20 @@ public class FactProductionFeatureAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		// 当前登录者
-		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		// 判断此作业已开始
+		factProductionFeatureService.checkWorking(form, errors, conn);
 
-		FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
-		// 操作者 ID
-		factProductionFeatureForm.setOperator_id(user.getOperator_id());
+		if (errors.size() == 0) {
+			// 当前登录者
+			LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
-		// 新建现品作业信息
-		factProductionFeatureService.insert(factProductionFeatureForm, conn);
+			FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
+			// 操作者 ID
+			factProductionFeatureForm.setOperator_id(user.getOperator_id());
+
+			// 新建现品作业信息
+			factProductionFeatureService.insert(factProductionFeatureForm, conn);
+		}
 
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);

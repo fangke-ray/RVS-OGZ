@@ -196,6 +196,7 @@ $(function() {
         <a title="" target="_parent" href="show.do#lineWorkDuration">总组</a>人员工时图<br>
         <a title="" target="_parent" href="show.do#service_repair_manage">保内返品分析展示</a><br>
         <a title="" target="_parent" href="show.do#finalCheck">最终检查展示</a><br>
+        <a title="" target="_parent" href="show.do#partialWarehouse">仓管人员工时图</a><br>
 </div>
 <% } %>
 

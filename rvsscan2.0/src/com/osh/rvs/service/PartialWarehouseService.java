@@ -299,6 +299,7 @@ public class PartialWarehouseService {
 		if(standardTime == null) standardTime = BigDecimal.ZERO;
 
 		// 拆盒标准工时(分钟)
+		entity.setIsNow(2);
 		BigDecimal collectCaseStandardTime = dao.searchCollectCaseStandardTime(entity);
 		if(collectCaseStandardTime == null) collectCaseStandardTime = BigDecimal.ZERO;
 
@@ -387,7 +388,7 @@ public class PartialWarehouseService {
 		actualTime = dao.searchSpentMins(connd);
 		if (actualTime != null) {
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
-			entity.setNs_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
+			entity.setDec_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}
 
 		// O、其它
@@ -399,7 +400,7 @@ public class PartialWarehouseService {
 		}
 
 		if (totalActualTime != null && totalStandardTime != null && totalActualTime.doubleValue() != 0) {
-			entity.setTotal_percent(totalStandardTime.divide(totalActualTime, 1, RoundingMode.HALF_UP).multiply(new BigDecimal(100)));
+			entity.setTotal_percent(totalStandardTime.divide(totalActualTime, 3, RoundingMode.HALF_UP).multiply(new BigDecimal(100)));
 		}
 
 		return entity;
@@ -414,7 +415,7 @@ public class PartialWarehouseService {
 	 * @return
 	 */
 	private Integer calculatePercent(BigDecimal standardTime, BigDecimal spentMins) {
-		BigDecimal result = standardTime.divide(spentMins, 0, RoundingMode.UP);
+		BigDecimal result = standardTime.divide(spentMins, 2, RoundingMode.UP);
 
 		// 乘以100
 		result = result.multiply(new BigDecimal(100));

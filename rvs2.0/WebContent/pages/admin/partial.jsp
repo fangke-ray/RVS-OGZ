@@ -145,10 +145,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 
 			<!-- 第二个Jqgrid -->
-			<div id="view_edit_list" class="width-middleright" style="margin:4px;">
+			<!--div id="view_edit_list" class="width-middleright" style="margin:4px;">
 			<table id="ext_list"></table>
 	        <div id="ext_listpager"></div>
-			</div>
+			</div-->
 		</form>		
 	</div>
 	<div class="ui-state-default ui-corner-bottom areaencloser dwidth-middleright"></div>

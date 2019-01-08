@@ -118,13 +118,7 @@
 			pw.step
 		FROM
 		    partial_warehouse pw
-		LEFT JOIN
-			fact_production_feature fpf
-		ON
-			pw.key = fpf.partial_warehouse_key
 		WHERE
-			fpf.operator_id = #{operator_id}
-		AND 
 			pw.step = #{step}
 		GROUP BY
 			pw.key

@@ -18,10 +18,10 @@ $(function () {
 	};
 
 	$("#workflow ul").buttonset();
-	$("#workflow input[type='radio'").each(function () {
+	$("#workflow input[type='radio']").each(function () {
 		$(this).click(function () {
 			if (!$(this).hasClass("active")) {
-				$("#workflow input[type='radio'").removeClass("active").next("label").css("cursor", "pointer");
+				$("#workflow input[type='radio']").removeClass("active").next("label").css("cursor", "pointer");
 				$(this).addClass("active").next("label").css("cursor", "default");
 				loadPage(this.id, servicePaths[this.id]);
 			}
@@ -33,7 +33,7 @@ $(function () {
 
 function enableMenu (id) {
 	if (id) {
-		$("#workflow input[type='radio'").each(function () {
+		$("#workflow input[type='radio']").each(function () {
 			let _id = this.id;
 			if (id == _id) {
 				$("#" + id).enable().next().css({"pointer-events" : "auto"});
@@ -42,7 +42,7 @@ function enableMenu (id) {
 			}
 		});
 	} else {
-		$("#workflow input[type='radio'").each(function () {
+		$("#workflow input[type='radio']").each(function () {
 			$(this).enable().next().css({"pointer-events" : "auto"});
 		});
 	}

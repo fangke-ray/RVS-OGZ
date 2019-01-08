@@ -182,7 +182,7 @@ public class PartialBussinessStandardService {
 					errors.add(error);
 				}
 
-				if (Double.valueOf(collectCase) <= 0) {
+				if (Double.valueOf(collectCase) < 0) {
 					MsgInfo error = new MsgInfo();
 					error.setErrcode("validator.invalidParam.invalidMoreThanZero");
 					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", CodeListUtils.getValue(PARTIAL_SPEC_KIND, form.getSpec_kind()) + "拆盒"));

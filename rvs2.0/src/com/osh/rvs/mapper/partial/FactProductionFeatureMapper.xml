@@ -17,27 +17,29 @@
 			occur_times
 		FROM
 			fact_production_feature
-		WHERE
-			operator_id = #{operator_id}
 	]]>
+	<where>
+	<if test="operator_id!=null and operator_id!=''">
+	<![CDATA[
+		AND operator_id = #{operator_id}
+	]]>
+	</if>
 	<if test="partial_warehouse_key!=null and partial_warehouse_key!=''">
 	<![CDATA[
-		AND
-			partial_warehouse_key = #{partial_warehouse_key}
+		AND partial_warehouse_key = #{partial_warehouse_key}
 	]]>
 	</if>
 	<if test="production_type!=null and production_type!=''">
 	<![CDATA[
-		AND
-			production_type = #{production_type}
+		AND production_type = #{production_type}
 	]]>
 	</if>
 	<if test="material_id!=null and material_id!=''">
 	<![CDATA[
-		AND
-			material_id = #{material_id}
+		AND material_id = #{material_id}
 	]]>
 	</if>
+	</where>
 	</select>
 
 	<insert id="insert" parameterType="FactProductionFeatureEntity">

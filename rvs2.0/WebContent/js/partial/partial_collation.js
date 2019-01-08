@@ -30,11 +30,11 @@ $(function(){
 			startScanner();
 		}
 	});
-	$("#scanner_inputer").keyup(function(e){
-		if(e.keyCode == 13){
-			startScanner();
-		}
-	});
+//	$("#scanner_inputer").keyup(function(e){
+//		if(e.keyCode == 13){
+//			startScanner();
+//		}
+//	});
 	
 	collationInit();
 });
@@ -62,7 +62,7 @@ function startScanner(){
 				if (resInfo.errors.length > 0) {
 					// 共通出错信息框
 					treatBackMessages(null, resInfo.errors);
-					$("#scanner_inputer").val("").focus();
+					$("#scanner_inputer").val("");
 				} else {
 					$("#scanner_inputer").val("").focus();
 					var dn_no = $("#label_dn_no").text(),
@@ -132,7 +132,7 @@ function updateList(partial_id){
 	let rowData = $grid.getRowData(map.get(partial_id));
 	
 	var content=`<div class="ui-widget-content">
-					<form id="updateForm">
+					<form id="updateForm" onsubmit="$('#message_dialog').next().find('button:eq(0)').trigger('click');return false;">
 						<table class="condform">
 					 		<tbody>
 					 			<tr>
@@ -193,8 +193,12 @@ function updateList(partial_id){
 			"取消" : function() {
 				$(this).dialog("close");
 			} 
+		},
+		close :function(){
+			$("#scanner_inputer").val("").focus();
 		}
 	});
+	$("#update_collation_quantity").focus().select();
 };
 
 function doStart(){
@@ -426,6 +430,7 @@ function collationInit(){
 						list(partialWarehouseDetailList);
 						setRate(fact_production_feature,resInfo.leagal_overline,resInfo.spent_mins);
 
+						$("#scanner_inputer").val("").focus();
 					}else{
 						reset();
 					}
@@ -525,6 +530,7 @@ function chooseKind(){
 			},
 			"取消" : function() {
 				$(this).dialog("close");
+
 			}
 		}
 	});
