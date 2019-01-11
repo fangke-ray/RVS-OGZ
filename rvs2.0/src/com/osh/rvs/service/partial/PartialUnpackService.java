@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.osh.rvs.bean.master.PartialBussinessStandardEntity;
 import com.osh.rvs.bean.partial.FactPartialWarehouseEntity;
 import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
 import com.osh.rvs.form.partial.FactPartialWarehouseForm;
@@ -156,7 +157,7 @@ public class PartialUnpackService {
 	}
 
 	public String getStandardTime(List<PartialWarehouseDetailForm> list, SqlSession conn) {
-		Map<Integer, BigDecimal> map = partialBussinessStandardService.getUnpackStandardTime(conn);
+		Map<String,PartialBussinessStandardEntity> map = partialBussinessStandardService.getStandardTime(conn);
 
 		// 总时间
 		BigDecimal totalTime = new BigDecimal("0");
@@ -167,7 +168,7 @@ public class PartialUnpackService {
 			Integer quantity = Integer.valueOf(form.getQuantity());
 
 			// 标准工时
-			BigDecimal time = map.get(specKind);
+			BigDecimal time = map.get(specKind).getUnpack();
 			if(time == null){
 				continue;
 			}

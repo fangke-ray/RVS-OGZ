@@ -58,6 +58,12 @@ public interface FactProductionFeatureMapper {
 	public void updateKey(FactProductionFeatureEntity entity) throws Exception;
 
 	/**
+	 * 收货完成
+	 * @param entity
+	 */
+	public void finishRecept(FactProductionFeatureEntity entity);
+
+	/**
 	 * 零件待出库
 	 *
 	 * @return

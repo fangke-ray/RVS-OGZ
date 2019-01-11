@@ -10,8 +10,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -21,16 +23,14 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.struts.action.ActionForm;
 
+import com.osh.rvs.bean.master.PartialBussinessStandardEntity;
 import com.osh.rvs.bean.master.PartialEntity;
-import com.osh.rvs.bean.partial.PartialWarehouseDetailEntity;
 import com.osh.rvs.common.CopyByPoi;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
-import com.osh.rvs.form.partial.PartialWarehouseForm;
-import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.mapper.manage.UserDefineCodesMapper;
 import com.osh.rvs.mapper.master.PartialMapper;
-import com.osh.rvs.mapper.partial.PartialWarehouseDetailMapper;
 import com.osh.rvs.service.PartialBussinessStandardService;
 import com.osh.rvs.service.UploadService;
 
@@ -55,22 +55,135 @@ public class PartialReceptService {
 
 	private final PartialBussinessStandardService partialBussinessStandardService = new PartialBussinessStandardService();
 
-	public void upload(ActionForm form, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) {
+
+	public void jsinit(FactProductionFeatureForm form,HttpServletRequest req,Map<String, Object> callbackResponse,SqlSession conn){
+		HttpSession session =  req.getSession();
+		// 零件入库DN编号
+		@SuppressWarnings("unchecked")
+		List<PartialWarehouseDnForm> warehouseDnList = (List<PartialWarehouseDnForm>)session.getAttribute("warehouseDnList");
+
+		// 零件入库明细
+		@SuppressWarnings("unchecked")
+		List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>)session.getAttribute("detailList");
+
+		if(detailList != null){
+			//零件出入库工时标准
+			Map<String,PartialBussinessStandardEntity> standardMap = partialBussinessStandardService.getStandardTime(conn);
+
+			// 各个规格种别总数量
+			Map<String,Integer> specKindMap = new TreeMap<String,Integer>();
+
+
+			for(PartialWarehouseDetailForm temp:detailList){
+				// 数量
+				Integer quantity = Integer.valueOf(temp.getQuantity());
+
+				//规格种别
+				String specKind = temp.getSpec_kind();
+
+				if(specKindMap.containsKey(specKind)){
+					specKindMap.put(specKind, specKindMap.get(specKind) + quantity);
+				}else{
+					specKindMap.put(specKind, quantity);
+				}
+			}
+
+			// 总时间
+			BigDecimal totalTime = new BigDecimal("0");
+
+			// 统计各个规格种别总数量
+			List<PartialWarehouseDetailForm> counttQuantityList = new ArrayList<PartialWarehouseDetailForm>();
+
+			for(String specKind:specKindMap.keySet()){
+				PartialWarehouseDetailForm partialWarehouseDetailForm = new PartialWarehouseDetailForm();
+				partialWarehouseDetailForm.setSpec_kind(specKind);
+
+				if(standardMap.containsKey(specKind)){
+					//总数量
+					Integer totalQuantity = specKindMap.get(specKind);
+
+					// 拆盒标准工时
+					BigDecimal collectCaseTime = standardMap.get(specKind).getCollect_case();
+
+					// 收货标准工时
+					BigDecimal receptTime = standardMap.get(specKind).getRecept();
+
+					collectCaseTime = collectCaseTime.multiply(new BigDecimal(totalQuantity));
+					totalTime = totalTime.add(collectCaseTime);
+
+
+					//装箱数量
+					BigDecimal boxCount = new BigDecimal(standardMap.get(specKind).getBox_count());
+
+					if(boxCount.compareTo(BigDecimal.ZERO) < 0){//装箱数量<0,
+						partialWarehouseDetailForm.setQuantity("1");
+
+						totalTime = totalTime.add(receptTime);
+					}else{
+						//总数量
+						BigDecimal quantity = new BigDecimal(totalQuantity.toString());
+						quantity = quantity.divide(boxCount, RoundingMode.UP);//向上取整，不足一箱按一箱计算
+						partialWarehouseDetailForm.setQuantity(quantity.toString());
+
+						receptTime = receptTime.multiply(quantity);
+						totalTime = totalTime.add(receptTime);
+					}
+
+					counttQuantityList.add(partialWarehouseDetailForm);
+				}
+			}
+
+			UserDefineCodesMapper dao = conn.getMapper(UserDefineCodesMapper.class);
+
+			// 收货搬运移动标准工时
+			String value = dao.searchUserDefineCodesValueByCode("PARTIAL_RECEPT_MOVE_COST");
+			BigDecimal bdPartialReceptMoveCost = null;
+			try {
+				bdPartialReceptMoveCost = new BigDecimal(value);
+			} catch (Exception e) {
+				bdPartialReceptMoveCost = new BigDecimal(12);
+			}
+			totalTime = totalTime.add(bdPartialReceptMoveCost);
+
+			// 向上取整
+			totalTime = totalTime.setScale(0, RoundingMode.UP);
+
+
+			//零件入库DN编号
+			callbackResponse.put("partialWarehouseDnList", warehouseDnList);
+
+			// 零件入库明细
+			callbackResponse.put("partialWarehouseDetailList", detailList);
+
+			// 各个规格种别总数量
+			callbackResponse.put("counttQuantityList", counttQuantityList);
+
+			// 作业标准时间
+			callbackResponse.put("leagal_overline", totalTime.toString());
+		}
+
+	}
+
+	public void upload(ActionForm form, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		UploadService uService = new UploadService();
-		String tempfilename = uService.getFile2Local(form, errors);
+
+		List<String> tempFileNames = uService.getFiles2Local(form, errors);
 
 		if (errors.size() != 0)
 			return;
 
-		if (!tempfilename.endsWith(".xlsx")) {
-			MsgInfo error = new MsgInfo();
-			error.setErrcode("file.invalidType");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.invalidType"));
-			errors.add(error);
-			return;
+		for (String tempfilename : tempFileNames) {
+			if (!tempfilename.endsWith(".xlsx")) {
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("file.invalidType");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.invalidType"));
+				errors.add(error);
+				return;
+			}
 		}
 
-		readFile(tempfilename, req, conn, errors);
+		// 解析文件
+		readFile(tempFileNames, req, conn, errors);
 
 	}
 
@@ -81,182 +194,80 @@ public class PartialReceptService {
 	 * @param conn
 	 * @param errors
 	 */
-	private void readFile(String filename, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) {
-		FactProductionFeatureService factProductionFeatureService = new FactProductionFeatureService();
-		PartialWarehouseService partialWarehouseService = new PartialWarehouseService();
-		PartialWarehouseDetailService partialWarehouseDetailService = new PartialWarehouseDetailService();
+	private void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
+		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 		PartialMapper partialDao = conn.getMapper(PartialMapper.class);
-		CommonMapper commonDao = conn.getMapper(CommonMapper.class);
 
 		InputStream in = null;
-		String lastInsertID = null;
 		try {
-			// 零件入库单
-			PartialWarehouseForm partialWarehouseForm = new PartialWarehouseForm();
+			//String key = null;
+			XSSFWorkbook work = null;
+			XSSFSheet sheet = null;
+
+			// 零件入库DN编号
+			List<PartialWarehouseDnForm> warehouseDnList = new ArrayList<PartialWarehouseDnForm>();
 
 			// 零件入库明细
 			List<PartialWarehouseDetailForm> detailList = new ArrayList<PartialWarehouseDetailForm>();
 
-			Map<String, String> checkPartailRepeat = new HashMap<String, String>();
+			for (int i = 0; i < tempFileNames.size(); i++) {
+				int seq = i + 1;
 
-			in = new FileInputStream(filename);// 读取文件
+				in = new FileInputStream(tempFileNames.get(i));// 读取文件
 
-			XSSFWorkbook work = new XSSFWorkbook(in);// 创建Excel
+				work = new XSSFWorkbook(in);// 创建Excel
 
-			XSSFSheet sheet = work.getSheetAt(0);// 获取Sheet
+				sheet = work.getSheetAt(0);// 获取Sheet
 
-			XSSFRow row = null;
-			XSSFCell cell = null;
+				// 验证Excel
+				PartialWarehouseDnForm partialWarehouseDnForm = this.validateExcel(sheet, seq, errors);
 
-			validateExcel(sheet, partialWarehouseForm, errors);
-			if (errors.size() > 0)
-				return;
+				if (errors.size() > 0)
+					return;
 
-			// DN 编号
-			String dnNo = partialWarehouseForm.getDn_no();
+				// DN 编号
+				String dnNo = partialWarehouseDnForm.getDn_no();
 
-			PartialWarehouseForm tempWarehouseForm = partialWarehouseService.getPartialWarehouseByDnNo(dnNo, conn);
-			if (tempWarehouseForm != null) {
-				MsgInfo error = new MsgInfo();
-				error.setErrcode("dbaccess.recordDuplicated");
-				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordDuplicated", "DN编号[" + dnNo + "]"));
-				errors.add(error);
-				return;
+				PartialWarehouseDnForm tempForm = partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(dnNo, conn);
+
+				// 存在DN 编号
+				if (tempForm != null) {
+					// 编号重复
+					MsgInfo error = new MsgInfo();
+					error.setErrcode("dbaccess.recordDuplicated");
+					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordDuplicated", "DN编号[" + dnNo + "]"));
+					errors.add(error);
+					return;
+				}
+
+				warehouseDnList.add(partialWarehouseDnForm);
+
+				// 零件入库明细
+				List<PartialWarehouseDetailForm> list = this.setPartialWarehouseDetail(sheet,partialWarehouseDnForm, seq, partialDao, errors);
+
+				if (errors.size() > 0)
+					return;
+
+				//没有数据
+				if (list.size() == 0) {
+					errors.add(getFormatError());
+					return;
+				}
+
+				detailList.addAll(list);
 			}
 
-			// 遍历文件
-			for (int iRow = 5; iRow <= sheet.getLastRowNum(); iRow++) {
-				PartialWarehouseDetailForm partialWarehouseDetailForm = new PartialWarehouseDetailForm();
-				row = sheet.getRow(iRow);
-
-				// 行不存在，读取下一行
-				if (row == null)
-					continue;
-
-				// 第一列
-				cell = row.getCell(0);
-
-				// 单元格不存在，停止读取
-				if (cell == null)
-					break;
-
-				// 零件编号
-				String code = CopyByPoi.getStringCellValue(cell);
-
-				// 零件编号没有填写,停止读取
-				if (CommonStringUtil.isEmpty(code))
-					break;
-
-				if (code.contains("箱数"))
-					break;
-
-				// 查询零件信息
-				List<PartialEntity> partialList = partialDao.getPartialByCode(code);
-				if (partialList == null || partialList.size() == 0) {
-					// 零件不存在
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("dbaccess.recordNotExist");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", "零件编码[" + code + "]"));
-					errors.add(error);
-					break;
-				}
-
-				if (checkPartailRepeat.containsKey(code)) {
-					// 零件重复
-					MsgInfo error = new MsgInfo();
-					error.setErrmsg("零件编码[" + code + "]重复");
-					errors.add(error);
-					break;
-				} else {
-					checkPartailRepeat.put(code, code);
-				}
-
-				// 第三列
-				cell = row.getCell(2);
-
-				// 单元格不存在，停止读取
-				if (cell == null) {
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("validator.required");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "零件编号[" + code + "]数量"));
-					errors.add(error);
-					break;
-				}
-
-				// 数量
-				String strQuantity = CopyByPoi.getStringCellValue(cell);
-
-				// 去前后空格
-				strQuantity = CommonStringUtil.trim(strQuantity);
-
-				// 数量没有填写,停止读取
-				if (CommonStringUtil.isEmpty(strQuantity)) {
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("validator.required");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "零件编号[" + code + "]数量"));
-					errors.add(error);
-					break;
-				} else if (strQuantity.length() > 5) {// 长度大于5
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("validator.invalidParam.invalidMaxLengthValue");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMaxLengthValue", "零件编号[" + code + "]的数量", "5"));
-					errors.add(error);
-					break;
-				} else if (!UploadService.isNum(strQuantity)) {// 数量不是数字
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("validator.invalidParam.invalidIntegerValue");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidIntegerValue", "零件编号[" + code + "]的数量"));
-					errors.add(error);
-					break;
-				} else if (Integer.valueOf(strQuantity) <= 0) {// 数字小于1
-					MsgInfo error = new MsgInfo();
-					error.setErrcode("validator.invalidParam.invalidMoreThanZero");
-					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", "零件编号[" + code + "]的数量"));
-					errors.add(error);
-					break;
-				}
-
-				PartialEntity partialEntity = partialList.get(0);
-				// 零件ID
-				partialWarehouseDetailForm.setPartial_id(partialEntity.getPartial_id());
-
-				// 数量
-				partialWarehouseDetailForm.setQuantity(strQuantity);
-
-				// 核对数量(零件发放默认为0)
-				partialWarehouseDetailForm.setCollation_quantity("0");
-
-				detailList.add(partialWarehouseDetailForm);
-			}
-
-			if (errors.size() > 0)
-				return;
-
+			//没有数据
 			if (detailList.size() == 0) {
 				errors.add(getFormatError());
 				return;
 			}
 
-			// 新建零件入库单
-			partialWarehouseService.insert(partialWarehouseForm, conn);
-
-			lastInsertID = commonDao.getLastInsertID();
-
-			for (int i = 0; i < detailList.size(); i++) {
-				PartialWarehouseDetailForm partialWarehouseDetailForm = detailList.get(i);
-				// KEY
-				partialWarehouseDetailForm.setKey(lastInsertID);
-				// 新建零件入库明细
-				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
-			}
-
-			// 查询未结束作业的记录
-			FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
-			factProductionFeatureForm.setPartial_warehouse_key(lastInsertID);
-			factProductionFeatureService.updateKey(factProductionFeatureForm, conn);
-
+			HttpSession session =  req.getSession();
+			session.setAttribute("warehouseDnList", warehouseDnList);
+			session.setAttribute("detailList", detailList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			if (in != null) {
 				try {
@@ -269,14 +280,165 @@ public class PartialReceptService {
 	}
 
 	/**
+	 * 零件入库明细
+	 *
+	 * @param sheet
+	 * @param seq 序号
+	 * @param partialDao
+	 * @param errors
+	 * @return
+	 */
+	private List<PartialWarehouseDetailForm> setPartialWarehouseDetail(XSSFSheet sheet,PartialWarehouseDnForm partialWarehouseDnForm, int seq, PartialMapper partialDao, List<MsgInfo> errors) {
+		// 检查零件是否重复
+		Map<String, String> checkPartailRepeat = new HashMap<String, String>();
+
+		List<PartialWarehouseDetailForm> list = new ArrayList<PartialWarehouseDetailForm>();
+
+		XSSFRow row = null;
+		XSSFCell cell = null;
+
+		String message = "";
+
+		String dnNo = partialWarehouseDnForm.getDn_no();
+
+		String warehouseDate = partialWarehouseDnForm.getWarehouse_date();
+
+		// 遍历文件
+		for (int iRow = 5; iRow <= sheet.getLastRowNum(); iRow++) {
+			row = sheet.getRow(iRow);
+
+			// 行不存在，读取下一行
+			if (row == null)
+				continue;
+
+			// 第一列
+			cell = row.getCell(0);
+
+			// 单元格不存在，停止读取
+			if (cell == null)
+				break;
+
+			// 零件编号
+			String code = CopyByPoi.getStringCellValue(cell);
+
+			// 零件编号没有填写,停止读取
+			if (CommonStringUtil.isEmpty(code))
+				break;
+
+			if (code.contains("箱数"))
+				break;
+
+			// 查询零件信息
+			List<PartialEntity> partialList = partialDao.getPartialByCode(code);
+			if (partialList == null || partialList.size() == 0) {
+				message = "DN编号为[" + dnNo + "]验收确认单的零件编号为[" + code + "]";
+
+				// 零件不存在
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("dbaccess.recordNotExist");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", message));
+				errors.add(error);
+				break;
+			}
+
+			if (checkPartailRepeat.containsKey(code)) {
+				message = "DN编号为[" + dnNo + "]验收确认单的零件编号为[" + code + "]重复";
+
+				// 零件重复
+				MsgInfo error = new MsgInfo();
+				error.setErrmsg(message);
+				errors.add(error);
+				break;
+			} else {
+				checkPartailRepeat.put(code, code);
+			}
+
+			// 第三列
+			cell = row.getCell(2);
+
+			// 单元格不存在，停止读取
+			if (cell == null) {
+				message = "DN编号为[" + dnNo + "]验收确认单的零件编号为[" + code + "]的数量";
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("validator.required");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", message));
+				errors.add(error);
+				break;
+			}
+
+			// 数量
+			String strQuantity = CopyByPoi.getStringCellValue(cell);
+
+			// 去前后空格
+			strQuantity = CommonStringUtil.trim(strQuantity);
+
+			message = "DN编号为[" + dnNo + "]验收确认单的零件编号为[" + code + "]的数量";
+
+			// 数量没有填写,停止读取
+			if (CommonStringUtil.isEmpty(strQuantity)) {
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("validator.required");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", message));
+				errors.add(error);
+				break;
+			} else if (strQuantity.length() > 5) {// 长度大于5
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("validator.invalidParam.invalidMaxLengthValue");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMaxLengthValue", message, "5"));
+				errors.add(error);
+				break;
+			} else if (!UploadService.isNum(strQuantity)) {// 数量不是数字
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("validator.invalidParam.invalidIntegerValue");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidIntegerValue", message));
+				errors.add(error);
+				break;
+			} else if (Integer.valueOf(strQuantity) <= 0) {// 数字小于1
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("validator.invalidParam.invalidMoreThanZero");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", message));
+				errors.add(error);
+				break;
+			}
+
+			PartialEntity partialEntity = partialList.get(0);
+
+			PartialWarehouseDetailForm form = new PartialWarehouseDetailForm();
+			// 序号
+			form.setSeq(String.valueOf(seq));
+			// 零件 ID
+			form.setPartial_id(partialEntity.getPartial_id());
+			// 零件名称
+			form.setPartial_name(partialEntity.getName());
+			// 零件编号
+			form.setCode(code);
+			//规格种别
+			form.setSpec_kind(partialEntity.getSpec_kind().toString());
+			// 数量
+			form.setQuantity(strQuantity);
+			// 核对数量(零件发放默认为0)
+			form.setCollation_quantity("0");
+
+			form.setDn_no(dnNo);
+			form.setWarehouse_date(warehouseDate);
+
+			list.add(form);
+		}
+
+		return list;
+	}
+
+	/**
 	 * 验证Excel
 	 *
 	 * @param sheet
-	 * @param entity
+	 * @param seq 序号
 	 * @param errors
-	 * @return 总计所在行索引
+	 * @return
 	 */
-	private void validateExcel(XSSFSheet sheet, PartialWarehouseForm partialWarehouseForm, List<MsgInfo> errors) {
+	private PartialWarehouseDnForm validateExcel(XSSFSheet sheet, Integer seq, List<MsgInfo> errors) {
+		PartialWarehouseDnForm partialWarehouseDnForm = new PartialWarehouseDnForm();
+
 		XSSFRow row = null;
 		XSSFCell cell = null;
 
@@ -284,41 +446,42 @@ public class PartialReceptService {
 		row = sheet.getRow(1);
 		if (row == null || row.getCell(1) == null) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		// 第三行
 		row = sheet.getRow(2);
 		if (row == null || row.getCell(1) == null) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		// 第五行
 		row = sheet.getRow(4);
 		if (row == null || row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		if (!"零件编号".equals(CopyByPoi.getStringCellValue(row.getCell(0)))) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		if (!"零件名称".equals(CopyByPoi.getStringCellValue(row.getCell(1)))) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		if (!"数量".equals(CopyByPoi.getStringCellValue(row.getCell(2)))) {
 			errors.add(getFormatError());
-			return;
+			return null;
 		}
 
 		// 日期
 		cell = sheet.getRow(1).getCell(1);
 		String strWarehouseDate = null;
+
 		// 单元格类型为【数字】并且是数字类型下的【日期】类型
 		if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC && org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 			strWarehouseDate = DateUtil.toString(cell.getDateCellValue(), DateUtil.DATE_PATTERN);
@@ -330,12 +493,12 @@ public class PartialReceptService {
 		cell = sheet.getRow(2).getCell(1);
 		String dnNo = CopyByPoi.getStringCellValue(cell);
 
-		partialWarehouseForm.setWarehouse_date(strWarehouseDate);
-		partialWarehouseForm.setDn_no(dnNo);
+		partialWarehouseDnForm.setWarehouse_date(strWarehouseDate);
+		partialWarehouseDnForm.setDn_no(dnNo);
 
-		Validators v = BeanUtil.createBeanValidators(partialWarehouseForm, BeanUtil.CHECK_TYPE_ALL);
+		Validators v = BeanUtil.createBeanValidators(partialWarehouseDnForm, BeanUtil.CHECK_TYPE_ALL);
 		v.delete("key");
-		v.delete("step");
+		v.delete("seq");
 		errors.addAll(v.validate());
 
 		// 日期格式验证
@@ -346,72 +509,10 @@ public class PartialReceptService {
 			errors.add(error);
 		}
 
-		// 收货步骤为0
-		partialWarehouseForm.setStep("0");
-	}
+		// 序号
+		partialWarehouseDnForm.setSeq(String.valueOf(seq));
 
-	/**
-	 * 作业标准时间
-	 *
-	 * @param list
-	 * @param conn
-	 * @return
-	 */
-	public String getStandardTime(String key, SqlSession conn) {
-		Map<Integer, BigDecimal> receptMap = partialBussinessStandardService.getReceptStandardTime(conn);
-		Map<Integer, BigDecimal> collectCaseMap = partialBussinessStandardService.getCollectCaseStandardTime(conn);
-
-		PartialWarehouseDetailMapper partialWarehouseDetailMapper = conn.getMapper(PartialWarehouseDetailMapper.class);
-
-		PartialWarehouseDetailEntity entity = new PartialWarehouseDetailEntity();
-		entity.setKey(key);
-		List<PartialWarehouseDetailEntity> list = partialWarehouseDetailMapper.countQuantityOfSpecKind(entity);
-
-		// 总时间
-		BigDecimal totalTime = new BigDecimal("0");
-
-		for (int i = 0; i < list.size(); i++) {
-			Integer specKind = list.get(i).getSpec_kind();
-
-			// 箱数
-			Integer quantity = list.get(i).getQuantity();
-
-			// 标准工时
-			BigDecimal time = receptMap.get(specKind);
-			time = time.multiply(new BigDecimal(quantity));
-
-			totalTime = totalTime.add(time);
-		}
-
-		list = partialWarehouseDetailMapper.searchByKey(key);
-		for (int i = 0; i < list.size(); i++) {
-			Integer specKind = list.get(i).getSpec_kind();
-
-			//数量
-			Integer quantity = list.get(i).getQuantity();
-
-			// 标准工时
-			BigDecimal time = collectCaseMap.get(specKind);
-			time = time.multiply(new BigDecimal(quantity));
-
-			totalTime = totalTime.add(time);
-		}
-
-		UserDefineCodesMapper dao = conn.getMapper(UserDefineCodesMapper.class);
-
-		// 收货搬运移动标准工时
-		String value = dao.searchUserDefineCodesValueByCode("PARTIAL_RECEPT_MOVE_COST");
-		BigDecimal bdPartialReceptMoveCost = null;
-		try {
-			bdPartialReceptMoveCost = new BigDecimal(value);
-		} catch (Exception e) {
-			bdPartialReceptMoveCost = new BigDecimal(12);
-		}
-		totalTime = totalTime.add(bdPartialReceptMoveCost);
-
-		// 向上取整
-		totalTime = totalTime.setScale(0, RoundingMode.UP);
-		return totalTime.toString();
+		return partialWarehouseDnForm;
 	}
 
 	/**
@@ -422,9 +523,13 @@ public class PartialReceptService {
 	 */
 	public String getSpentTimes(String time) {
 		Calendar cal = Calendar.getInstance();
+		// 毫秒
+		cal.set(Calendar.MILLISECOND, 0);
 
 		// 相差毫秒数
 		long millisecond = cal.getTimeInMillis() - DateUtil.toDate(time, DateUtil.DATE_TIME_PATTERN).getTime();
+		if (millisecond < 0)
+			millisecond = 0;
 
 		BigDecimal diff = new BigDecimal(millisecond);
 		// 1分钟

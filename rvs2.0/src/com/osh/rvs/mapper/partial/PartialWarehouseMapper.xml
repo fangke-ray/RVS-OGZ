@@ -76,7 +76,7 @@
 	<!-- 新建零件入库单 -->
 	<insert id="insert" parameterType="PartialWarehouseEntity">
 	<![CDATA[
-		INSERT INTO partial_warehouse (warehouse_date,dn_no,step) VALUES (#{warehouse_date},#{dn_no},#{step})
+		INSERT INTO partial_warehouse (warehouse_no,step) VALUES (#{warehouse_no},#{step})
 	]]>
 	</insert>
 
@@ -94,13 +94,6 @@
 	]]>
 	</update>
 
-	<!-- 根据DN编号查询零件入库单信息 -->
-	<select id="getByDnNo" resultType="PartialWarehouseEntity" parameterType="string">
-	<![CDATA[
-		SELECT `key`,warehouse_date,dn_no,step FROM partial_warehouse WHERE dn_no = #{dn_no}
-	]]>
-	</select>
-
 	<!-- 根据key查询零件入库单信息 -->
 	<select id="getByKey" resultType="PartialWarehouseEntity" parameterType="string">
 	<![CDATA[
@@ -109,19 +102,23 @@
 	</select>
 
 	<!-- 查询当前入库进展信息 -->
-	<select id="searchStepPartialWarehouse" resultType="PartialWarehouseEntity" parameterType="PartialWarehouseEntity">
+	<select id="searchPartialWarehouseByStep" resultType="PartialWarehouseEntity" parameterType="string">
 	<![CDATA[
 		SELECT 
 		    pw.key,
-			pw.warehouse_date,
-			pw.dn_no,
-			pw.step
+		    pw.warehouse_no,
+		    pw.step,
+			GROUP_CONCAT(pwdn.dn_no SEPARATOR  '/') AS dn_no
 		FROM
 		    partial_warehouse pw
+		JOIN
+			partial_warehouse_dn pwdn
+		ON
+			pw.key = pwdn.key
 		WHERE
 			pw.step = #{step}
 		GROUP BY
-			pw.key
+			 pw.key
 	]]>
 	</select>
 	
@@ -207,4 +204,11 @@
 		pw.dn_no
 	]]>
 	</select>
+	
+	<select id="getMaxWarehouseNo" parameterType="string" resultType="string">
+	<![CDATA[
+		SELECT MAX(warehouse_no) FROM partial_warehouse WHERE warehouse_no LIKE CONCAT(#{warehouse_no}, '%')
+	]]>
+	</select>
+	
 </mapper>

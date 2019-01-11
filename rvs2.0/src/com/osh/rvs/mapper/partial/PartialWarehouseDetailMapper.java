@@ -47,7 +47,7 @@ public interface PartialWarehouseDetailMapper {
 	 * @param entity
 	 * @return
 	 */
-	public List<PartialWarehouseDetailEntity> countQuantityOfSpecKind(PartialWarehouseDetailEntity entity);
+	public List<PartialWarehouseDetailEntity> countQuantityOfSpecKind(@Param("key") String key);
 
 	/**
 	 * 查询需要分装的零件入库明细

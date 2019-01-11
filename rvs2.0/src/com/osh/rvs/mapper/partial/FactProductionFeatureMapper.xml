@@ -94,15 +94,9 @@
 			fpf.finish_time,
 			fpf.partial_warehouse_key,
 			fpf.material_id,
-			fpf.occur_times,
-            pw.warehouse_date,
-            pw.dn_no
+			fpf.occur_times
 		FROM
 			fact_production_feature fpf
-		LEFT JOIN
-			partial_warehouse pw
-		ON
-			fpf.partial_warehouse_key = pw.key
 		WHERE
 			fpf.operator_id = #{operator_id}
 		AND
@@ -115,6 +109,18 @@
 		UPDATE 
 			fact_production_feature 
 		SET
+			partial_warehouse_key = #{partial_warehouse_key}
+		WHERE
+			fact_pf_key = #{fact_pf_key}
+	]]>
+	</update>
+	
+	<update id="finishRecept" parameterType="FactProductionFeatureEntity">
+	<![CDATA[
+		UPDATE 
+			fact_production_feature 
+		SET
+			finish_time = CURRENT_TIMESTAMP(),
 			partial_warehouse_key = #{partial_warehouse_key}
 		WHERE
 			fact_pf_key = #{fact_pf_key}

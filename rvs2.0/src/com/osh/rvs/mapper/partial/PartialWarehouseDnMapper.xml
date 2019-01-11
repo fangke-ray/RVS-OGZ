@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.partial.PartialWarehouseDnMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<!-- 新建零件入库DN编号 -->
+	<insert id="insert" parameterType="PartialWarehouseDnEntity">
+	<![CDATA[
+		INSERT INTO partial_warehouse_dn (`key`,seq,warehouse_date,dn_no) VALUES (#{key},#{seq},#{warehouse_date},#{dn_no})
+	]]>
+	</insert>
+
+	<delete id="delete" parameterType="string">
+	<![CDATA[
+		DELETE FROM partial_warehouse_dn WHERE `key` = #{key}
+	]]>
+	</delete>
+	
+	<!-- 根据DN编号查询零件入库单信息 -->
+	<select id="getByDnNo" resultType="PartialWarehouseDnEntity" parameterType="string">
+	<![CDATA[
+		SELECT `key`,seq,warehouse_date,dn_no FROM partial_warehouse_dn WHERE dn_no = #{dn_no}
+	]]>
+	</select>
+	
+	<select id="getByKey" resultType="PartialWarehouseDnEntity" parameterType="string">
+	<![CDATA[
+		SELECT `key`,seq,warehouse_date,dn_no FROM partial_warehouse_dn WHERE `key` = #{key}
+	]]>
+	</select>
+
+</mapper>

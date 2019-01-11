@@ -22,7 +22,11 @@ $(function(){
 
 	$("#breakbutton").click(doBreak)
 
-	$("#endbutton").click(doEnd);
+	$("#endbutton").click(function(){
+		warningConfirm("是否结束作业！",function(){
+			doEnd();
+		},function(){});
+	});
 	
 	// 输入框触发，配合浏览器
 	$("#scanner_inputer").keypress(function(e){
@@ -118,87 +122,117 @@ function startScanner(){
 };
 
 function updateList(partial_id){
-	let $grid = $("#collationlist");
+//	let $grid = $("#collationlist");
+//	
+//	let map = new Map();// key=> rowid,value=> partial_id
+//	
+//	let IDS = $grid.getDataIDs();
+//	for(var id of IDS){
+//		let rowData = $grid.getRowData(id);
+//		map.set(id,rowData.partial_id);
+//	}
 	
-	let map = new Map();// key=> partial_id,value=> rowid
+	//合并列数
+	let colspan  = 0;
+	let dnTD = "";
+	let quantityTD = "";
+	let collationQuantityTD = "";
 	
-	let IDS = $grid.getDataIDs();
-	for(var id of IDS){
-		let rowData = $grid.getRowData(id);
-		map.set(rowData.partial_id,id);
+	//零件信息
+	let partial = "";
+	
+	//验证规则
+	let rules= {};
+	
+	let rule = new Object();
+	rule.digits = true;
+	rule.min = 0;
+	rule.maxlength = 5;
+	
+	for(let obj of searchlist){
+		if(obj.partial_id == partial_id) {
+			partial = obj;
+			colspan++;
+			dnTD += `<td class="td-content">${obj.dn_no}</td>`;
+			quantityTD += `<td class="td-content">${obj.quantity}</td>`;
+			
+			let name = `collation_quantity${obj.seq}`;
+			collationQuantityTD += `<td class="td-content">
+										<input type="text" class="ui-widget-content" seq="${obj.seq}" name="${name}" alt="${obj.dn_no}核对数量" value="${obj.collation_quantity}">
+									</td>`;
+		
+			rules[name] = rule;
+		}
 	}
-	
-	// 行数据
-	let rowData = $grid.getRowData(map.get(partial_id));
-	
 	var content=`<div class="ui-widget-content">
 					<form id="updateForm" onsubmit="$('#message_dialog').next().find('button:eq(0)').trigger('click');return false;">
-						<table class="condform">
+						<table class="condform" style="width:99%;">
 					 		<tbody>
 					 			<tr>
-					 				<td class="ui-state-default td-title">零件编码</td>
-					 				<td class="td-content">${rowData.code}</td>
+					 				<td class="ui-state-default td-title" style="min-width:100px;">零件编码</td>
+					 				<td class="td-content" colspan="${colspan}">${partial.code}</td>
 					 			</tr>
 					 			<tr>
 				 					<td class="ui-state-default td-title">零件名称</td>
-				 					<td class="td-content">${rowData.partial_name}</td>
+				 					<td class="td-content" colspan="${colspan}">${partial.partial_name}</td>
+				 				</tr>
+				 				<tr>
+				 					<td class="ui-state-default td-title">DN 编号</td>
+				 					${dnTD}
 				 				</tr>
 				 				<tr>
 				 					<td class="ui-state-default td-title">数量</td>
-				 					<td class="td-content">${rowData.quantity}</td>
+				 					${quantityTD}
 				 				</tr>
 				 				<tr>
 				 					<td class="ui-state-default td-title">核对数量</td>
-				 					<td class="td-content">
-				 						<input type="text" class="ui-widget-content" name="collation_quantity" id="update_collation_quantity" alt="核对数量" value="${rowData.collation_quantity}">
-				 					</td>
+				 					${collationQuantityTD}
 				 				</tr>
-					 		</tbody>
-						</table>
-					</form>
-				</div>`;
+				 			</tbody>
+				 		</table>
+				 	</form>
+				 </div>`;
 	
 	var $dialog = $("#message_dialog");
 	$dialog.html("").append(content);
 	
 	$("#updateForm").validate({
-		rules : {
-			collation_quantity : {
-				digits:true,
-				min:0,
-				maxlength:5
-			}
-		}
+		rules : rules
 	});
 	
 	$dialog.dialog({
 		resizable : false,
 		modal : true,
 		title : "更新核对数量",
-		width : 400,
+		width : 400 + 60 * colspan,
 		buttons : {
 			"确定" : function(){
 				if($("#updateForm").valid()){
-					for(let i = 0;i < searchlist.length;i++){
-						if(searchlist[i].partial_id == partial_id){
-							searchlist[i].collation_quantity = $("#update_collation_quantity").val();
-							break;
-						}
-					}
-					$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
-					updateData.set(partial_id,{"quantity":rowData.quantity,"collation_quantity":$("#update_collation_quantity").val(),"flg":rowData.flg});
+					$("#updateForm input[type='text']").each(function(){
+						
+					});
+					
+					
+//					for(let i = 0;i < searchlist.length;i++){
+//						if(searchlist[i].partial_id == partial_id){
+//							searchlist[i].collation_quantity = $("#update_collation_quantity").val();
+//							break;
+//						}
+//					}
+//					$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
+//					updateData.set(partial_id,{"quantity":rowData.quantity,"collation_quantity":$("#update_collation_quantity").val(),"flg":rowData.flg});
 					$(this).dialog("close");
 				}
 			},
 			"取消" : function() {
 				$(this).dialog("close");
-			} 
+			}
 		},
 		close :function(){
 			$("#scanner_inputer").val("").focus();
 		}
 	});
-	$("#update_collation_quantity").focus().select();
+	$("#updateForm input[type='text']:eq(0)").focus().select();
 };
 
 function doStart(){
@@ -363,9 +397,10 @@ function reset(){
 	list([]);
 	$("#startbutton").enable().removeClass("ui-state-focus");
 	$("#breakbutton,#endbutton").disable().removeClass("ui-state-focus");
-	$("#label_warehouse_date,#label_dn_no,#label_production_type_name").text("");
+	$("#label_production_type_name").text("");
 	$("#scanner_container").hide();
 	$("#scanner_inputer,#hide_key,#hide_production_type").val("");
+	$("#content tr:nth-child(n+3)").remove();
 	allPartialMap.clear();
 	updateData.clear();
 	searchlist = [];
@@ -411,11 +446,33 @@ function collationInit(){
 						$("#scanner_container").show();
 						$("#scanner_inputer").val("").focus();
 
-						$("#label_warehouse_date").text(fact_production_feature.warehouse_date);
-						$("#label_dn_no").text(fact_production_feature.dn_no);
+//						$("#label_warehouse_date").text(fact_production_feature.warehouse_date);
+//						$("#label_dn_no").text(fact_production_feature.dn_no);
 						$("#label_production_type_name").text(fact_production_feature.production_type_name);
 						$("#hide_key").val(fact_production_feature.partial_warehouse_key);
 						$("#hide_production_type").val(fact_production_feature.production_type);
+						
+						$("#content tr:nth-child(n+3)").remove();
+						//零件入库DN编号
+						var partialWarehouseDnList = resInfo.partialWarehouseDnList;
+						
+						if(partialWarehouseDnList && partialWarehouseDnList.length > 0){
+							var content = "";
+							
+							partialWarehouseDnList.forEach(function(item,index){
+								let dn_no = item.dn_no;
+								let warehouse_date = item.warehouse_date;
+								content += `<tr>
+												<td class="td-content-text" style="text-align:left;">${warehouse_date}</td>
+												<td class="td-content-text" style="text-align:left;">${dn_no}</td>
+											</tr>`;
+							});
+							
+							$("#content tbody").append(content);
+						}
+						
+						
+						
 
 						enableMenu("collationbutton");
 						
@@ -433,6 +490,7 @@ function collationInit(){
 						$("#scanner_inputer").val("").focus();
 					}else{
 						reset();
+						enableMenu();
 					}
 				}
 			}catch(e){}
@@ -462,7 +520,7 @@ function setRate(factProductionFeature,leagalOverline,spent_mins){
 	oInterval = setInterval(ctime,iInterval);
 };
 
-function chooseKind(){
+function chooseKind(parentDialog){
 	var content=`<div class="ui-widget-content">
 					<table class="condform">
 				 		<tbody>
@@ -501,7 +559,7 @@ function chooseKind(){
 				$.ajax({
 					beforeSend : ajaxRequestType,
 					async : true,
-					url : 'fact_production_feature.do?method=doStart',
+					url : servicePath + '?method=checkUnMatch',
 					cache : false,
 					data : data,
 					type : "post",
@@ -517,12 +575,45 @@ function chooseKind(){
 								// 共通出错信息框
 								treatBackMessages(null, resInfo.errors);
 							} else {
-								$("#choose_spec_kind_dialog").dialog("close");
-								$("#startbutton").disable().removeClass("ui-state-focus");
-								$("#endbutton").enable().removeClass("ui-state-focus");
-								enableMenu("collationbutton");
-								
-								collationInit();
+								var matchFlg = resInfo.matchFlg;
+								if(!matchFlg){
+									var message = "作业内容:" + $("#production_type input[value='" + productionType + "']").next().html() + 
+												   "，不适用于入库单" + $("#partial_warehouse_dialog tr[key='" + data.partial_warehouse_key + "'] td:eq(1)").text();
+									infoPop(message);
+								}else{
+									$.ajax({
+										beforeSend : ajaxRequestType,
+										async : true,
+										url : 'fact_production_feature.do?method=doStart',
+										cache : false,
+										data : data,
+										type : "post",
+										dataType : "json",
+										success : ajaxSuccessCheck,
+										error : ajaxError,
+										complete : function(xhrobj,textStatus){
+											var resInfo = null;
+											try {
+												// 以Object形式读取JSON
+												eval('resInfo =' + xhrobj.responseText);
+												if (resInfo.errors.length > 0) {
+													// 共通出错信息框
+													treatBackMessages(null, resInfo.errors);
+												} else {
+													if(parentDialog){
+														parentDialog.dialog("close");
+													}
+													$("#choose_spec_kind_dialog").dialog("close");
+													$("#startbutton").disable().removeClass("ui-state-focus");
+													$("#endbutton").enable().removeClass("ui-state-focus");
+													enableMenu("collationbutton");
+													
+													collationInit();
+												}
+											} catch (e) {}
+										}
+									});
+								}
 							}
 						} catch (e) {}
 					}
@@ -545,18 +636,18 @@ function setPartialWarehouse(list){
 							<thead>
 								<tr>
 									<th class="ui-state-default td-title"></th>
-									<th class="ui-state-default td-title">日期</th>
+									<th class="ui-state-default td-title">入库单号</th>
 									<th class="ui-state-default td-title">DN 编号</th>
 								</tr>
 							</thead>
 							<tbody>`;
 	list.forEach(function(item,index){
 		var key = item.key,
-		warehouse_date = item.warehouse_date,
+		warehouse_no = item.warehouse_no,
 		dn_no = item.dn_no;
 		content +=`<tr key="${key}">
 			<td class="td-content"><input type="button" class="ui-button" value="选择"></td>
-			<td class="td-content">${warehouse_date}</td>
+			<td class="td-content">${warehouse_no}</td>
 			<td class="td-content">${dn_no}</td>
 		</tr>`;
 	});
@@ -568,7 +659,7 @@ function setPartialWarehouse(list){
 		resizable : false,
 		modal : true,
 		title : "请选择零件入库单",
-		width : 400,
+		width : 500,
 		buttons : {
 			"取消" : function() {
 				$(this).dialog("close");
@@ -580,8 +671,7 @@ function setPartialWarehouse(list){
 		$(this).click(function(){
 			var key = $(this).closest("tr").attr("key");
 			$("#hide_key").val(key);
-			$dialog.dialog("close");
-			chooseKind();
+			chooseKind($dialog);
 		});
 	});
 };
@@ -599,9 +689,10 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['','','零件编码','零件名称','数量','已核对数量',''],
+			colNames : ['','','seq','零件编码','零件名称','数量','已核对数量',''],
 			colModel : [{name : 'key',index : 'key',hidden : true},
 			            {name : 'partial_id',index : 'partial_id',hidden : true},
+			            {name : 'seq',index : 'seq',hidden : true},
 			            {name : 'code',index : 'code',width:50},
 			            {name : 'partial_name',index : 'partial_name',width:200},
 			            {name : 'quantity',index : 'quantity',width:50,align:'right'},

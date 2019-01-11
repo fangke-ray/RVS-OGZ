@@ -161,13 +161,10 @@ public class PartialOnShelfAction extends BaseAction {
 		// 操作者 ID
 		String operatorID = user.getOperator_id();
 
-		// 查询当前操作者未核对零件入库单
-		PartialWarehouseForm partialWarehouseForm = new PartialWarehouseForm();
-		partialWarehouseForm.setOperator_id(operatorID);
-		partialWarehouseForm.setStep("2");// 2:表示核对结束
+		String step = "2";// 2:表示核对结束
 
 		// 零件入库单信息
-		List<PartialWarehouseForm> partialWarehouseList = partialWarehouseService.searchStepPartialWarehouse(partialWarehouseForm, conn);
+		List<PartialWarehouseForm> partialWarehouseList = partialWarehouseService.searchPartialWarehouseByStep(step, conn);
 
 		List<PartialWarehouseForm> respList = new ArrayList<PartialWarehouseForm>();
 		for (PartialWarehouseForm temp : partialWarehouseList) {

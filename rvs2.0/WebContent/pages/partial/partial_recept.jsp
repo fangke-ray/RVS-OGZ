@@ -11,7 +11,7 @@
 				<tbody>
 					<tr>
 						<td class="ui-state-default td-title">上传文件</td>
-						<td class="td-content"><input type="file" name="file" id="file" class="ui-widget-content" accept=".xlsx"/></td>
+						<td class="td-content"><input type="file" name="files" id="file" multiple class="ui-widget-content" accept=".xlsx"/></td>
 					</tr>
 				</tbody>
 			</table>
@@ -56,13 +56,11 @@
 	</div>
 	
 	<div class="ui-widget-content">
-		<table class="condform" id="content">
+		<table class="condform" id="content" style="width: 100%;">
 			<tbody>
 				<tr>
-					<td class="ui-state-default td-title">日期:</td>
-					<td class="td-content"><span id="label_warehouse_date"></span></td>
-					<td class="ui-state-default td-title">DN 编号:</td>
-					<td class="td-content"><span id="label_dn_no"></span></td>
+					<td class="ui-state-default td-title">日期</td>
+					<td class="ui-state-default td-title">DN 编号</td>
 				</tr>
 			</tbody>
 		</table>

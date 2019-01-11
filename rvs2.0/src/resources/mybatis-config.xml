@@ -78,6 +78,7 @@
 		<typeAlias alias="PartialWarehouseDetailEntity" type="com.osh.rvs.bean.partial.PartialWarehouseDetailEntity"/>
 		<typeAlias alias="FactPartialWarehouseEntity" type="com.osh.rvs.bean.partial.FactPartialWarehouseEntity"/>
 		<typeAlias alias="FactProductionCommentEntity" type="com.osh.rvs.bean.partial.FactProductionCommentEntity"/>
+		<typeAlias alias="PartialWarehouseDnEntity" type="com.osh.rvs.bean.partial.PartialWarehouseDnEntity"/>
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -171,6 +172,6 @@
 		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseDetailMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/FactPartialWarehouseMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/FactProductionCommentMapper.xml"/>
-
+		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseDnMapper.xml"/>
 	</mappers>
 </configuration> 

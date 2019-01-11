@@ -131,7 +131,12 @@ function step (production_type) {
 //进行中效果
 var ctime=function(){
 	p_time++;
-	$("#dtl_process_time label").text(minuteFormat(p_time));
+	var spendTime = p_time - 1;
+	if(spendTime<0){
+		spendTime = 0
+	}
+	
+	$("#dtl_process_time label").text(minuteFormat(spendTime));
 
 	var rate = parseInt((p_time + 1) / leagal_overline * 100);
 	if (rate == 99) return;

@@ -87,27 +87,22 @@ public class PartialWarehouseDetailService {
 	 * @param conn 数据库连接
 	 * @return
 	 */
-	public List<PartialWarehouseDetailForm> countQuantityOfSpecKind(ActionForm form, SqlSession conn) {
-		// 数据库连接对象
-		PartialWarehouseDetailMapper dao = conn.getMapper(PartialWarehouseDetailMapper.class);
-
-		PartialWarehouseDetailEntity entity = new PartialWarehouseDetailEntity();
-		// 复制表单数据到数据模型
-		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-
-		// 统计各个规格种别总数量
-		List<PartialWarehouseDetailEntity> list = dao.countQuantityOfSpecKind(entity);
-
-		List<PartialWarehouseDetailForm> respList = new ArrayList<PartialWarehouseDetailForm>();
-
-		if (list != null && list.size() > 0) {
-			// 复制模型数据到表单
-			BeanUtil.copyToFormList(list, respList, CopyOptions.COPYOPTIONS_NOEMPTY, PartialWarehouseDetailForm.class);
-		}
-
-		return respList;
-
-	}
+//	public List<PartialWarehouseDetailForm> countQuantityOfSpecKind(String key, SqlSession conn) {
+//		// 数据库连接对象
+//		PartialWarehouseDetailMapper dao = conn.getMapper(PartialWarehouseDetailMapper.class);
+//		// 统计各个规格种别总数量
+//		List<PartialWarehouseDetailEntity> list = dao.countQuantityOfSpecKind(key);
+//
+//		List<PartialWarehouseDetailForm> respList = new ArrayList<PartialWarehouseDetailForm>();
+//
+//		if (list != null && list.size() > 0) {
+//			// 复制模型数据到表单
+//			BeanUtil.copyToFormList(list, respList, CopyOptions.COPYOPTIONS_NOEMPTY, PartialWarehouseDetailForm.class);
+//		}
+//
+//		return respList;
+//
+//	}
 
 	/**
 	 * 删除零件入库明细

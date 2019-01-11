@@ -879,6 +879,61 @@ public class UploadService {
 		return tempfilename;
 	}
 
+	public List<String> getFiles2Local(ActionForm form, List<MsgInfo> errors) {
+		List<String> tempFileNames = new ArrayList<String>();
+
+		UploadForm upfileForm = (UploadForm) form;
+		// 取得上传的文件
+		List<FormFile> files = upfileForm.getFiles();
+
+		if(files.size() == 0){
+			MsgInfo error = new MsgInfo();
+			error.setErrcode("file.notExist");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.notExist"));
+			errors.add(error);
+			return null;
+		}
+
+		FileOutputStream fileOutput;
+
+		for (FormFile file : files) {
+			if (file == null || CommonStringUtil.isEmpty(file.getFileName())) {
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("file.notExist");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.notExist"));
+				errors.add(error);
+				return null;
+			}
+
+			Date today = new Date();
+			String tempfilename = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM");
+
+			File fMonthPath = new File(tempfilename);
+			if (!fMonthPath.exists()) {
+				fMonthPath.mkdirs();
+			}
+			fMonthPath = null;
+
+			tempfilename += "\\" + today.getTime() + file.getFileName();
+
+			log.info("FileName:" + tempfilename);
+			try {
+				fileOutput = new FileOutputStream(tempfilename);
+				fileOutput.write(file.getFileData());
+				fileOutput.flush();
+				fileOutput.close();
+			} catch (FileNotFoundException e) {
+				log.error("FileNotFound:" + e.getMessage());
+			} catch (IOException e) {
+				log.error("IO:" + e.getMessage());
+			}
+
+			tempFileNames.add(tempfilename);
+		}
+
+		return tempFileNames;
+	}
+
 	public static String toXls2003(String path) {
 		XlsUtil xlsUtil = null;
 		try {

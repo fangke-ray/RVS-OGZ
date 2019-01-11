@@ -17,18 +17,18 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
-import com.osh.rvs.bean.LoginData;
-import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.PartialBussinessStandardForm;
 import com.osh.rvs.form.master.PartialForm;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
+import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.service.PartialBussinessStandardService;
 import com.osh.rvs.service.PartialService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialCollationService;
 import com.osh.rvs.service.partial.PartialWarehouseDetailService;
+import com.osh.rvs.service.partial.PartialWarehouseDnSerice;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
@@ -57,6 +57,9 @@ public class PartialCollationAction extends BaseAction {
 	private final PartialBussinessStandardService partialBussinessStandardService = new PartialBussinessStandardService();
 
 	private final PartialCollationService partialCollationService = new PartialCollationService();
+
+	// 零件入库DN编号
+	private final PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 
 	/**
 	 * 页面初始化
@@ -98,8 +101,11 @@ public class PartialCollationAction extends BaseAction {
 
 			// /过滤核对的数据
 			List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialCollationService.filterCollation(list, productionType);
-
 			callbackResponse.put("partialWarehouseDetailList", partialWarehouseDetailList);
+
+			// 查询零件入库DN编号
+			List<PartialWarehouseDnForm> partialWarehouseDnList = partialWarehouseDnSerice.searchByKey(key, conn);
+			callbackResponse.put("partialWarehouseDnList", partialWarehouseDnList);
 
 			// 作业标准时间
 			String leagal_overline = partialCollationService.getStandardTime(list, productionType, conn);
@@ -135,17 +141,9 @@ public class PartialCollationAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		// 当前登录者
-		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
-		// 操作者 ID
-		String operatorID = user.getOperator_id();
-
-		// 查询当前操作者未核对零件入库单
-		PartialWarehouseForm partialWarehouseForm = new PartialWarehouseForm();
-		partialWarehouseForm.setOperator_id(operatorID);
-		partialWarehouseForm.setStep("1");// 1:表示收货结束
+		String step = "1";// 1:表示收货结束
 		// 零件入库单信息
-		List<PartialWarehouseForm> partialWarehouseList = partialWarehouseService.searchStepPartialWarehouse(partialWarehouseForm, conn);
+		List<PartialWarehouseForm> partialWarehouseList = partialWarehouseService.searchPartialWarehouseByStep(step, conn);
 		callbackResponse.put("partialWarehouseList", partialWarehouseList);
 
 		/* 检查错误时报告错误信息 */
@@ -254,7 +252,7 @@ public class PartialCollationAction extends BaseAction {
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
 				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
 				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
-			} else if ("0".equals(flg)) {
+			} else if ("0".equals(flg)) { //
 				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
 				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
@@ -472,6 +470,50 @@ public class PartialCollationAction extends BaseAction {
 		returnJsonResponse(res, callbackResponse);
 
 		log.info("PartialCollationAction.doFinish end");
+	}
+
+
+	/**
+	 * 检查选择的作业内容在入库单中是否匹配
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void checkUnMatch(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
+		log.info("PartialCollationAction.checkUnMatch start");
+
+		/* Ajax反馈对象 */
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		//入库单KEY
+		String key  = req.getParameter("partial_warehouse_key");
+
+		//作业内容
+		String productionType  = req.getParameter("production_type");
+
+		// 当前作业单中所有零件
+		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
+		// 过滤核对的数据
+		List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialCollationService.filterCollation(list, productionType);
+
+		boolean matchFlg = true;
+
+		if(partialWarehouseDetailList.size() == 0){
+			matchFlg = false;
+		}
+
+		callbackResponse.put("matchFlg", matchFlg);
+
+		/* 检查错误时报告错误信息 */
+		callbackResponse.put("errors", errors);
+		/* 返回Json格式响应信息 */
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("PartialCollationAction.checkUnMatch end");
 	}
 
 }
