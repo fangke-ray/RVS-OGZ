@@ -182,7 +182,7 @@ public class PartialOnShelfService {
 		}
 
 		// 向上取整
-		totalTime = totalTime.setScale(0, RoundingMode.UP);
+		totalTime = totalTime.setScale(0, RoundingMode.HALF_UP);
 		return totalTime.toString();
 
 	}

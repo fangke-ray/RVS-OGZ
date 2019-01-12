@@ -73,7 +73,7 @@ public class PartialOutStorageService {
 
 		List<String> triggerList = new ArrayList<String>();
 		triggerList.add("http://localhost:8080/rvspush/trigger/start/"
-        		+ waitingPf.getMaterial_id() + "/" + user.getPosition_id());
+        		+ waitingPf.getMaterial_id() + "/" + user.getPosition_id() + "/00000000001");
 		RvsUtils.sendTrigger(triggerList);
 
 	}

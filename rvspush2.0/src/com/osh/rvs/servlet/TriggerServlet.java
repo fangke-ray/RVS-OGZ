@@ -4,7 +4,6 @@ import static framework.huiqing.common.util.CommonStringUtil.fillChar;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -46,7 +45,7 @@ public class TriggerServlet extends HttpServlet {
 	/** 进入等待区 */
 	private static final String METHOD_IN = "in";
 	/** 工位启动作业 */
-	private static final String METHOD_WORK = "work";
+	private static final String METHOD_WORK = "start";
 	/** 工位完成作业 */
 	private static final String METHOD_FINISH = "finish";
 	/** 工位暂停 */
@@ -116,6 +115,8 @@ public class TriggerServlet extends HttpServlet {
 					String[] ids = target.split("-");
 					ProductionFeatureService pfservice = new ProductionFeatureService();
 					pfservice.makeQaOverTime(ids[0], ids[1], object);
+				} else {
+					start(parameters);
 				}
 			} else if (METHOD_FINISH.equals(method)) {
 				finish(parameters);
@@ -204,10 +205,19 @@ public class TriggerServlet extends HttpServlet {
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 
 		SqlSession conn = factory.openSession(TransactionIsolationLevel.READ_COMMITTED);
+		String subject = null;
+		String mailContent =  null;
+		
+		Collection<InternetAddress> toIas = null;
+		Collection<InternetAddress> ccIas = null;
 
 		try {
 			PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 			position = pMapper.getPositionWithSectionByID(section_id, position_id);
+
+			toIas = RvsUtils.getMailIas("infect.break2dm.to", conn, null, null);
+			ccIas = RvsUtils.getMailIas("infect.break2dm.cc", conn, null, null);
+
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -218,15 +228,10 @@ public class TriggerServlet extends HttpServlet {
 		}
 
 		// 在"+ position +"发生点检不合格，请确认。
-		String subject = "\u5728"+ position +"\u53d1\u751f\u70b9\u68c0\u4e0d\u5408\u683c\uff0c\u8bf7\u786e\u8ba4\u3002";
+		subject = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "infect.break2dm.title", position);
 
 		// 发生的点检品管理标号为\n
-		String mailContent = "\u53d1\u751f\u7684\u70b9\u68c0\u54c1\u7ba1\u7406\u6807\u53f7\u4e3a\n" + message.replaceAll("_n_", "\n");
-		Collection<InternetAddress> toIas = new ArrayList<InternetAddress>();
-		toIas.add(new InternetAddress("xiaochun_hu@olympus.com.cn", "胡晓春"));
-		toIas.add(new InternetAddress("chen_qiu@olympus.com.cn", "邱晨"));
-
-		Collection<InternetAddress> ccIas = new ArrayList<InternetAddress>();
+		mailContent = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "infect.break2dm.content", message.replaceAll("_n_", "\n"));
 
 		MailUtils.sendMail(toIas, ccIas, subject, mailContent);
 	}
@@ -355,6 +360,31 @@ public class TriggerServlet extends HttpServlet {
 		TriggerPositionService service = new TriggerPositionService();
 
 		service.checkOverLine(position_id, section_id, material_id);
+	}
+
+	private void start(String... parameters) throws IOException {
+		String material_id = parameters[2];
+		String position_id = "";
+		String section_id = "";
+		if (parameters.length > 4) {
+			position_id = parameters[3];
+			section_id = parameters[4];
+		} else {
+			return;
+		}
+
+		// 通知使用该工位的页面
+		Map<String, MessageInbound> map = BoundMaps.getPositionBoundMap();
+		synchronized(map) {
+			for (String positionKey : map.keySet()) {
+				MessageInbound inbound = map.get(positionKey);
+				if (inbound == null) {
+					log.warn("对" + positionKey + "的连接不存在了");
+				} else {
+					((PositionPanelInbound) inbound).refreshWaiting(section_id, position_id);
+				}
+			}
+		}
 	}
 
 	private void finish(String... parameters) throws IOException {
