@@ -2,6 +2,7 @@ package com.osh.rvs.bean.partial;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 零件入库明细
@@ -20,6 +21,11 @@ public class PartialWarehouseDetailEntity implements Serializable {
 	 * KEY
 	 */
 	private String key;
+
+	/**
+	 * 序号
+	 */
+	private Integer seq;
 
 	/**
 	 * 零件 ID
@@ -76,12 +82,35 @@ public class PartialWarehouseDetailEntity implements Serializable {
 	 */
 	private BigDecimal on_shelf;
 
+	/**
+	 * 零件入库单号
+	 */
+	private String warehouse_no;
+
+	/**
+	 * 日期
+	 */
+	private Date warehouse_date;
+
+	/**
+	 * DN 编号
+	 */
+	private String dn_no;
+
 	public String getKey() {
 		return key;
 	}
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public Integer getSeq() {
+		return seq;
+	}
+
+	public void setSeq(Integer seq) {
+		this.seq = seq;
 	}
 
 	public String getPartial_id() {
@@ -170,6 +199,30 @@ public class PartialWarehouseDetailEntity implements Serializable {
 
 	public void setOn_shelf(BigDecimal on_shelf) {
 		this.on_shelf = on_shelf;
+	}
+
+	public String getWarehouse_no() {
+		return warehouse_no;
+	}
+
+	public void setWarehouse_no(String warehouse_no) {
+		this.warehouse_no = warehouse_no;
+	}
+
+	public Date getWarehouse_date() {
+		return warehouse_date;
+	}
+
+	public void setWarehouse_date(Date warehouse_date) {
+		this.warehouse_date = warehouse_date;
+	}
+
+	public String getDn_no() {
+		return dn_no;
+	}
+
+	public void setDn_no(String dn_no) {
+		this.dn_no = dn_no;
 	}
 
 }

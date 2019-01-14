@@ -8,16 +8,20 @@
 	<insert id="insert" parameterType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		INSERT INTO partial_warehouse_detail
-			(`key`,partial_id,quantity,fact_pf_key,collation_quantity)
+			(`key`,seq,partial_id,quantity,fact_pf_key,collation_quantity)
 		VALUES
-			(#{key},#{partial_id},#{quantity},#{fact_pf_key},#{collation_quantity})
+			(#{key},#{seq},#{partial_id},#{quantity},#{fact_pf_key},#{collation_quantity})
 	]]>
 	</insert>
 	
 	<select id="searchByKey" resultType="PartialWarehouseDetailEntity" parameterType="string">
 	<![CDATA[
 		SELECT
-			pwd.key,
+			pw.key,
+			pw.warehouse_no,
+			pwdn.seq,
+			pwdn.warehouse_date,
+			pwdn.dn_no,
 			pwd.partial_id,
 			pwd.quantity,
 			pwd.collation_quantity,
@@ -27,8 +31,16 @@
 			pbs.spec_kind,
 			pbs.on_shelf
 		FROM
+			partial_warehouse pw
+		JOIN
+			partial_warehouse_dn pwdn
+		ON
+			pw.key = pwdn.key
+		JOIN
 			partial_warehouse_detail pwd
-		LEFT JOIN
+		ON
+			pwdn.key = pwd.key AND pwdn.seq = pwd.seq
+		JOIN
 			v_partial
 		ON
 			pwd.partial_id = v_partial.partial_id
@@ -38,6 +50,8 @@
 			pbs.spec_kind = v_partial.spec_kind
 		WHERE
 			pwd.key = #{key}
+		ORDER BY
+			pwdn.seq
 	]]>
 	</select>
 	
@@ -68,7 +82,7 @@
 	]]>
 	</update>
 	
-	<select id="countQuantityOfSpecKind" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
+	<select id="countQuantityOfSpecKind" parameterType="string" resultType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		SELECT 
 			v_partial.spec_kind,
@@ -86,17 +100,10 @@
 			partial_bussiness_standard pbs
 		ON
 			pbs.spec_kind = v_partial.spec_kind
-	]]>
-	<where>
-	<if test="key!= null and key!= '' ">
-	<![CDATA[ 
-		AND `key` = #{key}
-	]]>
-	</if>
-	</where>
-	<![CDATA[ 
+		WHERE
+			pwd.key = #{key}
 		GROUP BY 
-			spec_kind
+			pbs.spec_kind
 	]]>
 	</select>
 	

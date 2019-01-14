@@ -15,15 +15,22 @@ $(function() {
 	$("#startbutton").click(doStart);
 
 	// 结束
-	$("#endbutton").click(doEnd);
+	$("#endbutton").click(function(){
+		warningConfirm("是否结束作业！",function(){
+			doEnd();
+		},function(){});
+	});
 
 	//载入
 	$("#uploadbutton").click(uploadfile);
 	
-	$("#restartbutton").click(doReImport)
+	$("#restartbutton").click(function(){
+		warningConfirm("是否重新导入！",function(){
+			doReImport();
+		},function(){});
+	})
 	
 	receptInit();
-	
 });
 
 function doReImport(){
@@ -51,7 +58,7 @@ function doReImport(){
 			}catch(e){}
 		}
 	});
-}
+};
 
 function receptInit(){
 	$.ajax({
@@ -74,13 +81,15 @@ function receptInit(){
 					treatBackMessages(null, resInfo.errors);
 				} else {
 					//正在进行中的现品作业信息
-					var factProductionFeature = resInfo.unfinished;
+					var factProductionFeature = resInfo.factProductionFeature;
 					
+					//零件入库明细
 					var partialWarehouseDetailList = resInfo.partialWarehouseDetailList || [];
 
 					//没有进行中作业信息
 					if(!factProductionFeature){
 						reset();
+						enableMenu();
 					}else{
 						$("#file").val("");
 						
@@ -94,7 +103,7 @@ function receptInit(){
 						var partial_warehouse_key = factProductionFeature.partial_warehouse_key;
 
 						//存在入库单号
-						if(partial_warehouse_key){
+						if(partialWarehouseDetailList.length > 0){
 							//选择文件按钮，导入按钮不可用
 							$("#file,#uploadbutton").disable();
 						}else{
@@ -102,28 +111,46 @@ function receptInit(){
 							$("#file,#uploadbutton").enable();
 						}
 						
-						$("#label_warehouse_date").text(factProductionFeature.warehouse_date);
-						$("#label_dn_no").text(factProductionFeature.dn_no);
+						$("#content tbody tr:nth-child(n+2)").remove();
 						
-						if(resInfo.counttQuantityList){
+						//零件入库DN编号
+						var partialWarehouseDnList = resInfo.partialWarehouseDnList;
+						
+						if(partialWarehouseDnList && partialWarehouseDnList.length > 0){
+							var content = "";
+							
+							partialWarehouseDnList.forEach(function(item,index){
+								let dn_no = item.dn_no;
+								let warehouse_date = item.warehouse_date;
+								content += `<tr>
+												<td class="td-content-text" style="text-align:left;">${warehouse_date}</td>
+												<td class="td-content-text" style="text-align:left;">${dn_no}</td>
+											</tr>`;
+							});
+							
+							$("#content tbody").append(content);
+						}
+						
+						//各个规格种别总数量
+						if(resInfo.counttQuantityList && resInfo.counttQuantityList.length > 0){
 							var counttQuantityList = resInfo.counttQuantityList;
-							var content = "<tr>";
+							var content = "";
 							counttQuantityList.forEach(function(item,index){
 								let specKindName = item.spec_kind_name;
 								let quantity = item.quantity;
-								content += `<td class="ui-state-default td-title">${specKindName}:</td>
-											<td class="td-content">${quantity} 箱</td>`;
+								content += `<tr>
+												<td class="ui-state-default td-title">${specKindName}</td>
+												<td class="td-content">${quantity} 箱</td>
+											</tr>`;
 							});
-							content += "</td>";
 							
-							$("#content tbody tr:nth-child(2)").remove();
 							$("#content tbody").append(content);
-						}else{
-							$("#content tbody tr:nth-child(2)").remove();
 						}
 						
 						list(partialWarehouseDetailList);
-						setRate(factProductionFeature,resInfo.leagal_overline,resInfo.spent_mins);
+						setRate(resInfo);
+						
+						enableMenu("receptbutton");
 					}
 				}
 			}catch(e){}
@@ -135,9 +162,7 @@ function reset(){
 	$("#file").val("");
 	$("#file,#uploadbutton,#endbutton,#restartbutton").disable().removeClass("ui-state-focus");
 	$("#startbutton").enable().removeClass("ui-state-focus");
-	$("#label_warehouse_date").text("");
-	$("#label_dn_no").text("");
-	$("#content tbody tr:nth-child(2)").remove();
+	$("#content tbody tr:nth-child(n+2)").remove();
 	list([]);
 	
 	$("#partial_details").hide();
@@ -150,12 +175,15 @@ function reset(){
 	leagal_overline = null;
 };
 
-function setRate(factProductionFeature,leagalOverline,spent_mins){
+function setRate(resInfo){console.log(resInfo.factProductionFeature.action_time)
+	let leagalOverline = resInfo.leagal_overline;
+	let spent_mins = resInfo.spent_mins;
+	
 	$("#partial_details").show();
 	//开始时间
-	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
+	$("#partial_details td:eq(1)").text(resInfo.factProductionFeature.action_time);
 	p_time = spent_mins;
-	if(factProductionFeature.partial_warehouse_key){
+	if(resInfo.partialWarehouseDetailList){
 		leagal_overline = leagalOverline;
 		//作业标准时间
 		$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
@@ -218,38 +246,39 @@ function doStart() {
 };
 
 function doEnd() {
-	$.ajax({
-		beforeSend : ajaxRequestType,
-		async : true,
-		url : 'fact_production_feature.do?method=jsinit',
-		cache : false,
-		data : null,
-		type : "post",
-		dataType : "json",
-		success : ajaxSuccessCheck,
-		error : ajaxError,
-		complete : function(xhrobj,textStatus){
-			var resInfo = null;
-			try {
-				// 以Object形式读取JSON
-				eval('resInfo =' + xhrobj.responseText);
-				if (resInfo.errors.length > 0) {
-					// 共通出错信息框
-					treatBackMessages(null, resInfo.errors);
-				} else {
-					//现品作业信息
-					var factProductionFeature = resInfo.unfinish;
-					if(!factProductionFeature.partial_warehouse_key){
-						warningConfirm("货物到达验收确认单未导入，结束将不记录作业！",function(){
-							doDelete();
-						},function(){});
-					}else{
-						execEnd();
-					}
-				}
-			} catch (e) {}
-		}
-	});
+	execEnd();
+//	$.ajax({
+//		beforeSend : ajaxRequestType,
+//		async : true,
+//		url : 'fact_production_feature.do?method=jsinit',
+//		cache : false,
+//		data : null,
+//		type : "post",
+//		dataType : "json",
+//		success : ajaxSuccessCheck,
+//		error : ajaxError,
+//		complete : function(xhrobj,textStatus){
+//			var resInfo = null;
+//			try {
+//				// 以Object形式读取JSON
+//				eval('resInfo =' + xhrobj.responseText);
+//				if (resInfo.errors.length > 0) {
+//					// 共通出错信息框
+//					treatBackMessages(null, resInfo.errors);
+//				} else {
+//					//现品作业信息
+//					var factProductionFeature = resInfo.unfinish;
+//					if(!factProductionFeature.partial_warehouse_key){
+//						warningConfirm("货物到达验收确认单未导入，结束将不记录作业！",function(){
+//							doDelete();
+//						},function(){});
+//					}else{
+//						execEnd();
+//					}
+//				}
+//			} catch (e) {}
+//		}
+//	});
 };
 
 function doDelete(){
@@ -282,15 +311,12 @@ function doDelete(){
 
 
 function execEnd(){
-	var data = {
-		"step":"1"
-	};
 	$.ajax({
 		beforeSend : ajaxRequestType,
 		async : true,
 		url : servicePath + '?method=doFinish',
 		cache : false,
-		data : data,
+		data : null,
 		type : "post",
 		dataType : "json",
 		success : ajaxSuccessCheck,
@@ -347,9 +373,11 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['','','零件编号','零件名称','规格种别','数量'],
+			colNames : ['','','日期','DN 编号','零件编号','零件名称','规格种别','数量'],
 			colModel : [{name : 'key',index : 'key',hidden : true},
 			            {name : 'partial_id',index : 'partial_id',hidden : true},
+			            {name : 'warehouse_date',index : 'warehouse_date',width:60,align:'center'},
+			            {name : 'dn_no',index : 'dn_no',width:100},
 			            {name : 'code',index : 'code',width:200},
 			            {name : 'partial_name',index : 'partial_name',width:200},
 			            {name : 'spec_kind_name',index : 'spec_kind_name',width:200},

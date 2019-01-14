@@ -1,8 +1,6 @@
 package com.osh.rvs.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -228,108 +226,28 @@ public class PartialBussinessStandardService {
 	}
 
 	public PartialBussinessStandardForm getPartialBussinessStandardBySpecKind(String spec_kind, SqlSession conn) {
-		PartialBussinessStandardMapper dao = conn.getMapper(PartialBussinessStandardMapper.class);
-
-		PartialBussinessStandardEntity entity = dao.getPartialBussinessStandardBySpecKind(spec_kind);
+		PartialBussinessStandardEntity entity = getStandardTime(conn).get(spec_kind);
 		PartialBussinessStandardForm respForm = null;
 
 		if (entity != null) {
 			respForm = new PartialBussinessStandardForm();
 			BeanUtil.copyToForm(entity, respForm, CopyOptions.COPYOPTIONS_NOEMPTY);
 		}
-
 		return respForm;
-
 	}
 
-	private List<PartialBussinessStandardEntity> getStandardTime(SqlSession conn) {
+	public Map<String,PartialBussinessStandardEntity> getStandardTime(SqlSession conn){
+		Map<String,PartialBussinessStandardEntity> map = new TreeMap<String,PartialBussinessStandardEntity>();
+
 		PartialBussinessStandardMapper dao = conn.getMapper(PartialBussinessStandardMapper.class);
 		List<PartialBussinessStandardEntity> list = dao.search();
 
-		if (list == null) {
-			list = new ArrayList<PartialBussinessStandardEntity>();
+		if (list != null) {
+			for(PartialBussinessStandardEntity entity:list){
+				map.put(entity.getSpec_kind().toString(), entity);
+			}
 		}
 
-		return list;
-	}
-
-	/**
-	 * 查询收货工时标准
-	 *
-	 * @param conn
-	 * @return
-	 */
-	public Map<Integer, BigDecimal> getReceptStandardTime(SqlSession conn) {
-		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
-		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-
-		for (PartialBussinessStandardEntity entity : list) {
-			map.put(entity.getSpec_kind(), entity.getRecept());
-		}
 		return map;
 	}
-
-	/**
-	 * 查询拆盒工时标准
-	 * @param conn
-	 * @return
-	 */
-	public Map<Integer, BigDecimal> getCollectCaseStandardTime(SqlSession conn) {
-		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
-		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-
-		for (PartialBussinessStandardEntity entity : list) {
-			map.put(entity.getSpec_kind(), entity.getCollect_case());
-		}
-		return map;
-	}
-
-	/**
-	 * 查询核对工时标准
-	 *
-	 * @param conn
-	 * @return
-	 */
-	public Map<Integer, BigDecimal> getCollationStandardTime(SqlSession conn) {
-		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
-		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-
-		for (PartialBussinessStandardEntity entity : list) {
-			map.put(entity.getSpec_kind(), entity.getCollation());
-		}
-		return map;
-	}
-
-	/**
-	 * 查询上架工时标准
-	 *
-	 * @param conn
-	 * @return
-	 */
-	public Map<Integer, BigDecimal> getOnShelfStandardTime(SqlSession conn) {
-		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
-		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-
-		for (PartialBussinessStandardEntity entity : list) {
-			map.put(entity.getSpec_kind(), entity.getOn_shelf());
-		}
-		return map;
-	}
-
-	/**
-	 * 查询分装工时标准
-	 *
-	 * @param conn
-	 * @return
-	 */
-	public Map<Integer, BigDecimal> getUnpackStandardTime(SqlSession conn) {
-		List<PartialBussinessStandardEntity> list = getStandardTime(conn);
-		Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-
-		for (PartialBussinessStandardEntity entity : list) {
-			map.put(entity.getSpec_kind(), entity.getUnpack());
-		}
-		return map;
-	}
-
 }

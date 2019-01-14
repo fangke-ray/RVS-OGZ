@@ -25,22 +25,28 @@ public class PartialWarehouseForm extends ActionForm {
 	private String key;
 
 	/**
-	 * 日期
+	 * 零件入库单号
 	 */
-	@BeanField(title = "日期", name = "warehouse_date", type = FieldType.Date, notNull = true)
-	private String warehouse_date;
-
-	/**
-	 * DN 编号
-	 */
-	@BeanField(title = "DN 编号", name = "dn_no", type = FieldType.String, length = 16, notNull = true)
-	private String dn_no;
+	@BeanField(title = "零件入库单号", name = "warehouse_no", length = 10, notNull = true)
+	private String warehouse_no;
 
 	/**
 	 * 入库进展
 	 */
 	@BeanField(title = "入库进展", name = "step", type = FieldType.Integer, length = 1, notNull = true)
 	private String step;
+
+	/**
+	 * 日期
+	 */
+	@BeanField(title = "日期", name = "warehouse_date", type = FieldType.Date)
+	private String warehouse_date;
+
+	/**
+	 * DN 编号
+	 */
+	@BeanField(title = "DN 编号", name = "dn_no", type = FieldType.String, length = 16)
+	private String dn_no;
 
 	/**
 	 * 操作者 ID
@@ -180,6 +186,14 @@ public class PartialWarehouseForm extends ActionForm {
 
 	public void setProduction_type(String production_type) {
 		this.production_type = production_type;
+	}
+
+	public String getWarehouse_no() {
+		return warehouse_no;
+	}
+
+	public void setWarehouse_no(String warehouse_no) {
+		this.warehouse_no = warehouse_no;
 	}
 
 }

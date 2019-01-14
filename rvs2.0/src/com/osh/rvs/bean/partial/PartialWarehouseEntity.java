@@ -22,6 +22,11 @@ public class PartialWarehouseEntity implements Serializable {
 	private String key;
 
 	/**
+	 * 零件入库单号
+	 */
+	private String warehouse_no;
+
+	/**
 	 * 日期
 	 */
 	private Date warehouse_date;
@@ -67,6 +72,14 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public String getWarehouse_no() {
+		return warehouse_no;
+	}
+
+	public void setWarehouse_no(String warehouse_no) {
+		this.warehouse_no = warehouse_no;
 	}
 
 	public Date getWarehouse_date() {

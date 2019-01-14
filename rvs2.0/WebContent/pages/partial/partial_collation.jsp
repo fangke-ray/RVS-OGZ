@@ -58,16 +58,16 @@
 	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 		<span class="areatitle">作业信息</span>
 	</div>
-	<div class="ui-widget-content">
-		<table class="condform">
+	<div class="ui-widget-content" id="content">
+		<table class="condform" style="width: 100%;">
 			<tbody>
 				<tr>
-					<td class="ui-state-default td-title">日期:</td>
-					<td class="td-content"><span id="label_warehouse_date"></span></td>
-					<td class="ui-state-default td-title">DN 编号:</td>
-					<td class="td-content"><span id="label_dn_no"></span></td>
 					<td class="ui-state-default td-title">作业内容:</td>
 					<td class="td-content"><span id="label_production_type_name"></span></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">日期</td>
+					<td class="ui-state-default td-title">DN 编号</td>
 				</tr>
 			</tbody>
 		</table>

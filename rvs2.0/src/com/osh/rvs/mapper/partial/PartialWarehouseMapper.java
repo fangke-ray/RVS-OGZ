@@ -38,14 +38,6 @@ public interface PartialWarehouseMapper {
 	public void updateStep(PartialWarehouseEntity entity) throws Exception;
 
 	/**
-	 * 根据DN编号查询零件入库单信息
-	 *
-	 * @param no
-	 * @return
-	 */
-	public PartialWarehouseEntity getByDnNo(@Param("dn_no") String no);
-
-	/**
 	 * 根据key查询零件入库单信息
 	 *
 	 * @param key
@@ -58,8 +50,10 @@ public interface PartialWarehouseMapper {
 	 *
 	 * @return
 	 */
-	public List<PartialWarehouseEntity> searchStepPartialWarehouse(PartialWarehouseEntity entity);
+	public List<PartialWarehouseEntity> searchPartialWarehouseByStep(@Param("step") String step);
 
 	public List<PartialWarehouseEntity> searchUnmatch(PartialWarehouseEntity entity);
+
+	public String getMaxWarehouseNo(@Param("warehouse_no") String warehouse_no);
 
 }

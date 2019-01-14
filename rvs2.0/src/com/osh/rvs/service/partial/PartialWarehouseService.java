@@ -29,6 +29,7 @@ import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.mapper.partial.PartialWarehouseMapper;
 
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.DateUtil;
@@ -134,27 +135,23 @@ public class PartialWarehouseService {
 	}
 
 	/**
-	 * 根据DN 编号查询零件入库单信息
+	 * 查询最大零件入库单号
 	 *
-	 * @param DnNo DN 编号
-	 * @param conn 数据库连接
-	 * @return respForm 零件入库单,如果存零件入库单则返回零件入库单，如果不存零件入库单则返回NULL
+	 * @param warehouse_no
+	 * @param conn
+	 * @return
 	 */
-	public PartialWarehouseForm getPartialWarehouseByDnNo(String DnNo, SqlSession conn) {
+	public Integer getMaxWarehouseNo(String warehouse_no, SqlSession conn) {
 		// 数据库连接对象
 		PartialWarehouseMapper dao = conn.getMapper(PartialWarehouseMapper.class);
 
-		PartialWarehouseEntity entity = dao.getByDnNo(DnNo);
-		PartialWarehouseForm respForm = null;
+		String maxNo = dao.getMaxWarehouseNo(warehouse_no);
 
-		if (entity != null) {
-			respForm = new PartialWarehouseForm();
-			// 复制模型数据到表单
-			BeanUtil.copyToForm(entity, respForm, CopyOptions.COPYOPTIONS_NOEMPTY);
+		if (!CommonStringUtil.isEmpty(maxNo)) {
+			return Integer.valueOf(maxNo);
+		} else {
+			return null;
 		}
-
-		return respForm;
-
 	}
 
 	/**
@@ -164,17 +161,13 @@ public class PartialWarehouseService {
 	 * @param conn 数据库连接
 	 * @return respList
 	 */
-	public List<PartialWarehouseForm> searchStepPartialWarehouse(ActionForm form, SqlSession conn) {
+	public List<PartialWarehouseForm> searchPartialWarehouseByStep(String step, SqlSession conn) {
 		// 数据库连接对象
 		PartialWarehouseMapper dao = conn.getMapper(PartialWarehouseMapper.class);
 
-		PartialWarehouseEntity entity = new PartialWarehouseEntity();
-		// 复制表单数据到数据模型
-		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-
 		List<PartialWarehouseForm> respList = new ArrayList<PartialWarehouseForm>();
 		// 查询当前入库进展信息
-		List<PartialWarehouseEntity> list = dao.searchStepPartialWarehouse(entity);
+		List<PartialWarehouseEntity> list = dao.searchPartialWarehouseByStep(step);
 		if (list != null && list.size() > 0) {
 			// 复制模型数据到表单
 			BeanUtil.copyToFormList(list, respList, CopyOptions.COPYOPTIONS_NOEMPTY, PartialWarehouseForm.class);
@@ -184,14 +177,13 @@ public class PartialWarehouseService {
 	}
 
 	/**
-	 * 查询当前入库进展信息
-	 * （表格内容：序号/入库单日期/DN 编号/零件编号/零件名称/入库单数量/核对数量/核对日期/核对人员）
+	 * 查询当前入库进展信息 （表格内容：序号/入库单日期/DN 编号/零件编号/零件名称/入库单数量/核对数量/核对日期/核对人员）
 	 *
 	 * @param conn 数据库连接
 	 */
-	public String createUnmatchReport(ActionForm form,SqlSession conn) throws Exception{
+	public String createUnmatchReport(ActionForm form, SqlSession conn) throws Exception {
 		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "入库单核对不一致一览表模板.xlsx";
-		String cacheName ="入库单核对不一致一览" + new Date().getTime() + ".xlsx";
+		String cacheName = "入库单核对不一致一览" + new Date().getTime() + ".xlsx";
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(new Date(), "yyyyMM") + "\\" + cacheName;
 		try {
 			FileUtils.copyFile(new File(path), new File(cachePath));
@@ -211,20 +203,20 @@ public class PartialWarehouseService {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
-			in = new FileInputStream(cachePath);//读取文件
-			XSSFWorkbook work=new XSSFWorkbook(in);//创建xls文件
-			XSSFSheet sheet =work.getSheetAt(0);//创建第一个Sheet
+			in = new FileInputStream(cachePath);// 读取文件
+			XSSFWorkbook work = new XSSFWorkbook(in);// 创建xls文件
+			XSSFSheet sheet = work.getSheetAt(0);// 创建第一个Sheet
 
 			XSSFRow row = null;
 			XSSFCell cell = null;
 
-			XSSFDataFormat dataFormat =  work.createDataFormat();
+			XSSFDataFormat dataFormat = work.createDataFormat();
 
 			XSSFFont font = work.createFont();
-			font.setFontHeightInPoints((short)10);
+			font.setFontHeightInPoints((short) 10);
 			font.setFontName("微软雅黑");
 
-			/*基本样式*/
+			/* 基本样式 */
 			XSSFCellStyle baseStyle = work.createCellStyle();
 			baseStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN);
 			baseStyle.setBorderTop(XSSFCellStyle.BORDER_THIN);
@@ -233,17 +225,17 @@ public class PartialWarehouseService {
 			baseStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER);
 			baseStyle.setFont(font);
 
-			/*设置单元格内容居中显示*/
+			/* 设置单元格内容居中显示 */
 			XSSFCellStyle alignCenterStyle = work.createCellStyle();
 			alignCenterStyle.cloneStyleFrom(baseStyle);
 			alignCenterStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);
 
-			/*设置单元格内容右显示*/
+			/* 设置单元格内容右显示 */
 			XSSFCellStyle alignRightStyle = work.createCellStyle();
 			alignRightStyle.cloneStyleFrom(baseStyle);
 			alignRightStyle.setAlignment(XSSFCellStyle.ALIGN_RIGHT);
 
-			/*设置单元格内容左显示*/
+			/* 设置单元格内容左显示 */
 			XSSFCellStyle alignLeftStyle = work.createCellStyle();
 			alignLeftStyle.cloneStyleFrom(baseStyle);
 			alignLeftStyle.setAlignment(XSSFCellStyle.ALIGN_LEFT);
@@ -252,15 +244,15 @@ public class PartialWarehouseService {
 			dateStyle.cloneStyleFrom(alignCenterStyle);
 			dateStyle.setDataFormat(dataFormat.getFormat("yyyy/mm/dd"));
 
-			for(int i = 0;i < list.size();i++){
+			for (int i = 0; i < list.size(); i++) {
 				entity = list.get(i);
 				// 核对数量
 				Integer collationQuantity = entity.getCollation_quantity();
 
-				row = sheet.createRow(i+1);
+				row = sheet.createRow(i + 1);
 
 				// 序号
-				CellUtil.createCell(row, 0, String.valueOf(i+1), alignCenterStyle);
+				CellUtil.createCell(row, 0, String.valueOf(i + 1), alignCenterStyle);
 
 				// 入库单日期
 				cell = row.createCell(1);
@@ -277,13 +269,13 @@ public class PartialWarehouseService {
 				CellUtil.createCell(row, 4, entity.getPartial_name(), alignLeftStyle);
 
 				// 入库单数量
-				if(collationQuantity < 0){
+				if (collationQuantity < 0) {
 					CellUtil.createCell(row, 5, "没有", alignLeftStyle);
-				}else{
+				} else {
 					CellUtil.createCell(row, 5, entity.getQuantity().toString(), alignRightStyle);
 				}
 
-				if(collationQuantity < 0){
+				if (collationQuantity < 0) {
 					collationQuantity *= -1;
 				}
 				// 核对数量
@@ -298,17 +290,17 @@ public class PartialWarehouseService {
 				CellUtil.createCell(row, 8, entity.getOperator_name(), alignLeftStyle);
 			}
 
-			out= new FileOutputStream(cachePath);
+			out = new FileOutputStream(cachePath);
 			work.write(out);
-		}catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			throw e;
 		} catch (IOException e) {
-				throw e;
-		}finally{
-			if(in!=null){
+			throw e;
+		} finally {
+			if (in != null) {
 				in.close();
 			}
-			if(out!=null){
+			if (out != null) {
 				out.close();
 			}
 		}

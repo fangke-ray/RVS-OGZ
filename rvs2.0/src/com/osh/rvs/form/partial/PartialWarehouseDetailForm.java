@@ -26,6 +26,12 @@ public class PartialWarehouseDetailForm extends ActionForm {
 	private String key;
 
 	/**
+	 * 序号
+	 */
+	@BeanField(title = "序号", name = "seq", length = 2, type = FieldType.Integer, notNull = true, primaryKey = true)
+	private String seq;
+
+	/**
 	 * 零件 ID
 	 */
 	@BeanField(title = "零件 ID", name = "partial_id", length = 11, notNull = true, primaryKey = true)
@@ -98,6 +104,24 @@ public class PartialWarehouseDetailForm extends ActionForm {
 	@BeanField(title = "上架", name = "on_shelf", type = FieldType.Double)
 	private String on_shelf;
 
+	/**
+	 * 零件入库单号
+	 */
+	@BeanField(title = "零件入库单号", name = "warehouse_no", type = FieldType.String, length = 10)
+	private String warehouse_no;
+
+	/**
+	 * 日期
+	 */
+	@BeanField(title = "日期", name = "warehouse_date", type = FieldType.Date)
+	private String warehouse_date;
+
+	/**
+	 * DN 编号
+	 */
+	@BeanField(title = "DN 编号", name = "dn_no", type = FieldType.String, length = 16)
+	private String dn_no;
+
 	private String flg;
 
 	public String getKey() {
@@ -106,6 +130,14 @@ public class PartialWarehouseDetailForm extends ActionForm {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public String getSeq() {
+		return seq;
+	}
+
+	public void setSeq(String seq) {
+		this.seq = seq;
 	}
 
 	public String getPartial_id() {
@@ -214,6 +246,30 @@ public class PartialWarehouseDetailForm extends ActionForm {
 
 	public void setOn_shelf(String on_shelf) {
 		this.on_shelf = on_shelf;
+	}
+
+	public String getWarehouse_no() {
+		return warehouse_no;
+	}
+
+	public void setWarehouse_no(String warehouse_no) {
+		this.warehouse_no = warehouse_no;
+	}
+
+	public String getWarehouse_date() {
+		return warehouse_date;
+	}
+
+	public void setWarehouse_date(String warehouse_date) {
+		this.warehouse_date = warehouse_date;
+	}
+
+	public String getDn_no() {
+		return dn_no;
+	}
+
+	public void setDn_no(String dn_no) {
+		this.dn_no = dn_no;
 	}
 
 }

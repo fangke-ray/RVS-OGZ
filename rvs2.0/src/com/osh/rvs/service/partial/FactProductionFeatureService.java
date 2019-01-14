@@ -185,4 +185,20 @@ public class FactProductionFeatureService {
 		}
 	}
 
+	/**
+	 * 收货完成
+	 * @param form
+	 * @param conn
+	 */
+	public void finishRecept(ActionForm form,SqlSessionManager conn){
+		// 数据库连接对象
+		FactProductionFeatureMapper dao = conn.getMapper(FactProductionFeatureMapper.class);
+
+		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
+		// 复制表单数据到数据模型
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		dao.finishRecept(entity);
+	}
+
 }

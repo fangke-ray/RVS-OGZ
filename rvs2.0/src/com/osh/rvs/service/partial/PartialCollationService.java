@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.osh.rvs.bean.master.PartialBussinessStandardEntity;
 import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
@@ -54,19 +55,30 @@ public class PartialCollationService {
 	 */
 	public List<PartialWarehouseDetailForm> filterCollation(List<PartialWarehouseDetailForm> list, String productionType) {
 		List<PartialWarehouseDetailForm> respList = new ArrayList<PartialWarehouseDetailForm>();
+
+		// 核对数据集合
+		List<PartialWarehouseDetailForm> collectList = new ArrayList<PartialWarehouseDetailForm>();
+
+		// 核对+上架数据集合
+		List<PartialWarehouseDetailForm> onShelfList = new ArrayList<PartialWarehouseDetailForm>();
+
 		// 过滤核对的数据
 		for (PartialWarehouseDetailForm form : list) {
-			// 上架
+			// 上架时间
 			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
 
-			// 【B1：核对+上架】
-			if ("20".equals(productionType)) {
-				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
-					respList.add(form);
-			} else if ("21".equals(productionType)) {// 【B2：核对】
-				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
-					respList.add(form);
+			// 不存在上架时间
+			if (onShelf.compareTo(BigDecimal.ZERO) < 0){// 【B1：核对+上架】
+				onShelfList.add(form);
+			}else if(onShelf.compareTo(BigDecimal.ZERO) > 0){// 【B2：核对】
+				collectList.add(form);
 			}
+		}
+
+		if ("20".equals(productionType)) {// 【B1：核对+上架】
+			return onShelfList;
+		}else if ("21".equals(productionType)) {// 【B2：核对】
+			return collectList;
 		}
 
 		return respList;
@@ -80,7 +92,7 @@ public class PartialCollationService {
 	 * @return
 	 */
 	public String getStandardTime(List<PartialWarehouseDetailForm> list, String productionType, SqlSession conn) {
-		Map<Integer, BigDecimal> map = partialBussinessStandardService.getCollationStandardTime(conn);
+		Map<String,PartialBussinessStandardEntity> map = partialBussinessStandardService.getStandardTime(conn);
 
 		// 总时间
 		BigDecimal totalTime = new BigDecimal("0");
@@ -91,18 +103,20 @@ public class PartialCollationService {
 			Integer quantity = Integer.valueOf(form.getQuantity());
 			// 上架
 			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
+
+
 			// 标准工时
 			BigDecimal time = new BigDecimal("0");
 
 			// 【B1：核对+上架】
 			if ("20".equals(productionType)) {
 				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
-					time = map.get(specKind);
+					time = map.get(specKind).getCollation();
 					time = time.multiply(new BigDecimal(quantity));
 
 			} else if ("21".equals(productionType)) {// 【B2：核对】
 				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
-					time = map.get(specKind);
+					time =map.get(specKind).getCollation();
 					time = time.multiply(new BigDecimal(quantity));
 			}
 
@@ -135,7 +149,13 @@ public class PartialCollationService {
 
 			if (entity.getFinish_time() == null) {
 				Calendar cal = Calendar.getInstance();
-				millisecond += cal.getTimeInMillis() - entity.getAction_time().getTime();
+				//毫秒
+				cal.set(Calendar.MILLISECOND, 0);
+
+				long cur_spend = cal.getTimeInMillis() - entity.getAction_time().getTime();
+				if(cur_spend < 0) cur_spend = 0;
+
+				millisecond += cur_spend;
 			} else {
 				millisecond += entity.getFinish_time().getTime() - entity.getAction_time().getTime();
 			}
