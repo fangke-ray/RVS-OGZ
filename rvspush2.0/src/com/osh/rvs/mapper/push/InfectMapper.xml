@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.InfectMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getExpiredTools" resultType="map">
+		<![CDATA[ 
+		SELECT manage_code,sec.section_id, sec.name as section_name,process_code,pos.line_id,manager_operator_id FROM jig_manage tm 
+		join position pos
+			on pos.position_id = tm.position_id
+		join section sec
+			on sec.section_id = tm.section_id
+		where responsible_operator_id is not null and  tm.position_id is not null
+			and tm.section_id != 6 and tm.delete_flg = 0 and status = 1
+			and not exists(select 1 from jig_check_result where manage_id = tm.jig_manage_id 
+			and date(check_confirm_time) between #{startOfMonth} and #{endOfMonth})
+			and tm.provide_date != current_date
+		order by manager_operator_id,process_code
+		;
+		]]>
+	</select>
+
+	<select id="getExpiredDevices" resultType="map">
+		<![CDATA[ 
+		SELECT manage_code,sec.section_id, sec.name as section_name,process_code,pos.line_id,manager_operator_id 
+		FROM devices_manage dm 
+		join position pos
+			on pos.position_id = dm.position_id
+		join section sec
+			on sec.section_id = dm.section_id
+		where (responsible_operator_id is not null or dm.position_id is not null or dm.line_id is not null)
+			and dm.section_id != 6 and dm.delete_flg = 0 and status = 1 and manage_level = 1
+			and exists(select 1 from device_check_result where manage_id = dm.devices_manage_id 
+			and date(check_confirm_time) between #{startDate} and #{endDate}
+			and checked_status = 0)
+			and dm.provide_date != current_date
+			and exists(select 1 from check_file_manage cfm where dm.device_type_id = cfm.device_type_id
+			and cfm.delete_flg = 0
+			and (cfm.specified_model_name is null
+			        OR cfm.specified_model_name LIKE CONCAT('%', dm.model_name, '%'))
+			and cycle_type = #{cycle_type}
+			and access_place = 2)
+		order by manager_operator_id,process_code
+		;
+		]]>
+	</select>
+
+	<select id="getExpiredExternals" resultType="map">
+		<![CDATA[ 
+			SELECT
+				coalesce(dm.manage_code, tm.manage_code, '') as manage_code,
+				coalesce(dt.name, tm.jig_name, '') as name,
+				coalesce(dm.model_name, tm.jig_no, '') as model_name,
+				DATE_FORMAT(ea.available_end_date, '%Y-%m-%d') as available_end_date,
+				ea.institution_name
+			FROM 	
+				external_adjustment ea
+			LEFT JOIN
+				devices_manage dm
+			ON
+				ea.devices_manage_id=dm.devices_manage_id
+				AND ea.object_type = 1
+				and dm.manage_level != 3
+			LEFT JOIN
+				device_type dt
+			ON
+				dt.device_type_id=dm.device_type_id
+			LEFT JOIN
+				jig_manage tm
+			ON
+				ea.devices_manage_id=tm.jig_manage_id
+				AND ea.object_type = 2
+			WHERE
+				dm.waste_date IS NULL AND tm.waste_date IS NULL 
+				AND ea.available_end_date < f_addworkdays(CURRENT_DATE(), 15)
+				AND ea.checking_flg = 0
+				AND ea.idle_flg = 0;
+		]]>
+	</select>
+
+</mapper>

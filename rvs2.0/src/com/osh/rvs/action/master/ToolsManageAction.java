@@ -325,7 +325,7 @@ public class ToolsManageAction extends BaseAction {
 		String tempFilePath = fservice.getFile2Local(form, errors);
 
 		String photo_file_name = tempFilePath.substring(tempFilePath.lastIndexOf("\\") + 1);
-		service.copyPhoto(req.getParameter("tools_manage_id"), photo_file_name);
+		service.copyPhoto(req.getParameter("tools_no"), photo_file_name);
 
 		// 检查发生错误时报告错误信息
 		jsonResponse.put("errors", errors);

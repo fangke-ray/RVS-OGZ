@@ -20,23 +20,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 
 <script type="text/javascript" src="js/admin/devices_type.js"></script>
 <style>
-.menulink {
-	font-size: 16px;
-	color: white;
-	float: right;
-	right: 4px;
-	margin: 4px;
-}
-
-.menulink:hover {
-	color: #FFB300;
-	cursor: pointer;
-}
+	#show_photo {
+		width:218px;
+	}
 </style>
 
 <title>设备工具品名</title>
@@ -58,7 +50,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div id="body-mdl" class="dwidth-middleright" style="margin: auto;">
 					<div id="body-mdl" style="width: 994px; float: left;">
 			<div id="searcharea" class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
-				<span class="areatitle">检索条件</span>
+				<span class="areatitle">设备・一般工具品名检索条件</span>
 				<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 					<span class="ui-icon ui-icon-circle-triangle-n"></span>
 				</a>
@@ -96,6 +88,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 					<td class="ui-state-default td-title">品名</td>
 					<td class="td-content"><input type="text" alt="品名" name="name" id="edit_name" class="ui-widget-content" style="width:215px;"/></td>
+					<td class="td-content safety_guide" rowspan="7">
+						<label id="show_no_photo">无安全操作手顺</label>
+						<img id="show_photo"></img>
+					</td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">特定设备工具种类</td>
@@ -109,10 +105,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<select id="edit_hazardous_cautions" multiple>${deviceHazardousClassification}</select>
 					</td>
 				</tr>
-				<tr>
-					<td class="ui-state-default td-title">安全操作手顺</td>
+				<tr class="safety_guide">
+					<td class="ui-state-default td-title">安全操作手顺上传</td>
 					<td class="td-content">
-						
+						<input  type="file" name="file" id="update_photo" name="photo" value="导入图片" alt="安全操作手顺">	
 					</td>
 				</tr>
 				<tr>

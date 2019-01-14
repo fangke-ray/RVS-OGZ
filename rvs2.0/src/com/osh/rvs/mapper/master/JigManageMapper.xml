@@ -165,12 +165,13 @@
 				import_date=#{import_date},
 				provide_date=#{provide_date},
 				waste_date=#{waste_date},
+				waste_decide_date=#{waste_decide_date},
 				delete_flg=0,
 				updated_by=#{updated_by},
 				updated_time=#{updated_time},
 				status=#{status},
 				responsible_operator_id=#{responsible_operator_id},
-				comment=#{comment}
+				comment=#{comment},
 				manager_operator_id=#{manager_operator_id}
 		WHERE   jig_manage_id=#{jig_manage_id}
 	   ]]>

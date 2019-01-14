@@ -129,6 +129,12 @@ $(function(){
     $("#goback").click(showList);
     /*返回*/
     $("#cancelbutton, #body-regist span.ui-icon-circle-triangle-w, #body-detail span.ui-icon-circle-triangle-w").click(showList);
+
+	$("#update_tools_no").change(function(){
+		$("#show_no_photo").hide();
+		$("#show_photo").show()
+			.attr("src", "http://" + document.location.hostname + "/photos/jig/" + this.value + "?_s=" + new Date().getTime());
+	});
 });
 
 var more_update = function(){
@@ -940,7 +946,7 @@ var showDetail = function(){
 
 	$("#show_no_photo").hide();
 	$("#show_photo").show()
-		.attr("src", "http://" + document.location.hostname + "/photos/jig/" + rowData.tools_manage_id + "?_s=" + new Date().getTime());
+		.attr("src", "http://" + document.location.hostname + "/photos/jig/" + rowData.tools_no + "?_s=" + new Date().getTime());
 
     $("#update_form").validate({
        rules:{
@@ -972,7 +978,6 @@ var showDetail = function(){
        if ($("#update_form").valid()) {
 		warningConfirm("是否修改管理编号为"+$("#update_manage_code").val()+",专用工具NO.为"+$("#update_tools_no").val()+"的专用工具？", 
 			function(){
-                 $(this).dialog("close");
                  var data={
                       "compare_status":rowData.status==$("#update_status").val(),
                       "tools_manage_id":$("#hidden_tools_manage_id").val(),
@@ -1072,7 +1077,7 @@ var delete_handleComplete = function(xhrobj, textStatus) {
 			// 切回一览画面
 			showList();
        }
-    }catch (e) {};
+    } catch (e) {};
 }
 
 
@@ -1084,12 +1089,16 @@ var showList = function(){
 
 var uploadPhoto = function(){
 	if(!this.value) return;
+	if(!$("#update_tools_no").val()) {
+		errorPop("当前无法取到专用工具NO.");
+		return;
+	}
 
-	var tools_manage_id = $("#hidden_tools_manage_id").val();
+	var tools_no = $("#update_tools_no").val();
     $.ajaxFileUpload({
         url : servicePath + "?method=sourceImage", // 需要链接到服务器地址
         secureuri : false,
-        data: {tools_manage_id : tools_manage_id},
+        data: {tools_no : tools_no},
         fileElementId : 'update_photo', // 文件选择框的id属性
         dataType : 'json', // 服务器返回的格式
 		success : function(responseText, textStatus) {
@@ -1100,8 +1109,10 @@ var uploadPhoto = function(){
 				treatBackMessages(null, resInfo.errors);
 			} else {
 				$("#update_photo").val("");
+				
+				$("#show_no_photo").hide();
 				$("#show_photo")
-					.attr("src", "http://" + document.location.hostname + "/photos/jig/" + tools_manage_id + "?_s=" + new Date().getTime());
+					.attr("src", "http://" + document.location.hostname + "/photos/jig/" + tools_no + "?_s=" + new Date().getTime()).show();
 			}
 		}
      });

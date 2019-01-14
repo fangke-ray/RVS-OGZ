@@ -52,7 +52,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div id="body-mdl" class="dwidth-middleright" style="margin: auto;">
 					<div id="body-mdl" style="width: 994px; float: left;">
 			<div id="searcharea" class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
-				<span class="areatitle">检索条件</span>
+				<span class="areatitle">设备・一般工具检索条件</span>
 				<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 					<span class="ui-icon ui-icon-circle-triangle-n"></span>
 				</a>
@@ -82,10 +82,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<td class="td-content">	
 							<input id="search_asset_no" class="ui-widget-content" type="text">
 						</td>
-					    <td class="ui-state-default td-title">管理员</td>
+					    <td class="ui-state-default td-title">厂商</td>
 						<td class="td-content">
-							<input type="text" id="search_manager_operator_id"  readonly="readonly" class="ui-widget-content">
-							<input type="hidden" id="hidden_search_manager_operator_id">
+							<input type="text" id="search_brand_id"  readonly="readonly" class="ui-widget-content">
+							<input type="hidden" id="hidden_search_brand_id">
 						</td>	
 						<td class="ui-state-default td-title">状态</td>
 						<td class="td-content">
@@ -93,14 +93,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</td>					
 					</tr>
 					<tr>						
-						<td class="ui-state-default td-title">分发课室</td>
-						<td class="td-content">
+						<td class="ui-state-default td-title" rowspan="2">分发课室</td>
+						<td class="td-content" rowspan="2">
 							<select id="search_section_id">${sectionOptions}</select>
 						</td>
-						<td class="ui-state-default td-title">责任工程</td>
-						<td class="td-content">
+						<td class="ui-state-default td-title" rowspan="2">责任工程</td>
+						<td class="td-content" rowspan="2">
 							<select id="search_line_id">${lineOptions}</select>
 						</td>
+					    <td class="ui-state-default td-title">管理员</td>
+						<td class="td-content">
+							<input type="text" id="search_manager_operator_id"  readonly="readonly" class="ui-widget-content">
+							<input type="hidden" id="hidden_search_manager_operator_id">
+						</td>	
+					</tr>
+					<tr>						
 						<td class="ui-state-default td-title">责任工位</td>
 						<td class="td-content">
 							<input type="text" id="search_position_id" readonly="readonly"  class="ui-widget-content">
@@ -121,7 +128,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<div id="listarea" class="">
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-			<span class="areatitle">设备工具管理一览</span>
+			<span class="areatitle">设备・一般工具一览</span>
 			<a target="_parent" role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 				<span class="ui-icon ui-icon-circle-triangle-n"></span>
 			</a>
@@ -191,10 +198,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td  class="td-content">
 						<select id="add_status" name="status" alt="状态">${status}</select>				
 					</td>
-					<!-- <td class="ui-state-default td-title">管理内容</td>
-					<td>
-						<input type="text" id="add_manage_content" name="manage_content" alt="管理内容" class="ui-widget-content">						
-					</td> -->
 				</tr>	
 				<tr>
 					<td class="ui-state-default td-title">出厂编号</td>
@@ -312,13 +315,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">	
 					<select id="update_manage_level" name="manage_level" alt="管理等级">${nCmanageLevel}</select>
 					</td>
-					<!-- <td class="ui-state-default td-title">管理内容</td>
-					<td>
-						<input type="text" id="update_manage_content" name="manage_content" alt="管理内容" class="ui-widget-content">						
-					</td> -->
-					<td class="ui-state-default td-title">状态</td>
-					<td  class="td-content">
+					<td class="ui-state-default td-title" rowspan="2">状态</td>
+					<td class="td-content" rowspan="2">
 						<select id="update_status" name="status" alt="状态">${nCstatus}</select>				
+					</td>
+				</tr>	
+				<tr>
+				    <td class="ui-state-default td-title">资产编号</td>
+					<td class="td-content">	
+						<input id="update_asset_no" class="ui-widget-content" type="text">
 					</td>
 				</tr>	
 				<tr>
@@ -330,6 +335,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td>
 						<input type="text" id="update_brand" alt="厂商" readonly="readonly" class="ui-widget-content">						
 						<input type="hidden" id="hidden_update_brand_id" name="brand_id">						
+						<input type="button" id="update_brand_detail_button" class="ui-button" value="…" style="padding: 0 3px;">						
 					</td>
 				</tr>
 				<tr>
@@ -443,7 +449,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	       
 	   </form>
 	</div>
-	
+
 	<div style="float:left;width:36%;margin-top:2px;">
 	 		<!-- 批量交付详细list -->
 	       	<table id="deliver_list"></table>
@@ -488,7 +494,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	      </div>
 	   </form>
 	</div>
-		
+	<style>
+	.referchooser {z-index: 1010;}
+	</style>
 	<!-- 查询条件责任工位 -->
 	<div class="referchooser ui-widget-content" id="deliver_position_referchooser" tabindex="-1">
 			<table width="200px">
@@ -663,7 +671,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="ui-state-default td-title">厂商</td>
 					<td>
 						<input type="text" id="replace_brand" alt="厂商" readonly="readonly" class="ui-widget-content">
-						<input type="hidden" id="hidden_replace_brand_id" name="brand_id">						
+						<input type="hidden" id="hidden_replace_brand_id" name="brand_id">
 					</td>
 				</tr>	
 				<tr>
@@ -729,6 +737,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</form>
 	
 </div>
+
+	<%@include file="../../widgets/infect/brand-detail.jsp"%>
+
 
 <!----------------------end----------------------------->
 </div>

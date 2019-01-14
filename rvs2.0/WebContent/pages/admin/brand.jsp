@@ -37,14 +37,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="ui-widget-panel ui-corner-all width-full" style="align: center; padding-top: 16px;" id="body-3">
 			<div id="body-lft" style="width: 256px; float: left;">
 				<jsp:include page="/appmenu.do?method=tinit" flush="true">
-					<jsp:param name="linkto" value=设备工具•专用工具信息管理"/>
+					<jsp:param name="linkto" value="设备工具•专用工具信息管理"/>
 				</jsp:include>
 			</div>
 			<div style="width: 1012px; float: left;">
 				<div id="body-mdl" class="dwidth-middleright" style="margin: auto;">
 					<div id="body-mdl" style="width: 994px; float: left;">
 			<div id="searcharea" class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
-				<span class="areatitle">检索条件</span>
+				<span class="areatitle">厂商检索条件</span>
 				<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 					<span class="ui-icon ui-icon-circle-triangle-n"></span>
 				</a>

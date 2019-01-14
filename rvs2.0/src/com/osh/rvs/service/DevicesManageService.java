@@ -15,13 +15,14 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.master.DeviceTypeEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
-import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.form.master.DevicesManageForm;
+import com.osh.rvs.form.master.DevicesTypeForm;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 
@@ -405,5 +406,37 @@ public class DevicesManageService {
 			devicesManageEntity.setUpdated_by(user.getOperator_id());//发放者是登录人
 			dao.disband(devicesManageEntity);
 		}
+	}
+
+	public List<DevicesTypeForm> getOfPositionHazardousCautionsAndSafetyGuide(
+			String section_id, String position_id, SqlSession conn) {
+		DevicesManageMapper mapper = conn.getMapper(DevicesManageMapper.class);
+
+		List<DevicesTypeForm> result = new ArrayList<DevicesTypeForm>();
+
+		DevicesManageEntity dmCond = new DevicesManageEntity();
+		dmCond.setPosition_id(position_id);
+		dmCond.setSection_id(section_id);
+		List<DeviceTypeEntity> list = mapper.getDeviceTypeOfPosition(dmCond);
+
+		DevicesTypeService dts = new DevicesTypeService();
+		for(DeviceTypeEntity deviceType : list) {
+			DevicesTypeForm devicesTypeForm = new DevicesTypeForm();
+			boolean show = false;
+			if (deviceType.getClassification() != null) {
+				devicesTypeForm.setHazardous_cautions(dts.getClassificationText(deviceType.getClassification()));
+				show = true;
+			}
+			if (DevicesTypeService.getSafetyGuideSet().contains(deviceType.getDevice_type_id())) {
+				devicesTypeForm.setSafety_guide("1");
+				show = true;
+			}
+			if (show) {
+				BeanUtil.copyToForm(deviceType, devicesTypeForm, CopyOptions.COPYOPTIONS_NOEMPTY);
+				result.add(devicesTypeForm);
+			}
+		}
+
+		return result;
 	}
 }

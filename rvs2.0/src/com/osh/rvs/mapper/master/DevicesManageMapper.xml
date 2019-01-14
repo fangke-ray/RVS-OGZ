@@ -88,6 +88,11 @@
 				    and dt.specialized =#{specialized}
 			    ]]>
 			</if>
+			<if test="brand_id!=null and brand_id!='' ">
+				<![CDATA[
+				    and dm.brand_id =#{brand_id}
+			    ]]>
+			</if>
 			<if test="model_name!=null and model_name!='' ">
 				<![CDATA[
 				    and dm.model_name LIKE CONCAT('%',#{model_name},'%')
@@ -214,7 +219,6 @@
 		    	(devices_manage_id,
 				manage_code,
 				device_type_id,
-				device_name,
 				model_name,
 				manager_operator_id,
 				manage_level,
@@ -239,7 +243,6 @@
 		        #{devices_manage_id},
 				#{manage_code},
 				#{device_type_id},
-				#{name},
 				#{model_name},
 				#{manager_operator_id},
 				#{manage_level},
@@ -268,7 +271,6 @@
 		    	devices_manage
 				(manage_code,
 				device_type_id,
-				device_name,
 				model_name,
 				manager_operator_id,
 				manage_level,
@@ -292,7 +294,6 @@
 			]]>
 				#{manage_code},
 				#{device_type_id},
-				#{name},
 				#{model_name},
 				#{manager_operator_id},
 				#{manage_level},
@@ -345,8 +346,7 @@
 		SELECT dm.`devices_manage_id`,
 		    dm.`manage_code`,
 		    dm.`device_type_id`,
-		    coalesce(dm.`device_name`, dt.`name`) as `name`,
-		    dm.`device_name`,
+		    dt.`name` as `name`,
 		    dm.`model_name`,
 		    dm.`location`,
 		    dm.`manager_operator_id`,
@@ -381,14 +381,13 @@
 	<update id="exchange" parameterType="DevicesManageEntity">
 	   <![CDATA[
 		INSERT INTO `devices_manage`
-		(`manage_code`, `device_type_id`, `device_name`, `model_name`, `location`,
+		(`manage_code`, `device_type_id`, `model_name`, `location`,
 		`manager_operator_id`, `manage_level`, `asset_no` `products_code`, `brand_id`, `section_id`, `line_id`, `position_id`,
 		`responsible_operator_id`, `import_date`, `provide_date`, `waste_date`, `delete_flg`, `updated_by`,
 		`updated_time`, `status`, `comment`)
 		SELECT 
 		    #{manage_code} as manage_code,
 		    `odm`.`device_type_id`,
-		    `odm`.`device_name`,
 		    `odm`.`model_name`,
 		    `odm`.`location`,
 		    `odm`.`manager_operator_id`,
@@ -481,4 +480,26 @@
 		</if>
 		ORDER BY dm.manage_code
     </select>
+
+	<select id="getDeviceTypeOfPosition"  parameterType="DevicesManageEntity" resultType="DeviceTypeEntity">
+		SELECT 
+			dt.device_type_id,
+			dt.name,
+			sum(pow(2, dhc.classification)) as classification
+		FROM
+			devices_manage dm
+		JOIN
+			device_type dt ON dm.device_type_id = dt.device_type_id
+		LEFT JOIN
+			device_hazardous_caution dhc ON dt.device_type_id = dhc.device_type_id
+		WHERE
+			dm.delete_flg = 0
+			    and dm.section_id =#{section_id}
+			    and dm.position_id =#{position_id}
+				and status in (1 , 5)
+				and manage_level = 1
+		GROUP BY dt.device_type_id
+		;
+    </select>
+
 </mapper>

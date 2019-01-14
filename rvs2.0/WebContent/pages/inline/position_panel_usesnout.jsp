@@ -350,7 +350,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div>
 	<div id="process_dialog"></div>
 	<div id="break_dialog"></div>
-	<div id="comments_dialog" style="display:none;width:576px;">
+	<div id="comments_dialog" style="display:none;">
+		<div class="ui-widget-header ui-corner-top ui-helper-clearfix">
+			<span class="areatitle icon-enter-2">提示相关信息</span>
+		</div>
+		<div class="comments_area">
+		</div>
+	</div>
 	<div id="consumables_dialog">
 		<style>
 		#consumables_list input[type=number] {
@@ -362,9 +368,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<table id="consumables_list"></table>
 		<div id="consumables_listpager"></div>
 	</div>
-		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
-		</textarea>
-	</div>
+</div>
 
 	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
 </body>

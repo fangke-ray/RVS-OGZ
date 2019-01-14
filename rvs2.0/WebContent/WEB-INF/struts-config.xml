@@ -81,6 +81,7 @@
 		<form-bean name="GlueMixingForm" type="com.osh.rvs.form.inline.GlueMixingForm"></form-bean>
 		
 		<form-bean name="PartialBussinessStandardForm" type="com.osh.rvs.form.master.PartialBussinessStandardForm"></form-bean>
+		<form-bean name="dryingOvenDeviceForm" type="com.osh.rvs.form.infect.DryingOvenDeviceForm"></form-bean>
 		<form-bean name="FactProductionFeatureForm" type="com.osh.rvs.form.partial.FactProductionFeatureForm"></form-bean>
 		<form-bean name="PartialWarehouseForm" type="com.osh.rvs.form.partial.PartialWarehouseForm"></form-bean>
 	</form-beans>
@@ -398,9 +399,10 @@
 			<forward name="post_confirm" path="/widgets/header.jsp" />
 			<forward name="partialManage" path="/partialManage.do?method=init" />
 			<forward name="materialPartial" path="/materialPartial.do?method=init" />
-			<forward name="infect" path="/devices_distribute.do?method=init" />
+			<forward name="infect" path="/usage_check.do?method=init" />
 			<forward name="infectM" path="/devices_manage.do?method=init" />
 			<forward name="partialAssign" path="/fact_production_feature.do?method=init" />
+			<forward name="partialRecept" path="/fact_production_feature.do?method=init" />
 		</action>
 
 		<action path="/appmenu" type="com.osh.rvs.action.AppMenuAction" parameter="method" validate="false">
@@ -716,6 +718,16 @@
 				<forward name="init" path="/pages/infect/electric_iron_device.jsp"></forward>
 		</action>
 
+		<!-- 烘箱管理 -->
+		<action path="/drying_oven_device" 
+				type="com.osh.rvs.action.infect.DryingOvenDeviceAction" 
+				name="DryingOvenDeviceForm"
+				parameter="method"
+				scope="request"
+				validate="false">
+			   <forward name="init" path="/widgets/infect/drying_oven_device.jsp" />
+		</action>
+
 		<!-- 客户管理 -->
 		<action path="/customer"
 				type="com.osh.rvs.action.master.CustomerAction"
@@ -801,8 +813,20 @@
 				type="com.osh.rvs.action.master.PartialBussinessStandardAction"
 				name="PartialBussinessStandardForm"
 				scope="request"
-				parameter="method"
 				validate="false">
+		</action>
+
+		<action path="/drying_oven_device_forward" type="org.apache.struts.actions.ForwardAction" parameter="/pages/infect/drying_oven_device-page.jsp" validate="false">
+		</action>
+
+		<!-- 烘箱管理 -->
+		<action path="/drying_oven_device" 
+				type="com.osh.rvs.action.infect.DryingOvenDeviceAction" 
+				name="dryingOvenDeviceForm"
+				parameter="method"
+				scope="request"
+				validate="false">
+			   <forward name="init" path="/widgets/infect/drying_oven_device.jsp" />
 		</action>
 		
 		<!-- 现品作业信息 -->

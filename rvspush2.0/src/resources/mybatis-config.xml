@@ -19,6 +19,7 @@
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.entity.ServiceRepairManageEntity"/>
 		<typeAlias alias="ScheduleHistoryEntity" type="com.osh.rvs.entity.ScheduleHistoryEntity" />
 		<typeAlias alias="MaterialRemainTimeEntity" type="com.osh.rvs.entity.MaterialRemainTimeEntity"/>
+		<typeAlias alias="PeriodsEntity" type="com.osh.rvs.entity.PeriodsEntity" />
 		<typeAlias alias="DailyKpiDataEntity" type="com.osh.rvs.entity.DailyKpiDataEntity" />
 		<typeAlias alias="CheckedFileStorageEntity" type="com.osh.rvs.entity.CheckedFileStorageEntity" />
 		<typeAlias alias="ConsumableOrderEntity" type="com.osh.rvs.entity.ConsumableOrderEntity" />
@@ -30,8 +31,10 @@
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">
 				<property name="driver" value="com.mysql.jdbc.Driver" />
-				<!--property name="url" value="jdbc:mysql://10.220.130.100:3306/rvsdb?autoReconnect=true" /-->
+				<property name="url" value="jdbc:mysql://10.220.130.100:3306/rvsdb?autoReconnect=true" />
+				<!--
 				<property name="url" value="jdbc:mysql://localhost:3306/rvsgdb?autoReconnect=true" />
+				-->
 				<property name="username" value="dbma" />
 				<property name="password" value="FEDur7s#" />
 			</dataSource>
@@ -47,6 +50,7 @@
 		<mapper resource="com/osh/rvs/mapper/push/ServiceRepairManageMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/statistics/ScheduleHistoryMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/PartialMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/InfectMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/ProductionFeatureMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/statistics/DailyKpiMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/statistics/InfectMapper.xml" />

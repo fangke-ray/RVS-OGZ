@@ -2,6 +2,7 @@ package com.osh.rvs.service.inline;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,6 +21,9 @@ import org.apache.log4j.Logger;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.infect.CheckResultEntity;
+import com.osh.rvs.bean.infect.CheckUnqualifiedRecordEntity;
+import com.osh.rvs.bean.infect.PeriodsEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.PutinBalanceBound;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
@@ -30,12 +34,15 @@ import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
+import com.osh.rvs.mapper.infect.CheckResultMapper;
+import com.osh.rvs.mapper.infect.CheckUnqualifiedRecordMapper;
 import com.osh.rvs.mapper.inline.DeposeStorageMapper;
 import com.osh.rvs.mapper.inline.PositionPanelMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
+import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -944,7 +951,109 @@ public class PositionPanelService {
 	 */
 	public String getInfectMessageByPosition(String section_id,
 			String position_id, String line_id, SqlSession conn) throws Exception {
+		// 查找点检不合格中断的项目
+		CheckUnqualifiedRecordMapper curMapper 
+			= conn.getMapper(CheckUnqualifiedRecordMapper.class);
+		CheckUnqualifiedRecordEntity curEntity = new CheckUnqualifiedRecordEntity();
+		curEntity.setSection_id(section_id);
+		curEntity.setPosition_id(position_id);
+		boolean hasBlocked = curMapper.checkBlockedToolsOnPosition(curEntity);
+		if (hasBlocked) {
+			return "本工位治具点检发生不合格且未解决，将限制工作。";
+		}
+		hasBlocked = curMapper.checkBlockedDevicesOnPosition(curEntity);
+		if (hasBlocked) {
+			return "本工位设备工具点检发生不合格且未解决，将限制工作。";
+		}
+
+		Date today = new Date();
+		String todayString = DateUtil.toString(today, DateUtil.ISO_DATE_PATTERN);
+		today = DateUtil.toDate(todayString, DateUtil.ISO_DATE_PATTERN);
+
+		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+		CheckResultEntity cond = new CheckResultEntity();
+		cond.setSection_id(section_id);
+		cond.setPosition_id(position_id);
+		cond.setLine_id(line_id);
+
+		PeriodsEntity period = CheckResultService.getPeriodsOfDate(todayString, conn);
+		cond.setCheck_confirm_time_start(period.getStartOfMonth());
+		cond.setCheck_confirm_time_end(period.getEndOfMonth());
+
+		List<CheckResultEntity> list = crMapper.searchToolUncheckedOnPosition(cond);
+
 		String retComments = "";
+
+		// 测试 start
+		Calendar tp = Calendar.getInstance();
+		tp.set(Calendar.DAY_OF_MONTH, 15);
+		period.setExpireOfMonthOfJig(tp.getTime());
+		// 测试 end
+		if (list.size() > 0) {
+			if (DateUtil.compareDate(today, period.getExpireOfMonthOfJig()) >= 0) {
+				retComments += "本工位有"+list.size()+"件治具在期限前未作点检，将限制工作。\n";
+			} else {
+				retComments += "本工位有"+list.size()+"件治具尚未点检，期限为"+
+						DateUtil.toString(period.getExpireOfMonthOfJig(), DateUtil.ISO_DATE_PATTERN)+"，请在期限前完成点检。\n";
+			}
+		}
+
+//		// 设备
+//		String dailyDevices = crMapper.searchDailyDeviceUncheckedOnPosition(cond);
+//		if (!CommonStringUtil.isEmpty(dailyDevices)) {
+//			Calendar now = Calendar.getInstance();
+//			if (now.get(Calendar.HOUR_OF_DAY) >= 14) { // TODO SYSTEM PARAM 14
+//				// 下午2点锁定
+//				retComments += "本工位有以下日常点检设备："+dailyDevices+"在期限前未作点检，将限制工作。\n";
+//			} else {
+//				// 否则提醒
+//				retComments += "本工位有以下日常点检设备："+dailyDevices+"将到达点检期限，请尽快进行点检。\n";
+//			}
+//		}
+//
+//		cond.setCycle_type(6);
+//		cond.setCheck_confirm_time_start(period.getStartOfWeek());
+//		cond.setCheck_confirm_time_end(period.getEndOfWeek());
+//		String regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+//		if (!CommonStringUtil.isEmpty(regularDevices)) {
+//			if (today.after(period.getStartOfWeek())) {
+//				// 期限内锁定
+//				retComments += "本工位有以下周点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+//			} else {
+//				// 否则提醒
+//				retComments += "本工位有以下周点检设备："+regularDevices+"将到达点检期限，请尽快进行点检。\n";
+//			}
+//		}
+//
+//		cond.setCycle_type(7);
+//		cond.setCheck_confirm_time_start(period.getStartOfMonth());
+//		cond.setCheck_confirm_time_end(period.getEndOfMonth());
+//		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+//		if (!CommonStringUtil.isEmpty(regularDevices)) {
+//			if (today.getTime() >= period.getExpireOfMonth().getTime()) {
+//				// 期限内锁定
+//				retComments += "本工位有以下月点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+//			} else {
+//				// 否则提醒
+//				retComments += "本工位有以下月点检设备："+regularDevices+"将到达点检期限("+
+//						DateUtil.toString(period.getExpireOfMonth(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
+//			}
+//		}
+//
+//		cond.setCycle_type(8);
+//		cond.setCheck_confirm_time_start(period.getStartOfHbp());
+//		cond.setCheck_confirm_time_end(period.getEndOfHbp());
+//		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+//		if (!CommonStringUtil.isEmpty(regularDevices)) {
+//			if (today.getTime() >= period.getExpireOfHbp().getTime()) {
+//				// 期限内锁定
+//				retComments += "本工位有以下半期点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+//			} else {
+//				// 否则提醒
+//				retComments += "本工位有以下半期点检设备："+regularDevices+"将到达点检期限("+
+//						DateUtil.toString(period.getExpireOfHbp(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
+//			}
+//		}
 
 		return retComments;
 	}

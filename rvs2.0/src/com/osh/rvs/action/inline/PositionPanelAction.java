@@ -41,6 +41,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
 import com.osh.rvs.service.ProductionFeatureService;
@@ -347,6 +348,10 @@ public class PositionPanelAction extends BaseAction {
 					listResponse.put("workstauts", WORK_STATUS_PREPAIRING);
 				}
 			}
+
+			// 取得设备工具的危险归类/安全手册信息
+			DevicesManageService dmS = new DevicesManageService();
+			listResponse.put("position_hcsgs", dmS.getOfPositionHazardousCautionsAndSafetyGuide(section_id, position_id, conn));
 
 			listResponse.put("fingers",
 					session.getAttribute(RvsConsts.JUST_WORKING));

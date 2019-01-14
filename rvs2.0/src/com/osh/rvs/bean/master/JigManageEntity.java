@@ -52,7 +52,8 @@ public class JigManageEntity implements Serializable {
 	//发放日期  
 	private Date provide_date;                    
 	//废弃日期  
-	private Date waste_date;                      
+	private Date waste_date;
+	private Date waste_decide_date;
 	//删除标记  
 	private Integer delete_flg;                      
 	//最后更新人
@@ -297,6 +298,12 @@ public class JigManageEntity implements Serializable {
 	}
 	public void setPosition_name(String position_name) {
 		this.position_name = position_name;
+	}
+	public Date getWaste_decide_date() {
+		return waste_decide_date;
+	}
+	public void setWaste_decide_date(Date waste_decide_date) {
+		this.waste_decide_date = waste_decide_date;
 	}
 
 }

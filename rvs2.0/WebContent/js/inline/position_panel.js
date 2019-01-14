@@ -21,6 +21,8 @@ var breakOptions = "";
 
 var partial_closer = true;
 
+var device_safety_guide = {};
+
 /** 中断信息弹出框 */
 var makeBreakDialog = function(jBreakDialog) {
 	jBreakDialog.dialog({
@@ -591,8 +593,10 @@ var treatStart = function(resInfo) {
 		}
 	});
 
-	if (resInfo.quality_tip || resInfo.material_comment) {
+	if (resInfo.quality_tip || resInfo.material_comment || device_safety_guide) {
 		showTips(resInfo.quality_tip, resInfo.material_comment);
+	} else {
+		$("#comments_dialog").hide();
 	}
 
 	if (resInfo.workstauts == 1) {
@@ -617,22 +621,54 @@ var treatStart = function(resInfo) {
 };
 
 var showTips = function(quality_tip, material_comment) {
-	// side_edge TODO
-	$("#comments_dialog textarea").val(material_comment);
-	$("#comments_dialog").find("img").remove();
+
+	var $ul = $("<ul/>");
+	var $content = $("<div class='tip_pages'/>");
+	
 	if (quality_tip) {
-		$("#comments_dialog").append("<br/><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
+		$ul.append("<li><input type='radio' id='st_quality_tip' name='showTips'><label for='st_quality_tip'>质量提示<label></li>");
+		$content.append("<div class='tip_page' for='st_quality_tip'><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
 		if (quality_tip.bind_type == 1) {
 			document.cookie = "qt4=" + (new Date()).getTime();
 		}
 	}
- 	$("#comments_dialog").dialog({
-		modal : false,
-		resizable:false,
-		width : '576px',
-		title : "维修对象相关信息",
-		closeOnEscape: false
-	});
+	if (material_comment) {
+		$ul.append("<li><input type='radio' id='st_material_comment' name='showTips'><label for='st_material_comment'>维修对象备注<label></li>");
+		$content.append("<div class='tip_page' for='st_material_comment'>" + material_comment + "</img>");
+	}
+	if (device_safety_guide) {
+		for (var idsg in device_safety_guide) {
+			var device_type = device_safety_guide[idsg];
+			$ul.append("<li><input type='radio' id='st_" + device_type.devices_type_id 
+				+ "' name='showTips'><label for='st_" + device_type.devices_type_id + "'>" + device_type.name + "<label></li>");
+			$content.append("<div class='tip_page' for='st_" + device_type.devices_type_id + "'>" 
+				+ (device_type.hazardous_cautions ? "<pre>危险标示：" + device_type.hazardous_cautions + "</pre>" : "")
+				+ (device_type.safety_guide ? "<img src='/photos/safety_guide/" + device_type.devices_type_id + "'></img>" : "")
+				+ "</div>");
+		}
+	}
+	$content.children().hide();
+
+	$("#comments_dialog .comments_area").html("")
+		.append($content)
+		.append($ul)
+		.find("ul").buttonset()
+		.find("input:radio").change(function(){
+			$("#comments_dialog .tip_page").hide();
+			$("#comments_dialog .tip_page[for='" + $(this).attr("id") + "']").show();
+		})
+		.end().find("input:radio:eq(0)").attr("checked", "checked").trigger("change");
+
+	$("#comments_dialog").show();
+
+	if (quality_tip) {
+		$("#comments_dialog").addClass("shown").css({width:"1024px",opacity:"1"});
+		$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
+	} else {
+		$("#comments_dialog .comments_area").hide();
+		$("#comments_dialog").removeClass("shown").css({width:"30px",opacity:".5"});
+		$("#comments_dialog .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
+	}
 }
 
 var doInit_ajaxSuccess = function(xhrobj, textStatus){
@@ -694,12 +730,21 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				$("#pauseo_material_id").val(resInfo.waitings[0].material_id);
 			}
 
+			// 设备危险归类/安全手册信息
+			if (resInfo.position_hcsgs) device_safety_guide = resInfo.position_hcsgs;
+
 			if (resInfo.workstauts == 1 || resInfo.workstauts == 4) {
 				treatStart(resInfo);
 			} else if (resInfo.workstauts == 2 || resInfo.workstauts == 5) {
 				treatPause(resInfo);
 			} else if (resInfo.workstauts == 3) {
 				showPartialRecept(resInfo);
+			} else {
+				if (device_safety_guide) {
+					showTips(null, null);
+				} else {
+					$("#comments_dialog").hide();
+				}
 			}
 
 			// 如果打开作业中但是没有
@@ -721,6 +766,25 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 var showBreakOfInfect = function(infectString) {
 	var $break_dialog = $('#break_dialog');
 	$break_dialog.html(decodeText(infectString));
+	if ($break_dialog.html().indexOf("opd_pop") >= 0) {
+		$break_dialog.find("span").attr("id", "opd_loader_past");
+	}
+
+	var closeButtons = {
+		"退出回首页":function() {
+				window.location.href = "./panel.do?method=init";
+		}
+	}
+	if (infectString.indexOf("点检") >= 0) {
+		closeButtons ={
+			"进行点检":function() {
+				window.location.href = "./usage_check.do?from=position";
+			},
+			"退出回首页":function() {
+					window.location.href = "./panel.do?method=init";
+			}
+		}
+	}
 
 	$break_dialog.dialog({
 		modal : true,
@@ -732,11 +796,7 @@ var showBreakOfInfect = function(infectString) {
 		close: function(){
 			window.location.href = "./panel.do?method=init";
 		},
-		buttons :{
-			"确定":function() {
-				window.location.href = "./panel.do?method=init"; // TODO usage_check.do?method=from_position&from=xxx.do
-			}
-		}
+		buttons : closeButtons
 	});
 }
 
@@ -912,13 +972,31 @@ $(function() {
 		showMaterial(material_id);
 	});
 
-	$("#storagearea div:eq(0)").on('dblclick', function(){
-		// alert("refresh");
+	$("#comments_dialog .ui-widget-header span").on("click",function(){
+
+		if($("#comments_dialog").hasClass("shown")){
+			$("#comments_dialog .tip_pages").css("overflow-y", "hidden");
+			$("#comments_dialog img").hide();
+			$("#comments_dialog .comments_area").slideUp(200,function(){
+				$("#comments_dialog .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
+				$("#comments_dialog").animate({width:"30px",opacity:".5"},300);
+			});
+			$("#comments_dialog").removeClass("shown");
+		}else{
+
+			$("#comments_dialog").animate({width:"1024px",opacity:"1"},300,function(){
+				$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
+				$("#comments_dialog .comments_area").slideDown(200,function(){
+					$("#comments_dialog img").show();
+					$("#comments_dialog .tip_pages").css("overflow-y", "auto");
+				});
+			});
+			$("#comments_dialog").addClass("shown");
+		}
 	});
 
-	$("#other_px_change_button").click(pxChange);
-
 	takeWs();
+
 });
 
 var doStart_ajaxSuccess = function(xhrobj, textStatus){
@@ -1296,13 +1374,13 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 					$('#partialconfirmarea').dialog("close");
 				}
 				if ($("#comments_dialog:visible").length > 0) {
-					$("#comments_dialog textarea").val("");
-					$("#comments_dialog").dialog("close");
+					$("#comments_dialog .comments_area").val("");
+					$("#comments_dialog").hide();
 				}
 			}
 		}
 	} catch (e) {
-		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
 }

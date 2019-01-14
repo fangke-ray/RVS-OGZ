@@ -386,6 +386,8 @@ public class RvsUtils {
 				} else if ("LML".equals(rever)) {
 					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
 					cond.setLine_id("00000000054");
+				} else if ("DM".equals(rever)) {
+					cond.setRole_id(RvsConsts.ROLE_DEVICEMANAGER);
 				} else {
 					continue;
 				}

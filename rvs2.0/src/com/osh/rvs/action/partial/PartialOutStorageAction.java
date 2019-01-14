@@ -83,22 +83,23 @@ public class PartialOutStorageAction extends BaseAction {
 			String materialId = factProductionFeature.getMaterial_id();
 			FactProductionFeatureEntity factProductionFeatureEntity = partialOutStorageService.getMaterialPartial(materialId, conn, errors);
 
-			FactProductionFeatureForm materialPartial = new FactProductionFeatureForm();
-			BeanUtil.copyToForm(factProductionFeatureEntity, materialPartial, CopyOptions.COPYOPTIONS_NOEMPTY);
-			callbackResponse.put("materialPartial", materialPartial);
+			if (factProductionFeatureEntity != null) {
+				FactProductionFeatureForm materialPartial = new FactProductionFeatureForm();
+				BeanUtil.copyToForm(factProductionFeatureEntity, materialPartial, CopyOptions.COPYOPTIONS_NOEMPTY);
+				callbackResponse.put("materialPartial", materialPartial);
 
-			// 工位代码
-			String processCode = factProductionFeatureEntity.getProcess_code();
-			if ("321".equals(processCode)) {
-				callbackResponse.put("leagal_overline", "6");
-			} else {
-				callbackResponse.put("leagal_overline", "9");
+				// 工位代码
+				String processCode = factProductionFeatureEntity.getProcess_code();
+				if ("321".equals(processCode)) {
+					callbackResponse.put("leagal_overline", "6");
+				} else {
+					callbackResponse.put("leagal_overline", "9");
+				}
+
+				// 作业经过时间
+				String spent_mins = partialOutStorageService.getSpentTimes(factProductionFeature, conn);
+				callbackResponse.put("spent_mins", spent_mins);
 			}
-
-			// 作业经过时间
-			String spent_mins = partialOutStorageService.getSpentTimes(factProductionFeature, conn);
-			callbackResponse.put("spent_mins", spent_mins);
-
 		}
 
 		/* 检查错误时报告错误信息 */

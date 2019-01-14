@@ -163,7 +163,16 @@ public class HeaderAction extends BaseAction {
 
 		log.info("HeaderAction.iinit start");
 
-		actionForward = mapping.findForward("infectM");
+		// 取得登录用户权限
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies = user.getPrivacies();
+		
+		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
+			// 迁移到零件管理页面
+			actionForward = mapping.findForward("infectM");
+		} else {
+			actionForward = mapping.findForward("infect");
+		}
 
 		log.info("HeaderAction.iinit end");
 	}

@@ -53,7 +53,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div id="body-mdl" class="dwidth-middleright" style="margin: auto;">
 <div id="body-mdl" style="width: 994px; float: left;">
 			<div id="searcharea" class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
-				<span class="areatitle">检索条件</span>
+				<span class="areatitle">专用工具检索条件</span>
 				<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 					<span class="ui-icon ui-icon-circle-triangle-n"></span>
 				</a>
@@ -640,6 +640,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <div class="clear areaencloser"></div>
 <!-- 替换新品结束 -->
+
+<style>
+.referchooser {
+	z-index:1050;
+}
+</style>
 
 <!-- 责任人员referChooser -->
 <div class="referchooser ui-widget-content" id="responsible_operator_referchooser" tabindex="-1">

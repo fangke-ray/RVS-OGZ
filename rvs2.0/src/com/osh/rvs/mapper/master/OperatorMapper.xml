@@ -143,7 +143,7 @@
 					o.UPDATED_BY,
 					o.UPDATED_TIME
 				FROM V_OPERATOR_NAMED o
-		        join tools_manage tm on tm.responsible_operator_id=o.operator_id
+		        join jig_manage tm on tm.responsible_operator_id=o.operator_id
 		where 
 		o.DELETE_FLG = 0 and tm.status in(1,4)
 		AND o.OPERATOR_ID <> 1

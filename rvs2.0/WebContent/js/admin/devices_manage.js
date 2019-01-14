@@ -38,6 +38,7 @@ $(function(){
     setReferChooser($("#hidden_update_responsible_operator_id"),$("#responsible_operato_referchooser"));
     setReferChooser($("#hidden_add_responsible_operator_id"),$("#responsible_operato_referchooser"));
 
+    setReferChooser($("#hidden_search_brand_id"),$("#brand_referchooser"));
     setReferChooser($("#hidden_add_brand_id"),$("#brand_referchooser"));
     setReferChooser($("#hidden_update_brand_id"),$("#brand_referchooser"));
     setReferChooser($("#hidden_replace_brand_id"),$("#brand_referchooser"));
@@ -57,6 +58,12 @@ $(function(){
 
 	$("#resetbutton").click(function(){
 		reset();
+	});
+
+	$("#update_brand_detail_button").click(function(){
+		if ($("#hidden_update_brand_id").val()) {
+			showBrandDetail($("#hidden_update_brand_id").val());
+		}
 	});
 
     var section_id =$("#search_section_id").html();
@@ -291,7 +298,7 @@ var deliver_filed_list = function(listdata){
             datatype: "local",
             colNames:['设备工具管理ID','设备工具品名ID','管理编号','品名','型号',
                       '管理员ID','管理员','管理<br>等级','状态','点检表管理号','对应类型','日常点检表<br>管理号','定期点检表<br>管理号',
-                      '出厂编号','厂商','备注','分发课室','责任工程','分发课室ID','责任工程ID','责任工位ID',
+                      '出厂编号','厂商','','备注','分发课室','责任工程','分发课室ID','责任工程ID','责任工位ID',
                       '责任工位','导入日期','发放日期','发放者','废弃日期','更新时间','最后更新人'],
 			colModel:[
 				{name:'devices_manage_id',index:'devices_manage_id',hidden:true},
@@ -318,7 +325,8 @@ var deliver_filed_list = function(listdata){
 				{name:'daily_sheet_manage_no',index:'daily_sheet_manage_no',width:120,align:'center',hidden:true},
 				{name:'regular_sheet_manage_no',index:'regular_sheet_manage_no',width:110,align:'center',hidden:true},
 				{name:'products_code',index:'products_code',width:100,align:'center',hidden:true},
-				{name:'brand',index:'brand',width:100,align:'center',hidden:true},
+				{name:'brand',index:'brand',hidden:true},
+				{name:'brand_id',brand_id:'brand_id',hidden:true},
 				{name:'comment',index:'comment',width:100,align:'center',hidden:true},
 				{name:'section_name',index:'section_name',width:100,align:'center',hidden:true},
 				{name:'line_name',index:'responsible_line_name',width:85,align:'center',hidden:true},				
@@ -411,7 +419,12 @@ var replace = function(){
     //出厂编码
 	$("#replace_products_code").val(rowData.products_code);
     //厂商
-    $("#replace_brand").val(rowData.brand); 
+	if (rowData.brand) {
+	    $("#replace_brand").val($(rowData.brand).text());
+	} else {
+	    $("#replace_brand").val("");
+	}
+
     $("#hidden_replace_brand_id").val(rowData.brand_id); 
      //状态
     $("#replace_status").val(rowData.status).trigger("change"); 
@@ -612,6 +625,7 @@ var findit = function(arg) {
             "manage_level":$("#search_manage_level").val(),
 			"asset_no":$("#search_asset_no").val(),
             "manager_operator_id":$("#hidden_search_manager_operator_id").val(),
+            "brand_id":$("#hidden_search_brand_id").val(),
             "status":$("#search_status").val() && $("#search_status").val().toString(),//默认是选择使用中和保管中
             "position_id":$("#hidden_search_position_id").val()
         };
@@ -653,13 +667,18 @@ var reset=function(){
 	$("#search_brand").data("post","").val("");
 	$("#search_model_name").val("");
 	$("#search_manage_code").data("post","").val("");
+	$("#search_asset_no").data("post","").val("");
 	$("#search_section_id").data("post","").val("").trigger("change");
 	$("#search_line_id").data("post","").val("").trigger("change");
 	$("#search_position_id").val("");
     $("#hidden_search_position_id").data("post","").val("");
 	$("#search_manager_operator_id").val("");
     $("#hidden_search_manager_operator_id").val("");
-	$("#search_status").data("post","").val("").trigger("change");		
+
+	$("#search_brand_id").val("");
+    $("#hidden_search_brand_id").val("");
+
+    $("#search_status").data("post","").val("").trigger("change");		
     $("#search_manage_level").data("post","").val("").trigger("change");
 };
 
@@ -674,9 +693,9 @@ function filed_list(listdata){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['设备工具管理ID','设备工具品名ID','管理编号','品名','型号','放置位置',
+			colNames:['设备工具管理ID','设备工具品名ID','管理编号','品名','型号','资产编号','放置位置',
                       '管理员ID','管理员','管理<br>等级','状态','点检表管理号','对应类型','日常点检表<br>管理号','定期点检表<br>管理号',
-                      '出厂编号','厂商','备注','分发课室','责任工程','分发课室ID','责任工程ID','责任工位ID',
+                      '出厂编号','厂商','','备注','分发课室','责任工程','分发课室ID','责任工程ID','责任工位ID',
                       '责任工位','导入日期','发放日期','发放者','废弃日期','更新时间','最后更新人'],
 	        colModel:[
 					{name:'devices_manage_id',index:'devices_manage_id',hidden:true},
@@ -684,6 +703,7 @@ function filed_list(listdata){
 					{name:'manage_code',index:'manage_code',width:80},
 					{name:'name',index:'name',width:120},
 					{name:'model_name',index:'model_name',width:140},
+					{name:'asset_no',index:'asset_no',width:70},
 					{name:'location',index:'location',hidden:true},
 	                {name:'manager_operator_id',index:'manager_operator_id',width:100,align:'center',hidden:true},
 					{name:'manager',index:'manager',width:60,align:'left'},
@@ -704,7 +724,16 @@ function filed_list(listdata){
 					{name:'daily_sheet_manage_no',index:'daily_sheet_manage_no',width:120,align:'center'},
 					{name:'regular_sheet_manage_no',index:'regular_sheet_manage_no',width:110,align:'center'},
 					{name:'products_code',index:'products_code',width:100,align:'center'},
-					{name:'brand',index:'brand',width:100,align:'center'},
+					{name:'brand',index:'brand',width:100,align:'center',
+						formatter : function(value, options, rData) {
+	                        //当发放日期不为空时，发放者是当前更新人；如果为空时，发放者是空白
+		                    if(rData.brand){
+	                            return "<a href='javascript:showBrandDetail("+ rData.brand_id +")'>" + rData.brand + "</a>";
+		                    }else{
+		                        return "";
+		                    }                           
+		                }},
+					{name:'brand_id',brand_id:'brand_id',hidden:true},
 					{name:'comment',index:'comment',width:100,align:'center',hidden:true},
 					{name:'section_name',index:'section_name',width:100,align:'center',hidden:false},
 					{name:'line_name',index:'responsible_line_name',width:85,align:'center',hidden:false},				
@@ -815,7 +844,7 @@ var showAdd = function(){
                 maxlength:64
             },
             products_code:{
-                maxlength:15
+                maxlength:25
             },
             brand:{
                 maxlength:32
@@ -957,7 +986,12 @@ var showEdit = function(){
     //出厂编码
 	$("#update_products_code").val(rowData.products_code);
     //厂商
-    $("#update_brand").val(rowData.brand); 
+	if (rowData.brand) {
+	    $("#update_brand").val($(rowData.brand).text());
+	} else {
+	    $("#update_brand").val("");
+	}
+    $("#hidden_update_brand_id").val(rowData.brand_id || "");
      //状态
     $("#update_status").val(rowData.status).trigger("change"); 
     
@@ -1015,7 +1049,7 @@ var showEdit = function(){
                 maxlength:64
             },
             products_code:{
-                maxlength:15
+                maxlength:25
             },
             brand:{
                 maxlength:32

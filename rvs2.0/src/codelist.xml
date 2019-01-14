@@ -500,12 +500,19 @@
 		<value code="9">使用前</value>
 	</codelist>
 	
-	<codelist name="cycle_type">
-		<!--value code="-1">日/月</value-->
-		<value code="1">周/月</value>
-		<value code="4">半月/年</value>
-		<value code="2">月/年</value>
-		<value code="3">半期/年</value>
+	<codelist name="file_cycle_type">
+		<value code="7">日/月</value>
+		<value code="6">周/月</value>
+		<value code="8">年</value>
+	</codelist>
+
+	<codelist name="item_cycle_type">
+		<value code="0">无限制</value>
+		<value code="1">日</value>
+		<value code="2">周</value>
+		<value code="3">月</value>
+		<value code="4">半期</value>
+		<value code="5">整期</value>
 	</codelist>
 
 	<codelist name="role_rank_kind">
@@ -576,11 +583,9 @@
 	</codelist>	
 	
 	<codelist name="effect_interval">
-		<value code="1">半年</value>
-		<value code="2">1年</value>
-		<value code="4">2年</value>
-		<value code="6">3年</value>
-		<value code="12">6年</value>
+		<value code="6">6 个月</value>
+		<value code="12">12 个月</value>
+		<value code="24">24 个月</value>
 	</codelist>
 	
 	<codelist name="organization_type">
@@ -709,7 +714,6 @@
 		<value code="3">消毒设备</value>
 		<value code="4">灭菌设备</value>
 		<value code="5">烘干设备</value>
-		<value code="6">周边维修周点检设备</value>
 	</codelist>
 
 	<codelist name="device_hazardous_classification">
@@ -727,6 +731,50 @@
 		<value code="1">制造商</value>
 		<value code="2">经销商</value>
 		<value code="3">维修商</value>
+	</codelist>
+
+	<codelist name="drying_oven_setting_temperature">
+		<value code="3">干燥灯</value>
+		<value code="4">干燥炉</value>
+		<value code="49">40℃～50℃</value>
+		<value code="52">50℃～55℃</value>
+		<value code="55">50℃～60℃</value>
+		<value code="60">55℃～65℃</value>
+		<value code="65">60℃～70℃</value>
+		<value code="72">70℃～75℃</value>
+		<value code="82">75℃～80℃</value>
+		<value code="80">75℃～85℃</value>
+		<value code="84">80℃～85℃</value>
+		<value code="85">80℃～90℃</value>
+		<value code="130">125℃～135℃</value>
+	</codelist>
+
+	<codelist name="drying_oven_lower_limit">
+		<value code="49">40</value>
+		<value code="52">50</value>
+		<value code="55">50</value>
+		<value code="60">55</value>
+		<value code="65">60</value>
+		<value code="72">70</value>
+		<value code="82">75</value>
+		<value code="80">75</value>
+		<value code="84">80</value>
+		<value code="85">80</value>
+		<value code="130">125</value>
+	</codelist>
+
+	<codelist name="drying_oven_upper_limit">
+		<value code="49">50</value>
+		<value code="52">55</value>
+		<value code="55">60</value>
+		<value code="60">65</value>
+		<value code="65">70</value>
+		<value code="72">75</value>
+		<value code="82">80</value>
+		<value code="80">85</value>
+		<value code="84">85</value>
+		<value code="85">90</value>
+		<value code="130">135</value>
 	</codelist>
 
 </codelist-config>

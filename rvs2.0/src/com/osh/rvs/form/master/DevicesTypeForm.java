@@ -2,12 +2,12 @@ package com.osh.rvs.form.master;
 
 import java.io.Serializable;
 
-import org.apache.struts.action.ActionForm;
+import com.osh.rvs.form.UploadForm;
 
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
 
-public class DevicesTypeForm extends ActionForm implements Serializable {
+public class DevicesTypeForm extends UploadForm implements Serializable {
 	/**
 	 * 设备工具品名
 	 */
@@ -35,6 +35,8 @@ public class DevicesTypeForm extends ActionForm implements Serializable {
 
 	@BeanField(title = "特定设备工具种类", name = "specialized", type = FieldType.Integer, length = 1)
 	private String specialized;
+
+	private String safety_guide;
 
 	/* 危险归类 */
 	private String hazardous_cautions;
@@ -93,6 +95,14 @@ public class DevicesTypeForm extends ActionForm implements Serializable {
 
 	public void setHazardous_cautions(String hazardous_cautions) {
 		this.hazardous_cautions = hazardous_cautions;
+	}
+
+	public String getSafety_guide() {
+		return safety_guide;
+	}
+
+	public void setSafety_guide(String safety_guide) {
+		this.safety_guide = safety_guide;
 	}
 
 }

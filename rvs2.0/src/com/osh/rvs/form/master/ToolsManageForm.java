@@ -1,11 +1,13 @@
 package com.osh.rvs.form.master;
 
+import java.io.Serializable;
+
 import com.osh.rvs.form.UploadForm;
 
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
 
-public class ToolsManageForm extends UploadForm {
+public class ToolsManageForm extends UploadForm implements Serializable {
 
 	/**
 	 * 治具管理
@@ -107,7 +109,7 @@ public class ToolsManageForm extends UploadForm {
 	@BeanField(title = "备注", name = "comment", type = FieldType.String, length = 225)
 	private String comment;
 
-	@BeanField(title = "订购日期", name = "order_date", type = FieldType.Date)
+	@BeanField(title = "订购日期", name = "waste_decide_date", type = FieldType.Date)
 	private String order_date;// 订购日期
 
 	@BeanField(title = "订购日期开始", name = "order_date_start", type = FieldType.Date)

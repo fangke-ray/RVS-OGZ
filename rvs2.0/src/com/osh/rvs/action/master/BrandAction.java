@@ -78,6 +78,11 @@ public class BrandAction extends BaseAction {
 
 		List<BrandForm> brandForms = service.searchBrand(brandEntity, conn);
 
+		if (brandForm.getBrand_id() != null && brandForms.size() > 0) {
+			brandForm = brandForms.get(0);
+			brandForm.setBusiness_relationship_text(CodeListUtils.getValue("brand_business_relationship", brandForm.getBusiness_relationship()));
+		}
+
 		listResponse.put("brandForms", brandForms);
 
 		listResponse.put("errors", errors);

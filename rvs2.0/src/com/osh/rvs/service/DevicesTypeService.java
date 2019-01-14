@@ -1,9 +1,13 @@
 package com.osh.rvs.service;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -13,6 +17,7 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.DeviceTypeEntity;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.DevicesTypeForm;
 import com.osh.rvs.mapper.CommonMapper;
@@ -20,13 +25,17 @@ import com.osh.rvs.mapper.master.DevicesTypeMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.FileUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 
 public class DevicesTypeService {
 
 	public static final int SPECIALIZED_FOR_DISINFECT_DEVICE = 3; //消毒设备
 	public static final int SPECIALIZED_FOR_STERILIZE_DEVICE = 4;//灭菌设备
+
+	private static Set<String> safetyGuideSet = null;
 
 	/**
 	 * 设备工具品名 详细
@@ -47,6 +56,9 @@ public class DevicesTypeService {
 			BeanUtil.copyToForm(entity, devicesTypeForm, CopyOptions.COPYOPTIONS_NOEMPTY);
 			if (entity.getClassification() != null) {
 				devicesTypeForm.setHazardous_cautions(getClassificationText(entity.getClassification()));
+			}
+			if (getSafetyGuideSet().contains(entity.getDevice_type_id())) {
+				devicesTypeForm.setSafety_guide("1");
 			}
 			devicesTypeForms.add(devicesTypeForm);
 		}
@@ -159,7 +171,7 @@ public class DevicesTypeService {
 	 * 危险归类文字取得
 	 */
 	private Map<String, String> classificationText = new HashMap<String, String>(); // Not static
-	private String getClassificationText(Integer classification) {
+	public String getClassificationText(Integer classification) {
 		String codeString = Integer.toBinaryString(classification);
 		String ret = "";
 		int length = codeString.length();
@@ -203,5 +215,47 @@ public class DevicesTypeService {
 				dao.insertHazardousCaution(devicesTypeEntity);
 			}
 		}
+	}
+
+	/**
+	 * 设定安全操作守则
+	 * @param manage_id
+	 * @param photo_file_name
+	 */
+	public void copyPhoto(String type_id, String photo_file_name) {
+		// 把图片拷贝到目标文件夹下
+		String today = DateUtil.toString(new Date(), "yyyyMM");
+		String tempFilePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + today + "\\" + photo_file_name;
+		String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\safety_guide\\" + type_id;
+		File confFile = new File(tempFilePath);
+		if (confFile.exists()) {
+			FileUtils.copyFile(tempFilePath, targetPath, true);
+		}
+		safetyGuideSet.add(type_id);
+	}
+
+	public void removePhoto(String type_id) {
+		// 把目标文件夹下图片删除
+		String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\safety_guide\\" + type_id;
+		File confFile = new File(targetPath);
+		if (confFile.exists()) {
+			confFile.delete();
+		}
+		safetyGuideSet.remove(type_id);
+	}
+
+	public static Set<String> getSafetyGuideSet() {
+		if (safetyGuideSet == null) {
+			safetyGuideSet = new HashSet<String>();
+			File path = new File(PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\safety_guide\\");
+			if (path.exists()) {
+				for (File file : path.listFiles()) {
+					if (file.isFile()) safetyGuideSet.add(file.getName());
+				}
+			} else {
+				path.mkdirs();
+			}
+		}
+		return safetyGuideSet;
 	}
 }

@@ -52,8 +52,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<label for="pcs_button">工程检查票内图</label>
 				<input type="radio" name="infoes" class="ui-button ui-corner-up" id="sign_button" value="sign" role="button">
 				<label for="sign_button">员工姓名章</label>
-				<!--input type="radio" name="infoes" class="ui-button ui-corner-up" id="tcs_button" value="tcs" role="button">
-				<label for="tcs_button">点检单内图</label-->
+				<input type="radio" name="infoes" class="ui-button ui-corner-up" id="tcs_button" value="tcs" role="button">
+				<label for="tcs_button">点检单内图</label>
 			</div>
 			
 			<input type="hidden" id="image_classify" value="${gClassify}"/>

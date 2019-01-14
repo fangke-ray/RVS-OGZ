@@ -17,6 +17,7 @@ public class BrandForm extends ActionForm{
 
 	@BeanField(title = "业务关系", name = "business_relationship", notNull=true, type = FieldType.Integer, length = 1)
 	private String business_relationship;
+	private String business_relationship_text;
 
 	@BeanField(title = "地址", name = "address", length = 150, type = FieldType.String)
 	private String address;
@@ -90,6 +91,12 @@ public class BrandForm extends ActionForm{
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getBusiness_relationship_text() {
+		return business_relationship_text;
+	}
+	public void setBusiness_relationship_text(String business_relationship_text) {
+		this.business_relationship_text = business_relationship_text;
 	}
 
 }

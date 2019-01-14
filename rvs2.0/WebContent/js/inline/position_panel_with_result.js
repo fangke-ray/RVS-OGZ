@@ -137,6 +137,25 @@ var treatStart = function(resInfo) {
 var showBreakOfInfect = function(infectString) {
 	var $break_dialog = $('#break_dialog');
 	$break_dialog.html(decodeText(infectString));
+	if ($break_dialog.html().indexOf("opd_pop") >= 0) {
+		$break_dialog.find("span").attr("id", "opd_loader_past");
+	}
+
+	var closeButtons = {
+		"退出回首页":function() {
+				window.location.href = "./panel.do?method=init";
+		}
+	}
+	if (infectString.indexOf("点检") >= 0) {
+		closeButtons ={
+			"进行点检":function() {
+				window.location.href = "./usage_check.do?from=position";
+			},
+			"退出回首页":function() {
+					window.location.href = "./panel.do?method=init";
+			}
+		}
+	}
 
 	$break_dialog.dialog({
 		modal : true,
@@ -148,11 +167,7 @@ var showBreakOfInfect = function(infectString) {
 		close: function(){
 			window.location.href = "./panel.do?method=init";
 		},
-		buttons :{
-			"确定":function() {
-				window.location.href = "./panel.do?method=init";
-			}
-		}
+		buttons : closeButtons
 	});
 }
 

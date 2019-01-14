@@ -46,6 +46,7 @@ public class RvsConsts extends BaseConst {
 	public static final String ROLE_MANAGER = "00000000009";
 	public static final String ROLE_SCHEDULER = "00000000004";
 	public static final String ROLE_LINELEADER = "00000000005";
+	public static final String ROLE_DEVICEMANAGER = "00000000019";
 
 	public static final Integer TIME_LIMIT = 5; // 纳期
 	public static final Integer PLANE_INV = 8; // 零件补充周期

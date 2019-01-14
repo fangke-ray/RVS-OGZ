@@ -65,7 +65,7 @@ public class DevicesManageForm extends ActionForm {
 	@BeanField(title = "备工具管理ID", name = "devices_manage_id", type = FieldType.String, length = 11)
 	private String devices_manage_id;
 	// 管理编号
-	@BeanField(title = "管理编号", name = "manage_code", type = FieldType.String, notNull = true)
+	@BeanField(title = "设管理编号", name = "manage_code", type = FieldType.String, notNull = true)
 	private String manage_code;
 	// 设备工具品名ID
 	@BeanField(title = "设备工具品名ID", name = "device_type_id", type = FieldType.String, length = 11, notNull = true)
@@ -88,8 +88,12 @@ public class DevicesManageForm extends ActionForm {
 	// 管理内容
 	@BeanField(title = "管理内容", name = "manage_content", type = FieldType.String, length = 64)
 	private String manage_content;
+
+	@BeanField(title = "资产编号", name = "asset_no", type = FieldType.String, length = 10)
+	private String asset_no;
+
 	// 出厂编号
-	@BeanField(title = "出厂编号", name = "products_code", type = FieldType.String, length = 15)
+	@BeanField(title = "出厂编号", name = "products_code", type = FieldType.String, length = 25)
 	private String products_code;
 	// 厂商
 	@BeanField(title = "厂商", name = "brand_id", type = FieldType.String, length = 11)
@@ -457,6 +461,14 @@ public class DevicesManageForm extends ActionForm {
 
 	public void setBrand_id(String brand_id) {
 		this.brand_id = brand_id;
+	}
+
+	public String getAsset_no() {
+		return asset_no;
+	}
+
+	public void setAsset_no(String asset_no) {
+		this.asset_no = asset_no;
 	}
 
 }

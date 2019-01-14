@@ -2,6 +2,7 @@ package com.osh.rvs.mapper.master;
 
 import java.util.List;
 
+import com.osh.rvs.bean.master.DeviceTypeEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
 
 
@@ -47,4 +48,6 @@ public interface DevicesManageMapper {
    public DevicesManageEntity checkWasteInPeriod(DevicesManageEntity devicesManageEntity);
 
    public List<DevicesManageEntity> getManageCode(DevicesManageEntity devicesManageEntity);
+
+   public List<DeviceTypeEntity> getDeviceTypeOfPosition(DevicesManageEntity dme);
 }
