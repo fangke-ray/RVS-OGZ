@@ -183,7 +183,7 @@ public class PartialReceptService {
 		}
 
 		// 解析文件
-		readFile(tempFileNames, req, conn, errors);
+		readFile(tempFileNames, req, conn, errors,false,0);
 
 	}
 
@@ -194,7 +194,7 @@ public class PartialReceptService {
 	 * @param conn
 	 * @param errors
 	 */
-	private void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
+	public void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors,boolean supply,int supplySeq) throws Exception {
 		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 		PartialMapper partialDao = conn.getMapper(PartialMapper.class);
 
@@ -212,6 +212,13 @@ public class PartialReceptService {
 
 			for (int i = 0; i < tempFileNames.size(); i++) {
 				int seq = i + 1;
+
+				if(supply){
+					seq = supplySeq + i + 1;
+				}else{
+					seq = i + 1;
+				}
+
 
 				in = new FileInputStream(tempFileNames.get(i));// 读取文件
 
@@ -263,9 +270,15 @@ public class PartialReceptService {
 				return;
 			}
 
-			HttpSession session =  req.getSession();
-			session.setAttribute("warehouseDnList", warehouseDnList);
-			session.setAttribute("detailList", detailList);
+			if(supply){
+				req.setAttribute("warehouseDnList", warehouseDnList);
+				req.setAttribute("detailList", detailList);
+			}else{
+				HttpSession session =  req.getSession();
+				session.setAttribute("warehouseDnList", warehouseDnList);
+				session.setAttribute("detailList", detailList);
+			}
+
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -278,6 +291,9 @@ public class PartialReceptService {
 			}
 		}
 	}
+
+
+
 
 	/**
 	 * 零件入库明细

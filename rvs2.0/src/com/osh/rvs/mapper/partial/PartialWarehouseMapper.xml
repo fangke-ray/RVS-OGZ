@@ -8,32 +8,43 @@
 	<![CDATA[
 		SELECT
 			pw.`key`,
-			warehouse_date,
-			dn_no,
-			step,
+			pwdn.seq,
+			pw.warehouse_no,
+			pw.step,
+			pwdn.warehouse_date,
+			pwdn.dn_no,
 			sum(dtl.quantity) as quantity,
-			sum(abs(dtl.collation_quantity)) as collation_quantity,
+			sum(dtl.collation_quantity) as collation_quantity,
 			sum(dtl.quantity <> dtl.collation_quantity) as `match`
 		FROM
 			partial_warehouse pw
 		JOIN
+			partial_warehouse_dn pwdn
+		ON
+			pw.key = pwdn.key
+		LEFT JOIN
 			partial_warehouse_detail dtl
-		ON pw.key = dtl.key
+		ON pwdn.key = dtl.key AND pwdn.seq = dtl.seq
 	]]>
 	<where>
 	<if test="warehouse_date_start!=null and warehouse_date_start!=''">
 	<![CDATA[
-		AND warehouse_date >= #{warehouse_date_start}
+		AND pwdn.warehouse_date >= #{warehouse_date_start}
 	]]>
 	</if>
 	<if test="warehouse_date_end!=null and warehouse_date_end!=''">
 	<![CDATA[
-		AND warehouse_date <= #{warehouse_date_end}
+		AND pwdn.warehouse_date <= #{warehouse_date_end}
 	]]>
 	</if>
 	<if test="dn_no!=null and dn_no!=''">
 	<![CDATA[
-		AND dn_no = #{dn_no}
+		AND pwdn.dn_no = #{dn_no}
+	]]>
+	</if>
+	<if test="warehouse_no!=null and warehouse_no!=''">
+	<![CDATA[
+		AND pw.warehouse_no LIKE CONCAT(#{warehouse_no}, '%')
 	]]>
 	</if>
 	<if test="(finish_date_start!=null and finish_date_start!='') or (finish_date_end!=null and finish_date_end!='')">
@@ -69,7 +80,7 @@
 	</where>
 	<![CDATA[
 		GROUP BY
-			pw.key
+			pw.key, pwdn.seq
 	]]>
 	</select>
 
@@ -125,8 +136,10 @@
 	<select id="searchUnmatch" resultType="PartialWarehouseEntity" parameterType="PartialWarehouseEntity">
 	<![CDATA[
 	SELECT
-		pw.warehouse_date,
-		pw.dn_no,
+		pw.warehouse_no,
+		pwdn.warehouse_date,
+		pwdn.dn_no,
+		pwdn.seq,
         v_partial.code,
         v_partial.name AS partial_name,
 		dtl.quantity,
@@ -135,10 +148,14 @@
         operator.name AS operator_name
 	FROM
 		partial_warehouse pw
+	JOIN
+		partial_warehouse_dn pwdn
+	ON
+		pw.key = pwdn.key
 	JOIN 
 		partial_warehouse_detail dtl
 	ON 
-		pw.key = dtl.key
+		pwdn.key = dtl.key AND pwdn.seq = dtl.seq
     JOIN
 		v_partial
 	ON
@@ -152,21 +169,26 @@
 	ON
 		operator.operator_id = fpf.operator_id
 	WHERE 
-		dtl.quantity <> dtl.collation_quantity
+		(pwdn.seq = 0 OR dtl.quantity <> dtl.collation_quantity)
 	]]>
 	<if test="warehouse_date_start!=null and warehouse_date_start!=''">
 	<![CDATA[
-		AND pw.warehouse_date >= #{warehouse_date_start}
+		AND pwdn.warehouse_date >= #{warehouse_date_start}
 	]]>
 	</if>
 	<if test="warehouse_date_end!=null and warehouse_date_end!=''">
 	<![CDATA[
-		AND pw.warehouse_date <= #{warehouse_date_end}
+		AND pwdn.warehouse_date <= #{warehouse_date_end}
 	]]>
 	</if>
 	<if test="dn_no!=null and dn_no!=''">
 	<![CDATA[
-		AND pw.dn_no = #{dn_no}
+		AND pwdn.dn_no = #{dn_no}
+	]]>
+	</if>
+	<if test="warehouse_no!=null and warehouse_no!=''">
+	<![CDATA[
+		AND pw.warehouse_no LIKE CONCAT(#{warehouse_no}, '%')
 	]]>
 	</if>
 	<if test="(finish_date_start!=null and finish_date_start!='') or (finish_date_end!=null and finish_date_end!='')">
@@ -201,7 +223,7 @@
 	</if>
 	<![CDATA[
 	ORDER BY
-		pw.dn_no
+		pwdn.dn_no
 	]]>
 	</select>
 	

@@ -10,9 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.service.partial.PartialWarehouseDetailService;
@@ -54,6 +57,12 @@ public class PartialWarehouseAction extends BaseAction {
 
 		//返修分类
 		req.setAttribute("goStep", CodeListUtils.getGridOptions("partial_warehouse_step"));
+
+		LoginData userData = (LoginData)req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies  = userData.getPrivacies();
+		if (privacies.contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
+			req.setAttribute("privacy", "fact");
+		}
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
@@ -103,11 +112,21 @@ public class PartialWarehouseAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		PartialWarehouseForm partialWarehouseForm = (PartialWarehouseForm) form;
+		String key = partialWarehouseForm.getKey();
+		String seq = partialWarehouseForm.getSeq();
 
 		PartialWarehouseDetailService servie = new PartialWarehouseDetailService();
 
-		List<PartialWarehouseDetailForm> list = servie.searchByKey(partialWarehouseForm.getKey(), conn);
-		listResponse.put("list", list);
+		List<PartialWarehouseDetailForm> list = servie.searchByKey(key, conn);
+		List<PartialWarehouseDetailForm> resplist = new ArrayList<PartialWarehouseDetailForm>();
+
+		for(int i = 0;i < list.size();i++){
+			if(seq.equals(list.get(i).getSeq())){
+				resplist.add(list.get(i));
+			}
+		}
+
+		listResponse.put("list", resplist);
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
@@ -139,6 +158,25 @@ public class PartialWarehouseAction extends BaseAction {
 		returnJsonResponse(response, listResponse);
 
 		log.info("PartialWarehouseAction.report end");
+	}
+
+	public void doUpload(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSessionManager conn) throws Exception {
+		log.info("PartialWarehouseAction.doUpload start");
+
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		PartialWarehouseService service = new PartialWarehouseService();
+		service.supply(form,request,conn, errors);
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(response, listResponse);
+
+		log.info("PartialWarehouseAction.doUpload end");
 	}
 
 }

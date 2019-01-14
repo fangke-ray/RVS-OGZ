@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -26,13 +28,18 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.partial.PartialWarehouseEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
+import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.mapper.partial.PartialWarehouseMapper;
+import com.osh.rvs.service.UploadService;
 
+import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.DateUtil;
+import framework.huiqing.common.util.message.ApplicationMessage;
 
 /**
  * 零件入库单
@@ -249,45 +256,52 @@ public class PartialWarehouseService {
 				// 核对数量
 				Integer collationQuantity = entity.getCollation_quantity();
 
+				Integer seq = entity.getSeq();
+
 				row = sheet.createRow(i + 1);
 
 				// 序号
 				CellUtil.createCell(row, 0, String.valueOf(i + 1), alignCenterStyle);
 
+				//入库单编号
+				CellUtil.createCell(row, 1, entity.getWarehouse_no(), alignLeftStyle);
+
 				// 入库单日期
-				cell = row.createCell(1);
+				cell = row.createCell(2);
 				cell.setCellValue(entity.getWarehouse_date());
 				cell.setCellStyle(dateStyle);
 
 				// DN 编号
-				CellUtil.createCell(row, 2, entity.getDn_no(), alignLeftStyle);
+				if(seq == 0){
+					CellUtil.createCell(row, 3, "DN 编号以外零件", alignLeftStyle);
+				}else{
+					CellUtil.createCell(row, 3, entity.getDn_no(), alignLeftStyle);
+				}
+
 
 				// 零件编号
-				CellUtil.createCell(row, 3, entity.getCode(), alignLeftStyle);
+				CellUtil.createCell(row, 4, entity.getCode(), alignLeftStyle);
 
 				// 零件名称
-				CellUtil.createCell(row, 4, entity.getPartial_name(), alignLeftStyle);
+				CellUtil.createCell(row, 5, entity.getPartial_name(), alignLeftStyle);
 
 				// 入库单数量
-				if (collationQuantity < 0) {
-					CellUtil.createCell(row, 5, "没有", alignLeftStyle);
+				if (seq == 0) {
+					CellUtil.createCell(row, 6, "没有", alignLeftStyle);
 				} else {
-					CellUtil.createCell(row, 5, entity.getQuantity().toString(), alignRightStyle);
+					CellUtil.createCell(row, 6, entity.getQuantity().toString(), alignRightStyle);
 				}
 
-				if (collationQuantity < 0) {
-					collationQuantity *= -1;
-				}
 				// 核对数量
-				CellUtil.createCell(row, 6, collationQuantity.toString(), alignRightStyle);
+				CellUtil.createCell(row, 7, collationQuantity.toString(), alignRightStyle);
 
 				// 核对日期
-				cell = row.createCell(7);
+				cell = row.createCell(8);
 				cell.setCellValue(entity.getFinish_date_start());
 				cell.setCellStyle(dateStyle);
 
 				// 核对人员
-				CellUtil.createCell(row, 8, entity.getOperator_name(), alignLeftStyle);
+				CellUtil.createCell(row, 9, entity.getOperator_name(), alignLeftStyle);
 			}
 
 			out = new FileOutputStream(cachePath);
@@ -306,6 +320,75 @@ public class PartialWarehouseService {
 		}
 
 		return cacheName;
+	}
+
+	/**
+	 * 补充入库单
+	 * @param conn
+	 * @param errors
+	 */
+	@SuppressWarnings("unchecked")
+	public void supply(ActionForm form,HttpServletRequest request,SqlSessionManager conn,List<MsgInfo> errors) throws Exception{
+		PartialWarehouseForm partialWarehouseForm  = (PartialWarehouseForm) form;
+		String key = partialWarehouseForm.getKey();
+
+		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
+		PartialWarehouseDetailService partialWarehouseDetailService = new PartialWarehouseDetailService();
+		UploadService uService = new UploadService();
+
+		List<PartialWarehouseDnForm> warehouseDnList = partialWarehouseDnSerice.searchByKey(key, conn);
+		Integer seq = warehouseDnList.size();
+
+		for(PartialWarehouseDnForm partialWarehouseDnForm:warehouseDnList){
+			if("0".equals(partialWarehouseDnForm.getSeq())){
+				seq = seq -1;
+				break;
+			}
+		}
+
+		List<String> tempFileNames = uService.getFiles2Local(form, errors);
+
+		if (errors.size() != 0)
+			return;
+
+		for (String tempfilename : tempFileNames) {
+			if (!tempfilename.endsWith(".xlsx")) {
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("file.invalidType");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.invalidType"));
+				errors.add(error);
+				return;
+			}
+		}
+
+
+		PartialReceptService partialReceptService = new PartialReceptService();
+
+		partialReceptService.readFile(tempFileNames, request, conn, errors, true, seq);
+
+		if(errors.size() == 0){
+			// 零件入库DN编号
+			warehouseDnList = (List<PartialWarehouseDnForm>)request.getAttribute("warehouseDnList");
+			// 零件入库明细
+			List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>)request.getAttribute("detailList");
+			for (int i = 0; i < warehouseDnList.size(); i++) {
+				PartialWarehouseDnForm partialWarehouseDnForm = warehouseDnList.get(i);
+				// KEY
+				partialWarehouseDnForm.setKey(key);
+				// 新建零件入库DN编号
+				partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
+			}
+
+			for (int i = 0; i < detailList.size(); i++) {
+				PartialWarehouseDetailForm partialWarehouseDetailForm = detailList.get(i);
+				// KEY
+				partialWarehouseDetailForm.setKey(key);
+				// 新建零件入库明细
+				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
+			}
+		}
+
+
 	}
 
 }

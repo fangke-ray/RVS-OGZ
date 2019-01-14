@@ -36,7 +36,55 @@ $(function(){
     	reportUnmatch();
     });
     
+    //
+    $("#supplyButton").click(function(){
+    	$("#file_upload").dialog({
+    		resizable : false,
+    		modal : true,
+    		title : "上传文件",
+    		width : 400,
+    		buttons : {
+    			"上传" : function(){
+    				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
+    				var rowData = $("#list").getRowData(row);
+    				var data = {
+    					"key":rowData.key
+    				}
+    				$.ajaxFileUpload({
+    					url : servicePath + '?method=doUpload', // 需要链接到服务器地址
+    					secureuri : false,
+    					fileElementId : 'file', // 文件选择框的id属性
+    					dataType : 'json', // 服务器返回的格式
+    					data :data,
+    					success : function(responseText, textStatus) {
+    						var resInfo = null;
+    						try {
+    							// 以Object形式读取JSON
+    							eval('resInfo =' + responseText);
+    							if (resInfo.errors.length > 0) {
+    								// 共通出错信息框
+    								treatBackMessages(null, resInfo.errors);
+    								$("#file").val("");
+    							} else {
+    								$("#file_upload").dialog("close");
+    								findit();
+    								$("#file").val("");
+    							}
+    						} catch (e) {
+    						}
+    					}
+    				});
+    			},
+    			"取消" : function() {
+    				$(this).dialog("close");
+    			}
+    		}
+    	});
+    });
+    
     findit();
+    
+    $("#supplyButton").disable();
 });
 
 function reportUnmatch(){
@@ -79,7 +127,7 @@ function reportUnmatch(){
 }
 
 function reset(){
-	$("#search_dn_no,#search_warehouse_date_start,#search_warehouse_date_end,#search_finish_date_start,#search_finish_date_end").val("");
+	$("#search_dn_no,#search_warehouse_date_start,#search_warehouse_date_end,#search_finish_date_start,#search_finish_date_end,#search_warehouse_no").val("");
 };
 
 function findit(){
@@ -88,7 +136,8 @@ function findit(){
 		"warehouse_date_start" : $("#search_warehouse_date_start").val(),
 		"warehouse_date_end" : $("#search_warehouse_date_end").val(),
 		"finish_date_start" : $("#search_finish_date_start").val(),
-		"finish_date_end" : $("#search_finish_date_end").val()
+		"finish_date_end" : $("#search_finish_date_end").val(),
+		"warehouse_no" : $("#search_warehouse_no").val()
 	};
 	
 	$.ajax({
@@ -111,6 +160,7 @@ function findit(){
 					treatBackMessages(null, resInfo.errors);
 				} else {
 					list(resInfo.finish);
+					$("#supplyButton").disable();
 				}
 			}catch(e){}
 		}
@@ -129,10 +179,18 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['','日期','DN 编号', '入库单总数量', '核对总数量', '入库进展', '核对一致'],
+			colNames : ['','','零件入库单号','入库单日期','DN 编号', '入库单总数量', '核对总数量', '入库进展', '核对一致'],
 			colModel : [{name : 'key',index : 'key',hidden:true},
-			            {name : 'warehouse_date',index : 'warehouse_date',width:30},
-			            {name : 'dn_no',index : 'dn_no',width:50},
+		                {name : 'seq',index : 'seq',hidden:true},
+			            {name : 'warehouse_no',index : 'warehouse_no',width:30},
+			            {name : 'warehouse_date',index : 'warehouse_date',width:30,align:'center'},
+			            {name : 'dn_no',index : 'dn_no',width:50,formatter : function(value, options, rData){
+			            	if(rData.seq == 0){
+			            		return 'DN单以外零件';
+			            	}else{
+			            		return value;
+			            	}
+			            }},
 			            {name : 'quantity',index : 'quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
 			            {name : 'collation_quantity',index : 'collation_quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
 			            {name : 'step',index : 'step', align:'center', width:30, formatter:'select', editoptions:{value:$("#goStep").val()}},
@@ -158,7 +216,15 @@ function list(listdata){
 			recordpos : 'left',
 			hidegrid : false,
 			deselectAfterSort : false,
-			onSelectRow : null,// 当选择行时触发此事件。
+			onSelectRow : function(){
+				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
+				var rowData = $("#list").getRowData(row);
+				if(rowData.step == 1){
+					$("#supplyButton").enable();
+				}else{
+					$("#supplyButton").disable();
+				}
+			},// 当选择行时触发此事件。
 			ondblClickRow : function(rid, iRow, iCol, e) {
 				showDetail();
 			},
@@ -173,7 +239,8 @@ function showDetail(){
 	var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
 	var rowData = $("#list").getRowData(row);
 	var data = {
-		"key": rowData.key
+		"key": rowData.key,
+		"seq": rowData.seq
 	};
 	
 	$.ajax({
@@ -198,6 +265,7 @@ function showDetail(){
 					$("#search").hide();
 					$("#detail").show();
 					detaillist(resInfo.list);
+					
 				}
 			}catch(e){}
 		}
@@ -216,20 +284,12 @@ function detaillist(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['零件编号','零件名称','规格种别','数量','核对数量',''],
+			colNames : ['零件编号','零件名称','规格种别','数量','核对数量'],
 			colModel : [{name : 'code',index : 'code',width:50},
 			            {name : 'partial_name',index : 'partial_name',width:200},
 			            {name : 'spec_kind_name',index : 'spec_kind_name', align:'center',width:50},
 			            {name : 'quantity',index : 'quantity',sorttype:'integer',width:50,align : 'right'},
-			            {name : 'collation_quantity',index : 'collation_quantity',sorttype:'integer',width:50,align:'right',formatter : function(value, options, rData){
-							if(value < 0){
-								rData.flg = "0";
-								return  value * -1;
-							}else{
-								return  value;
-							}
-						}},
-						{name : 'flg',index : 'flg',hidden : true}
+			            {name : 'collation_quantity',index : 'collation_quantity',sorttype:'integer',width:50,align:'right'}
 			],
 			rowNum : 30,
 			toppager : false,

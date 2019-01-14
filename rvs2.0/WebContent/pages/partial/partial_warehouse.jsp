@@ -17,12 +17,17 @@
 <script type="text/javascript" src="js/jquery.dialog.js"></script>
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/partial/partial_warehouse.js"></script>
 
 <title>零件入库单管理</title>
 </head>
+<% 
+	String privacy = (String) request.getAttribute("privacy");
+	boolean isFact = ("fact").equals(privacy);
+%>
 <body class="outer" style="align: center;">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 		<div id="basearea" class="dwidth-full" style="margin: auto;">
@@ -65,6 +70,12 @@
 											<input type="text" class="ui-widget-content" id="search_finish_date_end" readonly="readonly">止
 										</td>
 								   </tr>
+								   <tr>
+								   		<td class="ui-state-default td-title">零件入库单号</td>
+								   		<td class="td-content">
+											<input id="search_warehouse_no" type="text" class="ui-widget-content">
+										</td>
+								   </tr>
 								</tbody>
 							</table>
 							<div style="height:44px">
@@ -89,6 +100,9 @@
 					
 					<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
 						<div style="margin-left:4px;margin-top:6px;">
+						<% if (isFact) { %>
+								<input type="button" id="supplyButton" class="ui-button" value="补充入库单"/>
+						<% } %>
 							<input type="button" id="exportButton" class="ui-button" value="入库单核对不一致导出" style="float:right;margin-right:10px;"/>
 						</div>
 					</div>
@@ -106,13 +120,28 @@
 					<div id="detaillistpager"></div>
 					
 					<div class="ui-widget-content" style="padding:6px;">
-						<div style="float:left;width:30px;height:20px;background-color: #E48E38"></div>
-						<div style="float:left;width:150px;height:20px;font-size:14px;">：此入库单中不存在</div>
 						<input type="button" class="ui-button" id="gobackbutton" value="返回" style="float:right;right:2px">
 						<div class="clear"></div>
 					</div>
 				</div>
 			</div>
+			<div style="display: none" id="file_upload">
+				<div class="ui-widget-content">
+					<form id="uploadform" method="POST">
+						<table class="condform">
+							<tbody>
+								<tr>
+									<td class="ui-state-default td-title">上传文件</td>
+									<td class="td-content">
+										<input type="file" name="files" id="file" class="ui-widget-content" accept=".xlsx"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+			
 			<div class="clear"></div>
 		</div>
 		
