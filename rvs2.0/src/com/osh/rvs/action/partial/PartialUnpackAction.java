@@ -19,11 +19,13 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.partial.FactPartialWarehouseForm;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
+import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.service.partial.FactPartialWarehouseService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialUnpackService;
 import com.osh.rvs.service.partial.PartialWarehouseDetailService;
+import com.osh.rvs.service.partial.PartialWarehouseDnSerice;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
@@ -49,6 +51,8 @@ public class PartialUnpackAction extends BaseAction {
 	private final FactPartialWarehouseService factPartialWarehouseService = new FactPartialWarehouseService();
 
 	private final PartialUnpackService partialUnpackService = new PartialUnpackService();
+
+	private final PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 
 	/**
 	 * 页面初始化
@@ -101,6 +105,10 @@ public class PartialUnpackAction extends BaseAction {
 			// 统计不同规格种别已经分装总数
 			List<FactPartialWarehouseForm> packList = factPartialWarehouseService.countQuantityOfSpecKind(factPartialWarehouseForm, conn);
 			callbackResponse.put("packList", packList);
+
+			// 查询零件入库DN编号
+			List<PartialWarehouseDnForm> partialWarehouseDnList = partialWarehouseDnSerice.searchByKey(key, conn);
+			callbackResponse.put("partialWarehouseDnList", partialWarehouseDnList);
 
 			// 作业标准时间
 			String leagal_overline = partialUnpackService.getStandardTime(partialWarehouseDetailList, conn);

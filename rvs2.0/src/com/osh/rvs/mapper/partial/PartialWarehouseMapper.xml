@@ -97,7 +97,7 @@
 	<!-- 根据key查询零件入库单信息 -->
 	<select id="getByKey" resultType="PartialWarehouseEntity" parameterType="string">
 	<![CDATA[
-		SELECT `key`,warehouse_date,dn_no,step FROM partial_warehouse WHERE `key` = #{key}
+		SELECT `key`,warehouse_no,step FROM partial_warehouse WHERE `key` = #{key}
 	]]>
 	</select>
 

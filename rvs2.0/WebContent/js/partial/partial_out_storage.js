@@ -13,7 +13,11 @@ $(function () {
 	$("#partial_out_storage .ui-button").button();
 
 	// 结束
-	$("#endbutton").click(doEnd);
+	$("#endbutton").click(function(){
+		warningConfirm("是否结束作业！",function(){
+			doEnd();
+		},function(){});
+	});
 
 	// 输入框触发，配合浏览器
 	$("#scanner_inputer").keypress(function () {

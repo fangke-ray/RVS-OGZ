@@ -165,7 +165,7 @@ public class PartialUnpackService {
 		for (PartialWarehouseDetailForm form : list) {
 			String specKind = form.getSpec_kind();
 
-			Integer quantity = Integer.valueOf(form.getQuantity());
+			Integer quantity = Integer.valueOf(form.getTotal_split_quantity());
 
 			// 标准工时
 			BigDecimal time = map.get(specKind).getUnpack();
@@ -200,7 +200,12 @@ public class PartialUnpackService {
 
 			if (entity.getFinish_time() == null) {
 				Calendar cal = Calendar.getInstance();
-				millisecond += cal.getTimeInMillis() - entity.getAction_time().getTime();
+				cal.set(Calendar.MILLISECOND, 0);
+
+				long cur_spend = cal.getTimeInMillis() - entity.getAction_time().getTime();
+				if(cur_spend < 0) cur_spend = 0;
+
+				millisecond += cur_spend;
 			} else {
 				millisecond += entity.getFinish_time().getTime() - entity.getAction_time().getTime();
 			}

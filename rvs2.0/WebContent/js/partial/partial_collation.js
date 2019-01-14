@@ -69,7 +69,7 @@ function startScanner(){
 					$("#scanner_inputer").val("");
 				} else {
 					$("#scanner_inputer").val("").focus();
-					var dn_no = $("#label_dn_no").text(),
+					var warehouse_no = $("#hide_warehouse_no").val(),
 					    partialForm = resInfo.partialForm;
 					    code = partialForm.code;
 					    partialBussinessStandardForm = resInfo.partialBussinessStandardForm,
@@ -85,14 +85,14 @@ function startScanner(){
 					if(allPartialMap.has(data.code)){
 						var production_type = $("#hide_production_type").val();
 						if(production_type != type){
-							var errorData = `零件编码[${partialForm.code}]不适用于当前作业内容！`;
+							var errorData = `零件编号[${partialForm.code}]不适用于当前作业内容！`;
 							errorPop(errorData);
 						}else{
 							// 更新一览数据
 							updateList(partialForm.partial_id);
 						}
 					}else{
-						var warnData = `零件编码[${partialForm.code}]在零件入库单DN编号为[${dn_no}]中不存在，是否加入此单中！`;
+						var warnData = `零件编号[${partialForm.code}]在零件入库单[${warehouse_no}]中不存在，是否新建入库单！`;
 						warningConfirm(warnData,function(){
 							var production_type = $("#hide_production_type").val();
 							if(production_type != type){
@@ -103,6 +103,8 @@ function startScanner(){
 								var obj = {
 										"key":$("#hide_key").val(),
 										"partial_id":partialForm.partial_id,
+										"seq":"0",
+										"dn_no":warehouse_no + "E",
 										"code":partialForm.code,
 										"partial_name":partialForm.name,
 										"quantity":"",
@@ -122,16 +124,6 @@ function startScanner(){
 };
 
 function updateList(partial_id){
-//	let $grid = $("#collationlist");
-//	
-//	let map = new Map();// key=> rowid,value=> partial_id
-//	
-//	let IDS = $grid.getDataIDs();
-//	for(var id of IDS){
-//		let rowData = $grid.getRowData(id);
-//		map.set(id,rowData.partial_id);
-//	}
-	
 	//合并列数
 	let colspan  = 0;
 	let dnTD = "";
@@ -209,18 +201,29 @@ function updateList(partial_id){
 			"确定" : function(){
 				if($("#updateForm").valid()){
 					$("#updateForm input[type='text']").each(function(){
+						let seq = $(this).attr("seq");
+						let value = $(this).val().trim();
 						
+						for(let i = 0;i < searchlist.length;i++){
+							let partial = searchlist[i];
+							
+							if(partial.partial_id == partial_id && partial.seq == seq){
+								let key = partial_id + "/" + seq;
+								
+								searchlist[i].collation_quantity = value;
+								
+								if(value && value != 0){
+									updateData.set(key,{"quantity":partial.quantity,"collation_quantity":value,"flg":partial.flg});
+								}else{
+									if(updateData.has(key)){
+										updateData.delete(key);
+									}
+								}
+							}
+						}
 					});
 					
-					
-//					for(let i = 0;i < searchlist.length;i++){
-//						if(searchlist[i].partial_id == partial_id){
-//							searchlist[i].collation_quantity = $("#update_collation_quantity").val();
-//							break;
-//						}
-//					}
-//					$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
-//					updateData.set(partial_id,{"quantity":rowData.quantity,"collation_quantity":$("#update_collation_quantity").val(),"flg":rowData.flg});
+					$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
 					$(this).dialog("close");
 				}
 			},
@@ -344,7 +347,6 @@ function doBreak(){
 
 function doFinish(){
 	 var data = getUpdateData();
-	 data["step"] = "2";
 	 
 	 $.ajax({
 		beforeSend : ajaxRequestType,
@@ -379,11 +381,14 @@ function getUpdateData(){
 	
 	var index = 0;
 	for(var item of updateData){
-		var partial_id = item[0];
+		let arr = item[0].split("/");
+		var partial_id = arr[0];
+		var seq = arr[1];
 		var collation_quantity = item[1].collation_quantity;
 		var flg = item[1].flg;
 		
 		data["partial_warehouse_detail.partial_id[" + index + "]"] = partial_id;
+		data["partial_warehouse_detail.seq[" + index + "]"] = seq;
 		data["partial_warehouse_detail.collation_quantity[" + index + "]"] = collation_quantity;
 		data["partial_warehouse_detail.flg[" + index + "]"] = flg;
 		
@@ -446,11 +451,10 @@ function collationInit(){
 						$("#scanner_container").show();
 						$("#scanner_inputer").val("").focus();
 
-//						$("#label_warehouse_date").text(fact_production_feature.warehouse_date);
-//						$("#label_dn_no").text(fact_production_feature.dn_no);
 						$("#label_production_type_name").text(fact_production_feature.production_type_name);
 						$("#hide_key").val(fact_production_feature.partial_warehouse_key);
 						$("#hide_production_type").val(fact_production_feature.production_type);
+						$("#hide_warehouse_no").val(resInfo.partialWarehouse.warehouse_no);
 						
 						$("#content tr:nth-child(n+3)").remove();
 						//零件入库DN编号
@@ -471,9 +475,6 @@ function collationInit(){
 							$("#content tbody").append(content);
 						}
 						
-						
-						
-
 						enableMenu("collationbutton");
 						
 						allPartialMap.clear();
@@ -678,6 +679,12 @@ function setPartialWarehouse(list){
 
 function list(listdata){
 	searchlist = listdata;
+	for(let i = 0;i < searchlist.length;i++){
+		if(searchlist[i].seq == 0){
+			searchlist[i].flg = "0";
+		}
+	}
+	
 	if ($("#gbox_collationlist").length > 0) {
 		$("#collationlist").jqGrid().clearGridData();// 清除
 		$("#collationlist").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
@@ -696,15 +703,14 @@ function list(listdata){
 			            {name : 'code',index : 'code',width:50},
 			            {name : 'partial_name',index : 'partial_name',width:200},
 			            {name : 'quantity',index : 'quantity',width:50,align:'right'},
-			            {name : 'collation_quantity',index : 'collation_quantity',width:50,align:'right',formatter : function(value, options, rData){
-							if(value < 0){
-								rData.flg = "0";
-								return  value * -1;
-							}else{
-								return  value;
-							}
-						}},
-			            {name : 'flg',index : 'flg',hidden : true}
+			            {name : 'collation_quantity',index : 'collation_quantity',width:50,align:'right'},
+			            {name : 'flg',index : 'flg',hidden : true,formatter : function(value, options, rData){
+			            	if(rData.seq == 0){
+			            		return  "0";
+			            	}else{
+			            		return  "";
+			            	}
+			            }}
 			],
 			rowNum : 20,
 			toppager : false,

@@ -84,6 +84,10 @@ public class PartialWarehouseForm extends ActionForm {
 	@BeanField(title = "作业内容", name = "production_type", type = FieldType.Integer, length = 2)
 	private String production_type;
 
+	@BeanField(title = "序号", name = "seq", type = FieldType.Integer, length = 2)
+	private String seq;
+
+
 	public String getKey() {
 		return key;
 	}
@@ -194,6 +198,14 @@ public class PartialWarehouseForm extends ActionForm {
 
 	public void setWarehouse_no(String warehouse_no) {
 		this.warehouse_no = warehouse_no;
+	}
+
+	public String getSeq() {
+		return seq;
+	}
+
+	public void setSeq(String seq) {
+		this.seq = seq;
 	}
 
 }
