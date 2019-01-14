@@ -1,6 +1,6 @@
 package com.osh.rvs.form.partial;
 
-import org.apache.struts.action.ActionForm;
+import com.osh.rvs.form.UploadForm;
 
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
@@ -11,7 +11,7 @@ import framework.huiqing.bean.annotation.FieldType;
  * @author liuxb
  *
  */
-public class PartialWarehouseForm extends ActionForm {
+public class PartialWarehouseForm extends UploadForm {
 
 	/**
 	 *
