@@ -170,7 +170,7 @@ public class PartialOnShelfService {
 		BigDecimal totalTime = new BigDecimal("0");
 
 		for (PartialWarehouseDetailForm form : list) {
-			Integer specKind = Integer.valueOf(form.getSpec_kind());
+			String specKind = form.getSpec_kind();
 
 			Integer quantity = Integer.valueOf(form.getQuantity());
 
@@ -183,7 +183,7 @@ public class PartialOnShelfService {
 		}
 
 		// 向上取整
-		totalTime = totalTime.setScale(0, RoundingMode.HALF_UP);
+		totalTime = totalTime.setScale(0, RoundingMode.UP);
 		return totalTime.toString();
 
 	}
@@ -214,7 +214,7 @@ public class PartialOnShelfService {
 		// 1分钟
 		BigDecimal oneMinute = new BigDecimal(60000);
 
-		BigDecimal spent = diff.divide(oneMinute, RoundingMode.UP);
+		BigDecimal spent = diff.divide(oneMinute, RoundingMode.HALF_UP);
 
 		return spent.toString();
 	}
