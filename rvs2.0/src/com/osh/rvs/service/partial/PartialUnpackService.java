@@ -163,7 +163,7 @@ public class PartialUnpackService {
 		BigDecimal totalTime = new BigDecimal("0");
 
 		for (PartialWarehouseDetailForm form : list) {
-			Integer specKind = Integer.valueOf(form.getSpec_kind());
+			String specKind = form.getSpec_kind();
 
 			Integer quantity = Integer.valueOf(form.getQuantity());
 
