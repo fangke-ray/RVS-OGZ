@@ -2,6 +2,7 @@ package com.osh.rvs.action.partial;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CommonStringUtil;
+import framework.huiqing.common.util.copy.DateUtil;
 
 /**
  * 零件核对
@@ -92,6 +94,11 @@ public class PartialCollationAction extends BaseAction {
 
 		if (factProductionFeature != null) {
 			String key = factProductionFeature.getPartial_warehouse_key();
+
+			// 入库单信息
+			PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+			callbackResponse.put("partialWarehouse", partialWarehouseForm);
+
 			// 作业内容
 			String productionType = factProductionFeature.getProduction_type();
 
@@ -215,6 +222,10 @@ public class PartialCollationAction extends BaseAction {
 		String factPfKey = factProductionFeatureForm.getFact_pf_key();
 		String key = factProductionFeatureForm.getPartial_warehouse_key();
 
+		// 入库单信息
+		PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+		String warehouseNo = partialWarehouseForm.getWarehouse_no();
+
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 
 		List<PartialWarehouseDetailForm> list = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
@@ -232,7 +243,9 @@ public class PartialCollationAction extends BaseAction {
 
 					if ("partial_id".equals(column)) {
 						list.get(icounts).setPartial_id(value[0]);
-					} else if ("collation_quantity".equals(column)) {
+					}else if ("seq".equals(column)) {
+						list.get(icounts).setSeq(value[0]);
+					}  else if ("collation_quantity".equals(column)) {
 						list.get(icounts).setCollation_quantity(value[0]);
 					} else if ("flg".equals(column)) {
 						list.get(icounts).setFlg(value[0]);
@@ -244,18 +257,39 @@ public class PartialCollationAction extends BaseAction {
 			}
 		}
 
+		//判断是否扫描了新零件
+		for(PartialWarehouseDetailForm partialWarehouseDetailForm : list){
+			String flg = partialWarehouseDetailForm.getFlg();
+
+			if ("1".equals(flg)) {
+				PartialWarehouseDnForm partialWarehouseDnForm =	partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(warehouseNo + "E", conn);
+
+				if(partialWarehouseDnForm == null){
+					partialWarehouseDnForm = new PartialWarehouseDnForm();
+					partialWarehouseDnForm.setKey(key);
+					partialWarehouseDnForm.setSeq("0");
+					partialWarehouseDnForm.setWarehouse_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+					partialWarehouseDnForm.setDn_no(warehouseNo + "E");
+
+					//新建零件入库DN编号
+					partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
+				}
+				break;
+			}
+		}
+
 		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
 			String flg = partialWarehouseDetailForm.getFlg();
 
 			if ("1".equals(flg)) {// 零件在此单中不存在
 				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
+				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
 				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
-			} else if ("0".equals(flg)) { //
+			} else if ("0".equals(flg)) { //零件在此单中不存在,但是已经加入此单中
 				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
+				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
 				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
 			} else {
 				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
@@ -305,6 +339,8 @@ public class PartialCollationAction extends BaseAction {
 					int icounts = Integer.parseInt(m.group(3));
 					if ("partial_id".equals(column)) {
 						partialMapList.get(icounts).setPartial_id(value[0]);
+					} else if ("seq".equals(column)) {
+						partialMapList.get(icounts).setSeq(value[0]);
 					} else if ("collation_quantity".equals(column)) {
 						partialMapList.get(icounts).setCollation_quantity(value[0]);
 					}
@@ -313,7 +349,7 @@ public class PartialCollationAction extends BaseAction {
 		}
 
 		for (PartialWarehouseDetailForm o : partialMapList) {
-			partialMap.put(o.getPartial_id(), o.getCollation_quantity());
+			partialMap.put(o.getPartial_id() + "/" + o.getSeq(), o.getCollation_quantity());
 		}
 
 		// 进行中的作业信息
@@ -323,8 +359,11 @@ public class PartialCollationAction extends BaseAction {
 		// 当前作业单中所有零件
 		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
 		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+			String partialID = partialWarehouseDetailForm.getPartial_id();
+			String seq = partialWarehouseDetailForm.getSeq();
+
 			// 页面核对的零件不用检查
-			if (partialMap.containsKey(partialWarehouseDetailForm.getPartial_id())) {
+			if (partialMap.containsKey(partialID + "/" + seq)) {
 				continue;
 			}
 
@@ -340,7 +379,11 @@ public class PartialCollationAction extends BaseAction {
 		if (errors.size() == 0) {
 			boolean flg = false;
 			for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+
 				String partialID = partialWarehouseDetailForm.getPartial_id();
+				String seq = partialWarehouseDetailForm.getSeq();
+
+				String mapKey = partialID +"/" + seq;
 
 				// 数量
 				Integer quantity = Integer.valueOf(partialWarehouseDetailForm.getQuantity());
@@ -348,13 +391,10 @@ public class PartialCollationAction extends BaseAction {
 				// 核对数量
 				Integer collationQuantity = null;
 
-				if (partialMap.containsKey(partialID)) {
-					collationQuantity = Integer.valueOf(partialMap.get(partialID));
+				if (partialMap.containsKey(mapKey)) {
+					collationQuantity = Integer.valueOf(partialMap.get(mapKey));
 				} else {
 					collationQuantity = Integer.valueOf(partialWarehouseDetailForm.getCollation_quantity());
-					if (collationQuantity < 0) {
-						collationQuantity = collationQuantity * -1;
-					}
 				}
 
 				// 核对数量不一致
@@ -383,12 +423,18 @@ public class PartialCollationAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		String step = req.getParameter("step");
+		//入库进展，2：核对完成
+		String step = "2";
 
 		// 进行中的作业信息
 		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
 		String factPfKey = factProductionFeatureForm.getFact_pf_key();
 		String key = factProductionFeatureForm.getPartial_warehouse_key();
+
+		// 入库单信息
+		PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+		String warehouseNo = partialWarehouseForm.getWarehouse_no();
+
 
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 		List<PartialWarehouseDetailForm> list = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
@@ -406,6 +452,8 @@ public class PartialCollationAction extends BaseAction {
 
 					if ("partial_id".equals(column)) {
 						list.get(icounts).setPartial_id(value[0]);
+					} else if ("seq".equals(column)) {
+						list.get(icounts).setSeq(value[0]);
 					} else if ("collation_quantity".equals(column)) {
 						list.get(icounts).setCollation_quantity(value[0]);
 					} else if ("flg".equals(column)) {
@@ -418,18 +466,40 @@ public class PartialCollationAction extends BaseAction {
 			}
 		}
 
+
+		//判断是否扫描了新零件
+		for(PartialWarehouseDetailForm partialWarehouseDetailForm : list){
+			String flg = partialWarehouseDetailForm.getFlg();
+
+			if ("1".equals(flg)) {
+				PartialWarehouseDnForm partialWarehouseDnForm =	partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(warehouseNo + "E", conn);
+
+				if(partialWarehouseDnForm == null){
+					partialWarehouseDnForm = new PartialWarehouseDnForm();
+					partialWarehouseDnForm.setKey(key);
+					partialWarehouseDnForm.setSeq("0");
+					partialWarehouseDnForm.setWarehouse_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+					partialWarehouseDnForm.setDn_no(warehouseNo + "E");
+
+					//新建零件入库DN编号
+					partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
+				}
+				break;
+			}
+		}
+
 		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
 			String flg = partialWarehouseDetailForm.getFlg();
 
 			if ("1".equals(flg)) {// 零件在此单中不存在
 				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
+				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
 				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
 			} else if ("0".equals(flg)) {
 				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity("-" + collationQuantity);
+				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
 				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
 			} else {
 				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
@@ -455,9 +525,6 @@ public class PartialCollationAction extends BaseAction {
 		}
 
 		// 结束核对单
-		PartialWarehouseForm partialWarehouseForm = new PartialWarehouseForm();
-		// KEY
-		partialWarehouseForm.setKey(key);
 		// 入库进展
 		partialWarehouseForm.setStep(step);
 

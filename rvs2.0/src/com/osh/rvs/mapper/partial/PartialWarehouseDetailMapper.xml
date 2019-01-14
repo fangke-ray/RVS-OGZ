@@ -76,7 +76,9 @@
 	</if>
 	<![CDATA[
 		WHERE
-			`key` = #{key} 
+			`key` = #{key}
+		AND
+			seq = #{seq}
 		AND 
 			partial_id = #{partial_id}
 	]]>
@@ -113,11 +115,11 @@
 			pwd.key,
 			pwd.partial_id,
 		    pwd.fact_pf_key,
-			pwd.quantity,
+			pwd.collation_quantity AS quantity ,
 		    v_partial.code,
 			v_partial.name AS partial_name,
 		    pu.split_quantity,
-		    ABS(pwd.collation_quantity) * pu.split_quantity AS total_split_quantity,
+		    pwd.collation_quantity * pu.split_quantity AS total_split_quantity,
 		    v_partial.spec_kind
 		FROM
 			partial_warehouse_detail pwd
@@ -131,13 +133,15 @@
 			pwd.partial_id = v_partial.partial_id
 		WHERE 
 			pwd.key = #{key}
+		ORDER BY
+			pwd.seq
 	]]>
 	</select>
 	
 	<select id="countUnpackOfSpecKindByKey" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
 		SELECT
 			v_partial.spec_kind,
-			SUM(ABS(pwd.collation_quantity) * pu.split_quantity) AS total_split_quantity
+			SUM(pwd.collation_quantity * pu.split_quantity) AS total_split_quantity
 		FROM
 			partial_warehouse_detail pwd
 		JOIN

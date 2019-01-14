@@ -66,6 +66,8 @@ public class PartialWarehouseEntity implements Serializable {
 
 	private Integer production_type;
 
+	private Integer seq;
+
 	public String getKey() {
 		return key;
 	}
@@ -200,6 +202,14 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setProduction_type(Integer production_type) {
 		this.production_type = production_type;
+	}
+
+	public Integer getSeq() {
+		return seq;
+	}
+
+	public void setSeq(Integer seq) {
+		this.seq = seq;
 	}
 
 }

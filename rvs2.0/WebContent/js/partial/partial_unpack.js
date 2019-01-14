@@ -17,7 +17,11 @@ $(function(){
 	
 	$("#breakbutton").click(doBreak);
 	
-	$("#endbutton").click(doEnd);
+	$("#endbutton").click(function(){
+		warningConfirm("是否结束作业！",function(){
+			doEnd();
+		},function(){});
+	});
 	
 	unpackInit();
 });
@@ -72,6 +76,23 @@ function unpackInit(){
 						$("#label_dn_no").text(fact_production_feature.dn_no);
 						
 						$("#hide_key").val(fact_production_feature.partial_warehouse_key);
+						
+						$("#kind_quantity").find("tbody tr:nth-child(n+2)").remove();
+						
+						//零件入库DN编号
+						var partialWarehouseDnList = resInfo.partialWarehouseDnList;
+						var content = "";
+						
+						partialWarehouseDnList.forEach(function(item,index){
+							let dn_no = item.dn_no;
+							let warehouse_date = item.warehouse_date;
+							content += `<tr>
+											<td class="td-content-text" style="text-align:left;" colspan="2">${warehouse_date}</td>
+											<td class="td-content-text" style="text-align:left;" colspan="2">${dn_no}</td>
+										</tr>`;
+						});
+						
+						$("#kind_quantity tbody").append(content);
 						
 						list(resInfo.partialWarehouseDetailList);
 						setSpecKindQuantity(resInfo.specKindQuantityList,resInfo.packList);
@@ -212,7 +233,7 @@ function doEnd(){
 
 function getUpdateData(){
 	var data = {};
-	$("#kind_quantity tbody tr:nth-child(n+3)").each(function(index,tr){
+	$("#kind_quantity tbody tr[spec_kind]").each(function(index,tr){
 		var $tr = $(tr);
 		
 		data["fact_partial_warehouse.spec_kind[" + index + "]"] = $tr.attr("spec_kind");
@@ -260,18 +281,18 @@ function setPartialWarehouse(list){
 							<thead>
 								<tr>
 									<th class="ui-state-default td-title"></th>
-									<th class="ui-state-default td-title">日期</th>
+									<th class="ui-state-default td-title">入库单号</th>
 									<th class="ui-state-default td-title">DN 编号</th>
 								</tr>
 							</thead>
 							<tbody>`;
 	list.forEach(function(item,index){
 		var key = item.key,
-		warehouse_date = item.warehouse_date,
+		warehouse_no = item.warehouse_no,
 		dn_no = item.dn_no;
 		content +=`<tr key="${key}">
 			<td class="td-content"><input type="button" class="ui-button" value="选择"></td>
-			<td class="td-content">${warehouse_date}</td>
+			<td class="td-content">${warehouse_no}</td>
 			<td class="td-content">${dn_no}</td>
 		</tr>`;
 	});
@@ -283,7 +304,7 @@ function setPartialWarehouse(list){
 		resizable : false,
 		modal : true,
 		title : "请选择零件入库单",
-		width : 400,
+		width : 500,
 		buttons : {
 			"取消" : function() {
 				$(this).dialog("close");
@@ -354,7 +375,6 @@ function setSpecKindQuantity(list,packList){
 				   </tr>`;
 	});
 	
-	$("#kind_quantity").find("tbody tr:nth-child(n+2)").remove();
 	$("#kind_quantity tbody").append(content);
 	
 	packList.forEach(function(item,index){

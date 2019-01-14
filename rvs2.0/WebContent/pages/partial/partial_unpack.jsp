@@ -45,13 +45,11 @@
 		<span class="areatitle">作业信息</span>
 	</div>
 	<div class="ui-widget-content" id="kind_quantity">
-		<table class="condform">
+		<table class="condform" style="width:99%;">
 			<tbody>
 				<tr>
-					<td class="ui-state-default td-title">日期:</td>
-					<td class="td-content"><span id="label_warehouse_date"></span></td>
-					<td class="ui-state-default td-title">DN 编号:</td>
-					<td class="td-content"><span id="label_dn_no"></span></td>
+					<td class="ui-state-default td-title" colspan="2">日期:</td>
+					<td class="ui-state-default td-title" colspan="2">DN 编号:</td>
 				</tr>
 			</tbody>
 		</table>

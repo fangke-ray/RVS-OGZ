@@ -83,4 +83,5 @@
 	
 	<input type="hidden" id="hide_key">
 	<input type="hidden" id="hide_production_type">
+	<input type="hidden" id="hide_warehouse_no">
 </div>

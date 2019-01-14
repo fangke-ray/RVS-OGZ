@@ -19,12 +19,14 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.partial.FactPartialWarehouseForm;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
+import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
 import com.osh.rvs.service.partial.FactPartialWarehouseService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialCollationService;
 import com.osh.rvs.service.partial.PartialOnShelfService;
 import com.osh.rvs.service.partial.PartialUnpackService;
+import com.osh.rvs.service.partial.PartialWarehouseDnSerice;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
@@ -50,6 +52,8 @@ public class PartialOnShelfAction extends BaseAction {
 	private final PartialCollationService partialCollationService = new PartialCollationService();
 
 	private final PartialOnShelfService partialOnShelfService = new PartialOnShelfService();
+
+	private final PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 
 	/**
 	 * 页面初始化
@@ -85,6 +89,11 @@ public class PartialOnShelfAction extends BaseAction {
 
 			// 核对完待上架的零件
 			List<PartialWarehouseDetailForm> list = partialCollationService.filterCollation(key, "21", conn);
+
+			// 查询零件入库DN编号
+			List<PartialWarehouseDnForm> partialWarehouseDnList = partialWarehouseDnSerice.searchByKey(key, conn);
+			callbackResponse.put("partialWarehouseDnList", partialWarehouseDnList);
+
 
 			Map<String, PartialWarehouseDetailForm> map = new HashMap<String, PartialWarehouseDetailForm>();
 			for (PartialWarehouseDetailForm tempForm : list) {

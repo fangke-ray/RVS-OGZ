@@ -26,7 +26,11 @@ $(function(){
 	}).children("input:button").button();
 
 	$("#startbutton").click(doStart);
-	$("#endbutton").click(doEnd);
+	$("#endbutton").click(function(){
+		warningConfirm("是否结束作业！",function(){
+			doEnd();
+		},function(){});
+	});
 	reset();
 	otherInit();
 });
