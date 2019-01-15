@@ -23,7 +23,7 @@ $(function(){
 	$("#breakbutton").click(doBreak)
 
 	$("#endbutton").click(function(){
-		warningConfirm("是否结束作业！",function(){
+		warningConfirm("是否完成核对？",function(){
 			doEnd();
 		},function(){});
 	});
@@ -150,9 +150,9 @@ function updateList(partial_id){
 			
 			let name = `collation_quantity${obj.seq}`;
 			collationQuantityTD += `<td class="td-content">
-										<input type="text" class="ui-widget-content" seq="${obj.seq}" name="${name}" alt="${obj.dn_no}核对数量" value="${obj.collation_quantity}">
+										<input type="text" class="ui-widget-content" seq="${obj.seq}" name="${name}" alt="${obj.dn_no}核对数量" value="${obj.collation_quantity}" quant="${obj.quantity}">
+										<input type="button" class="all_match" value="数量一致"/>
 									</td>`;
-		
 			rules[name] = rule;
 		}
 	}
@@ -184,9 +184,16 @@ function updateList(partial_id){
 				 		</table>
 				 	</form>
 				 </div>`;
-	
+
 	var $dialog = $("#message_dialog");
-	$dialog.html("").append(content);
+	var $content = $(content);
+	$content.find(".all_match").button().click(function(){
+		var $cq = $(this).prev();
+		$cq.val($cq.attr("quant"));
+		$(this).closest("#message_dialog").next().find("button:eq(0)").trigger("click");
+	})
+	.end().find("input[type='text']").change(function(){$(this).attr("changed", true)});
+	$dialog.html("").append($content);
 	
 	$("#updateForm").validate({
 		rules : rules
@@ -200,7 +207,7 @@ function updateList(partial_id){
 		buttons : {
 			"确定" : function(){
 				if($("#updateForm").valid()){
-					$("#updateForm input[type='text']").each(function(){
+					$("#updateForm input[type='text'][changed]").each(function(){
 						let seq = $(this).attr("seq");
 						let value = $(this).val().trim();
 						

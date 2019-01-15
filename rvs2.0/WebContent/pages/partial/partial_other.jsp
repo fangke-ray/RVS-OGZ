@@ -17,6 +17,39 @@
 				<tr>
 					<td class="ui-state-default td-title">常用作业:</td>
 					<td class="td-content" id="comment_keyboard">
+<input type="button" value="零件出库：">
+<input type="button" value="中小修">
+<input type="button" value="周边设备工程">
+<input type="button" value="消耗品">
+<input type="button" value="EndoEye">
+<input type="button" value="总组NS出库">
+<input type="button" value="其它">
+<hr>
+<input type="button" value="入库管理：">
+<input type="button" value="乙材入库">
+<input type="button" value="EndoEye入库">
+<hr>
+<input type="button" value="辅助业务：">
+<input type="button" value="收缩管切割">
+<input type="button" value="零件清洗">
+<input type="button" value="四楼仓库溶液领取">
+<input type="button" value="废弃零件处理">
+<input type="button" value="点检+镜头纸库存补充">
+<input type="button" value="BO零件对应">
+<input type="button" value="《零件出库指示单》作成">
+<input type="button" value="纸盒类零件拆包">
+<input type="button" value="螺丝分装">
+<input type="button" value="零件订购">
+<hr>
+<input type="button" value="零件管理：">
+<input type="button" value="盘点">
+<input type="button" value="新制品对应">
+<input type="button" value="有效日期确认">
+<hr>
+<input type="button" value="5S管理：">
+<input type="button" value="废弃纸皮处理">
+<input type="button" value="其它">
+<hr>
 <input type="button" value="乙材">
 <input type="button" value="螺丝">
 <input type="button" value="胶水">

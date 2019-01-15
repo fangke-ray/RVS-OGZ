@@ -16,7 +16,7 @@ $(function() {
 
 	// 结束
 	$("#endbutton").click(function(){
-		warningConfirm("是否结束作业！",function(){
+		warningConfirm("是否结束收货作业？",function(){
 			doEnd();
 		},function(){});
 	});
@@ -25,7 +25,7 @@ $(function() {
 	$("#uploadbutton").click(uploadfile);
 	
 	$("#restartbutton").click(function(){
-		warningConfirm("是否重新导入！",function(){
+		warningConfirm("是否重新导入？",function(){
 			doReImport();
 		},function(){});
 	})
@@ -201,7 +201,7 @@ function setRate(resInfo){console.log(resInfo.factProductionFeature.action_time)
 	}else{
 		$("#p_rate").html("<div class='tube-liquid tube-green' style='width:0%;text-align:right;'></div>");
 		
-		if(p_time == 0) p_time = 1;
+//		if(p_time == 0) p_time = 1;
 		$("#dtl_process_time label").text(minuteFormat(p_time));
 		clearInterval(oInterval);
 		oInterval = null;
