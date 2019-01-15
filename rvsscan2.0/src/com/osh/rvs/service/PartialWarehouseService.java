@@ -29,26 +29,12 @@ public class PartialWarehouseService {
 	 */
 	public void searchProcess(Map<String, Object> listResponse, SqlSession conn) {
 		PartialWarehouseMapper dao = conn.getMapper(PartialWarehouseMapper.class);
-		UserDefineCodesMapper userDefineCodesMapper = conn.getMapper(UserDefineCodesMapper.class);
+
+		getUserDefineCodes(listResponse, conn);
 
 		// 收货搬运移动标准工时
-		String move = userDefineCodesMapper.getValue("PARTIAL_RECEPT_MOVE_COST");
+		BigDecimal bdPartialReceptMoveCost = (BigDecimal)listResponse.get("bdPartialReceptMoveCost");
 
-		// 仓管人员能率警报标志上线
-		String efHighLever = userDefineCodesMapper.getValue("FACT_PROCESS_EF_HIGH_LEVER");
-		listResponse.put("efHighLever", new BigDecimal(efHighLever));
-
-		// 仓管人员能率警报标志下线
-		String efLowLever = userDefineCodesMapper.getValue("FACT_PROCESS_EF_LOW_LEVER");
-		listResponse.put("efLowLever", new BigDecimal(efLowLever));
-
-		// 仓管人员负荷率警报标志上线
-		String strHighLever = userDefineCodesMapper.getValue("FACT_PROCESS_STR_HIGH_LEVER");
-		listResponse.put("strHighLever", new BigDecimal(strHighLever));
-
-		// 仓管人员负荷率警报标志下线
-		String strLowLever = userDefineCodesMapper.getValue("FACT_PROCESS_STR_LOW_LEVER");
-		listResponse.put("strLowLever", new BigDecimal(strLowLever));
 
 		// 00000000197:高雁梅,00000000198:叶昭杏
 		String[] operatorIDs = { "00000000197", "00000000198" };
@@ -101,6 +87,9 @@ public class PartialWarehouseService {
 				}
 				list.add(entity);
 			} else {
+				//现品作业KEY
+				String factPfKey = entity.getFact_pf_key();
+
 				// 总时间
 				BigDecimal totalStandardTime = new BigDecimal("0");
 				// 作业内容
@@ -108,20 +97,16 @@ public class PartialWarehouseService {
 				entity.setProduction_type_name(CodeListUtils.getValue("fact_production_type", productionType));
 
 				if ("99".equals(productionType)) {
-					entity.setIsNow(3);
 					// 作业经过时间
-					Integer workTime = dao.searchSpentMins(entity);
+					Integer workTime = dao.currentSpendTime(factPfKey);
 
-					if (workTime != null) {
-						entity.setSpentMins(workTime);
-					} else {
-						entity.setSpentMins(0);
-					}
+					if (workTime == null) workTime = 0;
+					entity.setSpentMins(workTime);
 				} else {
 					entity.setIsNow(1);
 					if ("10".equals(productionType)) {// A：收货
 						// 收货工时标准
-						BigDecimal standardTime = dao.searchReceptStandardTime(entity);
+						BigDecimal standardTime = dao.searchCurrentReceptStandardTime(factPfKey);
 
 						if (standardTime != null) {
 							totalStandardTime = totalStandardTime.add(standardTime);
@@ -132,31 +117,33 @@ public class PartialWarehouseService {
 							totalStandardTime = totalStandardTime.add(standardTime);
 						}
 
-						totalStandardTime = totalStandardTime.add(new BigDecimal(move));
+						totalStandardTime = totalStandardTime.add(bdPartialReceptMoveCost);
 					} else if ("50".equals(productionType)) {// E1：NS工程出库,
 						totalStandardTime = totalStandardTime.add(new BigDecimal(NS_STANDARD_TIME));
 					} else if ("51".equals(productionType)) {// E2：分解工程出库
 						totalStandardTime = totalStandardTime.add(new BigDecimal(DEC_STANDARD_TIME));
-					} else {
-						BigDecimal standardTime = dao.searchStandardTime(entity);
-						if (standardTime != null) {
-							totalStandardTime = totalStandardTime.add(standardTime);
-						}
+					} else if("20".equals(productionType)){//B1：核对+上架
+						totalStandardTime = dao.searchCurrentCollectAndOnShelfStandardTime(factPfKey);
+					} else if("21".equals(productionType)){//B2：核对
+						totalStandardTime = dao.searchCurrentCollectStandardTime(factPfKey);
+					} else if("30".equals(productionType)){//C：分装
+						totalStandardTime = dao.searchCurrentUnPackStandardTime(factPfKey);
+					} else if("40".equals(productionType)){//D：上架
+						totalStandardTime = dao.searchCurrentOnShelfStandardTime(factPfKey);
 					}
+
+					if(totalStandardTime == null) totalStandardTime = BigDecimal.ZERO;
 
 					totalStandardTime = totalStandardTime.setScale(0, RoundingMode.UP);
 
 					// 作业标准时间
 					entity.setStandardTime(totalStandardTime.intValue());
 
-					// 作业经过时间
-					Integer workTime = dao.searchSpentMins(entity);
-					if (workTime != null) {
-						entity.setSpentMins(workTime);
-					} else {
-						entity.setSpentMins(0);
-					}
+					// 当前作业经过时间
+					Integer workTime = dao.currentSpendTime(factPfKey);
+					if (workTime == null) workTime = 0;
 
+					entity.setSpentMins(workTime);
 				}
 
 				list.add(entity);
@@ -165,7 +152,7 @@ public class PartialWarehouseService {
 			entity = countQuantity(operatorID, dao);
 			resultList.add(entity);
 
-			entity = setPercent(operatorID, move, dao);
+			entity = setPercent(operatorID, bdPartialReceptMoveCost.toString(), dao);
 			percentList.add(entity);
 		}
 
@@ -180,6 +167,63 @@ public class PartialWarehouseService {
 		waitList.addAll(waittingOutLine(dao));
 
 		listResponse.put("waitList", waitList);
+
+	}
+
+
+	private void getUserDefineCodes(Map<String, Object> listResponse,SqlSession conn){
+		UserDefineCodesMapper userDefineCodesMapper = conn.getMapper(UserDefineCodesMapper.class);
+
+		// 收货搬运移动标准工时
+		String value = userDefineCodesMapper.getValue("PARTIAL_RECEPT_MOVE_COST");
+		BigDecimal bdPartialReceptMoveCost = null;
+		try {
+			bdPartialReceptMoveCost = new BigDecimal(value);
+		} catch (Exception e) {
+			bdPartialReceptMoveCost = new BigDecimal(12);
+		}
+
+		listResponse.put("bdPartialReceptMoveCost", bdPartialReceptMoveCost);
+
+		// 仓管人员能率警报标志上线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_EF_HIGH_LEVER");
+		BigDecimal efHighLever = null;
+		try {
+			efHighLever = new BigDecimal(value);
+		} catch (Exception e) {
+			efHighLever = new BigDecimal(120);
+		}
+		listResponse.put("efHighLever", efHighLever);
+
+		// 仓管人员能率警报标志下线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_EF_LOW_LEVER");
+		BigDecimal efLowLever = null;
+		try {
+			efLowLever = new BigDecimal(value);
+		} catch (Exception e) {
+			efLowLever = new BigDecimal(80.5);
+		}
+		listResponse.put("efLowLever", efLowLever);
+
+		// 仓管人员负荷率警报标志上线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_STR_HIGH_LEVER");
+		BigDecimal strHighLever = null;
+		try {
+			strHighLever = new BigDecimal(value);
+		} catch (Exception e) {
+			strHighLever = new BigDecimal(100);
+		}
+		listResponse.put("strHighLever", strHighLever);
+
+		// 仓管人员负荷率警报标志下线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_STR_LOW_LEVER");
+		BigDecimal strLowLever = null;
+		try {
+			strLowLever = new BigDecimal(value);
+		} catch (Exception e) {
+			strLowLever = new BigDecimal(50);
+		}
+		listResponse.put("strLowLever", strLowLever);
 
 	}
 
@@ -271,11 +315,8 @@ public class PartialWarehouseService {
 		connd.setProduction_type(99);
 		connd.setIsNow(2);
 		Integer spentMins = dao.searchSpentMins(connd);
-		if (spentMins != null) {
-			entity.setSpentMins(spentMins);
-		} else {
-			entity.setSpentMins(0);
-		}
+		if (spentMins == null) 	spentMins = 0;
+		entity.setSpentMins(spentMins);
 
 		return entity;
 	}
@@ -295,7 +336,7 @@ public class PartialWarehouseService {
 		BigDecimal totalActualTime = new BigDecimal(0);
 
 		// A、收货标准工时(分钟)
-		BigDecimal standardTime = dao.searchReceptStandardTime(connd);
+		BigDecimal standardTime = dao.searchTodayReceptStandardTime(operatorID);
 		if(standardTime == null) standardTime = BigDecimal.ZERO;
 
 		// 拆盒标准工时(分钟)
@@ -325,7 +366,7 @@ public class PartialWarehouseService {
 
 		// B1、核对+上架标准工时(分钟)
 		connd.setProduction_type(20);
-		standardTime = dao.searchStandardTime(connd);
+		standardTime = dao.searchTodayCollectAndOnShelfStandardTime(operatorID);
 		if (standardTime != null) {
 			totalStandardTime = totalStandardTime.add(standardTime);
 			actualTime = dao.searchSpentMins(connd);
@@ -337,7 +378,7 @@ public class PartialWarehouseService {
 
 		// B2、核对标准工时(分钟)
 		connd.setProduction_type(21);
-		standardTime = dao.searchStandardTime(connd);
+		standardTime = dao.searchTodayCollectStandardTime(operatorID);
 		if (standardTime != null) {
 			totalStandardTime = totalStandardTime.add(standardTime);
 			actualTime = dao.searchSpentMins(connd);
@@ -349,7 +390,7 @@ public class PartialWarehouseService {
 
 		// C、分装标准工时(分钟)
 		connd.setProduction_type(30);
-		standardTime = dao.searchStandardTime(connd);
+		standardTime = dao.searchTodayUnPackStandardTime(operatorID);
 		if (standardTime != null) {
 			totalStandardTime = totalStandardTime.add(standardTime);
 			actualTime = dao.searchSpentMins(connd);
@@ -361,7 +402,7 @@ public class PartialWarehouseService {
 
 		// D、上架标准工时(分钟)
 		connd.setProduction_type(40);
-		standardTime = dao.searchStandardTime(connd);
+		standardTime = dao.searchTodayOnShelfStandardTime(operatorID);
 		if (standardTime != null) {
 			totalStandardTime = totalStandardTime.add(standardTime);
 			actualTime = dao.searchSpentMins(connd);
@@ -373,20 +414,22 @@ public class PartialWarehouseService {
 
 		// E1、NS 出库标准工时(分钟)
 		connd.setProduction_type(50);
-		standardTime = new BigDecimal(NS_STANDARD_TIME);
-		totalStandardTime = totalStandardTime.add(standardTime);
 		actualTime = dao.searchSpentMins(connd);
 		if (actualTime != null) {
+			standardTime = new BigDecimal(NS_STANDARD_TIME);
+			totalStandardTime = totalStandardTime.add(standardTime);
+
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
 			entity.setNs_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}
 
 		// E2、分解出库标准工时(分钟)
 		connd.setProduction_type(51);
-		standardTime = new BigDecimal(DEC_STANDARD_TIME);
-		totalStandardTime = totalStandardTime.add(standardTime);
 		actualTime = dao.searchSpentMins(connd);
 		if (actualTime != null) {
+			standardTime = new BigDecimal(DEC_STANDARD_TIME);
+			totalStandardTime = totalStandardTime.add(standardTime);
+
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
 			entity.setDec_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}

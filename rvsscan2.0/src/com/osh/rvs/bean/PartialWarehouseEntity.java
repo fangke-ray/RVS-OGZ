@@ -133,6 +133,9 @@ public class PartialWarehouseEntity implements Serializable {
 
 	private String content;
 
+	private String warehouse_no;
+	private String fact_pf_key;
+
 	public Integer getProduction_type() {
 		return production_type;
 	}
@@ -395,6 +398,22 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	public String getWarehouse_no() {
+		return warehouse_no;
+	}
+
+	public void setWarehouse_no(String warehouse_no) {
+		this.warehouse_no = warehouse_no;
+	}
+
+	public String getFact_pf_key() {
+		return fact_pf_key;
+	}
+
+	public void setFact_pf_key(String fact_pf_key) {
+		this.fact_pf_key = fact_pf_key;
 	}
 
 }

@@ -25,14 +25,14 @@
 	]]>
 	</select>
 	
-	
 	<select id="searchUnFinish" parameterType="string" resultType="PartialWarehouseEntity">
 	<![CDATA[
 		SELECT
+			fpf.fact_pf_key,
 			fpf.operator_id,
 		    operator.name AS operator_name,
 		    fpf.production_type,
-		    pw.dn_no,
+		    pw.warehouse_no,
 		    pw.`key`,
 		    fpf.material_id
 		FROM
@@ -52,24 +52,44 @@
 	]]>
 	</select>
 	
-	<select id="countRecept" resultType="int" parameterType="PartialWarehouseEntity">
+	<!-- 当前作业零件收货标准工时 -->
+	<select id="searchCurrentReceptStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COUNT(1)
+			SUM(temp.recept)
 		FROM
-			fact_production_feature
+		(
+		SELECT
+			pwd.key,
+			v_partial.spec_kind,
+		     CASE
+				WHEN pbs.box_count = -1 THEN 1 * pbs.recept
+				ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)  * pbs.recept
+			END AS recept
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
 		WHERE
-			operator_id = #{operator_id} 
-		AND 
-			production_type = 10
-		AND
-			action_time >= CURRENT_DATE
-		AND
-			finish_time IS NOT NULL
+			fpf.fact_pf_key = #{fact_pf_key} 
+		GROUP BY 
+			v_partial.spec_kind
+		) temp
 	]]>
 	</select>
-
-	<select id="searchReceptStandardTime" resultType="java.math.BigDecimal" parameterType="PartialWarehouseEntity">
+	
+	<!-- 当日零件收货工时标准工时 -->
+	<select id="searchTodayReceptStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
 			SUM(temp.recept)
@@ -99,27 +119,271 @@
 		WHERE
 			fpf.operator_id = #{operator_id} 
 		AND 
-			fpf.production_type = 10 
-	]]>
-	<if test="isNow == 1">
-		AND
-			fpf.finish_time IS NULL
-	</if>
-	<if test="isNow == 2">
+			fpf.production_type = 10
 		AND
 			fpf.action_time >= CURRENT_DATE
 		AND
 			fpf.finish_time IS NOT NULL
-	</if>
-	<if test="isNow == 1">
-		GROUP BY 
-			v_partial.spec_kind
-	</if>
-	<if test="isNow == 2">
 		GROUP BY 
 			pwd.key,v_partial.spec_kind
-	</if>
 		) temp
+	]]>
+	</select>
+	
+	<!-- 当前作业核对+上架标准工时 -->
+	<select id="searchCurrentCollectAndOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.quantity * pbs.collation)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pbs.on_shelf < 0
+		AND	
+			fpf.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<!-- 当日核对+上架标准工时 -->
+	<select id="searchTodayCollectAndOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.collation_quantity * pbs.collation)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.fact_pf_key = pwd.fact_pf_key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.production_type = 20
+		AND
+			pbs.on_shelf < 0
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	]]>
+	</select>
+	
+	<!-- 当前作业【核对】标准工时 -->
+	<select id="searchCurrentCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.quantity * pbs.collation)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pbs.on_shelf > 0
+		AND	
+			fpf.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<!-- 当日【核对】标准工时 -->
+	<select id="searchTodayCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.collation_quantity * pbs.collation)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.fact_pf_key = pwd.fact_pf_key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.production_type = 21
+		AND
+			pbs.on_shelf > 0
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	]]>
+	</select>
+	
+	<!-- 当前作业【分装】标准工时 -->
+	<select id="searchCurrentUnPackStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.quantity * pbs.unpack * partial_unpack.split_quantity)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		JOIN
+			partial_unpack
+		ON
+			partial_unpack.partial_id = pwd.partial_id
+		WHERE
+			fpf.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<select id="searchTodayUnPackStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(fpw.quantity * pbs.unpack * partial_unpack.split_quantity)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		JOIN
+			partial_unpack
+		ON
+			partial_unpack.partial_id = pwd.partial_id
+		JOIN
+			fact_partial_warehouse fpw ON fpf.fact_pf_key = fpw.fact_pf_key AND fpw.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.production_type = 30
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	]]>
+	</select>
+	
+	<!-- 当前作业【上架】标准工时 -->
+	<select id="searchCurrentOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(pwd.quantity * pbs.on_shelf)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pbs.on_shelf > 0
+		AND
+			fpf.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<!-- 当日【上架】标准工时 -->
+	<select id="searchTodayOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			SUM(fpw.quantity * pbs.on_shelf)
+		FROM
+			fact_production_feature fpf
+		JOIN
+			partial_warehouse_detail pwd
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		JOIN
+			fact_partial_warehouse fpw ON fpf.fact_pf_key = fpw.fact_pf_key	AND fpw.spec_kind = v_partial.spec_kind
+		WHERE
+			fpf.operator_id = #{operator_id}
+		AND
+			fpf.production_type = 40
+		AND
+			pbs.on_shelf > 0
+		AND
+			fpf.action_time >= CURRENT_DATE
+		AND
+			fpf.finish_time IS NOT NULL
+	]]>
+	</select>
+	
+	<select id="countRecept" resultType="int" parameterType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT
+			COUNT(1)
+		FROM
+			fact_production_feature
+		WHERE
+			operator_id = #{operator_id} 
+		AND 
+			production_type = 10
+		AND
+			action_time >= CURRENT_DATE
+		AND
+			finish_time IS NOT NULL
+	]]>
 	</select>
 	
 	<select id="searchCollectCaseStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
@@ -159,10 +423,10 @@
 	<select id="searchStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
 		SELECT
 		<if test="production_type == 20">
-			SUM(abs(pwd.collation_quantity) * pbs.collation)
+			SUM(pwd.collation_quantity * pbs.collation)
 		</if>
 		<if test="production_type == 21">
-			SUM(abs(pwd.collation_quantity) * pbs.collation)
+			SUM(pwd.collation_quantity * pbs.collation)
 		</if>
 		<if test="production_type == 30">
 			SUM(fpw.quantity * pbs.unpack * partial_unpack.split_quantity)
@@ -320,7 +584,7 @@
 	<select id="searchCurrentCollationQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
 	<![CDATA[
 		SELECT
-	 		SUM(abs(pwd.collation_quantity))
+	 		SUM(pwd.collation_quantity)
 		FROM
 			fact_production_feature pfp
 		JOIN
@@ -341,6 +605,8 @@
 			pfp.production_type = #{production_type}
 		AND 
 			pfp.action_time >= CURRENT_DATE
+		AND
+			pfp.finish_time IS NOT NULL
 	]]>
 	</select>
 	
@@ -360,6 +626,8 @@
 			pfp.production_type = #{production_type}
 		AND 
 			pfp.action_time >= CURRENT_DATE
+		AND
+			pfp.finish_time IS NOT NULL
     
 	]]>
 	</select>
@@ -367,7 +635,7 @@
 	<select id="waittingProcess" resultType="PartialWarehouseEntity">
 	<![CDATA[
 	SELECT 
-	    dn_no,
+	    warehouse_no,
 	    step,
 	    EXISTS (SELECT 1 FROM partial_warehouse_detail WHERE fact_pf_key IS NOT NULL AND `key` = partial_warehouse.key) AS collation,
 	    EXISTS (SELECT 1 FROM 
@@ -436,6 +704,17 @@
 		v_position.process_code IN(252,321,504)
 	AND
 		pf.finish_time IS NULL
+	]]>
+	</select>
+	
+	<select id="currentSpendTime" parameterType="string" resultType="int">
+	<![CDATA[
+	SELECT
+		CEIL(SUM(TIMESTAMPDIFF(SECOND,action_time,NOW())) / 60 )
+	FROM
+    	fact_production_feature
+	WHERE
+		fact_pf_key = #{fact_pf_key}
 	]]>
 	</select>
 
