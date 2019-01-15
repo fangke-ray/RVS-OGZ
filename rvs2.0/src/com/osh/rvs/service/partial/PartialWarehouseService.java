@@ -332,6 +332,7 @@ public class PartialWarehouseService {
 		PartialWarehouseForm partialWarehouseForm  = (PartialWarehouseForm) form;
 		String key = partialWarehouseForm.getKey();
 
+		PartialWarehouseService partialWarehouseService = new PartialWarehouseService();
 		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 		PartialWarehouseDetailService partialWarehouseDetailService = new PartialWarehouseDetailService();
 		UploadService uService = new UploadService();
@@ -385,6 +386,12 @@ public class PartialWarehouseService {
 				partialWarehouseDetailForm.setKey(key);
 				// 新建零件入库明细
 				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
+			}
+
+			partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+			if("0".equals(partialWarehouseForm.getStep())){
+				partialWarehouseForm.setStep("1");
+				partialWarehouseService.updateStep(partialWarehouseForm, conn);
 			}
 		}
 

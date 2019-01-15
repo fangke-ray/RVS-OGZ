@@ -188,7 +188,12 @@ function list(listdata){
 			            	if(rData.seq == 0){
 			            		return 'DN单以外零件';
 			            	}else{
-			            		return value;
+			            		if(!value){
+			            			return "";
+			            		}else{
+			            			return value;
+			            		}
+			            		
 			            	}
 			            }},
 			            {name : 'quantity',index : 'quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
@@ -219,7 +224,7 @@ function list(listdata){
 			onSelectRow : function(){
 				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
 				var rowData = $("#list").getRowData(row);
-				if(rowData.step == 1){
+				if(rowData.step == 0 || rowData.step == 1){
 					$("#supplyButton").enable();
 				}else{
 					$("#supplyButton").disable();

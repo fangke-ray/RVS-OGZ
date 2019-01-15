@@ -1,5 +1,6 @@
 var servicePath = "partialWarehouse.scan";
 var currentPos = 0;
+var currentPos2 = 0;
 $(function () {
 
 	refresh();
@@ -51,7 +52,21 @@ var refreshSuccess = function(xhrObj) {
 		
 		setPercent(resInfo);
 		
-		setWait(resInfo.waitList);
+		var waitList = resInfo.waitList;
+		var waitPartialWarehouseList = [];
+		var waitMaterialList = [];
+		
+		for(var obj of waitList){
+			if(obj.warehouse_no){
+				waitPartialWarehouseList.push(obj);
+			}else if(obj.omr_notifi_no){
+				waitMaterialList.push(obj);
+			}
+		}
+		
+		setMaterialWait(waitMaterialList);
+		
+		setPartialWarehouseWait(waitPartialWarehouseList);
 	}
 };
 
@@ -118,7 +133,7 @@ function setChart(resInfo){
 			dirxTime[pf.operatorId] = dirxTimeOfJobNo;
 		}
 	}
-	
+
 	$y_columns.children().each(function(){
 		var $y_column = $(this);
 		var operatorId = $y_column.attr("for");
@@ -149,7 +164,7 @@ function setProcess(list){
 	list.forEach(function(item,index){
 		var production_type = item.production_type || "";
 		var production_type_name = item.production_type_name || "一";
-		var dn_no = item.dn_no || "一";
+		var warehouse_no = item.warehouse_no || "一";
 		var operator_name = item.operator_name;
 		var standardTime = item.standardTime || "一";
 		var spentMins =  item.spentMins;
@@ -189,7 +204,7 @@ function setProcess(list){
 		content += `<div class="flex-box">
 						<div class="item">${operator_name}</div>
 						<div class="item" style="flex:2;">${production_type_name}</div>
-						<div class="item">${dn_no}</div>
+						<div class="item">${warehouse_no}</div>
 						<div class="item" style="position: relative;">
 							<span class="notice">标</span><span class="time">${standardTime}</span>
 						</div>
@@ -324,7 +339,7 @@ function setPercent(resInfo){
 	});
 };
 
-function setWait(list){
+function setMaterialWait(list){
 	var listsize = list.length;
 
 	if (currentPos >= listsize) {
@@ -334,7 +349,7 @@ function setWait(list){
 	if (listsize > 0) {
 		var partial_warehouse = list[currentPos];
 		
-		$("#wait .item:eq(0) label").hide("fade", function(){$(this).text(partial_warehouse.dn_no || partial_warehouse.omr_notifi_no);});
+		$("#wait .item:eq(0) label").hide("fade", function(){$(this).text(partial_warehouse.omr_notifi_no);});
 		$("#wait .item:eq(1) label").hide("fade", function(){
 			$("#wait .item:eq(0) label").show("fade");
 			$("#wait .item:eq(1) label").show("fade");
@@ -346,7 +361,7 @@ function setWait(list){
 			if (tr2_pos >= listsize) tr2_pos -= listsize;
 			
 			partial_warehouse = list[tr2_pos];
-			$("#wait .item:eq(2) label").hide("fade", function(){$(this).text(partial_warehouse.dn_no || partial_warehouse.omr_notifi_no);});
+			$("#wait .item:eq(2) label").hide("fade", function(){$(this).text(partial_warehouse.omr_notifi_no);});
 			$("#wait .item:eq(3) label").hide("fade", function(){
 				$("#wait .item:eq(2) label").show("fade");
 				$("#wait .item:eq(3) label").show("fade");
@@ -358,7 +373,7 @@ function setWait(list){
 				if (tr3_pos >= listsize) tr3_pos -= listsize;
 				
 				partial_warehouse = list[tr3_pos];
-				$("#wait .item:eq(4) label").hide("fade", function(){$(this).text(partial_warehouse.dn_no || partial_warehouse.omr_notifi_no);});
+				$("#wait .item:eq(4) label").hide("fade", function(){$(this).text(partial_warehouse.omr_notifi_no);});
 				$("#wait .item:eq(5) label").hide("fade", function(){
 					$("#wait .item:eq(4) label").show("fade");
 					$("#wait .item:eq(5) label").show("fade");
@@ -370,7 +385,7 @@ function setWait(list){
 					if (tr4_pos >= listsize) tr4_pos -= listsize;
 					
 					partial_warehouse = list[tr4_pos];
-					$("#wait .item:eq(6) label").hide("fade", function(){$(this).text(partial_warehouse.dn_no || partial_warehouse.omr_notifi_no);});
+					$("#wait .item:eq(6) label").hide("fade", function(){$(this).text(partial_warehouse.omr_notifi_no);});
 					$("#wait .item:eq(7) label").hide("fade", function(){
 						$("#wait .item:eq(6) label").show("fade");
 						$("#wait .item:eq(7) label").show("fade");
@@ -384,6 +399,67 @@ function setWait(list){
 		$("#wait label").hide();
 	}
 };
+
+function setPartialWarehouseWait(list){
+	var listsize = list.length;
+
+	if (currentPos2 >= listsize) {
+		currentPos2 = 0;
+	}
+
+	if (listsize > 0) {
+		var partial_warehouse = list[currentPos2];
+		
+		$("#wait2 .item:eq(0) label").hide("fade", function(){$(this).text(partial_warehouse.warehouse_no);});
+		$("#wait2 .item:eq(1) label").hide("fade", function(){
+			$("#wait2 .item:eq(0) label").show("fade");
+			$("#wait2 .item:eq(1) label").show("fade");
+			$(this).text(judgeStatus(partial_warehouse));
+			
+			if (listsize == 1) {$("#wait .item:gt(1) label").text(""); return};
+
+			var tr2_pos = currentPos2;
+			if (tr2_pos >= listsize) tr2_pos -= listsize;
+			
+			partial_warehouse = list[tr2_pos];
+			$("#wait2 .item:eq(2) label").hide("fade", function(){$(this).text(partial_warehouse.warehouse_no);});
+			$("#wait2 .item:eq(3) label").hide("fade", function(){
+				$("#wait2 .item:eq(2) label").show("fade");
+				$("#wait2 .item:eq(3) label").show("fade");
+				$(this).text(judgeStatus(partial_warehouse));
+				
+				if (listsize == 2) {$("#wait .item:gt(3) label").text(""); return};
+				
+				var tr3_pos = currentPos2 + 1;
+				if (tr3_pos >= listsize) tr3_pos -= listsize;
+				
+				partial_warehouse = list[tr3_pos];
+				$("#wait2 .item:eq(4) label").hide("fade", function(){$(this).text(partial_warehouse.warehouse_no);});
+				$("#wait2 .item:eq(5) label").hide("fade", function(){
+					$("#wait2 .item:eq(4) label").show("fade");
+					$("#wait2 .item:eq(5) label").show("fade");
+					$(this).text(judgeStatus(partial_warehouse));
+					
+					if (listsize == 3) {$("#wait .item:gt(5) label").text(""); return};
+					
+					var tr4_pos = currentPos2 + 2;
+					if (tr4_pos >= listsize) tr4_pos -= listsize;
+					
+					partial_warehouse = list[tr4_pos];
+					$("#wait2 .item:eq(6) label").hide("fade", function(){$(this).text(partial_warehouse.warehouse_no);});
+					$("#wait2 .item:eq(7) label").hide("fade", function(){
+						$("#wait .item:eq(6) label").show("fade");
+						$("#wait .item:eq(7) label").show("fade");
+						$(this).text(judgeStatus(partial_warehouse));
+					});
+				});
+			});
+		});
+		currentPos2 ++;
+	}else {
+		$("#wait2 label").hide();
+	}
+}
 
 function checkDirxTime(dirxTime){
 	if (!dirxTime) return 0;
@@ -460,7 +536,7 @@ function judgeStatus(obj){
 		var step = obj.step;
 		
 		if(step == 0){
-			
+			content = "收货中";
 		}else if(step == 1){
 			var collation = obj.collation;
 			if(collation == 1){

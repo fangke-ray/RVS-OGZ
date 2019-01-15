@@ -14,9 +14,59 @@ public interface PartialWarehouseMapper {
 	/**
 	 * 查询正在进行中的作业
 	 *
-	 * @return
 	 */
 	public PartialWarehouseEntity searchUnFinish(@Param("operator_id") String operator_id);
+
+	/**
+	 * 当前作业【收货】标准工时
+	 */
+	public BigDecimal searchCurrentReceptStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日【收货】工时标准工时
+	 */
+	public BigDecimal searchTodayReceptStandardTime(@Param("operator_id") String operator_id);
+
+	/**
+	 * 当前作业【核对+上架】标准工时
+	 */
+	public BigDecimal searchCurrentCollectAndOnShelfStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日【核对+上架】标准工时
+	 */
+	public BigDecimal searchTodayCollectAndOnShelfStandardTime(@Param("operator_id") String operator_id);
+
+	/**
+	 * 当前作业【核对】标准工时
+	 */
+	public BigDecimal searchCurrentCollectStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日【核对】标准工时
+	 */
+	public BigDecimal searchTodayCollectStandardTime(@Param("operator_id") String operator_id);
+
+	/**
+	 * 当前作业【分装】标准工时
+	 */
+	public BigDecimal searchCurrentUnPackStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日【分装】标准工时
+	 */
+	public BigDecimal searchTodayUnPackStandardTime(@Param("operator_id") String operator_id);
+
+	/**
+	 * 当前作业【上架】标准工时
+	 */
+	public BigDecimal searchCurrentOnShelfStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日【上架】标准工时
+	 */
+	public BigDecimal searchTodayOnShelfStandardTime(@Param("operator_id") String operator_id);
+
 
 	/**
 	 * 收货次数
@@ -24,13 +74,6 @@ public interface PartialWarehouseMapper {
 	 * @return
 	 */
 	public Integer countRecept(PartialWarehouseEntity entity);
-
-	/**
-	 * 零件出入库收货工时标准
-	 *
-	 * @return
-	 */
-	public BigDecimal searchReceptStandardTime(PartialWarehouseEntity entity);
 
 	/**
 	 * 零件出入库拆盒工时标准
@@ -98,5 +141,12 @@ public interface PartialWarehouseMapper {
 	 * @return
 	 */
 	public List<PartialWarehouseEntity> waittingOutLine();
+
+	/**
+	 * 当前作业经过时间
+	 * @param fact_pf_key
+	 * @return
+	 */
+	public Integer currentSpendTime(@Param("fact_pf_key") String fact_pf_key);
 
 }

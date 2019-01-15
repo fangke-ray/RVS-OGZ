@@ -18,7 +18,7 @@
 			sum(dtl.quantity <> dtl.collation_quantity) as `match`
 		FROM
 			partial_warehouse pw
-		JOIN
+		LEFT JOIN
 			partial_warehouse_dn pwdn
 		ON
 			pw.key = pwdn.key

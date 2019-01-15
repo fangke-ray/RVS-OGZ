@@ -429,23 +429,49 @@ ${standard_column.css}
 				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 					<span class="areatitle">待处理单一览</span>
 				</div>
-				<div class="ui-widget-content wait" id="wait">
-					<div class="wait-box">
-						<div class="item"><label></label></div>
-						<div class="item" style="flex:4;"><label></label></div>
+				
+				<div class="ui-widget-content">
+					<div style="float:left;width: 49.9%;">
+						<div class="ui-widget-content wait" id="wait">
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+						</div>
 					</div>
-					<div class="wait-box">
-						<div class="item"><label></label></div>
-						<div class="item" style="flex:4;"><label></label></div>
+					<div style="float:right;width: 49.9%;">
+						<div class="ui-widget-content wait" id="wait2">
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+							<div class="wait-box">
+								<div class="item"><label></label></div>
+								<div class="item" style="flex:2;"><label></label></div>
+							</div>
+						</div>
 					</div>
-					<div class="wait-box">
-						<div class="item"><label></label></div>
-						<div class="item" style="flex:4;"><label></label></div>
-					</div>
-					<div class="wait-box">
-						<div class="item"><label></label></div>
-						<div class="item" style="flex:4;"><label></label></div>
-					</div>
+					<div class="clear"></div>
 				</div>
 			</div>
 			<div class="clear"></div>
