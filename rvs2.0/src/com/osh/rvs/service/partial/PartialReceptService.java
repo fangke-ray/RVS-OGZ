@@ -357,6 +357,9 @@ public class PartialReceptService {
 				break;
 			}
 
+			// 零件编码转换成大写
+			code = code.toUpperCase();
+
 			if (checkPartailRepeat.containsKey(code)) {
 				message = "DN编号为[" + dnNo + "]验收确认单的零件编号为[" + code + "]重复";
 
