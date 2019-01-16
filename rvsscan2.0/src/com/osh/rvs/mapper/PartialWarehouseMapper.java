@@ -69,11 +69,11 @@ public interface PartialWarehouseMapper {
 
 
 	/**
-	 * 收货次数
+	 * 作业次数
 	 * @param entity
 	 * @return
 	 */
-	public Integer countRecept(PartialWarehouseEntity entity);
+	public Integer count(@Param("operator_id") String operator_id,@Param("production_type") String production_type);
 
 	/**
 	 * 零件出入库拆盒工时标准

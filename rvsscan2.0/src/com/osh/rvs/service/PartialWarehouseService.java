@@ -347,7 +347,7 @@ public class PartialWarehouseService {
 		BigDecimal receptStandardTime = standardTime.add(collectCaseStandardTime);
 
 		//收货次数
-		Integer countRecept = dao.countRecept(entity);
+		Integer countRecept = dao.count(operatorID, "10");
 		if(countRecept == null) countRecept  = 0;
 		standardTime = new BigDecimal(move);
 		standardTime = standardTime.multiply(new BigDecimal(countRecept));
@@ -415,8 +415,12 @@ public class PartialWarehouseService {
 		// E1、NS 出库标准工时(分钟)
 		connd.setProduction_type(50);
 		actualTime = dao.searchSpentMins(connd);
+		Integer nsCount = dao.count(operatorID, "50");
+		if(nsCount == null) nsCount = 0;
 		if (actualTime != null) {
 			standardTime = new BigDecimal(NS_STANDARD_TIME);
+			standardTime = standardTime.multiply(new BigDecimal(nsCount));
+
 			totalStandardTime = totalStandardTime.add(standardTime);
 
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
@@ -426,8 +430,11 @@ public class PartialWarehouseService {
 		// E2、分解出库标准工时(分钟)
 		connd.setProduction_type(51);
 		actualTime = dao.searchSpentMins(connd);
+		Integer decCount = dao.count(operatorID, "51");
+		if(decCount == null) decCount = 0;
 		if (actualTime != null) {
 			standardTime = new BigDecimal(DEC_STANDARD_TIME);
+			standardTime = standardTime.multiply(new BigDecimal(decCount));
 			totalStandardTime = totalStandardTime.add(standardTime);
 
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));

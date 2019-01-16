@@ -369,7 +369,7 @@
 	]]>
 	</select>
 	
-	<select id="countRecept" resultType="int" parameterType="PartialWarehouseEntity">
+	<select id="count" resultType="int" parameterType="string">
 	<![CDATA[
 		SELECT
 			COUNT(1)
@@ -378,7 +378,7 @@
 		WHERE
 			operator_id = #{operator_id} 
 		AND 
-			production_type = 10
+			production_type = #{production_type}
 		AND
 			action_time >= CURRENT_DATE
 		AND
