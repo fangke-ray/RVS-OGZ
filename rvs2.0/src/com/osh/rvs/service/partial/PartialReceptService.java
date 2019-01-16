@@ -210,6 +210,8 @@ public class PartialReceptService {
 			// 零件入库明细
 			List<PartialWarehouseDetailForm> detailList = new ArrayList<PartialWarehouseDetailForm>();
 
+			Map<String,String> dnNoMap = new HashMap<String,String>();
+
 			for (int i = 0; i < tempFileNames.size(); i++) {
 				int seq = i + 1;
 
@@ -235,6 +237,9 @@ public class PartialReceptService {
 				// DN 编号
 				String dnNo = partialWarehouseDnForm.getDn_no();
 
+				//DN 编号转成大写
+				dnNo = dnNo.toUpperCase();
+
 				PartialWarehouseDnForm tempForm = partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(dnNo, conn);
 
 				// 存在DN 编号
@@ -245,6 +250,17 @@ public class PartialReceptService {
 					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordDuplicated", "DN编号[" + dnNo + "]"));
 					errors.add(error);
 					return;
+				}
+
+				// 判断上传的文件中是否存在DN 编号重复
+				if(dnNoMap.containsKey(dnNo)){
+					// 编号重复
+					MsgInfo error = new MsgInfo();
+					error.setErrmsg("上传的文件中，DN编号[" + dnNo + "]重复，请确认。");
+					errors.add(error);
+					return;
+				}else{
+					dnNoMap.put(dnNo, dnNo);
 				}
 
 				warehouseDnList.add(partialWarehouseDnForm);
