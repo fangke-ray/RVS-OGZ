@@ -189,7 +189,10 @@ function updateList(partial_id){
 	var $content = $(content);
 	$content.find(".all_match").button().click(function(){
 		var $cq = $(this).prev();
-		$cq.val($cq.attr("quant"));
+		if ($cq.attr("value") != $cq.attr("quant")) {
+			$cq.val($cq.attr("quant"))
+				.attr("changed", true);
+		}
 		$(this).closest("#message_dialog").next().find("button:eq(0)").trigger("click");
 	})
 	.end().find("input[type='text']").change(function(){$(this).attr("changed", true)});
@@ -210,7 +213,6 @@ function updateList(partial_id){
 					$("#updateForm input[type='text'][changed]").each(function(){
 						let seq = $(this).attr("seq");
 						let value = $(this).val().trim();
-						
 						for(let i = 0;i < searchlist.length;i++){
 							let partial = searchlist[i];
 							

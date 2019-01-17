@@ -16,9 +16,16 @@ $(function() {
 
 	// 结束
 	$("#endbutton").click(function(){
-		warningConfirm("是否结束收货作业？",function(){
+		var warningMessage = "是否还要补输入收货清单或修正清单？";
+		var yesMessage = "不需要补充";
+		if ($("#content tr").length < 2) {
+			warningMessage = "此次收货作业中没有导入收货清单，就这样结束作业吗？";
+			yesMessage = "以后到入库单管理补充";
+		}
+		// 是否结束收货作业？
+		warningConfirm(warningMessage,function(){
 			doEnd();
-		},function(){});
+		},function(){}, "确认将结束收货作业", yesMessage, "不结束，去补充");
 	});
 
 	//载入
