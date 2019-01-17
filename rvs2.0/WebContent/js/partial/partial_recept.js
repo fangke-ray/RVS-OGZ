@@ -104,20 +104,11 @@ function receptInit(){
 						$("#startbutton").disable();
 						
 						//结束按钮，重新导入按钮可以用
-						$("#endbutton,#restartbutton").enable();
+						$("#endbutton,#restartbutton,#file,#uploadbutton").enable();
 						
 						//零件入库单号
 						var partial_warehouse_key = factProductionFeature.partial_warehouse_key;
 
-						//存在入库单号
-						if(partialWarehouseDetailList.length > 0){
-							//选择文件按钮，导入按钮不可用
-							$("#file,#uploadbutton").disable();
-						}else{
-							//选择文件按钮，导入按钮可用
-							$("#file,#uploadbutton").enable();
-						}
-						
 						$("#content tbody tr:nth-child(n+2)").remove();
 						
 						//零件入库DN编号

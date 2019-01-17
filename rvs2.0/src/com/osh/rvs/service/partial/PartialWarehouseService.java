@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -329,6 +330,8 @@ public class PartialWarehouseService {
 	 */
 	@SuppressWarnings("unchecked")
 	public void supply(ActionForm form,HttpServletRequest request,SqlSessionManager conn,List<MsgInfo> errors) throws Exception{
+		HttpSession session = request.getSession();
+
 		PartialWarehouseForm partialWarehouseForm  = (PartialWarehouseForm) form;
 		String key = partialWarehouseForm.getKey();
 
@@ -362,16 +365,15 @@ public class PartialWarehouseService {
 			}
 		}
 
-
 		PartialReceptService partialReceptService = new PartialReceptService();
 
 		partialReceptService.readFile(tempFileNames, request, conn, errors, true, seq);
 
 		if(errors.size() == 0){
 			// 零件入库DN编号
-			warehouseDnList = (List<PartialWarehouseDnForm>)request.getAttribute("warehouseDnList");
+			warehouseDnList = (List<PartialWarehouseDnForm>)session.getAttribute("warehouseDnList");
 			// 零件入库明细
-			List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>)request.getAttribute("detailList");
+			List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>)session.getAttribute("detailList");
 			for (int i = 0; i < warehouseDnList.size(); i++) {
 				PartialWarehouseDnForm partialWarehouseDnForm = warehouseDnList.get(i);
 				// KEY
@@ -393,6 +395,9 @@ public class PartialWarehouseService {
 				partialWarehouseForm.setStep("1");
 				partialWarehouseService.updateStep(partialWarehouseForm, conn);
 			}
+
+			session.removeAttribute("warehouseDnList");
+			session.removeAttribute("detailList");
 		}
 
 

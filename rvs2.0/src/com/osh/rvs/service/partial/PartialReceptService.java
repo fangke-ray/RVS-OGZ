@@ -55,35 +55,33 @@ public class PartialReceptService {
 
 	private final PartialBussinessStandardService partialBussinessStandardService = new PartialBussinessStandardService();
 
-
-	public void jsinit(FactProductionFeatureForm form,HttpServletRequest req,Map<String, Object> callbackResponse,SqlSession conn){
-		HttpSession session =  req.getSession();
+	public void jsinit(FactProductionFeatureForm form, HttpServletRequest req, Map<String, Object> callbackResponse, SqlSession conn) {
+		HttpSession session = req.getSession();
 		// 零件入库DN编号
 		@SuppressWarnings("unchecked")
-		List<PartialWarehouseDnForm> warehouseDnList = (List<PartialWarehouseDnForm>)session.getAttribute("warehouseDnList");
+		List<PartialWarehouseDnForm> warehouseDnList = (List<PartialWarehouseDnForm>) session.getAttribute("warehouseDnList");
 
 		// 零件入库明细
 		@SuppressWarnings("unchecked")
-		List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>)session.getAttribute("detailList");
+		List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>) session.getAttribute("detailList");
 
-		if(detailList != null){
-			//零件出入库工时标准
-			Map<String,PartialBussinessStandardEntity> standardMap = partialBussinessStandardService.getStandardTime(conn);
+		if (detailList != null) {
+			// 零件出入库工时标准
+			Map<String, PartialBussinessStandardEntity> standardMap = partialBussinessStandardService.getStandardTime(conn);
 
 			// 各个规格种别总数量
-			Map<String,Integer> specKindMap = new TreeMap<String,Integer>();
+			Map<String, Integer> specKindMap = new TreeMap<String, Integer>();
 
-
-			for(PartialWarehouseDetailForm temp:detailList){
+			for (PartialWarehouseDetailForm temp : detailList) {
 				// 数量
 				Integer quantity = Integer.valueOf(temp.getQuantity());
 
-				//规格种别
+				// 规格种别
 				String specKind = temp.getSpec_kind();
 
-				if(specKindMap.containsKey(specKind)){
+				if (specKindMap.containsKey(specKind)) {
 					specKindMap.put(specKind, specKindMap.get(specKind) + quantity);
-				}else{
+				} else {
 					specKindMap.put(specKind, quantity);
 				}
 			}
@@ -94,12 +92,12 @@ public class PartialReceptService {
 			// 统计各个规格种别总数量
 			List<PartialWarehouseDetailForm> counttQuantityList = new ArrayList<PartialWarehouseDetailForm>();
 
-			for(String specKind:specKindMap.keySet()){
+			for (String specKind : specKindMap.keySet()) {
 				PartialWarehouseDetailForm partialWarehouseDetailForm = new PartialWarehouseDetailForm();
 				partialWarehouseDetailForm.setSpec_kind(specKind);
 
-				if(standardMap.containsKey(specKind)){
-					//总数量
+				if (standardMap.containsKey(specKind)) {
+					// 总数量
 					Integer totalQuantity = specKindMap.get(specKind);
 
 					// 拆盒标准工时
@@ -111,18 +109,17 @@ public class PartialReceptService {
 					collectCaseTime = collectCaseTime.multiply(new BigDecimal(totalQuantity));
 					totalTime = totalTime.add(collectCaseTime);
 
-
-					//装箱数量
+					// 装箱数量
 					BigDecimal boxCount = new BigDecimal(standardMap.get(specKind).getBox_count());
 
-					if(boxCount.compareTo(BigDecimal.ZERO) < 0){//装箱数量<0,
+					if (boxCount.compareTo(BigDecimal.ZERO) < 0) {// 装箱数量<0,
 						partialWarehouseDetailForm.setQuantity("1");
 
 						totalTime = totalTime.add(receptTime);
-					}else{
-						//总数量
+					} else {
+						// 总数量
 						BigDecimal quantity = new BigDecimal(totalQuantity.toString());
-						quantity = quantity.divide(boxCount, RoundingMode.UP);//向上取整，不足一箱按一箱计算
+						quantity = quantity.divide(boxCount, RoundingMode.UP);// 向上取整，不足一箱按一箱计算
 						partialWarehouseDetailForm.setQuantity(quantity.toString());
 
 						receptTime = receptTime.multiply(quantity);
@@ -148,8 +145,7 @@ public class PartialReceptService {
 			// 向上取整
 			totalTime = totalTime.setScale(0, RoundingMode.UP);
 
-
-			//零件入库DN编号
+			// 零件入库DN编号
 			callbackResponse.put("partialWarehouseDnList", warehouseDnList);
 
 			// 零件入库明细
@@ -183,7 +179,7 @@ public class PartialReceptService {
 		}
 
 		// 解析文件
-		readFile(tempFileNames, req, conn, errors,false,0);
+		readFile(tempFileNames, req, conn, errors, false, 0);
 
 	}
 
@@ -194,33 +190,49 @@ public class PartialReceptService {
 	 * @param conn
 	 * @param errors
 	 */
-	public void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors,boolean supply,int supplySeq) throws Exception {
+	public void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors, boolean supply, int supplySeq) throws Exception {
 		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
 		PartialMapper partialDao = conn.getMapper(PartialMapper.class);
 
+		HttpSession session = req.getSession();
+
 		InputStream in = null;
 		try {
-			//String key = null;
 			XSSFWorkbook work = null;
 			XSSFSheet sheet = null;
+			String dnNo = "";
+
+			Map<String, String> dnNoMap = new HashMap<String, String>();
 
 			// 零件入库DN编号
-			List<PartialWarehouseDnForm> warehouseDnList = new ArrayList<PartialWarehouseDnForm>();
+			@SuppressWarnings("unchecked")
+			List<PartialWarehouseDnForm> warehouseDnList = (List<PartialWarehouseDnForm>) session.getAttribute("warehouseDnList");
+			if (warehouseDnList == null) {
+				warehouseDnList = new ArrayList<PartialWarehouseDnForm>();
+			} else {
+				for (PartialWarehouseDnForm partialWarehouseDnForm : warehouseDnList) {
+					dnNo = partialWarehouseDnForm.getDn_no().toUpperCase();
+					dnNoMap.put(dnNo, dnNo);
+				}
+			}
+
+			int alreadySeq = warehouseDnList.size();
 
 			// 零件入库明细
-			List<PartialWarehouseDetailForm> detailList = new ArrayList<PartialWarehouseDetailForm>();
-
-			Map<String,String> dnNoMap = new HashMap<String,String>();
+			@SuppressWarnings("unchecked")
+			List<PartialWarehouseDetailForm> detailList = (List<PartialWarehouseDetailForm>) session.getAttribute("detailList");
+			if (detailList == null) {
+				detailList = new ArrayList<PartialWarehouseDetailForm>();
+			}
 
 			for (int i = 0; i < tempFileNames.size(); i++) {
-				int seq = i + 1;
+				int seq = 0;
 
-				if(supply){
-					seq = supplySeq + i + 1;
-				}else{
-					seq = i + 1;
+				if (supply) {
+					seq = supplySeq + alreadySeq + i + 1;
+				} else {
+					seq = alreadySeq + i + 1;
 				}
-
 
 				in = new FileInputStream(tempFileNames.get(i));// 读取文件
 
@@ -235,9 +247,9 @@ public class PartialReceptService {
 					return;
 
 				// DN 编号
-				String dnNo = partialWarehouseDnForm.getDn_no();
+				dnNo = partialWarehouseDnForm.getDn_no();
 
-				//DN 编号转成大写
+				// DN 编号转成大写
 				dnNo = dnNo.toUpperCase();
 
 				PartialWarehouseDnForm tempForm = partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(dnNo, conn);
@@ -253,25 +265,25 @@ public class PartialReceptService {
 				}
 
 				// 判断上传的文件中是否存在DN 编号重复
-				if(dnNoMap.containsKey(dnNo)){
+				if (dnNoMap.containsKey(dnNo)) {
 					// 编号重复
 					MsgInfo error = new MsgInfo();
 					error.setErrmsg("上传的文件中，DN编号[" + dnNo + "]重复，请确认。");
 					errors.add(error);
 					return;
-				}else{
+				} else {
 					dnNoMap.put(dnNo, dnNo);
 				}
 
 				warehouseDnList.add(partialWarehouseDnForm);
 
 				// 零件入库明细
-				List<PartialWarehouseDetailForm> list = this.setPartialWarehouseDetail(sheet,partialWarehouseDnForm, seq, partialDao, errors);
+				List<PartialWarehouseDetailForm> list = this.setPartialWarehouseDetail(sheet, partialWarehouseDnForm, seq, partialDao, errors);
 
 				if (errors.size() > 0)
 					return;
 
-				//没有数据
+				// 没有数据
 				if (list.size() == 0) {
 					errors.add(getFormatError());
 					return;
@@ -280,20 +292,14 @@ public class PartialReceptService {
 				detailList.addAll(list);
 			}
 
-			//没有数据
+			// 没有数据
 			if (detailList.size() == 0) {
 				errors.add(getFormatError());
 				return;
 			}
 
-			if(supply){
-				req.setAttribute("warehouseDnList", warehouseDnList);
-				req.setAttribute("detailList", detailList);
-			}else{
-				HttpSession session =  req.getSession();
-				session.setAttribute("warehouseDnList", warehouseDnList);
-				session.setAttribute("detailList", detailList);
-			}
+			session.setAttribute("warehouseDnList", warehouseDnList);
+			session.setAttribute("detailList", detailList);
 
 		} catch (Exception e) {
 			throw e;
@@ -308,9 +314,6 @@ public class PartialReceptService {
 		}
 	}
 
-
-
-
 	/**
 	 * 零件入库明细
 	 *
@@ -320,7 +323,7 @@ public class PartialReceptService {
 	 * @param errors
 	 * @return
 	 */
-	private List<PartialWarehouseDetailForm> setPartialWarehouseDetail(XSSFSheet sheet,PartialWarehouseDnForm partialWarehouseDnForm, int seq, PartialMapper partialDao, List<MsgInfo> errors) {
+	private List<PartialWarehouseDetailForm> setPartialWarehouseDetail(XSSFSheet sheet, PartialWarehouseDnForm partialWarehouseDnForm, int seq, PartialMapper partialDao, List<MsgInfo> errors) {
 		// 检查零件是否重复
 		Map<String, String> checkPartailRepeat = new HashMap<String, String>();
 
@@ -447,7 +450,7 @@ public class PartialReceptService {
 			form.setPartial_name(partialEntity.getName());
 			// 零件编号
 			form.setCode(code);
-			//规格种别
+			// 规格种别
 			form.setSpec_kind(partialEntity.getSpec_kind().toString());
 			// 数量
 			form.setQuantity(strQuantity);
