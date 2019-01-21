@@ -277,27 +277,17 @@
 	<select id="searchTodayUnPackStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(fpw.quantity * pbs.unpack * partial_unpack.split_quantity)
+			SUM(fpw.quantity * pbs.unpack)
 		FROM
 			fact_production_feature fpf
 		JOIN
-			partial_warehouse_detail pwd
-		ON
-			fpf.partial_warehouse_key = pwd.key
-		JOIN
-			v_partial
-		ON
-			v_partial.partial_id = pwd.partial_id
+			fact_partial_warehouse fpw 
+		ON 
+			fpf.fact_pf_key = fpw.fact_pf_key
 		JOIN
 			partial_bussiness_standard pbs
 		ON
-			pbs.spec_kind = v_partial.spec_kind
-		JOIN
-			partial_unpack
-		ON
-			partial_unpack.partial_id = pwd.partial_id
-		JOIN
-			fact_partial_warehouse fpw ON fpf.fact_pf_key = fpw.fact_pf_key AND fpw.spec_kind = v_partial.spec_kind
+			pbs.spec_kind = fpw.spec_kind
 		WHERE
 			fpf.operator_id = #{operator_id}
 		AND
@@ -343,19 +333,13 @@
 		FROM
 			fact_production_feature fpf
 		JOIN
-			partial_warehouse_detail pwd
-		ON
-			fpf.partial_warehouse_key = pwd.key
-		JOIN
-			v_partial
-		ON
-			v_partial.partial_id = pwd.partial_id
+			fact_partial_warehouse fpw 
+		ON 
+			fpf.fact_pf_key = fpw.fact_pf_key
 		JOIN
 			partial_bussiness_standard pbs
 		ON
-			pbs.spec_kind = v_partial.spec_kind
-		JOIN
-			fact_partial_warehouse fpw ON fpf.fact_pf_key = fpw.fact_pf_key	AND fpw.spec_kind = v_partial.spec_kind
+			pbs.spec_kind = fpw.spec_kind
 		WHERE
 			fpf.operator_id = #{operator_id}
 		AND
