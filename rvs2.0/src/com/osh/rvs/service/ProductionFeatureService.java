@@ -453,7 +453,8 @@ public class ProductionFeatureService {
 					ret.add("[内镜分解库位：" + materiaIncase.get("shelf_name") + "]");
 				}
 			} else
-			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || "00000000093".equals(position_id)) { // 零件订购
+			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || 
+					"00000000026".equals(position_id) || "00000000093".equals(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
 				if (isFact) {
 					// 如果没有零件BO信息
