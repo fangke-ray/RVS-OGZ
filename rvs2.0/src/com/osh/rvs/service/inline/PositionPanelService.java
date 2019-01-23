@@ -986,7 +986,7 @@ public class PositionPanelService {
 
 		// 测试 start
 		Calendar tp = Calendar.getInstance();
-		tp.set(Calendar.DAY_OF_MONTH, 15);
+
 		period.setExpireOfMonthOfJig(tp.getTime());
 		// 测试 end
 		if (list.size() > 0) {
@@ -998,62 +998,79 @@ public class PositionPanelService {
 			}
 		}
 
-//		// 设备
-//		String dailyDevices = crMapper.searchDailyDeviceUncheckedOnPosition(cond);
-//		if (!CommonStringUtil.isEmpty(dailyDevices)) {
-//			Calendar now = Calendar.getInstance();
-//			if (now.get(Calendar.HOUR_OF_DAY) >= 14) { // TODO SYSTEM PARAM 14
-//				// 下午2点锁定
-//				retComments += "本工位有以下日常点检设备："+dailyDevices+"在期限前未作点检，将限制工作。\n";
-//			} else {
-//				// 否则提醒
-//				retComments += "本工位有以下日常点检设备："+dailyDevices+"将到达点检期限，请尽快进行点检。\n";
-//			}
-//		}
-//
-//		cond.setCycle_type(6);
-//		cond.setCheck_confirm_time_start(period.getStartOfWeek());
-//		cond.setCheck_confirm_time_end(period.getEndOfWeek());
-//		String regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
-//		if (!CommonStringUtil.isEmpty(regularDevices)) {
-//			if (today.after(period.getStartOfWeek())) {
-//				// 期限内锁定
-//				retComments += "本工位有以下周点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
-//			} else {
-//				// 否则提醒
-//				retComments += "本工位有以下周点检设备："+regularDevices+"将到达点检期限，请尽快进行点检。\n";
-//			}
-//		}
-//
-//		cond.setCycle_type(7);
-//		cond.setCheck_confirm_time_start(period.getStartOfMonth());
-//		cond.setCheck_confirm_time_end(period.getEndOfMonth());
-//		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
-//		if (!CommonStringUtil.isEmpty(regularDevices)) {
-//			if (today.getTime() >= period.getExpireOfMonth().getTime()) {
-//				// 期限内锁定
-//				retComments += "本工位有以下月点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
-//			} else {
-//				// 否则提醒
-//				retComments += "本工位有以下月点检设备："+regularDevices+"将到达点检期限("+
-//						DateUtil.toString(period.getExpireOfMonth(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
-//			}
-//		}
-//
-//		cond.setCycle_type(8);
-//		cond.setCheck_confirm_time_start(period.getStartOfHbp());
-//		cond.setCheck_confirm_time_end(period.getEndOfHbp());
-//		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
-//		if (!CommonStringUtil.isEmpty(regularDevices)) {
-//			if (today.getTime() >= period.getExpireOfHbp().getTime()) {
-//				// 期限内锁定
-//				retComments += "本工位有以下半期点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
-//			} else {
-//				// 否则提醒
-//				retComments += "本工位有以下半期点检设备："+regularDevices+"将到达点检期限("+
-//						DateUtil.toString(period.getExpireOfHbp(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
-//			}
-//		}
+		// 设备
+		String dailyDevices = crMapper.searchDailyDeviceUncheckedOnPosition(cond);
+		if (!CommonStringUtil.isEmpty(dailyDevices)) {
+			Calendar now = Calendar.getInstance();
+			if (now.get(Calendar.HOUR_OF_DAY) >= 14) { // TODO SYSTEM PARAM 14
+				// 下午2点锁定
+				retComments += "本工位有以下日常点检设备："+dailyDevices+"在期限前未作点检，将限制工作。\n";
+			} else {
+				// 否则提醒
+				retComments += "本工位有以下日常点检设备："+dailyDevices+"将到达点检期限，请尽快进行点检。\n";
+			}
+		}
+
+		cond.setCycle_type(CheckResultService.TYPE_ITEM_WEEK);
+		cond.setCheck_confirm_time_start(period.getStartOfWeek());
+		cond.setCheck_confirm_time_end(period.getEndOfWeek());
+		String regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+		if (!CommonStringUtil.isEmpty(regularDevices)) {
+			if (today.after(period.getStartOfWeek())) {
+				// 期限内锁定
+				retComments += "本工位有以下周点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+			} else {
+				// 否则提醒
+				retComments += "本工位有以下周点检设备："+regularDevices+"将到达点检期限，请尽快进行点检。\n";
+			}
+		}
+
+		cond.setCycle_type(CheckResultService.TYPE_ITEM_MONTH);
+		cond.setCheck_confirm_time_start(period.getStartOfMonth());
+		cond.setCheck_confirm_time_end(period.getEndOfMonth());
+		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+		if (!CommonStringUtil.isEmpty(regularDevices)) {
+			if (today.getTime() >= period.getExpireOfMonth().getTime()) {
+				// 期限内锁定
+				retComments += "本工位有以下月点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+			} else {
+				// 否则提醒
+				retComments += "本工位有以下月点检设备："+regularDevices+"将到达点检期限("+
+						DateUtil.toString(period.getExpireOfMonth(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
+			}
+		}
+
+		cond.setCycle_type(CheckResultService.TYPE_ITEM_PERIOD);
+		cond.setCheck_confirm_time_start(period.getStartOfHbp());
+		cond.setCheck_confirm_time_end(period.getEndOfHbp());
+		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+		if (!CommonStringUtil.isEmpty(regularDevices)) {
+			if (today.getTime() >= period.getExpireOfHbp().getTime()) {
+				// 期限内锁定
+				retComments += "本工位有以下半期点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+			} else {
+				// 否则提醒
+				retComments += "本工位有以下半期点检设备："+regularDevices+"将到达点检期限("+
+						DateUtil.toString(period.getExpireOfHbp(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
+			}
+		}
+
+		cond.setCycle_type(CheckResultService.TYPE_ITEM_YEAR);
+		cond.setCheck_confirm_time_start(period.getStartOfPeriod());
+		cond.setCheck_confirm_time_end(period.getEndOfPeriod());
+		regularDevices = crMapper.searchRegularyDeviceUncheckedOnPosition(cond);
+		if (!CommonStringUtil.isEmpty(regularDevices)) {
+			if (today.getTime() >= period.getExpireOfPeriod().getTime()) {
+				// 期限内锁定
+				retComments += "本工位有以下全期点检设备："+regularDevices+"在期限前未作点检，将限制工作。\n";
+			} else {
+				// 否则提醒
+				retComments += "本工位有以下全期点检设备："+regularDevices+"将到达点检期限("+
+						DateUtil.toString(period.getExpireOfPeriod(), DateUtil.ISO_DATE_PATTERN)+")，请尽快进行点检。\n";
+			}
+		}
+
+		// TODO 日期，线长确认
 
 		return retComments;
 	}

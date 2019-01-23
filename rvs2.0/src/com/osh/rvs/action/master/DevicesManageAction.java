@@ -129,7 +129,15 @@ public class DevicesManageAction extends BaseAction {
 		// 设备工具管理详细数据
 		List<DevicesManageForm> devicesManageForms = service.searchDevicesManage(form, conn, errors);
 
-		
+		String accessPlace = request.getParameter("access_place");
+		if ("1".equals(accessPlace)) {
+			List<String> ls = new ArrayList<String>();
+			for (DevicesManageForm devicesManageForm : devicesManageForms) {
+				ls.add(devicesManageForm.getManage_code());
+			}
+			listResponse.put("manageCodes", ls);
+		}
+
 		// 获取当前时间
 		Calendar calendar = Calendar.getInstance();
 		String current_date = DateUtil.toString(calendar.getTime(), "yyyy/MM/dd");

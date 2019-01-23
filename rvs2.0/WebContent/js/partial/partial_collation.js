@@ -329,7 +329,7 @@ function doBreak(){
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doBreak',
 		cache : false,
 		data : data,
@@ -359,7 +359,7 @@ function doFinish(){
 	 
 	 $.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : data,
@@ -593,7 +593,7 @@ function chooseKind(parentDialog){
 								}else{
 									$.ajax({
 										beforeSend : ajaxRequestType,
-										async : true,
+										async : false,
 										url : 'fact_production_feature.do?method=doStart',
 										cache : false,
 										data : data,

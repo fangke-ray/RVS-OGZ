@@ -593,7 +593,7 @@ var treatStart = function(resInfo) {
 		}
 	});
 
-	if (resInfo.quality_tip || resInfo.material_comment || device_safety_guide) {
+	if (resInfo.quality_tip || resInfo.material_comment || (device_safety_guide && device_safety_guide.length)) {
 		showTips(resInfo.quality_tip, resInfo.material_comment);
 	} else {
 		$("#comments_dialog").hide();
@@ -740,7 +740,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			} else if (resInfo.workstauts == 3) {
 				showPartialRecept(resInfo);
 			} else {
-				if (device_safety_guide) {
+				if (device_safety_guide && device_safety_guide.length) {
 					showTips(null, null);
 				} else {
 					$("#comments_dialog").hide();

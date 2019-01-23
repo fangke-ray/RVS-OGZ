@@ -163,7 +163,7 @@
 		<!-- value code="6">中断(先端)</value -->
 		<value code="7">投线延迟</value>
 		<!-- value code="8">零件签收异常</value -->
-		<!-- value code="9">点检不合格</value -->
+		<value code="9">点检不合格</value>
 	</codelist>
 
 	<codelist name="pause_reason">
@@ -621,7 +621,7 @@
 	<codelist name="system_image_type">
 		<value code="pcs">工程检查票内图</value>
 		<value code="sign">员工姓名章</value>
-		<!--value code="tcs">点检单内图</value-->
+		<value code="tcs">点检单内图</value>
 	</codelist>
 
 	<codelist name="pcs_request_change_mean">
@@ -708,31 +708,6 @@
 		<value code="3">入库完成</value>
 	</codelist>
 
-	<codelist name="specialized_device_type">
-		<value code="1">电烙铁工具</value>
-		<value code="2">力矩工具</value>
-		<value code="3">消毒设备</value>
-		<value code="4">灭菌设备</value>
-		<value code="5">烘干设备</value>
-	</codelist>
-
-	<codelist name="device_hazardous_classification">
-		<value code="1">机械</value>
-		<value code="2">电气</value>
-		<value code="3">温度</value>
-		<value code="4">压力</value>
-		<value code="5">噪声	</value>
-		<value code="6">振动</value>
-		<value code="7">辐射</value>
-		<value code="8">物质</value>
-	</codelist>
-
-	<codelist name="brand_business_relationship">
-		<value code="1">制造商</value>
-		<value code="2">经销商</value>
-		<value code="3">维修商</value>
-	</codelist>
-
 	<codelist name="drying_oven_setting_temperature">
 		<value code="3">干燥灯</value>
 		<value code="4">干燥炉</value>
@@ -775,6 +750,31 @@
 		<value code="84">85</value>
 		<value code="85">90</value>
 		<value code="130">135</value>
+	</codelist>
+
+	<codelist name="specialized_device_type">
+		<value code="1">电烙铁工具</value>
+		<value code="2">力矩工具</value>
+		<value code="3">消毒设备</value>
+		<value code="4">灭菌设备</value>
+		<value code="5">烘干设备</value>
+	</codelist>
+
+	<codelist name="device_hazardous_classification">
+		<value code="1">机械</value>
+		<value code="2">电气</value>
+		<value code="3">温度</value>
+		<value code="4">压力</value>
+		<value code="5">噪声	</value>
+		<value code="6">振动</value>
+		<value code="7">辐射</value>
+		<value code="8">物质</value>
+	</codelist>
+
+	<codelist name="brand_business_relationship">
+		<value code="1">制造商</value>
+		<value code="2">经销商</value>
+		<value code="3">维修商</value>
 	</codelist>
 
 </codelist-config>

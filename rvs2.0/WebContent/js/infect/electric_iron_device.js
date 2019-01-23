@@ -134,10 +134,6 @@ var add = function(){
 			manage_id:{
 			   required:true
 		   },
-		   seq:{
-			   required:true,
-			   digits:true
-		   },
 		   kind:{
 			   required:true
 		   },
@@ -158,7 +154,7 @@ var add = function(){
 		var data={
 				"manage_id":$("#hidden_add_devices_manage_id").val(),
 				"manage_code":$("#add_manage_code").val(),
-				"seq":$("#add_seq").val(),
+				"seq":$("#hidden_label_seq").val(),
 				"temperature_lower_limit":$("#add_temperature_lower_limit").val(),
 				"temperature_upper_limit":$("#add_temperature_upper_limit").val(),
 				"kind":$("#add_kind").val()
@@ -255,7 +251,7 @@ function electric_iron_device_list(listdata){
 			/*新建清空--start*/
 			$("#add_manage_code").val(""),
 			$("#hidden_add_devices_manage_id").val(""),
-			$("#add_seq").val(""),
+			$("#hidden_label_seq").val("01");
 			$("#add_temperature_lower_limit").val(""),
 			$("#add_temperature_upper_limit").val(""),
 			$("#add_kind").val("").trigger("change");

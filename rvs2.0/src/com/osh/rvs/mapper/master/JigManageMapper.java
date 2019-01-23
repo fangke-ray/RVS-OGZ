@@ -11,6 +11,9 @@ public interface JigManageMapper {
 	public List<JigManageEntity> searchJigManage(
 			JigManageEntity toolsManageEntity);
 
+	/*治具分布详细数据*/
+	public List<JigManageEntity> searchJigDistribute(JigManageEntity toolsDistributeEntity);
+
 	/* 修改治具管理详细 */
 	public void updateJigManage(JigManageEntity toolsManageEntity);
 

@@ -261,7 +261,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										if("manage".equals(role)){//经理 未选择无影响
 									%>
 									<tr class="manage_not_handle" style="display:none;">
-										<td class="ui-state-default td-title">设备对处</td>
+										<td class="ui-state-default td-title">设备对处建议</td>
 										<td class="td-content" colspan="5">
 											<select id="edit_object_handle">${goObjectHandle }</select>
 										</td>

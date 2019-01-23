@@ -777,15 +777,15 @@ var printTicket=function(addan) {
 	}
 	// Ajax提交
 	$.ajax({
-		beforeSend: ajaxRequestType, 
-		async: false, 
-		url: 'material.do?method=printTicket', 
-		cache: false, 
-		data: data, 
-		type: "post", 
-		dataType: "json", 
-		success: ajaxSuccessCheck, 
-		error: ajaxError, 
+		beforeSend: ajaxRequestType,
+		async: false,
+		url: 'material.do?method=printTicket',
+		cache: false,
+		data: data,
+		type: "post",
+		dataType: "json",
+		success: ajaxSuccessCheck,
+		error: ajaxError,
 		complete:  function(xhrobj, textStatus){
 			var resInfo = null;
 

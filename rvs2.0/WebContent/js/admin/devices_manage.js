@@ -1,5 +1,6 @@
 var servicePath="devices_manage.do";
-var list={};
+var deliver_list={};
+var manage_code_list={};
 $(function(){
 	$("#body-mdl span.ui-icon,#listarea span.ui-icon").bind("click",function() {
 		$(this).toggleClass('ui-icon-circle-triangle-n').toggleClass('ui-icon-circle-triangle-s');
@@ -117,7 +118,7 @@ $(function(){
        search_operator(data);
     });*/
     //初始化
-    findit();
+    findit(1);
     //移除(不选)选项
     $("#s2b_update_section_id").find("li:eq(0)").remove();
     $("#replacebutton").disable();
@@ -138,28 +139,98 @@ var more_update = function(){
 	var rowids = $('#deliver_list').jqGrid('getGridParam','selarrrow');
 	var length = rowids.length;
 	var data = {
-			"section_id":$("#to_section_name").val(),
-			"line_id":$("#to_line_name").val(),
-			"position_id":$("#hidden_to_position_id").val(),
-			"manager_operator_id":$("#hidden_to_manager_operator_id").val(),
-			
-			"compare_section_id":$("#deliver_section_name").data("post")==$("#to_section_name").val(),
-			"compare_line_id":$("#deliver_line_name").data("post")==$("#to_line_name").val(),
-			"compare_position_id":$("#hidden_deliver_position_id").data("post")==$("#hidden_to_position_id").val(),
-			"compare_manager_operator_id":$("#hidden_deliver_manager_operator_id").data("post")==$("#hidden_to_manager_operator_id").val()
+		"section_id":$("#to_section_name").val(),
+		"line_id":$("#to_line_name").val(),
+		"position_id":$("#hidden_to_position_id").val(),
+		"manager_operator_id":$("#hidden_to_manager_operator_id").val(),
+		
+		"compare_section_id":$("#deliver_section_name").data("post")==$("#to_section_name").val(),
+		"compare_line_id":$("#deliver_line_name").data("post")==$("#to_line_name").val(),
+		"compare_position_id":$("#hidden_deliver_position_id").data("post")==$("#hidden_to_position_id").val(),
+		"compare_manager_operator_id":$("#hidden_deliver_manager_operator_id").data("post")==$("#hidden_to_manager_operator_id").val()
 	};
-	
+
+	var sortManageIds = [];
+	var sortManageCodes = [];
 	//批量交付-全选
 	if($("#cb_deliver_list").attr("checked")=="checked"){
-		for(var i=0;i<list.length;i++){
-			data["keys.devices_manage_id[" + i + "]"] = list[i].devices_manage_id;
+		for(var i=0;i<deliver_list.length;i++){
+			sortManageIds.push(deliver_list[i].devices_manage_id);
+			sortManageCodes.push(deliver_list[i].manage_code);
 		}
 	}else{
 		for (var i in rowids) {
 			var rowData = $("#deliver_list").getRowData(rowids[i]);
-			data["keys.devices_manage_id[" + i + "]"] = rowData["devices_manage_id"];
+			sortManageIds.push(rowData["devices_manage_id"]);
+			sortManageCodes.push(rowData["manage_code"]);
 		}
 	}
+
+	if (sortManageIds.length == 0) {
+		return;
+	}
+
+	var $changeManageCode = $("#change_manage_code");
+	if ($changeManageCode.length == 0) {
+		$("body").append("<div id='change_manage_code'/>");
+		$changeManageCode = $("#change_manage_code");
+	}
+
+	var tChangeManageCode = "<div style='max-height:480px;'><table class='condform'><tr><th>原管理编号</th><th>新管理编号(不变更无需填)</th></tr>";
+	for (var i in sortManageIds) {
+		tChangeManageCode += "<tr><td dm_id='" + sortManageIds[i] + "'>" + sortManageCodes[i] + "</td><td><input type='text' class='change_mc'></td></tr>"
+	}
+	tChangeManageCode += "</table></div>"
+	$changeManageCode.html(tChangeManageCode);
+	$changeManageCode.on("change", ".change_mc", function(){
+		var thisValue = this.value;
+		var orgValue = $(this).parent().prev().text();
+		if (thisValue == orgValue) return;
+
+		var dupli = false;
+		for (var i in manage_code_list) {
+			if (manage_code_list[i] == thisValue) {
+				dupli = true;
+				break;
+			}
+		}
+
+		if (dupli) {
+			$(this).attr("title", "与现有使用中重复");
+		} else {
+			$(this).removeAttr("title");
+		}
+	})
+
+	$changeManageCode.dialog({
+		position : 'center',
+		title : "管理编号调整",
+		width : 240,
+		height : 'auto',
+		resizable : false,
+		modal : true,
+		buttons : {
+			"实行交付":function() {
+				var i = 0;
+				$changeManageCode.find("table td[dm_id]").each(function(){
+					data["keys.devices_manage_id[" + i + "]"] = $(this).attr("dm_id");
+					var new_manage_code = $(this).next().children("input").val();
+					if (new_manage_code && new_manage_code != $(this).text()) {
+						data["keys.manage_code[" + i + "]"] = new_manage_code;
+					}
+					i++;
+				});
+				$changeManageCode.dialog('close');
+				dodeliver(data);
+			},
+			"关闭":function(){
+				$changeManageCode.dialog('close');
+			}
+		}
+	});
+}
+
+var dodeliver = function(data){
 
 	$.ajax({
         beforeSend : ajaxRequestType,
@@ -369,7 +440,7 @@ var deliver_filed_list = function(listdata){
             }
         });
     }
-    list=listdata;
+    deliver_list=listdata;
 }
 
 /*判断替换新品enable、disable(当选择了一行之后是enable；否则是disable)*/
@@ -615,20 +686,23 @@ var searchOperator_handleComplete = function(xhrobj, textStatus) {
 }*/
 
 var findit = function(arg) {
-      var data = {
-            "manage_code":$("#search_manage_code").val(),
-            //"name":$("#search_name").val(),
-            "devices_type_id":$("#hidden_search_name").val(),
-            "model_name":$("#search_model_name").val(),
-            "section_id":$("#search_section_id").val(),
-            "line_id":$("#search_line_id").val(),            
-            "manage_level":$("#search_manage_level").val(),
-			"asset_no":$("#search_asset_no").val(),
-            "manager_operator_id":$("#hidden_search_manager_operator_id").val(),
-            "brand_id":$("#hidden_search_brand_id").val(),
-            "status":$("#search_status").val() && $("#search_status").val().toString(),//默认是选择使用中和保管中
-            "position_id":$("#hidden_search_position_id").val()
-        };
+    var data = {
+        "manage_code":$("#search_manage_code").val(),
+        //"name":$("#search_name").val(),
+        "devices_type_id":$("#hidden_search_name").val(),
+        "model_name":$("#search_model_name").val(),
+        "section_id":$("#search_section_id").val(),
+        "line_id":$("#search_line_id").val(),            
+        "manage_level":$("#search_manage_level").val(),
+		"asset_no":$("#search_asset_no").val(),
+        "manager_operator_id":$("#hidden_search_manager_operator_id").val(),
+        "brand_id":$("#hidden_search_brand_id").val(),
+        "status":$("#search_status").val() && $("#search_status").val().toString(),//默认是选择使用中和保管中
+        "position_id":$("#hidden_search_position_id").val()
+    };
+    if (arg) {
+    	data.access_place = 1;
+    }
     // Ajax提交
     $.ajax({
         beforeSend : ajaxRequestType,
@@ -657,6 +731,9 @@ var search_handleComplete = function(xhrobj, textStatus) {
         	 $("#hidden_import_date").val(resInfo.current_date);
             var listdata = resInfo.devicesManageForms;
             filed_list(listdata);
+            if (resInfo.manageCodes) {
+            	manage_code_list = resInfo.manageCodes;
+            }
         }
     }catch (e) {};
 }

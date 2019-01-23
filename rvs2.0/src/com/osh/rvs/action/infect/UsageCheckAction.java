@@ -199,11 +199,13 @@ public class UsageCheckAction extends BaseAction {
 		} else {
 			// 设备工具
 			String check_file_manage_id = request.getParameter("check_file_manage_id");
-			if ("00000000098".equals(check_file_manage_id)) {
+			if ("00000000105".equals(check_file_manage_id) || "00000000106".equals(check_file_manage_id) ||
+					"00000000107".equals(check_file_manage_id) || "00000000108".equals(check_file_manage_id) || "00000000109".equals(check_file_manage_id) ||
+					"00000000110".equals(check_file_manage_id) || "00000000111".equals(check_file_manage_id) || "00000000112".equals(check_file_manage_id)) {
 				// 力矩工具
 				content = service.getTorsionDeviceCheckSheet(request.getParameter("section_id"), request.getParameter("position_id"),
 						check_file_manage_id, loginData.getOperator_id(), isLeader > 0, adjustDate, conn);
-			} else if ("00000000053".equals(check_file_manage_id)) {
+			} else if ("00000000100".equals(check_file_manage_id) || "00000000101".equals(check_file_manage_id) || "00000000102".equals(check_file_manage_id)) {
 				// 电烙铁工具
 				content = service.getElectricIronDeviceCheckSheet(request.getParameter("section_id"), request.getParameter("position_id"),
 						check_file_manage_id, loginData.getOperator_id(), isLeader > 0, adjustDate, conn);

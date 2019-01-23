@@ -23,6 +23,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.form.master.DevicesManageForm;
 import com.osh.rvs.form.master.DevicesTypeForm;
+import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 
@@ -62,6 +63,31 @@ public class DevicesManageService {
 	}
 
 	/**
+	 * 设备工具分布一览
+	 * @param form
+	 * @param conn
+	 * @return
+	 */
+	public List<DevicesManageForm> searchDistribute(ActionForm form, SqlSession conn) {
+		DevicesManageEntity entity = new DevicesManageEntity();
+		// 复制表单数据到对象
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		DevicesManageMapper dao = conn.getMapper(DevicesManageMapper.class);
+		List<DevicesManageEntity> list = dao.searchDistribute(entity);
+
+		List<DevicesManageForm> returnFormList = new ArrayList<DevicesManageForm>();
+
+		if (list != null && list.size() > 0) {
+			// 复制数据到表单
+			BeanUtil.copyToFormList(list, returnFormList, CopyOptions.COPYOPTIONS_NOEMPTY, DevicesManageForm.class);
+			return returnFormList;
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	 * 修改设备管理详细
 	 * 
 	 * @param form
@@ -76,6 +102,7 @@ public class DevicesManageService {
 		Calendar calendar = Calendar.getInstance();
 
 		//状态选择使用中,有发放日期+发放时间
+		int event = 0;
 		String provide_date = "";
 		//修改后的状态是使用中;如果选择后的状态是保管中，发放者和发放者变成空
 		if ("false".equals(compare_status)) {
@@ -83,11 +110,12 @@ public class DevicesManageService {
 				provide_date = DateUtil.toString(calendar.getTime(), "yyyy/MM/dd");
 				devicesManageForm.setWaste_date(null);
 				devicesManageForm.setProvide_date(provide_date);
+				event = 1;
 			}else if("4".equals(devicesManageForm.getStatus())){
 				provide_date="";
 				devicesManageForm.setWaste_date(null);
 				devicesManageForm.setProvide_date(provide_date);
-			}			
+			}
 		}
 		
 		//如果状态是废弃或者遗失--必须填写废弃日期
@@ -99,6 +127,8 @@ public class DevicesManageService {
 				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "废弃日期",
 						devicesManageForm.getWaste_date(), "废弃日期"));
 				errors.add(error);
+			} else {
+				event = 2;
 			}
 		}
 		
@@ -108,6 +138,44 @@ public class DevicesManageService {
 		devicesManageEntity.setUpdated_by(user.getOperator_id());
 
 		if(errors.size()==0){
+			DevicesManageEntity oldEntity = dao.getByKey(devicesManageEntity.getDevices_manage_id());
+			String sOldManageCode = oldEntity.getManage_code();
+			String sNewManageCode = devicesManageEntity.getManage_code();
+			String sOldPosition = oldEntity.getPosition_id();
+			String sNewPosition = devicesManageEntity.getPosition_id();
+			if (event == 0) {
+				if (CommonStringUtil.isEmpty(sOldManageCode)) {
+					if (!CommonStringUtil.isEmpty(sNewManageCode)) {
+						event = 3;
+					}
+				} else if (!sOldManageCode.equals(sNewManageCode)) {
+					event = 3;
+				}
+			}
+			if (event == 0) {
+				if (CommonStringUtil.isEmpty(sOldPosition)) {
+					if (!CommonStringUtil.isEmpty(sNewPosition)) {
+						event = 3;
+					}
+				} else if (!sOldPosition.equals(sNewPosition)) {
+					event = 3;
+				}
+			}
+
+			// 登记设备管理变更记录
+			if (event != 0) {
+				DevicesManageEntity dme = new DevicesManageEntity();
+				dme.setDevices_manage_id(devicesManageEntity.getDevices_manage_id());
+				dme.setOld_manage_code(sOldManageCode);
+				dme.setManage_code(sNewManageCode);
+				dme.setOld_position_id(sOldPosition);
+				dme.setPosition_id(sNewPosition);
+				dme.setUpdated_by(devicesManageEntity.getUpdated_by());
+				dme.setEvent(event);
+
+				// 登记设备管理变更记录
+				dao.insertDeviceManageRecord(dme);
+			}
 			dao.updateDevicesManage(devicesManageEntity);
 		}
 	}
@@ -124,11 +192,14 @@ public class DevicesManageService {
 		DevicesManageMapper dao = conn.getMapper(DevicesManageMapper.class);
 		DevicesManageEntity devicesManageEntity = new DevicesManageEntity();
 
+		int event = 0;
+
 		Calendar calendar = Calendar.getInstance();
 		//状态选择使用中,有发放日期+发放时间
 		String provide_date = "";
 		if ("1".equals(devicesManageForm.getStatus())) {
 			provide_date = DateUtil.toString(calendar.getTime(), "yyyy/MM/dd");
+			event = 1;
 		}
 		devicesManageForm.setProvide_date(provide_date);
 
@@ -142,6 +213,8 @@ public class DevicesManageService {
 						devicesManageForm.getWaste_date(), "废弃日期"));
 				errors.add(error);
 				return;
+			} else {
+				event = 2;
 			}
 		}
 		
@@ -151,6 +224,23 @@ public class DevicesManageService {
 		devicesManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.insertDevicesManage(devicesManageEntity);
+
+		// 登记设备管理变更记录
+		if (event != 0) {
+			CommonMapper cm = conn.getMapper(CommonMapper.class);
+			String lastInsertID = cm.getLastInsertID();
+
+			DevicesManageEntity dme = new DevicesManageEntity();
+			dme.setDevices_manage_id(lastInsertID);
+			dme.setOld_manage_code(null);
+			dme.setManage_code(devicesManageEntity.getManage_code());
+			dme.setOld_position_id(null);
+			dme.setPosition_id(devicesManageEntity.getPosition_id());
+			dme.setUpdated_by(devicesManageEntity.getUpdated_by());
+			dme.setEvent(event);
+
+			dao.insertDeviceManageRecord(dme);
+		}
 	}
 
 	/* 验证管理编号不能重复 */
@@ -270,7 +360,7 @@ public class DevicesManageService {
 		int privacy_id = RvsConsts.PRIVACY_DT_MANAGE;// 设备管理
 		List<OperatorNamedEntity> list = dao.getOperatorWithPrivacy(privacy_id);
 
-		lst = OperatorService.getSetReferChooser(list, false);
+		lst = OperatorService.getSetReferChooser(list, true);
 
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 		return pReferChooser;
@@ -316,13 +406,11 @@ public class DevicesManageService {
 	//批量交付
 	public void deliverDevicesManage(DevicesManageForm devicesManageForm,SqlSessionManager conn, HttpSession session, List<MsgInfo> errors,HttpServletRequest request) {
 		DevicesManageMapper dao = conn.getMapper(DevicesManageMapper.class);
-		DevicesManageEntity conditionEntity= new DevicesManageEntity();
 		
-		BeanUtil.copyToBean(devicesManageForm, conditionEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 		// 当前操作者ID
 		LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);
 		//多选--key
-		List<String> keys = this.getPostKeys(request.getParameterMap());
+		List<DevicesManageEntity> keys = this.getPostKeys(request.getParameterMap());
 		MsgInfo error = new MsgInfo();
 		if (keys.size()>0) {
 			//判断交付条件是否改
@@ -331,13 +419,49 @@ public class DevicesManageService {
 				error.setErrmsg("交付条件未改变");
 				errors.add(error);
 			}else{
-				for(String devicesManageId :keys){
-					conditionEntity.setDevices_manage_id(devicesManageId);
+				for(DevicesManageEntity conditionEntity : keys){
+
+					boolean isChanged = !CommonStringUtil.isEmpty(conditionEntity.getManage_code());
+					if (!"true".equals(devicesManageForm.getCompare_section_id())) {
+						conditionEntity.setSection_id(devicesManageForm.getSection_id());
+						isChanged = true;
+					}
+					if (!"true".equals(devicesManageForm.getCompare_line_id())) {
+						conditionEntity.setLine_id(devicesManageForm.getLine_id());
+						isChanged = true;
+					}
+					if (!"true".equals(devicesManageForm.getCompare_position_id())) {
+						conditionEntity.setPosition_id(devicesManageForm.getPosition_id());
+						isChanged = true;
+					}
+					if (!"true".equals(devicesManageForm.getCompare_manager_operator_id())) {
+						conditionEntity.setManager_operator_id(devicesManageForm.getManager_operator_id());
+					}
+
 					conditionEntity.setUpdated_by(user.getOperator_id());
+
+					// 登记设备管理变更记录
+					if (isChanged) {
+						DevicesManageEntity oldEntity = dao.getByKey(conditionEntity.getDevices_manage_id());
+						String sOldManageCode = oldEntity.getManage_code();
+						String sOldPosition = oldEntity.getPosition_id();
+
+						DevicesManageEntity dme = new DevicesManageEntity();
+						dme.setDevices_manage_id(conditionEntity.getDevices_manage_id());
+						dme.setOld_manage_code(sOldManageCode);
+						dme.setManage_code(conditionEntity.getManage_code());
+						dme.setOld_position_id(sOldPosition);
+						dme.setPosition_id(devicesManageForm.getPosition_id());
+						dme.setUpdated_by(user.getOperator_id());
+						dme.setEvent(3);
+
+						dao.insertDeviceManageRecord(dme);
+					}
+
 					dao.deliverDevicesManage(conditionEntity);
 				}
 			}
-			
+
 		} else {
 			error.setComponentid("devices_manage_id");
 			error.setErrcode("validator.required.multidetail");
@@ -348,9 +472,9 @@ public class DevicesManageService {
 	}
 	
 	// 获取被选择的多个设备
-	public List<String> getPostKeys(Map<String, String[]> parameters) {
+	public List<DevicesManageEntity> getPostKeys(Map<String, String[]> parameters) {
 
-		List<String> keys = new AutofillArrayList<String>(String.class);
+		List<DevicesManageEntity> keyWithNewCodes = new AutofillArrayList<DevicesManageEntity>(DevicesManageEntity.class);
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 
 		// 整理提交数据
@@ -364,13 +488,15 @@ public class DevicesManageService {
 					String[] value = parameters.get(parameterKey);
 
 					if ("devices_manage_id".equals(column)) {
-						keys.set(icounts, value[0]);
+						keyWithNewCodes.get(icounts).setDevices_manage_id(value[0]);
+					} else if ("manage_code".equals(column)) {
+						keyWithNewCodes.get(icounts).setManage_code(value[0]);
 					}
 				}
 			}
 		}
 
-		return keys;
+		return keyWithNewCodes;
 	}
 
 	/**
@@ -386,18 +512,37 @@ public class DevicesManageService {
 		DevicesManageEntity devicesManageEntity = new DevicesManageEntity();
 		BeanUtil.copyToBean(devicesManageForm, devicesManageEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
+		int event = 0;
+
 		Calendar calendar = Calendar.getInstance();
 		//状态选择使用中,发放日期是当前时间
-		if ("false".equals(compare_status) && "1".equals(devicesManageForm.getStatus())) {//新品   状态:使用中
+		if ("1".equals(devicesManageForm.getStatus())) {//新品   状态:使用中
 			String provide_date = DateUtil.toString(calendar.getTime(), "yyyy/MM/dd");//放时间设成当前时间
 			devicesManageEntity.setProvide_date(DateUtil.toDate(provide_date, DateUtil.DATE_PATTERN));
+			event = 1;
 		}
 		
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		devicesManageEntity.setUpdated_by(user.getOperator_id());//发放者是登录人
 
 		dao.replaceDevicesManage(devicesManageEntity);
-		
+
+		// 登记设备管理变更记录
+		if (event != 0) {
+			CommonMapper cm = conn.getMapper(CommonMapper.class);
+			String lastInsertID = cm.getLastInsertID();
+
+			DevicesManageEntity dme = new DevicesManageEntity();
+			dme.setDevices_manage_id(lastInsertID);
+			dme.setOld_manage_code(old_manage_code);
+			dme.setManage_code(devicesManageEntity.getManage_code());
+			dme.setOld_position_id(null);
+			dme.setPosition_id(devicesManageEntity.getPosition_id());
+			dme.setUpdated_by(devicesManageEntity.getUpdated_by());
+			dme.setEvent(event);
+
+			dao.insertDeviceManageRecord(dme);
+		}
 		//同时废弃掉旧品--选择是(1)--则进行废弃旧品操作
 		
 		devicesManageEntity = new DevicesManageEntity();

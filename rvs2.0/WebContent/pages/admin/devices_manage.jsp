@@ -32,6 +32,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	.referchooser table tr td:first-child{
 		display:none;
 	}
+	.change_mc[title] {
+		background-color : #D8E272;
+	}
 	</style>
 <title>设备工具管理</title>
 </head>
@@ -143,6 +146,196 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<input type="hidden" id="hidden_goManage_level" value="${goManageLevel}">
 		<input type="hidden" id="hidden_goStatus" value="${goStatus}">
 	</div>
+
+<style>
+.xl75
+	{mso-style-parent:style62;
+	color:black;
+	font-size:9.0pt;
+	text-align:center;
+	border:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl76
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:center;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:1.0pt solid black;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl77
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:center;
+	border-top:1.0pt solid black;
+	border-right:1.0pt solid black;
+	border-bottom:1.0pt solid black;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl78
+	{mso-style-parent:style62;
+	color:black;
+	font-size:9.0pt;
+	text-align:center;
+	vertical-align:top;
+	border-top:none;
+	border-right:1.0pt solid black;
+	border-bottom:1.0pt solid black;
+	border-left:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl79
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:1.0pt solid black;
+	border-left:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl80
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:1.0pt solid black;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl81
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:1.0pt solid black;
+	border-bottom:1.0pt solid black;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl82
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:none;
+	border-left:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl83
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl84
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:top;
+	border-top:1.0pt solid black;
+	border-right:1.0pt solid black;
+	border-bottom:none;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl91
+	{mso-style-parent:style62;
+	color:black;
+	font-size:9.0pt;
+	text-align:center;
+	vertical-align:top;
+	border-top:none;
+	border-right:1.0pt solid black;
+	border-bottom:none;
+	border-left:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl92
+	{mso-style-parent:style62;
+	color:black;
+	font-size:10.0pt;
+	text-align:center;
+	border-top:1.0pt solid black;
+	border-right:none;
+	border-bottom:1.0pt solid black;
+	border-left:1.0pt solid black;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	white-space:normal;}
+</style>
+<table style="border-collapse:
+ collapse;table-layout:fixed;width:648pt;background-color:#FFFFFF" width="864" cellspacing="0" cellpadding="0" border="0">
+ <colgroup><col style="mso-width-source:userset;mso-width-alt:2304;
+ width:54pt" span="12" width="72">
+ </colgroup><tbody><tr style="height:14.25pt" height="19">
+  <td class="xl75" style="height:14.25pt;width:54pt" width="72" height="19">管理水平</td>
+  <td colspan="7" class="xl92" style="border-right:1.0pt solid black;
+  border-left:none;width:378pt" width="504">点检及记录</td>
+  <td class="xl76" style="width:54pt" width="72">标<span style="mso-spacerun:yes">&nbsp; </span>准</td>
+  <td class="xl76" style="width:54pt" width="72">　</td>
+  <td class="xl76" style="width:54pt" width="72">　</td>
+  <td class="xl77" style="width:54pt" width="72">　</td>
+ </tr>
+ <tr style="height:13.5pt" height="18">
+  <td rowspan="3" class="xl91" style="border-bottom:1.0pt solid black;
+  height:41.25pt;width:54pt" width="72" height="55">A</td>
+  <td colspan="7" rowspan="3" class="xl82" style="border-right:1.0pt solid black;
+  border-bottom:1.0pt solid black;width:378pt" width="504">进行点检/校验并保存记录。</td>
+  <td colspan="4" class="xl82" style="border-right:1.0pt solid black;
+  border-left:none;width:216pt" width="288">①直接影响产品品质的工程 (影响品质的工程) 所使用的机器</td>
+ </tr>
+ <tr style="height:13.5pt" height="18">
+  <td colspan="4" class="xl85" style="border-right:1.0pt solid black;
+  height:13.5pt;border-left:none;width:216pt" width="288" height="18">②机器发生故障，性能老化时可能会影响修理品的品质的机器</td>
+ </tr>
+ <tr style="height:14.25pt" height="19">
+  <td colspan="4" class="xl88" style="border-right:1.0pt solid black;
+  height:14.25pt;border-left:none;width:216pt" width="288" height="19">③支援G所指示的机器</td>
+ </tr>
+ <tr style="height:14.25pt" height="19">
+  <td class="xl78" style="height:14.25pt;width:54pt" width="72" height="19">B</td>
+  <td colspan="7" class="xl79" style="border-right:1.0pt solid black;
+  border-left:none;width:378pt" width="504">使用前进行变形及操作时异声的点检。不保存记录。</td>
+  <td colspan="4" class="xl79" style="border-right:1.0pt solid black;
+  border-left:none;width:216pt" width="288">①上述以外的机器</td>
+ </tr>
+</tbody></table>
+
 	<div class="clear"></div>
 </div>
 <!--检索结束-->

@@ -24,7 +24,7 @@
 			    `device_check_result`
 			WHERE manage_id = #{manage_id}
 				AND check_file_manage_id = #{check_file_manage_id}
-				AND date(`check_confirm_time`) = current_date
+				AND `check_confirm_time` between current_date and DATE_ADD(current_date,INTERVAL 1 DAY)
 			group by 
 			    `manage_id`,
 			    `check_file_manage_id`,
@@ -34,42 +34,10 @@
 			AND dcr.check_file_manage_id = mcct.check_file_manage_id
 			AND dcr.item_seq = mcct.item_seq
 			AND dcr.check_confirm_time = mcct.check_confirm_time
-			;
-		]]>
-	</select>	
-
-    <select id="getCapacyBeforeUseCheck" resultType="CheckResultEntity">
-		<![CDATA[ 
-			SELECT 
-			    dcr.`manage_id`,
-			    dcr.`check_file_manage_id`,
-			    dcr.`item_seq`,
-			    `operator_id`,
-			    dcr.`check_confirm_time`,
-			    `digit`,
-			    `checked_status`
-			FROM
-			    `device_check_result` dcr
-			JOIN (
-			SELECT 
-			    `manage_id`,
-			    `check_file_manage_id`,
-			    `item_seq`,
-			    max(`check_confirm_time`) as `check_confirm_time`
-			FROM
-			    `device_check_result`
-			WHERE manage_id = #{manage_id}
-				AND check_file_manage_id = #{check_file_manage_id}
-				AND date(`check_confirm_time`) = current_date
-			group by 
-			    `manage_id`,
-			    `check_file_manage_id`,
-			    `item_seq`
-			) mcct
-			ON dcr.manage_id = mcct.manage_id
-			AND dcr.check_file_manage_id = mcct.check_file_manage_id
-			AND dcr.item_seq = mcct.item_seq
-			AND dcr.check_confirm_time = mcct.check_confirm_time
+			JOIN `devices_check_item` dcm
+			ON dcr.check_file_manage_id = dcm.check_file_manage_id
+			AND dcr.item_seq = dcm.seq_no
+			AND dcm.trigger_state = 1
 			;
 		]]>
 	</select>	
@@ -98,7 +66,8 @@
 			    ON dcr.manage_id = dm.devices_manage_id
 			WHERE dm.section_id = #{section_id} AND dm.position_id = #{position_id}
 				AND check_file_manage_id = #{check_file_manage_id}
-				AND date(`check_confirm_time`) between #{check_confirm_time_start} and #{check_confirm_time_end}
+				AND `check_confirm_time` between #{check_confirm_time_start} and #{check_confirm_time_end}
+				AND manage_level = 1
 			group by 
 			    `manage_id`,
 			    `check_file_manage_id`,
@@ -126,7 +95,7 @@
 			    `device_check_result` dcr
 			JOIN (
 			SELECT 
-			    `manage_id`,
+			    dm.devices_manage_id as `manage_id`,
 			    `check_file_manage_id`,
 			    `item_seq`,
 			    max(`check_confirm_time`) as `check_confirm_time`
@@ -136,7 +105,8 @@
 			    ON dcr.manage_id = dm.devices_manage_id
 			WHERE dm.section_id = #{section_id} AND dm.position_id = #{position_id}
 				AND check_file_manage_id = #{check_file_manage_id}
-				AND date(`check_confirm_time`) = current_date
+				AND  `check_confirm_time` between current_date and DATE_ADD(current_date,INTERVAL 1 DAY)
+				AND manage_level = 1
 			group by 
 			    `manage_id`,
 			    `check_file_manage_id`,
@@ -172,7 +142,7 @@
 			    `device_check_result`
 			WHERE manage_id = #{manage_id}
 				AND check_file_manage_id = #{check_file_manage_id}
-				AND date(`check_confirm_time`) between #{check_confirm_time_start} and #{check_confirm_time_end}
+				AND `check_confirm_time` between #{check_confirm_time_start} and #{check_confirm_time_end}
 			group by 
 			    `manage_id`,
 			    `check_file_manage_id`,
@@ -182,6 +152,10 @@
 			AND dcr.check_file_manage_id = mcct.check_file_manage_id
 			AND dcr.item_seq = mcct.item_seq
 			AND dcr.check_confirm_time = mcct.check_confirm_time
+			JOIN `devices_check_item` dcm
+			ON dcr.check_file_manage_id = dcm.check_file_manage_id
+			AND dcr.item_seq = dcm.seq_no
+			AND dcm.trigger_state = #{cycle_type}
 			;
 		]]>
 	</select>
@@ -358,7 +332,9 @@
 		on dcr.check_file_manage_id = cfm.check_file_manage_id
 		join devices_manage dm
 		on dm.devices_manage_id = dcr.manage_id
-		join devices_check_item dci
+		join
+	    device_type dt ON dm.device_type_id = dt.device_type_id
+		LEFT join devices_check_item dci
 		on dci.check_file_manage_id = dcr.check_file_manage_id
 		and dcr.item_seq = dci.seq_no
 		where check_confirm_time > current_date
@@ -369,6 +345,7 @@
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
 		AND (dm.provide_date != current_date OR dm.provide_date is null)
+		AND (dci.seq_no is not null OR dt.specialized = 1)
 		and NOT EXISTS (SELECT 1 FROM check_unqualified_record cur 
 			where cur.manage_id = dm.devices_manage_id and cur.manage_id = 1
 			and repair_date_start <= current_date and (repair_date_end IS null or repair_date_end >= current_date))
@@ -377,20 +354,44 @@
 	</select>
 
 	<select id="searchRegularyDeviceUncheckedOnPosition"  parameterType="CheckResultEntity" resultType="String">
-		<![CDATA[ 
+		<![CDATA[
 		SELECT group_concat(distinct dm.manage_code) FROM device_check_result dcr
 		JOIN check_file_manage cfm
 		on dcr.check_file_manage_id = cfm.check_file_manage_id
 		join devices_manage dm
 		on dm.devices_manage_id = dcr.manage_id
+		]]>
+		<if test="cycle_type == 2">
+		LEFT 
+		</if>
+		<![CDATA[
 		join devices_check_item dci
 		on dci.check_file_manage_id = dcr.check_file_manage_id
 		and dcr.item_seq = dci.seq_no
+		]]>
+		<if test="cycle_type == 2">
+		<![CDATA[
+		join
+	    device_type dt ON dm.device_type_id = dt.device_type_id
+		LEFT join
+		    torsion_device td ON dm.devices_manage_id = td.manage_id
+        	AND dcr.item_seq = td.seq
+		]]>
+		</if>
+		<![CDATA[
 		where dcr.checked_status = 0
 		and cfm.access_place = 2
-		and cfm.cycle_type = #{cycle_type}
+		and dm.manage_level = 1
 		AND cfm.delete_flg = 0 AND dm.delete_flg = 0 AND dm.status = 1
 		and check_confirm_time between #{check_confirm_time_start} and #{check_confirm_time_end}
+		]]>
+		<if test="cycle_type == 2">
+		AND (dci.trigger_state = #{cycle_type} OR (dt.specialized = 2))
+		</if>
+		<if test="cycle_type != 2">
+		AND dci.trigger_state = #{cycle_type}
+		</if>
+		<![CDATA[
 		and dm.section_id = #{section_id}
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
@@ -432,7 +433,7 @@
 			dcr.check_file_manage_id = dci.check_file_manage_id
 			and dcr.item_seq = dci.seq_no
 		join (select 
-		            manage_id, item_seq, max(check_confirm_time) as check_confirm_time
+		            manage_id, item_seq, max(check_confirm_time) as check_confirm_time, checked_status
 		        from
 		            device_check_result
 		        where
@@ -443,13 +444,11 @@
 		        	check_file_manage_id = #{check_file_manage_id}
 		        and
 		            date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
-		        and
-		        	checked_status > 0
 		        ) dcras
 		ON dcr.manage_id = dcras.manage_id
 		AND dcr.item_seq = dcras.item_seq
 		AND dcr.check_confirm_time = dcras.check_confirm_time
-		join operator op
+		LEFT join operator op
 		on dcr.operator_id = op.operator_id
 	</select>
 
@@ -527,7 +526,14 @@
 		join operator op
 		on dmc.upper_confirmer_id = op.operator_id
 		where confirm_time between #{check_confirm_time_start} and date_add(#{check_confirm_time_end}, interval 1 day)
+		]]>
+		   <if test="manage_id!=null and manage_id!='' ">
 		and dmc.manage_id = #{manage_id}
+		   </if>
+		   <if test="position_id!=null and position_id!='' ">
+		and dmc.manage_id in (select devices_manage_id from devices_manage where position_id = #{position_id} and delete_flg = 0)
+		   </if>
+		<![CDATA[ 
 		and dmc.check_file_manage_id = #{check_file_manage_id}
 		order by confirm_time desc;
 		]]>
@@ -574,7 +580,7 @@
 			dcr.manage_id, dcr.checked_status, dcr.check_confirm_time, dcr.item_seq, dcr.digit, op.job_no
 		from
 			device_check_result dcr
-		join electric_iron_device td
+		LEFT join electric_iron_device td
 		ON 
 			dcr.manage_id = td.manage_id
 			and dcr.item_seq = td.seq
@@ -590,13 +596,11 @@
 	        	item_seq = #{item_seq}
 	        and
 	            date(check_confirm_time) = #{check_confirm_time}
-	        and
-	        	checked_status > 0
 	        group by manage_id, item_seq) dcras
 		ON dcr.manage_id = dcras.manage_id
 		AND dcr.item_seq = dcras.item_seq
 		AND dcr.check_confirm_time = dcras.check_confirm_time
-		join operator op
+		LEFT join operator op
 		on dcr.operator_id = op.operator_id
 	</select>
 

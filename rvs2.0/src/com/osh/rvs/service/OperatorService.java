@@ -427,7 +427,7 @@ public class OperatorService {
 			p[2] = operator.getRole_name();
 			if (withLine) {
 				if(CommonStringUtil.isEmpty(operator.getLine_name())){
-					p[3] ="";
+					p[3] = operator.getJob_no();
 				}else{
 					p[3] = operator.getLine_name();
 				}

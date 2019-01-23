@@ -98,6 +98,10 @@ public class DevicesManageEntity implements Serializable {
 	// 资产编号
 	private String asset_no;
 
+	private String old_manage_code;
+	private String old_position_id;
+	private Integer event;
+
 	public String getDaily_sheet_manage_no() {
 		return daily_sheet_manage_no;
 	}
@@ -331,5 +335,23 @@ public class DevicesManageEntity implements Serializable {
 	}
 	public void setBrand_name(String brand_name) {
 		this.brand_name = brand_name;
+	}
+	public String getOld_manage_code() {
+		return old_manage_code;
+	}
+	public void setOld_manage_code(String old_manage_code) {
+		this.old_manage_code = old_manage_code;
+	}
+	public String getOld_position_id() {
+		return old_position_id;
+	}
+	public void setOld_position_id(String old_position_id) {
+		this.old_position_id = old_position_id;
+	}
+	public Integer getEvent() {
+		return event;
+	}
+	public void setEvent(Integer event) {
+		this.event = event;
 	}
 }

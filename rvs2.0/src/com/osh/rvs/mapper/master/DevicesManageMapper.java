@@ -10,7 +10,8 @@ public interface DevicesManageMapper {
 	
 	/*设备工具管理详细数据*/
    public List<DevicesManageEntity> searchDeviceManage(DevicesManageEntity devicesManageEntity);
-   
+   /* 设备工具分布一览 */
+   public List<DevicesManageEntity> searchDistribute(DevicesManageEntity devicesManageEntity);
     /*修改设备工具管理详细*/
    public void updateDevicesManage(DevicesManageEntity devicesManageEntity);
    
@@ -50,4 +51,8 @@ public interface DevicesManageMapper {
    public List<DevicesManageEntity> getManageCode(DevicesManageEntity devicesManageEntity);
 
    public List<DeviceTypeEntity> getDeviceTypeOfPosition(DevicesManageEntity dme);
+
+	public List<String> getAllManageCode();
+
+	public int insertDeviceManageRecord(DevicesManageEntity dme);
 }

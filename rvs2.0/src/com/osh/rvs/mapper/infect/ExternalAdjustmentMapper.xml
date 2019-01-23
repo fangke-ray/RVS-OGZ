@@ -162,7 +162,7 @@
 			ON
 				dm.device_type_id=dt.device_type_id
 			WHERE
-			    dm.manage_level = 1 AND dm.delete_flg = 0
+			    dm.manage_level <= 2 AND dm.delete_flg = 0
 		        AND dm.waste_date IS NULL
 		        AND dm.status IN (1 , 4)
 		        AND dm.devices_manage_id NOT IN 

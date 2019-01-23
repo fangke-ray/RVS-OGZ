@@ -61,7 +61,7 @@ public class ReadInfect {
 //				};
 //		String[] ids = {"6", "1", "5", "4", "2"};
 
-		File p = new File("F:\\OGZ 2\\tck\\xml\\r");
+		File p = new File("F:\\0121\\xml\\");
 		List<String> fnames = new ArrayList<String>(); 
 		List<String> lnas = new ArrayList<String>(); 
 		for (File file : p.listFiles()) {
@@ -80,12 +80,12 @@ public class ReadInfect {
 			for (int i=0; i< nas.length;i++) {
 				String na = nas[i];
 				System.out.println("=======================" + na + "========================");
-				String fromfile = "F:\\OGZ 2\\tck\\xml\\r\\"+fnames.get(i)+"";
+				String fromfile = "F:\\0121\\xml\\"+fnames.get(i)+"";
 				//				String fromfile = "H:\\3\\"+na+".xml";
 				// H:\3
 
-				String tofile = "F:\\OGZ 2\\tck\\xml\\"+na+".html";
-				instance.convert(fromfile, tofile, "" + (i+10), conn, new ArrayList<MsgInfo>()); // ids[i]
+				String tofile = "F:\\0121\\xml\\"+na+".html";
+				instance.convert(fromfile, tofile, "" + (i+104), conn, new ArrayList<MsgInfo>()); // ids[i]
 			}
 
 //			instance.convert("E:\\rvsG\\DeviceInfection\\xml\\MS0301-2.xml", 
@@ -167,9 +167,11 @@ public class ReadInfect {
 							for (int irowcell = 0; irowcell<rowcells.getLength(); irowcell++) {
 								Element rowcell = (Element)rowcells.item(irowcell);
 								String cellText = getTextData(rowcell);
+								String iRowIdx = rowcell.getAttribute("ss:Index");
+								if (isEmpty(iRowIdx)) iRowIdx = "1";
 								// 单元格的循环
 								if (!isEmpty(cellText)) {
-									String cellNum = XlsUtil.getExcelColCode(irowcell) + (irow + 1);
+									String cellNum = XlsUtil.getExcelColCode(iRowIdx) + (irow + 1);
 									referItems.put(cellNum, cellText);
 								}
 							}
@@ -178,7 +180,6 @@ public class ReadInfect {
 				}
 				wsLength = 1;
 			}
-
 
 			// sheet的循环
 			Node worksheet = tnl.item(0);
@@ -214,7 +215,6 @@ public class ReadInfect {
 
 			NodeList rows = table.getElementsByTagName("Row");
 			int[] columnspanned = new int[sheetcols];
-			Map<String, List<ShiftData>> brokenShifts = new HashMap<String, List<ShiftData>>();
 
 			CheckFileManageMapper mapper = conn.getMapper(CheckFileManageMapper.class);
 			// 先删除项目
@@ -326,12 +326,6 @@ public class ReadInfect {
 						}
 						shifts.add(shift);
 					}
-					if (cellText.indexOf("<breakto") >= 0) {
-						String seq = cellText.replaceAll("<breakto item_seq=\"(\\d+)\"/>", "$1");
-						if (brokenShifts.containsKey(seq)) {
-							shifts = brokenShifts.get(seq);
-						}
-					}
 
 					// 生成td
 					if (mergeAcross>0 || mergeDown >0) { // 如果存在跨行列
@@ -351,34 +345,6 @@ public class ReadInfect {
 									}
 								}
 							}
-						} else if (cellText.indexOf("<break to") >= 0) {
-							boolean broken = false;
-							// 换位
-							List<ShiftData> newShifts = new ArrayList<ShiftData>(); 
-							for (ShiftData shift : shifts) {
-								ShiftData newShift = shift.clone(); 
-								for (int iFl = 0; iFl < shift.cols.length ; iFl++) {
-									Integer col = shift.cols[iFl];
-									if (col == irowcellExact) {
-										int colstart = newShift.cols[0];
-										for (int is=0;is< iFl;is++) {
-											newShift.cols[is] = 0;
-										}
-										// 重新组织
-										for (int is = iFl; is < shift.cols.length; is++) {
-											newShift.cols[is] = shift.cols[is] - iFl + colstart;
-										}
-										// if ()
-											newShifts.add(newShift);
-										brokenShifts.put(shift.seq, newShifts);
-										// 新编
-										broken = true;
-										break;
-									}
-								}
-								if (broken) return;
-							}
-							if (broken) shifts.clear();
 						}
 						columnspanned[irowcellExact] = mergeDown;
 						for (int iAcross = 1; iAcross <= mergeAcross; iAcross++) {
@@ -420,34 +386,6 @@ public class ReadInfect {
 									}
 								}
 							}
-						} else if (cellText.indexOf("<break to") >= 0) {
-							boolean broken = false;
-							// 换位
-							List<ShiftData> newShifts = new ArrayList<ShiftData>(); 
-							for (ShiftData shift : shifts) {
-								ShiftData newShift = shift.clone(); 
-								for (int iFl = 0; iFl < shift.cols.length ; iFl++) {
-									Integer col = shift.cols[iFl];
-									if (col == irowcellExact) {
-										int colstart = shift.cols[0];
-										for (int is=0;is< iFl;is++) {
-											newShift.cols[is] = 0;
-										}
-										// 重新组织
-										for (int is = iFl; is < shift.cols.length; is++) {
-											newShift.cols[is] = shift.cols[is] - iFl + colstart;
-										}
-										// if ()
-											newShifts.add(newShift);
-										brokenShifts.put(shift.seq, newShifts);
-										// 新编
-										broken = true;
-										break;
-									}
-								}
-								if (broken) return;
-							}
-							if (broken) shifts.clear();
 						}
 						if (css.contains(" IT")) {
 							trcontents+="<td " + css + sWidth + "><span>" + cellText + "</span></td>";
@@ -730,10 +668,10 @@ public class ReadInfect {
 		Pattern pReferData = Pattern.compile("#P.*#");
 		Matcher mReferData = pReferData.matcher(cellText);
 		if (mReferData.find()) {
-			String matchTag = mReferData.group();
+//			String matchTag = mReferData.group();
 //			String matchText = matchTag.replaceAll("#", "");
 			try {
-				cellText.replaceAll("#P\\C[L([\\-\\d\\.]*)U([\\-\\d\\.]*)#", "<refer type='choose' lower_limit='$1' upper_limit='$2'/>");
+				cellText = cellText.replaceAll("#P\\[CL([\\-\\d\\.]*)U([\\-\\d\\.]*)#", "<refer type='choose' lower_limit='$1' upper_limit='$2'/>");
 //				if (matchText.charAt(2) == 'I') {
 //					// 输入
 //					cellText = matchTag.replaceAll("#P\\[I(\\d{2}).*#", "<refer type='input' item_seq='$1'/>");
@@ -801,7 +739,7 @@ public class ReadInfect {
 						// 线长
 						itemEntity.setData_type(2);
 					} else if (tag.startsWith("V")) {
-						itemEntity.setTrigger_state(-1);
+						itemEntity.setFile_cycle_type(-1);
 					} else if (tag.startsWith("U")) { // 换行页面不处理
 					} else if (tag.startsWith("M")) {
 						itemEntity.setModel_relative(getReferData(referItems, tag.substring(1)));
@@ -1097,23 +1035,6 @@ public class ReadInfect {
 
     	return text.replaceAll("<(.+?)>", "&lt;$1&gt;").replaceAll(" ", "&nbsp;").replaceAll("\n", "<br>").replaceAll("T00:00:00\\.000", "");
     }
-
-	private class ContentDataEntity {
-		private String model_name;
-		private String manage_no;
-		private Date point_date;
-		private String date_ymd;
-
-		private void setDate(Date date) {
-			if (date == null) return;
-			point_date.setTime(date.getTime());
-			date_ymd = DateUtil.toString(date, "yyyy 年 MM 月 dd 日");
-		}
-
-		public String toString() {
-			return "Manage no :" + manage_no + " @ " + date_ymd;
-		}
-	}
 
 	private class ShiftData {
 		private String content;

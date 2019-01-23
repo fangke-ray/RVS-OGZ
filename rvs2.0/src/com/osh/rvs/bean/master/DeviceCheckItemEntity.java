@@ -118,8 +118,6 @@ public class DeviceCheckItemEntity implements Serializable {
 				+ (lower_limit == null ? "" : "' lower_limit='" + lower_limit)
 				+ (refer_upper_from == null ? "" : "' refer_upper_from='" + refer_upper_from)
 				+ (refer_lower_from == null ? "" : "' refer_lower_from='" + refer_lower_from)
-//				+ (refer_upper_limit == null ? "" : "' refer_upper_limit='" + refer_upper_limit)
-//				+ (refer_lower_limit == null ? "" : "' refer_lower_limit='" + refer_lower_limit)
 				+"' tab='"+ tab + "' shift='1'" 
 				+"/>";
 	}
@@ -128,7 +126,7 @@ public class DeviceCheckItemEntity implements Serializable {
 				+ "' cycle_type='"+ cycle_type 
 				+"' tab='"+ tab 
 				+ (model_relative == null ? "" : "' model_relative='" + model_relative)
-				+ "' shift='1'" + (trigger_state == -1 ? " st='vert'" : " st='hori'") 
+				+ "' shift='1'" + (file_cycle_type != null && file_cycle_type == -1 ? " st='vert'" : " st='hori'") 
 				+ "/>";
 	}
 	public String toXmlDateTag() {
@@ -151,12 +149,6 @@ public class DeviceCheckItemEntity implements Serializable {
 	public void setRefer_lower_from(String refer_lower_from) {
 		this.refer_lower_from = refer_lower_from;
 	}
-//	public String getRefer_lower_limit() {
-//		return refer_lower_limit;
-//	}
-//	public void setRefer_lower_limit(String refer_lower_limit) {
-//		this.refer_lower_limit = refer_lower_limit;
-//	}
 	public String getSpecified_model_name() {
 		return specified_model_name;
 	}

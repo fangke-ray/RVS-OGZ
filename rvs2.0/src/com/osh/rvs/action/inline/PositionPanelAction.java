@@ -10,6 +10,7 @@ package com.osh.rvs.action.inline;
 import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
@@ -201,6 +203,10 @@ public class PositionPanelAction extends BaseAction {
 		String position_id = user.getPosition_id();
 		String line_id = user.getLine_id();
 		String process_code = user.getProcess_code();
+
+		// 设定待点检信息
+		CheckResultService crService = new CheckResultService();
+		crService.checkForPosition(section_id, position_id, line_id, conn);
 
 		// 取得待点检信息
 		String infectString = service.getInfectMessageByPosition(section_id,
@@ -394,6 +400,22 @@ public class PositionPanelAction extends BaseAction {
 		// 判断维修对象在等待区，并返回这一条作业信息
 		ProductionFeatureEntity waitingPf = service.checkMaterialId(material_id, user, errors, conn);
 
+		// 2点后锁
+		Calendar now = Calendar.getInstance();
+		if (now.get(Calendar.HOUR_OF_DAY) >= 14) { // TODO SYSTEM PARAM 14
+			// 取得待点检信息
+			String infectString = service.getInfectMessageByPosition(user.getSection_id(),
+					user.getPosition_id(), user.getLine_id(), conn);
+
+			if (infectString.indexOf("限制工作") >= 0) {
+				listResponse.put("workstauts", WORK_STATUS_FORBIDDEN);
+				MsgInfo msgInfo = new MsgInfo();
+				msgInfo.setComponentid("position_id");
+				msgInfo.setErrmsg(infectString);
+				errors.add(msgInfo);
+			}
+		}
+
 		if (errors.size() == 0) {
 
 			// 开始作业
@@ -401,16 +423,6 @@ public class PositionPanelAction extends BaseAction {
 			pfService.startProductionFeature(waitingPf, conn);
 
 			if (waitingPf.getOperate_result() == 0 || waitingPf.getOperate_result() == 7){
-//				MaterialService ms = new MaterialService();
-//				MaterialForm mEntity = ms.loadSimpleMaterialDetail(conn, waitingPf.getMaterial_id());
-//				String level = mEntity.getLevel();
-//				// 小修理开始作业
-//				boolean isLightFix = level != null &&
-//						("9".equals(level.substring(0, 1)));
-//				if (isLightFix) {
-//					pfService.removeWaiting(material_id, waitingPf.getPosition_id(), conn);
-//				}
-
 				// 取得Cookies
 				Cookie[] cookies = req.getCookies();
 				String qt4 = null;
@@ -891,6 +903,11 @@ public class PositionPanelAction extends BaseAction {
 				position_id, line_id, conn);
 
 		listResponse.put("infectString", infectString);
+
+		// 设定待点检信息
+		CheckResultService crService = new CheckResultService();
+		crService.checkForPosition(user.getSection_id(), position_id, user.getLine_id(), conn);
+
 		if (infectString.indexOf("限制工作") >= 0) {
 			listResponse.put("workstauts", WORK_STATUS_FORBIDDEN);
 		} else {

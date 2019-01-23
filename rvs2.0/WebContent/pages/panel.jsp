@@ -168,7 +168,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.0.360</p>
+								<p id="nee">2.0.369</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
 								<p>2019年1月7日</p>
@@ -178,6 +178,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/1/17 2.0.360 更新</p>
+								<p>物料作业：零件入出库工时记录功能上线。</p>
+								<p>物料作业：零件入出库展示功能上线。</p>
+								<p>设备・专用工具管理：基本功能上线。</p>
+								<p>设备・专用工具管理：安全手顺功能上线。</p>
+								<p>设备・专用工具点检：点检表管理功能上线。</p>
+								<p>设备・专用工具点检：点检操作功能上线。</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>18/11/12 1.9.298 更新</p>

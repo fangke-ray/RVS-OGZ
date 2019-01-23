@@ -18,11 +18,6 @@ public interface CheckResultMapper {
 	public List<CheckResultEntity> getNeedRegularCheck(CheckResultEntity cond);
 
 	/**
-	 * 取得可以做的使用前点检
-	 */
-	public List<CheckResultEntity> getCapacyBeforeUseCheck(CheckResultEntity cond);
-
-	/**
 	 * 建立等待更新的日常/定期点检记录
 	 */
 	public int createDeviceWaitingCheck(CheckResultEntity createWait) throws Exception;
@@ -88,7 +83,7 @@ public interface CheckResultMapper {
 	public List<CheckResultEntity> getTorsionDeviceCheckInPeriod(CheckResultEntity cre);
 
 	/**
-	 * 取得设备工具(力矩工具)参照值
+	 * 取得设备工具参照值
 	 */
 	public List<CheckResultEntity> getDeviceReferInPeriod(CheckResultEntity cre);
 

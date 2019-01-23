@@ -182,5 +182,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 	</div>
 	<div id="break_dialog"></div>
+	<div id="comments_dialog" style="display:none;">
+		<div class="ui-widget-header ui-corner-top ui-helper-clearfix">
+			<span class="areatitle icon-enter-2">提示相关信息</span>
+		</div>
+		<div class="comments_area">
+		</div>
+	</div>
 </body>
 </html>

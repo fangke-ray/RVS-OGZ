@@ -30,14 +30,14 @@
 				<a target="_parent" href="check_file_manage.do">点检表管理</a><br>
 <% } %>
 				<a target="_parent" href="usage_check.do">点检操作</a><br>
-				<a target="_parent" href="daily_check_result.do">日常点检结果</a><br>
+				<!--a target="_parent" href="daily_check_result.do">日常点检结果</a><br>
 				<a target="_parent" href="device_regularly_check_result.do">定期点检结果</a><br>
-				<a target="_parent" href="tools_check_result.do">专用工具点检结果</a><br>
+				<a target="_parent" href="tools_check_result.do">专用工具点检结果</a><br-->
 				<a target="_parent" href="check_unqualified_record.do">点检不合格记录</a><br>
 <% if(links.get("dt_admin")){ %>
 				<a target="_parent" href="external_adjustment.do">检查机器校验</a><br>
 <% } %>
-				<a target="_parent" href="check_result_filing.do">点检结果归档</a><br>
+				<!--a target="_parent" href="check_result_filing.do">点检结果归档</a><br-->
 		    </div>
 </div>
 

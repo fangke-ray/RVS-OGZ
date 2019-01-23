@@ -8,6 +8,7 @@ $(function(){
 })
 /** 服务器处理路径 */
 var infectSheetServicePath = "usage_check.do";
+var stopDblSubmit = false;
 
 var doExchange = function(){
 			var newManageNo = $("#manage_replace_panel input:text").val();
@@ -77,7 +78,13 @@ var showInfectSheet =function(infectDetailData, isLeader){
 			var resInfo = $.parseJSON(xhrObj.responseText);
 			if (resInfo.check_sheet) {
 				$check_sheet.html(resInfo.check_sheet);
-				$check_sheet.find("input,textarea").not("[inputted]").not(".t_comment").parent().addClass("tcs_input");
+				$check_sheet.find("input,textarea").not("[inputted]").not(".t_comment").parent().addClass("tcs_input")
+				.each(function(){
+					var $tcs_input = $(this);
+					if ($tcs_input.find("input[lock]").length > 0) {
+						$tcs_input.attr("lock", "1");
+					}
+				});
 				// alert($("#check_sheet input:radio").length);
 				// 使用期限
 				var $expireTr = $check_sheet.find("span.useEnd[expire='1']").parent().parent();
@@ -153,6 +160,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 				buttons : {}});
 			});
 			$("#upper_check").button();
+			$("input:checkbox[id=upper_check]").hide();
 			$check_sheet.show();
 
 			var okButton = (isLeader == "true" ? "再点检确认" : "点检完成" )
@@ -179,7 +187,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 						// 多个
 						if ($(".t_comment").length > 0) {
 							if ($(".t_comment:checked").length == 0) {
-								errorPop("选择要做备注的对象");
+								errorPop("需要选择要做备注的对象");
 								return;
 							} else {
 								pCommentData.manage_id = $(".t_comment:checked").val();
@@ -275,7 +283,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 								}
 							});
 							if (refered == false) {
-								alert("有参照值未输入!"); // TODO
+								errorPop("有参照值未输入!"); // TODO
 								return;
 							}
 
@@ -319,7 +327,10 @@ var showInfectSheet =function(infectDetailData, isLeader){
 									var refer_upper_from = $ele.attr("refer_upper_from");
 									var refer_lower_from = $ele.attr("refer_lower_from");
 									if (refer_upper_from) {
-										if (isNaN(refer_upper_from)) {
+										if (refer_upper_from == "P") {
+											var $referP =$check_sheet.find("refer[type='choosed']");
+											upper_limit = parseFloat($referP.attr("upper_limit"));
+										} else if (isNaN(refer_upper_from)) {
 											var modelMap = refer_upper_from.split(";");
 											var $dtag = $check_sheet.find("dtag");
 											var model_name = $dtag.attr("model_name");
@@ -339,7 +350,10 @@ var showInfectSheet =function(infectDetailData, isLeader){
 										}
 									}
 									if (refer_lower_from) {
-										if (isNaN(refer_lower_from)) {
+										if (refer_lower_from == "P") {
+											var $referP =$check_sheet.find("refer[type='choosed']");
+											lower_limit = parseFloat($referP.attr("lower_limit"));
+										} else if (isNaN(refer_lower_from)) {
 											var modelMap = refer_lower_from.split(";");
 											var $dtag = $check_sheet.find("dtag");
 											var model_name = $dtag.attr("model_name");
@@ -420,19 +434,33 @@ var showInfectSheet =function(infectDetailData, isLeader){
 										nov += "<tr manage_id='"+ $me.attr("manage_id") +"'><td>"+$me.find("td:eq(1)").text()+"</td><td>"+$me.find("td:eq(3)").text()+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 									});
 								} else if (object_type == 1) {
-									if (infectDetailData.check_file_manage_id == "00000000098") {
+									if (infectDetailData.check_file_manage_id == "00000000105"
+										|| infectDetailData.check_file_manage_id == "00000000106"
+										|| infectDetailData.check_file_manage_id == "00000000107"
+										|| infectDetailData.check_file_manage_id == "00000000108"
+										|| infectDetailData.check_file_manage_id == "00000000109"
+										|| infectDetailData.check_file_manage_id == "00000000110"
+										|| infectDetailData.check_file_manage_id == "00000000111"
+										|| infectDetailData.check_file_manage_id == "00000000112"
+										) {
 										$(".tcs_input[status=2]").each(function(idx,ele){
 											var $me = $(ele);
 											var $papa = $me.parent();
 											var tag = $me.find("input")[0].name;
-											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(9)").text()+"</td><td>力矩工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(0)").text()+"</td><td>力矩工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 										});
-									} else if (infectDetailData.check_file_manage_id == "00000000053") {
+									} else if (infectDetailData.check_file_manage_id == "00000000100"
+										|| infectDetailData.check_file_manage_id == "00000000101"
+										|| infectDetailData.check_file_manage_id == "00000000102") {
 										$(".tcs_input[status=2]").each(function(idx,ele){
 											var $me = $(ele);
 											var $papa = $me.parent();
 											var tag = $me.find("input")[0].name;
-											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(0)").text()+"</td><td>电烙铁工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+											var $manage_code = $papa.find("td:eq(0)");
+											if (!$manage_code.attr("rowspan")) {
+												$manage_code = $papa.prev(".row_check_1").children("td:eq(0)");
+											}
+											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+ $manage_code.text() +"</td><td>电烙铁工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 										});
 									} else {
 										var $dtag = $check_sheet.find("dtag");
@@ -467,7 +495,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 												}
 											})
 											if (empty) {
-												alert("请写全相关的信息！");
+												errorPop("请写全相关的信息！");
 											} else {
 												ii = 0;
 												// 加入不合格信息
@@ -483,6 +511,8 @@ var showInfectSheet =function(infectDetailData, isLeader){
 												})
 												if ($("#upper_check").length>0 && $("#upper_check").attr("checked"))
 													postDataR.upper_check = infectDetailData.manage_id || 1;
+												if(stopDblSubmit) return;
+												stopDblSubmit = true;
 												doCheckPoint(postDataR, $confirmmessage, $check_sheet);
 												if (infectDetailData.check_while_use) infectDetailData.check_while_use(false);
 											}
@@ -545,7 +575,9 @@ var showInfectSheet =function(infectDetailData, isLeader){
 										postDataR.position_id = infectDetailData.position_id;
 										if ($("#upper_check").length>0 && $("#upper_check").attr("checked"))
 											postDataR.upper_check = infectDetailData.manage_id || 1;
-											
+
+										if(stopDblSubmit) return;
+										stopDblSubmit = true;
 										doCheckPoint(postDataR, $confirmmessage, $check_sheet);
 										if (infectDetailData.check_while_use) infectDetailData.check_while_use(true);
 									},
@@ -559,7 +591,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 				}
 			});
 			$("button:contains('okButton') span").text(okButton);
-			$("button:contains('备注') span").remove();
+			// $("button:contains('备注') span").remove();
 		}
 	});
 };
@@ -576,6 +608,7 @@ var doCheckPoint = function (postDataR, $confirmmessage, $check_sheet) {
 		success : ajaxSuccessCheck,
 		error : ajaxError,
 		complete : function(xhrObj){
+			stopDblSubmit = false;
 			if ($confirmmessage) $confirmmessage.dialog("close");
 			if ($check_sheet) $check_sheet.dialog("close");
 			if (typeof findit === "function") findit();

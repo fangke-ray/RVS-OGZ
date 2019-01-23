@@ -17,15 +17,16 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.master.JigManageEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
-import com.osh.rvs.bean.master.JigManageEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
+import com.osh.rvs.form.infect.ToolsDistributeForm;
 import com.osh.rvs.form.master.ToolsManageForm;
-import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.JigManageMapper;
+import com.osh.rvs.mapper.master.OperatorMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -62,6 +63,31 @@ public class JigManageService {
 				ToolsManageForm.class);
 
 		return toolsManageForms;
+	}
+
+	/**
+	 * 治具分布一览详细
+	 * 
+	 * @param form
+	 * @param conn
+	 * @param errors
+	 * @return
+	 */
+	public List<ToolsDistributeForm> searchToolsDistribute(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
+		JigManageEntity toolsDistributeEntity = new JigManageEntity();
+	
+		BeanUtil.copyToBean(form, toolsDistributeEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		List<ToolsDistributeForm> toolsDistributeForms = new ArrayList<ToolsDistributeForm>();
+
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+
+		List<JigManageEntity> distributeEntities= dao.searchJigDistribute(toolsDistributeEntity);
+
+		BeanUtil.copyToFormList(distributeEntities, toolsDistributeForms, CopyOptions.COPYOPTIONS_NOEMPTY,
+				ToolsDistributeForm.class);
+
+		return toolsDistributeForms;
 	}
 
 	/**

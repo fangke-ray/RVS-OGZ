@@ -147,6 +147,78 @@
 		 ORDER BY status,updated_time DESC
 	</select>	
 
+	 <!-- 治具分布详细 -->
+	<select id="searchJigDistribute" resultType="JigManageEntity" parameterType="JigManageEntity">
+		<![CDATA[
+		select
+			tm.manage_code,
+			ot.name as responsible_operator,
+			l.name as line_name,
+			s.name as section_name,
+			p.process_code,
+			jig_name as jig_name,
+			tm.provide_date,
+			op.name as updated_by,
+			tm.jig_manage_id,
+			tm.manage_code,
+			tm.jig_no,
+			tm.section_id,
+			tm.line_id,
+			tm.position_id,
+			tm.status,
+			tm.responsible_operator_id,
+			tm.comment
+		from
+			jig_manage tm
+		left join
+			OPERATOR O ON tm.manager_operator_id = O.OPERATOR_ID
+		left join
+			OPERATOR op ON tm.updated_by = op.OPERATOR_ID
+		left join
+			operator ot on tm.responsible_operator_id =ot.OPERATOR_ID
+		left join
+			position p on tm.position_id = p.position_id
+		left join
+			section s  on tm.section_id = s.section_id
+		left join line l on tm.line_id = l.line_id
+		]]>
+		<where>
+			tm.delete_flg=0 and status in (1,4)
+			<if test="manage_code!=null and manage_code!='' ">
+				<![CDATA[
+				and tm.manage_code LIKE CONCAT('%',#{manage_code},'%')
+					]]>
+			</if>
+			<if test="jig_no!=null and jig_no!='' ">
+				<![CDATA[
+						and tm.jig_no LIKE CONCAT('%',#{jig_no},'%')
+					]]>
+			</if>
+			<if test="section_id!=null and section_id!='' ">
+				<![CDATA[
+						and tm.section_id =#{section_id}
+					]]>
+			</if>
+			<if test="line_id!=null and line_id!='' ">
+				<![CDATA[
+						and tm.line_id =#{line_id}
+					]]>
+			</if>
+			<if test="position_id!=null and position_id!='' ">
+				<![CDATA[
+						and tm.position_id =#{position_id}
+					]]>
+			</if>
+			<if test="responsible_operator_id!=null and responsible_operator_id!='' ">
+				<![CDATA[
+						and tm.responsible_operator_id =#{responsible_operator_id}
+					]]>
+			</if>
+		</where>
+		ORDER BY tm.manage_code
+		limit 1000;
+	</select>
+
 	 <!-- 双击页面修改 -->
 	<update id="updateJigManage" parameterType="JigManageEntity">
 	   <![CDATA[
