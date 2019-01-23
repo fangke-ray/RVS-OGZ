@@ -80,7 +80,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						function(responseText, textStatus, XMLHttpRequest) {
 					});
 				</script>
-				<div id="legendarea" style="position: absolute;bottom: 190px;left: 145px;">
+				<div id="legendarea" style="position: absolute;bottom: 150px;left: 145px;">
    					<table class="condform" id="label_table" style="margin-top: 15px; margin-bottom: 15px;font-size:15px;">
 						<tr>
 							<td class="ui-widget-header" style="width:80px;text-align:center;">图例</td>
