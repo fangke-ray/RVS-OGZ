@@ -3,6 +3,7 @@ package com.osh.rvs.bean.infect;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 public class CheckResultEntity implements Serializable {
 
@@ -45,6 +46,7 @@ public class CheckResultEntity implements Serializable {
 
 	private Integer cycle_type;
 	private String object_type;
+	private Set<String> manage_ids;
 
 	public String getManage_id() {
 		return manage_id;
@@ -183,6 +185,12 @@ public class CheckResultEntity implements Serializable {
 	}
 	public void setObject_type(String object_type) {
 		this.object_type = object_type;
+	}
+	public void setManage_ids(Set<String> manageIds) {
+		this.manage_ids = manageIds;
+	}
+	public Set<String> getManage_ids() {
+		return manage_ids;
 	}
 
 }

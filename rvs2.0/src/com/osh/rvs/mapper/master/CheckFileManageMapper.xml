@@ -239,6 +239,9 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 		<if test="device_type_id!=null and device_type_id!=''">
 			and dm.device_type_id = #{device_type_id}
 		</if>
+		<if test="section_id!=null and section_id!=''">
+			and dm.section_id = #{section_id}
+		</if>
 		<if test="position_id!=null and position_id!=''">
 			and dm.position_id = #{position_id}
 		</if>

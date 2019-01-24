@@ -87,6 +87,7 @@ import com.osh.rvs.mapper.master.SectionMapper;
 
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.DateUtil;
@@ -264,7 +265,7 @@ public class CheckResultService {
 			boolean empty = false; // 点检未完成
 
 			CheckResultEntity cond = new CheckResultEntity();
-			cond.setCheck_file_manage_id(checkFile.getDevice_type_id()); // cfm.check_file_manage_id as device_type_id
+			cond.setCheck_file_manage_id(checkFile.getDaily_sheet_manage_no()); // cfm.check_file_manage_id as daily_sheet_manage_no
 			cond.setCheck_confirm_time_start(periodsEntity.getStartOfWeek());
 			cond.setCheck_confirm_time_end(periodsEntity.getEndOfWeek());
 			cond.setPosition_id(checkFile.getPosition_id());
@@ -286,7 +287,7 @@ public class CheckResultService {
 				try {
 					writableConn.startManagedSession(false);
 					CheckResultEntity createWait = new CheckResultEntity();
-					createWait.setCheck_file_manage_id(checkFile.getDevice_type_id());
+					createWait.setCheck_file_manage_id(checkFile.getDaily_sheet_manage_no()); // check_file_manage_id as daily_sheet_manage_no
 
 					for (TorsionDeviceEntity td : tds) {
 						createWait.setManage_id(td.getManage_id());
@@ -344,7 +345,7 @@ public class CheckResultService {
 			ucForm.setPosition_id(checkFile.getPosition_id());
 			ucForm.setProcess_code(checkFile.getProcess_code());
 			ucForm.setCycle_type("" + TYPE_FILED_WEEK_OF_MONTH);
-			ucForm.setCheck_file_manage_id(checkFile.getDevice_type_id());
+			ucForm.setCheck_file_manage_id(checkFile.getDaily_sheet_manage_no()); // check_file_manage_id as daily_sheet_manage_no
 			ucForm.setManage_code(manage_code);
 
 			ucForm.setObject_type("1"); // 设备工具
@@ -609,6 +610,13 @@ public class CheckResultService {
 			String operator_id, String current_position_id, List<PositionEntity> positionList, String line_id,
 			CheckResultEntity condEntity, PeriodsEntity periodsEntity, SqlSession conn, 
 			CheckResultMapper crMapper, int isLeader) throws Exception {
+		// 日期（默认今天）
+		Calendar showDate = Calendar.getInstance();
+		showDate.set(Calendar.HOUR_OF_DAY, 0);
+		showDate.set(Calendar.MINUTE, 0);
+		showDate.set(Calendar.SECOND, 0);
+		showDate.set(Calendar.MILLISECOND, 0);
+
 		// 查询根据当前周期（日，周，月，期）是否有相关但没有生成（0状态）的点检记录
 		CheckFileManageMapper cfmMapper = conn.getMapper(CheckFileManageMapper.class);
 		List<CheckFileManageEntity> checkFileList = null;
@@ -769,8 +777,11 @@ public class CheckResultService {
 					String checkItemSeq = item.getItem_seq();
 					for (CheckResultEntity checkResult : checkResults) {
 						if (checkItemSeq.equals(checkResult.getItem_seq())) {
-							checkItemSeq = null; // 找到有点检（或待点检）记录
-							break;
+							if (checkResult.getChecked_status() > 0 
+									|| checkResult.getCheck_confirm_time().after(showDate.getTime())) {
+								checkItemSeq = null; // 找到有点检（或待点检）记录
+								break;
+							}
 						}
 					}
 					if (checkItemSeq != null)
@@ -1048,9 +1059,10 @@ public class CheckResultService {
 	 * @param isLeader
 	 * @param adjustDate 
 	 * @param conn
+	 * @throws Exception 
 	 */
 	public String getToolCheckSheet(String section_id, String position_id, String operator_id, String post_operator_id,
-			int leaderLevel, Date adjustDate, SqlSession conn) {
+			int leaderLevel, Date adjustDate, SqlSession conn) throws Exception {
 		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
 		// <tr class='tcs_content'><td>1</td><td class=''>管理号码</td><td>治具号码</td><td class='HL WT'>专用工具名称</td><td>1</td><td>1月/次</td><td class='HC WT' colspan='12'>定期清点保养结果</td><td class='HL'>备注事项</td></tr>
 		String retContent = "";
@@ -1079,6 +1091,14 @@ public class CheckResultService {
 		}
 		ToolsCheckResultService tcrService = new ToolsCheckResultService();
 		List<ToolsCheckResultForm> list = tcrService.searchToolsCheckResult(searchForm, conn);
+
+		CheckResultEntity commentCondition = new CheckResultEntity();
+		BeanUtil.copyToBean(searchForm, commentCondition, CopyOptions.COPYOPTIONS_NOEMPTY);
+		String dayString = DateUtil.toString(adjustDate, DateUtil.ISO_DATE_PATTERN);
+		PeriodsEntity pd = getPeriodsOfDate(dayString, conn);
+		commentCondition.setCheck_confirm_time_start(pd.getStartOfPeriod());
+		commentCondition.setCheck_confirm_time_end(pd.getEndOfPeriod());
+		List<String> commentExists = getCommentsExists(2, commentCondition, crMapper);
 
 		boolean isLeader = leaderLevel > 0;
 		// 取得位置
@@ -1109,7 +1129,8 @@ public class CheckResultService {
 					+ "<td class='WT'>"+getStatusT(toolsCheckResultForm.getFebruary(), isLeader, 10-axis+isNowAvalible, manage_id)+"</td>"
 					+ "<td class='WT'>"+getStatusT(toolsCheckResultForm.getMarch(), isLeader, 11-axis+isNowAvalible, manage_id)+"</td>"
 					+ "<td class='HL'><input type='radio' class='t_comment' name='comment_target' id='comment_"+manage_id+"' value='"+manage_id+"'/>"
-					+ "<label for='comment_"+manage_id+"'>备注</label>" + (hasPhoto ? "<button class='t_pic'>照片</button>" : "") + "</td></tr>");
+					+ "<label for='comment_"+manage_id+"'" + (commentExists.contains(CommonStringUtil.fillChar(manage_id, '0', 11, true)) ? " exists" : "") + ">备注</label>" 
+					+ (hasPhoto ? "<button class='t_pic'>照片</button>" : "") + "</td></tr>");
 		}
 		try {
 			input = new BufferedReader(new InputStreamReader(new FileInputStream(PathConsts.BASE_PATH + "\\DeviceInfection\\xml\\QF0601-5.html"),"UTF-8"));
@@ -1176,6 +1197,17 @@ public class CheckResultService {
 		}
 		// 读取文件
 		return retContent;
+	}
+
+	private List<String> getCommentsExists(int objectType, CheckResultEntity commentCondition, CheckResultMapper crMapper) {
+		if (objectType == 2) {
+			List<String> existsJigCheckComment = crMapper.checkExistsJigCheckCommentByCondition(commentCondition);
+			return existsJigCheckComment;
+		} else if (objectType == 1) {
+			List<String> existsDeviceCheckComment = crMapper.checkExistsDeviceCheckCommentByCondition(commentCondition);
+			return existsDeviceCheckComment;
+		}
+		return null;
 	}
 
 	private Calendar getStartOfPeriod(Calendar adjustCal) {
@@ -2048,6 +2080,18 @@ public class CheckResultService {
 				retContent = retContent.replaceAll(pReferData.pattern(), "□");
 			}
 
+			// 备注
+			CheckResultEntity commentCondition = new CheckResultEntity();
+			commentCondition.setCheck_confirm_time_start(monCal.getTime());
+			commentCondition.setCheck_confirm_time_end(endPDate);
+			Set<String> manageIds = new HashSet<String>();
+			manageIds.add(manage_id);
+			commentCondition.setManage_ids(manageIds);
+			List<String> commentExists = getCommentsExists(1, commentCondition, crMapper);
+			if (commentExists.size() > 0) {
+				retContent += "<comment exists/>";
+			}
+
 //			if (mSignData.find()) {
 //				String ss = mSignData.group();
 //				String shift = mSignData.group(1);
@@ -2211,8 +2255,11 @@ public class CheckResultService {
 		// 期间开始点
 
 		Calendar monCal = Calendar.getInstance();
+		Calendar monEndCal = Calendar.getInstance();
 		monCal.setTimeInMillis(adjustCal.getTimeInMillis());
 		monCal.set(Calendar.DATE, 1);
+		monEndCal.setTime(monCal.getTime());
+		monEndCal.add(Calendar.MONTH, 1);
 
 		int week = monCal.get(Calendar.DAY_OF_WEEK);
 		if (week == Calendar.SUNDAY) {
@@ -2238,19 +2285,35 @@ public class CheckResultService {
 		tdCond.setPosition_id(position_id);
 		List<TorsionDeviceEntity> tds = tdMapper.searchTorsionDevice(tdCond);
 
+		// 收集manage_ids
+		Set<String> manageIds = new HashSet<String>();
+		for (TorsionDeviceEntity td : tds) {
+			manageIds.add(td.getManage_id());
+		}
+
+		// 查询备注
+		List<String> commentExists = new ArrayList<String>();
+		if (manageIds.size() > 0) {
+			CheckResultEntity commentCondition = new CheckResultEntity();
+			commentCondition.setCheck_confirm_time_start(monCal.getTime());
+			commentCondition.setCheck_confirm_time_end(monEndCal.getTime());
+			commentCondition.setManage_ids(manageIds);
+			commentExists = getCommentsExists(1, commentCondition, crMapper);
+		}
+
 		List<TorsionDeviceEntity> tdSeq = new ArrayList<TorsionDeviceEntity>();
 		String manage_code = "(Nothing)";
 		for (TorsionDeviceEntity td : tds) {
 			if (!manage_code.equals(td.getManage_code())) {
 				setTorsion(tdSeq, checkContent, manage_code, axis, isLeader,
-						monCal, check_file_manage_id, startMDate, endMDate, crMapper);
+						monCal, check_file_manage_id, startMDate, endMDate, commentExists, crMapper);
 				manage_code = td.getManage_code();
 			}
 			tdSeq.add(td);
 		}
-		if (!"(Nothing)".equals(manage_code)) {
+		if (!"(Nothing)".equals(manage_code)) { // 最后一条
 			setTorsion(tdSeq, checkContent, manage_code, axis, isLeader,
-					monCal, check_file_manage_id, startMDate, endMDate, crMapper);
+					monCal, check_file_manage_id, startMDate, endMDate, commentExists, crMapper);
 		}
 		try {
 			input = new BufferedReader(new InputStreamReader(new FileInputStream(PathConsts.BASE_PATH + "\\DeviceInfection\\xml\\" + cfmEntity.getCheck_manage_code() + ".html"),"UTF-8"));
@@ -2336,19 +2399,34 @@ public class CheckResultService {
 
 		List<ElectricIronDeviceEntity> eids = tdMapper.searchElectricIronDevice(eidCond);
 
+		// 收集manage_ids
+		Set<String> manageIds = new HashSet<String>();
+		for (ElectricIronDeviceEntity eid : eids) {
+			manageIds.add(eid.getManage_id());
+		}
+
+		List<String> commentExists = new ArrayList<String>();
+		if (manageIds.size() > 0) {
+			CheckResultEntity commentCondition = new CheckResultEntity();
+			commentCondition.setCheck_confirm_time_start(monCalBase.getTime());
+			commentCondition.setCheck_confirm_time_end(adjustCal.getTime());
+			commentCondition.setManage_ids(manageIds);
+			commentExists = getCommentsExists(1, commentCondition, crMapper);
+		}
+
 		List<ElectricIronDeviceEntity> eidSeq = new ArrayList<ElectricIronDeviceEntity>();
 		String manage_code = "(Nothing)";
 		for (ElectricIronDeviceEntity eid : eids) {
 			if (!manage_code.equals(eid.getManage_code())) {
 				setElectricIron(eidSeq, checkContent, manage_code, axis, isLeader,
-						monCalBase, check_file_manage_id, adjustCal, crMapper);
+						monCalBase, check_file_manage_id, adjustCal, commentExists, crMapper);
 				manage_code = eid.getManage_code();
 			}
 			eidSeq.add(eid);
 		}
 		if (!"(Nothing)".equals(manage_code)) {
 			setElectricIron(eidSeq, checkContent, manage_code, axis, isLeader,
-					monCalBase, check_file_manage_id, adjustCal, crMapper);
+					monCalBase, check_file_manage_id, adjustCal, commentExists, crMapper);
 		}
 		try {
 			input = new BufferedReader(new InputStreamReader(new FileInputStream(PathConsts.BASE_PATH + "\\DeviceInfection\\xml\\" + templateFile),"UTF-8"));
@@ -2415,13 +2493,14 @@ public class CheckResultService {
 	 * @param check_file_manage_id
 	 * @param startMDate
 	 * @param endPDate
+	 * @param commentExists 
 	 * @param crMapper
 	 */
 	private void setTorsion(List<TorsionDeviceEntity> tdSeq, StringBuffer checkContent, String manage_code,
 			int axis, boolean isLeader,
 			Calendar monCalBase, 
 			String check_file_manage_id, Date startMDate, Date endPDate,
-			CheckResultMapper crMapper) {
+			List<String> commentExists, CheckResultMapper crMapper) {
 
 		if (tdSeq.size() == 1) {
 
@@ -2442,7 +2521,8 @@ public class CheckResultService {
 
 			getTDataRow(checkContent, axis, isLeader, monCalBase, trTorsion, check_file_manage_id, startMDate, endPDate, crMapper, jobNo, checkedDate);
 
-			checkContent.append("<td colspan=5 rowspan='2'><input type='radio' class='t_comment' name='comment_target' id='comment_"+trTorsion.getManage_id()+"' value='"+trTorsion.getManage_id()+"'/><label for='comment_"+trTorsion.getManage_id()+"'>备注</label>" + "</td>");
+			checkContent.append("<td colspan=5 rowspan='2'><input type='radio' class='t_comment' name='comment_target' id='comment_"+trTorsion.getManage_id()+"' value='"+trTorsion.getManage_id()+"'/>"
+					+ "<label for='comment_"+trTorsion.getManage_id()+"'" + (commentExists.contains(trTorsion.getManage_id()) ? " exists" : "") + ">备注</label>" + "</td>");
 			checkContent.append("</tr>");
 
 			// 签章行
@@ -2470,7 +2550,8 @@ public class CheckResultService {
 					checkContent.append("<td>实测值</td>");
 
 					getTDataRow(checkContent, axis, isLeader, monCalBase, trTorsion, check_file_manage_id, startMDate, endPDate, crMapper, jobNo, checkedDate);
-					checkContent.append("<td colspan=5 rowspan='"+rowspan+"'><input type='radio' class='t_comment' name='comment_target' id='comment_"+trTorsion.getManage_id()+"' value='"+trTorsion.getManage_id()+"'/><label for='comment_"+trTorsion.getManage_id()+"'>备注</label>" + "</td>");
+					checkContent.append("<td colspan=5 rowspan='"+rowspan+"'><input type='radio' class='t_comment' name='comment_target' id='comment_"+trTorsion.getManage_id()+"' value='"+trTorsion.getManage_id()+"'/>"
+							+ "<label for='comment_"+trTorsion.getManage_id()+"'" + (commentExists.contains(trTorsion.getManage_id()) ? " exists" : "") + "'>备注</label>" + "</td>");
 					checkContent.append("</tr>");
 				} else {
 					checkContent.append("<tr class='row_check_more'>");
@@ -2597,6 +2678,7 @@ public class CheckResultService {
 			int axis, boolean isLeader,
 			Calendar monCalBase, 
 			String check_file_manage_id, Calendar adjustCal,
+			List<String> commentExists, 
 			CheckResultMapper crMapper) {
 
 		if (eidSeq.size() == 0) return;
@@ -2621,7 +2703,8 @@ public class CheckResultService {
 			ElectricIronDeviceEntity trElectricIron = eidSeq.get(0);
 			checkContent.append("<tr class='row_check_1'>");
 			checkContent.append("<td class='TDb3 BSd1 LSd2 RSd1 ' rowspan='4'>"+trElectricIron.getManage_code()+
-					"<input type='radio' class='t_comment' name='comment_target' id='comment_"+trElectricIron.getManage_id()+"' value='"+trElectricIron.getManage_id()+"'/><label for='comment_"+trElectricIron.getManage_id()+"'>备注</label>" +
+					"<input type='radio' class='t_comment' name='comment_target' id='comment_"+trElectricIron.getManage_id()+"' value='"+trElectricIron.getManage_id()+"'/>"
+							+ "<label for='comment_"+trElectricIron.getManage_id()+"'"+ (commentExists.contains(trElectricIron.getManage_id()) ? " exists" : "") + ">备注</label>" +
 					"</td>");
 			checkContent.append("<td class='TSd1 BSd1 LSd1 R0 '>绝缘电阻：</td>");
 			checkContent.append("<td class='TSd1 BSd1 LSd1 R0 '>10MΩ以上<br>(单位：MΩ)</td>");

@@ -213,7 +213,7 @@
 		FROM jig_check_result cr
 		join jig_manage tm
 		where cr.manage_id = tm.jig_manage_id
-		and date(cr.check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		and cr.check_confirm_time between #{check_confirm_time_start} and date_add(#{check_confirm_time_end}, interval 1 day)
 		]]>
 			<if test="section_id!= null and section_id!=''">
 		<![CDATA[ 
@@ -272,7 +272,7 @@
 		        from
 		            jig_check_result
 		        where
-		            date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		        group by manage_id) tcras
 		ON tcr.manage_id = tcras.manage_id
 		AND tcr.check_confirm_time = tcras.check_confirm_time
@@ -310,7 +310,7 @@
 		select distinct tm.jig_manage_id from jig_manage tm 
 		LEFT JOIN jig_check_result tcr 
 		ON tcr.manage_id = tm.jig_manage_id
-		AND date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		AND check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		WHERE
 		tm.section_id = #{section_id}
 		AND
@@ -443,7 +443,7 @@
 		        and
 		        	check_file_manage_id = #{check_file_manage_id}
 		        and
-		            date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		        ) dcras
 		ON dcr.manage_id = dcras.manage_id
 		AND dcr.item_seq = dcras.item_seq
@@ -472,7 +472,7 @@
 	        and
 	        	item_seq = #{item_seq}
 	        and
-	            date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+	            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 	        and
 	        	checked_status > 0
 	        group by manage_id, item_seq) dcras
@@ -493,7 +493,7 @@
         and
         	check_file_manage_id = #{check_file_manage_id}
         and
-            date(check_confirm_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 	</select>
 
     <select id="getJigUpperStamp" resultType="CheckResultEntity" parameterType="CheckResultEntity">
@@ -595,7 +595,7 @@
 	        and
 	        	item_seq = #{item_seq}
 	        and
-	            date(check_confirm_time) = #{check_confirm_time}
+	            check_confirm_time between #{check_confirm_time} and DATE_ADD(#{check_confirm_time}, INTERVAL 1 DAY)
 	        group by manage_id, item_seq) dcras
 		ON dcr.manage_id = dcras.manage_id
 		AND dcr.item_seq = dcras.item_seq
@@ -617,7 +617,7 @@
 		ON cc.manage_id = dm.devices_manage_id
 		where manage_id = #{manage_id}
 		and object_type = 1
-		and date(input_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		order by input_time
 		;
 	</select>
@@ -626,7 +626,7 @@
 		SELECT group_concat(content, ' ' , date_format(input_time, '%m-%d') order by input_time separator '\n') FROM check_comment
 		where manage_id = #{manage_id}
 		and object_type = 2
-		and date(input_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		;
 	</select>
 
@@ -634,7 +634,7 @@
 		SELECT group_concat(content, ' ' , date_format(input_time, '%m-%d') order by input_time separator '\n') FROM check_comment
 		where manage_id = #{manage_id}
 		and object_type = 1
-		and date(input_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		;
 	</select>
 
@@ -642,7 +642,7 @@
 		SELECT group_concat(content, ' ' , date_format(input_time, '%m-%d') order by input_time separator '\n') FROM check_comment
 		where manage_id = #{manage_id}
 		and object_type = 2
-		and date(input_time) between #{check_confirm_time_start} and #{check_confirm_time_end}
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 		;
 	</select>
 
@@ -658,6 +658,30 @@
 			(#{manage_id}, #{object_type}, #{check_confirm_time}, #{operator_id}, #{comment});
 		]]>
 	</insert>
+
+	<select id="checkExistsJigCheckCommentByCondition"  parameterType="CheckResultEntity" resultType="String">
+		SELECT distinct manage_id
+		FROM check_comment cc
+		JOIN jig_manage jm
+		ON cc.manage_id = jm.jig_manage_id
+		where object_type = 2
+		and jm.section_id = #{section_id}
+		and jm.position_id = #{position_id}
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
+		;
+	</select>
+
+	<select id="checkExistsDeviceCheckCommentByCondition"  parameterType="CheckResultEntity" resultType="String">
+		SELECT distinct manage_id
+		FROM check_comment cc
+		where object_type = 1
+		and cc.manage_id in
+		<foreach item="id" collection="manage_ids" open="(" separator="," close=")">
+			#{id}
+		</foreach> 
+		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
+		;
+	</select>
 
     <select id="getWeekCheck" resultType="int" parameterType="CheckResultEntity">
 		<![CDATA[ 

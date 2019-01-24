@@ -233,6 +233,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 														success : ajaxSuccessCheck,
 														error : ajaxError,
 														complete : function(xhrObj){
+															$(".t_comment:checked").next("label").attr("exists", true);
 															$check_comment.dialog("close");
 														}
 													})
@@ -590,7 +591,13 @@ var showInfectSheet =function(infectDetailData, isLeader){
 					}, "关闭" : function(){ $(this).dialog("close"); }
 				}
 			});
-			$("button:contains('okButton') span").text(okButton);
+			setTimeout(function(){
+				$(".ui-dialog-buttonpane button:contains('okButton') span").text(okButton);
+				if ($check_sheet.find("comment[exists]").length > 0) {
+					$(".ui-dialog-buttonpane button:contains('备注')").attr("exists", true);
+				}
+			} , 200);
+
 			// $("button:contains('备注') span").remove();
 		}
 	});

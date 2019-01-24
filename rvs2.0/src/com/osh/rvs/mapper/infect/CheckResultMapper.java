@@ -126,4 +126,10 @@ public interface CheckResultMapper {
 	public List<CheckResultEntity> getNeedElectricIronCheck(CheckResultEntity condition);
 
 	public int getWeekCheck(CheckResultEntity entity);
+
+	public List<String> checkExistsJigCheckCommentByCondition(
+			CheckResultEntity commentCondition);
+
+	public List<String> checkExistsDeviceCheckCommentByCondition(
+			CheckResultEntity commentCondition);
 }

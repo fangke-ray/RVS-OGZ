@@ -51,7 +51,7 @@
 			    from
 			        jig_check_result
 			    where
-			         date(check_confirm_time)>=#{firstDate} and date(check_confirm_time) < #{lastDate}
+			         check_confirm_time>=#{firstDate} and date(check_confirm_time) < #{lastDate}
 			    group by manage_id) aaa ON cr.manage_id = aaa.manage_id
 			        and cr.check_confirm_time = aaa.check_confirm_time) dd
 			    group by dd.manage_id) ccc) s_cr

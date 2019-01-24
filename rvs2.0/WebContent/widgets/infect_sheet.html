@@ -44,6 +44,17 @@ background-color : #FFFFBB;
 .tcs_sheet .ui-button-text-only .ui-button-text {
 	padding: 0.1em 0.1em
 }
+.tcs_sheet .ui-button-text-only[exists]:after,
+.ui-dialog-buttonpane button[exists]:after {
+	content:'　';
+	width:10px;
+	height:10px;
+	background-color:red;
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	border-radius: 5px;
+}
 #coz textarea {
 	resize:none;
 	height:3em;
