@@ -192,7 +192,7 @@
 	<select id="searchCurrentCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(pwd.quantity * pbs.collation)
+			COUNT(pwd.quantity) * pbs.collation
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -218,7 +218,7 @@
 	<select id="searchTodayCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(pwd.collation_quantity * pbs.collation)
+			COUNT(pwd.collation_quantity) * pbs.collation
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -250,7 +250,12 @@
 	<select id="searchCurrentUnPackStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(pwd.quantity * pbs.unpack * partial_unpack.split_quantity)
+			SUM(pbs.unpack *  
+				CASE
+		    		WHEN CEIL(pwd.quantity / partial_unpack.split_quantity) <= 1 THEN 0
+		    		ELSE CEIL(pwd.quantity / partial_unpack.split_quantity)
+		    	END
+		    )
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -303,7 +308,7 @@
 	<select id="searchCurrentOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(pwd.quantity * pbs.on_shelf)
+			COUNT(pwd.quantity) * pbs.on_shelf
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -329,7 +334,7 @@
 	<select id="searchTodayOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			SUM(fpw.quantity * pbs.on_shelf)
+			COUNT(fpw.quantity) * pbs.on_shelf
 		FROM
 			fact_production_feature fpf
 		JOIN
