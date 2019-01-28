@@ -81,6 +81,7 @@
 		<typeAlias alias="WeeklyKpiDataEntity" type="com.osh.rvs.bean.report.WeeklyKpiDataEntity"/>
 		
 		<typeAlias alias="PartialBussinessStandardEntity" type="com.osh.rvs.bean.master.PartialBussinessStandardEntity"/>
+		<typeAlias alias="PeripheralInfectDeviceEntity" type="com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity"/>
 		<typeAlias alias="DryingOvenDeviceEntity" type="com.osh.rvs.bean.infect.DryingOvenDeviceEntity"/>
 		<typeAlias alias="PartialUnpackEntity" type="com.osh.rvs.bean.master.PartialUnpackEntity"/>
 		<typeAlias alias="FactProductionFeatureEntity" type="com.osh.rvs.bean.partial.FactProductionFeatureEntity"/>
@@ -148,6 +149,7 @@
 		<mapper resource="com/osh/rvs/mapper/infect/DryingOvenDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/ElectricIronDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/ExternalAdjustmentMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/infect/PeripheralInfectDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/TorsionDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/CheckUnqualifiedRecordMapper.xml"/>
 

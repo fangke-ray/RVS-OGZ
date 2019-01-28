@@ -208,7 +208,8 @@ public class InitServlet extends HttpServlet {
 //				    .withSchedule(cronSchedule("0 20 19 ? * 2#1")) // first Monday
 //					.build();
 
-			scheduler.scheduleJob(job, trigger);
+//			scheduler.scheduleJob(job, trigger);
+
 			// 作业剩余时间脚本
 			job = newJob(RemainTimeJob.class)
 			    .withIdentity("remainTimeJob", "rvspush")

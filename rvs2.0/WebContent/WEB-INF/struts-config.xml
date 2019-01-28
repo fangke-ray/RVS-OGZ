@@ -77,6 +77,7 @@
 		<form-bean name="UsageCheckForm" type="com.osh.rvs.form.infect.UsageCheckForm"></form-bean>
 		<form-bean name="TorsionDeviceForm" type="com.osh.rvs.form.infect.TorsionDeviceForm"></form-bean>
 		<form-bean name="ElectricIronDeviceForm" type="com.osh.rvs.form.infect.ElectricIronDeviceForm"></form-bean>
+		<form-bean name="PeripheralInfectDeviceForm" type="com.osh.rvs.form.infect.PeripheralInfectDeviceForm"></form-bean>
 		<form-bean name="WeeklyKpiDataForm" type="com.osh.rvs.form.report.WeeklyKpiDataForm"></form-bean>
 		<form-bean name="GlueMixingForm" type="com.osh.rvs.form.inline.GlueMixingForm"></form-bean>
 		
@@ -806,6 +807,16 @@
 				validate="false">
 				<forward name="init" path="/pages/admin/brand.jsp"></forward>	
 				<forward name="success" path="/pages/admin/brand.jsp"></forward>		
+		</action>
+
+		<!-- 周边设备点检关系 -->
+		<action path="/peripheral_infect_device"
+				type="com.osh.rvs.action.infect.PeripheralInfectDeviceAction"
+				name="PeripheralInfectDeviceForm"
+				parameter="method"
+		        validate="false" 
+				scope="request">
+				<forward name="init" path="/pages/infect/peripheral_infect_device.jsp"></forward>
 		</action>
 
 		<!-- 零件出入库工时标准 -->

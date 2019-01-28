@@ -38,6 +38,7 @@ $(function() {
 			   <a target="_parent" href="torsion_device.do">力矩工具一览</a><br>
 			   <a target="_parent" href="electric_iron_device.do">电烙铁工具一览</a><br>
 			   <a target="_parent" href="drying_oven_device_forward.do">烘干工具一览</a><br>
+		       <a target="_parent" href="peripheral_infect_device.do">周边设备点检关系</a><br>
 <% } else { %>
 		       <a target="_parent" href="devices_distribute.do">设备・一般工具分布</a><br>		      
 		       <a target="_parent" href="tools_distribute.do">专用工具分布</a><br>

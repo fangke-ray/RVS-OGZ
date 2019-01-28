@@ -15,7 +15,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery.validate.js"></script>
 <script type="text/javascript" src="js/jquery.dialog.js"></script>
 <script type="text/javascript" src="js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="js/i18n/grid.locale-cn.js"></script>
@@ -37,13 +36,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="ui-widget-panel ui-corner-all width-full" style="align: center; padding-top: 16px; padding-bottom: 16px; width: 1266px;" id="body-2">
 			<div id="body-lft" style="width: 256px; float: left;">
 				<jsp:include page="/appmenu.do?method=tinit" flush="true">
-					<jsp:param name="linkto" value="设备工具/治具信息管理" />
+					<jsp:param name="linkto" value="设备工具•专用工具信息管理"/>
 				</jsp:include>
 			</div>
 			
 			<div id="body-mdl" style="width: 994px; float: left;">
 				<div id="searcharea" class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-					<span class="areatitle">检索条件</span>
+				<span class="areatitle">设备・一般工具检索条件</span>
 					<a target="_parent" role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 						<span class="ui-icon ui-icon-circle-triangle-n"></span>
 					</a>
