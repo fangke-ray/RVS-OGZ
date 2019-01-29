@@ -24,6 +24,7 @@
 		<typeAlias alias="CheckedFileStorageEntity" type="com.osh.rvs.entity.CheckedFileStorageEntity" />
 		<typeAlias alias="ConsumableOrderEntity" type="com.osh.rvs.entity.ConsumableOrderEntity" />
 		<typeAlias alias="ProductionAssignEntity" type="com.osh.rvs.entity.ProductionAssignEntity" />
+		<typeAlias alias="PartialWarehouseEntity" type="com.osh.rvs.entity.PartialWarehouseEntity" />
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -42,6 +43,7 @@
 	</environments>
 	<mappers>
 		<mapper resource="com/osh/rvs/mapper/push/CommonMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/UserDefineCodesMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/MaterialMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/AlarmMesssageMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/HolidayMapper.xml" />
@@ -56,5 +58,6 @@
 		<mapper resource="com/osh/rvs/mapper/statistics/InfectMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/ProductionAssignMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/statistics/DailyKpiReachMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/PartialWarehouseMapper.xml" />
 	</mappers>
 </configuration> 

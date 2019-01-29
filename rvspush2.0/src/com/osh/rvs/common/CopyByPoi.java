@@ -8,12 +8,13 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 
 public class CopyByPoi {
 
 	/**
 	 * 复制一个单元格样式到目的单元格样式
-	 * 
+	 *
 	 * @param fromStyle
 	 * @param toStyle
 	 */
@@ -45,7 +46,7 @@ public class CopyByPoi {
 
 	/**
 	 * 行复制功能
-	 * 
+	 *
 	 * @param fromRow
 	 * @param toRow
 	 */
@@ -61,7 +62,7 @@ public class CopyByPoi {
 
 	/**
 	 * 复制单元格
-	 * 
+	 *
 	 * @param srcCell
 	 * @param distCell
 	 * @param copyValueFlag
@@ -100,5 +101,40 @@ public class CopyByPoi {
 			} else { // nothing29
 			}
 		}
+	}
+
+	/**
+	 * 获取单元格数据
+	 *
+	 * @param cell
+	 *            Excel单元格
+	 * @return String 单元格数据内容
+	 */
+	public static String getStringCellValue(XSSFCell cell) {
+		String strCell = "";
+
+		if(cell == null) {
+			return strCell;
+		}
+
+		switch (cell.getCellType()) {
+		case XSSFCell.CELL_TYPE_STRING:
+			strCell = cell.getStringCellValue();
+			break;
+		case XSSFCell.CELL_TYPE_BOOLEAN:
+			strCell = String.valueOf(cell.getBooleanCellValue());
+			break;
+		case XSSFCell.CELL_TYPE_NUMERIC:
+			Double dValue = cell.getNumericCellValue();
+			strCell = dValue.toString();
+			break;
+		case XSSFCell.CELL_TYPE_BLANK:
+			strCell = "";
+			break;
+		default:
+			strCell = "";
+			break;
+		}
+		return strCell;
 	}
 }

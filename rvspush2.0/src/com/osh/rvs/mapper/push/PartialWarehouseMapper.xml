@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.PartialWarehouseMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<select id="searchMonthWorkRecord" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT
+			fpf.fact_pf_key,
+			pw.key,
+			fpf.production_type,
+			fpf.action_time,
+		    fpf.finish_time,
+		    operator.name AS operator_name,
+		    operator.operator_id,
+		    operator.job_no,
+		    COALESCE(pw.warehouse_no,material.omr_notifi_no) AS warehouse_no
+		FROM
+			fact_production_feature fpf
+		JOIN
+			operator 
+		ON
+			fpf.operator_id = operator.operator_id
+		LEFT JOIN
+			partial_warehouse pw
+		ON
+			pw.key = fpf.partial_warehouse_key
+		LEFT JOIN
+			material
+		ON
+			material.material_id = fpf.material_id
+		WHERE
+			fpf.action_time >= #{start_date}
+		AND
+			fpf.finish_time < DATE_ADD(#{start_date},INTERVAL 1 MONTH)
+		ORDER BY
+			operator.job_no, fpf.action_time
+	]]>
+	</select>
+
+	<select id="countReceptStandardTime" resultType="java.math.BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			COALESCE(SUM(temp.recept),0)
+		FROM
+		(
+		SELECT
+		     CASE
+				WHEN pbs.box_count = -1 THEN 1 * pbs.recept
+				ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)  * pbs.recept
+			END AS recept
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pwd.key = #{key}
+		GROUP BY
+			v_partial.spec_kind
+		) temp
+	]]>
+	</select>
+
+	<select id="countCollectCaseStandardTime" resultType="BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+		    COALESCE(SUM(pwd.quantity * pbs.collect_case),0)
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		JOIN
+			fact_production_feature fpf
+		ON
+			fpf.partial_warehouse_key = pwd.key
+		WHERE
+			pwd.key = #{key}
+	]]>
+	</select>
+	
+	<select id="countCollationAndOnShelfStandardTime" resultType="BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			COALESCE(SUM(pwd.collation_quantity * pbs.collation),0)
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pwd.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<select id="countCollationStandardTime" resultType="BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			COALESCE(COUNT(pwd.collation_quantity) * pbs.collation,0)
+		FROM
+			partial_warehouse_detail pwd
+		JOIN
+			v_partial
+		ON
+			v_partial.partial_id = pwd.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pwd.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<select id="countUnPackStandardTime" resultType="BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			COALESCE(SUM(fpw.quantity * pbs.unpack),0)
+		FROM
+			fact_partial_warehouse fpw
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			fpw.spec_kind = pbs.spec_kind
+		WHERE
+			fpw.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+	<select id="countOnShelfStandardTime" resultType="BigDecimal" parameterType="string">
+	<![CDATA[
+		SELECT
+			COALESCE(COUNT(fpw.quantity) * pbs.on_shelf,0)
+		FROM
+			fact_partial_warehouse fpw
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			fpw.spec_kind = pbs.spec_kind
+		WHERE
+			fpw.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+
+	<select id="countReceptBox" resultType="PartialWarehouseEntity" parameterType="string" >
+	<![CDATA[
+		SELECT 
+			v_partial.spec_kind,
+			CASE
+				WHEN pbs.box_count = -1 THEN 1
+				ELSE CEIL(SUM(pwd.quantity) / pbs.box_count)
+			END AS quantity
+		FROM 
+			partial_warehouse_detail pwd
+		JOIN 
+			v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			 pwd.key = #{key}
+		GROUP BY 
+			v_partial.spec_kind
+	]]>
+	</select>
+
+	<select id="countCollectQuantity" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT
+			v_partial.spec_kind,
+			SUM(pwd.collation_quantity) AS quantity
+		FROM 
+			partial_warehouse_detail pwd
+		JOIN 
+			v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+		 	pwd.fact_pf_key = #{fact_pf_key}
+		GROUP BY
+			v_partial.spec_kind
+	]]>
+		
+	</select>
+
+	<select id="countUnPackAndOnShelfQuantity" resultType="PartialWarehouseEntity" parameterType="string" >
+	<![CDATA[
+		SELECT
+			spec_kind,
+			quantity
+		FROM
+			fact_partial_warehouse fpw
+		WHERE
+			fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+
+	<select id="getComment" parameterType="string" resultType="string">
+	<![CDATA[
+		SELECT
+			fpc.comment
+		FROM
+			fact_production_feature fpf
+		JOIN
+			fact_production_comment fpc
+		ON
+			fpf.fact_pf_key = fpc.fact_pf_key
+		WHERE
+			fpf.fact_pf_key = #{fact_pf_key}
+	]]>
+	</select>
+	
+</mapper>

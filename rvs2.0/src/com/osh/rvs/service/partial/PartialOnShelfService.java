@@ -177,7 +177,7 @@ public class PartialOnShelfService {
 			// 标准工时
 			BigDecimal time = map.get(specKind).getOn_shelf();
 
-			time = time.multiply(new BigDecimal(quantity));
+			time = time.multiply(new BigDecimal(1));
 
 			totalTime = totalTime.add(time);
 		}

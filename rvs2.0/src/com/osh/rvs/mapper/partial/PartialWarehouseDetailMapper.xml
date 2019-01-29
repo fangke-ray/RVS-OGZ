@@ -119,7 +119,7 @@
 		    v_partial.code,
 			v_partial.name AS partial_name,
 		    pu.split_quantity,
-		    pwd.collation_quantity * pu.split_quantity AS total_split_quantity,
+		    CEIL(pwd.collation_quantity / pu.split_quantity) AS total_split_quantity,
 		    v_partial.spec_kind
 		FROM
 			partial_warehouse_detail pwd
@@ -133,6 +133,8 @@
 			pwd.partial_id = v_partial.partial_id
 		WHERE 
 			pwd.key = #{key}
+		HAVING 
+			total_split_quantity > 1
 		ORDER BY
 			pwd.seq
 	]]>

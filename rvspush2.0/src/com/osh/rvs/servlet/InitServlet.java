@@ -28,6 +28,7 @@ import com.osh.rvs.job.ForecastOverTimeOfMaterialJob;
 import com.osh.rvs.job.InfectWarningJob;
 import com.osh.rvs.job.InlinePlanJob;
 import com.osh.rvs.job.OverTimeOfMaterialJob;
+import com.osh.rvs.job.PartialWarehouseJob;
 import com.osh.rvs.job.PositionStandardTimeQueue;
 import com.osh.rvs.job.RemainTimeJob;
 import com.osh.rvs.job.SchedulePostponeJob;
@@ -265,6 +266,15 @@ public class InitServlet extends HttpServlet {
 
 				inlineJobStep ++;
 			}
+
+			// 零件出入库工时
+			job = newJob(PartialWarehouseJob.class).withIdentity("partialWarehouseJob", "rvspush").build();
+
+			trigger = newTrigger().withIdentity("partialWarehouseTrigger", "rvspush")
+					.withSchedule(dailyAtHourAndMinute(23, 05)) // 23, 05
+					.build();
+
+			scheduler.scheduleJob(job, trigger);
 
 		} catch (NumberFormatException nfe) {
 			logger.error("Scheduler Load Fail :" + nfe.getMessage() , nfe);

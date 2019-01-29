@@ -219,6 +219,389 @@ public class PartialCollationAction extends BaseAction {
 		// 进行中的作业信息
 		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
 
+//		String factPfKey = factProductionFeatureForm.getFact_pf_key();
+//		String key = factProductionFeatureForm.getPartial_warehouse_key();
+//
+//		// 入库单信息
+//		PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+//		String warehouseNo = partialWarehouseForm.getWarehouse_no();
+//
+//		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+//
+//		List<PartialWarehouseDetailForm> list = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
+//
+//		Map<String, String[]> parameters = req.getParameterMap();
+//
+//		for (String parameterKey : parameters.keySet()) {
+//			Matcher m = p.matcher(parameterKey);
+//			if (m.find()) {
+//				String entity = m.group(1);
+//				if ("partial_warehouse_detail".equals(entity)) {
+//					String column = m.group(2);
+//					int icounts = Integer.parseInt(m.group(3));
+//					String[] value = parameters.get(parameterKey);
+//
+//					if ("partial_id".equals(column)) {
+//						list.get(icounts).setPartial_id(value[0]);
+//					}else if ("seq".equals(column)) {
+//						list.get(icounts).setSeq(value[0]);
+//					}  else if ("collation_quantity".equals(column)) {
+//						list.get(icounts).setCollation_quantity(value[0]);
+//					} else if ("flg".equals(column)) {
+//						list.get(icounts).setFlg(value[0]);
+//					}
+//
+//					list.get(icounts).setKey(key);
+//					list.get(icounts).setFact_pf_key(factPfKey);
+//				}
+//			}
+//		}
+//
+//		//判断是否扫描了新零件
+//		for(PartialWarehouseDetailForm partialWarehouseDetailForm : list){
+//			String flg = partialWarehouseDetailForm.getFlg();
+//
+//			if ("1".equals(flg)) {
+//				PartialWarehouseDnForm partialWarehouseDnForm =	partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(warehouseNo + "E", conn);
+//
+//				if(partialWarehouseDnForm == null){
+//					partialWarehouseDnForm = new PartialWarehouseDnForm();
+//					partialWarehouseDnForm.setKey(key);
+//					partialWarehouseDnForm.setSeq("0");
+//					partialWarehouseDnForm.setWarehouse_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+//					partialWarehouseDnForm.setDn_no(warehouseNo + "E");
+//
+//					//新建零件入库DN编号
+//					partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
+//				}
+//				break;
+//			}
+//		}
+//
+//		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+//			String flg = partialWarehouseDetailForm.getFlg();
+//
+//			if ("1".equals(flg)) {// 零件在此单中不存在
+//				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
+//				partialWarehouseDetailForm.setQuantity(collationQuantity);
+//				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
+//				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
+//			} else if ("0".equals(flg)) { //零件在此单中不存在,但是已经加入此单中
+//				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
+//				partialWarehouseDetailForm.setQuantity(collationQuantity);
+//				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
+//				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
+//			} else {
+//				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
+//			}
+//		}
+
+		// 更新处理结束时间
+		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
+
+		/* 检查错误时报告错误信息 */
+		callbackResponse.put("errors", errors);
+		/* 返回Json格式响应信息 */
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("PartialCollationAction.doBreak end");
+	}
+
+	/**
+	 * 检查是否核对完毕
+	 *
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void checkCollationFinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
+		log.info("PartialCollationAction.checkCollationFinish start");
+
+		/* Ajax反馈对象 */
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+//		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+//		List<PartialWarehouseDetailForm> partialMapList = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
+//		Map<String, String> partialMap = new HashMap<String, String>();
+//		Map<String, String[]> parameters = req.getParameterMap();
+//
+//		for (String parameterKey : parameters.keySet()) {
+//			Matcher m = p.matcher(parameterKey);
+//			if (m.find()) {
+//				String entity = m.group(1);
+//				if ("partial_warehouse_detail".equals(entity)) {
+//					String column = m.group(2);
+//					String[] value = parameters.get(parameterKey);
+//					int icounts = Integer.parseInt(m.group(3));
+//					if ("partial_id".equals(column)) {
+//						partialMapList.get(icounts).setPartial_id(value[0]);
+//					} else if ("seq".equals(column)) {
+//						partialMapList.get(icounts).setSeq(value[0]);
+//					} else if ("collation_quantity".equals(column)) {
+//						partialMapList.get(icounts).setCollation_quantity(value[0]);
+//					}
+//				}
+//			}
+//		}
+//
+//		for (PartialWarehouseDetailForm o : partialMapList) {
+//			partialMap.put(o.getPartial_id() + "/" + o.getSeq(), o.getCollation_quantity());
+//		}
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
+		String key = factProductionFeatureForm.getPartial_warehouse_key();
+
+		// 当前作业单中所有零件
+		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
+		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+//			String partialID = partialWarehouseDetailForm.getPartial_id();
+//			String seq = partialWarehouseDetailForm.getSeq();
+
+			// 页面核对的零件不用检查
+//			if (partialMap.containsKey(partialID + "/" + seq)) {
+//				continue;
+//			}
+
+			String factPfKey = partialWarehouseDetailForm.getFact_pf_key();
+			// 未核对
+			if (CommonStringUtil.isEmpty(factPfKey)) {
+				MsgInfo error = new MsgInfo();
+				error.setErrmsg("此单尚有零件" + partialWarehouseDetailForm.getCode() + "未核对完毕，不能完成核对。如要进行另一部分的核对，请先中断作业。");
+				errors.add(error);
+				break;
+			}
+		}
+		if (errors.size() == 0) {
+			boolean flg = false;
+			for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+
+//				String partialID = partialWarehouseDetailForm.getPartial_id();
+//				String seq = partialWarehouseDetailForm.getSeq();
+
+//				String mapKey = partialID +"/" + seq;
+
+				// 数量
+				Integer quantity = Integer.valueOf(partialWarehouseDetailForm.getQuantity());
+
+				// 核对数量
+				Integer collationQuantity = null;
+
+//				if (partialMap.containsKey(mapKey)) {
+//					collationQuantity = Integer.valueOf(partialMap.get(mapKey));
+//				} else {
+					collationQuantity = Integer.valueOf(partialWarehouseDetailForm.getCollation_quantity());
+//				}
+
+				// 核对数量不一致
+				if (quantity != collationQuantity) {
+					flg = true;
+					break;
+				}
+			}
+
+			callbackResponse.put("differ", flg);
+		}
+
+		/* 检查错误时报告错误信息 */
+		callbackResponse.put("errors", errors);
+		/* 返回Json格式响应信息 */
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("PartialCollationAction.checkCollationFinish end");
+
+	}
+
+	public void doFinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
+		log.info("PartialCollationAction.doFinish start");
+
+		/* Ajax反馈对象 */
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		//入库进展，2：核对完成
+		String step = "2";
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
+		//String factPfKey = factProductionFeatureForm.getFact_pf_key();
+		String key = factProductionFeatureForm.getPartial_warehouse_key();
+
+		// 入库单信息
+		PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+		//String warehouseNo = partialWarehouseForm.getWarehouse_no();
+
+
+//		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+//		List<PartialWarehouseDetailForm> list = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
+//
+//		Map<String, String[]> parameters = req.getParameterMap();
+//
+//		for (String parameterKey : parameters.keySet()) {
+//			Matcher m = p.matcher(parameterKey);
+//			if (m.find()) {
+//				String entity = m.group(1);
+//				if ("partial_warehouse_detail".equals(entity)) {
+//					String column = m.group(2);
+//					int icounts = Integer.parseInt(m.group(3));
+//					String[] value = parameters.get(parameterKey);
+//
+//					if ("partial_id".equals(column)) {
+//						list.get(icounts).setPartial_id(value[0]);
+//					} else if ("seq".equals(column)) {
+//						list.get(icounts).setSeq(value[0]);
+//					} else if ("collation_quantity".equals(column)) {
+//						list.get(icounts).setCollation_quantity(value[0]);
+//					} else if ("flg".equals(column)) {
+//						list.get(icounts).setFlg(value[0]);
+//					}
+//
+//					list.get(icounts).setKey(key);
+//					list.get(icounts).setFact_pf_key(factPfKey);
+//				}
+//			}
+//		}
+//
+//
+//		//判断是否扫描了新零件
+//		for(PartialWarehouseDetailForm partialWarehouseDetailForm : list){
+//			String flg = partialWarehouseDetailForm.getFlg();
+//
+//			if ("1".equals(flg)) {
+//				PartialWarehouseDnForm partialWarehouseDnForm =	partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(warehouseNo + "E", conn);
+//
+//				if(partialWarehouseDnForm == null){
+//					partialWarehouseDnForm = new PartialWarehouseDnForm();
+//					partialWarehouseDnForm.setKey(key);
+//					partialWarehouseDnForm.setSeq("0");
+//					partialWarehouseDnForm.setWarehouse_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+//					partialWarehouseDnForm.setDn_no(warehouseNo + "E");
+//
+//					//新建零件入库DN编号
+//					partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
+//				}
+//				break;
+//			}
+//		}
+//
+//		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
+//			String flg = partialWarehouseDetailForm.getFlg();
+//
+//			if ("1".equals(flg)) {// 零件在此单中不存在
+//				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
+//				partialWarehouseDetailForm.setQuantity(collationQuantity);
+//				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
+//				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
+//			} else if ("0".equals(flg)) {
+//				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
+//				partialWarehouseDetailForm.setQuantity(collationQuantity);
+//				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
+//				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
+//			} else {
+//				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
+//			}
+//		}
+
+		// 更新处理结束时间
+		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
+
+		int b1= 0;
+		List<PartialWarehouseDetailForm> allPartialList = partialWarehouseDetailService.searchByKey(key, conn);
+		for (PartialWarehouseDetailForm partialWarehouseDetailForm : allPartialList) {
+			// 上架
+			BigDecimal onShelf = new BigDecimal(partialWarehouseDetailForm.getOn_shelf());
+			if (onShelf.compareTo(BigDecimal.ZERO) < 0){// 【B1：核对+上架】
+				b1++;
+			}
+		}
+
+		//订购单零件都是B1时，step为3
+		if(b1 == allPartialList.size()){
+			step = "3";
+		}
+
+		// 结束核对单
+		// 入库进展
+		partialWarehouseForm.setStep(step);
+
+		// 更新入库进展
+		partialWarehouseService.updateStep(partialWarehouseForm, conn);
+
+		/* 检查错误时报告错误信息 */
+		callbackResponse.put("errors", errors);
+		/* 返回Json格式响应信息 */
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("PartialCollationAction.doFinish end");
+	}
+
+
+	/**
+	 * 检查选择的作业内容在入库单中是否匹配
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void checkUnMatch(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
+		log.info("PartialCollationAction.checkUnMatch start");
+
+		/* Ajax反馈对象 */
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		//入库单KEY
+		String key  = req.getParameter("partial_warehouse_key");
+
+		//作业内容
+		String productionType  = req.getParameter("production_type");
+
+		// 当前作业单中所有零件
+		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
+		// 过滤核对的数据
+		List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialCollationService.filterCollation(list, productionType);
+
+		boolean matchFlg = true;
+
+		if(partialWarehouseDetailList.size() == 0){
+			matchFlg = false;
+		}
+
+		callbackResponse.put("matchFlg", matchFlg);
+
+		/* 检查错误时报告错误信息 */
+		callbackResponse.put("errors", errors);
+		/* 返回Json格式响应信息 */
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("PartialCollationAction.checkUnMatch end");
+	}
+
+	/**
+	 * 更新核对数量
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doUpdateQuantity(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn)throws Exception{
+		log.info("PartialCollationAction.doUpdateQuantity start");
+
+		/* Ajax反馈对象 */
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
+
 		String factPfKey = factProductionFeatureForm.getFact_pf_key();
 		String key = factProductionFeatureForm.getPartial_warehouse_key();
 
@@ -296,291 +679,13 @@ public class PartialCollationAction extends BaseAction {
 			}
 		}
 
-		// 更新处理结束时间
-		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
 
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);
 		/* 返回Json格式响应信息 */
 		returnJsonResponse(res, callbackResponse);
 
-		log.info("PartialCollationAction.doBreak end");
-	}
-
-	/**
-	 * 检查是否核对完毕
-	 *
-	 * @param mapping
-	 * @param form
-	 * @param req
-	 * @param res
-	 * @param conn
-	 * @throws Exception
-	 */
-	public void checkCollationFinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
-		log.info("PartialCollationAction.checkCollationFinish start");
-
-		/* Ajax反馈对象 */
-		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-
-		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
-		List<PartialWarehouseDetailForm> partialMapList = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
-		Map<String, String> partialMap = new HashMap<String, String>();
-		Map<String, String[]> parameters = req.getParameterMap();
-
-		for (String parameterKey : parameters.keySet()) {
-			Matcher m = p.matcher(parameterKey);
-			if (m.find()) {
-				String entity = m.group(1);
-				if ("partial_warehouse_detail".equals(entity)) {
-					String column = m.group(2);
-					String[] value = parameters.get(parameterKey);
-					int icounts = Integer.parseInt(m.group(3));
-					if ("partial_id".equals(column)) {
-						partialMapList.get(icounts).setPartial_id(value[0]);
-					} else if ("seq".equals(column)) {
-						partialMapList.get(icounts).setSeq(value[0]);
-					} else if ("collation_quantity".equals(column)) {
-						partialMapList.get(icounts).setCollation_quantity(value[0]);
-					}
-				}
-			}
-		}
-
-		for (PartialWarehouseDetailForm o : partialMapList) {
-			partialMap.put(o.getPartial_id() + "/" + o.getSeq(), o.getCollation_quantity());
-		}
-
-		// 进行中的作业信息
-		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
-		String key = factProductionFeatureForm.getPartial_warehouse_key();
-
-		// 当前作业单中所有零件
-		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
-		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
-			String partialID = partialWarehouseDetailForm.getPartial_id();
-			String seq = partialWarehouseDetailForm.getSeq();
-
-			// 页面核对的零件不用检查
-			if (partialMap.containsKey(partialID + "/" + seq)) {
-				continue;
-			}
-
-			String factPfKey = partialWarehouseDetailForm.getFact_pf_key();
-			// 未核对
-			if (CommonStringUtil.isEmpty(factPfKey)) {
-				MsgInfo error = new MsgInfo();
-				error.setErrmsg("此单尚有零件" + partialWarehouseDetailForm.getCode() + "未核对完毕，不能完成核对。如要进行另一部分的核对，请先中断作业。");
-				errors.add(error);
-				break;
-			}
-		}
-		if (errors.size() == 0) {
-			boolean flg = false;
-			for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
-
-				String partialID = partialWarehouseDetailForm.getPartial_id();
-				String seq = partialWarehouseDetailForm.getSeq();
-
-				String mapKey = partialID +"/" + seq;
-
-				// 数量
-				Integer quantity = Integer.valueOf(partialWarehouseDetailForm.getQuantity());
-
-				// 核对数量
-				Integer collationQuantity = null;
-
-				if (partialMap.containsKey(mapKey)) {
-					collationQuantity = Integer.valueOf(partialMap.get(mapKey));
-				} else {
-					collationQuantity = Integer.valueOf(partialWarehouseDetailForm.getCollation_quantity());
-				}
-
-				// 核对数量不一致
-				if (quantity != collationQuantity) {
-					flg = true;
-					break;
-				}
-			}
-
-			callbackResponse.put("differ", flg);
-		}
-
-		/* 检查错误时报告错误信息 */
-		callbackResponse.put("errors", errors);
-		/* 返回Json格式响应信息 */
-		returnJsonResponse(res, callbackResponse);
-
-		log.info("PartialCollationAction.checkCollationFinish end");
-
-	}
-
-	public void doFinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
-		log.info("PartialCollationAction.doFinish start");
-
-		/* Ajax反馈对象 */
-		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-
-		//入库进展，2：核对完成
-		String step = "2";
-
-		// 进行中的作业信息
-		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
-		String factPfKey = factProductionFeatureForm.getFact_pf_key();
-		String key = factProductionFeatureForm.getPartial_warehouse_key();
-
-		// 入库单信息
-		PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
-		String warehouseNo = partialWarehouseForm.getWarehouse_no();
-
-
-		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
-		List<PartialWarehouseDetailForm> list = new AutofillArrayList<PartialWarehouseDetailForm>(PartialWarehouseDetailForm.class);
-
-		Map<String, String[]> parameters = req.getParameterMap();
-
-		for (String parameterKey : parameters.keySet()) {
-			Matcher m = p.matcher(parameterKey);
-			if (m.find()) {
-				String entity = m.group(1);
-				if ("partial_warehouse_detail".equals(entity)) {
-					String column = m.group(2);
-					int icounts = Integer.parseInt(m.group(3));
-					String[] value = parameters.get(parameterKey);
-
-					if ("partial_id".equals(column)) {
-						list.get(icounts).setPartial_id(value[0]);
-					} else if ("seq".equals(column)) {
-						list.get(icounts).setSeq(value[0]);
-					} else if ("collation_quantity".equals(column)) {
-						list.get(icounts).setCollation_quantity(value[0]);
-					} else if ("flg".equals(column)) {
-						list.get(icounts).setFlg(value[0]);
-					}
-
-					list.get(icounts).setKey(key);
-					list.get(icounts).setFact_pf_key(factPfKey);
-				}
-			}
-		}
-
-
-		//判断是否扫描了新零件
-		for(PartialWarehouseDetailForm partialWarehouseDetailForm : list){
-			String flg = partialWarehouseDetailForm.getFlg();
-
-			if ("1".equals(flg)) {
-				PartialWarehouseDnForm partialWarehouseDnForm =	partialWarehouseDnSerice.getPartialWarehouseDnByDnNo(warehouseNo + "E", conn);
-
-				if(partialWarehouseDnForm == null){
-					partialWarehouseDnForm = new PartialWarehouseDnForm();
-					partialWarehouseDnForm.setKey(key);
-					partialWarehouseDnForm.setSeq("0");
-					partialWarehouseDnForm.setWarehouse_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
-					partialWarehouseDnForm.setDn_no(warehouseNo + "E");
-
-					//新建零件入库DN编号
-					partialWarehouseDnSerice.insert(partialWarehouseDnForm, conn);
-				}
-				break;
-			}
-		}
-
-		for (PartialWarehouseDetailForm partialWarehouseDetailForm : list) {
-			String flg = partialWarehouseDetailForm.getFlg();
-
-			if ("1".equals(flg)) {// 零件在此单中不存在
-				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
-				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
-				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
-			} else if ("0".equals(flg)) {
-				String collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
-				partialWarehouseDetailForm.setQuantity(collationQuantity);
-				partialWarehouseDetailForm.setCollation_quantity(collationQuantity);
-				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
-			} else {
-				partialWarehouseDetailService.update(partialWarehouseDetailForm, conn);
-			}
-		}
-
-		// 更新处理结束时间
-		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
-
-		int b1= 0;
-		List<PartialWarehouseDetailForm> allPartialList = partialWarehouseDetailService.searchByKey(key, conn);
-		for (PartialWarehouseDetailForm partialWarehouseDetailForm : allPartialList) {
-			// 上架
-			BigDecimal onShelf = new BigDecimal(partialWarehouseDetailForm.getOn_shelf());
-			if (onShelf.compareTo(BigDecimal.ZERO) < 0){// 【B1：核对+上架】
-				b1++;
-			}
-		}
-
-		//订购单零件都是B1时，step为3
-		if(b1 == allPartialList.size()){
-			step = "3";
-		}
-
-		// 结束核对单
-		// 入库进展
-		partialWarehouseForm.setStep(step);
-
-		// 更新入库进展
-		partialWarehouseService.updateStep(partialWarehouseForm, conn);
-
-		/* 检查错误时报告错误信息 */
-		callbackResponse.put("errors", errors);
-		/* 返回Json格式响应信息 */
-		returnJsonResponse(res, callbackResponse);
-
-		log.info("PartialCollationAction.doFinish end");
-	}
-
-
-	/**
-	 * 检查选择的作业内容在入库单中是否匹配
-	 * @param mapping
-	 * @param form
-	 * @param req
-	 * @param res
-	 * @param conn
-	 * @throws Exception
-	 */
-	public void checkUnMatch(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
-		log.info("PartialCollationAction.checkUnMatch start");
-
-		/* Ajax反馈对象 */
-		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-
-		//入库单KEY
-		String key  = req.getParameter("partial_warehouse_key");
-
-		//作业内容
-		String productionType  = req.getParameter("production_type");
-
-		// 当前作业单中所有零件
-		List<PartialWarehouseDetailForm> list = partialWarehouseDetailService.searchByKey(key, conn);
-		// 过滤核对的数据
-		List<PartialWarehouseDetailForm> partialWarehouseDetailList = partialCollationService.filterCollation(list, productionType);
-
-		boolean matchFlg = true;
-
-		if(partialWarehouseDetailList.size() == 0){
-			matchFlg = false;
-		}
-
-		callbackResponse.put("matchFlg", matchFlg);
-
-		/* 检查错误时报告错误信息 */
-		callbackResponse.put("errors", errors);
-		/* 返回Json格式响应信息 */
-		returnJsonResponse(res, callbackResponse);
-
-		log.info("PartialCollationAction.checkUnMatch end");
+		log.info("PartialCollationAction.doUpdateQuantity end");
 	}
 
 }

@@ -117,7 +117,7 @@ public class PartialCollationService {
 			} else if ("21".equals(productionType)) {// 【B2：核对】
 				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
 					time =map.get(specKind).getCollation();
-					time = time.multiply(new BigDecimal(quantity));
+					time = time.multiply(new BigDecimal(1));
 			}
 
 			totalTime = totalTime.add(time);

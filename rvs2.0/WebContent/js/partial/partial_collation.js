@@ -107,7 +107,7 @@ function startScanner(){
 										"dn_no":warehouse_no + "E",
 										"code":partialForm.code,
 										"partial_name":partialForm.name,
-										"quantity":"",
+										"quantity":"0",
 										"collation_quantity":"",
 										"flg":"1"
 								};
@@ -210,6 +210,7 @@ function updateList(partial_id){
 		buttons : {
 			"确定" : function(){
 				if($("#updateForm").valid()){
+					updateData.clear();
 					$("#updateForm input[type='text'][changed]").each(function(){
 						let seq = $(this).attr("seq");
 						let value = $(this).val().trim();
@@ -232,8 +233,35 @@ function updateList(partial_id){
 						}
 					});
 					
-					$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
-					$(this).dialog("close");
+					var data = getUpdateData();
+					$.ajax({
+						beforeSend : ajaxRequestType,
+						async : true,
+						url : servicePath + '?method=doUpdateQuantity',
+						cache : false,
+						data : data,
+						type : "post",
+						dataType : "json",
+						success : ajaxSuccessCheck,
+						error : ajaxError,
+						complete : function(xhrobj,textStatus){
+							var resInfo = null;
+							try {
+								// 以Object形式读取JSON
+								eval('resInfo =' + xhrobj.responseText);
+								if (resInfo.errors.length > 0) {
+									// 共通出错信息框
+									treatBackMessages(null, resInfo.errors);
+								} else {
+									collationInit();
+									$dialog.dialog("close");
+								}
+							}catch(e){}
+						}
+					});
+					
+					//$("#collationlist").jqGrid('setGridParam', {data : searchlist}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
+					//$(this).dialog("close");
 				}
 			},
 			"取消" : function() {
@@ -289,13 +317,13 @@ function doStart(){
 };
 
 function doEnd(){
-	var data = getUpdateData();
+	//var data = getUpdateData();
 	$.ajax({
 		beforeSend : ajaxRequestType,
 		async : true,
 		url : servicePath + '?method=checkCollationFinish',
 		cache : false,
-		data : data,
+		data : null,
 		type : "post",
 		dataType : "json",
 		success : ajaxSuccessCheck,
@@ -325,14 +353,14 @@ function doEnd(){
 };
 
 function doBreak(){
-	var data = getUpdateData();
+	//var data = getUpdateData();
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
 		async : false,
 		url : servicePath + '?method=doBreak',
 		cache : false,
-		data : data,
+		data : null,
 		type : "post",
 		dataType : "json",
 		success : ajaxSuccessCheck,
