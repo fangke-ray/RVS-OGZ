@@ -399,7 +399,18 @@ public class CheckResultService {
 			checkFileList = eidMapper.searchElectricIronDeviceOnLineByManager(condEntity);
 		} else {
 			condEntity.setSection_id(section_id);
-			checkFileList = eidMapper.searchElectricIronDeviceOnLineByOperator(condEntity);
+			if (positionList != null && positionList.size() > 0) {
+				checkFileList = new ArrayList<DevicesManageEntity>();
+				for (PositionEntity position : positionList) {
+					if (position_id == null || position_id.equals(position.getPosition_id())) {
+						condEntity.setPosition_id(position.getPosition_id());
+						checkFileList.addAll(eidMapper.searchElectricIronDeviceOnLineByOperator(condEntity));
+					}
+				}
+			} else if (position_id != null){
+				condEntity.setPosition_id(position_id);
+				checkFileList = eidMapper.searchElectricIronDeviceOnLineByOperator(condEntity);
+			}
 		}
 
 		for (DevicesManageEntity checkFile : checkFileList) {
@@ -2024,24 +2035,50 @@ public class CheckResultService {
 				for (Integer iAxis : axisJobNo.keySet()) {
 					String jobNo = axisJobNo.get(iAxis);
 					Date checkedDate = axisTime.get(iAxis);
-					retContent = retContent.replaceAll("<confirm type='responser' cycle_type='" + cycleType + "' tab='\\d+' shift='"+(iAxis+1)+"' st='vert'/>", "<img src='/images/sign_v/"+jobNo+"' class='sign_v'>");
-					retContent = retContent.replaceAll("<confirm type='responser' cycle_type='" + cycleType + "' tab='\\d+' shift='"+(iAxis+1)+"' st='hori'/>", "<img src='/images/sign/"+jobNo+"'>");
+
+					Pattern pInputData = Pattern.compile("<confirm type='responser' cycle_type='" + cycleType + "' tab='\\d+' (model_relative='[^']*' )?shift='"+(iAxis+1)+"' st='(.{4})'/>");
+					Matcher mInputData = pInputData.matcher(retContent);
+					while (mInputData.find()) {
+						if (mInputData.group(1) != null && mInputData.group(1).startsWith("model_relative")) {
+							if (mInputData.group(1).indexOf(dmEntity.getModel_name()) < 0) {
+								retContent = retContent.replaceAll(mInputData.group(), "");
+								continue;
+							}
+						}
+						String direction = mInputData.group(2);
+						if ("vert".equals(direction)) {
+							retContent = retContent.replaceAll(mInputData.group(0), "<img src='/images/sign_v/"+jobNo+"' class='sign_v'>");
+						} else if ("hori".equals(direction)) {
+							retContent = retContent.replaceAll(mInputData.group(0), "<img src='/images/sign/"+jobNo+"'>");
+						}
+					}
 
 					retContent = retContent.replaceAll("<cdate type='responser' data_type='1' cycle_type='" + cycleType + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", DateUtil.toString(checkedDate, "M-d"));
 					retContent = retContent.replaceAll("<cdate type='responser' data_type='2' cycle_type='" + cycleType + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", bperiod + DateUtil.toString(checkedDate, " M月d日"));
+					retContent = retContent.replaceAll("<cdate type='responser' data_type='3' cycle_type='" + cycleType + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", DateUtil.toString(checkedDate, "yyyy年M月d日"));
 				}
 			}
 
 			// 取得点检表的线长确认周期
-			Integer confirm_cycle = cfmEntity.getConfirm_cycle();
-			if (confirm_cycle != null) {
+			Integer signCycle = null;
+			// 从文件里取得线长填写周期吧
+			Pattern lReferData = Pattern.compile("<confirm type='leader' cycle_type='(\\d)' tab='\\d+' shift='\\d+' st='.{4}'/>");
+			Matcher mLReferData = lReferData.matcher(retContent);
+			if (mLReferData.find()) {
+				String sSignCycle = mLReferData.group(1);
+				if (sSignCycle != null) {
+					signCycle = Integer.parseInt(sSignCycle);
+				}
+			}
+
+			if (signCycle != null) {
 				CheckResultEntity cre = new CheckResultEntity();
 				cre.setCheck_confirm_time_start(startPDate);
 				cre.setCheck_confirm_time_end(endPDate);
 				cre.setCheck_file_manage_id(check_file_manage_id);
 				cre.setManage_id(manage_id);
 
-				retContent = setLeaderCheck(cre, crMapper, monCal, adjustCal, confirm_cycle, cfmEntity.getCycle_type(), retContent, bperiod, isLeader);
+				retContent = setLeaderCheck(cre, crMapper, monCal, adjustCal, signCycle, cfmEntity.getCycle_type(), retContent, bperiod, isLeader);
 			}
 
 			// 取得参照信息<refer
@@ -2120,7 +2157,7 @@ public class CheckResultService {
 	 * @param crMapper
 	 * @param monCal 文档开始时间
 	 * @param adjustCal 当前时间
-	 * @param confirmCycle 线长确认周期
+	 * @param signCycle 线长填写周期
 	 * @param fileType 文档归档类型
 	 * @param retContent 点检表内容
 	 * @param bperiod 本期文字
@@ -2128,35 +2165,39 @@ public class CheckResultService {
 	 * @return
 	 */
 	private String setLeaderCheck(CheckResultEntity cre, CheckResultMapper crMapper, Calendar monCal,
-			Calendar adjustCal, Integer confirmCycle, Integer fileType,
+			Calendar adjustCal, Integer signCycle, Integer fileType,
 			String retContent, String bperiod, boolean isLeader) {
 		List<CheckResultEntity> lUppers = crMapper.getDeviceUpperStamp(cre);
 
-		int axis = getAxis(adjustCal, confirmCycle, fileType);
+		int axis = getAxis(adjustCal, signCycle, fileType);
 		for (int iAxis=0;iAxis<=axis;iAxis++) {
-			Date[] dates = getDayOfAxis(monCal, iAxis, confirmCycle, fileType);
+			Date[] dates = getDayOfAxis(monCal, iAxis, signCycle, fileType);
+			Calendar endCal = Calendar.getInstance();
+			endCal.setTime(dates[1]);
+			endCal.add(Calendar.DATE, 1);
 			boolean hit = false;
 			for (CheckResultEntity lUpper : lUppers) {
 				Date checkedDate = lUpper.getCheck_confirm_time();
 				if (checkedDate.compareTo(dates[0]) >= 0
-						&& checkedDate.compareTo(dates[1]) < 0) {
+						&& checkedDate.compareTo(endCal.getTime()) < 0) {
 					String jobNo = lUpper.getJob_no();
 					hit = true;
-					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='vert'/>", "<img src='/images/sign_v/"+jobNo+"' class='sign_v'>");
-					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='hori'/>", "<img src='/images/sign/"+jobNo+"'>");
+					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='vert'/>", "<img src='/images/sign_v/"+jobNo+"' class='sign_v'>");
+					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='hori'/>", "<img src='/images/sign/"+jobNo+"'>");
 
-					retContent = retContent.replaceAll("<cdate type='leader' data_type='1' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", DateUtil.toString(checkedDate, "M-d"));
-					retContent = retContent.replaceAll("<cdate type='leader' data_type='2' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", bperiod + DateUtil.toString(checkedDate, " M月d日"));
+					retContent = retContent.replaceAll("<cdate type='leader' data_type='1' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", DateUtil.toString(checkedDate, "M-d"));
+					retContent = retContent.replaceAll("<cdate type='leader' data_type='2' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", bperiod + DateUtil.toString(checkedDate, " M月d日"));
+					retContent = retContent.replaceAll("<cdate type='leader' data_type='3' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", DateUtil.toString(checkedDate, "yyyy年M月d日"));
 					break;
 				}
 			}
 			if (!hit) {
 				if (iAxis==axis && isLeader) {
-					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='.{4}'/>", "<input type='checkbox' id='upper_check' value='上级确认'/><label for='upper_check'>上级确认</label>");
+					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='.{4}'/>", "<input type='checkbox' id='upper_check' value='上级确认'/><label for='upper_check'>上级确认</label>");
 				} else {
-					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='.{4}'/>", "/");
+					retContent = retContent.replaceAll("<confirm type='leader' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"' st='.{4}'/>", "/");
 				}
-				retContent = retContent.replaceAll("<cdate type='leader' data_type='\\d' cycle_type='" + confirmCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", "/");
+				retContent = retContent.replaceAll("<cdate type='leader' data_type='\\d' cycle_type='" + signCycle + "' tab='\\d+' shift='"+(iAxis+1)+"'/>", "/");
 			}
 		}
 		return retContent;
@@ -2777,7 +2818,7 @@ public class CheckResultService {
 			// 取得已点检单元格信息
 			if (listCre != null && listCre.size() > 0) {
 				CheckResultEntity rCre = listCre.get(0);
-				if (rCre.getChecked_status() == 0) {
+				if (rCre.getChecked_status() == 0 && current) {
 					// 填写数据
 					String matchKey = "d_" + trEI.getManage_id() + "_"+item_seq+"_" + iAxis;
 					if ("01".equals(item_seq)) {

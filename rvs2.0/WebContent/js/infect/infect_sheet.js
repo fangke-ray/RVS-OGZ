@@ -11,34 +11,34 @@ var infectSheetServicePath = "usage_check.do";
 var stopDblSubmit = false;
 
 var doExchange = function(){
-			var newManageNo = $("#manage_replace_panel input:text").val();
-			var g_manage_id = $("dtag").attr("manage_id")
-			if (newManageNo) {
-				var postData = {
-					devices_manage_id : g_manage_id,
-					manage_code : newManageNo
-				}
-				$.ajax({
-					beforeSend : ajaxRequestType,
-					async : true,
-					url : 'devices_manage.do?method=doexchange',
-					cache : false,
-					data : postData,
-					type : "post",
-					dataType : "json",
-					success : ajaxSuccessCheck,
-					error : ajaxError,
-					complete : function(xhrObj){
-						var resInfo = $.parseJSON(xhrObj.responseText);
-						if (resInfo.errors.length == 0) {
-							$("#manage_replace_panel").dialog("close");
-							$("#check_sheet").dialog("close");
-							if (typeof findit === "function") findit();
-						}
-					}
-				});
-			}
+	var newManageNo = $("#manage_replace_panel input:text").val();
+	var g_manage_id = $("dtag").attr("manage_id")
+	if (newManageNo) {
+		var postData = {
+			devices_manage_id : g_manage_id,
+			manage_code : newManageNo
 		}
+		$.ajax({
+			beforeSend : ajaxRequestType,
+			async : true,
+			url : 'devices_manage.do?method=doexchange',
+			cache : false,
+			data : postData,
+			type : "post",
+			dataType : "json",
+			success : ajaxSuccessCheck,
+			error : ajaxError,
+			complete : function(xhrObj){
+				var resInfo = $.parseJSON(xhrObj.responseText);
+				if (resInfo.errors.length == 0) {
+					$("#manage_replace_panel").dialog("close");
+					$("#check_sheet").dialog("close");
+					if (typeof findit === "function") findit();
+				}
+			}
+		});
+	}
+}
 
 /* 设备工具检点种详细信息 画面
 	object_type : 设备工具=1/治具=2 * 必须

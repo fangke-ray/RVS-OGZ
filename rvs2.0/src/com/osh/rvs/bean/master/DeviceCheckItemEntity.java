@@ -130,7 +130,7 @@ public class DeviceCheckItemEntity implements Serializable {
 				+ "/>";
 	}
 	public String toXmlDateTag() {
-		return "<cdate type='"+ (data_type == 1 ? "responser" : "leader") 
+		return "<cdate type='"+ (trigger_state == 1 ? "responser" : "leader") 
 				+ "' data_type='"+ data_type 
 				+"' cycle_type='"+ cycle_type 
 				+"' tab='"+ tab

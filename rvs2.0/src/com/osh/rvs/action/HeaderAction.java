@@ -139,9 +139,9 @@ public class HeaderAction extends BaseAction {
 		} else if (privacies.contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
 			// 迁移到零件发放页面
 			actionForward = mapping.findForward("partialAssign");
-		} else if (privacies.contains(RvsConsts.PRIVACY_LINE) || privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-			// 迁移到零件签收页面
-			actionForward = mapping.findForward("partialRecept");
+//		} else if (privacies.contains(RvsConsts.PRIVACY_LINE) || privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+//			// 迁移到零件签收页面
+//			actionForward = mapping.findForward("partialRecept");
 		} else {
 			// 迁移到零件签收订购管理页面
 			actionForward = mapping.findForward("partialManage");

@@ -225,7 +225,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 			and manage_level = 1 
 		</if>
 		<if test="operator_id==null or operator_id==''">
-			and ((`status` = 1 and cfm.access_place != 9) or (`status` = 5 and cfm.access_place != 1))
+			and ((`status` = 1 and cfm.access_place != 9) or (`status` = 5 and cfm.access_place = 9))
 		</if>
 		<if test="sheet_manage_no!=null and sheet_manage_no!=''">
 			and cfm.sheet_file_name like concat('%', #{sheet_manage_no}, '%') 

@@ -140,7 +140,7 @@ function devices_usage_check_list(usage_check_list){
 				{name:'name',index:'name',width : 120},
 				{name:'model_name',index:'model_name',width :100 },
 				{name:'sheet_manage_no',index:'sheet_manage_no',width:180},
-				{name:'cycle_type',index:'cycle_type',align:'center',width:50, formatter:'select', editoptions:{value:"0:日常点检;7:日常点检;6:周点检;8:月点检;9:使用前点检"}},
+				{name:'cycle_type',index:'cycle_type',align:'center',width:50, formatter:'select', editoptions:{value:"0:日常点检;7:日常点检;6:周点检;8:定期点检;9:使用前点检"}},
 				{name:'check_proceed',index:'check_proceed',align:'center',width:50, formatter:'select', editoptions:{value:"0:未点检;1:点检中;2:已点检"}},
 				{name:'check_result', index:'check_result', align:'center',width:50, formatter:'select', editoptions:{value:"1:通过;2:不通过;3:遗失;4:备品"}}
       		],

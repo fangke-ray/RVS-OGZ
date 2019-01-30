@@ -172,6 +172,8 @@ public class ReadInfect {
 								// 单元格的循环
 								if (!isEmpty(cellText)) {
 									String cellNum = XlsUtil.getExcelColCode(iRowIdx) + (irow + 1);
+									// refer可以有空格
+									cellText = cellText.replaceAll("&nbsp;", " ");
 									referItems.put(cellNum, cellText);
 								}
 							}
@@ -794,6 +796,7 @@ public class ReadInfect {
 						switch (format) {
 						case "D" : itemEntity.setData_type(1); break;
 						case "C" : itemEntity.setData_type(2); break;
+						case "L" : itemEntity.setData_type(3); break;
 						default : throw new Exception("不合法的标签：" + cellText);
 						}
 						System.out.print(cycle + "\t");
@@ -802,10 +805,10 @@ public class ReadInfect {
 						itemEntity.setTab(Integer.parseInt(tag.substring(1)));
 					} else if (tag.startsWith("I")) {
 						// 操作者
-						itemEntity.setData_type(1);
+						itemEntity.setTrigger_state(1);
 					} else if (tag.startsWith("L")) {
 						// 单元格中的跳动
-						itemEntity.setData_type(2);
+						itemEntity.setTrigger_state(2);
 					} else if (tag.startsWith("V")) {
 					} else if (tag.startsWith("U")) { // 换行页面不处理
 					} else if (tag.startsWith("M")) {
