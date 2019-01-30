@@ -9,18 +9,22 @@ var showLocate=function(location) {
 		 //新增
 
 		jthis.dialog({
+			position : [ 800, 20 ],
 			title : "WIP 位置标示",
-			width : 688,
+			width : 1000,
 			show: "blind",
-			height : 'auto' ,
+			height : 640,// 'auto' ,
 			resizable : false,
 			modal : true,
+			minHeight : 200,
 			buttons : {"关闭" : function() {
 				jthis.dialog("close");
 			}}
 		});
 
-		jthis.find("td[wipid="+location+"]").removeClass("wip-empty").addClass("ui-storage-highlight");
+		$(".shelf_model").hide();
+		jthis.find("td[wipid="+location+"]").removeClass("wip-empty").addClass("ui-storage-highlight")
+			.parents(".shelf_model").show();
 
 		jthis.show();
 	});

@@ -51,18 +51,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<table class="condform">
 							<tbody>
 								<tr>
-									<td class="ui-state-default td-title" style="height:30px;">修理单号</td>
-									<td class="td-content"><input type="text" id="search_sorc_no" maxlength="15" class="ui-widget-content"></td>
-									<td class="ui-state-default td-title" rowspan="2">维修对象机种</td>
-									<td class="td-content" rowspan="2">
+									<td class="ui-state-default td-title">维修对象机种</td>
+									<td class="td-content" colspan="5">
 										<select name="category_id" id="search_category_id" class="ui-widget-content">${cOptions}</select>	
 									</td>
-									<td class="ui-state-default td-title" rowspan="2">RC</td>
-									<td class="td-content" rowspan="2"><select name="ocm" id="search_ocm" class="ui-widget-content">${oOptions}</select></td>
 								</tr>
 								<tr>
 									<td class="ui-state-default td-title">机身号</td>
 									<td class="td-content"><input type="text" id="search_serialno" maxlength="12" class="ui-widget-content"></td>
+									<td class="ui-state-default td-title" style="height:30px;">修理单号</td>
+									<td class="td-content"><input type="text" id="search_sorc_no" maxlength="15" class="ui-widget-content"></td>
+									<td class="ui-state-default td-title">RC</td>
+									<td class="td-content"><select name="ocm" id="search_ocm" class="ui-widget-content">${oOptions}</select></td>
 								</tr>
 								<tr>
 									<td class="ui-state-default td-title">客户同意日</td>

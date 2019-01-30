@@ -33,11 +33,35 @@ public class CategoryService {
 	public String getOptions(SqlSession conn) {
 		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
 		List<CategoryEntity> l = dao.getAllCategory();
-		Map<String, String> codeMap = new TreeMap<String, String>();
+		// 内镜组
+		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
+		// 周边组
+		Map<String, String> codeMapPeripheral = new TreeMap<String, String>();
 		for (CategoryEntity bean : l) {
-			codeMap.put(bean.getCategory_id(), bean.getName());
+			if (bean.getKind() != 7) {
+				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			} else {
+				codeMapPeripheral.put(bean.getCategory_id(), bean.getName());
+			}
 		}
-		return CodeListUtils.getSelectOptions(codeMap, null, "", false);
+		return "<optgroup label=\"\"><option value=\"\"></option></optgroup>" 
+			+ "<optgroup label=\"内视镜\">" + CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false) + "</optgroup>"
+			+ "<optgroup label=\"周边设备\">" + CodeListUtils.getSelectOptions(codeMapPeripheral, null, null, false) + "</optgroup>";
+	}
+
+	public String getEndoscopeOptions(SqlSession conn) {
+		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
+		List<CategoryEntity> l = dao.getAllCategory();
+		
+		//内镜组
+		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
+		for (CategoryEntity bean : l) {
+			if (bean.getKind() != 7) {
+				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			} 
+		}
+		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false);
+	
 	}
 
 	/**

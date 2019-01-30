@@ -18,7 +18,8 @@ var findit = function() {
 		"reception_time_start" : $("#cond_reception_time_start").data("post"),
 		"reception_time_end" : $("#cond_reception_time_end").data("post"),
 		"direct_flg" : $("#cond_direct_flg").data("post"),
-		"wip_location" : $("#cond_wip_location").data("post")
+		"wip_location" : $("#cond_wip_location").data("post"),
+		"level": $("#cond_level").data("post")
 	};
 
 	$.ajax({
@@ -131,12 +132,14 @@ var showWipMap=function(rid) {
 						 //新增
 				
 						$("#wip_pop").dialog({
+							position : [ 800, 20 ],
 							title : "WIP 入库选择",
-							width : 688,
+							width : 1000,
 							show: "blind",
-							height : 'auto' ,
+							height : 640,// 'auto' ,
 							resizable : false,
 							modal : true,
+							minHeight : 200,
 							buttons : {}
 						});
 
@@ -390,6 +393,7 @@ var showInput=function() {
 $(function() {
 	$("input.ui-button").button();
 	$("#cond_direct_flg").buttonset();
+	$("#cond_level").select2Buttons();
 
 	$("a.areacloser").hover(function() {$(this).addClass("ui-state-hover");
 		}, function() {$(this).removeClass("ui-state-hover");});
@@ -403,6 +407,7 @@ $(function() {
 		$("#cond_reception_time_end").data("post", $("#cond_reception_time_end").val());
 		$("#cond_direct_flg").data("post", $("#cond_direct_flg").find("input:checked").val());
 		$("#cond_wip_location").data("post", $("#cond_wip_location").val());
+		$("#cond_level").data("post", $("#cond_level").val());
 
 		findit();
 	});
@@ -438,6 +443,7 @@ $(function() {
 		$("#cond_reception_time_end").val("");
 		$("#directflg_a").attr("checked", true).trigger("change");
 		$("#cond_wip_location").val("");
+		$("#cond_level").val("").trigger("change");
 
 		$("#cond_sorc_no").data("post", "");
 		$("#cond_model_id").data("post", "");
@@ -446,6 +452,8 @@ $(function() {
 		$("#cond_reception_time_end").data("post", "");
 		$("#cond_direct_flg").data("post", "");
 		$("#cond_wip_location").data("post", "");
+		$("#cond_level").data("post", "");
+
 	});
 
 	$("#cond_reception_time_start, #cond_reception_time_end").datepicker({
@@ -489,12 +497,14 @@ var doMove = function() {
 					this_dialog.load("widgets/qf/wip_map.jsp", function(responseText, textStatus, XMLHttpRequest) {
 					//新增
 					this_dialog.dialog({
+						position : [ 800, 20 ],
 						title : "WIP 入库选择",
-						width : 688,
+						width : 1000,
 						show: "blind",
-						height : 'auto' ,
+						height : 640,// 'auto' ,
 						resizable : false,
 						modal : true,
+						minHeight : 200,
 						buttons : {}
 					});
 			

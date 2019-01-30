@@ -39,16 +39,18 @@ var showWipEmpty=function(rid) {
 				} else {
 					var $wip_pop = $("#wip_pop");
 					$wip_pop.hide();
-					$wip_pop.load("widgets/wip_map.jsp", function(responseText, textStatus, XMLHttpRequest) {
+					$wip_pop.load("widgets/qf/wip_map.jsp", function(responseText, textStatus, XMLHttpRequest) {
 						 //新增
 				
 						$wip_pop.dialog({
+							position : [ 800, 20 ],
 							title : "WIP 入库选择",
-							width : 688,
+							width : 1000,
 							show: "blind",
-							height : 'auto' ,
+							height : 640,// 'auto' ,
 							resizable : false,
 							modal : true,
+							minHeight : 200,
 							buttons : {}
 						});
 
@@ -90,6 +92,13 @@ var showWipEmpty=function(rid) {
 						});
 
 						$wip_pop.show();
+
+						var rowid = $("#list").jqGrid("getGridParam", "selrow");
+						var rowdata = $("#list").getRowData(rowid);
+	
+						if (f_isPeripheralFix(rowdata.level)) {
+						setTimeout(function(){$wip_pop[0].scrollTop = 300}, 200);
+						}
 					});
 				}
 			} catch (e) {
@@ -137,6 +146,9 @@ if (rowids.length > 0) {
 			if (data["scheduled_expedited"] != "0") {
 				scheduled_expedited = true;
 			}
+			if (f_isPeripheralFix(level)) {
+				flag_img = false;
+			}
 		}
 
 		if (scheduled_expedited) {
@@ -160,17 +172,23 @@ if (rowids.length > 0) {
 		$("#inlinebutton").enable();
 		if (rowids.length === 1) {
 			var level = data["level"];
-			if (level == 9 || level == 91 || level == 92 ||level == 93) {
+			if (f_isLightFix(level) || 
+				f_isPeripheralFix(level)) {
 				if (data["agreed_date"] == null || data["agreed_date"].trim() == "") {
 					$("#inlinebutton").disable();
+				} else {
+					$("#inlinebutton").enable();
 				}
 			}
 
 			else if (data["agreed_date"] == null || data["agreed_date"].trim() == "") { // 没有同意日
 				$("#inlinebutton").disable();
 			} else if (flag_img && flag_ccd) { //都不存在
+				$("#inlinebutton").enable();
 			} else if (!flag_img){ //没有有CCD有画像，判断画像状态
-				if (img_operate_result != "完成") {
+				if (img_operate_result == "完成") {
+					$("#inlinebutton").enable();
+				} else {
 					$("#inlinebutton").disable();
 				}
 			}
@@ -817,7 +835,7 @@ $(function() {
 		var rowdata = $list.getRowData(rowids[0]);
 		var level = rowdata["level"];
 		var isLightFix = false;
-		if (level == 9 || level == 91 || level == 92 ||level == 93) {
+		if (f_isLightFix(level)) {
 			isLightFix = true;
 		}
 
@@ -1391,9 +1409,10 @@ var showInlinePlan=function() {
 							tbodyText += "<td colspan=3>(单元)</td>";
 						}
 						// 选用流程
+						var isLightFix = f_isLightFix(material.level);
 						if (material.fix_type == 1) {
-							if (material.level == 9 || material.level == 91 || material.level == 92 || material.level == 93) {
-								tbodyText += "<td>(小修自选流程)</td>";
+							if (isLightFix) {
+								tbodyText += "<td>中小修维修流程</td>";
 							} else { // operator_name as pat_name
 								if (material.inline_time) {
 									tbodyText += "<td pat_id='" + material.pat_id + "'><span>" 
@@ -1405,7 +1424,7 @@ var showInlinePlan=function() {
 							}
 						}
 						if (material.fix_type == 1) {
-							if (material.level == 9 || material.level == 91 || material.level == 92 || material.level == 93) {
+							if (isLightFix) {
 								if (material.quotation_first == 0) {
 									tbodyText += "<td>零件已订购</td>";
 								} else if (material.quotation_first == 1) {

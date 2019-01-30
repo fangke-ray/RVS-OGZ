@@ -266,14 +266,6 @@ public class WipService {
 		WipMapper dao = conn.getMapper(WipMapper.class);
 		dao.stop(material_id);
 
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(material_id, "stop");
-			FseBridgeUtil.toUpdateMaterialProcess(material_id, "stop");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		boolean check = pfMapper.checkPositionDid(material_id, "00000000010", ""+RvsConsts.OPERATE_RESULT_FINISH, null);
 		if (!check) { 
 			check = pfMapper.checkPositionDid(material_id, "00000000011", ""+RvsConsts.OPERATE_RESULT_FINISH, null);
@@ -289,6 +281,35 @@ public class WipService {
 			entity.setOperate_result(0);
 			entity.setRework(0);
 			pfDao.insertProductionFeature(entity);
+
+			// 如果是周边设备则归档 V6
+			MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
+			MaterialEntity mBean = mMapper.getMaterialNamedEntityByKey(material_id);
+			if ("07".equals(mBean.getKind()) && mBean.getFix_type() == 1) {
+				// 如果进行过181则认定为归档 TODO
+				QualityAssuranceMapper qaMapper = conn.getMapper(QualityAssuranceMapper.class);
+				mBean.setQa_check_time(new Date());
+				mBean.setOutline_time(null);
+				qaMapper.updateMaterial(mBean);
+
+				// 推送归档
+				try {
+					URL url = new URL("http://localhost:8080/rvs/download.do?method=file&material_id=" + material_id);
+					url.getQuery();
+					URLConnection urlconn = url.openConnection();
+					urlconn.setReadTimeout(1); // 不等返回
+					urlconn.connect();
+					urlconn.getContentType(); // 这个就能触发
+				} catch (Exception e) {
+					_logger.error("Failed", e);
+				}
+			}
+
+			// 如果是周边或小修理，则取消零件订购。
+			if ("07".equals(mBean.getKind()) || RvsUtils.isLightFix(mBean.getLevel())) {
+				PartialOrderManageService pomService = new PartialOrderManageService();
+				pomService.deleteMaterialPartial(material_id, conn);
+			}
 		} else {
 			// 图象检查
 			ProductionFeatureMapper pfDao = conn.getMapper(ProductionFeatureMapper.class);

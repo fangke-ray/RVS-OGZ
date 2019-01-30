@@ -317,7 +317,9 @@ public class RvsUtils {
 //			sOverline = getZeroOverLine(model_name, category_name, user, process_code);
 //		}
 
+		if (sOverline != null) {
 		sOverline = sOverline.trim();
+		}
 		overLineCache.put(cacheKey, sOverline);
 
 		return sOverline;

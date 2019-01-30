@@ -18,6 +18,8 @@
 				THEN 2
 			WHEN mdl.kind = 06
 				THEN 3
+			WHEN mdl.kind = 07
+				THEN 3
 			WHEN mdl.kind = 03
 				THEN 6 
 			WHEN `m`.level = 1

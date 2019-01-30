@@ -12,6 +12,7 @@ font-size:15px;
 		<span class="areatitle">WIP区域一览</span>
 	</div>
 	<div class="ui-widget-content" style="padding-left:.6em;">
+	<div class="shelf_model" for="endoscope">
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架０</div>
 			<table class="condform wip-table" style="width: 120px;">
@@ -319,8 +320,6 @@ font-size:15px;
 		</table>
 		</div>
 
-		<div class="clear"></div>
-
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架５</div>
 			<table class="condform wip-table" style="width: 120px;">
@@ -443,6 +442,8 @@ font-size:15px;
 				</tr>
 			</table>
 		</div>
+		<div class="clear"></div>
+
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架７</div>
 			<table class="condform wip-table" style="width: 120px;">
@@ -627,7 +628,6 @@ font-size:15px;
 				</tr>
 			</table>
 		</div>
-		<div class="clear"></div>
 
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架10</div>
@@ -812,6 +812,221 @@ font-size:15px;
 				</tr>
 			</table>
 		</div>
+	<div class="clear"></div>
+	<div class="shelf_model" for="peripharial">
+		<div class="cage">
+			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架13(周边)</div>
+			<table class="condform wip-table" style="width: 120px;">
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ａ</th>
+<td wipid="13-A1">1</td>
+<td wipid="13-A2">2</td>
+<td wipid="13-A3">3</td>
+<td wipid="13-A4">4</td>
+<td wipid="13-A5">5</td>
+				</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
+<td wipid="13-B1">1</td>
+<td wipid="13-B2">2</td>
+<td wipid="13-B3">3</td>
+<td wipid="13-B4">4</td>
+<td wipid="13-B5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
+<td wipid="13-C1">1</td>
+<td wipid="13-C2">2</td>
+<td wipid="13-C3">3</td>
+<td wipid="13-C4">4</td>
+<td wipid="13-C5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
+<td wipid="13-D1">1</td>
+<td wipid="13-D2">2</td>
+<td wipid="13-D3">3</td>
+<td wipid="13-D4">4</td>
+<td wipid="13-D5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
+<td wipid="13-E1">1</td>
+<td wipid="13-E2">2</td>
+<td wipid="13-E3">3</td>
+<td wipid="13-E4">4</td>
+<td wipid="13-E5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
+<td wipid="13-F1">1</td>
+<td wipid="13-F2">2</td>
+<td wipid="13-F3">3</td>
+<td wipid="13-F4">4</td>
+<td wipid="13-F5">5</td>
+</tr>
+			</table>
+		</div>
+		<div class="cage">
+			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架14(周边)</div>
+			<table class="condform wip-table" style="width: 120px;">
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ａ</th>
+<td wipid="14-A1">1</td>
+<td wipid="14-A2">2</td>
+<td wipid="14-A3">3</td>
+<td wipid="14-A4">4</td>
+<td wipid="14-A5">5</td>
+				</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
+<td wipid="14-B1">1</td>
+<td wipid="14-B2">2</td>
+<td wipid="14-B3">3</td>
+<td wipid="14-B4">4</td>
+<td wipid="14-B5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
+<td wipid="14-C1">1</td>
+<td wipid="14-C2">2</td>
+<td wipid="14-C3">3</td>
+<td wipid="14-C4">4</td>
+<td wipid="14-C5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
+<td wipid="14-D1">1</td>
+<td wipid="14-D2">2</td>
+<td wipid="14-D3">3</td>
+<td wipid="14-D4">4</td>
+<td wipid="14-D5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
+<td wipid="14-E1">1</td>
+<td wipid="14-E2">2</td>
+<td wipid="14-E3">3</td>
+<td wipid="14-E4">4</td>
+<td wipid="14-E5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
+<td wipid="14-F1">1</td>
+<td wipid="14-F2">2</td>
+<td wipid="14-F3">3</td>
+<td wipid="14-F4">4</td>
+<td wipid="14-F5">5</td>
+</tr>
+			</table>
+		</div>
+		<div class="cage">
+			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架15(周边)</div>
+			<table class="condform wip-table" style="width: 120px;">
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ａ</th>
+<td wipid="15-A1">1</td>
+<td wipid="15-A2">2</td>
+<td wipid="15-A3">3</td>
+<td wipid="15-A4">4</td>
+<td wipid="15-A5">5</td>
+				</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
+<td wipid="15-B1">1</td>
+<td wipid="15-B2">2</td>
+<td wipid="15-B3">3</td>
+<td wipid="15-B4">4</td>
+<td wipid="15-B5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
+<td wipid="15-C1">1</td>
+<td wipid="15-C2">2</td>
+<td wipid="15-C3">3</td>
+<td wipid="15-C4">4</td>
+<td wipid="15-C5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
+<td wipid="15-D1">1</td>
+<td wipid="15-D2">2</td>
+<td wipid="15-D3">3</td>
+<td wipid="15-D4">4</td>
+<td wipid="15-D5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
+<td wipid="15-E1">1</td>
+<td wipid="15-E2">2</td>
+<td wipid="15-E3">3</td>
+<td wipid="15-E4">4</td>
+<td wipid="15-E5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
+<td wipid="15-F1">1</td>
+<td wipid="15-F2">2</td>
+<td wipid="15-F3">3</td>
+<td wipid="15-F4">4</td>
+<td wipid="15-F5">5</td>
+</tr>
+			</table>
+		</div>
+		<div class="cage">
+			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架16(周边)</div>
+			<table class="condform wip-table" style="width: 120px;">
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ａ</th>
+<td wipid="16-A1">1</td>
+<td wipid="16-A2">2</td>
+<td wipid="16-A3">3</td>
+<td wipid="16-A4">4</td>
+<td wipid="16-A5">5</td>
+				</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
+<td wipid="16-B1">1</td>
+<td wipid="16-B2">2</td>
+<td wipid="16-B3">3</td>
+<td wipid="16-B4">4</td>
+<td wipid="16-B5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
+<td wipid="16-C1">1</td>
+<td wipid="16-C2">2</td>
+<td wipid="16-C3">3</td>
+<td wipid="16-C4">4</td>
+<td wipid="16-C5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
+<td wipid="16-D1">1</td>
+<td wipid="16-D2">2</td>
+<td wipid="16-D3">3</td>
+<td wipid="16-D4">4</td>
+<td wipid="16-D5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
+<td wipid="16-E1">1</td>
+<td wipid="16-E2">2</td>
+<td wipid="16-E3">3</td>
+<td wipid="16-E4">4</td>
+<td wipid="16-E5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
+<td wipid="16-F1">1</td>
+<td wipid="16-F2">2</td>
+<td wipid="16-F3">3</td>
+<td wipid="16-F4">4</td>
+<td wipid="16-F5">5</td>
+</tr>
+			</table>
+		</div>
+	<div class="clear"></div>
 	</div>
 
 	<div class="clear areaencloser"></div>

@@ -332,9 +332,9 @@ public class ModelService {
 					tempEntity.setStatus(1);
 					beanList.add(tempEntity);
 				}
-				if(!map.contains(58)){
+				if(!map.contains(59)){
 					tempEntity=new ModelEntity();
-					tempEntity.setLevel(58);
+					tempEntity.setLevel(59);
 					tempEntity.setModel_id(entity.getModel_id());
 					tempEntity.setStatus(1);
 					beanList.add(tempEntity);
@@ -353,7 +353,7 @@ public class ModelService {
 				beanList.add(tempEntity);
 				
 				tempEntity=new ModelEntity();
-				tempEntity.setLevel(58);
+				tempEntity.setLevel(59);
 				tempEntity.setStatus(1);
 				beanList.add(tempEntity);
 			}

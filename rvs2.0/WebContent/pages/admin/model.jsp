@@ -118,46 +118,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<table class="condform">
 				<tr>
 					<td class="ui-state-default td-title">维修对象机种</td>
-					<td class="td-content"><select alt="维修对象机种" name="category_id" id="input_category_id" class="ui-widget-content"><%=request.getAttribute("cOptions")%></select></td>
+					<td class="td-content" colspan="3"><select alt="维修对象机种" name="category_id" id="input_category_id" class="ui-widget-content"><%=request.getAttribute("cOptions")%></select></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">维修对象型号 ID</td>
-					<td class="td-content"><label id="label_edit_id"></label></td>
+					<td class="td-content" colspan="3"><label id="label_edit_id"></label></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">维修对象型号名称</td>
 					<td class="td-content">
 						<input type="text" alt="维修对象型号名称" name="name" id="input_name" maxlength="50" class="ui-widget-content"/>
 					</td>
-				<tr>
-					<td class="ui-state-default td-title">备注1</td>
-					<td class="td-content"><input type="text" alt="备注1" name="feature1" id="input_feature1" maxlength="11" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">备注2</td>
-					<td class="td-content"><input type="text" alt="备注2" name="feature2" id="input_feature2" maxlength="11" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">系列</td>
-					<td class="td-content"><input type="text" alt="系列" name="series" id="input_series" maxlength="11" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">EL 座类别</td>
-					<td class="td-content"><input type="text" alt="EL 座类别" name="el_base_type" id="input_el_base_type" maxlength="16" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">S 连接座类别</td>
-					<td class="td-content"><input type="text" alt="S 连接座类别" name="s_connector_base_type" id="input_s_connector_base_type" maxlength="16" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">操作部类别</td>
-					<td class="td-content"><input type="text" alt="操作部类别" name="operate_part_type" id="input_operate_part_type" maxlength="16" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">接眼类别</td>
-					<td class="td-content"><input type="text" alt="接眼类别" name="ocular_type" id="input_ocular_type" maxlength="16" class="ui-widget-content"></td>
-				</tr>
-				<tr>
 					<td class="ui-state-default td-title">维修对象型号代码</td>
 					<td class="td-content"><input type="text" alt="维修对象型号代码" name="item_code" id="input_item_code" maxlength="50" class="ui-widget-content"></td>
 				</tr>
@@ -166,16 +137,34 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">
 						<textarea id="input_description" style="resize:none" rows="4" cols="25" class="ui-widget-content"></textarea>
 					</td>
+					<td class="ui-state-default td-title">系列</td>
+					<td class="td-content"><input type="text" alt="系列" name="series" id="input_series" maxlength="11" class="ui-widget-content"></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">备注1</td>
+					<td class="td-content"><input type="text" alt="备注1" name="feature1" id="input_feature1" maxlength="11" class="ui-widget-content"></td>
+					<td class="ui-state-default td-title">备注2</td>
+					<td class="td-content"><input type="text" alt="备注2" name="feature2" id="input_feature2" maxlength="11" class="ui-widget-content"></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">EL 座类别</td>
+					<td class="td-content"><input type="text" alt="EL 座类别" name="el_base_type" id="input_el_base_type" maxlength="16" class="ui-widget-content"></td>
+					<td class="ui-state-default td-title">S 连接座类别</td>
+					<td class="td-content"><input type="text" alt="S 连接座类别" name="s_connector_base_type" id="input_s_connector_base_type" maxlength="16" class="ui-widget-content"></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">操作部类别</td>
+					<td class="td-content"><input type="text" alt="操作部类别" name="operate_part_type" id="input_operate_part_type" maxlength="16" class="ui-widget-content"></td>
+					<td class="ui-state-default td-title">接眼类别</td>
+					<td class="td-content"><input type="text" alt="接眼类别" name="ocular_type" id="input_ocular_type" maxlength="16" class="ui-widget-content"></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">默认流程</td>
-					<td class="td-content" style="width:660px;"><select name="default_pat_id" alt="默认流程" id="input_default_pat_id" class="ui-widget-content">${patOptions}</select></td>
+					<td class="td-content"  colspan="3"><select name="default_pat_id" alt="默认流程" id="input_default_pat_id" class="ui-widget-content">${patOptions}</select></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">最后更新人</td>
 					<td class="td-content"><label id="label_edit_updated_by"/></td>
-				</tr>
-				<tr>
 					<td class="ui-state-default td-title">最后更新时间</td>
 					<td class="td-content"><label id="label_edit_updated_time"/></td>
 				</tr>

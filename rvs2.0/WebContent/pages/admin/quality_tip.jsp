@@ -54,13 +54,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">维修对象机种</td>
-					<td class="td-content">
+					<td class="td-content" colspan="3">
 						<select id="cond_category_id" class="ui-widget-content">
 							${cOptions}
 						</select>
 					</td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">维修对象型号</td>
-					<td class="td-content">
+					<td class="td-content" colspan="3">
 						<input type="text" id="cond_model_name" readonly="readonly" class="ui-widget-content">
 						<input type="hidden" id="cond_model_id">
 					</td>

@@ -274,7 +274,6 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
-			change_category();
 			// 默认画面变化 s
 			top.document.title = modelname + "修改";
 			$("#searcharea").hide();
@@ -292,7 +291,9 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			// 详细数据
 			$("#label_edit_id").text(resInfo.modelForm.id);
 			$("#input_name").val(encodeText(resInfo.modelForm.name));
+			$("#input_category_id").unbind("change", postCategoryChange);
 			$("#input_category_id").val(resInfo.modelForm.category_id).trigger("change");
+			$("#input_category_id").bind("change", postCategoryChange);
 			$("#input_feature1").val(resInfo.modelForm.feature1);
 			$("#input_feature2").val(resInfo.modelForm.feature2);
 			$("#input_series").val(resInfo.modelForm.series);
@@ -344,9 +345,10 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 						"operate_part_type" : $("#input_operate_part_type").val(),
 						"ocular_type" : $("#input_ocular_type").val(),
 						"item_code":$("#input_item_code").val(),
-						"description":$("#input_description").val(),
-						"default_pat_id" : $("#input_default_pat_id").val()
+						"description":$("#input_description").val()
 					};
+					var input_default_pat_id = $("#input_default_pat_id").val();
+					if (input_default_pat_id) data.default_pat_id = input_default_pat_id;
 
 					warningConfirm("确认要修改记录吗？", function() {
 						// Ajax提交
@@ -474,9 +476,10 @@ var showAdd = function() {
 				"operate_part_type" : $("#input_operate_part_type").val(),
 				"ocular_type" : $("#input_ocular_type").val(),
 				"item_code":$("#input_item_code").val(),
-				"description":$("#input_description").val(),
-				"default_pat_id" : $("#input_default_pat_id").val()
+				"description":$("#input_description").val()
 			};
+			var input_default_pat_id = $("#input_default_pat_id").val();
+			if (input_default_pat_id) data.default_pat_id = input_default_pat_id;
 
 			// Ajax提交
 			$.ajax({

@@ -62,6 +62,9 @@ public class WipAction extends BaseAction {
 		String mReferChooser = modelService.getOptions(conn);
 		req.getSession().setAttribute("mReferChooser", mReferChooser);
 
+		// level取得
+		req.setAttribute("lOptions",CodeListUtils.getSelectOptions("material_level_inline", null, "", false));
+
 		// 取得登录用户权限
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = user.getPrivacies();

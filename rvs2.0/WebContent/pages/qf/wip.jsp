@@ -47,7 +47,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 			<div id="body-mdl" style="width: 1022px; float: left;">
 
-	<div>
+	<div style="margin-left: 8px;">
 		<div id="searcharea" class="dwidth-middleright">
 			<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
 				<span class="areatitle">检索条件</span>
@@ -89,6 +89,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<input type="radio" name="directflg" id="directflg_n" value="0" class="ui-widget-content ui-helper-hidden-accessible">
 									<label for="directflg_n" aria-pressed="false">非直送</label>
 								</td>
+							</tr>
+							<tr>
+								<td class="ui-state-default td-title">等级</td>
+								<td class="td-content">
+									<select name="level" id="cond_level" class="ui-widget-content">
+										${lOptions}
+									</select>
+								</td>
+
+								<td class="ui-state-default td-title"></td>
+								<td class="td-content"></td>
+								<td class="ui-state-default td-title"></td>
+								<td class="td-content"></td>
 							</tr>
 						</tbody>
 					</table>

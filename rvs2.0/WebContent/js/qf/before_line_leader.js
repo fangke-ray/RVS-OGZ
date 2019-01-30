@@ -648,15 +648,17 @@ var doMove = function() {
 					this_dialog.load("widgets/qf/wip_map.jsp", function(responseText, textStatus, XMLHttpRequest) {
 					//新增
 					this_dialog.dialog({
+						position : [ 800, 20 ],
 						title : "WIP 入库选择",
-						width : 688,
+						width : 1000,
 						show: "blind",
-						height : 'auto' ,
+						height : 640,// 'auto' ,
 						resizable : false,
 						modal : true,
+						minHeight : 200,
 						buttons : {}
 					});
-			
+
 					this_dialog.find("td").addClass("wip-empty");
 					for (var iheap in resInfo.heaps) {
 						this_dialog.find("td[wipid="+resInfo.heaps[iheap]+"]").removeClass("wip-empty").addClass("ui-storage-highlight wip-heaped");
@@ -678,6 +680,15 @@ var doMove = function() {
 					});
 			
 					this_dialog.show();
+
+					var rowid = $("#performance_list").jqGrid("getGridParam", "selrow");
+					var rowdata = $("#performance_list").getRowData(rowid);
+
+					
+					if (f_isPeripheralFix(rowdata.level)) {
+					setTimeout(function(){this_dialog[0].scrollTop = 300}, 200);
+					}
+
 					});
 				}
 			} catch(e) {
