@@ -51,7 +51,7 @@
 		WHERE
 			pwd.key = #{key}
 		ORDER BY
-			pwdn.seq
+			pwdn.seq,pwd.quantity = pwd.collation_quantity
 	]]>
 	</select>
 	

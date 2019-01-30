@@ -200,11 +200,20 @@ function list(listdata){
 			            {name : 'collation_quantity',index : 'collation_quantity',align:'right', width:50, formatter:'integer', sorttype:'integer', formatoptions:{thousandsSeparator: ','}},
 			            {name : 'step',index : 'step', align:'center', width:30, formatter:'select', editoptions:{value:$("#goStep").val()}},
 			            {name : 'match',index : 'match', align:'center', formatter : function(value, options, rData){
-							if(value == 0){
-								return '一致';
-							}else{
-								return '差异';
-							}
+			            	var step = rData.step;
+			            	if(step == 2 || step == 3){
+			            		if(rData.seq == 0){
+			            			return '差异';
+			            		}else{
+			            			if(value == 0){
+										return '一致';
+									}else{
+										return '差异';
+									}
+			            		}
+			            	}else{
+			            		return '';
+			            	}
 						}, width:30}
 			],
 			rowNum : 20,
