@@ -1,6 +1,9 @@
 package com.osh.rvs.service.qf;
 
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 
@@ -18,10 +22,12 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
+import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.mapper.qf.AcceptanceMapper;
 import com.osh.rvs.mapper.qf.WipMapper;
 import com.osh.rvs.service.MaterialService;
@@ -34,6 +40,8 @@ import framework.huiqing.common.util.copy.IntegerConverter;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class WipService {
+
+	Logger _logger = Logger.getLogger(WipService.class);
 
 	/**
 	 * 检索WIP中的全部维修对象
@@ -305,11 +313,11 @@ public class WipService {
 				}
 			}
 
-			// 如果是周边或小修理，则取消零件订购。
-			if ("07".equals(mBean.getKind()) || RvsUtils.isLightFix(mBean.getLevel())) {
-				PartialOrderManageService pomService = new PartialOrderManageService();
-				pomService.deleteMaterialPartial(material_id, conn);
-			}
+//			// 如果是周边，则取消零件订购。
+//			if ("07".equals(mBean.getKind())) {
+//				PartialOrderManageService pomService = new PartialOrderManageService();
+//				pomService.deleteMaterialPartial(material_id, conn);
+//			}
 		} else {
 			// 图象检查
 			ProductionFeatureMapper pfDao = conn.getMapper(ProductionFeatureMapper.class);
