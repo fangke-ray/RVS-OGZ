@@ -369,7 +369,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div id="consumables_listpager"></div>
 	</div>
 </div>
-
+	<input type="hidden" id="hidden_workstauts" value=""/>
 	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
 </body>
 </html>

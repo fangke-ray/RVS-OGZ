@@ -567,7 +567,9 @@ var showInfectSheet =function(infectDetailData, isLeader){
 									"确认":function(){
 										// 使用前点检需要全部点检
 										if (infectDetailData.check_while_use) {
-											if ($check_sheet.find("td.tcs_input").parents("tr").length != $check_sheet.find("tr[stat=change]").length) {
+											if ($check_sheet.find("td.tcs_input").filter(function(){
+												return $(this).find("#upper_check").length == 0;
+											}).parents("tr").length != $check_sheet.find("tr[stat=change]").length) {
 												errorPop("对“使用前点检”的设备工具需要对所有项目同时点检。");
 												return;
 											}

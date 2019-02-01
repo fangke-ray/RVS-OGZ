@@ -101,7 +101,7 @@ public class CheckResultService {
 	public static final int TYPE_ITEM_MONTH = 3;
 	public static final int TYPE_ITEM_PERIOD = 4;
 	public static final int TYPE_ITEM_YEAR = 5;
-//	private static String DEVICE_TYPE_ID_OF_ENDOSCOPE = "00000000223"; // TODO
+
 	private static final Integer TYPE_FILED_WEEK_OF_MONTH = 6;
 	private static final Integer TYPE_FILED_MONTH = 7;
 	private static final Integer TYPE_FILED_YEAR = 8;
@@ -4472,17 +4472,34 @@ public class CheckResultService {
 		}
 	}
 
-	public String getPeripheralIsUseCheck(String manage_id, String device_type_id, SqlSession conn) throws ParseException {
+	public String getPeripheralIsUseCheck(String manage_id, String device_type_id, String check_file_manage_id, SqlSession conn) throws ParseException {
 		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
 		CheckResultEntity condEntity = new CheckResultEntity();
 		condEntity.setManage_id(manage_id);
 		//获取当前时间
 		SimpleDateFormat df = new SimpleDateFormat(DateUtil.ISO_DATE_PATTERN);
 		Calendar cal = Calendar.getInstance();
-//		if (DEVICE_TYPE_ID_OF_ENDOSCOPE.equals(device_type_id)) { TODO DDW
-//			//周边设备（内镜）
-//			cal.add(Calendar.DATE, -7);
-//		}
+
+		// 允许时间
+		int allowDays = 0;
+
+		CheckFileManageMapper cfmMapper = conn.getMapper(CheckFileManageMapper.class);
+		if (check_file_manage_id != null) {
+			// 取得点检项目
+			List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
+
+			if(dCsis.size() > 0) {
+				Integer trigger = dCsis.get(0).getTrigger_state();
+				if (trigger == TYPE_ITEM_WEEK) {
+					allowDays = 7;
+				}
+			}
+		}
+
+		if (allowDays > 0) {
+			cal.add(Calendar.DATE, -allowDays);
+		}
+
 		condEntity.setCheck_confirm_time_start(df.parse(df.format(cal.getTime())));
 		int result_cnt = crMapper.getWeekCheck(condEntity);
 		if (result_cnt > 0) {

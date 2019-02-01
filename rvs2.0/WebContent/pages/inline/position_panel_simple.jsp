@@ -18,6 +18,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	background-color:white;
 	padding-left:6px;
 	padding-right:6px;
+	text-align: center;
 }
 </style>
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
@@ -194,7 +195,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
 		</textarea>
 	</div>
-
+	<input type="hidden" id="hidden_workstauts" value=""/>
 	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
 </body>
 </html>

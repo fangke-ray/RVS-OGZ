@@ -62,7 +62,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div>
 						<div id="waitarea" class="ui-widget-content" style="float: left;min-height: 250px;">
 							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
-								<span class="areatitle">中断区域</span>
+								<span class="areatitle">暂停/中断区域</span>
 							</div>
 							<div id="wtg_list" style="overflow-y: auto;max-height:760px;"></div>
 						</div>
@@ -203,6 +203,28 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</div>
 						<div class="clear"></div>
 					</div>
+
+<%
+Boolean peripheral = (Boolean) request.getAttribute("peripheral");
+if (peripheral!=null && peripheral) {
+%>
+<%@include file="/widgets/position_panel/device_infect.jsp"%>
+<script type="text/javascript" src="js/common/pcs_editor.js"></script>
+<div id="manualdetailarea" style="margin-bottom: 16px;">
+	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
+		<span class="areatitle">工程检查票</span>
+	</div>
+	<div class="ui-widget-content dwidth-full">
+		<div id="pcs_pages">
+		</div>
+		<div id="pcs_contents">
+		</div>
+	</div>
+	<div class="ui-state-default ui-corner-bottom areaencloser dwidth-full"></div>
+</div>
+<%
+}
+%>
 
 					<div id="exd_listarea">
 						<table id="exd_list"></table>

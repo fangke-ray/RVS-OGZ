@@ -96,6 +96,7 @@ var doFinish = function(type) {
 				$("#scanner_inputer").attr("value", "");
 				$("#material_details").hide();
 				$("#scanner_container").show();
+				$("#devicearea").hide();
 				$("#pcsarea").hide();
 				doInit();
 			}
@@ -128,6 +129,7 @@ var doForbid = function(type) {
 					$("#scanner_inputer").attr("value", "");
 					$("#material_details").hide();
 					$("#scanner_container").show();
+					$("#devicearea").hide();
 					$("#pcsarea").hide();
 					doInit();
 				}
@@ -249,11 +251,11 @@ function acceptted_list(result_listdata) {
 						width : 85,
 						align : 'center',
 						formatter : function(value, options, rData){
-							if (rData['level'] > 5) {
-								return "(无)";
-							} else  {
+//							if (rData['level'] > 5) {
+//								return "(无)";
+//							} else  {
 								return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
-							}
+//							}
 		   				}
 					}],
 			rowNum : 20,
@@ -298,8 +300,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			if (resInfo.stepOptions) stepOptions = resInfo.stepOptions;
 			
 			// 存在进行中作业的时候
-			if(resInfo.workstauts == 1 || resInfo.workstauts == 1.5 || resInfo.workstauts == 2 || resInfo.workstauts == 2.5
-					|| resInfo.workstauts == 1.9) {
+			if(resInfo.workstauts != 0) {
 				treatStart(resInfo);
 			} else {
 				$("#uld_listarea").addClass("waitForStart");
@@ -309,6 +310,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				}
 			}
 		}
+
 	} catch (e) {
 		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
@@ -359,6 +361,10 @@ $(function() {
 	$("#continuebutton").click(endPause);
 	$("#stepbutton").click(makeStep);
 
+	if ($("#devicearea").length > 0) {
+		$("#devicearea div").removeClass("dwidth-full").addClass("dwidth-middleright");
+		$("#devicearea").next().removeClass("areaencloser");
+	}
 	if (hasPcs) {
 		pcsO.init($("#pcsarea"), true);
 	}
@@ -474,6 +480,7 @@ var treatStart = function(resInfo) {
 	$("#scanner_inputer").attr("value", "");
 	$("#scanner_container").hide();
 	$("#material_details").show();
+	$("#devicearea").show();
 	$("#pcsarea").show();
 
 	var mform = resInfo.mform;
@@ -488,9 +495,31 @@ var treatStart = function(resInfo) {
 		$("#show_scheduled_expedited").text(expeditedText(mform.scheduled_expedited));
 	}
 
+	$("#hidden_workstauts").val(resInfo.workstauts);
+
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
 		pcsO.generate(resInfo.pcses, $("#passbutton").length > 0);
+	}
+
+	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
+		showPeripheral(resInfo);
+
+		if (resInfo.workstauts == 4) {
+			$("#device_details table tbody").find(".manageCode").enable();
+			$("#device_details table tbody").find(".manageCode").trigger("change");
+			$("#pcsarea").hide();
+			$("#finishcheckbutton").enable();
+			if (hasPcs) {
+				pcsO.clear();
+			};
+		} else {
+			$("#device_details table tbody").find(".manageCode").disable();
+			$("#device_details table tbody").find("input[type=button]").disable();
+			$("#finishcheckbutton").disable();
+		}
+	} else {
+		$("#finishcheckbutton").disable();
 	}
 
 	if (resInfo.workstauts == 1) {
@@ -506,6 +535,7 @@ var treatStart = function(resInfo) {
 		$("#passbutton,#stepbutton").show();
 		$("#pausebutton").show();
 		$("#continuebutton").hide();
+		$("#devicearea").hide();
 	} else if (resInfo.workstauts == 2) {
 		$("#pcscombutton").show();
 		// if ($("#pcs_pages input").length > 0) $("#pcscombutton").disable(); // V2 disable
@@ -519,6 +549,7 @@ var treatStart = function(resInfo) {
 		$("#passbutton,#stepbutton").hide();
 		$("#pausebutton").hide();
 		$("#continuebutton").show();
+		$("#devicearea").hide();
 	} else if (resInfo.workstauts == 1.9) {
 		$("#pcsarea").hide();
 		$("#pcscombutton").hide();
@@ -526,6 +557,18 @@ var treatStart = function(resInfo) {
 		$("#passbutton,#stepbutton").show();
 		$("#pausebutton").hide();
 		$("#continuebutton").hide();
+	} else if (resInfo.workstauts == 4) {
+		$("#pcscombutton").show().disable();
+		$("#forbidbutton").hide();
+		$("#passbutton").hide();
+		$("#pausebutton").show();
+		$("#continuebutton").hide();
+	} else if (resInfo.workstauts == 5) {
+		$("#pcscombutton").show().disable();
+		$("#forbidbutton").hide();
+		$("#passbutton").hide();
+		$("#pausebutton").hide();
+		$("#continuebutton").show();
 	}
 
 	$("#uld_listarea").removeClass("waitForStart");
@@ -589,7 +632,8 @@ var makePauseDialog = function(jBreakDialog) {
 				if ($("#pauseo_edit").parent().valid()) {
 					var data = {
 						reason : $("#pauseo_edit_pause_reason").val(),
-						comments : $("#pauseo_edit_comments").val()
+						comments : $("#pauseo_edit_comments").val(),
+						workstauts : $("#hidden_workstauts").val()
 					}
 				
 					// Ajax提交
@@ -655,8 +699,9 @@ var makePause = function() {
 var endPause = function() {
 	// 重新读入刚才暂停的维修对象
 	var data = {
-		material_id : $("#pauseo_material_id").val()
-	}
+		material_id : $("#pauseo_material_id").val(),
+		workstauts : $("#hidden_workstauts").val()
+	};
 
 	// 无论如何关闭暂停窗口
 	if ($("#break_dialog").html() != "") {
@@ -763,6 +808,7 @@ var makeStepDialog = function(jBreakDialog) {
 											$("#scanner_inputer").attr("value", "");
 											$("#material_details").hide();
 											$("#scanner_container").show();
+											$("#devicearea").hide();
 											$("#pcsarea").hide();
 											doInit();
 											jBreakDialog.dialog("close");
@@ -792,6 +838,7 @@ var makeStepDialog = function(jBreakDialog) {
 								$("#scanner_inputer").attr("value", "");
 								$("#material_details").hide();
 								$("#scanner_container").show();
+								$("#devicearea").hide();
 								$("#pcsarea").hide();
 								doInit();
 								jBreakDialog.dialog("close");

@@ -104,12 +104,14 @@ var pop_wip = function(call_back, resInfo){
 		 //新增
 
 		quotation_pop.dialog({
+			position : [ 800, 20 ],
 			title : "WIP 入库选择",
-			width : 688,
+			width : 1000,
 			show: "blind",
-			height : 'auto' ,
+			height : 640,// 'auto' ,
 			resizable : false,
 			modal : true,
+			minHeight : 200,
 			buttons : {}
 		});
 
@@ -135,6 +137,10 @@ var pop_wip = function(call_back, resInfo){
 		});
 
 		quotation_pop.show();
+
+		if ($("#devicearea").length > 0) {
+		setTimeout(function(){quotation_pop[0].scrollTop = 300}, 200);
+		}
 	});
 }
 
@@ -158,6 +164,10 @@ var makeBreakDialog = function(jBreakDialog) {
 
 	var submitBreak = function(){
 		b_request.wip_location = wip_location;
+
+		if (hasPcs) {
+			pcsO.valuePcs(b_request, true);
+		}
 
 		// Ajax提交
 		$.ajax({
@@ -383,7 +393,7 @@ var showBreakOfInfect = function(infectString) {
 
 	var closeButtons = {
 		"退出回首页":function() {
-				window.location.href = "./panel.do?method=init";
+			window.location.href = "./panel.do?method=init";
 		}
 	}
 	if (infectString.indexOf("点检") >= 0) {
@@ -392,7 +402,7 @@ var showBreakOfInfect = function(infectString) {
 				window.location.href = "./usage_check.do?from=position";
 			},
 			"退出回首页":function() {
-					window.location.href = "./panel.do?method=init";
+				window.location.href = "./panel.do?method=init";
 			}
 		}
 	}
@@ -435,8 +445,10 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			pauseOptions = resInfo.pauseOptions;
 			breakOptions = resInfo.breakOptions;
 			stepOptions = resInfo.stepOptions;
-			if (stepOptions == "") {
+			if (!stepOptions) {
 				$("#stepbutton").hide();
+			} else {
+				$("#stepbutton").show();
 			}
 			if (breakOptions == "") {
 				$("#breakbutton").hide();
@@ -510,53 +522,83 @@ var getMaterialInfo = function(resInfo) {
 	$("#scanner_container").hide();
 	$("#material_details").show();
 
-	$("#material_details td:eq(1)").text(resInfo.mform.model_name).attr("model_id", resInfo.mform.model_id);
-	$("#material_details td:eq(3)").text(resInfo.mform.serial_no);
-	$("#material_details td:eq(5)").text(resInfo.mform.sorc_no);
-	$("#edit_ocm").val("").val(resInfo.mform.ocm).trigger("change");
+	if (!resInfo.finish_check) {
+		$("#material_details td:eq(1)").text(resInfo.mform.model_name).attr("model_id", resInfo.mform.model_id);
+		$("#material_details td:eq(3)").text(resInfo.mform.serial_no);
+		$("#material_details td:eq(5)").text(resInfo.mform.sorc_no);
+		$("#edit_ocm").val("").val(resInfo.mform.ocm).trigger("change");
 
-	$("#edit_ocm_rank").val("").val(resInfo.mform.ocm_rank).trigger("change");
-	$("#edit_ocm_deliver_date").val(resInfo.mform.ocm_deliver_date);
-	$("#edit_osh_deliver_date").val(resInfo.mform.osh_deliver_date);
-	$("#edit_agreed_date").val(resInfo.mform.agreed_date);
-	$("#edit_level").val("").val(resInfo.mform.level).trigger("change");
-	$("#edit_customer_name").val(resInfo.mform.customer_name);
-	$("#edit_fix_type").val("").val(resInfo.mform.fix_type).trigger("change");
-	$("#edit_service_repair_flg").val("").val(resInfo.mform.service_repair_flg).trigger("change");
-	$("#edit_comment").val(resInfo.mform.comment);
-	if (resInfo.mform.scheduled_manager_comment) {
-		$("#edit_comment_other").show().val(resInfo.mform.scheduled_manager_comment);
-	} else {
-		$("#edit_comment_other").hide().val("");
+		$("#edit_ocm_rank").val("").val(resInfo.mform.ocm_rank).trigger("change");
+		$("#edit_ocm_deliver_date").val(resInfo.mform.ocm_deliver_date);
+		$("#edit_osh_deliver_date").val(resInfo.mform.osh_deliver_date);
+		$("#edit_agreed_date").val(resInfo.mform.agreed_date);
+		$("#edit_level").val("").val(resInfo.mform.level).trigger("change");
+		$("#edit_customer_name").val(resInfo.mform.customer_name);
+		$("#edit_fix_type").val("").val(resInfo.mform.fix_type).trigger("change");
+		$("#edit_service_repair_flg").val("").val(resInfo.mform.service_repair_flg).trigger("change");
+		$("#edit_comment").val(resInfo.mform.comment);
+		if (resInfo.mform.scheduled_manager_comment) {
+			$("#edit_comment_other").show().val(resInfo.mform.scheduled_manager_comment);
+		} else {
+			$("#edit_comment_other").hide().val("");
+		}
+		$("#edit_wip_location").val(resInfo.mform.wip_location);
+
+		$("#edit_bound_out_ocm").val("").val(resInfo.mform.bound_out_ocm).trigger("change");
+		$("#edit_area").val("").val(resInfo.mform.area).trigger("change");
+
+		wip_location = resInfo.mform.wip_location;
+
+		if (resInfo.mform.direct_flg != 1) {
+			$("#edit_direct_flg").text("").removeClass("fit2rapid");
+		} else {
+			$("#edit_direct_flg").text("直送").addClass("fit2rapid");
+		}
+
+		leagal_overline = resInfo.leagal_overline;
+
+		if (resInfo.mform.wip_location != null) {
+			$("#wipconfirmbutton").val("放回WIP");
+		} else {
+			$("#wipconfirmbutton").val("放入WIP");
+		}
+
+		if (resInfo.qa_rank || resInfo.qa_service_free) {
+			$(".qa_info").show();
+			$("#edit_qa_level").text(resInfo.qa_rank);
+			$("#edit_service_free").text(resInfo.qa_service_free);
+		} else {
+			$(".qa_info").hide();
+		}
+
 	}
-	$("#edit_wip_location").val(resInfo.mform.wip_location);
 
-	$("#edit_bound_out_ocm").val("").val(resInfo.mform.bound_out_ocm).trigger("change");
-	$("#edit_area").val("").val(resInfo.mform.area).trigger("change");
+	$("#confirmbutton, #wipconfirmbutton").enable();
 
-	wip_location = resInfo.mform.wip_location;
-
-	if (resInfo.mform.direct_flg != 1) {
-		$("#edit_direct_flg").text("").removeClass("fit2rapid");
-	} else {
-		$("#edit_direct_flg").text("直送").addClass("fit2rapid");
+	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
+		showPeripheral(resInfo);
 	}
 
-	leagal_overline = resInfo.leagal_overline;
-
-	if (resInfo.mform.wip_location != null) {
-		$("#wipconfirmbutton").val("放回WIP");
+	if (resInfo.workstauts == 1) {
+		$("#device_details table tbody").find(".manageCode").disable();
+		$("#device_details table tbody").find("input[type=button]").disable();
+		$("#finishcheckbutton").disable();
 	} else {
-		$("#wipconfirmbutton").val("放入WIP");
+		$("#device_details table tbody").find(".manageCode").enable();
+		$("#device_details table tbody").find(".manageCode").trigger("change");
 	}
 
-	if (resInfo.qa_rank || resInfo.qa_service_free) {
-		$(".qa_info").show();
-		$("#edit_qa_level").text(resInfo.qa_rank);
-		$("#edit_service_free").text(resInfo.qa_service_free);
+	if (resInfo.workstauts == 4) {
+		$("#confirmbutton, #wipconfirmbutton").disable();
+		if (hasPcs) {
+			pcsO.clear();
+		};
 	} else {
-		$(".qa_info").hide();
-	}
+		// 工程检查票
+		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
+			pcsO.generate(resInfo.pcses);
+		};
+	};
 }
 var doStart_ajaxSuccess=function(xhrobj){
 	var resInfo = null;
@@ -636,6 +678,8 @@ var doFinish_ajaxSuccess=function(xhrobj){
 			$("#scanner_inputer").attr("value", "");
 			$("#material_details").hide();
 			$("#scanner_container").show();
+			$("#devicearea").hide();
+			$("#manualdetailarea").hide();
 
 			load_list(resInfo.waitings);
 			paused_list(resInfo.paused);
@@ -680,6 +724,14 @@ var doFinish=function(){
 			material_id :$("#hide_material_id").val(),
 			bound_out_ocm : $("#edit_bound_out_ocm option:selected").val(),
 			area : $("#edit_area option:selected").val()
+		}
+
+		if (hasPcs) {
+			var empty = pcsO.valuePcs(data);
+			if (empty) {
+				errorPop("请填写完所有的工程检查票选项后，再完成本工位作业。");
+				return;
+			}
 		}
 
 		// Ajax提交
@@ -739,6 +791,7 @@ function acceptted_list(quotation_listdata){
 //			ondblClickRow : function(rid, iRow, iCol, e) {
 //				popMaterialDetail(rid, true);
 //			},
+			hidegrid: false, 
 			pagerpos: 'right',
 			pgbuttons: true,
 			pginput: false,
@@ -930,6 +983,13 @@ $(function() {
 			}
 		});
 	});
+
+	hasPcs = (typeof pcsO === "object");
+
+	if (hasPcs) {
+		$("#manualdetailarea").hide();
+		pcsO.init($("#manualdetailarea"), false);
+	}
 
 	doInit();
 

@@ -18,6 +18,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	background-color:white;
 	padding-left:6px;
 	padding-right:6px;
+	text-align: center;
 }
 .anim_pause {
 	animation-play-state: paused;
@@ -326,5 +327,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
 		</textarea>
 	</div>
+	<input type="hidden" id="hidden_workstauts" value=""/>
 </body>
 </html>

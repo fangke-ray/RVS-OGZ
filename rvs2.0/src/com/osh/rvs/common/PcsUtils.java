@@ -28,9 +28,11 @@ import org.apache.log4j.Logger;
 
 import com.jacob.com.Dispatch;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.PcsRequestEntity;
+import com.osh.rvs.mapper.infect.PeripheralInfectDeviceMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
@@ -393,7 +395,7 @@ public class PcsUtils {
 
 		if (srcPcses == null) return htmlPcses;
 
-//		boolean isLightFix = !CommonStringUtil.isEmpty(level) && "9".equals(level.substring(0, 1)); 
+		boolean isPrepheral = RvsUtils.isPeripheral(level); 
 
 		currentProcessCode = checkOverAll(currentProcessCode);
 
@@ -905,6 +907,7 @@ public class PcsUtils {
 					// 线长空格
 					if (leaderLineId != null) {
 
+						// 输入：I
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"L\" type=\"I\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", // TODO 000 -》line code
 								"<input type=\"text\" name=\"$1\" value=\"\"/>");
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"L\" type=\"R\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
@@ -925,12 +928,26 @@ public class PcsUtils {
 
 				// 本工位有填值，则备注也能填。
 				if (hasCurrent || leaderLineId != null) {
+					boolean instead = false;
+
 					for (String commentPcid : allComments.keySet()) {
 						TreeMap<String, String> commentsOfPcid = allComments.get(commentPcid);
 						if (commentsOfPcid != null && commentsOfPcid.size() > 0) {
 							String commentsJoined = "<BR>";
 							for (String rcdTime : commentsOfPcid.keySet()) {
 								commentsJoined += CommonStringUtil.decodeHtmlText(commentsOfPcid.get(rcdTime)) + "<BR>";
+							}
+
+							if (isPrepheral && "EC00000".equals(commentPcid)) { // 周边维修显示点检用设备
+								PeripheralInfectDeviceMapper pidMapper = conn.getMapper(PeripheralInfectDeviceMapper.class);
+								PeripheralInfectDeviceEntity pidCondition = new PeripheralInfectDeviceEntity();
+								pidCondition.setMaterial_id(materialId);
+								pidCondition.setPosition_id(currentProcessCodeOrg); // process_code => position_id
+								String groupedInfectMessage = pidMapper.getGroupedInfectMessage(pidCondition);
+								if (!CommonStringUtil.isEmpty(groupedInfectMessage)) {
+									commentsJoined = CommonStringUtil.decodeHtmlText(groupedInfectMessage) + commentsJoined;
+								}
+								instead = true;
 							}
 
 							// 备注文本+输入框表示
@@ -941,16 +958,30 @@ public class PcsUtils {
 									commentsJoined);
 						}
 					}
+
+					if (isPrepheral && !instead) {
+						PeripheralInfectDeviceMapper pidMapper = conn.getMapper(PeripheralInfectDeviceMapper.class);
+						PeripheralInfectDeviceEntity pidCondition = new PeripheralInfectDeviceEntity();
+						pidCondition.setMaterial_id(materialId);
+						// 备注文本+输入框表示
+						String groupedInfectMessage = pidMapper.getGroupedInfectMessage(pidCondition);
+						if (!CommonStringUtil.isEmpty(groupedInfectMessage)) {
+							specify = specify.replaceAll("<pcinput pcid=\"@#EC0000000\" scope=\"E\" type=\"C\" position=\"000\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+									CommonStringUtil.decodeHtmlText(groupedInfectMessage) 
+									+ "<textarea name=\"EC00000\"></textarea>");
+						}
+					}
+					// 没有输入过的文本框
 					if (leaderLineId != null) {
-						// 没有输入过的文本框
-						specify = specify.replaceAll("<pcinput pcid=\"@#(EC\\d{5})\\d{2}\" scope=\"E\" type=\"C\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+						specify = specify.replaceAll("<pcinput pcid=\"@#([EL]C\\d{5})\\d{2}\" scope=\"[EL]\" type=\"C\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 								 staticContent(currentProcessCode) + "<textarea name=\"$1\"></textarea>");
 					} else {
-						// 没有输入过的文本框
 						specify = specify.replaceAll("<pcinput pcid=\"@#(EC\\d{5})\\d{2}\" scope=\"E\" type=\"C\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 								 staticContent(currentProcessCode) + "<textarea name=\"$1\"></textarea>");
 					}
 				} else {
+					boolean instead = false;
+
 					// 备注文本表示
 					for (String commentPcid : allComments.keySet()) {
 						TreeMap<String, String> commentsOfPcid = allComments.get(commentPcid);
@@ -960,9 +991,32 @@ public class PcsUtils {
 								commentsJoined += CommonStringUtil.decodeHtmlText(commentsOfPcid.get(rcdTime)) + "<BR>";
 							}
 
+							if (isPrepheral && "EC00000".equals(commentPcid)) { // 周边维修显示点检用设备
+								PeripheralInfectDeviceMapper pidMapper = conn.getMapper(PeripheralInfectDeviceMapper.class);
+								PeripheralInfectDeviceEntity pidCondition = new PeripheralInfectDeviceEntity();
+								pidCondition.setMaterial_id(materialId);
+								pidCondition.setPosition_id(currentProcessCodeOrg);
+								String groupedInfectMessage = pidMapper.getGroupedInfectMessage(pidCondition);
+								if (!CommonStringUtil.isEmpty(groupedInfectMessage)) {
+									commentsJoined = CommonStringUtil.decodeHtmlText(groupedInfectMessage) + commentsJoined;
+								}
+								instead = true;
+							}
+
 							// 备注文本
 							specify = specify.replaceAll("<pcinput pcid=\"@#("+commentPcid+")\\d{2}\" scope=\"E\" type=\"C\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 									commentsJoined);
+						}
+					}
+					if (isPrepheral && !instead) {
+						PeripheralInfectDeviceMapper pidMapper = conn.getMapper(PeripheralInfectDeviceMapper.class);
+						PeripheralInfectDeviceEntity pidCondition = new PeripheralInfectDeviceEntity();
+						pidCondition.setMaterial_id(materialId);
+						// 备注文本+输入框表示
+						String groupedInfectMessage = pidMapper.getGroupedInfectMessage(pidCondition);
+						if (!CommonStringUtil.isEmpty(groupedInfectMessage)) {
+							specify = specify.replaceAll("<pcinput pcid=\"@#EC0000000\" scope=\"E\" type=\"C\" position=\"000\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+									CommonStringUtil.decodeHtmlText(groupedInfectMessage));
 						}
 					}
 				}
@@ -1686,7 +1740,7 @@ public class PcsUtils {
 
 		List<String> hasBlank = new ArrayList<String>();
 
-//		boolean isLightFix = "9".equals(level.substring(0, 1)); 
+		boolean isPrepheral = RvsUtils.isPeripheral(level); 
 
 		// 对于每次返工
 		for (int iRework = 0, factRework = 0; iRework <= reworkCount; iRework++) {
@@ -1761,6 +1815,20 @@ public class PcsUtils {
 //						}
 //					}
 //				}
+
+				if (isPrepheral 
+						&& "检查卡".equals(pcsName)) { // 周边维修显示点检用设备
+					PeripheralInfectDeviceMapper pidMapper = conn.getMapper(PeripheralInfectDeviceMapper.class);
+					PeripheralInfectDeviceEntity pidCondition = new PeripheralInfectDeviceEntity();
+					pidCondition.setMaterial_id(materialId);
+
+					if (xls.Hit("@#EC0000000")) {
+						String groupedInfectMessage = pidMapper.getGroupedInfectMessage(pidCondition);
+						if (!CommonStringUtil.isEmpty(groupedInfectMessage)) {
+							xls.Replace("@#EC0000000", groupedInfectMessage + "\n@#EC0000000");
+						}
+					}
+				}
 
 				// 线长对象
 				if (lpcs !=null && lpcs.size() > 0) {

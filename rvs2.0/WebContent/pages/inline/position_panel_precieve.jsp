@@ -195,6 +195,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="comments_area">
 		</div>
 	</div>
-
+	<input type="hidden" id="hidden_workstauts" value=""/>
 </body>
 </html>

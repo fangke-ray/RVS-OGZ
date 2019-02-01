@@ -19,6 +19,7 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
@@ -51,6 +52,7 @@ public class QuotationAction extends BaseAction {
 	private static String WORK_STATUS_FORBIDDEN = "-1";
 	private static String WORK_STATUS_PREPAIRING = "0";
 	private static String WORK_STATUS_WORKING = "1";
+	private static String WORK_STATUS_PERIPHERAL_WORKING = "4";
 	private static String WORK_STATUS_PAUSING = "2";
 
 	private PositionPanelService ppService = new PositionPanelService();
@@ -72,8 +74,22 @@ public class QuotationAction extends BaseAction {
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		String process_code = user.getProcess_code();
+		String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
+		boolean isPeripheral = (special_forward != null && special_forward.indexOf("peripheral") >= 0);
+		if (isPeripheral) {
+			req.setAttribute("peripheral", true);
+		}
+
 		req.setAttribute("edit_ocm", CodeListUtils.getSelectOptions("material_ocm", null, null, false));
-		req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level", null, "", false));
+		if (isPeripheral) {
+			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_peripheral", null, null, false));
+		} else {
+			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_endoscope", null, null, false));
+		}
 		req.setAttribute("edit_fix_type", CodeListUtils.getSelectOptions("material_fix_type", null, null, false));
 		req.setAttribute("edit_service_repair_flg", CodeListUtils.getSelectOptions("material_service_repair", null, "", false));
 		req.setAttribute("options_ocm_rank", CodeListUtils.getSelectOptions("material_ocm_direct_rank", null, "", false));
@@ -121,13 +137,20 @@ public class QuotationAction extends BaseAction {
 			callbackResponse.put("workstauts", WORK_STATUS_FORBIDDEN);
 		} else {
 
+			// 判断是否有特殊页面效果
+			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
+
 			QuotationService qService = new QuotationService();
 			qService.listRefresh(user, callbackResponse, conn);
 	
 			// 设定OCM文字
 			callbackResponse.put("oOptions", CodeListUtils.getGridOptions("material_ocm"));
 			// 设定等级文字
-			callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level"));
+			if ("peripheral".equals(special_forward)) {
+				callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level_peripheral"));
+			} else {
+				callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level_endoscope"));
+			}
 			// 设定直送文字
 			callbackResponse.put("dOptions", CodeListUtils.getGridOptions("material_direct"));
 			// 设定返修文字
@@ -173,8 +196,31 @@ public class QuotationAction extends BaseAction {
 				// 取得作业信息
 				qService.getProccessingData(callbackResponse, workingPf.getMaterial_id(), user, conn);
 
-				// 页面设定为编辑模式
-				callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+				if ("peripheral".equals(special_forward)) {
+					List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+
+					// 取得周边设备检查使用设备工具 
+					boolean infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+
+					if (resultEntities != null && resultEntities.size() > 0) {
+						callbackResponse.put("peripheralData", resultEntities);
+					}
+
+					if (!infectFinishFlag) {
+						callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+					} else {
+						// 取得工程检查票
+						PositionPanelService.getPcses(callbackResponse, workingPf, user.getLine_id(), conn);
+
+						// 页面设定为编辑模式
+						callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+					}
+
+				} else {
+					// 页面设定为编辑模式
+					callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+				}
+
 			} else {
 				// 暂停中的话
 				// 判断是否有在暂停中的维修对象
@@ -197,7 +243,7 @@ public class QuotationAction extends BaseAction {
 			// 查询结果放入Ajax响应对象
 			callbackResponse.put("customers", list);
 		}
-		
+
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", new ArrayList<MsgInfo>());
 
@@ -229,10 +275,7 @@ public class QuotationAction extends BaseAction {
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
-//		String section_id = user.getSection_id();
-//		user.setSection_id("3");// 报价物料课
-//		user.setPosition_id("00000000013");
-//		user.setProcess_code("151");
+		String process_code = user.getProcess_code();
 
 		// 判断维修对象在等待区，并返回这一条作业信息
 		ProductionFeatureEntity waitingPf = ppService.checkMaterialId(material_id, user, errors, conn);
@@ -257,6 +300,35 @@ public class QuotationAction extends BaseAction {
 			QuotationService qService = new QuotationService();
 			qService.getProccessingData(detailResponse, material_id, user, conn);
 
+			// 判断是否有特殊页面效果
+			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
+
+			if ("peripheral".equals(special_forward)) {
+
+				List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+				// 取得周边设备检查使用设备工具 
+				boolean infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+
+				// 取得周边设备检查使用设备工具 
+				if (resultEntities != null && resultEntities.size() > 0) {
+					detailResponse.put("peripheralData", resultEntities);
+				}
+
+				if (!infectFinishFlag) {
+					detailResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+				} else {
+					// 取得工程检查票
+					waitingPf.setProcess_code(process_code);
+					PositionPanelService.getPcses(detailResponse, waitingPf, user.getLine_id(), conn);
+
+					// 页面设定为编辑模式
+					detailResponse.put("workstauts", WORK_STATUS_WORKING);
+				}
+			} else {
+				// 页面设定为编辑模式
+				detailResponse.put("workstauts", WORK_STATUS_WORKING);
+			}
+
 			// 取得QA判定信息
 			ServiceRepairManageService srmService = new ServiceRepairManageService();
 			srmService.getQaInfo2Quotation(detailResponse, material_id, conn);
@@ -268,8 +340,6 @@ public class QuotationAction extends BaseAction {
 
 			// 如果等待中信息是暂停中，则结束掉暂停记录(有可能已经被结束)
 			bfService.finishPauseFeature(material_id, user.getSection_id(), user.getPosition_id(), user.getOperator_id(), conn);
-
-			detailResponse.put("workstauts", WORK_STATUS_WORKING);
 		}
 
 //		user.setSection_id(section_id); // TODO
@@ -578,6 +648,8 @@ public class QuotationAction extends BaseAction {
 
 		// 取得当前作业中作业信息
 		ProductionFeatureEntity workingPf = ppService.getWorkingPf(user, conn); 
+		String materialId = null;
+		String pcs_inputs = req.getParameter("pcs_inputs");
 		if (workingPf == null) {
 			MsgInfo error = new MsgInfo();
 			error.setErrcode("info.linework.workingLost");
@@ -585,7 +657,11 @@ public class QuotationAction extends BaseAction {
 			errors.add(error);
 		}
 
-		String materialId = null;
+
+		// 检查工程检查票是否全填写
+		if (pcs_inputs != null) 
+			ppService.checkPcsEmpty(pcs_inputs, errors);
+
 		if (errors.size() == 0) {
 			materialId = workingPf.getMaterial_id();
 			materialForm.setMaterial_id(materialId);
@@ -619,7 +695,6 @@ public class QuotationAction extends BaseAction {
 			ProductionFeatureMapper pfdao = conn.getMapper(ProductionFeatureMapper.class);
 			workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
 			workingPf.setUse_seconds(use_seconds);
-			String pcs_inputs = req.getParameter("pcs_inputs");
 			if (pcs_inputs != null) {
 				workingPf.setPcs_inputs(pcs_inputs);
 				workingPf.setPcs_comments(req.getParameter("pcs_comments"));

@@ -384,7 +384,7 @@ var treatUsesnout = function(xhrobj) {
 		var isLightFix = false;
 		if (resInfo.mform && resInfo.mform.level) {
 			var level = resInfo.mform.level;
-			isLightFix = (level == 9 || level == 91 || level == 92 || level == 93);
+			isLightFix = f_isLightFix(level);
 		}
 		if (resInfo.snout_model >= 1 && !isLightFix) {
 			$("#usesnoutarea").show();
@@ -462,8 +462,8 @@ var treatPause = function(resInfo) {
 	$("#scanner_container").hide();
 	$("#material_details").show();
 	$("#other_px_change_button").disable();
-	$("#position_status").text("暂停中");
-	$("#position_status").css("background-color", "#0080FF");
+	$("#position_status").text("暂停中")
+		.css("background-color", "#0080FF");
 	$("#pausebutton").hide();
 	$("#finishbutton").disable();
 	$("#breakbutton").disable();
@@ -500,7 +500,10 @@ var treatPause = function(resInfo) {
 	
 		$("#working_detail").hide();
 
-		
+		if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
+			showPeripheral(resInfo);
+		}
+
 		$("#device_details table tbody").find(".manageCode").disable();
 		$("#device_details table tbody").find("input[type=button]").disable();
 		$("#finishcheckbutton").disable();
@@ -599,6 +602,10 @@ var treatStart = function(resInfo) {
 		$("#comments_dialog").hide();
 	}
 
+	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
+		showPeripheral(resInfo);
+	}
+
 	if (resInfo.workstauts == 1) {
 		$("#device_details table tbody").find(".manageCode").disable();
 		$("#device_details table tbody").find("input[type=button]").disable();
@@ -610,6 +617,9 @@ var treatStart = function(resInfo) {
 
 	if (resInfo.workstauts == 4) {
 		$("#finishbutton").disable();
+		if (hasPcs) {
+			pcsO.clear();
+		};
 	} else {
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
@@ -719,8 +729,10 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			pauseOptions = resInfo.pauseOptions;
 			breakOptions = resInfo.breakOptions;
 			stepOptions = resInfo.stepOptions;
-			if (stepOptions == "") {
+			if (!stepOptions) {
 				$("#stepbutton").hide();
+			} else {
+				$("#stepbutton").show();
 			}
 			if (breakOptions == "") {
 				$("#breakbutton").hide();
@@ -1006,8 +1018,13 @@ var doStart_ajaxSuccess = function(xhrobj, textStatus){
 		eval('resInfo =' + xhrobj.responseText);
 
 		if (resInfo.errors && resInfo.errors.length > 0) {
-			// 共通出错信息框
-			treatBackMessages(null, resInfo.errors);
+			if (resInfo.infectString) {
+				showBreakOfInfect(resInfo.infectString);
+				return;
+			} else {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			}
 		} else {
 			$("#hidden_workstauts").val(resInfo.workstauts);
 			if (resInfo.workstauts == 1 || resInfo.workstauts == 4) {
@@ -1340,9 +1357,10 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				$("#material_details").hide();
 				$("#other_px_change_button").enable();
 				$("#scanner_container").show();
-				$("#position_status").text("准备中");
-				$("#position_status").css("background-color", "#0080FF");
+				$("#position_status").text("准备中")
+					.css("background-color", "#0080FF");
 				$("#manualdetailarea").hide();
+				$("#devicearea").hide();
 
 				if (resInfo.past_fingers) $("#flowtext").text(resInfo.past_fingers);
 

@@ -40,7 +40,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/inline/position_panel_with_result.js?version=92"></script>
+<script type="text/javascript" src="js/inline/position_panel_with_result.js"></script>
 
 <title>欢迎登录RVS系统</title>
 </head>

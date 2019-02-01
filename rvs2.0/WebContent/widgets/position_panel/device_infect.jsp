@@ -104,6 +104,7 @@ table.condform .diGrp td[rowspan] {
 				}).first().find(".check_result");
 			}
 
+			var cfm_id = $tr.find(".check_file_manage_id").val();
 			var device_type_id = $tr.find(".device_type_id").val();
 			if (selected_value != "") {
 				$tbodyContent.find(".manageCode[seq=" + this.getAttribute("seq") + "]").not(this).val("").trigger("change");
@@ -113,7 +114,7 @@ table.condform .diGrp td[rowspan] {
 					$obj_btn.disable();
 					$("#finishcheckbutton").disable();
 				} else {
-					deviceCheck(temp[0], device_type_id, $obj_label);
+					deviceCheck(temp[0], device_type_id, cfm_id, $obj_label);
 					$obj_btn.enable();
 				}
 			} else {
@@ -171,9 +172,10 @@ table.condform .diGrp td[rowspan] {
 		$("#devicearea").show();
 	};
 
-	var deviceCheck = function(manage_id, device_type_id, $obj_label) {
+	var deviceCheck = function(manage_id, device_type_id, cfm_id, $obj_label) {
 		var data = {
 			manage_id : manage_id,
+			check_file_manage_id : cfm_id,
 			device_type_id : device_type_id
 		};
 		$.ajax({

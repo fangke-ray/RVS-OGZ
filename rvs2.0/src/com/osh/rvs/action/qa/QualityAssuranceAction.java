@@ -25,15 +25,20 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.infect.CheckResultEntity;
+import com.osh.rvs.bean.infect.PeriodsEntity;
+import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
+import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
@@ -47,6 +52,7 @@ import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class QualityAssuranceAction extends BaseAction {
@@ -57,6 +63,8 @@ public class QualityAssuranceAction extends BaseAction {
 	private static String WORK_STATUS_DECIDE = "1.5";
 	private static String WORK_STATUS_DECIDE_PAUSING = "2.5";
 //	private static String WORK_STATUS_CELL_WORKING = "1.9";
+	private static String WORK_STATUS_PERIPHERAL_WORKING = "4";
+	private static String WORK_STATUS_PERIPHERAL_PAUSING = "5";
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -103,9 +111,13 @@ public class QualityAssuranceAction extends BaseAction {
 		}
 
 		req.setAttribute("qs_position_id", qs_position_id);
-
 		req.setAttribute("qs_position_name", position_name);
-		
+
+		String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
+		boolean isPeripheral = (special_forward != null && special_forward.indexOf("peripheral") >= 0);
+		if (isPeripheral) {
+			req.setAttribute("peripheral", true);
+		}
 		String privacy = "";
 		boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
 		if(isLeader && "00000000015".equals(user.getLine_id())){
@@ -160,11 +172,31 @@ public class QualityAssuranceAction extends BaseAction {
 
 		user.setLine_id("00000000015");
 
+		// 设定待点检信息
+		CheckResultService crService = new CheckResultService();
+		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+		CheckResultEntity condEntity = new CheckResultEntity();
+		PeriodsEntity periodsEntity = CheckResultService.getPeriodsOfDate(DateUtil.toString(new Date(), DateUtil.ISO_DATE_PATTERN), conn);
+		try {
+			crService.getDevices(null, section_id, null, user.getPosition_id(), user.getPositions(), user.getLine_id(), condEntity, periodsEntity, conn, crMapper, -1);
+
+			crService.getTorsionDevices(null, section_id, null, user.getPosition_id(), null, condEntity, periodsEntity, conn, crMapper, -1);
+			crService.getElectricIronDevices(null, section_id, null, user.getPosition_id(), null, condEntity, periodsEntity, conn, crMapper, -1);
+
+		} catch(Exception tex) {
+			log.error("dmmm:" + tex.getMessage());
+		}
+
 		PositionPanelService ppservice = new PositionPanelService();
 		String infectString = ppservice.getInfectMessageByPosition(section_id,
 				user.getPosition_id(), user.getLine_id(), conn);
 
 		callbackResponse.put("infectString", infectString);
+		String process_code = user.getProcess_code(); 
+		// 判断是否有特殊页面效果
+		String special_forward = PathConsts.POSITION_SETTINGS
+				.getProperty("page." + process_code);
+
 		if (infectString.indexOf("限制工作") >= 0) {
 			callbackResponse.put("workstauts", WORK_STATUS_FORBIDDEN);
 		} else {
@@ -191,9 +223,28 @@ public class QualityAssuranceAction extends BaseAction {
 				// 页面设定为编辑模式
 				if (qa_checked) {
 					callbackResponse.put("workstauts", WORK_STATUS_DECIDE);
-
+	
+					// 取得工程检查票
+					PositionPanelService.getPcsesFinish(callbackResponse, workingPf, conn);
 				} else {
-					callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+					boolean infectFinishFlag = true;
+					if ("peripheral".equals(special_forward)) {
+
+						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+						// 取得周边设备检查使用设备工具 
+						infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+
+						if (resultEntities != null && resultEntities.size() > 0) {
+							callbackResponse.put("peripheralData", resultEntities);
+						}
+					}
+					if (!infectFinishFlag) {
+						callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+					} else {
+						callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+						// 取得工程检查票
+						getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
+					}
 				}
 				// 取得工程检查票
 				getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
@@ -214,11 +265,35 @@ public class QualityAssuranceAction extends BaseAction {
 					// 页面设定为编辑模式
 					if (qa_checked) {
 						callbackResponse.put("workstauts", WORK_STATUS_DECIDE_PAUSING);
+
+						// 取得工程检查票
+						PositionPanelService.getPcsesFinish(callbackResponse, pauseingPf, conn);
 					} else {
-						callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
+						boolean infectFinishFlag = true;
+						if ("peripheral".equals(special_forward)) {
+
+							List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+							// 取得周边设备检查使用设备工具 
+							infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+
+							if (resultEntities != null && resultEntities.size() > 0) {
+								callbackResponse.put("peripheralData", resultEntities);
+							}
+						}
+						if (!infectFinishFlag) {
+							callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_PAUSING);
+						} else {
+							callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
+							// 取得工程检查票
+							getPf(pauseingPf, qa_checked, isLeader, callbackResponse, conn);
+						}
+
 					}
-					// 取得工程检查票
-					getPf(pauseingPf, qa_checked, isLeader, callbackResponse, conn);
+
+					// 取得维修对象备注信息
+					MaterialService ms = new MaterialService();
+					ms.getMaterialComment(pauseingPf.getMaterial_id(), callbackResponse, conn);
+
 				} else {
 					// 准备中
 					callbackResponse.put("workstauts", WORK_STATUS_PREPAIRING);
@@ -231,9 +306,6 @@ public class QualityAssuranceAction extends BaseAction {
 			pauseOptions += PauseFeatureService.getPauseReasonSelectOptions();
 			callbackResponse.put("pauseOptions", pauseOptions);
 			
-			
-			
-			String process_code = user.getProcess_code();
 			String stepOptions = "";
 			// 设定正常中断选项
 			String steps = PathConsts.POSITION_SETTINGS.getProperty("steps."
@@ -285,6 +357,7 @@ public class QualityAssuranceAction extends BaseAction {
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 		String section_id = user.getSection_id();//TODO 
+		String process_code = user.getProcess_code();
 		user.setSection_id(null);
 		// user.setPosition_id("00000000046");
 		// user.setProcess_code("611");
@@ -311,12 +384,44 @@ public class QualityAssuranceAction extends BaseAction {
 			// 如果等待中信息是暂停中，则结束掉暂停记录(有可能已经被结束)
 			if (waitingPf.getOperate_result() == RvsConsts.OPERATE_RESULT_PAUSE) {
 				bfService.finishPauseFeature(material_id, section_id, user.getPosition_id(), user.getOperator_id(), conn);
-				
-				// 确认处理
-				listResponse.put("workstauts", WORK_STATUS_DECIDE);
+
+				if (waitingPf.getAction_time() == null) {
+					if (qa_checked) {
+						// 确认处理
+						listResponse.put("workstauts", WORK_STATUS_DECIDE);
+					} else {
+						listResponse.put("workstauts", WORK_STATUS_WORKING);
+					}
+				} else {
+					// 确认处理
+					listResponse.put("workstauts", WORK_STATUS_DECIDE);
+				}
 			} else {
-				// 点检处理
-				listResponse.put("workstauts", WORK_STATUS_WORKING);
+				boolean infectFinishFlag = true;
+				// 判断是否有特殊页面效果
+				String special_forward = PathConsts.POSITION_SETTINGS
+						.getProperty("page." + process_code);
+
+				if ("peripheral".equals(special_forward)) {
+
+					List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+					// 取得周边设备检查使用设备工具 
+					infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+
+					if (resultEntities != null && resultEntities.size() > 0) {
+						listResponse.put("peripheralData", resultEntities);
+					}
+				}
+				if (!infectFinishFlag) {
+					listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+				} else {
+					// 点检处理
+					listResponse.put("workstauts", WORK_STATUS_WORKING);
+				}
+
+				// 取得维修对象备注信息
+				MaterialService ms = new MaterialService();
+				ms.getMaterialComment(material_id, listResponse, conn);
 			}
 
 			// 取得工程检查票-611
@@ -653,6 +758,8 @@ public class QualityAssuranceAction extends BaseAction {
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
+		String workstauts = req.getParameter("workstauts");
+
 		if (errors.size() == 0) {
 			// 取得当前作业中作业信息
 			ProductionFeatureEntity workingPf = ppService.getWorkingPf(user, conn);
@@ -675,7 +782,11 @@ public class QualityAssuranceAction extends BaseAction {
 			if (qa_checked) {
 				listResponse.put("workstauts", WORK_STATUS_DECIDE_PAUSING);
 			} else {
-				listResponse.put("workstauts", WORK_STATUS_PAUSING);
+				if (WORK_STATUS_PERIPHERAL_WORKING.equals(workstauts)) {
+					listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_PAUSING);
+				} else {
+					listResponse.put("workstauts", WORK_STATUS_PAUSING);
+				}
 			}
 		}
 
@@ -706,6 +817,8 @@ public class QualityAssuranceAction extends BaseAction {
 
 		String material_id = req.getParameter("material_id");
 
+		String workstauts = req.getParameter("workstauts");
+
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -728,7 +841,11 @@ public class QualityAssuranceAction extends BaseAction {
 			if (qa_checked) {
 				listResponse.put("workstauts", WORK_STATUS_DECIDE);
 			} else {
-				listResponse.put("workstauts", WORK_STATUS_WORKING);
+				if (WORK_STATUS_PERIPHERAL_PAUSING.equals(workstauts)) {
+					listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+				} else {
+					listResponse.put("workstauts", WORK_STATUS_WORKING);
+				}
 			}
 		}
 
@@ -740,8 +857,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 		log.info("QualityAssuranceAction.doendpause end");
 	}
-	
-	
+
 	/**
 	 * 作业中断
 	 * @param mapping ActionMapping
@@ -754,7 +870,7 @@ public class QualityAssuranceAction extends BaseAction {
 	@Privacies(permit={0})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		PositionPanelService positionPanelService = new PositionPanelService();
-		
+
 		log.info("QualityAssuranceAction.dobreak start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 

@@ -16,6 +16,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	background-color:white;
 	padding-left:6px;
 	padding-right:6px;
+	text-align: center;
 }
 .anim_pause {
 	animation-play-state: paused;

@@ -53,12 +53,13 @@ public class QualityAssuranceService {
 	 * @throws IOException
 	 */
 	public void makePdf(MaterialForm mform, String folderPath, boolean getHistory, SqlSession conn) throws IOException {
-		String[] showLines = new String[5];
-		showLines[0] = "最终检验";
-		showLines[1] = "分解工程";
-		showLines[2] = "NS 工程";
-		showLines[3] = "总组工程";
-		showLines[4] = "外科硬镜修理工程";
+		String[] showLines = new String[6];
+		showLines[0] = "检查卡";
+		showLines[1] = "最终检验";
+		showLines[2] = "分解工程";
+		showLines[3] = "NS 工程";
+		showLines[4] = "总组工程";
+		showLines[5] = "外科硬镜修理工程";
 
 		MaterialService mService = new MaterialService();
 
@@ -75,7 +76,6 @@ public class QualityAssuranceService {
 				logger.info(retEmpty + " MODEL: " + mform.getModel_name() + " PAT:" + mform.getPat_id());
 			}
 		}
-
 	}
 
 	/**
@@ -128,8 +128,7 @@ public class QualityAssuranceService {
 			waitingsForm.setStatus(comment);
 			waitingsForms.add(waitingsForm);
 		}
-		
-		
+
 		BeanUtil.copyToFormList(finished, finishedForm, CopyOptions.COPYOPTIONS_NOEMPTY, MaterialForm.class);
 
 		listResponse.put("waitings", waitingsForms);

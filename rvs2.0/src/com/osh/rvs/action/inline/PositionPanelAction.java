@@ -36,6 +36,7 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
@@ -63,9 +64,8 @@ public class PositionPanelAction extends BaseAction {
 	private static String WORK_STATUS_PREPAIRING = "0";
 	private static String WORK_STATUS_WORKING = "1";
 	private static String WORK_STATUS_PAUSING = "2";
-	/** 签完零件就完成 */
-	@SuppressWarnings("unused")
-	private static String WORK_STATUS_PERIPHERAL = "4";
+	private static String WORK_STATUS_PERIPHERAL_WORKING = "4";
+	private static String WORK_STATUS_PERIPHERAL_PAUSING = "5";
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -295,11 +295,6 @@ public class PositionPanelAction extends BaseAction {
 					// 取得作业信息
 					service.getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, false, conn);
 
-					// 取得工程检查票
-					if (!"simple".equals(special_forward)
-							&& !"result".equals(special_forward)) {
-						PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
-					}
 
 					if ("use_snout".equals(special_forward)) {
 						// TODO listResponse.put("light", workingPf.get);
@@ -309,8 +304,29 @@ public class PositionPanelAction extends BaseAction {
 					listResponse.put("action_time", 
 							DateUtil.toString(pfService.getFirstPaceOnRework(workingPf, conn).getAction_time(), "HH:mm:ss"));
 
-					// 页面设定为编辑模式
-					listResponse.put("workstauts", WORK_STATUS_WORKING);
+					boolean infectFinishFlag = true;
+					if ("peripheral".equals(special_forward)) {
+
+						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+						// 取得周边设备检查使用设备工具 
+						infectFinishFlag = service.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+
+						if (resultEntities != null && resultEntities.size() > 0) {
+							listResponse.put("peripheralData", resultEntities);
+						}
+					}
+					if (!infectFinishFlag) {
+						listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+					} else {
+						// 取得工程检查票
+						if (!"simple".equals(special_forward)
+								&& !"result".equals(special_forward)) {
+							PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+						}
+
+						// 页面设定为编辑模式
+						listResponse.put("workstauts", WORK_STATUS_WORKING);
+					}
 
 					// 取得维修对象备注信息
 					MaterialService ms = new MaterialService();
@@ -328,22 +344,37 @@ public class PositionPanelAction extends BaseAction {
 					service.getProccessingData(listResponse,
 							pauseingPf.getMaterial_id(), pauseingPf, user, false, conn);
 
-					// 取得工程检查票
-					if (!"simple".equals(special_forward)
-							&& !"result".equals(special_forward)) {
-						PositionPanelService.getPcses(listResponse, pauseingPf,
-								user.getLine_id(), conn);
-					}
-
 					// spent_mins
 					// listResponse.put("spent_mins", (Integer)
 					// listResponse.get("spent_mins") +
 					// pauseingPf.getUse_seconds() / 60);
-					listResponse.put("action_time", DateUtil.toString(
-							pauseingPf.getAction_time(), "HH:mm:ss"));
+					listResponse.put("action_time", DateUtil.toString(pauseingPf.getAction_time(), "HH:mm:ss"));
 
-					// 页面设定为编辑模式
-					listResponse.put("workstauts", WORK_STATUS_PAUSING);
+					boolean infectFinishFlag = true;
+					if ("peripheral".equals(special_forward)) {
+
+
+						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+						// 取得周边设备检查使用设备工具 
+						infectFinishFlag = service.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+
+						if (resultEntities != null && resultEntities.size() > 0) {
+							listResponse.put("peripheralData", resultEntities);
+						}
+					}
+					if (!infectFinishFlag) {						
+						listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_PAUSING);
+					} else {
+						// 取得工程检查票
+						if (!"simple".equals(special_forward)
+								&& !"result".equals(special_forward)) {
+							PositionPanelService.getPcses(listResponse, pauseingPf,
+									user.getLine_id(), conn);
+						}
+
+						// 页面设定为编辑模式
+						listResponse.put("workstauts", WORK_STATUS_PAUSING);
+					}
 
 					// 取得维修对象备注信息
 					MaterialService ms = new MaterialService();
@@ -417,6 +448,11 @@ public class PositionPanelAction extends BaseAction {
 		}
 
 		if (errors.size() == 0) {
+			// 停止之前的暂停
+			bfService.finishPauseFeature(null, null, null, user.getOperator_id(), conn);
+		}
+
+		if (errors.size() == 0) {
 
 			// 开始作业
 			waitingPf.setOperator_id(user.getOperator_id());
@@ -457,13 +493,29 @@ public class PositionPanelAction extends BaseAction {
 			// 判断是否有特殊页面效果
 			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
 
-			// 取得工程检查票
-			if (!"simple".equals(special_forward) && !"result".equals(special_forward)) {
-				waitingPf.setProcess_code(process_code);
-				PositionPanelService.getPcses(listResponse, waitingPf, user.getLine_id(), conn);
+			boolean infectFinishFlag = true;
+			if ("peripheral".equals(special_forward)) {
+				List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+				// 取得周边设备检查使用设备工具 
+				infectFinishFlag = service.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+
+				if (resultEntities != null && resultEntities.size() > 0) {
+					listResponse.put("peripheralData", resultEntities);
+				}
 			}
 
-			listResponse.put("workstauts", WORK_STATUS_WORKING);
+			if (!infectFinishFlag) {
+				listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+			} else {
+				// 取得工程检查票
+				if (!"simple".equals(special_forward) && !"result".equals(special_forward)) {
+					waitingPf.setProcess_code(process_code);
+					PositionPanelService.getPcses(listResponse, waitingPf, user.getLine_id(), conn);
+				}
+
+				// 页面设定为编辑模式
+				listResponse.put("workstauts", WORK_STATUS_WORKING);
+			}
 
 			// 取得维修对象备注信息
 			MaterialService ms = new MaterialService();
@@ -501,6 +553,7 @@ public class PositionPanelAction extends BaseAction {
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		String section_id = user.getSection_id();
+		String process_code = user.getProcess_code();
 
 		// 得到暂停的维修对象，返回这一条作业信息
 		ProductionFeatureEntity workwaitingPf = service.checkPausingMaterialId(material_id, user, errors, conn);
@@ -514,9 +567,16 @@ public class PositionPanelAction extends BaseAction {
 			// 只要开始做，就结束掉本人所有的暂停信息。
 			bfService.finishPauseFeature(material_id, section_id, user.getPosition_id(), user.getOperator_id(), conn);
 
+			// 判断是否有特殊页面效果
+			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
 			listResponse.put("action_time", DateUtil.toString(workwaitingPf.getAction_time(), "HH:mm:ss"));
 
-			listResponse.put("workstauts", WORK_STATUS_WORKING);
+			String workstauts = req.getParameter("workstauts");
+			if ("peripheral".equals(special_forward) && WORK_STATUS_PERIPHERAL_PAUSING.equals(workstauts)) {
+				listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+			} else {
+				listResponse.put("workstauts", WORK_STATUS_WORKING);
+			}
 
 			// 取得维修对象备注信息
 			MaterialService ms = new MaterialService();
@@ -552,7 +612,7 @@ public class PositionPanelAction extends BaseAction {
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
-
+		String process_code = user.getProcess_code();
 		String comments = bfService.checkPauseForm(req.getParameter("comments"), errors);
 
 		if (errors.size() == 0) {
@@ -575,7 +635,14 @@ public class PositionPanelAction extends BaseAction {
 
 			listResponse.put("action_time", DateUtil.toString(workingPf.getAction_time(), "HH:mm:ss"));
 
-			listResponse.put("workstauts", WORK_STATUS_PAUSING);
+			// 判断是否有特殊页面效果
+			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
+			String workstauts = req.getParameter("workstauts");
+			if ("peripheral".equals(special_forward) && WORK_STATUS_PERIPHERAL_WORKING.equals(workstauts)) {
+				listResponse.put("workstauts", WORK_STATUS_PERIPHERAL_PAUSING);
+			} else {
+				listResponse.put("workstauts", WORK_STATUS_PAUSING);
+			}
 
 			if (errors.size() == 0) {
 				conn.commit();
@@ -1337,8 +1404,7 @@ public class PositionPanelAction extends BaseAction {
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
-		callbackResponse.put("waitings",
-				service.getWaitingMaterial(user.getSection_id(),
+		callbackResponse.put("waitings", service.getWaitingMaterial(user.getSection_id(),
 						user.getPosition_id(), user.getLine_id(),
 						user.getOperator_id(), user.getPx(), user.getProcess_code(), conn));
 		if (!"0".equals(user.getPx())) {
@@ -1349,5 +1415,71 @@ public class PositionPanelAction extends BaseAction {
 
 		returnJsonResponse(res, callbackResponse);
 		log.info("PositionPanelAction.refreshWaitings end");
+	}
+	/**
+	 * 周边设备检查使用设备工具-点检
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void deviceCheck(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+
+		log.info("PositionPanelAction.deviceCheck start");
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
+
+		CheckResultService crService =new CheckResultService();
+		String deviceCheck = crService.getPeripheralIsUseCheck(req.getParameter("manage_id"), 
+				req.getParameter("device_type_id"), req.getParameter("check_file_manage_id"), conn);
+		
+		listResponse.put("deviceCheck", deviceCheck);
+		listResponse.put("errors", infoes);
+
+		returnJsonResponse(res, listResponse);
+		log.info("PositionPanelAction.deviceCheck end");
+	}
+
+	/**
+	 * 周边设备检查使用设备工具-点检完成
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doFinishcheck(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSessionManager conn) throws Exception {
+
+		log.info("PositionPanelAction.doFinishcheck start");
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
+
+		// 取得用户信息
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+		service.finishcheck(req, user, conn);
+
+		// 取得进行中的维修对象
+		ProductionFeatureEntity workingPf = service.getWorkingOrSupportingPf(user, conn);
+
+		// 取得作业信息
+		service.getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, false, conn);
+
+		// 取得工程检查票
+		PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+
+		listResponse.put("workstauts", WORK_STATUS_WORKING);
+		// 通知报价界面不需要刷新基础信息
+		listResponse.put("finish_check", "1");
+
+		listResponse.put("errors", infoes);
+
+		returnJsonResponse(res, listResponse);
+		log.info("PositionPanelAction.doFinishcheck end");
 	}
 }

@@ -552,12 +552,13 @@ public class MaterialService {
 
 		List<Map<String, String>> pcses = new ArrayList<Map<String, String>>();
 
-		String[] showLines = new String[5];
+		String[] showLines = new String[6];
 		showLines[0] = "最终检验";
 		showLines[1] = "分解工程";
 		showLines[2] = "NS 工程";
 		showLines[3] = "总组工程";
 		showLines[4] = "外科硬镜修理工程";
+		showLines[5] = "检查卡";
 
 		for (int i=0 ; i < showLines.length ; i++) {
 			String showLine = showLines[i]; 

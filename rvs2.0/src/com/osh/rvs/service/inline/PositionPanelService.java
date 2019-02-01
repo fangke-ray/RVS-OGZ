@@ -1,5 +1,7 @@
 package com.osh.rvs.service.inline;
 
+import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,6 +11,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
@@ -24,10 +31,12 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.CheckResultEntity;
 import com.osh.rvs.bean.infect.CheckUnqualifiedRecordEntity;
 import com.osh.rvs.bean.infect.PeriodsEntity;
+import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.PutinBalanceBound;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
+import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
@@ -36,16 +45,19 @@ import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.infect.CheckUnqualifiedRecordMapper;
+import com.osh.rvs.mapper.infect.PeripheralInfectDeviceMapper;
 import com.osh.rvs.mapper.inline.DeposeStorageMapper;
 import com.osh.rvs.mapper.inline.PositionPanelMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
+import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialService;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -594,7 +606,7 @@ public class PositionPanelService {
 				showLines = new String[1];
 				showLines[0] = "外科硬镜修理工程";
 			}
-		} else if (mform.getLevel().startsWith("5")) {
+		} else if (mform.getLevel()==null || RvsUtils.isPeripheral(mform.getLevel())) { // 没等级还要检查票的就只有周边
 			showLines = new String[1];
 			showLines[0] = "检查卡";
 		} else {
@@ -658,11 +670,12 @@ public class PositionPanelService {
 
 		List<Map<String, String>> pcses = new ArrayList<Map<String, String>>();
 
-		String[] showLines = new String[4];
-		showLines[0] = "最终检验";
-		showLines[1] = "分解工程";
-		showLines[2] = "NS 工程";
-		showLines[3] = "总组工程";
+		String[] showLines = new String[5];
+		showLines[0] = "检查卡";
+		showLines[1] = "最终检验";
+		showLines[2] = "分解工程";
+		showLines[3] = "NS 工程";
+		showLines[4] = "总组工程";
 
 		for (String showLine : showLines) {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, conn);
@@ -804,7 +817,7 @@ public class PositionPanelService {
 
 		// 取得维修对象的作业标准时间。
 		String leagal_overline = RvsUtils.getLevelOverLine(mform.getModel_name(), mform.getCategory_name(), mform.getLevel(), user, null);
-		String process_code = user.getProcess_code();
+		String process_code = pf.getProcess_code();
 		Map<String, String> snoutModels = RvsUtils.getSnoutModels(conn);
 		Set<String> snoutSaveTime341Models = RvsUtils.getSnoutSavetime341Models(conn);
 		if (("331".equals(process_code) && snoutModels.containsKey(mform.getModel_id()))
@@ -983,12 +996,6 @@ public class PositionPanelService {
 		List<CheckResultEntity> list = crMapper.searchToolUncheckedOnPosition(cond);
 
 		String retComments = "";
-
-		// 测试 start
-		Calendar tp = Calendar.getInstance();
-
-		period.setExpireOfMonthOfJig(tp.getTime());
-		// 测试 end
 		if (list.size() > 0) {
 			if (DateUtil.compareDate(today, period.getExpireOfMonthOfJig()) >= 0) {
 				retComments += "本工位有"+list.size()+"件治具在期限前未作点检，将限制工作。\n";
@@ -1278,4 +1285,141 @@ public class PositionPanelService {
 		}
 		return patLineStandards.get(key);
 	}
+
+	/**
+	 * 取得周边设备检查使用设备工具 
+	 * @param material_id
+	 * @param callbackResponse 
+	 * @param retEntity 
+	 * @param waitingPf
+	 * @param conn
+	 * @return 当前工位点检是否完成
+	 * @throws Exception 
+	 */
+	public boolean getPeripheralData(String material_id, ProductionFeatureEntity pfEntity,
+			List<PeripheralInfectDeviceEntity> retEntity, SqlSession conn) {
+		PeripheralInfectDeviceMapper dao = conn.getMapper(PeripheralInfectDeviceMapper.class);
+
+		// 当前工位点检是否完成
+		boolean infectFinishFlag = true;
+
+		PeripheralInfectDeviceEntity condEntity = new PeripheralInfectDeviceEntity();
+		condEntity.setMaterial_id(material_id);
+		condEntity.setPosition_id(pfEntity.getPosition_id());
+		condEntity.setRework(pfEntity.getRework());
+		// 取得可点检项目
+		List<PeripheralInfectDeviceEntity> resultEntities = dao.getPeripheralDataByMaterialId(condEntity);
+		// 各组的内容
+		// Map<Integer, PeripheralInfectDeviceEntity> resultEntityOfSeq = new HashMap<Integer, PeripheralInfectDeviceEntity>();
+
+		DevicesManageMapper devicesManageDao = conn.getMapper(DevicesManageMapper.class);
+		int seqTag = -1, seqCursor = -1, seqCount = 0;
+		for (int i = 0; i < resultEntities.size(); i++) {
+			PeripheralInfectDeviceEntity result = resultEntities.get(i);
+			// 根据每一项的品名及型号，取得manageCodeList
+			DevicesManageEntity devicesManageEntity = new DevicesManageEntity();
+			devicesManageEntity.setDevice_type_id(result.getDevice_type_id());
+			devicesManageEntity.setModel_name(result.getModel_name());
+			List<DevicesManageEntity> manageCodeList = devicesManageDao.getManageCode(devicesManageEntity);
+
+			result.setGroup(0);
+			if (seqTag != result.getSeq()) {
+				// 新的编号
+				// 整理上一个重复
+				if (seqCount > 0) {
+					resultEntities.get(seqCursor).setGroup(seqCount + 1);
+					for (int j = 1; j <= seqCount; j++) {
+						resultEntities.get(seqCursor + j).setGroup(-1);
+					}
+				}
+
+				// 重新标记
+				seqTag = result.getSeq();
+				seqCursor = i;
+				seqCount = 0;
+			} else {
+				// 重复的编号
+				seqCount++;
+			}
+
+			Map<String, String> codeMap = new TreeMap<String, String>();
+			String codeId = "";
+			for (DevicesManageEntity bean : manageCodeList) {
+				if (!CommonStringUtil.isEmpty(result.getDevice_manage_id())
+						&& result.getDevice_manage_id().equals(bean.getDevices_manage_id())) {
+					// 取得已选中的设备
+					codeId = bean.getDevices_manage_id() + "," + bean.getCheck_result();
+					// 同组第一个已点检
+					resultEntities.get(seqCursor).setCheck_result("已点检");
+				}
+				codeMap.put(bean.getDevices_manage_id() + "," + bean.getCheck_result(), bean.getManage_code());
+			}
+
+			// 每一项的设备可选项
+			result.setManageCodeOptions(CodeListUtils.getSelectOptions(codeMap, codeId, "", true));
+
+			if (isEmpty(result.getDevice_manage_id())) {
+				infectFinishFlag = false;
+			}
+		}
+
+		// 整理上一个重复
+		if (seqCount > 0) {
+			resultEntities.get(seqCursor).setGroup(seqCount + 1);
+			for (int j = 1; j <= seqCount; j++) {
+				resultEntities.get(seqCursor + j).setGroup(-1);
+			}
+		}
+
+		retEntity.addAll(resultEntities);
+
+		return infectFinishFlag;
+	}
+
+	/**
+	 * 插入点检完成的数据
+	 * @param req
+	 * @param user
+	 * @param conn
+	 * @return
+	 * @throws Exception 
+	 */
+	public void finishcheck(HttpServletRequest req, LoginData user, SqlSession conn)
+			throws Exception {
+		List<PeripheralInfectDeviceEntity> list = new AutofillArrayList<PeripheralInfectDeviceEntity>(
+				PeripheralInfectDeviceEntity.class);
+		Map<String, String[]> map = (Map<String, String[]>) req.getParameterMap();
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		// 整理提交数据
+		for (String parameterKey : map.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String table = m.group(1);
+				if ("finishcheck".equals(table)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+					String[] value = map.get(parameterKey);
+					if ("manage_id".equals(column)) {
+						list.get(icounts).setDevice_manage_id(value[0]);
+					} else if ("seq".equals(column)) {
+						list.get(icounts).setSeq(Integer.parseInt(value[0]));
+					}
+				}
+			}
+		}
+
+		// 取得当前作业中作业信息
+		ProductionFeatureEntity workingPf = getWorkingPf(user, conn);
+
+		PeripheralInfectDeviceMapper dao = conn.getMapper(PeripheralInfectDeviceMapper.class);
+		for (PeripheralInfectDeviceEntity insertBean : list) {	
+			insertBean.setMaterial_id(workingPf.getMaterial_id());
+			insertBean.setPosition_id(workingPf.getPosition_id());
+			insertBean.setRework(workingPf.getRework());
+			insertBean.setUpdated_by(user.getOperator_id());
+			// 新建记录插入到数据库中
+			dao.insertFinishedData(insertBean);
+		}
+	}
+
 }

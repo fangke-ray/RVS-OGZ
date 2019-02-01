@@ -30,7 +30,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/common/pcs_editor.js"></script>
-<script type="text/javascript" src="js/qa/quality_assurance.js?version=97"></script>
+<script type="text/javascript" src="js/qa/quality_assurance.js"></script>
 
 <title>${qs_position_name}</title>
 <%
@@ -61,6 +61,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div id="uld_listedit"></div>
 			<input type="hidden" id="wk_position_id" value="${qs_position_id}"/>			
 		</div>
+<%
+Boolean peripheral = (Boolean) request.getAttribute("peripheral");
+if (peripheral!=null && peripheral) {
+%>
+<%@include file="/widgets/position_panel/device_infect.jsp"%>
+<%
+}
+%>
+
 		<div id="pcsarea" style="display: none;">
 			<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
 				<span class="areatitle">工程检查票</span>
