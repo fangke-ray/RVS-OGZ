@@ -31,6 +31,7 @@ import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -490,8 +491,10 @@ public class QualityAssuranceAction extends BaseAction {
 
 
 			// 作业信息状态还是作业中
-			workingPf.setPcs_inputs(req.getParameter("pcs_inputs"));
-			workingPf.setPcs_comments(req.getParameter("pcs_comments"));
+			workingPf.setPcs_inputs(RvsUtils.setContentWithMemo(
+					req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+			workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
+					req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 
 			pfdao.updatePcsProductionFeature(workingPf);
 
@@ -561,8 +564,10 @@ public class QualityAssuranceAction extends BaseAction {
 			workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
 			workingPf.setUse_seconds(use_seconds);
 			if (!isLeader) {
-				workingPf.setPcs_inputs(req.getParameter("pcs_inputs"));
-				workingPf.setPcs_comments(req.getParameter("pcs_comments"));
+				workingPf.setPcs_inputs(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+				workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 			}
 
 			pfdao.finishProductionFeature(workingPf);
@@ -677,8 +682,10 @@ public class QualityAssuranceAction extends BaseAction {
 			workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_SENDBACK);
 			workingPf.setUse_seconds(use_seconds);
 			if (!isLeader) {
-				workingPf.setPcs_inputs(req.getParameter("pcs_inputs"));
-				workingPf.setPcs_comments(req.getParameter("pcs_comments"));
+				workingPf.setPcs_inputs(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+				workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 			}
 			
 			pfdao.finishProductionFeature(workingPf);

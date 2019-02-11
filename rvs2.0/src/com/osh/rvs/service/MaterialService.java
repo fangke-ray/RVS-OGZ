@@ -660,8 +660,10 @@ public class MaterialService {
 
 		ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 		pfBean.setMaterial_id(material_id);
-		pfBean.setPcs_inputs(req.getParameter("pcs_inputs"));
-		pfBean.setPcs_comments(req.getParameter("pcs_comments"));
+		pfBean.setPcs_inputs(RvsUtils.setContentWithMemo(
+				req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+		pfBean.setPcs_comments(RvsUtils.setContentWithMemo(
+				req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 		pfBean.setOperator_id(user.getOperator_id());
 		pfBean.setLine_id(user.getLine_id());
 		pfBean.setRework(lineMaxRework);
@@ -684,7 +686,8 @@ public class MaterialService {
 		ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 		pfBean.setMaterial_id(req.getParameter("material_id"));
 		pfBean.setPcs_inputs("{}");
-		pfBean.setPcs_comments(req.getParameter("pcs_comments"));
+		pfBean.setPcs_comments(RvsUtils.setContentWithMemo(
+				req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 		pfBean.setOperator_id(user.getOperator_id());
 		pfBean.setLine_id(line_id);
 		pfBean.setRework(lineMaxRework);
@@ -969,10 +972,14 @@ public class MaterialService {
 				if (retEntities.size() > 0) {
 					ProductionFeatureEntity target = retEntities.get(0);
 					String oldPcsInputs = target.getPcs_inputs();
+					oldPcsInputs = RvsUtils.getContentWithMemo(oldPcsInputs, conn);
+
 					Map<String, String> jsonPcsInputs = JSON.decode(oldPcsInputs, Map.class);
 					jsonPcsInputs.put(fixBean.get("name").toString(), fixBean.get("value").toString());
 
-					target.setPcs_inputs(JSON.encode(jsonPcsInputs));
+					String newPcsInputs = JSON.encode(jsonPcsInputs);
+					newPcsInputs = RvsUtils.setContentWithMemo(newPcsInputs, PcsUtils.PCS_INPUTS_SIZE, conn);
+					target.setPcs_inputs(newPcsInputs);
 
 					pfoMapper.updateInputs(target);
 				}
@@ -981,10 +988,15 @@ public class MaterialService {
 				ProductionFeatureEntity leaderPcsInput = lpiMapper.getLeaderPcsInputByKey(jam_code);
 				if (leaderPcsInput != null) {
 					String oldPcsInputs = leaderPcsInput.getPcs_inputs();
+					oldPcsInputs = RvsUtils.getContentWithMemo(oldPcsInputs, conn);
+
 					Map<String, String> jsonPcsInputs = JSON.decode(oldPcsInputs, Map.class);
 					jsonPcsInputs.put(fixBean.get("name").toString(), fixBean.get("value").toString());
 
-					pfoMapper.updateInputsLeader(jam_code, JSON.encode(jsonPcsInputs));
+					String newPcsInputs = JSON.encode(jsonPcsInputs);
+					newPcsInputs = RvsUtils.setContentWithMemo(newPcsInputs, PcsUtils.PCS_INPUTS_SIZE, conn);
+
+					pfoMapper.updateInputsLeader(jam_code, newPcsInputs);
 				}
 			}
 		}
@@ -1001,10 +1013,14 @@ public class MaterialService {
 				if (retEntities.size() > 0) {
 					ProductionFeatureEntity target = retEntities.get(0);
 					String oldPcsComments = target.getPcs_comments();
+					oldPcsComments = RvsUtils.getContentWithMemo(oldPcsComments, conn);
+
 					Map<String, String> jsonPcsComments = JSON.decode(oldPcsComments, Map.class);
 					jsonPcsComments.put(fixBean.get("name").toString(), fixBean.get("value").toString());
 
-					target.setPcs_comments(JSON.encode(jsonPcsComments));
+					String newPcsComments = JSON.encode(jsonPcsComments);
+					newPcsComments = RvsUtils.setContentWithMemo(newPcsComments, PcsUtils.PCS_COMMENTS_SIZE.intValue(), conn);
+					target.setPcs_comments(newPcsComments);
 
 					pfoMapper.updateComments(target);
 				}
@@ -1013,10 +1029,15 @@ public class MaterialService {
 				ProductionFeatureEntity leaderPcsInput = lpiMapper.getLeaderPcsInputByKey(jam_code);
 				if (leaderPcsInput != null) {
 					String oldPcsComments = leaderPcsInput.getPcs_comments();
+					oldPcsComments = RvsUtils.getContentWithMemo(oldPcsComments, conn);
+
 					Map<String, String> jsonPcsComments = JSON.decode(oldPcsComments, Map.class);
 					jsonPcsComments.put(fixBean.get("name").toString(), fixBean.get("value").toString());
 
-					pfoMapper.updateCommentsLeader(jam_code, JSON.encode(jsonPcsComments));
+					String newPcsComments = JSON.encode(jsonPcsComments);
+					newPcsComments = RvsUtils.setContentWithMemo(newPcsComments, PcsUtils.PCS_COMMENTS_SIZE.intValue(), conn);
+
+					pfoMapper.updateCommentsLeader(jam_code, newPcsComments);
 				}
 			}
 		}

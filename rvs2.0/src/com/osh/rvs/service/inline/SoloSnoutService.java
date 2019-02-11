@@ -238,8 +238,10 @@ public class SoloSnoutService {
 
 		ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 		pfBean.setSerial_no(req.getParameter("serial_no"));
-		pfBean.setPcs_inputs(req.getParameter("pcs_inputs"));
-		pfBean.setPcs_comments(req.getParameter("pcs_comments"));
+		pfBean.setPcs_inputs(RvsUtils.setContentWithMemo(
+				req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+		pfBean.setPcs_comments(RvsUtils.setContentWithMemo(
+				req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 		pfBean.setOperator_id(user.getOperator_id());
 		pfBean.setLine_id(user.getLine_id());
 		pfBean.setRework(0);

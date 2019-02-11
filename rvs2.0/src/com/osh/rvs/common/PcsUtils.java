@@ -67,6 +67,9 @@ public class PcsUtils {
 	private static final String COMMENT_241 = "报废S 连接座√×"; 
 	private static final String COMMENT_261 = "无烘干√×"; 
 
+	public static final Integer PCS_INPUTS_SIZE = 512; 
+	public static final Integer PCS_COMMENTS_SIZE = 128; 
+
 	/** init */
 	static {
 		// try {
@@ -490,6 +493,7 @@ public class PcsUtils {
 
 							String sPcs_inputs = pf.getPcs_inputs();
 							if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+								sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 								// 解析输入值
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -566,6 +570,7 @@ public class PcsUtils {
 								// 备注信息
 								currentComments = pf.getPcs_comments();
 								if (!CommonStringUtil.isEmpty(currentComments)) {
+									currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 									@SuppressWarnings("unchecked")
 									Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 									for (String commentskey : jsonPcs_comments.keySet()) {
@@ -608,6 +613,7 @@ public class PcsUtils {
 
 						String sPcs_inputs = pf.getPcs_inputs();
 						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 							// 解析输入值
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -839,6 +845,7 @@ public class PcsUtils {
 							// 备注信息
 							currentComments = pf.getPcs_comments();
 							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 								for (String commentskey : jsonPcs_comments.keySet()) {
@@ -1287,6 +1294,7 @@ public class PcsUtils {
 
 						String sPcs_inputs = pf.getPcs_inputs();
 						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 							// 解析输入值
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -1359,6 +1367,7 @@ public class PcsUtils {
 							// 备注信息
 							currentComments = pf.getPcs_comments();
 							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 								for (String commentskey : jsonPcs_comments.keySet()) {
@@ -1401,6 +1410,7 @@ public class PcsUtils {
 
 						String sPcs_inputs = pf.getPcs_inputs();
 						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 							// 解析输入值
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -1485,6 +1495,7 @@ public class PcsUtils {
 							// 备注信息
 							currentComments = pf.getPcs_comments();
 							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 								for (String commentskey : jsonPcs_comments.keySet()) {
@@ -1863,6 +1874,7 @@ public class PcsUtils {
 
 							String sPcs_inputs = pf.getPcs_inputs();
 							if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+								sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 								// 解析输入值
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -1937,6 +1949,7 @@ public class PcsUtils {
 
 								currentComments = pf.getPcs_comments();
 								if (!CommonStringUtil.isEmpty(currentComments)) {
+									currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 									@SuppressWarnings("unchecked")
 									Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 									for (String commentskey : jsonPcs_comments.keySet()) {
@@ -1979,6 +1992,7 @@ public class PcsUtils {
 	
 						String sPcs_inputs = pf.getPcs_inputs();
 						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 							// 解析输入值
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -2085,6 +2099,7 @@ public class PcsUtils {
 							// 备注信息
 							currentComments = pf.getPcs_comments();
 							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 								for (String commentskey : jsonPcs_comments.keySet()) {
@@ -2321,6 +2336,7 @@ public class PcsUtils {
 
 						String sPcs_inputs = pf.getPcs_inputs();
 						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 							// 解析输入值
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -2393,6 +2409,7 @@ public class PcsUtils {
 							// 备注信息
 							currentComments = pf.getPcs_comments();
 							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 								@SuppressWarnings("unchecked")
 								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 								for (String commentskey : jsonPcs_comments.keySet()) {
@@ -2427,6 +2444,7 @@ public class PcsUtils {
 
 					String sPcs_inputs = pf.getPcs_inputs();
 					if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+						sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
 						// 解析输入值
 						@SuppressWarnings("unchecked")
 						Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
@@ -2566,6 +2584,7 @@ public class PcsUtils {
 						// 备注信息
 						currentComments = pf.getPcs_comments();
 						if (!CommonStringUtil.isEmpty(currentComments)) {
+							currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
 							@SuppressWarnings("unchecked")
 							Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
 							for (String commentskey : jsonPcs_comments.keySet()) {

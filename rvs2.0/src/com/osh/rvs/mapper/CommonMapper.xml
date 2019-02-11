@@ -30,4 +30,17 @@
 		END)
 	</sql> 
 
+	<select id="findCommonMemoByKey" resultType="String">
+		SELECT `memo_content`
+		FROM `common_memo`
+		WHERE `memo_key` = #{memo_key};
+	</select>
+
+	<insert id="addCommonMemo" parameterType="String">
+		INSERT INTO `common_memo`
+		(`memo_content`)
+		VALUES
+		(#{memo_content});
+	</insert>
+
 </mapper>

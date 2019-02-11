@@ -22,6 +22,7 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -490,8 +491,10 @@ public class QuotationAction extends BaseAction {
 				ProductionFeatureMapper pfdao = conn.getMapper(ProductionFeatureMapper.class);
 				workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_BREAK);
 				workingPf.setUse_seconds(null);
-				workingPf.setPcs_inputs(req.getParameter("pcs_inputs"));
-				workingPf.setPcs_comments(req.getParameter("pcs_comments"));
+				workingPf.setPcs_inputs(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
+				workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 
 				pfdao.finishProductionFeature(workingPf);
 
@@ -663,6 +666,8 @@ public class QuotationAction extends BaseAction {
 			ppService.checkPcsEmpty(pcs_inputs, errors);
 
 		if (errors.size() == 0) {
+			pcs_inputs = RvsUtils.setContentWithMemo(
+					pcs_inputs, PcsUtils.PCS_INPUTS_SIZE, conn);
 			materialId = workingPf.getMaterial_id();
 			materialForm.setMaterial_id(materialId);
 //			mservice.checkRepeatNo(materialId, materialForm, conn, errors);
@@ -697,7 +702,8 @@ public class QuotationAction extends BaseAction {
 			workingPf.setUse_seconds(use_seconds);
 			if (pcs_inputs != null) {
 				workingPf.setPcs_inputs(pcs_inputs);
-				workingPf.setPcs_comments(req.getParameter("pcs_comments"));
+				workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
+						req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
 			}
 			pfdao.finishProductionFeature(workingPf);
 

@@ -1087,6 +1087,34 @@ public class RvsUtils {
 		return isPeripheral;
 	}
 
+	/**
+	 * 文字超长度，外表记录
+	 */
+	public static final String MEMO_TAG = "[[Memo:";
+	public static String getContentWithMemo(String input, SqlSession conn) {
+		if (input == null) {
+			return null;
+		}
+		if (input.startsWith(MEMO_TAG)) {
+			CommonMapper mapper = conn.getMapper(CommonMapper.class);
+			return mapper.findCommonMemoByKey(input.substring(MEMO_TAG.length()));
+		} else {
+			return input;
+		}
+	}
+	public static String setContentWithMemo(String input, int iSize, SqlSessionManager conn) {
+		if (input == null) {
+			return null;
+		}
+		if (input.length() > iSize) {
+			CommonMapper mapper = conn.getMapper(CommonMapper.class);
+			mapper.addCommonMemo(input);
+			return MEMO_TAG + mapper.getLastInsertID();
+		} else {
+			return input;
+		}
+	}
+
 	public static void initAll(SqlSession conn) {
 		overLineCache.clear();
 
