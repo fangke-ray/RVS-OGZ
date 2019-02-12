@@ -48,13 +48,13 @@
 						background: -moz-linear-gradient(top,  #00A0A0 0%, #00B5B5 100%);
 						background: -webkit-linear-gradient(top,  #00A0A0 0%,#00B5B5 100%);
 					">S2+S3</div>
-					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:50px;left:13px;
+					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:50px;left:6px;
 						background: #00A843;color:white;
 						text-shadow: 1px 1px maroon;
 						background: -moz-linear-gradient(top,  #00A0A0 0%, #00A843 100%);
 						background: -webkit-linear-gradient(top,  #00A0A0 0%,#00A843 100%);
-					">D</div>
-					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:74px;left:13px;
+					">D+M</div>
+					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:74px;left:16px;
 						background: #3333FF;color:white;
 						text-shadow: 1px 1px maroon;
 						background: -moz-linear-gradient(top,  #3399FF 0%, #3333FF 100%);
@@ -84,13 +84,13 @@
 						background: -moz-linear-gradient(top,  #00A0A0 0%, #00B5B5 100%);
 						background: -webkit-linear-gradient(top,  #00A0A0 0%,#00B5B5 100%);
 					">S2+S3</div>
-					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:50px;left:13px;
+					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:50px;left:6px;
 						background: #00A843;color:white;
 						text-shadow: 1px 1px maroon;
 						background: -moz-linear-gradient(top,  #00A0A0 0%, #00A843 100%);
 						background: -webkit-linear-gradient(top,  #00A0A0 0%,#00A843 100%);
-					">D</div>
-					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:74px;left:13px;
+					">D+M</div>
+					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:74px;left:16px;
 						background: #3333FF;color:white;
 						text-shadow: 1px 1px maroon;
 						background: -moz-linear-gradient(top,  #3399FF 0%, #3333FF 100%);
@@ -126,7 +126,7 @@
 						text-shadow: 1px 1px maroon;
 						background: -moz-linear-gradient(top,  #cc76cc 0%, #993999 100%);
 						background: -webkit-linear-gradient(top,  #cc76cc 0%,#993999 100%);
-					">小修理</div>
+					">中小修理</div>
 					<div style="position:absolute;padding:2px 4px;border-radius:2px;top:2px;left:97px;
 						background: #91D580;color:white;
 						text-shadow: 1px 1px maroon;
@@ -513,7 +513,7 @@ var iamreadyAf = function() {
 								+ this.points[0].y + '台<br/>'
 								+ '<b>S2+S3</b>'
 								+ this.points[1].y + '台<br/>'
-								+ '<b>D</b>'
+								+ '<b>D+M</b>'
 								+ this.points[2].y + '台<br/>'
 								+ '<b>E</b>'
 								+ this.points[3].y + '台';
@@ -727,7 +727,7 @@ var iamreadyAf = function() {
 				name : '台数',
 				data : ${series2_1}
 			},{
-				name : 'D',
+				name : 'D+M',
 				data : ${series2_3}
 			},{
 				name : 'E',

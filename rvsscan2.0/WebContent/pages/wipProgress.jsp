@@ -14,6 +14,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 <style>
+td.td-sum-title {
+	padding: 6px;
+}
 	.wip-heaped-blink {
 		border-width: 2px;
 		font-weight: bold;
@@ -23,7 +26,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	}
 
 #label_table td.td-content {
-	width:70px;
+	width:50px;
 }
 	@keyframes blink {
 		0% {border-color : white !important;}
@@ -93,20 +96,24 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div id="sumarea" style="position: absolute; bottom: 0px; left: 146px;">
    					<table class="condform" id="label_table" style="margin-top: 15px; margin-bottom: 15px;font-size:15px;">
 						<tr>
-							<td class="ui-state-default td-title">总库位数</td>
+							<td class="ui-state-default td-sum-title">总库位数</td>
 							<td class="ui-state-default" rowspan="4" style="">普通<br/>内镜</td>
 							<td class="td-content"><label /></td>
 							<td class="ui-state-default" rowspan="4" style="">Endo<br/>-eye</td>
-							<td class="td-content"><label>250 台</label></td>
+							<td class="td-content"><label></label></td>
+							<td class="ui-state-default" rowspan="4" style="">周边<br/>设备</td>
+							<td class="td-content"><label></label></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">当前在库台数</td>
+							<td class="ui-state-default td-sum-title" style="font-size: 12px;">当前在库台数</td>
+							<td class="td-content"><label /></td>
 							<td class="td-content"><label /></td>
 							<td class="td-content"><label /></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">超期台数</td>
+							<td class="ui-state-default td-sum-title">超期台数</td>
 							<td class="td-content"><label/></td>
+							<td class="td-content"><label /></td>
 							<td class="td-content"><label /></td>
 						</tr>
 						<!--tr>
@@ -115,7 +122,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="td-content"><label /></td>
 						</tr-->
 						<tr>
-							<td class="ui-state-default td-title">超期率</td>
+							<td class="ui-state-default td-sum-title">超期率</td>
+							<td class="td-content"><label /></td>
 							<td class="td-content"><label /></td>
 							<td class="td-content"><label /></td>
 						</tr>
@@ -127,7 +135,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="clear" style="height:4px;"></div>
 				</div>
 				<div id="checkedShow" style="float: left; position: absolute; bottom: 162px; left: 140px; opacity:0; transition: .5s">
-					<table class="subform">
+					<table class="subform" style="background-color:white;">
 						<thead><th role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 64px;"><div id="jqgh_list_sorc_no" class="ui-jqgrid-sortable">修理单号</div></th><th id="list_model_name" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 190px;"><div id="jqgh_list_model_name" class="ui-jqgrid-sortable">型号</div></th><th id="list_serial_no" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 53px;"><div id="jqgh_list_serial_no" class="ui-jqgrid-sortable">机身号</div></th><th id="list_wip_location" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 63px;"><div id="jqgh_list_wip_location" class="ui-jqgrid-sortable">WIP货架位置</div></th></thead>
 						<tbody></tbody>
 					</table>

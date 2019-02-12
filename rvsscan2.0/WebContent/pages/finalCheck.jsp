@@ -13,7 +13,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
-
+<style>
+.peri-cnt {
+	font-size: 16px;
+	line-height: 36px;
+}
+</style>
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.validate.min.js"></script>
@@ -35,12 +40,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;">
 								<span class="areatitle" style="font-size:13px;margin:7px 20px;">当前待检查件数</span>
 							</div>
-							<div id="today_quality" style="width : 126px;height : 126px; background-color:white; border: 12px solid #92d050; -webkit-box-shadow: 0 -1px 2px #292929;">
+							<div id="today_quality" style="width : 126px;height : 126px; background-color:white; border: 12px solid #92d050;">
 							</div>
-							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-top: 182px;">
+							<div id="today_quality_peri" class="peri-cnt" style="width : 126px;height : 40px; background-color:white; border: 12px solid #92d050; border-top:0; -webkit-box-shadow: 0 -1px 2px #292929;">
+							</div>
+							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-top: 78px;">
 								<span class="areatitle" style="font-size:13px;margin:7px 20px;">当前待确认件数</span>
 							</div>
-							<div id="today_confirm_quality" style="width : 126px;height : 126px; background-color:white; border: 12px solid #48A068; -webkit-box-shadow: 0 -1px 2px #292929;">
+							<div id="today_confirm_quality" style="width : 126px;height : 126px; background-color:white; border: 12px solid #48A068;">
+							</div>
+							<div id="today_confirm_quality_peri" class="peri-cnt" style="width : 126px;height : 40px; background-color:white; border: 12px solid #48A068; border-top:0; -webkit-box-shadow: 0 -1px 2px #292929;">
 							</div>
 		   </div>
 			<div id="workarea" style="width:690px;float:left">			
@@ -56,13 +65,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;">
 								<span class="areatitle" style="font-size:13px;margin:7px 20px;">当日通过件数</span>
 							</div>
-							<div id="today_pass" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0070c0; -webkit-box-shadow: 0 -1px 2px #292929;">
+							<div id="today_pass" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0070c0;">
 							</div>
-							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-top: 182px;">
+							<div id="today_pass_peri" class="peri-cnt" style="width : 126px;height : 40px; background-color:white; border: 12px solid #0070c0; border-top:0; -webkit-box-shadow: 0 -1px 2px #292929;">
+							</div>
+							<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-top: 78px;">
 								<span class="areatitle" style="font-size:13px;margin:7px 20px;">当日不合格数</span>
 							</div>
-							<div id="today_unqualified" style="width : 126px;height : 126px; background-color:white; border: 12px solid #ff0000; -webkit-box-shadow: 0 -1px 2px #292929;">
+							<div id="today_unqualified" style="width : 126px;height : 126px; background-color:white; border: 12px solid #ff0000;">
 							</div>						
+							<div id="today_unqualified_peri" class="peri-cnt" style="width : 126px;height : 40px; background-color:white; border: 12px solid #ff0000; border-top:0; -webkit-box-shadow: 0 -1px 2px #292929;">
+							</div>
 		   </div>
 	   <div class="clear"></div>
    </div>

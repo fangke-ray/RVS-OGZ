@@ -21,6 +21,7 @@ public class FinalCheckService {
 	@SuppressWarnings("unused")
 	private static final String TARGET_RATE_146P = "99.8%";
 	private static final String TARGET_RATE_149P = "99.6%";
+	private static final Integer ID_613 = 00000000065;
     /**
 	 * 返回品保展示数据
 	 * 
@@ -129,14 +130,60 @@ public class FinalCheckService {
 	 */
 	public void getCounts(Map<String,Object> listResponse,SqlSession conn){
 		QualityAssuranceMapper dao = conn.getMapper(QualityAssuranceMapper.class);
-		int passCount = dao.getCurrentPassCount();
-		int unqualifiedCount = dao.getCurrentUnqualifiedCount();
-		int waitingCount = dao.getCurrentWaitingCount(true);
-		int waitingConfirmCount = dao.getCurrentWaitingCount(false);
+		int passCount = 0;
+		int unqualifiedCount = 0;
+		int waitingCount = 0;
+		int waitingConfirmCount = 0;
+		List<Map<String, Object>> passCounts = dao.getCurrentPassCount();
+		List<Map<String, Object>> unqualifiedCounts = dao.getCurrentUnqualifiedCount();
+		List<Map<String, Object>> waitingCounts = dao.getCurrentWaitingCount(true);
+		List<Map<String, Object>> waitingConfirmCounts = dao.getCurrentWaitingCount(false);
+
+		for(Map<String, Object> cntByProcess : passCounts) {
+			int cnt = getAsInteger(cntByProcess, "cnt");
+			if (cntByProcess.get("process_code") == ID_613) {
+				listResponse.put("currentPassCountP", cnt);
+			}
+			passCount += cnt;
+		}
+
+		for(Map<String, Object> cntByProcess : unqualifiedCounts) {
+			int cnt = getAsInteger(cntByProcess, "cnt");
+			if (cntByProcess.get("process_code") == ID_613) {
+				listResponse.put("currentUnqualifiedCountP", cnt);
+			}
+			unqualifiedCount += cnt;
+		}
+
+		for(Map<String, Object> cntByProcess : waitingCounts) {
+			int cnt = getAsInteger(cntByProcess, "cnt");
+			if (cntByProcess.get("process_code") == ID_613) {
+				listResponse.put("currentWaitingCountP", cnt);
+			}
+			waitingCount += cnt;
+		}
+
+		for(Map<String, Object> cntByProcess : waitingConfirmCounts) {
+			int cnt = getAsInteger(cntByProcess, "cnt");
+			if (cntByProcess.get("process_code") == ID_613) {
+				listResponse.put("currentWaitingConfirmCountP", cnt);
+			}
+			waitingConfirmCount += cnt;
+		}
+
 		listResponse.put("currentPassCount", passCount);
 		listResponse.put("currentUnqualifiedCount", unqualifiedCount);
 		listResponse.put("currentWaitingCount", waitingCount);
 		listResponse.put("currentWaitingConfirmCount", waitingConfirmCount);
+	}
+	private int getAsInteger(Map<String, Object> cntByProcess, String key) {
+		Object objCnt = cntByProcess.get(key);
+		if (objCnt instanceof Long) {
+			return ((Long) objCnt).intValue();
+		} else if (objCnt instanceof Integer) {
+			return ((Integer) objCnt).intValue();
+		}
+		return 0;
 	}				
 }
 

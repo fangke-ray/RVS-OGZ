@@ -63,12 +63,16 @@ public class LineLeaderService {
 	 * @param conn
 	 * @param listResponse
 	 */
+	public List<Map<String, String>> getWorkingOfPositions(String section_id, String line_id, SqlSession conn) {
+		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
+		return dao.getWorkingOfPositions(section_id, line_id);
+	}
 	public void getChartContent(String section_id, String line_id, SqlSession conn, Map<String, Object> responseMap) {
 		getChartContent(section_id, line_id, responseMap, null, conn);
 	}
 	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
-		List<Map<String, String>> workingOfPositions = dao.getWorkingOfPositions(section_id, line_id);
+		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
 
 		// 数据整合
 		List<Map<String, String>> newWorkingOfPositions = new ArrayList<Map<String, String>>();
@@ -344,6 +348,21 @@ public class LineLeaderService {
 		}
 		return;
 	}
+	public void getSimpleContent(String section_id, String line_id, Map<String, Object> responseMap, SqlSession conn) {
+		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
+		int heap181 = 0;
+		int heap811 = 0;
+		for (Map<String, String> workingOfPosition : workingOfPositions) {
+			String processCode = workingOfPosition.get("PROCESS_CODE");
+			if ("181".equals(processCode)) {
+				heap181 += Integer.parseInt(workingOfPosition.get("material_count"));
+			} else if ("811".equals(processCode)) {
+				heap811 += Integer.parseInt(workingOfPosition.get("material_count"));
+			}
+		}
+		responseMap.put("waiting_quote", heap181);
+		responseMap.put("waiting_repair", heap811);
+	}
 
 	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, SqlSession conn) {
 		getSituation(section_id, line_id, responseMap, null, conn);
@@ -367,6 +386,14 @@ public class LineLeaderService {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));
 				responseMap.put("plan_complete", dao.getProduceActualOfNsByBoard(section_id));
+			} else if ("00000000070".equals(line_id)) {
+				String sPlan = "0";
+				Object oPlan =PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.周边维修工程");
+				if (oPlan != null) {
+					sPlan = oPlan.toString();
+				}
+				responseMap.put("plan", Integer.parseInt(sPlan));
+				responseMap.put("plan_complete", dao.getTodayCompleteMaterialCounts(section_id, line_id, ""));
 			}
 		}
 

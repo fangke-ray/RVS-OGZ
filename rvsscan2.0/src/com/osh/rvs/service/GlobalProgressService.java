@@ -37,30 +37,50 @@ public class GlobalProgressService {
 		Integer wipLocationOther = wipMap.get("other").intValue();//WIP在库 普通内镜
 		Integer wipLocationEndoeye = wipMap.get("endoeye").intValue();///WIP在库 ENDOEYE
 		Integer wipLocationFibcrsope = wipMap.get("fibcrsope").intValue();///WIP在库 纤维镜
+		Integer wipLocationLight = wipMap.get("light").intValue();///WIP在库 中小修理
+		Integer wipLocationPeripheral = wipMap.get("peripheral").intValue();///WIP在库 纤维镜
 
 		Map<String,BigDecimal> wipAgreedMap = dao.getTodayWipAgreedResult();
 		Integer wipLocationOtherAgreed = wipAgreedMap.get("other").intValue();//WIP在库 普通内镜(同意)
 		Integer wipLocationEndoeyeAgreed = wipAgreedMap.get("endoeye").intValue();///WIP在库 ENDOEYE(同意)
 		Integer wipLocationFibcrsopeAgreed = wipAgreedMap.get("fibcrsope").intValue();///WIP在库 纤维镜(同意)
+		Integer wipLocationLightAgreed = wipAgreedMap.get("light").intValue();///WIP在库 中小修理(同意)
+		Integer wipLocationPeripheralAgreed = wipAgreedMap.get("peripheral").intValue();///WIP在库 周边设备(同意)
 		
 		Map<String,BigDecimal> wipOnLineRepair = dao.getTodayOnRepairWipResult();
 		Integer wipOnLineRepairOther =  wipOnLineRepair.get("other").intValue();//WIP在修 普通内镜
 		Integer wipOnLineRepairEndoeye =  wipOnLineRepair.get("endoeye").intValue();///WIP在修 ENDOEYE
 		Integer wipOnLineRepairFibcrsope =  wipOnLineRepair.get("fibcrsope").intValue();///WIP在修 纤维镜
+		Integer wipOnLineRepairLight =  wipOnLineRepair.get("light").intValue();///WIP在修 中小修理
+		Integer wipOnLineRepairPeripheral =  wipOnLineRepair.get("peripheral").intValue();///WIP在修 周边设备
 
 		//今日业绩
 		//WIP 普通内镜
 		StringBuffer serie11 = new StringBuffer();
 		serie11.append("[{name:'',y:" + wipLocationOther + ",color:'#83D1E4'},");
 		serie11.append("{name:'',y:" + wipLocationFibcrsope + ",color:'#4682B4'},");
-		serie11.append("{name:'',y:" + wipLocationEndoeye + ",color:'#E377C2'}]");
+		serie11.append("{name:'',y:" + wipLocationEndoeye + ",color:'#E377C2'},");
+		serie11.append("{name:'',y:" + wipLocationLight + ",color:'#00A843'},");
+		serie11.append("{name:'',y:" + wipLocationPeripheral + ",color:'#3333FF'}]");
 		ret.put("serie11", serie11.toString());
 
 		StringBuffer serie101 = new StringBuffer();
 		serie101.append("[{name:'同意',y:" + wipLocationOtherAgreed + ",color:'#A8DEEC'},");
 		serie101.append("{name:'同意',y:" + wipLocationFibcrsopeAgreed + ",color:'#74A2C7'},");
-		serie101.append("{name:'同意',y:" + wipLocationEndoeyeAgreed + ",color:'#EC9FD5'}]");
+		serie101.append("{name:'同意',y:" + wipLocationEndoeyeAgreed + ",color:'#EC9FD5'},");
+		serie101.append("{name:'同意',y:" + wipLocationLightAgreed + ",color:'#008836'},");
+		serie101.append("{name:'同意',y:" + wipLocationPeripheralAgreed + ",color:'#DD55B5'}]");
 		ret.put("serie101", serie101.toString());
+
+		//WIP在修 周边设备
+		StringBuffer serie16 = new StringBuffer();
+		serie16.append("[" + wipOnLineRepairPeripheral + "]");
+		ret.put("serie16", serie16.toString());
+
+		//WIP在修 中小修理
+		StringBuffer serie17 = new StringBuffer();
+		serie17.append("[" + wipOnLineRepairLight + "]");
+		ret.put("serie17", serie17.toString());
 
 		//WIP在修 ENDOEYE
 		StringBuffer serie13 = new StringBuffer();
@@ -134,6 +154,30 @@ public class GlobalProgressService {
 		series23.append("{color :'#E48E38',y:" + InlineFaultResultMap.get("fibcrsope").intValue() + "}"); 	//不良
 		series23.append("]"); 
 		ret.put("serie23", series23.toString());
+
+		//OGZ 线上内镜分布 中小修理
+		inlineTotal = InlineTotalResultMap.get("light").intValue();
+		inlinePartialWaiting = InlinePartialWaitingResultMap.get("light").intValue();
+		StringBuffer series25 = new StringBuffer();
+		series25.append("[");   	//投线修理
+		series25.append((inlineTotal - inlinePartialWaiting) + ",");        	//零件齐备
+		series25.append(inlinePartialWaiting + ",");	//等待零件
+		series25.append("{color :'#E48E38',y:" + InlineOvertimeResultMap.get("light").intValue() + "},"); //延误
+		series25.append("{color :'#E48E38',y:" + InlineFaultResultMap.get("light").intValue() + "}"); 	//不良
+		series25.append("]"); 
+		ret.put("serie25", series25.toString());
+
+		//OGZ 线上内镜分布 中小修理
+		inlineTotal = InlineTotalResultMap.get("peripheral").intValue();
+		inlinePartialWaiting = InlinePartialWaitingResultMap.get("peripheral").intValue();
+		StringBuffer series24 = new StringBuffer();
+		series24.append("[");   	//投线修理
+		series24.append((inlineTotal - inlinePartialWaiting) + ",");        	//零件齐备
+		series24.append(inlinePartialWaiting + ",");	//等待零件
+		series24.append("{color :'#E48E38',y:" + InlineOvertimeResultMap.get("peripheral").intValue() + "},"); //延误
+		series24.append("{color :'#E48E38',y:" + InlineFaultResultMap.get("peripheral").intValue() + "}"); 	//不良
+		series24.append("]"); 
+		ret.put("serie24", series24.toString());
 
 		Calendar cal = Calendar.getInstance();
 

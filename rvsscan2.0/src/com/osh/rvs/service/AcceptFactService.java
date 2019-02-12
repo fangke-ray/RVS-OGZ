@@ -43,7 +43,7 @@ public class AcceptFactService {
 				"{color:{linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },stops: [[0, '#00A0A0'],[1, '#00B5B5']]}, y:#q#, dataLabels: {style: {color: '#006464'}, x:10}} ," +
 				"{color:{linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },stops: [[0, '#00A0A0'],[1, '#00B5B5']]}, y:#t#, dataLabels: {style: {color: '#006464'}, x:10}}]";
 		
-		//现品管理/受理报价-实绩 D
+		//现品管理/受理报价-实绩 D/M
 		String series1_3 = "[null, null, null," +
 				"{color:{linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },stops: [[0, '#00A0A0'],[1, '#00A843']]}, y:#q#, dataLabels: {style: {color: '#006464'}, x:5}},"+
 				"{color:{linearGradient: { x1: 0, x2: 1, y1: 0, y2: 1 },stops: [[0, '#00A0A0'],[1, '#00A843']]}, y:#t#, dataLabels: {style: {color: '#006464'}, x:5}}]";
@@ -115,12 +115,12 @@ public class AcceptFactService {
 					countD += countPosition_id;
 					break;
 				case 91 :
-					countD += countPosition_id;
-					break;
 				case 92 :
-					countD += countPosition_id;
-					break;
 				case 93 :
+				case 99 :
+				case 96 :
+				case 97 :
+				case 98 :
 					countD += countPosition_id;
 					break;
 				case 56 :
@@ -130,12 +130,13 @@ public class AcceptFactService {
 					countE += countPosition_id;
 					break;
 				case 58 :
+				case 59 :
 					countE += countPosition_id;
 					break;
 			}
 			
 		}
-		
+
 		series1_1 = series1_1.replaceAll("#q#", "" + countS2S3);
 		series1_3 = series1_3.replaceAll("#q#", "" + countD);
 		series1_4 = series1_4.replaceAll("#q#", "" + countE);
@@ -169,12 +170,12 @@ public class AcceptFactService {
 				countD += count_inline_waiting;
 				break;
 			case 91 :
-				countD += count_inline_waiting;
-				break;
 			case 92 :
-				countD += count_inline_waiting;
-				break;
 			case 93 :
+			case 99 :
+			case 96 :
+			case 97 :
+			case 98 :
 				countD += count_inline_waiting;
 				break;
 			case 56 :
@@ -184,6 +185,7 @@ public class AcceptFactService {
 				peripheral += count_inline_waiting;
 				break;
 			case 58 :
+			case 59 :
 				peripheral += count_inline_waiting;
 				break;
 			}
@@ -218,12 +220,12 @@ public class AcceptFactService {
 				countD += count_inline;
 				break;
 			case 91 :
-				countD += count_inline;
-				break;
 			case 92 :
-				countD += count_inline;
-				break;
 			case 93 :
+			case 99 :
+			case 96 :
+			case 97 :
+			case 98 :
 				countD += count_inline;
 				break;
 			case 56 :
@@ -233,6 +235,7 @@ public class AcceptFactService {
 				peripheral += count_inline;
 				break;
 			case 58 :
+			case 59 :
 				peripheral += count_inline;
 				break;
 			}
@@ -318,4 +321,23 @@ public class AcceptFactService {
 		return ret;
 	}
 
+	public int getInlineWaitingForPeripheral(SqlSession conn) {
+		AcceptFactMapper dao = conn.getMapper(AcceptFactMapper.class);
+		List<Map<String, Object>> inlineWaitingResult = dao.getInlineWaitingResult();
+		int peripheral = 0;//E
+		for (Map<String, Object> inlineWaiting : inlineWaitingResult) {
+			Integer level = ((Long) inlineWaiting.get("level")).intValue();
+			Integer count_inline_waiting = ((Long) inlineWaiting.get("count_inline_waiting")).intValue();
+
+			switch (level) {
+			case 56 :
+			case 57 :
+			case 58 :
+			case 59 :
+				peripheral += count_inline_waiting;
+				break;
+			}
+		}
+		return peripheral;
+	}
 }

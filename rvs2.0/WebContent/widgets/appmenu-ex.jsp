@@ -166,6 +166,7 @@ var getPositionWork = function(position_id, px){
         <a title="分解工程线长界面" target="_parent" href="show.do#lineSituationD1">分解</a>
         <a title="NS工程线长界面" target="_parent" href="show.do#lineSituationS1">NS</a>
         <a title="总组工程线长界面" target="_parent" href="show.do#lineSituationP1">总组</a>在线展示<br>
+        <a title="" target="_parent" href="show.do#lineSituationPeripheral">周边维修在线展示</a><br>
         <a title="" target="_parent" href="show.do#allPositions">全工位状况展示</a><br>
         <a title="" target="_parent" href="show.do#lineTimeSpace-line_id-12">分解</a>
         <a title="" target="_parent" href="show.do#lineTimeSpace-line_id-13">NS</a>

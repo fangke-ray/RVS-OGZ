@@ -7,7 +7,7 @@
 		<span class="areatitle">全工程一览</span>
 	</div>
 	<div id="workarea" class="ui-widget-content">
-		<div style="height:30px;font-size:16px;">
+		<div style="height:30px;font-size:15px;">
 			<span class="areatitle">单位：台&nbsp;&nbsp;</span>
 			<span class="areatitle"><hr width="50px" color="red" size="2"/></span>
 			<span class="areatitle">粗细镜警戒线&nbsp;&nbsp;</span>
@@ -20,6 +20,10 @@
 				<span class="areatitle">纤维镜</span>
 				<span class="areatitle" style="margin-top:2px;"><hr width="20px" color="#E377C2" size="12"/></span>
 				<span class="areatitle">Endoeye</span>
+				<span class="areatitle" style="margin-top:2px;"><hr width="20px" color="#00A843" size="12"/></span>
+				<span class="areatitle">中小修理</span>
+				<span class="areatitle" style="margin-top:2px;"><hr width="20px" color="#3333FF" size="12"/></span>
+				<span class="areatitle">周边设备</span>
 			</div>
 		</div>
 		<div class="clear"></div>
@@ -114,7 +118,9 @@ var iamready = function() {
     	colors : [
     	   	{linearGradient: { x1: 0, x2: 1, y1: 0, y2: 0 },stops: [[0, '#83D1E4'],[.7, '#83D1E4'],[1, '#83D1E4']]},
    			'#4682B4',
-   			'#E377C2'
+   			'#E377C2',
+   			'#00A843',
+   			'#3333FF'
    			],
    		chart : {
 			renderTo : 'performance_wipRepair_container',
@@ -251,12 +257,18 @@ var iamready = function() {
 		},{
 			name : 'Endoeye',
 			data : ${serie13}
+		},{
+			name : '中小修理',
+			data : ${serie17}
+		},{
+			name : '周边设备',
+			data : ${serie16}
 		}]
 	});
 
 	//线上内镜分布 修理生产
 	chart4 = new Highcharts.Chart({
-		colors : ['#E377C2', '#4682B4','#83D1E4'],
+		colors : ['#3333FF', '#00A843', '#E377C2', '#4682B4','#83D1E4'],
 		chart : {
 			renderTo : 'performance_today_container',
 			type : 'bar',
@@ -317,28 +329,30 @@ var iamready = function() {
 					y : -15,
 					formatter : function(){
 						var x = this.point.x;
-						var serie22 = this.series.chart.series[0];
-						var serie23 = this.series.chart.series[1];
-						var serie21 = this.series.chart.series[2];
+						var serie24 = this.series.chart.series[0];
+						var serie25 = this.series.chart.series[1];
+						var serie22 = this.series.chart.series[2];
+						var serie23 = this.series.chart.series[3];
+						var serie21 = this.series.chart.series[4];
 						
 						if (x==0) {//正常在线
 							if (this.series.name=="粗细镜") {
-								var label= serie21.processedYData[0] + "/" + serie23.processedYData[0] + "/" + serie22.processedYData[0];
+								var label= serie21.processedYData[0] + "/" + serie23.processedYData[0] + "/" + serie22.processedYData[0] + "/" + serie25.processedYData[0] + "/" + serie24.processedYData[0];
 								return label;
 							}
 						} else if (x==1) {//等待零件
 							if (this.series.name=="粗细镜") {
-								var label= serie21.processedYData[1] + "/" + serie23.processedYData[1] + "/" + serie22.processedYData[1];
+								var label= serie21.processedYData[1] + "/" + serie23.processedYData[1] + "/" + serie22.processedYData[1] + "/" + serie25.processedYData[1] + "/" + serie24.processedYData[1];
 								return label;
 							}
 						} else if (x==2) {//延误
 							if (this.series.name=="粗细镜") {
-								var label= serie21.processedYData[2] + "/" + serie23.processedYData[2] + "/" + serie22.processedYData[2];
+								var label= serie21.processedYData[2] + "/" + serie23.processedYData[2] + "/" + serie22.processedYData[2] + "/" + serie25.processedYData[2] + "/" + serie24.processedYData[2];
 								return label;
 							}
 						} else if (x==3) {//不良
 							if (this.series.name=="粗细镜") {
-								var label= serie21.processedYData[3] + "/" + serie23.processedYData[3] + "/" + serie22.processedYData[3];
+								var label= serie21.processedYData[3] + "/" + serie23.processedYData[3] + "/" + serie22.processedYData[3] + "/" + serie25.processedYData[3] + "/" + serie24.processedYData[3];
 								return label;
 							}
 //						} else if (x==4) {
@@ -357,6 +371,12 @@ var iamready = function() {
 			enabled : false
 		},
 		series : [{
+			name : '周边设备',
+			data : ${serie24}
+		},{
+			name : '中小修理',
+			data : ${serie25}
+		},{
 			name : 'Endoeye',
 			data : ${serie22}
 		},{
@@ -460,10 +480,14 @@ var iamready = function() {
 					eval("chart1.series[1].setData(" + resInfo.serie101 + ")");
 					eval("chart3.series[0].setData(" + resInfo.serie15 + ", false)");
 					eval("chart3.series[1].setData(" + resInfo.serie14 + ", false)");
-					eval("chart3.series[2].setData(" + resInfo.serie13 + ")");
-					eval("chart4.series[0].setData(" + resInfo.serie22 + ", false)");
-					eval("chart4.series[1].setData(" + resInfo.serie23 + ", false)");
-					eval("chart4.series[2].setData(" + resInfo.serie21 + ")");
+					eval("chart3.series[2].setData(" + resInfo.serie13 + ", false)");
+					eval("chart3.series[3].setData(" + resInfo.serie16 + ", false)");
+					eval("chart3.series[4].setData(" + resInfo.serie17 + ")");
+					eval("chart4.series[0].setData(" + resInfo.serie24 + ", false)");
+					eval("chart4.series[1].setData(" + resInfo.serie25 + ", false)");
+					eval("chart4.series[2].setData(" + resInfo.serie22 + ", false)");
+					eval("chart4.series[3].setData(" + resInfo.serie23 + ", false)");
+					eval("chart4.series[4].setData(" + resInfo.serie21 + ")");
 					eval("chart5.series[0].setData(" + resInfo.serie31 + ")");
 				} catch(e) {
 				}

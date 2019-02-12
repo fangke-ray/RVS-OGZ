@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.osh.rvs.mapper.QualityAssuranceMapper">
-    <select id="getCurrentPassCount" resultType="int" >
+    <select id="getCurrentPassCount" resultType="map" >
      <![CDATA[
        	Select 
-	    count(material_id)
+	    position_id, count(material_id) as cnt
 		FROM
 		    production_feature
 		where position_id in (select position_id from position where line_id = 15)
         and operate_result = 2
 		and finish_time >= current_date
+		group by position_id
      ]]>
     </select>
     
-     <select id="getCurrentUnqualifiedCount" resultType="int" >
+     <select id="getCurrentUnqualifiedCount" resultType="map" >
      <![CDATA[
        	Select 
-	    count(material_id)
+	    position_id, count(material_id) as cnt
 		FROM
 		    production_feature
 		where position_id in (select position_id from position where line_id = 15)
         and operate_result = 6
 		and finish_time >= current_date
+		group by position_id
      ]]>
     </select>
 
@@ -37,10 +39,10 @@
 		]]>
 	</select>
 
-    <select id="getCurrentWaitingCount" resultType="int" parameterType="boolean">
+    <select id="getCurrentWaitingCount" resultType="map" parameterType="boolean">
      <![CDATA[
        	Select 
-	    count(pf.material_id)
+	    position_id, count(pf.material_id) as cnt
 		FROM
 		    production_feature pf
 		JOIN
@@ -49,12 +51,13 @@
 		where position_id in (select position_id from position where line_id = 15)
 		and finish_time is null
 	 ]]>
-	<if test="value eq true">
+	<if test="checked eq true">
 		and `m`.qa_check_time IS NULL
 	</if>
-	<if test="value eq false">
+	<if test="checked eq false">
 		and `m`.qa_check_time IS NOT NULL
 	</if>
+		group by position_id
     </select>
 
 </mapper>

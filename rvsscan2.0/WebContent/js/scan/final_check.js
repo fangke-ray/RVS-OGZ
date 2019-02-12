@@ -286,6 +286,12 @@ var refresh_ajaxSuccess = function(xhrobj,textStatus){
 	    end_number: resInfo.currentUnqualifiedCount, // the number we want the counter to scroll to
 	    duration: 1000 // number of ms animation should take to complete
 	});
+
+	$("#today_quality_peri").html("&nbsp;含周边设备：" + (resInfo.currentWaitingCountP || 0));
+	$("#today_confirm_quality_peri").html("&nbsp;含周边设备：" + (resInfo.currentWaitingConfirmCountP || 0));
+	$("#today_pass_peri").html("&nbsp;含周边设备：" + (resInfo.currentPassCountP || 0));
+	$("#today_unqualified_peri").html("&nbsp;含周边设备：" + (resInfo.currentUnqualifiedCountP || 0));
+	
 }
 
 $(function(){
@@ -331,6 +337,11 @@ $(function(){
 						imagePath:"images/white_counter.png",
 						number : resInfo.currentUnqualifiedCount
 					});
+
+					$("#today_quality_peri").html("&nbsp;含周边设备：" + (resInfo.currentWaitingCountP || 0));
+					$("#today_confirm_quality_peri").html("&nbsp;含周边设备：" + (resInfo.currentWaitingConfirmCountP || 0));
+					$("#today_pass_peri").html("&nbsp;含周边设备：" + (resInfo.currentPassCountP || 0));
+					$("#today_unqualified_peri").html("&nbsp;含周边设备：" + (resInfo.currentUnqualifiedCountP || 0));
 				}
 //				if ($("#today_quality").length > 0) {
 //					$("#today_quality").flipCounter("startAnimation",

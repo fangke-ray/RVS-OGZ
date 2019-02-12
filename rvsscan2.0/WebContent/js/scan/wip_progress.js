@@ -8,6 +8,7 @@ var listdata = {};
 var servicePath = "wipProcess.do";
 
 var listsize = 0;
+var gridsize = 7;
 var currentPos = 0;
 
 var showlistdata = {};
@@ -67,8 +68,6 @@ var mapLoaded = function() {
 }
 
 var refreshing = false;
-
-var gridsize = 16;
 
 /*
  * Ajax通信成功的处理
@@ -170,23 +169,31 @@ function search_handleComplete(xhrobj, textStatus) {
 	var stored_e_count = $("#endoeyeWIP td.wip-heaped").length;
 	var overceed_e_count = $("#endoeyeWIP td.ui-state-error").length;
 
-	var all_i_count = all_count - all_e_count;
-	var stored_i_count = stored_count - stored_e_count;
-	var overceed_i_count = overceed_count - overceed_e_count;
+	var all_p_count = $("#periWIP td").length;
+	var stored_p_count = $("#periWIP td.wip-heaped").length;
+	var overceed_p_count = $("#periWIP td.ui-state-error").length;
+
+	var all_i_count = all_count - all_e_count - all_p_count;
+	var stored_i_count = stored_count - stored_e_count - stored_p_count;
+	var overceed_i_count = overceed_count - overceed_e_count - overceed_p_count;
 
 	var labels = $("#label_table label");
-	
+
 	$(labels[0]).html(all_i_count + "位");
-	$(labels[2]).html(stored_i_count + "台");
-	$(labels[4]).html(overceed_i_count + "台");
-	$(labels[6]).html((stored_i_count > 0 ? Math.round(overceed_i_count / stored_i_count * 100) : "--") + "%");
+	$(labels[3]).html(stored_i_count + "台");
+	$(labels[6]).html(overceed_i_count + "台");
+	$(labels[9]).html(calcRate(overceed_i_count, stored_i_count));
 
 	$(labels[1]).html(all_e_count + "位");
-	$(labels[3]).html(stored_e_count + "台");
-	$(labels[5]).html(overceed_e_count + "台");
-	$(labels[7]).html((stored_e_count > 0 ? Math.round(overceed_e_count / stored_e_count * 100) : "--") + "%");
+	$(labels[4]).html(stored_e_count + "台");
+	$(labels[7]).html(overceed_e_count + "台");
+	$(labels[10]).html(calcRate(overceed_e_count, stored_e_count));
+	$(labels[2]).html(all_p_count + "位");
+	$(labels[5]).html(stored_p_count + "台");
+	$(labels[8]).html(overceed_p_count + "台");
+	$(labels[11]).html(calcRate(overceed_p_count, stored_p_count));
 
-	$("#list tr.jqgrow").hover(function() {
+	$("#list tr.jqgrow").unbind("hover").hover(function() {
 		var wip_location = $(this)
 			.find("td[aria\\-describedby='list_wip_location']").attr("title");
 
@@ -245,4 +252,8 @@ var roll = function () {
 			currentPos = 0;
 		}
 	}
+}
+
+var calcRate = function(numerator, denominator) {
+	return (denominator > 0 ? (Math.round(numerator / denominator * 100) + "%") : "--");
 }

@@ -11,10 +11,7 @@
 			    CAST(`p`.POSITION_ID as char) as POSITION_ID,
 			    `p`.NAME,
 			    `p`.PROCESS_CODE,
-				CASE WHEN pos.SECTION_ID = 1
-					THEN CAST(`p`.LIGHT_DIVISION_FLG as char)
-				ELSE '0'
-				end as LIGHT_DIVISION_FLG,
+				'0' as LIGHT_DIVISION_FLG,
 			    cast(coalesce(`pf`.material_count, 0) as char) as material_count,
 			    cast(coalesce(`pf2`.material_count, 0) as char) as light_fix_count,
 			    qf.quotation_first
@@ -32,7 +29,7 @@
 			        p.finish_time IS NULL
 			            AND p.operate_result not in (5, 7)
 			            AND p.SECTION_ID = #{section_id}
-			            and m.level in (9 , 91, 92, 93)
+			            and m.level in (9 , 91, 92, 93, 96, 97, 98, 99)
 			    GROUP BY p.position_id, m.quotation_first) pf2 
 			    ON `p`.position_id = pf2.position_id
 			    AND qf.quotation_first = pf2.quotation_first
@@ -46,17 +43,21 @@
 			        p.finish_time IS NULL
 			            AND p.operate_result not in (5, 7)
 			            AND p.SECTION_ID = #{section_id}
-			            and m.level not in (9 , 91, 92, 93)
+			            and (m.level not in (9 , 91, 92, 93, 96, 97, 98, 99) or m.level is null)
 						AND (p.position_id != 77 or (action_time is not null and finish_time is null))
 			    GROUP BY p.position_id, m.quotation_first) pf
 			    ON `p`.position_id = pf.position_id
 			    AND qf.quotation_first = pf.quotation_first
+		]]>
+		<if test="line_id!= null and line_id!= '00000000070' ">
+		<![CDATA[
 			JOIN
 			    position_of_section pos ON p.position_id = pos.position_id
 			        AND pos.SECTION_ID = #{section_id}
+		]]>
+		</if>
 			WHERE
 			    DELETE_FLG = 0
-		]]>
 		<if test="line_id!= null and line_id!= '' ">
 		<![CDATA[
 			    AND LINE_ID = #{line_id}

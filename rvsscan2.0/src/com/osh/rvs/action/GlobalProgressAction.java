@@ -52,9 +52,13 @@ public class GlobalProgressAction extends BaseAction {
 		req.setAttribute("serie13", series.get("serie13"));
 		req.setAttribute("serie14", series.get("serie14"));
 		req.setAttribute("serie15", series.get("serie15"));
+		req.setAttribute("serie16", series.get("serie16"));
+		req.setAttribute("serie17", series.get("serie17"));
 		req.setAttribute("serie21", series.get("serie21"));
 		req.setAttribute("serie22", series.get("serie22"));
 		req.setAttribute("serie23", series.get("serie23"));
+		req.setAttribute("serie24", series.get("serie24"));
+		req.setAttribute("serie25", series.get("serie25"));
 		req.setAttribute("period_name", series.get("period_name"));
 		req.setAttribute("serie31", series.get("serie31"));
 
@@ -93,9 +97,13 @@ public class GlobalProgressAction extends BaseAction {
 		listResponse.put("serie13", series.get("serie13"));
 		listResponse.put("serie14", series.get("serie14"));
 		listResponse.put("serie15", series.get("serie15"));
+		listResponse.put("serie16", series.get("serie16"));
+		listResponse.put("serie17", series.get("serie17"));
 		listResponse.put("serie21", series.get("serie21"));
 		listResponse.put("serie22", series.get("serie22"));
 		listResponse.put("serie23", series.get("serie23"));
+		listResponse.put("serie24", series.get("serie24"));
+		listResponse.put("serie25", series.get("serie25"));
 		listResponse.put("period_name", series.get("period_name"));
 		listResponse.put("serie31", series.get("serie31"));
 

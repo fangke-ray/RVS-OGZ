@@ -26,12 +26,16 @@
 	<select id="getInlineTotalResult" resultType="map">
 	<![CDATA[ 
 		SELECT
-			COALESCE(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
-			COALESCE(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
-			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 			SELECT 
-			    v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(material.material_id) AS num
 			FROM
 			    material 
@@ -50,7 +54,7 @@
 			    AND material.outline_time IS NULL
 			    AND material.break_back_flg = 0
 			GROUP BY 
-				v_model.kind
+				kd
 		) temp
 	]]>
 	</select>
@@ -58,12 +62,16 @@
 	<select id="getInlineReagalResult" resultType="map">
 		<![CDATA[ 
 		SELECT
-			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
-			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
-			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 		SELECT  
-			v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 			COUNT(m.material_id) AS num
 			FROM material m
 			JOIN section s ON m.section_id = s.section_id AND s.section_id = 1
@@ -83,7 +91,7 @@
 			AND NOT EXISTS (SELECT 1 FROM production_feature WHERE material_id = m.material_id AND position_id = 21 AND operate_result = 2)
 			AND break_back_flg = 0)
 		GROUP BY 
-				v_model.kind
+				kd
 		) temp
 		]]>
 	</select>
@@ -91,12 +99,16 @@
 	<select id="getInlineFaultResult" resultType="map">
 		<![CDATA[ 
 		SELECT
-			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
-			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
-			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 			SELECT 
-				v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(m.material_id) AS num
 			FROM material m
 			JOIN section s on m.section_id = s.section_id and s.section_id = 1
@@ -109,7 +121,7 @@
 				WHERE operate_result = 3 AND finish_time IS NULL AND material_id = m.material_id)
 			AND break_back_flg = 0
 			GROUP BY 
-					v_model.kind
+				kd
 		) temp
 		]]>
 	</select>
@@ -117,12 +129,16 @@
 	<select id="getInlineOvertimeResult" resultType="map">
 		<![CDATA[ 
 		SELECT
-			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
-			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
-			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 		SELECT 
-				v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(m.material_id) AS num
 			FROM material m
 			JOIN section s on m.section_id = s.section_id and s.section_id = 1
@@ -135,7 +151,7 @@
 			AND mp.scheduled_date < current_date
 			AND break_back_flg = 0
 			GROUP BY 
-			v_model.kind
+			kd
 		) temp
 		]]>
 	</select>
@@ -143,12 +159,16 @@
 	<select id="getInlinePartialWaitingResult" resultType="map">
 		<![CDATA[ 
 		SELECT
-			COALESCE(SUM(CASE WHEN kind = 6 THEN num END),0) AS endoeye,
-			COALESCE(SUM(CASE WHEN kind = 3 THEN num END),0) AS fibcrsope,
-			COALESCE(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END),0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 		SELECT 		
-			v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 			COUNT(m.material_id) AS num
 		FROM material m
 		JOIN section s on m.section_id = s.section_id and s.section_id = 1
@@ -161,7 +181,7 @@
 		AND NOT EXISTS (SELECT 1 FROM production_feature WHERE material_id = m.material_id AND position_id in (21,79) AND operate_result = 2)
 		AND break_back_flg = 0
 		GROUP BY 
-				v_model.kind
+			kd
 		) temp
 		]]>
 	</select>
@@ -186,12 +206,16 @@
 	<select id="getTodayWipResult" resultType="map">
 	<![CDATA[ 
 		SELECT
-			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
-			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
-			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 			SELECT 
-				v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(m.material_id) AS num
 			FROM
 				material m
@@ -202,7 +226,7 @@
 			WHERE
 				m.wip_location IS NOT NULL
 			GROUP BY 
-				v_model.kind
+				kd
 		) temp
 	]]>
 	</select>
@@ -210,12 +234,16 @@
 	<select id="getTodayWipAgreedResult" resultType="map">
 	<![CDATA[ 
 		SELECT
-			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
-			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
-			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 			SELECT 
-				v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(m.material_id) AS num
 			FROM
 				material m
@@ -227,7 +255,7 @@
 				m.wip_location IS NOT NULL
 				and m.agreed_date IS NOT NULL
 			GROUP BY 
-				v_model.kind
+				kd
 		) temp
 	]]>
 	</select>
@@ -252,12 +280,16 @@
 	<select id="getTodayOnRepairWipResult" resultType="map">
 	<![CDATA[
 		SELECT
-			coalesce(SUM(CASE WHEN kind = 6 THEN num END), 0) AS endoeye,
-			coalesce(SUM(CASE WHEN kind = 3 THEN num END), 0) AS fibcrsope,
-			coalesce(SUM(CASE WHEN kind <> 6 and kind <> 3 THEN num END), 0) AS other
+			COALESCE(SUM(CASE WHEN kd = 6 THEN num END), 0) AS endoeye,
+			COALESCE(SUM(CASE WHEN kd = 3 THEN num END), 0) AS fibcrsope,
+			COALESCE(SUM(CASE WHEN kd = 7 THEN num END), 0) AS peripheral,
+			COALESCE(SUM(CASE WHEN kd = 99 THEN num END), 0) AS light,
+			COALESCE(SUM(CASE WHEN kd in (0, 1, 2, 4, 5) THEN num END), 0) AS other
 		FROM(
 			SELECT 
-				v_model.kind AS kind,
+			    case when level in (9, 91, 92, 93, 94, 96, 97, 98, 99) then 99
+				else v_model.kind
+				end AS kd,
 				COUNT(m.material_id) AS num
 			FROM 
 				material m
@@ -270,7 +302,7 @@
 	 			AND m.agreed_date IS NOT NULL
 	 			AND m.outline_time IS NULL
 	 		GROUP BY 
-			v_model.kind
+			kd
 		) temp
 	]]>
 	</select>
