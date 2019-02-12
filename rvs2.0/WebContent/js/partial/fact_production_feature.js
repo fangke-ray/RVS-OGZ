@@ -77,9 +77,16 @@ function jsinit_complete (xhrobj, textStatus) {
 			if (factProductionFeature) {
 				// 作业内容
 				let production_type = factProductionFeature.production_type;
-
-				// 处理没结束
-				step(production_type);
+				if(production_type == 11){
+					warningConfirm("",function(){
+						window.location.href = "./partial_warehouse.do?method=init";
+					},function(){
+						window.location.href = "./panel.do?method=init";
+					}, "入库单补充中", "返回零件入库单管理", "退出返回首页");
+				}else{
+					// 处理没结束
+					step(production_type);
+				}
 			} else {
 				// 默认收货
 				$("#receptbutton").trigger("click");

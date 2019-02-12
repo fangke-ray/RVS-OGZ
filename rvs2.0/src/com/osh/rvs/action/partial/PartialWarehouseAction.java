@@ -16,8 +16,10 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
+import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialWarehouseDetailService;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
@@ -26,6 +28,7 @@ import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.DateUtil;
+import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -35,6 +38,7 @@ import framework.huiqing.common.util.validator.Validators;
  *
  */
 public class PartialWarehouseAction extends BaseAction {
+	private final FactProductionFeatureService factProductionFeatureService = new FactProductionFeatureService();
 
 	/**
 	 * 页面初始化
@@ -95,6 +99,17 @@ public class PartialWarehouseAction extends BaseAction {
 
 			List<PartialWarehouseForm> finish = service.search(form, conn);
 			listResponse.put("finish", finish);
+		}
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(req, conn);
+		listResponse.put("factProductionFeatureForm", factProductionFeatureForm);
+
+		if(factProductionFeatureForm!=null){
+			PartialWarehouseService partialWarehouseService = new PartialWarehouseService();
+			PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(factProductionFeatureForm.getPartial_warehouse_key(), conn);
+
+			listResponse.put("partialWarehouseForm", partialWarehouseForm);
 		}
 
 		// 检查发生错误时报告错误信息
@@ -177,6 +192,86 @@ public class PartialWarehouseAction extends BaseAction {
 		returnJsonResponse(response, listResponse);
 
 		log.info("PartialWarehouseAction.doUpload end");
+	}
+
+	/**
+	 * 开始
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doStart(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSessionManager conn)throws Exception{
+		log.info("PartialWarehouseAction.doStart start");
+
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(request, conn);
+		if(factProductionFeatureForm != null){
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("partial_warehouse_key");
+			error.setErrcode("info.factwork.workingRemain");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.factwork.workingRemain","零件【" + factProductionFeatureForm.getProduction_type_name()+"】"));
+			errors.add(error);
+		} else {
+			// 当前登录者
+			LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+			factProductionFeatureForm = new FactProductionFeatureForm();
+
+			factProductionFeatureForm.setProduction_type("11");
+
+			factProductionFeatureForm.setPartial_warehouse_key(request.getParameter("key"));
+
+			// 操作者 ID
+			factProductionFeatureForm.setOperator_id(user.getOperator_id());
+
+			// 新建现品作业信息
+			factProductionFeatureService.insert(factProductionFeatureForm, conn);
+		}
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(response, listResponse);
+
+		log.info("PartialWarehouseAction.doStart end");
+	}
+
+	/**
+	 * 结束
+	 * @param mapping
+	 * @param form
+	 * @param request
+	 * @param response
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doFinish(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSessionManager conn)throws Exception{
+		log.info("PartialWarehouseAction.doFinish start");
+
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(request, conn);
+
+		factProductionFeatureService.updateFinishTime(factProductionFeatureForm, conn);
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(response, listResponse);
+
+		log.info("PartialWarehouseAction.doFinish end");
 	}
 
 }

@@ -100,12 +100,34 @@
 					
 					<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
 						<div style="margin-left:4px;margin-top:6px;">
-						<% if (isFact) { %>
-								<input type="button" id="supplyButton" class="ui-button" value="补充入库单"/>
-						<% } %>
 							<input type="button" id="exportButton" class="ui-button" value="入库单核对不一致导出" style="float:right;margin-right:10px;"/>
 						</div>
 					</div>
+					<% if (isFact) { %>
+					<div class="areaencloser"></div>
+					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
+					   	 <span class="areatitle">补充入库</span>
+					</div>
+					<div class="ui-widget-content">
+						<form method="POST">
+							<table class="condform">
+								<tbody>
+									<tr>
+										<td class="ui-state-default td-title">入库单号</td>
+										<td class="td-content"><label id="label_warehouse_no"></label></td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+						<div style="height:44px">
+							<input type="button" class="ui-button" id="endbutton" value="结束"  style="float:right;margin-right:10px;"/>
+							<input type="button" id="supplyButton" class="ui-button" value="上传" style="float:right;margin-right:10px;"/>
+							<input type="button" class="ui-button" id="startbutton" value="开始" style="float:right;margin-right:10px;"/>
+											
+						</div>
+						
+					</div>
+					<% } %>
 				</div>
 				
 				<div id="detail" style="display: none;">
