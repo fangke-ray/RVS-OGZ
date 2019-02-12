@@ -78,6 +78,9 @@ var warningConfirm = function(warnData, yesFunction, noFunction, title, yesButto
 	      return false;
 	      } 
 	     }); 
+	    },
+	    close:function() {
+	    	if(noFunction) noFunction();
 	    }
 		});
 	$errstring.html("<span class='errorarea'>" + warnData + "</span>");
