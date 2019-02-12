@@ -67,11 +67,11 @@ ${standard_column.css}
 }
 /* B1、核对+上架 */
 #axis_base .operator_flex .production_feature[d_type="20"] {
-	background-color: #FF7C80;
+	background-color: #847ED0;
 }
 /* B2、核对 */
 #axis_base .operator_flex .production_feature[d_type="21"] {
-	background-color: #FF7C80;
+	background-color: #847ED0;
 }
 /* C、分装 */
 #axis_base .operator_flex .production_feature[d_type="30"] {
@@ -358,14 +358,14 @@ ${standard_column.css}
 						<div class="item">一</div>
 					</div>
 					<div class="result">
-						<div class="item" style="background-color: #FF7C80;">B1、核对+上架</div>
+						<div class="item" style="background-color: #847ED0;">B1、核对+上架</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
 					</div>
 					<div class="result">
-						<div class="item" style="background-color: #FF7C80;">B2、核对</div>
+						<div class="item" style="background-color: #847ED0;">B2、核对</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
