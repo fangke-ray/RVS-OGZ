@@ -92,7 +92,7 @@ public class ExternalAdjustmentService {
 				dline[0] = form.getDevices_manage_id()+"-1";
 				dline[1] = form.getManage_code();
 				dline[2] = form.getName();
-				dline[3] = "设备";
+				dline[3] = "设备工具";
 				dList.add(dline);
 			}
 		}
@@ -109,7 +109,7 @@ public class ExternalAdjustmentService {
 				dline[0] = form.getTools_manage_id()+"-2";
 				dline[1] = form.getManage_code();
 				dline[2] = form.getName();
-				dline[3] = "治具";
+				dline[3] = "专用工具";
 				dList.add(dline);
 			}
 		}

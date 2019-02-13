@@ -16,6 +16,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 .require_check{
 	background-color:red;
 }
+.close_to_check{
+	background-color:#FFC000;
+}
 .wait{
 	background-color:#a6a6a6;
 }
@@ -77,7 +80,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									</td>
 									<td class="ui-state-default td-title">厂商</td>
 									<td class="td-content">
-										<input type="text" id="search_brand_id"  readonly="readonly" class="ui-widget-content">
+										<input type="text" id="search_brand_id" readonly="readonly" class="ui-widget-content">
 										<input type="hidden" id="hidden_search_brand_id">
 									</td>
 									<td class="ui-state-default td-title">型号</td>
@@ -179,7 +182,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div id="listpager"></div>
 				</div>
 				<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase" style="padding-top:4px;margin-top:24px;">
-					<input id="addtbutton" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all"  style="float:right;right:2px" aria-disabled="false" role="button" value="设定设备为校验对象">
+					<input id="addtbutton" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all"  style="float:right;right:2px" aria-disabled="false" role="button" value="设定校验对象">
 					<input id="stop" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all"  style="float:right;right:2px" aria-disabled="false" role="button" value="停止校验">
 					<input id="tocheck" type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all"  style="float:right;right:2px" aria-disabled="false" role="button" value="送检">
 				</div>
@@ -210,6 +213,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<td class="ui-state-default td-title">厂商</td>
 								<td class="td-content">
 									<label id="label_brand"></label>
+									<input type="text" id="text_add_brand" class="ui-widget-content"></input>
+									<input type="hidden" id="hidden_add_brand_id" name="brand_id">						
+									<input type="button" id="label_brand_add_button" class="ui-button" value="…" style="padding: 0 3px;">						
 								</td>
 							</tr>
 							<tr>
@@ -278,23 +284,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<tr>
 								<td class="ui-state-default td-title">备注</td>
 								<td  class="td-content">
-									<textarea id="add_comment" style="resize:none;" rows="2" cols="35" class="ui-widget-content"></textarea>
+									<textarea id="add_comment" style="resize:none;" rows="3" cols="35" class="ui-widget-content"></textarea>
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</form>
-				<div id="managecode_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="display:none;position:absolute;z-index:10000">
-					 <table>
-						<tbody>
-						   <tr>
-								<td width="50%">过滤字:<input type="text"></td>	
-								<td align="right" width="50%"><input aria-disabled="false" role="button" class="ui-button ui-widget ui-state-default ui-corner-all" style="float:right;" value="清空" type="button"></td>
-						   </tr>
-					   </tbody>
-				  	 </table>
-				  	 <table class="subform"></table>
-				</div>
 			</div>
 			<!-- 新建结束 -->
 			
@@ -319,6 +314,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="ui-state-default td-title">厂商</td>
 									<td class="td-content">
 										<label id="detail_label_brand"></label>
+										<input type="text" id="text_update_brand" class="ui-widget-content"></input>
+										<input type="hidden" id="hidden_update_brand_id" name="brand_id">						
+										<input type="button" id="label_brand_update_button" class="ui-button" value="…" style="padding: 0 3px;">						
 									</td>
 								</tr>
 								<tr>
@@ -385,7 +383,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<tr>
 									<td class="ui-state-default td-title">备注</td>
 									<td  class="td-content">
-										<textarea id="update_comment" style="resize:none" rows="2" cols="35"></textarea>
+										<textarea id="update_comment" style="resize:none" rows="3" cols="35"></textarea>
 									</td>
 								</tr>
 						</tbody>
@@ -396,8 +394,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</form>
 			</div>
 			<!-- 详细信息结束 -->
-			
-<div class="referchooser ui-widget-content" id="brand_referchooser" tabindex="-1">
+			<div id="managecode_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="z-index:10000">
+				 <table>
+					<tbody>
+					   <tr>
+							<td width="50%">过滤字:<input type="text"></td>	
+							<td align="right" width="50%"><input aria-disabled="false" role="button" class="ui-button ui-widget ui-state-default ui-corner-all" style="float:right;" value="清空" type="button"></td>
+					   </tr>
+				   </tbody>
+			  	 </table>
+			  	 <table class="subform"></table>
+			</div>
+
+<div class="referchooser ui-widget-content" id="brand_referchooser" tabindex="-1" style="z-index:1024;">
 	<table width="200px">
 		<tr>
 			<td></td>
@@ -408,7 +417,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<table  class="subform">${bReferChooser}</table>
 </div>
 			
-			<div id="name_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="display:none;position:absolute;z-index:10000">
+			<div id="name_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="z-index:10000">
 				 <table>
 					<tbody>
 					   <tr>

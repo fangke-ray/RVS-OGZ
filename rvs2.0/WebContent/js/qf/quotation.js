@@ -461,7 +461,6 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 // 			$("#hide_material_id").val(resInfo.mform.material_id);
 			// 存在进行中作业的时候
 			if(resInfo.workstauts == 1 || resInfo.workstauts == 4) {
-				getMaterialInfo(resInfo);
 				treatStart(resInfo);
 			} else if (resInfo.workstauts == 2 || resInfo.workstauts == 5) {
 				getMaterialInfo(resInfo);
@@ -509,6 +508,7 @@ var treatPause = function(resInfo) {
 }
 
 var treatStart = function(resInfo) {
+	getMaterialInfo(resInfo);
 	$("#editform table tbody").find("input,select,textarea").enable();
 	$("#continuebutton").hide();
 	$("#pausebutton").show();
@@ -610,7 +610,6 @@ var doStart_ajaxSuccess=function(xhrobj){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
-			getMaterialInfo(resInfo);
 			treatStart(resInfo);
 		}
 	} catch (e) {

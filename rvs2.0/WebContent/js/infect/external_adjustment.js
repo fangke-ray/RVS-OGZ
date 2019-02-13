@@ -22,6 +22,8 @@ $(function(){
     setReferChooser($("#hidden_devices_type_id"),$("#name_referchooser"));
 
     setReferChooser($("#hidden_search_brand_id"),$("#brand_referchooser"));
+    setReferChooser($("#hidden_add_brand_id"),$("#brand_referchooser"));
+    setReferChooser($("#hidden_update_brand_id"),$("#brand_referchooser"));
 
      //校验日期  过期日期
     $("#search_checked_date_start,#search_checked_date_end,#search_available_end_date_start,#search_available_end_date_end,#add_checked_date,#update_checked_date").datepicker({
@@ -80,83 +82,88 @@ $(function(){
 	        complete : manageCodeReferChooser_handleComplete
 	    });
     });
-    
-    //送检
-    $("#tocheck").click(function(){
-        var rowID= $("#list").jqGrid('getGridParam','selrow');
-        var rowData=$("#list").getRowData(rowID);
-        
-        $("#confirmmessage").text("确认要送检管理编号为["+rowData.manage_code+"]的记录吗？");
-        $("#confirmmessage").dialog({
-	        resizable:false,
-	        modal:true,
-	        title:"送检确认",
-	        buttons:{
-	            "确认" : function() {
-	                $(this).dialog("close");
-	                var data={
-	                    "devices_manage_id":rowData.devices_manage_id,
-	                    "object_type":rowData.object_type
-	                }
-	                 $.ajax({
-	                    beforeSend : ajaxRequestType,
-	                    async : true,
-	                    url : servicePath + '?method=doChecking',
-	                    cache : false,
-	                    data : data,
-	                    type : "post",
-	                    dataType : "json",
-	                    success : ajaxSuccessCheck,
-	                    error : ajaxError,
-	                    complete : doChecking_handleComplete
-	                });
-	            },
-	            "取消" : function() {
-	                $(this).dialog("close");
-	            }
-	        }
+    $("#addjbutton").click(function(){
+         $.ajax({
+	        beforeSend : ajaxRequestType,
+	        async : true,
+	        url : servicePath + '?method=manageCodeReferChooser',
+	        cache : false,
+	        data : null,
+	        type : "post",
+	        dataType : "json",
+	        success : ajaxSuccessCheck,
+	        error : ajaxError,
+	        complete : manageCodeReferChooser_handleComplete
 	    });
     });
+
+	// 送检
+	$("#tocheck").click(function() {
+		var rowID = $("#list").jqGrid('getGridParam', 'selrow');
+		if (!rowID) return;
+		var rowData = $("#list").getRowData(rowID);
+
+		warningConfirm("确认要送检管理编号为[" + rowData.manage_code + "]的记录吗？",
+			function() {
+				var data = {
+					"devices_manage_id" : rowData.devices_manage_id,
+					"object_type" : rowData.object_type
+				}
+				$.ajax({
+					beforeSend : ajaxRequestType,
+					async : true,
+					url : servicePath + '?method=doChecking',
+					cache : false,
+					data : data,
+					type : "post",
+					dataType : "json",
+					success : ajaxSuccessCheck,
+					error : ajaxError,
+					complete : doChecking_handleComplete
+				});
+			}, null, 
+		"送检确认");
+	});
     
     
-    //停止校验
-    $("#stop").click(function(){
-    	 var rowID= $("#list").jqGrid('getGridParam','selrow');
-         var rowData=$("#list").getRowData(rowID);
-         
-         $("#confirmmessage").text("确认要停止校验管理编号为["+rowData.manage_code+"]的记录吗？");
-         $("#confirmmessage").dialog({
- 	        resizable:false,
- 	        modal:true,
- 	        title:"停止校验确认",
- 	        buttons:{
- 	            "确认" : function() {
- 	                $(this).dialog("close");
- 	                var data={
- 	                    "devices_manage_id":rowData.devices_manage_id,
- 	                    "object_type":rowData.object_type
- 	                }
- 	                 $.ajax({
- 	                    beforeSend : ajaxRequestType,
- 	                    async : true,
- 	                    url : servicePath + '?method=doStop',
- 	                    cache : false,
- 	                    data : data,
- 	                    type : "post",
- 	                    dataType : "json",
- 	                    success : ajaxSuccessCheck,
- 	                    error : ajaxError,
- 	                    complete : doStop_handleComplete
- 	                });
- 	            },
- 	            "取消" : function() {
- 	                $(this).dialog("close");
- 	            }
- 	        }
- 	    });
-         
-    });
-    
+    // 停止校验
+	$("#stop").click(function() {
+		var rowID = $("#list").jqGrid('getGridParam', 'selrow');
+		var rowData = $("#list").getRowData(rowID);
+
+		warningConfirm("确认要停止校验管理编号为[" + rowData.manage_code + "]的记录吗？",
+			function() {
+				var data = {
+					"devices_manage_id" : rowData.devices_manage_id,
+					"object_type" : rowData.object_type
+				}
+				$.ajax({
+					beforeSend : ajaxRequestType,
+					async : true,
+					url : servicePath + '?method=doStop',
+					cache : false,
+					data : data,
+					type : "post",
+					dataType : "json",
+					success : ajaxSuccessCheck,
+					error : ajaxError,
+					complete : doStop_handleComplete
+				});
+			}, null, 
+		"停止校验确认");
+	});
+
+	$("#label_brand_add_button").click(function(){
+		if ($("#hidden_add_brand_id").val()) {
+			showBrandDetail($("#hidden_add_brand_id").val());
+		}
+	});
+	$("#label_brand_update_button").click(function(){
+		if ($("#hidden_update_brand_id").val()) {
+			showBrandDetail($("#hidden_update_brand_id").val());
+		}
+	});
+
     reset();
     findit();
     
@@ -197,6 +204,8 @@ var manageCodeReferChooser_handleComplete=function(xhrobj, textStatus){
 	        $("#hidden_devices_manage_id").val("");
 	        $("#label_name").text("");//品名
 	        $("#label_brand").text("");//厂商
+            $("#text_add_brand").val("");
+            $("#hidden_add_brand_id").val("");//厂商
 	        $("#label_model_name").text("");//型号
 	        $("#label_products_code").text("");//出厂编号
 	        $("#label_section_name").text("");//分发课室
@@ -230,7 +239,7 @@ var manageCodeReferChooser_handleComplete=function(xhrobj, textStatus){
              $("#add").dialog({
 	            position : 'center',
 	            title : "新建检查机器校正",
-	            width : 400,
+	            width : 640,
 	            height : 640,
 	            resizable : false,
 	            modal : true,
@@ -239,6 +248,7 @@ var manageCodeReferChooser_handleComplete=function(xhrobj, textStatus){
 	                     if($("#add_form").valid()){
 	                        var data={
 	                            "devices_manage_id":$("#hidden_devices_manage_id2").val(),
+	                            "brand_id":$("#hidden_add_brand_id").val(),
 	                            "checked_date":$("#add_checked_date").val(),
 	                            "effect_interval":$("#add_effect_interval").val(),
                                 "check_cost":$("#add_check_cost").val(),
@@ -363,7 +373,15 @@ var list=function(datalist){
                 {name:'manage_code',index:'manage_code',width:100},
                 {name:'name',index:'name',width:140},
                 {name:'brand_id',index:'brand_id',hidden:true},
-                {name:'brand',index:'brand',width:110},
+				{name:'brand',index:'brand',width:100,align:'left',
+					formatter : function(value, options, rData) {
+	                    //当发放日期不为空时，发放者是当前更新人；如果为空时，发放者是空白
+	                    if(rData.brand){
+	                        return "<a href='javascript:showBrandDetail("+ rData.brand_id +")'>" + rData.brand + "</a>";
+	                    }else{
+	                        return "";
+	                    }                           
+	                }},
                 {name:'model_name',index:'model_name',width:150},
                 {name:'products_code',index:'products_code',width:100},
                 {name:'section_name',index:'section_name',width:100},
@@ -423,22 +441,26 @@ var list=function(datalist){
                       var checking_flg=rowData.checking_flg;
                       var idle_flg=rowData.idle_flg;
                       if(checking_flg==1){//校验中
-                            pill.find("tr#" +IDS[i] +" td").addClass("wait");
+                            pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("wait");
                       }else{
                            if(idle_flg==1){//闲置
-                                pill.find("tr#" +IDS[i] +" td").addClass("spare");
+                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("spare");
                            }else if(isover==1){//过期需校验
-                                pill.find("tr#" +IDS[i] +" td").addClass("require_check");
+                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("require_check");
+                           }else if(isover==2){
+                           		pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("close_to_check");
                            }
                       }
                 }
+                enableButton();
             }
        });
        $("#gbox_list .ui-jqgrid-hbox").before(
             '<div class="ui-widget-content" style="padding:4px;font-size:13px;">' +
-                '备注：<div style="display:inline-block;height:28px;width:60px;background:red;text-align:center;line-height:28px;">红色</div>&nbsp;&nbsp;过期需校验'+
-                '<div style="margin-left:20px;display:inline-block;height:28px;width:60px;background:#a6a6a6;text-align:center;line-height:28px;">灰色</div>&nbsp;&nbsp;校验中/等待报告'+
-                '<div style="margin-left:20px;display:inline-block;height:28px;width:60px;background:#fabf8f;text-align:center;line-height:28px;">茶色</div>&nbsp;&nbsp;闲置'+
+                '备注：<div class="require_check" style="display:inline-block;height:28px;width:60px;text-align:center;line-height:28px;">红色</div>&nbsp;&nbsp;过期需校验'+
+                '<div class="close_to_check" style="margin-left:20px;display:inline-block;height:28px;width:60px;text-align:center;line-height:28px;">橙色</div>&nbsp;&nbsp;临近到期需校验'+
+                '<div class="wait" style="margin-left:20px;display:inline-block;height:28px;width:60px;text-align:center;line-height:28px;">灰色</div>&nbsp;&nbsp;校验中/等待报告'+
+                '<div class="spare" style="margin-left:20px;display:inline-block;height:28px;width:60px;text-align:center;line-height:28px;">茶色</div>&nbsp;&nbsp;闲置'+
             '</div>'
        );
     }
@@ -478,15 +500,19 @@ var searchBaseInfo_handleComplete=function(xhrobj, textStatus){
             	
             	var object_type=$("#hidden_devices_manage_id2").val().split("-")[1];
             	if(object_type==1){
-            		$("#label_brand").parent().parent().show();
-            		$("#label_products_code").parent().parent().show();
+            		$("#label_brand").show();
+            		$("#text_add_brand").hide();
+            		$("#label_products_code").closest("tr").show();
             	}else{
-            		$("#label_brand").parent().parent().hide();
-            		$("#label_products_code").parent().parent().hide();
+            		$("#label_brand").hide();
+            		$("#text_add_brand").show();
+            		$("#label_products_code").closest("tr").hide();
             	}
             	
                 $("#label_name").text(resInfo.finished.name);//品名
-	            $("#label_brand").text(resInfo.finished.brand==null ? "" :resInfo.finished.brand );//厂商
+	            $("#label_brand").text(resInfo.finished.brand==null ? "(未指定)" :resInfo.finished.brand );//厂商
+	            $("#text_add_brand").val(resInfo.finished.brand);
+	            $("#hidden_add_brand_id").val(resInfo.finished.brand_id);//厂商
 	            $("#label_model_name").text(resInfo.finished.model_name);//型号
 	            $("#label_products_code").text(resInfo.finished.products_code==null ? "" : resInfo.finished.products_code);//出厂编号
 	            $("#label_section_name").text(resInfo.finished.section_name);//分发课室
@@ -494,15 +520,19 @@ var searchBaseInfo_handleComplete=function(xhrobj, textStatus){
             }else{
             	var object_type=$("#hidden_devices_manage_id2").val().split("-")[1];
             	if(object_type==1){
-            		$("#label_brand").parent().show();
-            		$("#label_products_code").parent().show();
+            		$("#label_brand").show();
+            		$("#text_add_brand").hide();
+            		$("#label_products_code").closest("tr").show();
             	}else{
-            		$("#label_brand").parent().hide();
-            		$("#label_products_code").parent().hide();
+            		$("#label_brand").hide();
+            		$("#text_add_brand").show();
+            		$("#label_products_code").closest("tr").hide();
             	}
             	
                 $("#label_name").text("");//品名
 		        $("#label_brand").text("");//厂商
+	            $("#text_add_brand").val("");
+	            $("#hidden_add_brand_id").val("");//厂商
 		        $("#label_model_name").text("");//型号
 		        $("#label_products_code").text("");//出厂编号
 		        $("#label_section_name").text("");//分发课室
@@ -536,6 +566,10 @@ var doInsert_handleComplete=function(xhrobj, textStatus){
 
 var enableButton=function(){
     var rowID= $("#list").jqGrid('getGridParam','selrow');
+    if (!rowID) {
+    	$("#tocheck, #stop").disable();
+    	return;
+    }
     var rowData=$("#list").getRowData(rowID);
     var checking_flg=rowData.checking_flg;//是否是校验中
     if(checking_flg==1){//校验中不能送检
@@ -599,6 +633,15 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
             $("#detail_label_manage_code").text(resInfo.finished.manage_code);//管理编号
             $("#detail_label_name").text(resInfo.finished.name);//品名
             $("#detail_label_brand").text(resInfo.finished.brand);//厂商
+            $("#text_update_brand").val(resInfo.finished.brand);//厂商
+            $("#hidden_update_brand_id").val(resInfo.finished.brand_id);//厂商
+            if (resInfo.finished.object_type == 1 || checking_flg==1) {
+	            $("#detail_label_brand").show();//厂商
+	            $("#text_update_brand, #hidden_update_brand_id").hide();//厂商
+            } else {
+	            $("#detail_label_brand").hide();//厂商
+	            $("#text_update_brand, #hidden_update_brand_id").show();//厂商
+            }
             $("#detail_label_model_name").text(resInfo.finished.model_name);//型号
             $("#detail_label_products_code").text(resInfo.finished.products_code);//出厂编号
             $("#detail_label_section_name").text(resInfo.finished.section_name);//分发课室
@@ -681,6 +724,7 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
 		            		}else{
 		            			data={
 			            			"devices_manage_id": $("#hidden_devices_manage_id").val(),
+			            			"brand_id": $("#hidden_update_brand_id").val(),
 			            			"check_cost": $("#update_check_cost").val(),
 			            			"organization_type":$("#update_organization_type").val(),
 			            			"institution_name": $("#update_institution_name").val(),
@@ -691,16 +735,16 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
 		            		}
 		            		
 		            	    $.ajax({
-		            	            beforeSend : ajaxRequestType,
-		            	            async : true,
-		            	            url : servicePath + '?method=doUpdate',
-		            	            cache : false,
-		            	            data : data,
-		            	            type : "post",
-		            	            dataType : "json",
-		            	            success : ajaxSuccessCheck,
-		            	            error : ajaxError,
-		            	            complete : doUpdate_handleComplete
+	            	            beforeSend : ajaxRequestType,
+	            	            async : true,
+	            	            url : servicePath + '?method=doUpdate',
+	            	            cache : false,
+	            	            data : data,
+	            	            type : "post",
+	            	            dataType : "json",
+	            	            success : ajaxSuccessCheck,
+	            	            error : ajaxError,
+	            	            complete : doUpdate_handleComplete
 		            	    });
 		            	}
 		            },

@@ -30,6 +30,7 @@
 				ea.idle_flg,
 				CASE  
 					WHEN ea.available_end_date <CURRENT_DATE() THEN 1
+					WHEN ea.available_end_date < Date_Add(CURRENT_DATE(), interval + 1 month) THEN 2
 					ELSE 0
 				END AS isover
 			FROM 	
@@ -313,7 +314,8 @@
 				ea.object_type,
 				coalesce(dm.manage_code, tm.manage_code) as manage_code,
 				coalesce(dt.name, tm.jig_name) as name,
-				dm.brand,
+				dm.brand_id,
+				b.name as brand,
 				coalesce(dm.model_name, tm.jig_no) as model_name,
 				dm.products_code,
 				sec.name AS section_name,
@@ -341,6 +343,10 @@
     		ON 
     			ea.devices_manage_id = tm.jig_manage_id AND ea.object_type = 2
 			LEFT JOIN
+				brand b
+			ON
+				(dm.brand_id=b.brand_id OR jig_brand_id=b.brand_id)
+			LEFT JOIN
 				section sec
 			ON
 				sec.section_id=dm.section_id
@@ -363,6 +369,12 @@
 				institution_name=#{institution_name},
 				comment=#{comment}
 		]]>
+		<if test="brand_id!=null and brand_id!=''">
+			<![CDATA[
+				,
+				jig_brand_id=#{brand_id}
+			]]>
+		</if>
 		<if test="checking_flg==1 and isover==1"><!-- 校验中 并且校验时间改变 -->
 			<![CDATA[
 				,
