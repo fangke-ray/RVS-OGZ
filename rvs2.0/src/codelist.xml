@@ -690,8 +690,9 @@
 		<value code="2">定点</value>
 	</codelist>
 	
-	 <codelist name="fact_production_type">
+	<codelist name="fact_production_type">
 		<value code="10">A：收货</value>
+		<value code="11">A：收货</value>
 		<value code="20">B1：核对+上架</value>
 		<value code="21">B2：核对</value>
 		<value code="30">C：分装</value>

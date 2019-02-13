@@ -45,17 +45,11 @@ $(function(){
     		width : 400,
     		buttons : {
     			"上传" : function(){
-    				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
-    				var rowData = $("#list").getRowData(row);
-    				var data = {
-    					"key":rowData.key
-    				}
     				$.ajaxFileUpload({
     					url : servicePath + '?method=doUpload', // 需要链接到服务器地址
     					secureuri : false,
     					fileElementId : 'file', // 文件选择框的id属性
     					dataType : 'json', // 服务器返回的格式
-    					data :data,
     					success : function(responseText, textStatus) {
     						var resInfo = null;
     						try {
@@ -82,10 +76,89 @@ $(function(){
     	});
     });
     
-    findit();
+    // 开始
+	$("#startbutton").click(doStart);
+	$("#endbutton").click(doEnd);
     
-    $("#supplyButton").disable();
+    $("#supplyButton,#endbutton").disable();
+    
+    findit();
 });
+
+function doStart() {
+	var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID
+	
+	if(!row){
+		errorPop("请选择零件入库单！");
+		return;
+	}
+	
+	var rowData = $("#list").getRowData(row);
+	if(rowData.step != 0 && rowData.step != 1){
+		errorPop("请选择收货中或者核对中的零件入库单！");
+		return;
+	}
+	
+	var data = {
+		"key":rowData.key
+	}
+	
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : false,
+		url : servicePath + '?method=doStart',
+		cache : false,
+		data : data,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj,textStatus){
+			var resInfo = null;
+			try {
+				// 以Object形式读取JSON
+				eval('resInfo =' + xhrobj.responseText);
+				if (resInfo.errors.length > 0) {
+					// 共通出错信息框
+					treatBackMessages(null, resInfo.errors);
+				} else {
+					 $("#label_warehouse_no").text(rowData.warehouse_no)
+					 $("#startbutton").disable();
+					 $("#supplyButton,#endbutton").enable();
+				}
+			} catch (e) {}
+		}
+	});
+};
+
+function doEnd(){
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=doFinish',
+		cache : false,
+		data : null,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj,textStatus){
+			var resInfo = null;
+			try {
+				// 以Object形式读取JSON
+				eval('resInfo =' + xhrobj.responseText);
+				if (resInfo.errors.length > 0) {
+					// 共通出错信息框
+					treatBackMessages(null, resInfo.errors);
+				} else {
+					$("#label_warehouse_no").text("");
+					$("#startbutton").enable();
+					$("#endbutton,#supplyButton").disable();
+				}
+			} catch (e) {}
+		}
+	});
+};
 
 function reportUnmatch(){
 	var data = {
@@ -160,7 +233,17 @@ function findit(){
 					treatBackMessages(null, resInfo.errors);
 				} else {
 					list(resInfo.finish);
-					$("#supplyButton").disable();
+					
+					var factProductionFeatureForm = resInfo.factProductionFeatureForm;
+					if(factProductionFeatureForm && factProductionFeatureForm.production_type == 11){
+						$("#startbutton").disable();
+						$("#supplyButton,#endbutton").enable();
+						$("#label_warehouse_no").text(resInfo.partialWarehouseForm.warehouse_no);
+					}else{
+						$("#startbutton").enable();
+						$("#supplyButton,#endbutton").disable();
+						$("#label_warehouse_no").text("");
+					}
 				}
 			}catch(e){}
 		}
@@ -231,13 +314,13 @@ function list(listdata){
 			hidegrid : false,
 			deselectAfterSort : false,
 			onSelectRow : function(){
-				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
-				var rowData = $("#list").getRowData(row);
-				if(rowData.step == 0 || rowData.step == 1){
-					$("#supplyButton").enable();
-				}else{
-					$("#supplyButton").disable();
-				}
+//				var row = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
+//				var rowData = $("#list").getRowData(row);
+//				if(rowData.step == 0 || rowData.step == 1){
+//					$("#supplyButton").enable();
+//				}else{
+//					$("#supplyButton").disable();
+//				}
 			},// 当选择行时触发此事件。
 			ondblClickRow : function(rid, iRow, iCol, e) {
 				showDetail();

@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.partial.PartialWarehouseEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.form.partial.PartialWarehouseDetailForm;
 import com.osh.rvs.form.partial.PartialWarehouseDnForm;
 import com.osh.rvs.form.partial.PartialWarehouseForm;
@@ -332,8 +333,10 @@ public class PartialWarehouseService {
 	public void supply(ActionForm form,HttpServletRequest request,SqlSessionManager conn,List<MsgInfo> errors) throws Exception{
 		HttpSession session = request.getSession();
 
-		PartialWarehouseForm partialWarehouseForm  = (PartialWarehouseForm) form;
-		String key = partialWarehouseForm.getKey();
+		FactProductionFeatureService factProductionFeatureService = new FactProductionFeatureService();
+		FactProductionFeatureForm factProductionFeatureForm = factProductionFeatureService.searchUnFinishProduction(request, conn);
+
+		String key = factProductionFeatureForm.getPartial_warehouse_key();
 
 		PartialWarehouseService partialWarehouseService = new PartialWarehouseService();
 		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
@@ -390,7 +393,7 @@ public class PartialWarehouseService {
 				partialWarehouseDetailService.insert(partialWarehouseDetailForm, conn);
 			}
 
-			partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
+			PartialWarehouseForm partialWarehouseForm = partialWarehouseService.getByKey(key, conn);
 			if("0".equals(partialWarehouseForm.getStep())){
 				partialWarehouseForm.setStep("1");
 				partialWarehouseService.updateStep(partialWarehouseForm, conn);
