@@ -49,6 +49,7 @@ import com.osh.rvs.entity.OperatorEntity;
 import com.osh.rvs.mapper.push.HolidayMapper;
 import com.osh.rvs.mapper.push.MaterialMapper;
 import com.osh.rvs.mapper.push.OperatorMapper;
+import com.osh.rvs.mapper.push.ProductionFeatureMapper;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.CodeListUtils;
@@ -98,20 +99,40 @@ public class DayWorkTotalToMonthJob implements Job {
 
 		_log.info("DayWorkTotalToMonthJob: " + jobKey + " executing at " + monthStart);
 
-		monthStart.set(Calendar.DATE, 1);
+		// 是否本月最后一天
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.add(Calendar.DATE, 1);
+		boolean isMonthly = tomorrow.get(Calendar.MONTH) != monthStart.get(Calendar.MONTH);
+
+		// 取得数据库连接
+		SqlSession conn = getTempConn();
+
 		monthStart.set(Calendar.HOUR_OF_DAY, 0);
 		monthStart.set(Calendar.MINUTE, 0);
 		monthStart.set(Calendar.SECOND, 0);
 		monthStart.set(Calendar.MILLISECOND, 0);
 
-		// 取得数据库连接
-		SqlSession conn = getTempConn();
+		// 日常判定当日是否有作业
+		if (!isMonthly) {
+			ProductionFeatureMapper pfMapper = conn.getMapper(ProductionFeatureMapper.class);
+			int c = pfMapper.checkProcessBetween(monthStart.getTime(), tomorrow.getTime());
+			if (c == 0) {
+				conn.close();
+				conn = null;
+				return;
+			}
+		}
+
+		monthStart.set(Calendar.DATE, 1);
+
 		SqlSessionManager connManager = getTempWritableConn();
 		
-		makeStatistics(monthStart, conn);
-		monthlyPcsPack(conn);
-//		clearSap(connManager);
-		monthlyFilePack(conn, monthStart);
+		makeStatistics(isMonthly, monthStart, conn);
+		if (isMonthly) {
+			monthlyPcsPack(conn);
+//			clearSap(connManager);
+			monthlyFilePack(conn, monthStart);
+		}
 		if (conn != null) {
 			conn.close();
 		}
@@ -291,10 +312,11 @@ public class DayWorkTotalToMonthJob implements Job {
 
 	/**
 	 * 制作统计记录
+	 * @param isMonthly 
 	 * @param today
 	 * @param conn
 	 */
-	private void makeStatistics(Calendar monthStart, SqlSession conn) {
+	private void makeStatistics(boolean isMonthly, Calendar monthStart, SqlSession conn) {
 
 		POIFSFileSystem fs;
 		HSSFWorkbook book = null;
@@ -402,6 +424,8 @@ public class DayWorkTotalToMonthJob implements Job {
 			HSSFSheet globalSheet = book.getSheet(C_SHEET_GLOBAL);
 			// globalSheet
 			book.setSheetName(0, monthName + C_SHEET_GLOBAL);
+
+			if (isMonthly) { // 月报表内
 
 			// W(线长代工时间)
 			List<Double> gLeaderWorks = newDoubleList(weekBeanSize); 
@@ -582,6 +606,20 @@ public class DayWorkTotalToMonthJob implements Job {
 			insertIntoFileOnlyDays(globalSheet, weekBeans, gLeaderWorks, gOverWorks, gScanWorks, gManageWorks, gHealthWorks, gLaboryDays, gWorkers, gWipAgrees);
 			globalSheet.setForceFormulaRecalculation(true);
 
+			} // 月报表内
+			else { // 日报表只需要明细
+				book.removeSheetAt(0); // 汇总
+				book.removeSheetAt(0); // 报价组
+				book.removeSheetAt(0); // 分解工程
+				book.removeSheetAt(0); // NS 工程
+				book.removeSheetAt(0); // 总组工程
+				book.removeSheetAt(0); // 外科镜维修
+				book.removeSheetAt(0); // 纤维镜分解
+				book.removeSheetAt(0); // 纤维镜总组
+				book.removeSheetAt(0); // 周边维修
+				book.removeSheetAt(0); // 中小修修理
+				book.removeSheetAt(0); // 品保课
+			}
 			// 保存文件
 			FileOutputStream fileOut = new FileOutputStream(destPath);
 			book.write(fileOut);
@@ -1217,8 +1255,8 @@ public class DayWorkTotalToMonthJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 
-		today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, Calendar.NOVEMBER);
+		today.set(Calendar.YEAR, 2019);
+		today.set(Calendar.MONTH, Calendar.JANUARY);
 		today.set(Calendar.DATE, 1);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
@@ -1239,7 +1277,7 @@ public class DayWorkTotalToMonthJob implements Job {
 		PathConsts.PCS = "\\Pcs";
 
 		DayWorkTotalToMonthJob job = new DayWorkTotalToMonthJob();
-		job.makeStatistics(today, conn);
+		job.makeStatistics(false, today, conn);
 		// job.monthlyFilePack(conn, today);
 		// job.clearSap(connManager);
 

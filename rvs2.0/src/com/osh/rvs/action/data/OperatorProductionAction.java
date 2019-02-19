@@ -1,8 +1,12 @@
 package com.osh.rvs.action.data;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +24,8 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.TemplateReportUtils;
+import com.osh.rvs.form.data.MonthFilesDownloadForm;
 import com.osh.rvs.form.data.OperatorProductionForm;
 import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.LineService;
@@ -69,6 +73,17 @@ public class OperatorProductionAction extends BaseAction {
 		req.setAttribute("isLeader",isLeader(req.getSession()));
 		
 		log.info("OperatorProductionAction.init end");
+	}
+
+	@Privacies(permit={1, 0})
+	public void monthly(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
+
+		log.info("OperatorProductionAction.monthly start");
+
+		// 迁移到页面
+		actionForward = mapping.findForward("monthly");
+
+		log.info("OperatorProductionAction.monthly end");
 	}
 
 	@Privacies(permit={1, 0})
@@ -277,85 +292,73 @@ public class OperatorProductionAction extends BaseAction {
 	}
 
 	/**
-	 * 得到上月作业日报文件名
-	 * @param mapping
-	 * @param form
-	 * @param req
-	 * @param res
-	 * @param conn
-	 * @throws Exception
+	 * 月报表详细一览
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param request 页面请求
+	 * @param response 页面响应
+	 * @param conn 数据库会话
+	 * @throws Exception Exception
 	 */
-	@Privacies(permit={1, 0})
-	public void getLastMonth(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
-
-		log.info("OperatorProductionAction.getLastMonth start");
-		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+	public void searchMonthFiles(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn) throws Exception{
+		log.info("OperatorProductionAction.searchMonthFiles start");
+		
 		Map<String, Object> listResponse = new HashMap<String, Object>();
-		listResponse.put("fileName", null);
 
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MONTH, -1);
-		// 月报文件名
-		String monthName = DateUtil.toString(cal.getTime(), "MM月");
-		String filename = "月度有效工时统计比率表" + monthName + "汇总(" + RvsUtils.getBussinessHalfYearString(cal) + ").xls";
+		List<MonthFilesDownloadForm> produceList = operatorProductionService.getMonthFiles("月汇总");
 
-		// 确认存在
-		String filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\works\\" + filename;
-		File exts = new File(filePath);
-		if (exts.exists()) {
-			listResponse.put("fileName", filename);
-		} else {
-			log.info("月报文件:" + filename + "不存在.");
-		}
+		listResponse.put("produceList", produceList);
 
-		// 检查发生错误时报告错误信息
-		listResponse.put("errors", errors);
+		List<MonthFilesDownloadForm> factList = operatorProductionService.getMonthFiles("零件出入库");
+
+		listResponse.put("factList", factList);
 		
-		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
+		//返回Json格式响应信息
+		returnJsonResponse(response, listResponse);
 		
-		log.info("OperatorProductionAction.getLastMonth end");
+		log.info("OperatorProductionAction.searchMonthFiles end");
 	}
-
+	
 	/**
-	 * 得到上月作业日报文件名
-	 * @param mapping
-	 * @param form
-	 * @param req
-	 * @param res
-	 * @param conn
-	 * @throws Exception
-	 */
-	@Privacies(permit={1, 0})
-	public void getLastMonthDetail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
+     * 月报表点击下载
+     * @param mapping ActionMapping
+     * @param form 表单
+     * @param req 页面请求
+     * @param res 页面响应
+     * @param conn 数据库会话
+     * @return 
+     * @throws Exception
+     */
+	public void output(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+    	log.info("OperatorProductionAction.output start");
 
-		log.info("OperatorProductionAction.getLastMonthDetail start");
-		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-		Map<String, Object> listResponse = new HashMap<String, Object>();
-		listResponse.put("fileName", null);
+		String fileName =req.getParameter("fileName");
 
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MONTH, -1);
-		// 月报文件名
-		String monthName = DateUtil.toString(cal.getTime(), "MM月");
-		String filename = "月度有效工时统计比率表" + monthName + "明细(" + RvsUtils.getBussinessHalfYearString(cal) + ").xls";
-
-		// 确认存在
-		String filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\works\\" + filename;
-		File exts = new File(filePath);
-		if (exts.exists()) {
-			listResponse.put("fileName", filename);
-		} else {
-			log.info("月报文件:" + filename + "不存在.");
+		String contentType = "";
+		if (CommonStringUtil.isEmpty(fileName)) {
+			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+		}else{
+			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
 		}
+		
+		String filePath = "";
+		filePath = PathConsts.BASE_PATH + PathConsts.REPORT+"\\works\\"+fileName;
 
-		// 检查发生错误时报告错误信息
-		listResponse.put("errors", errors);
+		 res.setHeader( "Content-Disposition", "attachment;filename=" + new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );  
+		res.setContentType(contentType);
+		File file = new File(filePath);
+		InputStream is = new BufferedInputStream(new FileInputStream(file));
+		byte[] buffer = new byte[is.available()];
+		is.read(buffer);
+		is.close();
 		
-		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
-		
-		log.info("OperatorProductionAction.getLastMonthDetail end");
+		OutputStream os = new BufferedOutputStream(res.getOutputStream());
+		os.write(buffer);
+		os.flush();
+		os.close();
+
+		log.info("OperatorProductionAction.output end");
 	}
 
 	private List<OperatorProductionForm> searchBySession(HttpSession session, SqlSession conn, Map<String, Object> listResponse) {

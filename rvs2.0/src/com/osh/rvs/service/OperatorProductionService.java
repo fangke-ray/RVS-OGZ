@@ -1,7 +1,12 @@
 package com.osh.rvs.service;
 
+import java.io.File;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +19,9 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.OperatorProductionEntity;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.form.data.MonthFilesDownloadForm;
 import com.osh.rvs.form.data.OperatorProductionForm;
 import com.osh.rvs.mapper.data.OperatorProductionMapper;
 
@@ -439,4 +446,67 @@ public class OperatorProductionService {
 
 		return false;
 	}
+	/**
+	 * 
+	 * @return
+	 */
+	public List<MonthFilesDownloadForm> getMonthFiles(String... filters){
+		List<MonthFilesDownloadForm> monthFilesDownloadForms = new ArrayList<MonthFilesDownloadForm>();
+
+		String filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\works";
+		File file = new File(filePath);
+
+		MonthFilesDownloadForm monthFilesDownloadForm;
+		// 如果该文件是个目录的话
+		if (file.isDirectory()) {
+			File[] files = file.listFiles();
+			for (File f : files) {
+				monthFilesDownloadForm = new MonthFilesDownloadForm();
+				if (f.isDirectory()) {
+					continue;
+				}
+
+				String fileName = f.getName();
+				boolean filtered = false;
+				if (filters.length == 0) {
+					filtered = true;
+				} else {
+					for (String filter : filters) {
+						if (fileName.indexOf(filter) >= 0) {
+							filtered = true;
+							break;
+						}
+					}
+				}
+				if (!filtered) continue;
+
+				long fileSize = f.length();// 文件的大小(字节)
+				double ds = (double) fileSize / 1024;// 文件字节大小/1024所得的就是以kb为单位的大小
+				BigDecimal bd = new BigDecimal(ds);
+				double resultSize = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");// 文件最后修改时间
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(f.lastModified());
+				String fileTime = sdf.format(cal.getTime());
+
+				monthFilesDownloadForm.setFile_name(fileName);
+				monthFilesDownloadForm.setFile_size(resultSize + "kb");
+				monthFilesDownloadForm.setFile_time(fileTime);
+
+				monthFilesDownloadForms.add(monthFilesDownloadForm);
+			}
+		}
+
+		// 按照文件的最后编辑时间进行倒序排列
+		Collections.sort(monthFilesDownloadForms, new Comparator<MonthFilesDownloadForm>() {
+			@Override
+			public int compare(MonthFilesDownloadForm o1, MonthFilesDownloadForm o2) {
+				return o2.getFile_time().compareTo(o1.getFile_time());
+			}
+		});
+
+		return monthFilesDownloadForms;
+	}
+
 }

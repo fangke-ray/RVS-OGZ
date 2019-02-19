@@ -323,6 +323,7 @@
 		<action path="/operatorProduction" type="com.osh.rvs.action.data.OperatorProductionAction" parameter="method" validate="false" name="operatorProductionForm" scope="request">
 			<forward name="init" path="/pages/data/list_operators-page.jsp" />
 			<forward name="success" path="/pages/data/list_operators-page.jsp" />
+			<forward name="monthly" path="/pages/report/monthly_report.jsp" />
 		</action>
 		<!-- inline 线长 -->
 		<action path="/lineLeader" type="com.osh.rvs.action.inline.LineLeaderAction" parameter="method" validate="false">

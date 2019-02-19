@@ -182,7 +182,7 @@ public class InitServlet extends HttpServlet {
 			// 每月最后一日晚上
 			trigger = newTrigger()
 			    .withIdentity("dayWorkTotalToMonthTrigger", "rvspush")
-			    .withSchedule(cronSchedule("0 15 22 L * ?")) // "0 15 22 L * ?"
+			    .withSchedule(cronSchedule("0 15 22 * * ?")) // "0 15 22 L * ?"
 			    .build();
 
 			scheduler.scheduleJob(job, trigger);

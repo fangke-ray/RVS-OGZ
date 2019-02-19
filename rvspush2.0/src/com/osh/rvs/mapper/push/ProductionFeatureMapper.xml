@@ -51,4 +51,12 @@
 		</if>
 	</select>
 
+	<select id="checkProcessBetween" resultType="int" parameterType="date">
+		<![CDATA[ 
+			SELECT count(1)
+			FROM production_feature pf
+			WHERE pf.action_time is NOT NULL
+			AND pf.finish_time between #{start_date} AND #{end_date};
+		]]>
+	</select>
 </mapper>

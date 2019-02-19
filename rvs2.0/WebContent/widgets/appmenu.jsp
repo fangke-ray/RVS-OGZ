@@ -173,6 +173,7 @@ $(function() {
     <h3 style="padding-left:30px;">文档管理</h3>
 	<div>
 		        <a href="filing.do">维修作业归档</a><br>
+		        <a href="operatorProduction.do?method=monthly">SORC 作业月报</a><br>
 		        <a href="weekly_kpi_data.do">周报功能</a><br>
 		        <a href="daily_work_sheet.do">工作记录表</a>
 	</div>
