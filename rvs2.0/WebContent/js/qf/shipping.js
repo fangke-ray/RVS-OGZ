@@ -247,7 +247,7 @@ function acceptted_list(quotation_listdata){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['受理时间','同意时间','总组完成时间','出货时间', '修理单号', '型号 ID', '型号' , '机身号', '返送地区', '等级'],
+			colNames:['受理时间','同意时间','修理完成时间','出货时间', '修理单号', '型号 ID', '型号' , '机身号', '返送地区', '等级'],
 			colModel:[
 				{
 						name : 'reception_time',

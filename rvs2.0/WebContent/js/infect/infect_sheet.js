@@ -510,8 +510,25 @@ var showInfectSheet =function(infectDetailData, isLeader){
 														ii++;
 													}
 												})
-												if ($("#upper_check").length>0 && $("#upper_check").attr("checked"))
+												if ($("#upper_check").length>0 && $("#upper_check").attr("checked")) {
 													postDataR.upper_check = infectDetailData.manage_id || 1;
+													if (infectDetailData.check_file_manage_id == "00000000105"
+														|| infectDetailData.check_file_manage_id == "00000000106"
+														|| infectDetailData.check_file_manage_id == "00000000107"
+														|| infectDetailData.check_file_manage_id == "00000000108"
+														|| infectDetailData.check_file_manage_id == "00000000109"
+														|| infectDetailData.check_file_manage_id == "00000000110"
+														|| infectDetailData.check_file_manage_id == "00000000111"
+														|| infectDetailData.check_file_manage_id == "00000000112"
+														) {
+														postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+													}
+													if (infectDetailData.check_file_manage_id == "00000000100"
+														|| infectDetailData.check_file_manage_id == "00000000101"
+														|| infectDetailData.check_file_manage_id == "00000000102") {
+														postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+													}
+												}
 												if(stopDblSubmit) return;
 												stopDblSubmit = true;
 												doCheckPoint(postDataR, $confirmmessage, $check_sheet);
@@ -576,8 +593,25 @@ var showInfectSheet =function(infectDetailData, isLeader){
 										}
 										postDataR.refix = 1; // TODO
 										postDataR.position_id = infectDetailData.position_id;
-										if ($("#upper_check").length>0 && $("#upper_check").attr("checked"))
+										if ($("#upper_check").length>0 && $("#upper_check").attr("checked")) {
 											postDataR.upper_check = infectDetailData.manage_id || 1;
+											if (infectDetailData.check_file_manage_id == "00000000105"
+												|| infectDetailData.check_file_manage_id == "00000000106"
+												|| infectDetailData.check_file_manage_id == "00000000107"
+												|| infectDetailData.check_file_manage_id == "00000000108"
+												|| infectDetailData.check_file_manage_id == "00000000109"
+												|| infectDetailData.check_file_manage_id == "00000000110"
+												|| infectDetailData.check_file_manage_id == "00000000111"
+												|| infectDetailData.check_file_manage_id == "00000000112"
+												) {
+												postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+											}
+											if (infectDetailData.check_file_manage_id == "00000000100"
+												|| infectDetailData.check_file_manage_id == "00000000101"
+												|| infectDetailData.check_file_manage_id == "00000000102") {
+												postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+											}
+										}
 
 										if(stopDblSubmit) return;
 										stopDblSubmit = true;

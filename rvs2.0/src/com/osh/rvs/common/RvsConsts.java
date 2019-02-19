@@ -93,5 +93,5 @@ public class RvsConsts extends BaseConst {
 	public static final int TICKET_RECEPTOR = 1;
 	public static final int TICKET_QUTOTAOR = 2;
 	public static final int TICKET_ADDENDA = 0;
-	public static final String VERSION = "2.1.379";
+	public static final String VERSION = "2.1.384";
 }

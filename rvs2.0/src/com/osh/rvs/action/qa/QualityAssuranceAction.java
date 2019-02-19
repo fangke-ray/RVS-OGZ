@@ -39,6 +39,7 @@ import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
@@ -174,7 +175,7 @@ public class QualityAssuranceAction extends BaseAction {
 		user.setLine_id("00000000015");
 
 		// 设定待点检信息
-		CheckResultService crService = new CheckResultService();
+		CheckResultPageService crService = new CheckResultPageService();
 		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
 		CheckResultEntity condEntity = new CheckResultEntity();
 		PeriodsEntity periodsEntity = CheckResultService.getPeriodsOfDate(DateUtil.toString(new Date(), DateUtil.ISO_DATE_PATTERN), conn);

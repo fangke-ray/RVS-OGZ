@@ -6,6 +6,7 @@ public class PeriodsEntity {
 
 	private Date startOfWeek = null;
 	private Date endOfWeek = null;
+	private Date lastOfWeek = null;
 	private Date expireOfWeek = null;
 
 	private Date startOfHMonth = null;
@@ -14,11 +15,13 @@ public class PeriodsEntity {
 
 	private Date startOfMonth = null;
 	private Date endOfMonth = null;
+	private Date lastOfMonth = null;
 	private Date expireOfMonth = null;
 	private Date expireOfMonthOfJig = null;
 
 	private Date startOfHbp = null;
 	private Date endOfHbp = null;
+	private Date lastOfHbp = null;
 	private Date expireOfHbp = null;
 
 	private Date startOfPeriod = null;
@@ -120,5 +123,23 @@ public class PeriodsEntity {
 	}
 	public void setExpireOfPeriod(Date expireOfPeriod) {
 		this.expireOfPeriod = expireOfPeriod;
+	}
+	public Date getLastOfWeek() {
+		return lastOfWeek;
+	}
+	public void setLastOfWeek(Date lastOfWeek) {
+		this.lastOfWeek = lastOfWeek;
+	}
+	public Date getLastOfMonth() {
+		return lastOfMonth;
+	}
+	public void setLastOfMonth(Date lastOfMonth) {
+		this.lastOfMonth = lastOfMonth;
+	}
+	public Date getLastOfHbp() {
+		return lastOfHbp;
+	}
+	public void setLastOfHbp(Date lastOfHbp) {
+		this.lastOfHbp = lastOfHbp;
 	}
 }

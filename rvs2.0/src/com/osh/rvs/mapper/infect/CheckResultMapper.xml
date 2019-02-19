@@ -403,23 +403,42 @@
 		]]>
 	</select>
 
-	<select id="searchTorsionDeviceUncheckedOnPosition"  parameterType="CheckResultEntity" resultType="String">
-		<![CDATA[ 
-		SELECT group_concat(distinct dm.manage_code) FROM device_check_result dcr
+	<select id="searchDeviceUnconfirmedOnPosition"  parameterType="CheckResultEntity" resultType="String">
+		<![CDATA[
+		SELECT group_concat(distinct dm.manage_code)
+		FROM check_file_manage cfm
 		join devices_manage dm
-		on dm.devices_manage_id = dcr.manage_id
-		where dcr.checked_status = 0
-		and dcr.check_file_manage_id = 98
-		and dm.delete_flg = 0 AND dm.status = 1
-		and check_confirm_time between #{check_confirm_time_start} and #{check_confirm_time_end}
-		and dm.section_id = #{section_id}
+		on dm.device_type_id = cfm.device_type_id
+		and (cfm.specified_model_name is null
+		OR cfm.specified_model_name LIKE CONCAT('%', dm.model_name, '%'))
+		where dm.section_id = #{section_id}
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
-		AND (dm.provide_date != current_date OR dm.provide_date is null)
+		AND dm.delete_flg = 0 AND dm.manage_level = 1 AND dm.status in (1, 5)
+		AND (dm.provide_date != current_date or dm.provide_date is null)
+		AND cfm.confirm_cycle = #{cycle_type}
+		AND cfm.filing_means = 1
+		AND NOT EXISTS (SELECT 1 FROM device_manager_confirm where check_file_manage_id = cfm.check_file_manage_id
+		AND manage_id = dm.devices_manage_id
+		AND confirm_time >= #{check_confirm_time_start}
+		)
 		and NOT EXISTS (SELECT 1 FROM check_unqualified_record cur 
 			where cur.manage_id = dm.devices_manage_id and cur.manage_id = 1
 			and repair_date_start <= current_date and (repair_date_end IS null or repair_date_end >= current_date))
-		;
+		]]>
+	</select>
+
+	<select id="searchJigUnconfirmedOnPosition"  parameterType="CheckResultEntity" resultType="String">
+		<![CDATA[
+			SELECT ext = 0 OR chk > 0 from
+			(SELECT count(1) as chk FROM jig_manager_confirm
+			where section_id = #{section_id} and position_id = #{position_id}
+			and confirm_time >= #{check_confirm_time_start}) jmc
+			JOIN
+			(
+			SELECT count(1) as ext FROM jig_manage
+			where section_id = #{section_id} and position_id = #{position_id}
+			and delete_flg = 0 and status = 1) jm;
 		]]>
 	</select>
 
@@ -532,6 +551,9 @@
 		   </if>
 		   <if test="position_id!=null and position_id!='' ">
 		and dmc.manage_id in (select devices_manage_id from devices_manage where position_id = #{position_id} and delete_flg = 0)
+		   </if>
+		   <if test="line_id!=null and line_id!='' ">
+		and dmc.manage_id in (select devices_manage_id from devices_manage where line_id = #{line_id} and delete_flg = 0)
 		   </if>
 		<![CDATA[ 
 		and dmc.check_file_manage_id = #{check_file_manage_id}

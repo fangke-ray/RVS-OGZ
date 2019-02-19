@@ -115,7 +115,7 @@ if (peripheral!=null && peripheral) {
 							<tr>
 								<td class="ui-state-default td-title">客户同意日</td>
 								<td class="td-content" id="show_agreed_date"></td>
-								<td class="ui-state-default td-title">总组完成时间</td>
+								<td class="ui-state-default td-title">修理完成时间</td>
 								<td class="td-content" id="show_finish_time"></td>
 							</tr>
 							<tr>

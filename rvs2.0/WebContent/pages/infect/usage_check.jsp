@@ -44,6 +44,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 
 <!---------------------start----------------------------->
+<% 
+	Object osLeader = request.getAttribute("isLeader");
+	boolean isLeader = Boolean.TRUE.equals(osLeader);
+%>
 <!--点检画面开始-->
 <div id="body-mdl">
 <div id="usage_check_search" style="width: 994px; float: left;">
@@ -103,16 +107,33 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</td>
 						<td class="ui-state-default td-title">点检结果</td>
 						<td class="td-content">
-								<div id="search_check_result" class="ui-buttonset">
-									<input type="radio" name="check_result" id="check_result_a" class="ui-widget-content ui-helper-hidden-accessible" value="" checked="checked"><label for="check_result_a" aria-pressed="false">(全)</label>
-									<input type="radio" name="check_result" id="check_result_y" class="ui-widget-content ui-helper-hidden-accessible" value="1"><label for="check_result_y" aria-pressed="false">通过</label>
-									<input type="radio" name="check_result" id="check_result_n" class="ui-widget-content ui-helper-hidden-accessible" value="2"><label for="check_result_n" aria-pressed="false">不通过</label>
-								</div>
+							<div id="search_check_result" class="ui-buttonset">
+								<input type="radio" name="check_result" id="check_result_a" class="ui-widget-content ui-helper-hidden-accessible" value="" checked="checked"><label for="check_result_a" aria-pressed="false">(全)</label>
+								<input type="radio" name="check_result" id="check_result_y" class="ui-widget-content ui-helper-hidden-accessible" value="1"><label for="check_result_y" aria-pressed="false">通过</label>
+								<input type="radio" name="check_result" id="check_result_n" class="ui-widget-content ui-helper-hidden-accessible" value="2"><label for="check_result_n" aria-pressed="false">不通过</label>
+							</div>
 						</td>
+<% 
+	if (isLeader) {
+%>
+						<td class="ui-state-default td-title">确认状态</td>
+						<td class="td-content">
+							<div id="search_confirm_proceed" class="ui-buttonset">
+								<input type="radio" name="confirm_proceed" id="confirm_proceed_a" class="ui-widget-content ui-helper-hidden-accessible" value="" checked="checked"><label for="confirm_proceed_a" aria-pressed="false">(全)</label>
+								<input type="radio" name="confirm_proceed" id="confirm_proceed_y" class="ui-widget-content ui-helper-hidden-accessible" value="1"><label for="confirm_proceed_y" aria-pressed="false">已确认</label>
+								<input type="radio" name="confirm_proceed" id="confirm_proceed_n" class="ui-widget-content ui-helper-hidden-accessible" value="-1"><label for="confirm_proceed_n" aria-pressed="false">未确认</label>
+							</div>
+						</td>
+<% 
+	} else {
+%>
 						<td class="ui-state-default td-title"></td>
 						<td class="td-content">
-							
 						</td>
+<% 
+	}
+%>
+							
 					</tr>
 				</tbody>
 			</table>

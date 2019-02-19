@@ -47,6 +47,7 @@ public class CheckResultEntity implements Serializable {
 	private Integer cycle_type;
 	private String object_type;
 	private Set<String> manage_ids;
+	private Integer confirm_proceed;
 
 	public String getManage_id() {
 		return manage_id;
@@ -191,6 +192,12 @@ public class CheckResultEntity implements Serializable {
 	}
 	public Set<String> getManage_ids() {
 		return manage_ids;
+	}
+	public Integer getConfirm_proceed() {
+		return confirm_proceed;
+	}
+	public void setConfirm_proceed(Integer confirm_proceed) {
+		this.confirm_proceed = confirm_proceed;
 	}
 
 }

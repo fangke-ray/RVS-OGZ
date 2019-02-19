@@ -15,6 +15,7 @@ $(function(){
 		$("#search_type_id").data("post", $("#search_type_id").val());
 		$("#search_position_id").data("post", $("#search_position_id").val());
 		$("#search_check_result").data("post", $("#search_check_result input:checked").val());
+		$("#search_confirm_proceed").data("post", $("#search_confirm_proceed input:checked").val());
 		findit();
 	});
 
@@ -40,6 +41,11 @@ $(function(){
 	});
 
 	devices_usage_check_list([]);
+	if($("#search_confirm_proceed").length == 0){
+		$("#usage_check_list").jqGrid('hideCol', 'confirm_proceed');
+		$("#usage_check_list").jqGrid('setGridWidth', '992');
+	}
+
 	if (fromPosition) {
 		$("#search_position_id").data("post", $("#search_position_id").val());
 		$("#search_check_proceed").data("post", "2");
@@ -58,11 +64,12 @@ var findit = function() {
 		model_name : $("#search_model_name").data("post"),
 		devices_type_id : $("#search_type_id").data("post"),
 		position_id : $("#search_position_id").data("post"),
-		check_result : $("#search_check_result").data("post")
+		check_result : $("#search_check_result").data("post"),
+		confirm_proceed : $("#search_confirm_proceed").data("post")
 	}
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : !$("#search_confirm_proceed").length,
 		url : servicePath + '?method=search',
 		cache : false,
 		data : postData,
@@ -110,6 +117,8 @@ var reset = function(){
 	$("#search_position_id").val("").data("post", "");
 	$("#search_check_result").data("post", "");
 	$("#search_check_result input:eq(0)").attr("checked", "checked").trigger("change");
+	$("#search_confirm_proceed").data("post", "");
+	$("#search_confirm_proceed input:eq(0)").attr("checked", "checked").trigger("change");
 
 	$("#search_manage_no").val("");
 	$("#search_position_name").val("");
@@ -127,7 +136,8 @@ function devices_usage_check_list(usage_check_list){
             width: 992,
             rowheight: 23,
             datatype: "local",
-			colNames:['section_id','position_id','operator_id','关联工位','点检管理ID','点检管理SheetID','点检对象','管理编号','品名','型号','点检表管理号','点检分类','点检状态','点检结果'],
+			colNames:['section_id','position_id','operator_id','关联工位','点检管理ID','点检管理SheetID','点检对象','管理编号','品名','型号'
+				,'点检表管理号','点检分类','点检状态','确认状态','点检结果'],
 			colModel:[
 				{name:'section_id',index:'section_id', hidden:true},
 				{name:'position_id',index:'position_id', hidden:true},
@@ -142,6 +152,7 @@ function devices_usage_check_list(usage_check_list){
 				{name:'sheet_manage_no',index:'sheet_manage_no',width:180},
 				{name:'cycle_type',index:'cycle_type',align:'center',width:50, formatter:'select', editoptions:{value:"0:日常点检;7:日常点检;6:周点检;8:定期点检;9:使用前点检"}},
 				{name:'check_proceed',index:'check_proceed',align:'center',width:50, formatter:'select', editoptions:{value:"0:未点检;1:点检中;2:已点检"}},
+				{name:'confirm_proceed',index:'confirm_proceed',align:'center',width:50, formatter:'select', editoptions:{value:"0:无确认项;-1:未确认;1:已确认"}},
 				{name:'check_result', index:'check_result', align:'center',width:50, formatter:'select', editoptions:{value:"1:通过;2:不通过;3:遗失;4:备品"}}
       		],
 			rowNum: 20,

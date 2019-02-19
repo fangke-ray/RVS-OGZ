@@ -193,7 +193,7 @@ function acceptted_list(result_listdata) {
 			width : 992,
 			rowheight : 23,
 			datatype : "local",
-			colNames : ['受理时间', '同意时间', '总组完成时间', '品保时间', '修理单号',
+			colNames : ['受理时间', '同意时间', '修理完成时间', '品保时间', '修理单号',
 					 '型号 ID', '型号', '机身号', 'RC', '等级', '工程检查票'],
 			colModel : [{
 						name : 'reception_time',
@@ -387,7 +387,7 @@ function load_list(t_listdata) {
 			width : 992,
 			rowheight : 23,
 			datatype : "local",
-			colNames : ['受理时间', '同意时间', '总组完成时间', '修理单号', '型号 ID', '型号', '机身号', 'RC', '等级', '加急', '特记','工程检查票出检'],
+			colNames : ['受理时间', '同意时间', '修理完成时间', '修理单号', '型号 ID', '型号', '机身号', 'RC', '等级', '加急', '特记','工程检查票出检'],
 			colModel : [{
 						name : 'reception_time',
 						index : 'reception_time',

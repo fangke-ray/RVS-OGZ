@@ -1005,10 +1005,11 @@ public class PositionPanelService {
 			}
 		}
 
+		Calendar now = Calendar.getInstance();
+
 		// 设备
 		String dailyDevices = crMapper.searchDailyDeviceUncheckedOnPosition(cond);
 		if (!CommonStringUtil.isEmpty(dailyDevices)) {
-			Calendar now = Calendar.getInstance();
 			if (now.get(Calendar.HOUR_OF_DAY) >= 14) { // TODO SYSTEM PARAM 14
 				// 下午2点锁定
 				retComments += "本工位有以下日常点检设备："+dailyDevices+"在期限前未作点检，将限制工作。\n";
@@ -1077,7 +1078,55 @@ public class PositionPanelService {
 			}
 		}
 
-		// TODO 日期，线长确认
+		// 日期，线长确认
+		if (now.get(Calendar.HOUR_OF_DAY) >= 15) {
+			now.set(Calendar.HOUR_OF_DAY, 0);
+			now.set(Calendar.MINUTE, 0);
+			now.set(Calendar.SECOND, 0);
+			now.set(Calendar.MILLISECOND, 0);
+			// 每天 不存在
+			// 每周
+			if (now.getTimeInMillis() == period.getLastOfWeek().getTime()) {
+				cond.setCycle_type(CheckResultService.TYPE_ITEM_WEEK);
+				cond.setCheck_confirm_time_start(period.getStartOfWeek());
+				cond.setCheck_confirm_time_end(period.getEndOfWeek());
+
+				regularDevices = crMapper.searchDeviceUnconfirmedOnPosition(cond);
+
+				if (!CommonStringUtil.isEmpty(regularDevices)) {
+					retComments += "本工位有以下每周确认设备："+regularDevices+"尚未经管理者确认，将限制工作。\n";
+				}
+			}
+			// 每月
+			if (now.getTimeInMillis() == period.getLastOfMonth().getTime()) {
+				cond.setCycle_type(CheckResultService.TYPE_ITEM_MONTH);
+				cond.setCheck_confirm_time_start(period.getStartOfMonth());
+				cond.setCheck_confirm_time_end(period.getEndOfMonth());
+
+				regularDevices = crMapper.searchDeviceUnconfirmedOnPosition(cond);
+
+				if (!CommonStringUtil.isEmpty(regularDevices)) {
+					retComments += "本工位有以下每月确认设备："+regularDevices+"尚未经管理者确认，将限制工作。\n";
+				}
+
+				String jigUnconfirmed = crMapper.searchJigUnconfirmedOnPosition(cond);
+				if (!CommonStringUtil.isEmpty(jigUnconfirmed) && "0".equals(jigUnconfirmed)) {
+					retComments += "本工位专用工具清点尚未经管理者确认，将限制工作。\n";
+				}
+			}
+			// 半期
+			if (now.getTimeInMillis() == period.getLastOfHbp().getTime()) {
+				cond.setCycle_type(CheckResultService.TYPE_ITEM_PERIOD);
+				cond.setCheck_confirm_time_start(period.getStartOfHbp());
+				cond.setCheck_confirm_time_end(period.getEndOfHbp());
+
+				regularDevices = crMapper.searchDeviceUnconfirmedOnPosition(cond);
+
+				if (!CommonStringUtil.isEmpty(regularDevices)) {
+					retComments += "本工位有以下每半期确认设备："+regularDevices+"尚未经管理者确认，将限制工作。\n";
+				}
+			}
+		}
 
 		return retComments;
 	}

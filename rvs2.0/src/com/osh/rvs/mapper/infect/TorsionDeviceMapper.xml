@@ -150,7 +150,7 @@
 	<!-- 点检人员身份全部相关表格  -->
     <select id="searchTorsionDeviceOnLineByOperator" resultType="DevicesManageEntity" parameterType="CheckResultEntity">
 	   <![CDATA[
-SELECT dm.devices_manage_id,dt.name, dm.section_id, dm.position_id, pos.process_code,
+SELECT dm.devices_manage_id,dt.name, dm.section_id, dm.position_id, dm.line_id, pos.process_code,
 	cfm.check_file_manage_id as daily_sheet_manage_no, cfm.sheet_file_name as regular_sheet_manage_no 
 FROM torsion_device td 
 	join devices_manage dm
@@ -191,7 +191,7 @@ where dm.delete_flg = 0 and dm.status = 1 and  manage_level = 1
 
     <select id="searchTorsionDeviceOnLineByManager" resultType="DevicesManageEntity" parameterType="CheckResultEntity">
 	   <![CDATA[
-SELECT dm.devices_manage_id,dt.name, dm.section_id, dm.position_id, pos.process_code as process_code,
+SELECT dm.devices_manage_id,dt.name, dm.section_id, dm.position_id, dm.line_id, pos.process_code as process_code,
 	cfm.check_file_manage_id as daily_sheet_manage_no, cfm.sheet_file_name as regular_sheet_manage_no
 	FROM torsion_device td 
 	join devices_manage dm

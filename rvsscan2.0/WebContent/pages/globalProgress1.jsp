@@ -481,8 +481,8 @@ var iamready = function() {
 					eval("chart3.series[0].setData(" + resInfo.serie15 + ", false)");
 					eval("chart3.series[1].setData(" + resInfo.serie14 + ", false)");
 					eval("chart3.series[2].setData(" + resInfo.serie13 + ", false)");
-					eval("chart3.series[3].setData(" + resInfo.serie16 + ", false)");
-					eval("chart3.series[4].setData(" + resInfo.serie17 + ")");
+					eval("chart3.series[3].setData(" + resInfo.serie17 + ", false)");
+					eval("chart3.series[4].setData(" + resInfo.serie16 + ")");
 					eval("chart4.series[0].setData(" + resInfo.serie24 + ", false)");
 					eval("chart4.series[1].setData(" + resInfo.serie25 + ", false)");
 					eval("chart4.series[2].setData(" + resInfo.serie22 + ", false)");

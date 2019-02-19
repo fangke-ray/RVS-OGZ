@@ -206,7 +206,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
     <select id="searchManageCodeByManager" resultType="CheckFileManageEntity" parameterType="CheckResultEntity">
 	   <![CDATA[
 	select dm.devices_manage_id ,dt.name, dm.manage_code, dm.model_name, check_file_manage_id
-		, cfm.check_manage_code, cfm.sheet_file_name, cfm.access_place, cfm.cycle_type 
+		, cfm.check_manage_code, cfm.sheet_file_name, cfm.access_place, cfm.cycle_type, cfm.filing_means, cfm.confirm_cycle 
 		, pos.position_id, pos.process_code
 	from devices_manage dm
 	join device_type dt

@@ -54,6 +54,8 @@ public class UsageCheckForm extends ActionForm implements Serializable {
 	@BeanField(title="点检分类",name="cycle_type",type=FieldType.Integer)
 	private String cycle_type;
 	private String check_result;
+	@BeanField(title="确认状态",name="confirm_proceed",type=FieldType.Integer)
+	private String confirm_proceed;
 
 	public String getManage_id() {
 		return manage_id;
@@ -174,5 +176,11 @@ public class UsageCheckForm extends ActionForm implements Serializable {
 	}
 	public void setDevices_type_id(String devices_type_id) {
 		this.devices_type_id = devices_type_id;
+	}
+	public String getConfirm_proceed() {
+		return confirm_proceed;
+	}
+	public void setConfirm_proceed(String confirm_proceed) {
+		this.confirm_proceed = confirm_proceed;
 	}
 }

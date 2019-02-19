@@ -44,6 +44,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.MaterialService;
@@ -206,7 +207,7 @@ public class PositionPanelAction extends BaseAction {
 		String process_code = user.getProcess_code();
 
 		// 设定待点检信息
-		CheckResultService crService = new CheckResultService();
+		CheckResultPageService crService = new CheckResultPageService();
 		crService.checkForPosition(section_id, position_id, line_id, conn);
 
 		// 取得待点检信息
@@ -977,7 +978,7 @@ public class PositionPanelAction extends BaseAction {
 		listResponse.put("infectString", infectString);
 
 		// 设定待点检信息
-		CheckResultService crService = new CheckResultService();
+		CheckResultPageService crService = new CheckResultPageService();
 		crService.checkForPosition(user.getSection_id(), position_id, user.getLine_id(), conn);
 
 		if (infectString.indexOf("限制工作") >= 0) {
@@ -1437,7 +1438,7 @@ public class PositionPanelAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 
-		CheckResultService crService =new CheckResultService();
+		CheckResultPageService crService = new CheckResultPageService();
 		String deviceCheck = crService.getPeripheralIsUseCheck(req.getParameter("manage_id"), 
 				req.getParameter("device_type_id"), req.getParameter("check_file_manage_id"), conn);
 		

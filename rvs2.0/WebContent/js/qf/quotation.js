@@ -461,6 +461,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 // 			$("#hide_material_id").val(resInfo.mform.material_id);
 			// 存在进行中作业的时候
 			if(resInfo.workstauts == 1 || resInfo.workstauts == 4) {
+				getMaterialInfo(resInfo);
 				treatStart(resInfo);
 			} else if (resInfo.workstauts == 2 || resInfo.workstauts == 5) {
 				getMaterialInfo(resInfo);
@@ -500,6 +501,7 @@ var doInit=function(){
 };
 
 var treatPause = function(resInfo) {
+	getPeripharalInfo(resInfo);
 	$("#editform table tbody").find("input,select,textarea").disable();
 	$("#continuebutton").show();
 	$("#pausebutton").hide();
@@ -508,7 +510,7 @@ var treatPause = function(resInfo) {
 }
 
 var treatStart = function(resInfo) {
-	getMaterialInfo(resInfo);
+	getPeripharalInfo(resInfo);
 	$("#editform table tbody").find("input,select,textarea").enable();
 	$("#continuebutton").hide();
 	$("#pausebutton").show();
@@ -573,13 +575,19 @@ var getMaterialInfo = function(resInfo) {
 
 	}
 
-	$("#confirmbutton, #wipconfirmbutton").enable();
+	if (resInfo.workstauts == 4 || resInfo.workstauts == 5) {
+		$("#confirmbutton, #wipconfirmbutton").disable();
+	} else {
+		$("#confirmbutton, #wipconfirmbutton").enable();
+	}
 
+}
+var getPeripharalInfo = function(resInfo) {
 	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
 		showPeripheral(resInfo);
 	}
 
-	if (resInfo.workstauts == 1) {
+	if (resInfo.workstauts == 1 || resInfo.workstauts == 2) {
 		$("#device_details table tbody").find(".manageCode").disable();
 		$("#device_details table tbody").find("input[type=button]").disable();
 		$("#finishcheckbutton").disable();
@@ -588,8 +596,7 @@ var getMaterialInfo = function(resInfo) {
 		$("#device_details table tbody").find(".manageCode").trigger("change");
 	}
 
-	if (resInfo.workstauts == 4) {
-		$("#confirmbutton, #wipconfirmbutton").disable();
+	if (resInfo.workstauts == 4 || resInfo.workstauts == 5) {
 		if (hasPcs) {
 			pcsO.clear();
 		};
@@ -610,6 +617,7 @@ var doStart_ajaxSuccess=function(xhrobj){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
+			getMaterialInfo(resInfo);
 			treatStart(resInfo);
 		}
 	} catch (e) {

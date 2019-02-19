@@ -55,6 +55,7 @@ public class QuotationAction extends BaseAction {
 	private static String WORK_STATUS_WORKING = "1";
 	private static String WORK_STATUS_PERIPHERAL_WORKING = "4";
 	private static String WORK_STATUS_PAUSING = "2";
+	private static String WORK_STATUS_PERIPHERAL_PAUSING = "5";
 
 	private PositionPanelService ppService = new PositionPanelService();
 	private ProductionFeatureService pfService = new ProductionFeatureService();
@@ -230,8 +231,30 @@ public class QuotationAction extends BaseAction {
 					// 取得作业信息
 					qService.getProccessingData(callbackResponse, pauseingPf.getMaterial_id(), user, conn);
 
-					// 页面设定为编辑模式
-					callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
+					if ("peripheral".equals(special_forward)) {
+						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+
+						// 取得周边设备检查使用设备工具 
+						boolean infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+
+						if (resultEntities != null && resultEntities.size() > 0) {
+							callbackResponse.put("peripheralData", resultEntities);
+						}
+
+						if (!infectFinishFlag) {
+							callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_PAUSING);
+						} else {
+							// 取得工程检查票
+							PositionPanelService.getPcses(callbackResponse, pauseingPf, user.getLine_id(), conn);
+
+							// 页面设定为编辑模式
+							callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
+						}
+
+					} else {
+						// 页面设定为编辑模式
+						callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
+					}
 				} else {
 					// 准备中
 					callbackResponse.put("workstauts", WORK_STATUS_PREPAIRING);

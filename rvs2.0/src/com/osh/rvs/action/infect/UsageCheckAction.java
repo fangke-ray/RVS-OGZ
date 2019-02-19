@@ -19,7 +19,7 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.service.CheckResultService;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.PositionService;
 
@@ -92,7 +92,7 @@ public class UsageCheckAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		// 如果没有登录者目前的待点检记录，建立。
 		LoginData loginData=(LoginData)request.getSession().getAttribute(RvsConsts.SESSION_USER);
@@ -120,6 +120,7 @@ public class UsageCheckAction extends BaseAction {
 
 		log.info("UsageCheckAction.doJsinit end");
 	}
+
 	public void search(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn)throws Exception{
 		log.info("UsageCheckAction.search start");
 		
@@ -129,7 +130,7 @@ public class UsageCheckAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		// 如果没有登录者目前的待点检记录，建立。
 		LoginData loginData=(LoginData)request.getSession().getAttribute(RvsConsts.SESSION_USER);
@@ -173,7 +174,7 @@ public class UsageCheckAction extends BaseAction {
 		// 错误信息集合
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		String object_type = request.getParameter("object_type");
 
@@ -231,7 +232,7 @@ public class UsageCheckAction extends BaseAction {
 		// 错误信息集合
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		String manage_id = request.getParameter("manage_id");
 		String object_type = request.getParameter("object_type");
@@ -264,7 +265,7 @@ public class UsageCheckAction extends BaseAction {
 		// 返回Json格式响应信息
 		returnJsonResponse(response, callbackResponse);
 
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		LoginData loginData=(LoginData)request.getSession().getAttribute(RvsConsts.SESSION_USER);
 		boolean isLeader = loginData.getPrivacies().contains(RvsConsts.PRIVACY_DT_MANAGE);
@@ -296,7 +297,7 @@ public class UsageCheckAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		// 错误信息集合
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-		CheckResultService service = new CheckResultService();
+		CheckResultPageService service = new CheckResultPageService();
 
 		LoginData loginData=(LoginData)request.getSession().getAttribute(RvsConsts.SESSION_USER);
 		String manage_id = request.getParameter("manage_id");

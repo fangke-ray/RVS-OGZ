@@ -50,7 +50,6 @@ public interface CheckResultMapper {
 	 * 按工位查找未点检的定期点检设备工具
 	 */
 	public String searchRegularyDeviceUncheckedOnPosition(CheckResultEntity cond);
-	public String searchTorsionDeviceUncheckedOnPosition(CheckResultEntity cond);
 
 	/**
 	 * 取得上级(治具管理者)的签章
@@ -132,4 +131,7 @@ public interface CheckResultMapper {
 
 	public List<String> checkExistsDeviceCheckCommentByCondition(
 			CheckResultEntity commentCondition);
+
+	public String searchDeviceUnconfirmedOnPosition(CheckResultEntity cond);
+	public String searchJigUnconfirmedOnPosition(CheckResultEntity cond);
 }
