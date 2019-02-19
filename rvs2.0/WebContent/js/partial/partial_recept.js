@@ -337,12 +337,17 @@ function execEnd(){
 };
 
 function uploadfile() {
+	panelOverlay++;
+	makeWindowOverlay();
 	$.ajaxFileUpload({
 		url : servicePath + '?method=doUpload', // 需要链接到服务器地址
 		secureuri : false,
 		fileElementId : 'file', // 文件选择框的id属性
 		dataType : 'json', // 服务器返回的格式
 		success : function(responseText, textStatus) {
+			panelOverlay--;
+			killWindowOverlay();
+			
 			var resInfo = null;
 			try {
 				// 以Object形式读取JSON
@@ -355,6 +360,7 @@ function uploadfile() {
 				}
 			} catch (e) {
 			}
+			
 		}
 	});
 };

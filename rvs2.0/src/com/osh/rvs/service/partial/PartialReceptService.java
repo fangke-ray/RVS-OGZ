@@ -275,8 +275,6 @@ public class PartialReceptService {
 					dnNoMap.put(dnNo, dnNo);
 				}
 
-				warehouseDnList.add(partialWarehouseDnForm);
-
 				// 零件入库明细
 				List<PartialWarehouseDetailForm> list = this.setPartialWarehouseDetail(sheet, partialWarehouseDnForm, seq, partialDao, errors);
 
@@ -289,6 +287,7 @@ public class PartialReceptService {
 					return;
 				}
 
+				warehouseDnList.add(partialWarehouseDnForm);
 				detailList.addAll(list);
 			}
 
@@ -373,7 +372,7 @@ public class PartialReceptService {
 				error.setErrcode("dbaccess.recordNotExist");
 				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", message));
 				errors.add(error);
-				break;
+				continue;
 			}
 
 			// 零件编码转换成大写
@@ -386,7 +385,7 @@ public class PartialReceptService {
 				MsgInfo error = new MsgInfo();
 				error.setErrmsg(message);
 				errors.add(error);
-				break;
+				continue;
 			} else {
 				checkPartailRepeat.put(code, code);
 			}
