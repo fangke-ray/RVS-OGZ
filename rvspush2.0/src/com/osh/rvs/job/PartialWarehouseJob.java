@@ -255,7 +255,7 @@ public class PartialWarehouseJob implements Job {
 
 			// 标准时间 （M）
 			cell = row.createCell(++colIndex, Cell.CELL_TYPE_NUMERIC);
-			if (productionType == 10) {// A：收货
+			if (productionType == 10 || productionType == 11) {// A：收货
 				// 标准时间
 				standardTime = partialWarehouseMapper.countReceptStandardTime(key);
 				// 拆盒
@@ -291,7 +291,7 @@ public class PartialWarehouseJob implements Job {
 			if (productionType == 99) {// O：其它
 				cell.setCellValue(1);
 			} else {
-				cell.setCellFormula("IF(G" + rowNum + "=\"\",\"\",(G" + rowNum + "/" + "F" + rowNum + "))");
+				cell.setCellFormula("IFERROR(IF(G" + rowNum + "=\"\",\"\",(G" + rowNum + "/" + "F" + rowNum + ")),\"一\")");
 			}
 			cell.setCellStyle(styleMap.get("percentStyle"));
 
@@ -313,15 +313,18 @@ public class PartialWarehouseJob implements Job {
 			} else if (productionType == 50 || productionType == 51) {
 			} else {
 				List<PartialWarehouseEntity> list = new ArrayList<PartialWarehouseEntity>();
-				if (productionType == 10) {
+				if (productionType == 10 || productionType == 11) {
 					list = partialWarehouseMapper.countReceptBox(key);
 					unit = "箱";
 				} else if (productionType == 20 || productionType == 21) {// B1：核对+上架、B2：核对
 					list = partialWarehouseMapper.countCollectQuantity(factPfKey);
 					unit = "点";
-				} else if (productionType == 30 || productionType == 40) {// C：分装、D：上架
+				} else if (productionType == 30) {// C：分装
 					list = partialWarehouseMapper.countUnPackAndOnShelfQuantity(factPfKey);
-					unit = "点";
+					unit = "袋";
+				} else if(productionType == 40){//D：上架
+					list = partialWarehouseMapper.countUnPackAndOnShelfQuantity(factPfKey);
+					unit = "包";
 				}
 
 				StringBuffer buffer = new StringBuffer();

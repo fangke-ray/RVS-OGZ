@@ -119,7 +119,7 @@
 		WHERE
 			fpf.operator_id = #{operator_id} 
 		AND 
-			fpf.production_type = 10
+			fpf.production_type IN (10,11)
 		AND
 			fpf.action_time >= CURRENT_DATE
 		AND

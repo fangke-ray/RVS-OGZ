@@ -104,7 +104,7 @@ public class PartialWarehouseService {
 					entity.setSpentMins(workTime);
 				} else {
 					entity.setIsNow(1);
-					if ("10".equals(productionType)) {// A：收货
+					if ("10".equals(productionType) || "11".equals(productionType)) {// A：收货
 						// 收货工时标准
 						BigDecimal standardTime = dao.searchCurrentReceptStandardTime(factPfKey);
 
