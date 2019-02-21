@@ -386,19 +386,19 @@ public class PartialCollationAction extends BaseAction {
 //				String mapKey = partialID +"/" + seq;
 
 				// 数量
-				Integer quantity = Integer.valueOf(partialWarehouseDetailForm.getQuantity());
+				String quantity = partialWarehouseDetailForm.getQuantity();
 
 				// 核对数量
-				Integer collationQuantity = null;
+				String collationQuantity = null;
 
 //				if (partialMap.containsKey(mapKey)) {
 //					collationQuantity = Integer.valueOf(partialMap.get(mapKey));
 //				} else {
-					collationQuantity = Integer.valueOf(partialWarehouseDetailForm.getCollation_quantity());
+					collationQuantity = partialWarehouseDetailForm.getCollation_quantity();
 //				}
 
 				// 核对数量不一致
-				if (quantity != collationQuantity) {
+				if (!quantity.equals(collationQuantity)) {
 					flg = true;
 					break;
 				}
