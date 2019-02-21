@@ -377,7 +377,7 @@
 				(mrt.remain_before_com_minutes + mrt.remain_minutes) as remain_minutes,
 				mrt.expected_finish_time,
 				4 as schedule_period,
-				DATE_FORMAT((select vcf.finish_time from v_com_finish vcf WHERE a.material_id = vcf.material_id), '%H:%i') as ns_processing_position				DATE_FORMAT(vcf.finish_time, '%H:%i') as ns_processing_position
+				DATE_FORMAT((select vcf.finish_time from v_com_finish vcf WHERE a.material_id = vcf.material_id), '%H:%i') as ns_processing_position
 				FROM material a
 				JOIN material_process b ON a.material_id = b.material_id
 				JOIN model mdl ON a.model_id = mdl.model_id

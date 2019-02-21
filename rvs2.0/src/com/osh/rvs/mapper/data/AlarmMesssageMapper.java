@@ -17,7 +17,7 @@ public interface AlarmMesssageMapper {
 	public AlarmMesssageEntity getBreakAlarmMessage(@Param("material_id") String material_id, @Param("position_id") String position_id);
 	public AlarmMesssageEntity getBreakAlarmMessageByKey(@Param("alarm_messsage_id") String alarm_messsage_id);
 
-	public List<AlarmMesssageEntity> getBreakAlarmMessages(@Param("material_id") String material_id);
+	public List<AlarmMesssageEntity> getBreakAlarmMessages(@Param("material_id") String material_id, @Param("position_id") String position_id);
 	public List<AlarmMesssageSendationEntity> getBreakAlarmMessageSendation(@Param("alarm_messsage_id") String alarm_messsage_id);
 	public AlarmMesssageSendationEntity getBreakAlarmMessageBySendation(@Param("alarm_messsage_id") String alarm_messsage_id, @Param("sendation_id") String sendation_id);
 

@@ -29,6 +29,7 @@ import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.AlarmMesssageForm;
@@ -312,7 +313,7 @@ public class AlarmMesssageService {
 	public List<AlarmMesssageEntity> getUnredAlarmMessagesByMaterial(String material_id, SqlSession conn) {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 
-		List<AlarmMesssageEntity> amEntities = dao.getBreakAlarmMessages(material_id);
+		List<AlarmMesssageEntity> amEntities = dao.getBreakAlarmMessages(material_id, null);
 
 		return amEntities;
 	}
@@ -654,7 +655,13 @@ public class AlarmMesssageService {
 
 		// 需要在工程检查票建立错误处理记录时
 		if ("true".equals(pcs_signed)) {
-			createResolveLeaderInput(req, user, entity.getKind(), conn);
+			if (entity == null) {
+				MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
+				entity = mMapper.getMaterialNamedEntityByKey(material_id);
+			}
+			if (entity != null) {
+				createResolveLeaderInput(req, user, entity.getKind(), conn);
+			}
 		}
 		// Add in Rvs2 End
 		ForSolutionAreaService fsoServer = new ForSolutionAreaService();
@@ -731,7 +738,8 @@ public class AlarmMesssageService {
 		ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 		pfBean.setMaterial_id(material_id);
 		pfBean.setPcs_inputs("{}");
-		pfBean.setPcs_comments(pcs_comments);
+		pfBean.setPcs_comments(RvsUtils.setContentWithMemo(
+				pcs_comments, PcsUtils.PCS_COMMENTS_SIZE, conn));
 		pfBean.setOperator_id(user.getOperator_id());
 		pfBean.setLine_id(lineId);
 		pfBean.setRework(lineMaxRework);

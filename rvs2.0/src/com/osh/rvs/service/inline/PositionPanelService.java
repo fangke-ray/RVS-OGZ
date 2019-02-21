@@ -1230,7 +1230,7 @@ public class PositionPanelService {
 				break;
 			}
 		}
-		if (firstMaterial == null) return;
+		if (firstMaterial == null || firstMaterial.getScheduled_date() == null) return;
 
 //		if (firstMaterial.getScheduled_expedited() != 0 && scanMaterial.getScheduled_expedited() == 0) {
 //			// 加急优先

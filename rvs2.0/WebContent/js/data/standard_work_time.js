@@ -17,12 +17,13 @@ $(function(){
 	
 	$("#resetbutton").click(clearContent);
 	/*选择型号之后category_id满足条件等级的select options改变成其他*/
-	$("#reference_model_id").change(function(){		
+	$("#reference_model_id").change(function(){
 		//传入到后台的一个model_id 后台进行request.getParameter("model_id")取值
 		var reqdata  = {
-				        model_id : $("#reference_model_id").val(),
-				        isLine : $("#reference_model_id").data("isLine")
-				        };
+		    model_id : $("#reference_model_id").val(),
+		    isLine : $("#reference_model_id").data("isLine")
+		};
+		if (!reqdata.model_id) return;
 		$.ajax({
 			beforeSend : ajaxRequestType,
 			async : true,
