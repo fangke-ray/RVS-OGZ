@@ -88,7 +88,8 @@ var makePauseDialog = function(jBreakDialog) {
 						error : ajaxError,
 						complete : function(xhr, status) {
 							jBreakDialog.dialog("close");
-							treatPause();
+							var resInfo = $.parseJSON(xhr.responseText)
+							treatPause(resInfo);
 						}
 					});
 				}

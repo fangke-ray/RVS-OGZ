@@ -612,7 +612,7 @@ public class QuotationAction extends BaseAction {
 	@Privacies(permit={0})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.doendpause start");
-		Map<String, Object> listResponse = new HashMap<String, Object>();
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
@@ -628,7 +628,7 @@ public class QuotationAction extends BaseAction {
 
 		if (errors.size() == 0) {
 			QuotationService qService = new QuotationService();
-			qService.getProccessingData(listResponse, material_id, user, conn);
+			qService.getProccessingData(callbackResponse, material_id, user, conn);
 
 			workwaitingPf.setOperate_result(RvsConsts.OPERATE_RESULT_WORKING);
 			pfService.changeWaitProductionFeature(workwaitingPf, conn);
@@ -636,14 +636,24 @@ public class QuotationAction extends BaseAction {
 			// 只要开始做，就结束掉本人所有的暂停信息。
 			bfService.finishPauseFeature(material_id, section_id, user.getPosition_id(), user.getOperator_id(), conn);
 
-			listResponse.put("workstauts", WORK_STATUS_WORKING);
+			List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
+
+			// 取得周边设备检查使用设备工具 
+			boolean infectFinishFlag = ppService.getPeripheralData(material_id, workwaitingPf, resultEntities, conn);
+
+			if (!infectFinishFlag) {
+				callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
+			} else {
+				// 页面设定为编辑模式
+				callbackResponse.put("workstauts", WORK_STATUS_WORKING);
+			}
 		}
 
 		// 检查发生错误时报告错误信息
-		listResponse.put("errors", errors);
+		callbackResponse.put("errors", errors);
 
 		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
+		returnJsonResponse(res, callbackResponse);
 
 		log.info("QuotationAction.doendpause end");
 	}

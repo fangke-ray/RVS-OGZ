@@ -234,8 +234,8 @@ table.condform .diGrp td[rowspan] {
 					<th class="ui-state-default td-title" style="width:3em;">No.</th>
 					<th class="ui-state-default td-title">品名</th>
 					<th class="ui-state-default td-title">型号</th>
-					<th class="ui-state-default td-title">管理编号</th>
 					<th class="ui-state-default td-title">点检票单号</th>
+					<th class="ui-state-default td-title">管理编号</th>
 					<th class="ui-state-default td-title">点检结果</th>
 					<th class="ui-state-default td-title"></th>
 				</tr>
