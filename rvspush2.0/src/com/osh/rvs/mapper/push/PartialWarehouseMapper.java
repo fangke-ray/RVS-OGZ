@@ -63,4 +63,15 @@ public interface PartialWarehouseMapper {
 	 */
 	public String getComment(@Param("fact_pf_key") String fact_pf_key);
 
+	/**
+	 * 每天每种作业类型用时
+	 */
+	public List<PartialWarehouseEntity> countDailySpendTime(@Param("operatorId") String operatorId,@Param("start_date") String start_date);
+
+	/**
+	 * 每天工作记录
+	 */
+	public List<PartialWarehouseEntity> searchDailyWorkRecord(@Param("operatorId") String operatorId,@Param("production_type") String production_type, @Param("start_date") String start_date);
+
+
 }

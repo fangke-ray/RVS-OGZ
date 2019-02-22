@@ -234,4 +234,45 @@
 	]]>
 	</select>
 	
+	<select id="countDailySpendTime" resultType="PartialWarehouseEntity">
+	<![CDATA[
+		SELECT 
+		   DATE(finish_time) AS finish_time,
+		   CASE
+				WHEN production_type = 11 THEN 10
+		        ELSE production_type
+		   END AS production_types,
+		   CEIL(SUM(TIMESTAMPDIFF(SECOND,action_time,finish_time)) / 60) AS spendTime,
+		   SUM(TIME(finish_time) > '17:30:00') AS overtime_flg
+		FROM
+		    fact_production_feature
+		WHERE
+			operator_id = #{operatorId}
+		AND
+			action_time >=  #{start_date}
+		AND 
+			finish_time < DATE_ADD( #{start_date},INTERVAL 1 MONTH)
+		GROUP BY 
+		    DATE(finish_time),production_types
+	]]>
+	</select>
+	
+	<select id="searchDailyWorkRecord" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT
+			fact_pf_key,
+			partial_warehouse_key AS `key`
+		FROM
+			fact_production_feature
+		WHERE
+			operator_id = #{operatorId}
+		AND
+			production_type = #{production_type}
+		AND
+			action_time >=  #{start_date}
+		AND 
+			finish_time < DATE_ADD( #{start_date},INTERVAL 1 DAY)
+	]]>
+	</select>
+	
 </mapper>

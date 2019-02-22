@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -109,7 +110,11 @@ public class PartialWarehouseJob implements Job {
 				// 取得出入库明细Sheet
 				Sheet detailSheet = work.getSheet("出入库明细");
 
-				//
+				// 取得每日汇总Sheet
+				Sheet dailyCollectSheet = work.getSheet("高雁梅每日汇总");
+				Sheet dailyCollectSheet2 = work.getSheet("叶昭杏每日汇总");
+
+				// 获取用户自定义参数
 				Map<String, BigDecimal> userDefineMap = getUserDefineCodes(userDefineCodesMapper);
 
 				// 创建样式
@@ -121,9 +126,29 @@ public class PartialWarehouseJob implements Job {
 				// 出入库明细
 				setDetailList(listBeans, userDefineMap.get("bdPartialReceptMoveCost"), detailSheet, styleMap, formulaEvaluator, partialWarehouseMapper);
 
+				// 当月最后一天
+				int lastDay = monthStart.getActualMaximum(Calendar.DATE);
+
+				// 当天
+				int curDay = monthStart.get(Calendar.DATE);
+
+				// 月底
+				if(curDay == lastDay){
+					// 高雁梅每日汇总
+					setDailyCollect(monthStart, "197",styleMap, userDefineMap, dailyCollectSheet, partialWarehouseMapper);
+
+					// 叶昭杏每日汇总
+					setDailyCollect(monthStart, "198",styleMap, userDefineMap, dailyCollectSheet2, partialWarehouseMapper);
+
+					work.setForceFormulaRecalculation(true);
+				}else{
+					// 删除Sheet
+					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet));
+					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet2));
+				}
+
 				out = new FileOutputStream(cachePath);
 				work.write(out);
-
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -143,9 +168,250 @@ public class PartialWarehouseJob implements Job {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 每日汇总
+	 *
+	 * @param listBeans
+	 * @param sheet
+	 */
+	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, PartialWarehouseMapper dao) {
+		Row row = null;
+		Row row2 = null;
+		Cell cell = null;
+		PartialWarehouseEntity partialWarehouseEntity = null;
+		List<PartialWarehouseEntity> dailyWorkRecordList = null;
+
+		int colIndex = 2;
+
+		// 每天每种作业类型用时
+		List<PartialWarehouseEntity> list = dao.countDailySpendTime(operatorId,DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
+
+		Map<Date, List<PartialWarehouseEntity>> map = new LinkedHashMap<Date, List<PartialWarehouseEntity>>();
+
+		for (int i = 0; i < list.size(); i++) {
+			partialWarehouseEntity = list.get(i);
+
+			if (map.containsKey(partialWarehouseEntity.getFinish_time())) {
+				map.get(partialWarehouseEntity.getFinish_time()).add(partialWarehouseEntity);
+			} else {
+				List<PartialWarehouseEntity> ls = new ArrayList<PartialWarehouseEntity>();
+				ls.add(partialWarehouseEntity);
+				map.put(partialWarehouseEntity.getFinish_time(), ls);
+			}
+		}
+
+		BigDecimal monthWorkTime = new BigDecimal(0);
+
+		for (Date finishTime : map.keySet()) {
+			// 总计用时（分钟）
+			BigDecimal totalSpendTime = new BigDecimal(0);
+			// 标准用时（分钟）
+			BigDecimal totalStandardTime = new BigDecimal(0);
+
+			// 加班标记
+			boolean flg = false;
+
+			// 获取第一行
+			row = sheet.getRow(0);
+
+			cell = row.createCell(colIndex);
+			cell.setCellValue(finishTime);
+			cell.setCellStyle(styleMap.get("dayStyle"));
+
+			// 设置列宽
+			sheet.setColumnWidth(colIndex, 256 * 11);
+
+			// 创建第二行到第十八行单元格
+			for (int rowIndex = 1; rowIndex <= 17; rowIndex++) {
+				row = sheet.getRow(rowIndex);
+				// 创建单元格对象
+				CellUtil.createCell(row, colIndex, "一", row.getCell(colIndex - 1).getCellStyle());
+			}
+
+			List<PartialWarehouseEntity> ls = map.get(finishTime);
+			for (int i = 0; i < ls.size(); i++) {
+				BigDecimal standardTime = new BigDecimal(0);
+				partialWarehouseEntity = ls.get(i);
+
+				// 作业内容
+				Integer productionType = partialWarehouseEntity.getProduction_types();
+
+				// 实际用时
+				Integer spendTime = partialWarehouseEntity.getSpendTime();
+
+				// 加班标记
+				Integer overtimeFlg = partialWarehouseEntity.getOvertime_flg();
+
+				if (flg == false && overtimeFlg > 0) {
+					flg = true;
+				}
+
+				dailyWorkRecordList = dao.searchDailyWorkRecord(operatorId,productionType.toString(), DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
+
+				switch (productionType) {
+				case 10://A：收货
+					row = sheet.getRow(1);
+					row2 = sheet.getRow(2);
+
+					standardTime = userDefineMap.get("bdPartialReceptMoveCost").multiply(new BigDecimal(dailyWorkRecordList.size()));
+					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
+						String key = entity.getKey();
+						if (!CommonStringUtil.isEmpty(key)) {
+							// 收货标准工时
+							BigDecimal receptStandardTime = dao.countReceptStandardTime(key);
+							standardTime = standardTime.add(receptStandardTime);
+
+							// 收货标准工时
+							BigDecimal collectCase = dao.countCollectCaseStandardTime(key);
+							standardTime = standardTime.add(collectCase);
+						}
+					}
+
+					break;
+				case 20://B1：核对+上架
+					row = sheet.getRow(3);
+					row2 = sheet.getRow(4);
+
+					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
+						BigDecimal collationStandardTime = dao.countCollationStandardTime(entity.getFact_pf_key());
+						standardTime = standardTime.add(collationStandardTime);
+					}
+
+					break;
+				case 21://B2：核对
+					row = sheet.getRow(5);
+					row2 = sheet.getRow(6);
+
+					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
+						BigDecimal collationStandardTime = dao.countCollationStandardTime(entity.getFact_pf_key());
+						standardTime = standardTime.add(collationStandardTime);
+					}
+
+					break;
+				case 30://C：分装
+					row = sheet.getRow(7);
+					row2 = sheet.getRow(8);
+
+					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
+						BigDecimal collationStandardTime = dao.countUnPackStandardTime(entity.getFact_pf_key());
+						standardTime = standardTime.add(collationStandardTime);
+					}
+
+					break;
+				case 40://D：上架
+					row = sheet.getRow(9);
+					row2 = sheet.getRow(10);
+
+					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
+						BigDecimal collationStandardTime = dao.countOnShelfStandardTime(entity.getFact_pf_key());
+						standardTime = standardTime.add(collationStandardTime);
+					}
+					break;
+				case 50://E1：NS 工程出库
+					row = sheet.getRow(11);
+					row2 = sheet.getRow(12);
+
+					standardTime = new BigDecimal(dailyWorkRecordList.size() * NS_STANDARD_TIME);
+					break;
+				case 51://E2：分解工程出库
+					row = sheet.getRow(13);
+					row2 = sheet.getRow(14);
+
+					standardTime = new BigDecimal(dailyWorkRecordList.size() * DEC_STANDARD_TIME);
+					break;
+				case 99://O：其它
+					row = sheet.getRow(15);
+					standardTime = new BigDecimal(spendTime);//标准时间和实际时间一样
+					break;
+				default:
+					break;
+				}
+
+				// 用时
+				row.getCell(colIndex).setCellValue(spendTime);
+
+				// 能率
+				if (productionType != 99) {
+					double percent = standardTime.divide(new BigDecimal(spendTime), 4, RoundingMode.HALF_UP).doubleValue();
+					row2.getCell(colIndex).setCellValue(percent);
+				}
+
+				totalSpendTime = totalSpendTime.add(new BigDecimal(spendTime));
+				totalStandardTime = totalStandardTime.add(standardTime);
+			}
+
+			// 一天工作时间(分钟)
+			BigDecimal workTime = null;
+
+			double percent = 0;
+
+			if (flg) {// 加班
+				workTime = new BigDecimal(565);
+			} else {
+				workTime = new BigDecimal(475);
+			}
+
+			monthWorkTime = monthWorkTime.add(workTime);
+
+			// 合计负荷率
+			percent = totalSpendTime.divide(workTime, 4, RoundingMode.HALF_UP).doubleValue();
+			sheet.getRow(16).getCell(colIndex).setCellValue(percent);
+
+			// 合计能率
+			percent = totalStandardTime.divide(totalSpendTime, 4, RoundingMode.HALF_UP).doubleValue();
+			sheet.getRow(17).getCell(colIndex).setCellValue(percent);
+
+			//负荷率警报标志下线
+			row = sheet.getRow(18);
+			if(row == null) row = sheet.createRow(18);
+
+			cell = row.createCell(colIndex);
+			cell.setCellValue(userDefineMap.get("strLowLever").divide(new BigDecimal(100)).doubleValue());
+			cell.setCellStyle(styleMap.get("percentStyle"));
+
+			//能率警报标志下线
+			row = sheet.getRow(19);
+			if(row == null) row = sheet.createRow(19);
+
+			cell = row.createCell(colIndex);
+			cell.setCellValue(userDefineMap.get("efLowLever").divide(new BigDecimal(100)).doubleValue());
+			cell.setCellStyle(styleMap.get("percentStyle"));
+
+
+			row = sheet.getRow(20);
+			if(row == null) row = sheet.createRow(20);
+			cell = row.createCell(colIndex);
+
+			//未记录时间
+			double noRecordTime = workTime.subtract(totalSpendTime).doubleValue();
+			if(noRecordTime < 0) noRecordTime = 0;
+			cell.setCellValue(noRecordTime);
+
+			colIndex++;
+		}
+
+
+		//隐藏列
+		for(int i = colIndex;i <= 32;i++){
+			// 设置列宽为零
+			sheet.setColumnWidth(i, 0);
+		}
+
+		row = sheet.getRow(22);
+		if(row == null) row = sheet.createRow(22);
+		cell = row.createCell(10);
+		//总计工作时间
+		cell.setCellValue(monthWorkTime.doubleValue());
 
 	}
 
+	/**
+	 * 获取用户自定义参数
+	 * @param userDefineCodesMapper
+	 * @return
+	 */
 	private Map<String, BigDecimal> getUserDefineCodes(UserDefineCodesMapper userDefineCodesMapper) {
 		Map<String, BigDecimal> listResponse = new HashMap<String, BigDecimal>();
 
@@ -159,6 +425,27 @@ public class PartialWarehouseJob implements Job {
 		}
 
 		listResponse.put("bdPartialReceptMoveCost", bdPartialReceptMoveCost);
+
+		// 仓管人员能率警报标志下线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_EF_LOW_LEVER");
+		BigDecimal efLowLever = null;
+		try {
+			efLowLever = new BigDecimal(value);
+		} catch (Exception e) {
+			efLowLever = new BigDecimal(80.5);
+		}
+		listResponse.put("efLowLever", efLowLever);
+
+
+		// 仓管人员负荷率警报标志下线
+		value = userDefineCodesMapper.getValue("FACT_PROCESS_STR_LOW_LEVER");
+		BigDecimal strLowLever = null;
+		try {
+			strLowLever = new BigDecimal(value);
+		} catch (Exception e) {
+			strLowLever = new BigDecimal(50);
+		}
+		listResponse.put("strLowLever", strLowLever);
 
 		return listResponse;
 	}
@@ -408,27 +695,34 @@ public class PartialWarehouseJob implements Job {
 		for (String key : map.keySet()) {
 			Map<Integer, Double> rowMap = map.get(key);
 
-			// 实际总操作时间
-			BigDecimal spendTime = new BigDecimal(0);
+			// 总进行时间（M）
+			BigDecimal totalSpendTime = new BigDecimal(0);
+
+			// 总标准时间（M）
+			BigDecimal totalStandTime = new BigDecimal(0);
 
 			for (Integer rowIndex : rowMap.keySet()) {
-				spendTime = spendTime.add(new BigDecimal(rowMap.get(rowIndex)));
+				totalSpendTime = totalSpendTime.add(new BigDecimal(rowMap.get(rowIndex)));
 			}
 
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
 
-				// 标准时间
+				// 标准时间（M）
 				String cellValue = CopyByPoi.getStringCellValue((XSSFCell) row.getCell(6));
 
 				if (!CommonStringUtil.isEmpty(cellValue) && !MIDDLE_LINE.equals(cellValue)) {
-
-					BigDecimal standTime = new BigDecimal(cellValue);
-					double value = standTime.divide(spendTime, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-
-					// 当天能率
-					row.getCell(12).setCellValue(value);
+					totalStandTime = totalStandTime.add(new BigDecimal(cellValue));
 				}
+			}
+
+			double value = totalStandTime.divide(totalSpendTime, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+			for (Integer rowIndex : rowMap.keySet()) {
+				row = sheet.getRow(rowIndex);
+
+				// 当天能率
+				row.getCell(12).setCellValue(value);
 			}
 		}
 	}
@@ -515,22 +809,29 @@ public class PartialWarehouseJob implements Job {
 
 			BigDecimal workTime = new BigDecimal(475);
 
+			// 判断是否加班
 			if (rowMap.containsValue(565))
 				workTime = new BigDecimal(565);
+
+			//总进行时间（M）
+			BigDecimal totalSpendTime = new BigDecimal(0);
+
+			double value = 0;
 
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
 
-				// 进行时间
-				double value = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
-				BigDecimal spendTime = new BigDecimal(value);
+				// 进行时间（M）
+				value = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
+				totalSpendTime = totalSpendTime.add(new BigDecimal(value));
+			}
 
-				value = spendTime.divide(workTime, BigDecimal.ROUND_HALF_UP).doubleValue();
-
+			value = totalSpendTime.divide(workTime, BigDecimal.ROUND_HALF_UP).doubleValue();
+			for (Integer rowIndex : rowMap.keySet()) {
+				row = sheet.getRow(rowIndex);
 				// 当天负荷率
 				row.getCell(11).setCellValue(value);
 			}
-
 		}
 	}
 
@@ -544,7 +845,7 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		// today.set(Calendar.MONTH, 11);
+		today.set(Calendar.MONTH, 0);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
