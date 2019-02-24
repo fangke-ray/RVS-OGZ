@@ -139,13 +139,13 @@ public class PartialWarehouseJob implements Job {
 
 					// 叶昭杏每日汇总
 					setDailyCollect(monthStart, "198",styleMap, userDefineMap, dailyCollectSheet2, partialWarehouseMapper);
-
-					work.setForceFormulaRecalculation(true);
 				}else{
 					// 删除Sheet
 					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet));
 					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet2));
 				}
+
+				work.setForceFormulaRecalculation(true);
 
 				out = new FileOutputStream(cachePath);
 				work.write(out);
@@ -846,11 +846,12 @@ public class PartialWarehouseJob implements Job {
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
 		today.set(Calendar.MONTH, 0);
+		today.set(Calendar.DATE, 31);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
 
-		PathConsts.BASE_PATH = "D:\\rvsG";
+		PathConsts.BASE_PATH = "E:\\rvsG";
 		PathConsts.REPORT_TEMPLATE = "\\ReportTemplates";
 		PathConsts.PCS_TEMPLATE = "\\PcsTemplates";
 		PathConsts.PROPERTIES = "\\PROPERTIES";

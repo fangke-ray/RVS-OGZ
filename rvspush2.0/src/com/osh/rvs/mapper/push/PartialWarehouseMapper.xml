@@ -11,6 +11,7 @@
 			pw.key,
 			fpf.production_type,
 			fpf.action_time,
+			date(fpf.action_time) as action_date,
 		    fpf.finish_time,
 		    operator.name AS operator_name,
 		    operator.operator_id,
@@ -35,7 +36,7 @@
 		AND
 			fpf.finish_time < DATE_ADD(#{start_date},INTERVAL 1 MONTH)
 		ORDER BY
-			fpf.action_time,operator.job_no
+			action_date,operator.job_no
 	]]>
 	</select>
 
