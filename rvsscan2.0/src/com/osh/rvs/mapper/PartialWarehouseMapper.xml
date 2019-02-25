@@ -604,6 +604,9 @@
 		AND
 			pfp.finish_time IS NOT NULL
 	]]>
+	<if test="production_type == 21">
+		GROUP BY pwd.partial_id, pwd.seq
+	</if>
 	</select>
 	
 	<select id="searchQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
