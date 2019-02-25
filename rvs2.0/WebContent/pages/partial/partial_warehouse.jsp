@@ -61,7 +61,7 @@
 										</td>													
 										<td class="ui-state-default td-title">入库单日期</td>
 										<td class="td-content">
-											<input type="text" class="ui-widget-content" id="search_warehouse_date_start" readonly="readonly" value="${default_warehouse_date_start}">起<br>
+											<input type="text" class="ui-widget-content" id="search_warehouse_date_start" readonly="readonly">起<br>
 											<input type="text" class="ui-widget-content" id="search_warehouse_date_end" readonly="readonly">止
 										</td>
 										<td class="ui-state-default td-title">完成上架日期</td>
@@ -73,7 +73,7 @@
 								   <tr>
 								   		<td class="ui-state-default td-title">零件入库单号</td>
 								   		<td class="td-content">
-											<input id="search_warehouse_no" type="text" class="ui-widget-content">
+											<input id="search_warehouse_no" type="text" class="ui-widget-content" value="${default_warehouse_no }">
 										</td>
 								   </tr>
 								</tbody>

@@ -55,9 +55,8 @@ public class PartialWarehouseAction extends BaseAction {
 		log.info("PartialWarehouseAction.init start");
 
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		req.setAttribute("default_warehouse_date_start",
-				DateUtil.toString(cal.getTime(), DateUtil.DATE_PATTERN));// 本月
+		//默认零件入库单号
+		req.setAttribute("default_warehouse_no",DateUtil.toString(cal.getTime(), "yyyyMMdd"));
 
 		//返修分类
 		req.setAttribute("goStep", CodeListUtils.getGridOptions("partial_warehouse_step"));
