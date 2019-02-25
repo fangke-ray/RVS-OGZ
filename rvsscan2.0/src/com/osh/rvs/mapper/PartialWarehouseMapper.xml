@@ -334,7 +334,7 @@
 	<select id="searchTodayOnShelfStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COUNT(fpw.quantity) * pbs.on_shelf
+			SUM(fpw.quantity) * pbs.on_shelf
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -573,7 +573,14 @@
 	<select id="searchCurrentCollationQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
 	<![CDATA[
 		SELECT
-	 		SUM(pwd.collation_quantity)
+	]]>
+	<if test="production_type == 20">
+		SUM(pwd.collation_quantity)
+	</if>
+	<if test="production_type == 21">
+		COUNT(pwd.collation_quantity)
+	</if>
+	<![CDATA[
 		FROM
 			fact_production_feature pfp
 		JOIN
