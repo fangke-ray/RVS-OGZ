@@ -232,9 +232,9 @@ function setCurrentResult(list){
 	list.forEach(function(item,index){
 		if(item.recept) $("#resultarea .result:eq(1)").find(".item[for=" + item.operator_id + "]").text(item.recept +" 箱");
 		if(item.collation_shelf) $("#resultarea .result:eq(2)").find(".item[for=" + item.operator_id + "]").text(item.collation_shelf +" 个");
-		if(item.collation) $("#resultarea .result:eq(3)").find(".item[for=" + item.operator_id + "]").text(item.collation +" 个");
+		if(item.collation) $("#resultarea .result:eq(3)").find(".item[for=" + item.operator_id + "]").text(item.collation +" 包");
 		if(item.unpack) $("#resultarea .result:eq(4)").find(".item[for=" + item.operator_id + "]").text(item.unpack +" 袋");
-		if(item.on_shelf) $("#resultarea .result:eq(5)").find(".item[for=" + item.operator_id + "]").text(item.on_shelf +" 个");
+		if(item.on_shelf) $("#resultarea .result:eq(5)").find(".item[for=" + item.operator_id + "]").text(item.on_shelf +" 包");
 		if(item.ns_outline) $("#resultarea .result:eq(6)").find(".item[for=" + item.operator_id + "]").text(item.ns_outline +" 单");
 		if(item.dec_outline) $("#resultarea .result:eq(7)").find(".item[for=" + item.operator_id + "]").text(item.dec_outline +" 单");
 		if(item.spentMins) $("#resultarea .result:eq(8)").find(".item[for=" + item.operator_id + "]").text(item.spentMins +" 分钟").next().text("100 %");
