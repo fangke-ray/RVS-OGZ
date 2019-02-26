@@ -97,6 +97,8 @@ public class PartialOnShelfAction extends BaseAction {
 
 			Map<String, PartialWarehouseDetailForm> map = new HashMap<String, PartialWarehouseDetailForm>();
 			for (PartialWarehouseDetailForm tempForm : list) {
+				tempForm.setCollation_quantity("1");//包
+				
 				// 统计每种类别核对总数
 				Integer collationQuantity = Integer.valueOf(tempForm.getCollation_quantity());
 				String specKind = tempForm.getSpec_kind();
