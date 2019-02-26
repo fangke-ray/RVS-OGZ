@@ -105,12 +105,20 @@ public interface PartialWarehouseMapper {
 	public Integer searchCurrentReceptQuantity(@Param("operator_id") String operator_id);
 
 	/**
+	 * 当日核对+上架数量
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public Integer searchCurrentCollationAndOnShelfQuantity(@Param("operator_id") String operator_id);
+	
+	/**
 	 * 当日核对数量
 	 *
 	 * @param entity
 	 * @return
 	 */
-	public Integer searchCurrentCollationQuantity(PartialWarehouseEntity entity);
+	public Integer searchCurrentCollationQuantity(@Param("operator_id") String operator_id);
 
 	/**
 	 * 当日分装/上架/出库数量

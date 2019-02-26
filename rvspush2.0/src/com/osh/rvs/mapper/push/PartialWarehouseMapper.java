@@ -49,6 +49,11 @@ public interface PartialWarehouseMapper {
 	public List<PartialWarehouseEntity> countReceptBox(@Param("key") String key);
 
 	/**
+	 * 核对+上架数量
+	 */
+	public List<PartialWarehouseEntity> countCollectAndOnShelfQuantity(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
 	 * 核对数量
 	 */
 	public List<PartialWarehouseEntity> countCollectQuantity(@Param("fact_pf_key") String fact_pf_key);

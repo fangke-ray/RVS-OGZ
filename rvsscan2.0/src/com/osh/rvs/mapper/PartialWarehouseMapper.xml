@@ -192,7 +192,10 @@
 	<select id="searchCurrentCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COUNT(pwd.quantity) * pbs.collation
+			SUM(temp.time)
+		FROM
+		(SELECT
+			COUNT(pwd.quantity) * pbs.collation AS time
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -211,6 +214,8 @@
 			pbs.on_shelf > 0
 		AND	
 			fpf.fact_pf_key = #{fact_pf_key}
+		GROUP BY 
+			pwd.partial_id, pwd.seq) temp
 	]]>
 	</select>
 	
@@ -218,7 +223,10 @@
 	<select id="searchTodayCollectStandardTime" resultType="java.math.BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COUNT(pwd.collation_quantity) * pbs.collation
+			SUM(temp.time)
+		FROM
+		(SELECT
+			COUNT(pwd.collation_quantity) * pbs.collation AS time
 		FROM
 			fact_production_feature fpf
 		JOIN
@@ -243,6 +251,8 @@
 			fpf.action_time >= CURRENT_DATE
 		AND
 			fpf.finish_time IS NOT NULL
+		GROUP BY 
+			pwd.partial_id, pwd.seq) temp
 	]]>
 	</select>
 	
@@ -570,17 +580,10 @@
 	]]>
 	</select>
 	
-	<select id="searchCurrentCollationQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">
+	<select id="searchCurrentCollationAndOnShelfQuantity" parameterType="string" resultType="Integer">
 	<![CDATA[
 		SELECT
-	]]>
-	<if test="production_type == 20">
-		SUM(pwd.collation_quantity)
-	</if>
-	<if test="production_type == 21">
-		COUNT(pwd.collation_quantity)
-	</if>
-	<![CDATA[
+			SUM(pwd.collation_quantity)
 		FROM
 			fact_production_feature pfp
 		JOIN
@@ -598,15 +601,45 @@
 		WHERE
 			pfp.operator_id = #{operator_id}
 		AND 
-			pfp.production_type = #{production_type}
+			pfp.production_type = 20
 		AND 
 			pfp.action_time >= CURRENT_DATE
 		AND
 			pfp.finish_time IS NOT NULL
 	]]>
-	<if test="production_type == 21">
-		GROUP BY pwd.partial_id, pwd.seq
-	</if>
+	</select>
+	
+	<select id="searchCurrentCollationQuantity" parameterType="string" resultType="Integer">
+	<![CDATA[
+		SELECT
+			SUM(temp.collation_quantity)
+		FROM
+		(SELECT
+			COUNT(pwd.collation_quantity) as collation_quantity
+		FROM
+			fact_production_feature pfp
+		JOIN
+			 partial_warehouse_detail pwd
+		ON
+			pfp.fact_pf_key = pwd.fact_pf_key
+		JOIN 
+			v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+			pfp.operator_id = #{operator_id}
+		AND 
+			pfp.production_type = 21
+		AND 
+			pfp.action_time >= CURRENT_DATE
+		AND
+			pfp.finish_time IS NOT NULL
+		GROUP BY pwd.partial_id, pwd.seq) temp
+	]]>
 	</select>
 	
 	<select id="searchQuantity" parameterType="PartialWarehouseEntity" resultType="Integer">

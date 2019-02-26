@@ -603,9 +603,12 @@ public class PartialWarehouseJob implements Job {
 				if (productionType == 10 || productionType == 11) {
 					list = partialWarehouseMapper.countReceptBox(key);
 					unit = "箱";
-				} else if (productionType == 20 || productionType == 21) {// B1：核对+上架、B2：核对
-					list = partialWarehouseMapper.countCollectQuantity(factPfKey);
+				} else if (productionType == 20) {// B1：核对+上架
+					list = partialWarehouseMapper.countCollectAndOnShelfQuantity(factPfKey);
 					unit = "点";
+				} else if(productionType == 21){//B2：核对
+					list = partialWarehouseMapper.countCollectQuantity(factPfKey);
+					unit = "包";
 				} else if (productionType == 30) {// C：分装
 					list = partialWarehouseMapper.countUnPackAndOnShelfQuantity(factPfKey);
 					unit = "袋";
@@ -845,13 +848,13 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, 0);
-		today.set(Calendar.DATE, 31);
+		//today.set(Calendar.MONTH, 0);
+		today.set(Calendar.DATE, 28);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
 
-		PathConsts.BASE_PATH = "E:\\rvsG";
+		PathConsts.BASE_PATH = "D:\\rvsG";
 		PathConsts.REPORT_TEMPLATE = "\\ReportTemplates";
 		PathConsts.PCS_TEMPLATE = "\\PcsTemplates";
 		PathConsts.PROPERTIES = "\\PROPERTIES";

@@ -36,7 +36,7 @@
 		AND
 			fpf.finish_time < DATE_ADD(#{start_date},INTERVAL 1 MONTH)
 		ORDER BY
-			action_date,operator.job_no,action_time
+			action_date,operator.job_no
 	]]>
 	</select>
 
@@ -114,7 +114,10 @@
 	<select id="countCollationStandardTime" resultType="BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COALESCE(COUNT(pwd.collation_quantity) * pbs.collation,0)
+			COALESCE(SUM(temp.time),0)
+		FROM
+		(SELECT
+			COUNT(pwd.collation_quantity) * pbs.collation as time
 		FROM
 			partial_warehouse_detail pwd
 		JOIN
@@ -127,6 +130,8 @@
 			pbs.spec_kind = v_partial.spec_kind
 		WHERE
 			pwd.fact_pf_key = #{fact_pf_key}
+		GROUP BY
+			pwd.partial_id,pwd.seq) temp
 	]]>
 	</select>
 	
@@ -148,7 +153,7 @@
 	<select id="countOnShelfStandardTime" resultType="BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-			COALESCE(COUNT(fpw.quantity) * pbs.on_shelf,0)
+			COALESCE(SUM(fpw.quantity) * pbs.on_shelf,0)
 		FROM
 			fact_partial_warehouse fpw
 		JOIN
@@ -185,7 +190,7 @@
 	]]>
 	</select>
 
-	<select id="countCollectQuantity" resultType="PartialWarehouseEntity" parameterType="string">
+	<select id="countCollectAndOnShelfQuantity" resultType="PartialWarehouseEntity" parameterType="string">
 	<![CDATA[
 		SELECT
 			v_partial.spec_kind,
@@ -205,7 +210,34 @@
 		GROUP BY
 			v_partial.spec_kind
 	]]>
-		
+	</select>
+	
+	<select id="countCollectQuantity" resultType="PartialWarehouseEntity" parameterType="string">
+	<![CDATA[
+		SELECT
+			temp.spec_kind,
+			COALESCE(SUM(temp.quantity),0) as quantity
+		FROM
+		(SELECT
+			v_partial.spec_kind,
+			COUNT(pwd.collation_quantity) AS quantity
+		FROM 
+			partial_warehouse_detail pwd
+		JOIN 
+			v_partial 
+		ON 
+			pwd.partial_id = v_partial.partial_id
+		JOIN
+			partial_bussiness_standard pbs
+		ON
+			pbs.spec_kind = v_partial.spec_kind
+		WHERE
+		 	pwd.fact_pf_key = #{fact_pf_key}
+		GROUP BY
+			pwd.partial_id,pwd.seq) temp
+		GROUP BY
+			temp.spec_kind
+	]]>
 	</select>
 
 	<select id="countUnPackAndOnShelfQuantity" resultType="PartialWarehouseEntity" parameterType="string" >

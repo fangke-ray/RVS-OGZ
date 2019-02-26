@@ -283,12 +283,12 @@ public class PartialWarehouseService {
 
 		// B1、核对+上架数量
 		connd.setProduction_type(20);
-		Integer collationShelf = dao.searchCurrentCollationQuantity(connd);
+		Integer collationShelf = dao.searchCurrentCollationAndOnShelfQuantity(operatorID);
 		entity.setCollation_shelf(collationShelf);
 
 		// B2、核对数量
 		connd.setProduction_type(21);
-		Integer collation = dao.searchCurrentCollationQuantity(connd);
+		Integer collation = dao.searchCurrentCollationQuantity(operatorID);
 		entity.setCollation(collation);
 
 		// C、分装数量
