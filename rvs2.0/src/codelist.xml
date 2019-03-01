@@ -777,5 +777,31 @@
 		<value code="2">经销商</value>
 		<value code="3">维修商</value>
 	</codelist>
+	
+	<codelist name="device_spare_type">
+		<value code="1">消耗备品</value>
+		<value code="2">备件</value>
+	</codelist>
+	
+	<codelist name="device_spare_adjust_all_reason_type">
+		<value code="01">登记管理</value>
+		<value code="02">取消管理</value>
+		<value code="11">入库</value>
+		<value code="12">线上借调返还</value>
+		<value code="13">外借返还</value>
+		<value code="22">线上借调</value>
+		<value code="23">外借</value>
+		<value code="24">管理编号替换</value>
+		<value code="25">管理编号新建</value>
+		<value code="26">维修更换部件</value>
+		<value code="99">盘点</value>
+	</codelist>
+	
+	<codelist name="device_spare_adjust_manage_reason_type">
+		<value code="11">入库</value>
+		<value code="12">线上借调返还</value>
+		<value code="13">外借返还</value>
+		<value code="23">外借</value>
+	</codelist>
 
 </codelist-config>
