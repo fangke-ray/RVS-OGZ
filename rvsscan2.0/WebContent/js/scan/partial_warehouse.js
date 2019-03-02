@@ -64,9 +64,26 @@ var refreshSuccess = function(xhrObj) {
 			}
 		}
 		
-		setMaterialWait(waitMaterialList);
+		clearInterval(timer1);
+		if(waitMaterialList.length > 4){
+			var timer1 =  setInterval(function(){
+				setMaterialWait(waitMaterialList);
+			},10000);
+			setMaterialWait(waitMaterialList);
+		}else{
+			setMaterialWait(waitMaterialList);
+		}
 		
-		setPartialWarehouseWait(waitPartialWarehouseList);
+		clearInterval(timer2);
+		if(waitPartialWarehouseList.length > 4){
+			var timer2 =  setInterval(function(){
+				setPartialWarehouseWait(waitPartialWarehouseList);
+			},10000);
+			setPartialWarehouseWait(waitPartialWarehouseList);
+		}else{
+			setPartialWarehouseWait(waitPartialWarehouseList);
+		}
+		
 	}
 };
 
@@ -346,6 +363,10 @@ function setMaterialWait(list){
 		currentPos = 0;
 	}
 
+	if(listsize <= 4){
+		currentPos = 0;
+	}
+	
 	if (listsize > 0) {
 		var partial_warehouse = list[currentPos];
 		
@@ -406,6 +427,10 @@ function setPartialWarehouseWait(list){
 	if (currentPos2 >= listsize) {
 		currentPos2 = 0;
 	}
+	
+	if(listsize <= 4){
+		currentPos2 = 0;
+	}
 
 	if (listsize > 0) {
 		var partial_warehouse = list[currentPos2];
@@ -416,7 +441,7 @@ function setPartialWarehouseWait(list){
 			$("#wait2 .item:eq(1) label").show("fade");
 			$(this).text(judgeStatus(partial_warehouse));
 			
-			if (listsize == 1) {$("#wait .item:gt(1) label").text(""); return};
+			if (listsize == 1) {$("#wait2 .item:gt(1) label").text(""); return};
 
 			var tr2_pos = currentPos2;
 			if (tr2_pos >= listsize) tr2_pos -= listsize;
@@ -428,7 +453,7 @@ function setPartialWarehouseWait(list){
 				$("#wait2 .item:eq(3) label").show("fade");
 				$(this).text(judgeStatus(partial_warehouse));
 				
-				if (listsize == 2) {$("#wait .item:gt(3) label").text(""); return};
+				if (listsize == 2) {$("#wait2 .item:gt(3) label").text(""); return};
 				
 				var tr3_pos = currentPos2 + 1;
 				if (tr3_pos >= listsize) tr3_pos -= listsize;
@@ -440,7 +465,7 @@ function setPartialWarehouseWait(list){
 					$("#wait2 .item:eq(5) label").show("fade");
 					$(this).text(judgeStatus(partial_warehouse));
 					
-					if (listsize == 3) {$("#wait .item:gt(5) label").text(""); return};
+					if (listsize == 3) {$("#wait2 .item:gt(5) label").text(""); return};
 					
 					var tr4_pos = currentPos2 + 2;
 					if (tr4_pos >= listsize) tr4_pos -= listsize;
@@ -448,8 +473,8 @@ function setPartialWarehouseWait(list){
 					partial_warehouse = list[tr4_pos];
 					$("#wait2 .item:eq(6) label").hide("fade", function(){$(this).text(partial_warehouse.warehouse_no);});
 					$("#wait2 .item:eq(7) label").hide("fade", function(){
-						$("#wait .item:eq(6) label").show("fade");
-						$("#wait .item:eq(7) label").show("fade");
+						$("#wait2 .item:eq(6) label").show("fade");
+						$("#wait2 .item:eq(7) label").show("fade");
 						$(this).text(judgeStatus(partial_warehouse));
 					});
 				});

@@ -92,6 +92,8 @@
 		<typeAlias alias="FactPartialWarehouseEntity" type="com.osh.rvs.bean.partial.FactPartialWarehouseEntity"/>
 		<typeAlias alias="FactProductionCommentEntity" type="com.osh.rvs.bean.partial.FactProductionCommentEntity"/>
 		<typeAlias alias="PartialWarehouseDnEntity" type="com.osh.rvs.bean.partial.PartialWarehouseDnEntity"/>
+		<typeAlias alias="DeviceSpareEntity" type="com.osh.rvs.bean.equipment.DeviceSpareEntity"/>
+		<typeAlias alias="DeviceSpareAdjustEntity" type="com.osh.rvs.bean.equipment.DeviceSpareAdjustEntity"/>
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -196,5 +198,8 @@
 		<mapper resource="com/osh/rvs/mapper/partial/FactPartialWarehouseMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/FactProductionCommentMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseDnMapper.xml"/>
+		
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareAdjustMapper.xml"/>
 	</mappers>
 </configuration> 

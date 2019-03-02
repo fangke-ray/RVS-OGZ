@@ -85,6 +85,7 @@
 		<form-bean name="dryingOvenDeviceForm" type="com.osh.rvs.form.infect.DryingOvenDeviceForm"></form-bean>
 		<form-bean name="FactProductionFeatureForm" type="com.osh.rvs.form.partial.FactProductionFeatureForm"></form-bean>
 		<form-bean name="PartialWarehouseForm" type="com.osh.rvs.form.partial.PartialWarehouseForm"></form-bean>
+		<form-bean name="DeviceSpareForm" type="com.osh.rvs.form.equipment.DeviceSpareForm"></form-bean>
 	</form-beans>
 
 
@@ -919,6 +920,16 @@
 				parameter="method"
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_warehouse.jsp"/>
+		</action>
+		
+		<!-- 设备工具备品管理 -->
+		<action path="/device_spare"
+				type="com.osh.rvs.action.equipment.DeviceSpareAction"
+				name="DeviceSpareForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/equipment/device_spare.jsp"/>
 		</action>
 		
 	</action-mappings>

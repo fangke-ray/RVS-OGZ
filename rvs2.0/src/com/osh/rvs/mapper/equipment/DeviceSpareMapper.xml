@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.equipment.DeviceSpareMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	<select id="search" parameterType="DeviceSpareEntity" resultType="DeviceSpareEntity" >
+	<![CDATA[
+	SELECT
+		ds.device_type_id,
+		dt.name AS device_type_name,
+	    ds.model_name,
+	    ds.device_spare_type,
+	    ds.order_cycle,
+	    ds.brand_id,
+	    brand.name AS brand_name,
+	    ds.price,
+	    ds.safety_lever,
+	    ds.benchmark,
+	    ds.available_inventory,
+	    ds.location,
+	    ds.comment,
+	    ds.benchmark * ds.price AS total_benchmark_price,
+	    ds.available_inventory * ds.price AS total_available_price,
+	    adjust.consumable
+	FROM
+		device_spare ds
+	JOIN
+		device_type dt
+	ON
+		ds.device_type_id = dt.device_type_id
+	LEFT JOIN
+		brand
+	ON
+		ds.brand_id = brand.brand_id
+	LEFT JOIN
+		(SELECT 
+			device_type_id,model_name,device_spare_type,COALESCE(SUM(adjust_inventory),0) AS consumable
+	    FROM
+			device_spare_adjust
+		WHERE
+			reason_type IN(11,12,13,22,23,24,25,26)
+	]]>
+	<if test="adjust_time_start!=null and adjust_time_start!=''">
+	<![CDATA[
+			AND adjust_time >= #{adjust_time_start}
+	]]>
+	</if>
+	<if test="adjust_time_end!=null and adjust_time_end!=''">
+	<![CDATA[
+			AND adjust_time <  DATE_ADD(#{adjust_time_end},INTERVAL 1 DAY)
+	]]>
+	</if>
+	<![CDATA[		
+		GROUP BY
+			device_type_id,model_name,device_spare_type
+	    ) adjust
+	ON 
+		ds.device_type_id = adjust.device_type_id AND ds.model_name = adjust.model_name AND ds.device_spare_type = adjust.device_spare_type
+ 	]]>
+ 	<where>
+ 	<if test="device_type_id!=null and device_type_id!=''">
+ 	<![CDATA[
+ 		AND ds.device_type_id = #{device_type_id}
+ 	]]>
+ 	</if>
+ 	<if test="model_name!=null and model_name!=''">
+ 	<![CDATA[
+ 		AND ds.model_name LIKE CONCAT('%',#{model_name},'%')
+ 	]]>
+ 	</if>
+ 	<if test="device_spare_type!=null and device_spare_type!=''">
+ 	<![CDATA[
+ 		AND ds.device_spare_type = #{device_spare_type}
+ 	]]>
+ 	</if>
+ 	<if test="brand_id!=null and brand_id!=''">
+ 	<![CDATA[
+ 		AND ds.brand_id = #{brand_id}
+ 	]]>
+ 	</if>
+ 	<if test="order_flg == 2">
+ 	<![CDATA[
+ 		AND ds.available_inventory < ds.safety_lever
+ 	]]>
+ 	</if>
+ 	</where>
+	</select>
+	
+	<insert id="insert" parameterType="DeviceSpareEntity">
+	<![CDATA[
+		INSERT INTO device_spare
+		(
+		device_type_id,
+		model_name,
+		device_spare_type,
+		order_cycle,
+		brand_id,
+		price,
+		safety_lever,
+		benchmark,
+		available_inventory,
+		location,
+		comment
+		)
+		VALUES
+		(
+		#{device_type_id},
+		#{model_name},
+		#{device_spare_type},
+		#{order_cycle},
+		#{brand_id},
+		#{price},
+		#{safety_lever},
+		#{benchmark},
+		#{available_inventory},
+		#{location},
+		#{comment}
+		)
+ 	]]>
+	</insert>
+	
+	<delete id="delete" parameterType="DeviceSpareEntity">
+	<![CDATA[
+		DELETE FROM device_spare WHERE device_type_id = #{device_type_id} AND model_name = #{model_name} AND device_spare_type = #{device_spare_type}
+ 	]]>
+	</delete>
+	
+	<update id="update" parameterType="DeviceSpareEntity">
+	<![CDATA[
+	UPDATE 
+		device_spare
+	SET
+		brand_id = #{brand_id},
+		price = #{price},
+		safety_lever = #{safety_lever},
+		benchmark = #{benchmark},
+		comment = #{comment}
+	]]>
+	<if test="device_spare_type == 1">
+	<![CDATA[
+		,order_cycle = #{order_cycle}
+	]]>
+	</if>
+	<if test="device_spare_type == 2">
+	<![CDATA[
+		,location = #{location}
+	]]>
+	</if>
+	<![CDATA[
+		WHERE
+			device_type_id = #{device_type_id}
+		AND
+			model_name = #{model_name}
+		AND
+			device_spare_type = #{device_spare_type}
+	]]>
+	</update>
+	
+	<select id="getDeviceSpare" parameterType="DeviceSpareEntity" resultType="DeviceSpareEntity">
+	<![CDATA[
+	SELECT
+		ds.device_type_id,
+		dt.name AS device_type_name,
+	    ds.model_name,
+	    ds.device_spare_type,
+	    ds.order_cycle,
+	    ds.brand_id,
+	    brand.name AS brand_name,
+	    ds.price,
+	    ds.safety_lever,
+	    ds.benchmark,
+	    ds.available_inventory,
+	    ds.location,
+	    ds.comment,
+	    ds.benchmark * ds.price AS total_benchmark_price,
+	    ds.available_inventory * ds.price AS total_available_price
+	FROM
+		device_spare ds
+	JOIN
+		device_type dt
+	ON
+		ds.device_type_id = dt.device_type_id
+	LEFT JOIN
+		brand
+	ON
+		ds.brand_id = brand.brand_id
+	WHERE
+		ds.device_type_id = #{device_type_id}
+	AND
+		ds.model_name = #{model_name}
+	AND
+		ds.device_spare_type = #{device_spare_type}
+ 	]]>
+	</select>
+	
+	<update id="updateAvailableInventory" parameterType="DeviceSpareEntity">
+	<![CDATA[
+		UPDATE 
+			device_spare 
+		SET 
+			available_inventory = #{available_inventory}
+		WHERE
+			device_type_id = #{device_type_id}
+		AND
+			model_name = #{model_name}
+		AND
+			device_spare_type = #{device_spare_type}
+	]]>
+	</update>
+	<select id="calculatePrice" resultType="map">
+	<![CDATA[
+	SELECT
+		COALESCE(SUM(benchmark * price * (device_spare_type = 1)),0) AS consumables_benchmark_price,
+	    COALESCE(SUM(available_inventory * price * (device_spare_type = 1)),0) AS consumables_inventory_price,
+	    COALESCE(SUM(available_inventory * price * (device_spare_type = 2)),0) AS part_inventory_price
+	FROM
+		device_spare
+	]]>
+	</select>
+</mapper>

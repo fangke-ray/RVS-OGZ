@@ -34,7 +34,8 @@ $(function() {
 			   <a target="_parent" href="brand.do">厂商通讯录</a><br>
 			   <a target="_parent" href="devices_type.do">设备・一般工具品名</a><br>
 		       <a target="_parent" href="devices_manage.do">设备・一般工具管理</a><br>		      
-		       <a target="_parent" href="tools_manage.do">专用工具管理</a><br>		      
+		       <a target="_parent" href="tools_manage.do">专用工具管理</a><br>
+		       <a target="_parent" href="device_spare.do">设备工具备品管理</a><br>
 			   <a target="_parent" href="torsion_device.do">力矩工具一览</a><br>
 			   <a target="_parent" href="electric_iron_device.do">电烙铁工具一览</a><br>
 			   <a target="_parent" href="drying_oven_device_forward.do">烘干工具一览</a><br>
