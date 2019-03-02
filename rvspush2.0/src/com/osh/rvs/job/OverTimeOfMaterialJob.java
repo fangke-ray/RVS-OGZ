@@ -89,7 +89,7 @@ public class OverTimeOfMaterialJob implements Job {
 		@SuppressWarnings("unused")
 		CommonMapper cmnDao = conn.getMapper(CommonMapper.class);
 
-		List<MaterialEntity> comTodayDelayMaterials = mDao.getTodayDelayMaterials(); // 总组
+		List<MaterialEntity> comTodayDelayMaterials = mDao.getTodayDelayMaterials();
 
 		_log.info("修理完成超期(Com Over) Count: " + comTodayDelayMaterials.size());
 

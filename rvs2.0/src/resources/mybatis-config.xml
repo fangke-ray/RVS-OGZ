@@ -67,6 +67,8 @@
 		<typeAlias alias="CheckResultEntity" type="com.osh.rvs.bean.infect.CheckResultEntity"/>
 		<typeAlias alias="JigCheckResultEntity" type="com.osh.rvs.bean.infect.JigCheckResultEntity"/>
 		<typeAlias alias="ExternalAdjustmentEntity" type="com.osh.rvs.bean.infect.ExternalAdjustmentEntity"/>
+		<typeAlias alias="CheckResultFilingEntity" type="com.osh.rvs.bean.infect.CheckResultFilingEntity"/>
+		
 		<typeAlias alias="TorsionDeviceEntity" type="com.osh.rvs.bean.infect.TorsionDeviceEntity"/>
 		<typeAlias alias="ElectricIronDeviceEntity" type="com.osh.rvs.bean.infect.ElectricIronDeviceEntity"/>
 		<typeAlias alias="CheckUnqualifiedRecordEntity" type="com.osh.rvs.bean.infect.CheckUnqualifiedRecordEntity"/>
@@ -152,9 +154,10 @@
 		<mapper resource="com/osh/rvs/mapper/infect/PeripheralInfectDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/TorsionDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/CheckUnqualifiedRecordMapper.xml"/>
-
 		<mapper resource="com/osh/rvs/mapper/infect/CheckResultMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/JigCheckResultMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/infect/CheckResultFilingMapper.xml"/>
+
 		<mapper resource="com/osh/rvs/mapper/inline/ProductionFeatureMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/inline/MaterialProcessMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/inline/PositionPanelMapper.xml" />

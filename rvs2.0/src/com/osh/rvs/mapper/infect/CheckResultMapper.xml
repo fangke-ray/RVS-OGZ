@@ -414,7 +414,8 @@
 		where dm.section_id = #{section_id}
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
-		AND dm.delete_flg = 0 AND dm.manage_level = 1 AND dm.status in (1, 5)
+		AND dm.delete_flg = 0 AND dm.manage_level = 1 
+		AND ((dm.status = 1 AND cfm.access_place != 9) OR (dm.status = 5 AND cfm.access_place = 9))
 		AND (dm.provide_date != current_date or dm.provide_date is null)
 		AND cfm.confirm_cycle = #{cycle_type}
 		AND cfm.filing_means = 1

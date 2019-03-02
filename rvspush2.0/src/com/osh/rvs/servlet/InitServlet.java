@@ -25,6 +25,7 @@ import com.osh.rvs.job.DailyKpiSheetsJob;
 import com.osh.rvs.job.DailyWorkSheetsJob;
 import com.osh.rvs.job.DayWorkTotalToMonthJob;
 import com.osh.rvs.job.ForecastOverTimeOfMaterialJob;
+import com.osh.rvs.job.InfectFilingJob;
 import com.osh.rvs.job.InfectWarningJob;
 import com.osh.rvs.job.InlinePlanJob;
 import com.osh.rvs.job.OverTimeOfMaterialJob;
@@ -199,17 +200,17 @@ public class InitServlet extends HttpServlet {
 
 			scheduler.scheduleJob(job, trigger);
 
-//			// 点检归档脚本
-//			job = newJob(InfectFilingJob.class)
-//			    .withIdentity("infectFilingJob", "rvspush")
-//			    .build();
-//
-//			// 每月第一个周一
-//			trigger = newTrigger().withIdentity("infectFilingTrigger", "rvspush")
-//				    .withSchedule(cronSchedule("0 20 19 ? * 2#1")) // first Monday
-//					.build();
+			// 点检归档脚本
+			job = newJob(InfectFilingJob.class)
+			    .withIdentity("infectFilingJob", "rvspush")
+			    .build();
 
-//			scheduler.scheduleJob(job, trigger);
+			// 每月第一个周一
+			trigger = newTrigger().withIdentity("infectFilingTrigger", "rvspush")
+				    .withSchedule(cronSchedule("0 20 19 ? * 2#1")) // first Monday
+					.build();
+
+			scheduler.scheduleJob(job, trigger);
 
 			// 作业剩余时间脚本
 			job = newJob(RemainTimeJob.class)

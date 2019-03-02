@@ -485,4 +485,17 @@ public class XlsUtil {
 	public void setCheckCompatibility(){
 		Dispatch.put(workbook,"CheckCompatibility",false);
 	}
+
+
+	public float getPageZoom(){
+		return 0.0f;
+	}
+	//Set Sht = Worksheets("Sheet1")
+	//Sht.PageSetup.Zoom = 82.95
+	//s = Sht.PageSetup.Zoom
+	//MsgBox s
+	//Sht.PrintPreview
+	public void setPageZoom(){
+		
+	}
 }
