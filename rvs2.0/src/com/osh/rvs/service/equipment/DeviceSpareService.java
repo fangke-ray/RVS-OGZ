@@ -88,6 +88,30 @@ public class DeviceSpareService {
 		return respForm;
 	}
 
+	public String checkExistsStock(ActionForm form, Integer device_spare_type,
+			SqlSession conn) {
+		// 数据连接
+		DeviceSpareMapper mapper = conn.getMapper(DeviceSpareMapper.class);
+
+		DeviceSpareEntity entity = new DeviceSpareEntity();
+		// 复制表单数据到对象
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		entity.setDevice_spare_type(device_spare_type);
+
+		// 查询设备工具备品信息
+		DeviceSpareEntity ret = mapper.getDeviceSpare(entity);
+
+		if (ret != null) {
+			Integer available_inventory = ret.getAvailable_inventory();
+			if (available_inventory > 0) {
+				return "exists";
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * 更新设备工具备品
 	 * 
@@ -304,7 +328,7 @@ public class DeviceSpareService {
 
 		if (reasonType == 23 && availableInventory < 0) {// 如果值变成了负数则报错
 			MsgInfo error = new MsgInfo();
-			error.setErrmsg("外借数量大于当前有效库存");
+			error.setErrmsg("外借数量大于当前有效库存。");
 			errors.add(error);
 			return;
 		}
@@ -345,4 +369,64 @@ public class DeviceSpareService {
 
 		return map;
 	}
+
+	/**
+	 * 备品加入设备管理
+	 * 
+	 * @param form
+	 * @param req
+	 * @param conn
+	 */
+	public void setAsManageCode(ActionForm form, int reason_type, HttpServletRequest req, SqlSessionManager conn) {
+		// 数据连接
+		DeviceSpareMapper deviceSpareMapper = conn.getMapper(DeviceSpareMapper.class);
+		DeviceSpareAdjustMapper deviceSpareAdjustMapper = conn.getMapper(DeviceSpareAdjustMapper.class);
+
+		DeviceSpareEntity postEntity = new DeviceSpareEntity();
+		CopyOptions cos = new CopyOptions();
+		cos.excludeEmptyString(); cos.excludeNull();
+		cos.fieldRename("manage_code", "location");
+		BeanUtil.copyToBean(form, postEntity, cos);
+		postEntity.setDevice_spare_type(1);
+
+		DeviceSpareEntity dbEntity = deviceSpareMapper.getDeviceSpare(postEntity);
+
+		// 当前有效库存
+		Integer availableInventory = dbEntity.getAvailable_inventory();
+
+		postEntity.setAvailable_inventory(availableInventory - 1);
+		deviceSpareMapper.updateAvailableInventory(postEntity);
+
+		// 当前登录者
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		DeviceSpareAdjustEntity deviceSpareAdjustEntity = new DeviceSpareAdjustEntity();
+
+		// 设备品名 ID
+		deviceSpareAdjustEntity.setDevice_type_id(postEntity.getDevice_type_id());
+		// 型号
+		deviceSpareAdjustEntity.setModel_name(postEntity.getModel_name());
+		// 备品种类
+		deviceSpareAdjustEntity.setDevice_spare_type(1);
+		// 调整日时
+		deviceSpareAdjustEntity.setAdjust_time(Calendar.getInstance().getTime());
+		// 理由
+		deviceSpareAdjustEntity.setReason_type(reason_type);
+		// 调整量
+		deviceSpareAdjustEntity.setAdjust_inventory(-1);
+		// 调整负责人
+		deviceSpareAdjustEntity.setOperator_id(user.getOperator_id());
+		// 调整备注
+		String comment = "";
+		if (reason_type == 25) {
+			comment = "新建为管理编号：" + postEntity.getLocation();
+		} else if (reason_type == 24) {
+			comment = "替换为管理编号：" + postEntity.getLocation();
+		}
+		deviceSpareAdjustEntity.setComment(comment);
+
+		// 新建设备工具备品调整记录
+		deviceSpareAdjustMapper.insert(deviceSpareAdjustEntity);
+		
+	}
+
 }

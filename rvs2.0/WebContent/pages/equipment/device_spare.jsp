@@ -103,15 +103,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<tr>
 									<td class="ui-state-default td-title">设备工具备品合理金额</td>
 									<td class="td-content">
-										<span id="consumables_benchmark_price">${totalPrice.consumables_benchmark_price }</span>
+										<span id="consumables_benchmark_price">${totalPrice.consumables_benchmark_price } RMB</span>
 									</td>
 									<td class="ui-state-default td-title">设备工具备品在库金额</td>
 									<td class="td-content">
-										<span id="consumables_inventory_price">${totalPrice.consumables_inventory_price }</span>
+										<span id="consumables_inventory_price">${totalPrice.consumables_inventory_price } RMB</span>
 									</td>
 									<td class="ui-state-default td-title">备件在库金额</td>
 									<td class="td-content">
-										<span id="part_inventory_price">${totalPrice.part_inventory_price }</span>
+										<span id="part_inventory_price">${totalPrice.part_inventory_price } RMB</span>
 									</td>
 								</tr>
 							</tbody>
@@ -139,7 +139,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 					   	 <span class="areatitle">新建设备工具备品</span>
 					     <a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
-						 	<span class="ui-icon ui-icon-circle-triangle-n"></span>
+						 	<span class="ui-icon ui-icon-circle-triangle-w"></span>
 						 </a>
 					</div>
 					<div class="ui-widget-content">
@@ -228,7 +228,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 					   	 <span class="areatitle">更新设备工具备品</span>
 					     <a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
-						 	<span class="ui-icon ui-icon-circle-triangle-n"></span>
+						 	<span class="ui-icon ui-icon-circle-triangle-w"></span>
 						 </a>
 					</div>
 					
@@ -259,6 +259,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										<td class="td-content">
 											<input type="text" id="update_brand_name" readonly="readonly" class="ui-widget-content">
 											<input type="hidden" id="update_brand_id">
+											<input type="button" id="update_brand_detail_button" class="ui-button" value="…" style="padding: 0 3px;">						
 										</td>
 									</tr>
 									<tr>
@@ -355,12 +356,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				
 				<select id="hidden_manage_reason_type" style="display: none;">${goManageReasonType}</select>
 				
-				
-				
 			</div>
 			
 			<div class="clear areaencloser"></div>
 		</div>
 	</div>
+
+	<%@include file="../../widgets/infect/brand-detail.jsp"%>
 </body>
 </html>

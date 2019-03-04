@@ -21,8 +21,14 @@
 	    ds.location,
 	    ds.comment,
 	    ds.benchmark * ds.price AS total_benchmark_price,
-	    ds.available_inventory * ds.price AS total_available_price,
-	    adjust.consumable
+	    ds.available_inventory * ds.price AS total_available_price
+	]]>
+	<if test="adjust_time_start!=null or adjust_time_end!=null">
+	<![CDATA[
+	    ,adjust.consumable
+	]]>
+	</if>
+	<![CDATA[
 	FROM
 		device_spare ds
 	JOIN
@@ -33,31 +39,35 @@
 		brand
 	ON
 		ds.brand_id = brand.brand_id
-	LEFT JOIN
-		(SELECT 
-			device_type_id,model_name,device_spare_type,COALESCE(SUM(adjust_inventory),0) AS consumable
-	    FROM
-			device_spare_adjust
-		WHERE
-			reason_type IN(11,12,13,22,23,24,25,26)
 	]]>
-	<if test="adjust_time_start!=null and adjust_time_start!=''">
-	<![CDATA[
-			AND adjust_time >= #{adjust_time_start}
-	]]>
+	<if test="adjust_time_start!=null or adjust_time_end!=null">
+		<![CDATA[
+		LEFT JOIN
+			(SELECT 
+				device_type_id,model_name,device_spare_type,COALESCE(SUM(adjust_inventory),0) AS consumable
+		    FROM
+				device_spare_adjust
+			WHERE
+				reason_type IN(11,12,13,22,23,24,25,26)
+		]]>
+		<if test="adjust_time_start!=null and adjust_time_start!=''">
+		<![CDATA[
+				AND adjust_time >= #{adjust_time_start}
+		]]>
+		</if>
+		<if test="adjust_time_end!=null and adjust_time_end!=''">
+		<![CDATA[
+				AND adjust_time <  DATE_ADD(#{adjust_time_end},INTERVAL 1 DAY)
+		]]>
+		</if>
+		<![CDATA[		
+			GROUP BY
+				device_type_id,model_name,device_spare_type
+		    ) adjust
+		ON 
+			ds.device_type_id = adjust.device_type_id AND ds.model_name = adjust.model_name AND ds.device_spare_type = adjust.device_spare_type
+		]]>
 	</if>
-	<if test="adjust_time_end!=null and adjust_time_end!=''">
-	<![CDATA[
-			AND adjust_time <  DATE_ADD(#{adjust_time_end},INTERVAL 1 DAY)
-	]]>
-	</if>
-	<![CDATA[		
-		GROUP BY
-			device_type_id,model_name,device_spare_type
-	    ) adjust
-	ON 
-		ds.device_type_id = adjust.device_type_id AND ds.model_name = adjust.model_name AND ds.device_spare_type = adjust.device_spare_type
- 	]]>
  	<where>
  	<if test="device_type_id!=null and device_type_id!=''">
  	<![CDATA[
@@ -85,6 +95,7 @@
  	]]>
  	</if>
  	</where>
+ 	ORDER BY device_spare_type, model_name
 	</select>
 	
 	<insert id="insert" parameterType="DeviceSpareEntity">

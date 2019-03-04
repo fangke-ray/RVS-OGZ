@@ -79,8 +79,9 @@ var warningConfirm = function(warnData, yesFunction, noFunction, title, yesButto
 	      } 
 	     }); 
 	    },
-	    close:function() {
-	    	if(noFunction) noFunction();
+	    close:function(event) {
+	    	if(noFunction && event.currentTarget && event.currentTarget.className.indexOf("ui-dialog-titlebar-close") >= 0) 
+	    		noFunction();
 	    }
 		});
 	$errstring.html("<span class='errorarea'>" + warnData + "</span>");

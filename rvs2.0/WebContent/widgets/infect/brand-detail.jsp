@@ -5,6 +5,7 @@
 </style>
 <script type="text/javascript">
 var showBrandDetail = function(brand_id) {
+
 	$.ajax({
 		data:{
 			"brand_id": brand_id

@@ -49,9 +49,17 @@ $(function(){
     	$("#search").show();
     	$("#add").hide();
     });
-    
+    $("#add .ui-icon-circle-triangle-w").click(function(){
+    	$("#search").show();
+    	$("#add").hide();
+    });
+
     //更新取消
     $("#goback2button").click(function(){
+    	$("#search").show();
+    	$("#update").hide();
+    });
+    $("#update .ui-icon-circle-triangle-w").click(function(){
     	$("#search").show();
     	$("#update").hide();
     });
@@ -74,7 +82,13 @@ $(function(){
     
     //盘点
     $("#inventorybutton").click(stock);
-    
+
+   	$("#update_brand_detail_button").click(function(){
+		if ($("#update_brand_id").val()) {
+			showBrandDetail($("#update_brand_id").val());
+		}
+	});
+
     findit();
 });
 
@@ -181,7 +195,7 @@ function cancelManage(){
 	var rowID = $("#list").jqGrid("getGridParam", "selrow");
 	var rowData = $("#list").getRowData(rowID);
 	
-	var warnData = `确认取消管理品名为[${rowData.device_type_name}]，型号为[${rowData.model_name}]，备品种类为[${rowData.device_spare_type_name}]的记录！`;
+	var warnData = `确认取消管理品名为[${rowData.device_type_name}]，型号为[${rowData.model_name}]，备品种类为[${rowData.device_spare_type_name}]的记录？`;
 	
 	warningConfirm(warnData,function(){
 		var data = {
@@ -258,10 +272,10 @@ function findit(){
 					// 共通出错信息框
 					treatBackMessages(null, resInfo.errors);
 				} else {
-					$("#consumables_benchmark_price").text(resInfo.totalPrice.consumables_benchmark_price);
-					$("#consumables_inventory_price").text(resInfo.totalPrice.consumables_inventory_price);
-					$("#part_inventory_price").text(resInfo.totalPrice.part_inventory_price);
-					list(resInfo.finish);
+					$("#consumables_benchmark_price").text(resInfo.totalPrice.consumables_benchmark_price + " RMB");
+					$("#consumables_inventory_price").text(resInfo.totalPrice.consumables_inventory_price + " RMB");
+					$("#part_inventory_price").text(resInfo.totalPrice.part_inventory_price + " RMB");
+					list(resInfo.spareList);
 					$("#cancelbutton,#inventorybutton").disable();
 				}
 			}catch(e){}
@@ -547,14 +561,28 @@ function list(listdata){
 			colModel : [{name : 'device_type_name',index : 'device_type_name',width:100},
 						{name : 'model_name',index : 'model_name',width:100},
 						{name : 'device_spare_type_name',index : 'device_spare_type_name',width:80},
-						{name : 'order_cycle',index : 'order_cycle',width:80,align:'right'},
-						{name : 'brand_name',index : 'brand_name',width:100},
-						{name : 'price',index : 'price',width:50,align:'right'},
-						{name : 'safety_lever',index : 'safety_lever',width:100,align:'right'},
-						{name : 'benchmark',index : 'benchmark',width:100,align:'right'},
-						{name : 'available_inventory',index : 'available_inventory',width:120,align:'right'},
-						{name : 'total_benchmark_price',index : 'total_benchmark_price',width:90,align:'right'},
-						{name : 'total_available_price',index : 'total_available_price',width:90,align:'right'},
+						{name : 'order_cycle',index : 'order_cycle',width:80,align:'right',sorttype:'number'
+							,formatter:function(value, options, rData){
+								if (rData["device_spare_type_name"] == "备件") {
+									return "-";
+								} else {
+									return value;
+								}
+							}
+						},
+						{name : 'brand_name',index : 'brand_name',width:100, formatter : function(value, options, rData) {
+		                    if(rData.brand_name){
+	                            return "<a href='javascript:showBrandDetail(\""+ rData.brand_id +"\")'>" + rData.brand_name + "</a>";
+		                    }else{
+		                        return "";
+		                    }                           
+		                }},
+						{name : 'price',index : 'price',width:50,align:'right',sorttype:'currency',formatter:'currency',formatoptions:{thousandsSeparator:',',defaultValue: '',decimalPlaces:0}},
+						{name : 'safety_lever',index : 'safety_lever',width:100,align:'right',sorttype:'number'},
+						{name : 'benchmark',index : 'benchmark',width:100,align:'right',sorttype:'number'},
+						{name : 'available_inventory',index : 'available_inventory',width:120,align:'right',sorttype:'number'},
+						{name : 'total_benchmark_price',index : 'total_benchmark_price',width:90,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
+						{name : 'total_available_price',index : 'total_available_price',width:90,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
 						{name : 'location',index : 'location',width:100},
 						{name : 'comment',index : 'comment',width:100},
 						{name : 'consumable',index : 'consumable',width:100,align:'right'},
@@ -590,14 +618,14 @@ function list(listdata){
 					var safety_lever = rowData.safety_lever * 1;
 					
 					if(available_inventory < safety_lever){
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_available_inventory']").css({"background-color":"red","color":"#fff"});
+						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_available_inventory']").css({"background-color":"orange","color":"#fff"});
 					}
 				}
 			}
 		});
 		
 		$(".ui-jqgrid-hbox").before('<div class="ui-widget-content" style="padding:4px;">' +
-				'<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建">' +
+				'<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建备品管理">' +
 			'</div>');
 
 		$("#addbutton").button().click(showAdd);

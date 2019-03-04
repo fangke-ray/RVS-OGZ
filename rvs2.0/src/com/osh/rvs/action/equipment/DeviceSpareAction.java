@@ -109,7 +109,7 @@ public class DeviceSpareAction extends BaseAction {
 		Map<String, Integer> map = service.calculatePrice(conn);
 		listResponse.put("totalPrice", map);
 
-		listResponse.put("finish", list);
+		listResponse.put("spareList", list);
 		listResponse.put("errors", errors);
 
 		// 返回Json格式响应信息

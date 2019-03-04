@@ -23,6 +23,7 @@ import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.LineService;
 import com.osh.rvs.service.SectionService;
+import com.osh.rvs.service.equipment.DeviceSpareService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -196,13 +197,22 @@ public class DevicesManageAction extends BaseAction {
 		Validators v=BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ALL);
 		List<MsgInfo> errors=v.validate();
 
+		String add_method = request.getParameter("add_method");
+
 		DevicesManageForm devicesManageForm = (DevicesManageForm)form;
 		
 		service.customValidate(form, conn, errors);
 		
 		if (errors.size() == 0) {
 			service.insertDevicesManage(devicesManageForm,conn,request.getSession(),errors);
+
+			if ("spare".equals(add_method)) {
+				// 备品加入设备管理
+				DeviceSpareService dsService = new DeviceSpareService();
+				dsService.setAsManageCode(form, 25, request, conn);
+			}
 		}
+
 		listResponse.put("errors", errors);
 		returnJsonResponse(response, listResponse);
 		log.info("DevicesManageAction.doinsert end"); 
@@ -306,12 +316,34 @@ public class DevicesManageAction extends BaseAction {
 		List<MsgInfo> errors=v.validate();
 
 		DevicesManageForm devicesManageForm = (DevicesManageForm)form;
-		
-		service.customValidate(form, conn, errors);
-		
-		if (errors.size() == 0) {
-			service.replaceDevicesManage(request.getParameter("compare_status"),request.getParameter("old_manage_code"),devicesManageForm,conn,request.getSession(),errors);
+
+		// 判断备品
+		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
+		String use_spare = request.getParameter("use_spare");
+		if (use_spare == null) {
+			DeviceSpareService dsService = new DeviceSpareService();
+			if (dsService.checkExistsStock(form, 1, conn) != null) {
+				MsgInfo info = new MsgInfo();
+				info.setErrmsg("");
+				infoes.add(info);
+				listResponse.put("infoes", infoes);
+			}
 		}
+
+		if (infoes.size() == 0) {
+			service.customValidate(form, conn, errors);
+
+			if (errors.size() == 0) {
+				service.replaceDevicesManage(request.getParameter("compare_status"),request.getParameter("old_manage_code"),devicesManageForm,conn,request.getSession(),errors);
+
+				if ("1".equals(use_spare)) {
+					// 备品加入设备管理
+					DeviceSpareService dsService = new DeviceSpareService();
+					dsService.setAsManageCode(form, 24, request, conn);
+				}
+			}
+		}
+
 		listResponse.put("errors", errors);
 		returnJsonResponse(response, listResponse);
 		

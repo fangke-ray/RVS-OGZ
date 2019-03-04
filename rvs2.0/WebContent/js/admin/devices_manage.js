@@ -133,6 +133,17 @@ $(function(){
 	
 	//交付动作
 	$("#more_update").click(more_update);
+
+	// 备品加入管理
+	$("#addsparebutton").click(getSpareList);
+
+	$("#add_spare_filterbutton").click(filterSpareList);
+	$("#add_spare_clearbutton").click(function(){
+		$("#add_spare_dialog").find("#add_spare_device_type_name").val("")
+			.end().find("#add_spare_model_name").val("");
+		filterSpareList();
+	});
+
 });
 
 var more_update = function(){
@@ -523,10 +534,10 @@ var replace = function(){
 	
      //备注
     $("#replace_comment").val(rowData.comment); 
-    
+
 	var data = {
-            "manage_code":rowData.manage_code
-        };
+        "manage_code":rowData.manage_code
+    };
     // Ajax提交
     $.ajax({
         beforeSend : ajaxRequestType,
@@ -576,7 +587,7 @@ var replace = function(){
 			        
 			        "waste_old_products":$("#waste_old_products input:checked").val(),//--同时废弃掉旧品,
                     "devices_manage_id":$("#hidden_old_devices_manage_id").val()
-			    }
+			     }
                  // Ajax提交
                  $.ajax({
                     beforeSend : ajaxRequestType,
@@ -588,7 +599,46 @@ var replace = function(){
                     dataType : "json",
                     success : ajaxSuccessCheck,
                     error : ajaxError,
-                    complete : replace_handleComplete
+                    complete : function(xhrObj, textStatus){
+						var resInfo = $.parseJSON(xhrObj.responseText);
+       					if (resInfo.infoes && resInfo.infoes.length > 0) {
+							warningConfirm("此型号具有消耗备品，是否使用消耗备品来替换新品？", 
+								function() {
+									data["use_spare"] = 1;
+									// Ajax提交
+									$.ajax({
+									    beforeSend : ajaxRequestType,
+									    async : true,
+									    url : servicePath + '?method=doReplace',
+									    cache : false,
+									    data :data,
+									    type : "post",
+									    dataType : "json",
+									    success : ajaxSuccessCheck,
+									    error : ajaxError,
+									    complete : replace_handleComplete
+									});
+								}, function() {
+									data["use_spare"] = -1;
+									// Ajax提交
+									$.ajax({
+									    beforeSend : ajaxRequestType,
+									    async : true,
+									    url : servicePath + '?method=doReplace',
+									    cache : false,
+									    data :data,
+									    type : "post",
+									    dataType : "json",
+									    success : ajaxSuccessCheck,
+									    error : ajaxError,
+									    complete : replace_handleComplete
+									});
+								}, "消耗备品替换"
+							);
+						} else {
+	                    	replace_handleComplete(xhrObj, textStatus);
+						}
+                    }
                  });
 			},
 			"取消" : function() {
@@ -610,22 +660,9 @@ var replace_handleComplete = function(xhrobj, textStatus) {
             // 共通出错信息框
             treatBackMessages("#editarea", resInfo.errors);
         } else {
-        	 $("#replace_confrim").dialog("close");
-             $("#dialog_confrim").text("替换新品已经完成。");
-             $("#dialog_confrim").dialog({
-                width : 320,
-                height : 'auto',
-                resizable : false,
-                show : "blind",
-                modal : true,
-                title : "替换新品",
-                buttons : {
-                    "关闭" : function() {      
-                    	$("#replace_confrim").dialog("close");
-                        $(this).dialog("close");
-                    }
-                }
-            });             
+        	infoPop("替换新品已经完成。", null, "替换新品");
+			$("#replace_confrim").dialog("close");
+       
             // 重新查询
             findit();
             // 切回一览画面
@@ -803,9 +840,8 @@ function filed_list(listdata){
 					{name:'products_code',index:'products_code',width:100,align:'center'},
 					{name:'brand',index:'brand',width:100,align:'center',
 						formatter : function(value, options, rData) {
-	                        //当发放日期不为空时，发放者是当前更新人；如果为空时，发放者是空白
 		                    if(rData.brand){
-	                            return "<a href='javascript:showBrandDetail("+ rData.brand_id +")'>" + rData.brand + "</a>";
+	                            return "<a href='javascript:showBrandDetail(\""+ rData.brand_id +"\")'>" + rData.brand + "</a>";
 		                    }else{
 		                        return "";
 		                    }                           
@@ -858,26 +894,43 @@ function filed_list(listdata){
 };
 
 /*新建*/
-var showAdd = function(){
+var showAdd = function(add_method, entity){
     //点击新建之前清空
 	$("#add_manage_code").val("");
-	$("#add_name").val("");
 	$("#add_manage_level").val("").trigger("change");
 	$("#add_asset_no").val("");
 	$("#add_products_code").val("");
 	$("#add_position_id").val("");
 	$("#add_import_date").val("");
 	$("#add_waste_date").val("").hide();
-	$("#add_comment").val("");
-	$("#add_model_name").val("");
 	$("#add_manager").val("");  
 	$("#add_manage_content").val("");
     $("#add_status").val("").trigger("change");
     $("#add_section_id").val("").trigger("change");
     $("#add_line_id").val("").trigger("change");
-	$("#add_brand").val("");
 	$("#add_responsible_operator_id").val("");
 	$("#add_updated_time").val("");
+	if (add_method == "spare") {
+		$("#add_name").val(entity.device_type_name).disable();
+		$("#hidden_add_name").val(entity.device_type_id);
+		if (entity.brand_name) {
+			var brand_name = $(entity.brand_name).text();
+			$("#add_brand").val(brand_name).disable();
+			$("#hidden_add_brand_id").val(entity.brand_id);
+		} else {
+			$("#add_brand").val("").enable();
+			$("#hidden_add_brand_id").val("");
+		}
+		$("#add_comment").val("由备品转为编号管理。");
+		$("#add_model_name").val(entity.model_name).disable();
+	} else {
+		$("#add_name").val("").enable();
+		$("#hidden_add_name").val("");
+		$("#add_brand").val("").enable();
+		$("#hidden_add_brand_id").val("");
+		$("#add_comment").val("");
+		$("#add_model_name").val("").enable();
+	}
 
 	//状态选择
     $("#add_status").bind("change", function() {
@@ -953,8 +1006,9 @@ var showAdd = function(){
 		warningConfirm("是否新建管理编号为"+$("#add_manage_code").val()+", 品名为"+$("#add_name").val()+"的设备工具?", 
 			function() {
 	            var data={
+	            	"add_method" : add_method,
 			        "manage_code": $("#add_manage_code").val(),
-			        "devices_type_id": $("#hidden_add_name ").val(), 
+			        "devices_type_id": $("#hidden_add_name").val(), 
 			       //"name":$("#add_name").val(), 
 			        "model_name":$("#add_model_name ").val(),
 			        "manager_operator_id": $("#hidden_add_manager_operator_id").val(),
@@ -1277,4 +1331,129 @@ var showList = function(){
         $("#body-regist").hide();
 }
 
+var localSpareList = {};
 
+var getSpareList = function(){
+	var data ={
+		"device_spare_type":"1"
+	};
+	var spareServicePath = "device_spare.do";
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : spareServicePath + '?method=search',
+		cache : false,
+		data : data,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrObj, textStatus) {
+			var resInfo = $.parseJSON(xhrObj.responseText);
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				localSpareList = resInfo.spareList;
+				showSparelist(localSpareList);
+			}
+		}
+	});
+}
+
+var showSparelist = function(listdata){
+	if ($("#gbox_sp_list").length > 0) {
+		$("#sp_list").jqGrid().clearGridData();// 清除
+		$("#sp_list").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
+	} else {
+		$("#sp_list").jqGrid({
+			data : listdata,// 数据
+			height :201,// rowheight*rowNum+1
+			width : 640,
+			rowheight : 10,
+			shrinkToFit:true,
+			datatype : "local",
+			colNames : ['品名','型号','品牌','单价','Min<BR>Limit','Max<BR>Limit','当前<BR>有效库存','管理备注','device_type_id','brand_id'],
+			colModel : [{name : 'device_type_name',index : 'device_type_name',width:100},
+						{name : 'model_name',index : 'model_name',width:100},
+						{name : 'brand_name',index : 'brand_name',width:100, formatter : function(value, options, rData) {
+		                    if(rData.brand_name){
+	                            return "<a href='javascript:showBrandDetail(\""+ rData.brand_id +"\")'>" + rData.brand_name + "</a>";
+		                    }else{
+		                        return "";
+		                    }                           
+		                }},
+						{name : 'price',index : 'price',width:50,align:'right',sorttype:'currency',formatter:'currency',formatoptions:{thousandsSeparator:',',defaultValue: '',decimalPlaces:0}},
+						{name : 'safety_lever',index : 'safety_lever',width:50,align:'right',sorttype:'number'},
+						{name : 'benchmark',index : 'benchmark',width:50,align:'right',sorttype:'number'},
+						{name : 'available_inventory',index : 'available_inventory',width:50,align:'right',sorttype:'number'},
+						{name : 'comment',index : 'comment',width:100},
+						{name : 'device_type_id',index : 'device_type_id',hidden:true},
+						{name : 'brand_id',index : 'brand_id',hidden:true}
+            ],
+			rowNum : 20,
+			toppager : false,
+			pager : "#sp_listpager",
+			viewrecords : true,
+			caption : "",
+			multiselect : false,
+			gridview : true,
+			pagerpos : 'right',
+			pgbuttons : true, // 翻页按钮
+			rownumbers : true,
+			pginput : false,					
+			recordpos : 'left',
+			hidegrid : false,
+			deselectAfterSort : false,
+			viewsortcols : [ true, 'vertical', true ]
+		});
+	};
+	var $add_spare_dialog = $("#add_spare_dialog");
+	$add_spare_dialog.dialog({
+		position : 'center',
+		title : "选择备品品名型号",
+		width : 660,
+		height : 'auto',
+		resizable : false,
+		modal : true,
+		buttons : {
+			"选择":function() {
+				var selRow = $("#sp_list").jqGrid("getGridParam", "selrow");
+				if(selRow) {
+					var rowData=$("#sp_list").getRowData(selRow);
+					if (rowData.available_inventory <= 0) {
+						errorPop("选择的品名型号的备品现有数量不足。");
+					} else {
+						showAdd("spare", rowData);
+						$add_spare_dialog.dialog('close');
+					}
+				}
+			},
+			"关闭":function(){
+				$add_spare_dialog.dialog('close');
+			}
+		}
+	});
+}
+
+var filterSpareList = function(){
+	var spare_device_type_name = $("#add_spare_device_type_name").val();
+	var spare_model_name = $("#add_spare_model_name").val();
+	if (!spare_device_type_name && !spare_model_name) {
+		showSparelist(localSpareList);
+		return;
+	}
+
+	var filtedList = [];
+	for (var iSl in localSpareList) {
+		var localSpare = localSpareList[iSl];
+		if (spare_device_type_name && localSpare["device_type_name"].indexOf(spare_device_type_name) < 0) {
+			continue;
+		}
+		if (spare_model_name && localSpare["model_name"].indexOf(spare_model_name) < 0) {
+			continue;
+		}
+		filtedList.push(localSpare);
+	}
+	showSparelist(filtedList);
+}

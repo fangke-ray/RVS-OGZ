@@ -377,7 +377,7 @@ var list=function(datalist){
 					formatter : function(value, options, rData) {
 	                    //当发放日期不为空时，发放者是当前更新人；如果为空时，发放者是空白
 	                    if(rData.brand){
-	                        return "<a href='javascript:showBrandDetail("+ rData.brand_id +")'>" + rData.brand + "</a>";
+	                        return "<a href='javascript:showBrandDetail(\""+ rData.brand_id +"\")'>" + rData.brand + "</a>";
 	                    }else{
 	                        return "";
 	                    }                           

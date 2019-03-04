@@ -65,7 +65,7 @@ public class DevicesManageForm extends ActionForm {
 	@BeanField(title = "备工具管理ID", name = "devices_manage_id", type = FieldType.String, length = 11)
 	private String devices_manage_id;
 	// 管理编号
-	@BeanField(title = "设管理编号", name = "manage_code", type = FieldType.String, notNull = true)
+	@BeanField(title = "设管理编号", name = "manage_code", type = FieldType.String, length = 9, notNull = true)
 	private String manage_code;
 	// 设备工具品名ID
 	@BeanField(title = "设备工具品名ID", name = "device_type_id", type = FieldType.String, length = 11, notNull = true)

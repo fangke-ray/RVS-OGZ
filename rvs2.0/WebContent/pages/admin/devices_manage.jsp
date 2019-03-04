@@ -138,6 +138,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 		<div class="ui-widget-content" style="padding:4px;">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建设备工具" role="button" aria-disabled="false">
+			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addsparebutton" value="备品加入管理" role="button" aria-disabled="false">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="replacebutton" value="替换新品" role="button" aria-disabled="false">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="deliverbutton" value="批量交付" role="button" aria-disabled="false">
 		</div>
@@ -933,6 +934,29 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 	<%@include file="../../widgets/infect/brand-detail.jsp"%>
 
+<!-- 备品计入管理 -->
+<div id="add_spare_dialog" style="display:none;">
+	<table class="condform" style="border:1px solid #aaaaaa;margin-left:2px;">
+		<tbody>	
+		    <tr>
+				<td class="ui-state-default td-title">品名</td>
+				<td>
+					<input type="text" id="add_spare_device_type_name" name="device_type_name" alt="品名" class="ui-widget-content">
+				</td>
+				<td class="ui-state-default td-title">型号</td>
+				<td>
+					<input type="text" id="add_spare_model_name" name="model_name" alt="型号"  class="ui-widget-content">
+				</td>
+				<td class="ui-state-default td-title" style="text-align:center;">
+					<input type="button" class="ui-button" id="add_spare_filterbutton" value="过滤"/>
+					<input type="button" class="ui-button" id="add_spare_clearbutton" value="清除"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>	
+	<table id="sp_list"></table>
+	<div id="sp_listpager"></div>
+</div>
 
 <!----------------------end----------------------------->
 </div>
