@@ -404,7 +404,7 @@ function detaillist(listdata){
 			deselectAfterSort : false,
 			onSelectRow : null,// 当选择行时触发此事件。
 			ondblClickRow : function(rid, iRow, iCol, e) {
-				showDetail();
+				//showDetail();
 			},
 			viewsortcols : [ true, 'vertical', true ],
 			gridComplete : function() {

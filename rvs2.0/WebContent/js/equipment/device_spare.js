@@ -4,7 +4,7 @@ $(function(){
 	$("input.ui-button").button();
 	
 	/*为每一个匹配的元素的特定事件绑定一个事件处理函数*/
-    $("#body-mdl span.ui-icon").bind("click", function() {
+    $("#search span.ui-icon").bind("click", function() {
 		$(this).toggleClass('ui-icon-circle-triangle-n').toggleClass('ui-icon-circle-triangle-s');
 		if ($(this).hasClass('ui-icon-circle-triangle-n')) {
 			$(this).parent().parent().next().show("blind");
