@@ -346,6 +346,18 @@
 			or (dm.position_id is null and dm.line_id = #{line_id}))
 		AND (dm.provide_date != current_date OR dm.provide_date is null)
 		AND (dci.seq_no is not null OR dt.specialized = 1)
+		]]>
+		<if test="specialized==null">
+			<![CDATA[
+			AND dt.specialized != 9
+			]]>
+		</if>
+		<if test="specialized!=null">
+			<![CDATA[
+			AND dt.specialized = 9
+			]]>
+		</if>
+		<![CDATA[ 
 		and NOT EXISTS (SELECT 1 FROM check_unqualified_record cur 
 			where cur.manage_id = dm.devices_manage_id and cur.manage_id = 1
 			and repair_date_start <= current_date and (repair_date_end IS null or repair_date_end >= current_date))
