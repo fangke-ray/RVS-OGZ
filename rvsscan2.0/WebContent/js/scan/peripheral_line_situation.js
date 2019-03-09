@@ -9,8 +9,8 @@ var refresh_ajaxSuccess = function(xhrobj,textStatus){
 
 	$("#waiting_quote").text(resInfo.waiting_quote);
 	$("#waiting_inline").text(resInfo.waiting_cast);
+	$("#waiting_parts").text(resInfo.waiting_parts);
 	$("#waiting_repair").text(resInfo.waiting_repair);
-	$("#waiting_parts").text("-"); // resInfo.waiting_parts
 
 	if ($("#device_plan_count").length > 0) {
 		$("#device_plan_count").flipCounter({numIntegralDigits:2,

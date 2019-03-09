@@ -43,7 +43,7 @@
 			        p.finish_time IS NULL
 			            AND p.operate_result not in (5, 7)
 			            AND p.SECTION_ID = #{section_id}
-			            and (m.level not in (9 , 91, 92, 93, 96, 97, 98, 99) or m.level is null)
+			            and (m.level not in (9 , 91, 92, 93, 96, 97, 98, 99) or (p.position_id = 64 and m.level is null))
 						AND (p.position_id != 77 or (action_time is not null and finish_time is null))
 			    GROUP BY p.position_id, m.quotation_first) pf
 			    ON `p`.position_id = pf.position_id
@@ -103,6 +103,8 @@
 					JOIN `position` p
 					ON `pf`.position_id = `p`.position_id
 					  AND `p`.line_id = #{line_id}
+					JOIN material in_ma
+						ON `pf`.material_id = in_ma.material_id AND in_ma.outline_time is null
 					WHERE operate_result not in (5, 8)
 					  AND (`pf`.operate_result = 3 OR `pf`.finish_time is null)
 					  AND `pf`.section_id = #{section_id}
@@ -512,6 +514,17 @@
      <foreach collection="process_code_set" item="value"  open="(" separator="," close=")">     
         #{value}      
      </foreach>
+	</select>
+
+	<select id="getPeriWaitingPart" resultType="int">
+select count(1) from material ma 
+join v_model mdl on ma.model_id = mdl.model_id
+where outline_time is null
+and inline_time is not null 
+and break_back_flg = 0
+and kind = 07
+and exists (select finish_time from production_feature where material_id = ma.material_id and position_id = 00000000064 and operate_result = 2)
+and not exists (select 1 from production_feature where material_id = ma.material_id and position_id = 00000000063);
 	</select>
 
 </mapper>

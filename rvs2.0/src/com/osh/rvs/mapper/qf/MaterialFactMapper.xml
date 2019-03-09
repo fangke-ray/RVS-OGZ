@@ -79,8 +79,14 @@ on a.model_id = new_model.model_id
 			<if test="serial_no!= null and serial_no!= '' ">
 				and a.serial_no = #{serial_no}
 			</if>
-			<if test="level!= null">
+			<if test="level!= null and level != 5 and level !=9">
 				and a.level = #{level}
+			</if>
+			<if test="level!= null and level eq 5">
+				and a.level in (56,57,58,59)
+			</if>
+			<if test="level!= null and level eq 9">
+				and a.level in (9,91,92,93,96,97,98,99)
 			</if>
 			<if test="direct_flg!= null">
 				and a.direct_flg = #{direct_flg}
@@ -204,7 +210,7 @@ on a.model_id = new_model.model_id
 				WHEN
 					ma.inline_time is not null THEN 0
 				WHEN
-					ma.level not in (56,57,58,9,91,92,93,96,97,98) THEN ma.quotation_first
+					ma.level not in (56,57,58,59,9,91,92,93,96,97,98,99) THEN ma.quotation_first
 				WHEN
 					not exists (select 1 from material_partial where material_id = ma.material_id)
 				THEN 1

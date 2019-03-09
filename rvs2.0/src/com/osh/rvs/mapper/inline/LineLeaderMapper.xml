@@ -48,7 +48,7 @@
 			        p.finish_time IS NULL
 			            AND p.operate_result not in (5, 7)
 			            AND p.SECTION_ID = #{section_id}
-			            and m.level not in (9 , 91, 92, 93, 96, 97, 98, 99)
+			            and (m.level not in (9 , 91, 92, 93, 96, 97, 98, 99) or (p.position_id = 64 and m.level is null))
 						AND (p.position_id != 77 or (action_time is not null and finish_time is null))
 			    GROUP BY p.position_id, m.quotation_first) pf
 			    ON `p`.position_id = pf.position_id
