@@ -40,6 +40,8 @@ $(function(){
 		$("#show_no_photo").show();
 	});
 
+	$("#edit_alter_flg").buttonset();
+
 	$("#update_photo").parent().on("change", "#update_photo", uploadPhoto);
 
 	findit();
@@ -103,7 +105,7 @@ function filed_list(finished){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['','治具点检ID','品名','特定<br>设备工具种类','危险归类', '安全操作<br>手顺','删除标记','最后更新人','最后更新时间'],
+			colNames:['','治具点检ID','品名','特定<br>设备工具种类','危险归类', '安全操作<br>手顺','替代标记','删除标记','最后更新人','最后更新时间'],
 			colModel:[
 				{name:'myac',fixed:true,width:40,sortable:false,resize:false,formatter:'actions',formatoptions:{keys:true, editbutton:false}},
 				{name:'devices_type_id',index:'devices_type_id', hidden:true},
@@ -119,6 +121,7 @@ function filed_list(finished){
 						value : "0:;1:有"
 					},align:'center'
 				},
+				{name:'alter_flg',index:'alter_flg',hidden:true},
 				{name:'delete_flg',index:'delete_flg',hidden:true},
 				{name:'updated_by',index:'updated_by',width : 35},
 				{name:'updated_time',index:'updated_time',width : 50}
@@ -157,7 +160,7 @@ var showAdd = function() {
 	$("#edit_hazardous_cautions").val("").trigger("change");
 	$("#editarea span.areatitle").html("新建" + modelname);
 	$("#editarea").show();
-	$("#editform input[type!='button']").val("");
+	$("#editform input[type!='button'][type!='radio']").val("");
 	$("#editbutton").val("新建");
 	$("#editbutton").enable();
 	$(".safety_guide").hide();
@@ -181,7 +184,8 @@ var showAdd = function() {
 		warningConfirm("确认要新建该条设备工具品名为["+$("#edit_name").val()+"]记录吗？", function() {
 			var data = {
 				"name" : $("#edit_name").val(),
-				"specialized":$("#edit_specialized").val()
+				"specialized":$("#edit_specialized").val(),
+				"alter_flg":$("#edit_alter_flg input:checked").val()
 			}
 			if ($("#edit_hazardous_cautions").val()) {
 				data["hazardous_cautions"] = $("#edit_hazardous_cautions").val().join(",");
@@ -269,6 +273,8 @@ var showEdit = function() {
 	$("#show_photo").show()
 		.attr("src", "http://" + document.location.hostname + "/photos/safety_guide/" + rowData.devices_type_id + "?_s=" + new Date().getTime());
 
+	$("#edit_alter_flg input[value='"+ rowData.alter_flg +"']").attr("checked", true).trigger("change");
+
 	$("#label_updated_by").text(rowData.updated_by);
 	$("#label_updated_time").text(rowData.updated_time);
 
@@ -291,7 +297,8 @@ var showEdit = function() {
 					var data={
 						"name":$("#edit_name").val(),
 						"specialized":$("#edit_specialized").val(),
-						"devices_type_id":$("#hidden_devices_type_id").val()
+						"devices_type_id":$("#hidden_devices_type_id").val(),
+						"alter_flg":$("#edit_alter_flg input:checked").val()
 					}
 					if ($("#edit_hazardous_cautions").val()) {
 						data["hazardous_cautions"] = $("#edit_hazardous_cautions").val().join(",");

@@ -21,6 +21,10 @@ public class DevicesTypeForm extends UploadForm implements Serializable {
 	@BeanField(title = "品名", name = "name", length = 32, notNull = true)
 	private String name;
 
+	/* 替代标记 */
+	@BeanField(title = "替代标记", name = "alter_flg", type = FieldType.Integer, length = 1)
+	private String alter_flg;
+
 	/* 删除标记 */
 	@BeanField(title = "删除标记", name = "delete_flg", type = FieldType.Integer, length = 1)
 	private String delete_flg;
@@ -103,6 +107,14 @@ public class DevicesTypeForm extends UploadForm implements Serializable {
 
 	public void setSafety_guide(String safety_guide) {
 		this.safety_guide = safety_guide;
+	}
+
+	public String getAlter_flg() {
+		return alter_flg;
+	}
+
+	public void setAlter_flg(String alter_flg) {
+		this.alter_flg = alter_flg;
 	}
 
 }

@@ -6,7 +6,7 @@
     <select id="searchDeviceType" resultType="DeviceTypeEntity" parameterType="DeviceTypeEntity">
 		<![CDATA[ 
 	   SELECT 
-		    dt.device_type_id, dt.name, dt.delete_flg, dt.specialized,
+		    dt.device_type_id, dt.name, dt.delete_flg, dt.specialized, dt.alter_flg,
 		    sum(pow(2, cf.classification)) as classification,
 		    o.name as updated_by, dt.updated_time
 	   FROM
@@ -39,12 +39,13 @@
 		    INSERT INTO 
 		    	device_type
 		    	(name,
+		    	alter_flg,
 		    	specialized,
 		    	UPDATED_BY,
 		    	UPDATED_TIME)
 		   VALUES(
 			]]>
-	       #{name},#{specialized},#{updated_by},current_timestamp)
+	       #{name},#{alter_flg},#{specialized},#{updated_by},current_timestamp)
 	</insert>
 	 
 	<!-- 删除页面条数据 -->
@@ -64,6 +65,7 @@
 	   <![CDATA[
 	    UPDATE device_type SET  
 			name=#{name},
+			alter_flg=#{alter_flg},
 			specialized=#{specialized},
 			updated_by =#{updated_by},
 			updated_time = current_timestamp
