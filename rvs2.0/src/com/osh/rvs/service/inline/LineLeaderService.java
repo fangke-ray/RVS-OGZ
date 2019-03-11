@@ -20,6 +20,7 @@ import com.osh.rvs.bean.data.AlarmMesssageSendationEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.LineLeaderEntity;
+import com.osh.rvs.bean.inline.MaterialFactEntity;
 import com.osh.rvs.bean.inline.PauseFeatureEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
@@ -38,6 +39,7 @@ import com.osh.rvs.mapper.inline.LineLeaderMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
+import com.osh.rvs.mapper.qf.MaterialFactMapper;
 import com.osh.rvs.service.CustomerService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -255,6 +257,37 @@ public class LineLeaderService {
 
 			counts.add(1, decomStorageCount);
 
+			overlines.add(4, null);
+			overlines.add(5, null);
+			overlines.add(6, null);
+			overlines.add(7, null);
+		}
+
+		// 周边维修工程取得周边库位信息
+		if ("00000000070".equals(line_id)) {
+			MaterialFactMapper mfMapper = conn.getMapper(MaterialFactMapper.class);
+			MaterialFactEntity entity = new MaterialFactEntity();
+			entity.setLevel(5);
+			List<MaterialFactEntity> mflist = mfMapper.searchMaterial(entity);
+			int cntWip = 0; int cntStock = 0;
+			for (MaterialFactEntity materialFact : mflist) {
+				if (CommonStringUtil.isEmpty(materialFact.getWip_location())) {
+					cntStock++;
+				} else {
+					cntWip++;
+				}
+			}
+
+			positions.add(1, "等待投线在库");
+			positions.add(2, "等待投线离库");
+
+			counts.add(1, cntWip);
+			counts.add(2, cntStock);
+
+			overlines.add(4, null);
+			overlines.add(5, null);
+			overlines.add(6, null);
+			overlines.add(7, null);
 			overlines.add(4, null);
 			overlines.add(5, null);
 			overlines.add(6, null);

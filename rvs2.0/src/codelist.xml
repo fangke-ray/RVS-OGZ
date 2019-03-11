@@ -759,6 +759,7 @@
 		<value code="3">消毒设备</value>
 		<value code="4">灭菌设备</value>
 		<value code="5">烘干设备</value>
+		<value code="9">重要工程日次</value>
 	</codelist>
 
 	<codelist name="device_hazardous_classification">

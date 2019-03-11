@@ -468,4 +468,9 @@ public class LineLeaderService {
 
 		responseMap.put("com_ns_matches", matches);
 	}
+
+	public Integer getPeriWaitingPart(SqlSession conn) {
+		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
+		return dao.getPeriWaitingPart();
+	}
 }

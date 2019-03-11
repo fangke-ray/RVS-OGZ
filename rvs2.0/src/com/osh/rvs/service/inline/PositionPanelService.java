@@ -1078,6 +1078,22 @@ public class PositionPanelService {
 			}
 		}
 
+		// 重要工程日次点检
+		if (now.get(Calendar.HOUR_OF_DAY) >= 15) {
+			cond.setSpecialized(9);
+			dailyDevices = crMapper.searchDailyDeviceUncheckedOnPosition(cond);
+			if (!CommonStringUtil.isEmpty(dailyDevices)) {
+				if (now.get(Calendar.HOUR_OF_DAY) > 16 ||
+						(now.get(Calendar.HOUR_OF_DAY) == 16 && now.get(Calendar.MINUTE) > 30)) {
+					// 下午2点锁定
+					retComments += "本工位重要工程日次点检在期限前未作点检，将限制工作。\n";
+				} else {
+					// 否则提醒
+					retComments += "本工位重要工程日次点检将到达点检期限，请尽快进行点检。\n";
+				}
+			}
+		}
+
 		// 日期，线长确认
 		if (now.get(Calendar.HOUR_OF_DAY) >= 15) {
 			now.set(Calendar.HOUR_OF_DAY, 0);

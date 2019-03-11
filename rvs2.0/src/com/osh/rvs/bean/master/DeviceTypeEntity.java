@@ -24,6 +24,8 @@ public class DeviceTypeEntity implements Serializable {
 	private Integer specialized;
 	/* 危险归类 */
 	private Integer classification;
+	/* 替代标记 */
+	private Integer alter_flg;
 
 	public String getDevice_type_id() {
 		return device_type_id;
@@ -79,6 +81,14 @@ public class DeviceTypeEntity implements Serializable {
 
 	public void setClassification(Integer classification) {
 		this.classification = classification;
+	}
+
+	public Integer getAlter_flg() {
+		return alter_flg;
+	}
+
+	public void setAlter_flg(Integer alter_flg) {
+		this.alter_flg = alter_flg;
 	}
 
 }

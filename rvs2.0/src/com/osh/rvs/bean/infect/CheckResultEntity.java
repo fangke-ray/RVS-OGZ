@@ -48,6 +48,8 @@ public class CheckResultEntity implements Serializable {
 	private String object_type;
 	private Set<String> manage_ids;
 	private Integer confirm_proceed;
+	// 特定设备工具种类
+	private Integer specialized;
 
 	public String getManage_id() {
 		return manage_id;
@@ -198,6 +200,12 @@ public class CheckResultEntity implements Serializable {
 	}
 	public void setConfirm_proceed(Integer confirm_proceed) {
 		this.confirm_proceed = confirm_proceed;
+	}
+	public Integer getSpecialized() {
+		return specialized;
+	}
+	public void setSpecialized(Integer specialized) {
+		this.specialized = specialized;
 	}
 
 }

@@ -38,4 +38,6 @@ public interface LineLeaderMapper {
 
 	public Integer getComninedCount(@Param("section_id") String section_id, @Param("process_code_set") Set<String> processCodeSet);
 
+	public Integer getPeriWaitingPart();
+
 }

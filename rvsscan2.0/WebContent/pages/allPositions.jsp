@@ -153,9 +153,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 
 			<div class="line" style="height:50px;width:284px;left: 492px;top: 10px;" id="line_peri" beforeOf="line_qa" group="line_peri">
-				<div class="posi" for="posi_181_1" style="top: 10px; left: 10px;">181</div>
+				<div class="posi" for="posi_181" style="top: 10px; left: 10px;">181</div>
 
-				<div class="posi" for="posi_811_1" style="top: 10px; left: 50px;">811</div>
+				<div class="posi" for="posi_801_1" style="top: 10px; left: 50px;">801</div>
+
+				<div class="posi" for="posi_802_1" style="top: 10px; left: 90px;">802</div>
+
+				<div class="posi" for="posi_811_1" style="top: 10px; left: 130px;">811</div>
 
 				<div class="banner" for="line_peri">周边维修</div>
 			</div>
@@ -362,8 +366,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 
 				<div class="scrollline" for="line_peri" style="position: relative;">
-					<div class="position gridX2 gridY2" for="posi_181_1">181<br>周边报价</div>
-					<div class="position-f gridX2 gridFY2" for="posi_181_1"></div>
+					<div class="position gridX2 gridY2" for="posi_181">181<br>周边报价</div>
+					<div class="position-f gridX2 gridFY2" for="posi_181"></div>
+
+					<div class="position gridX4 gridY2" for="posi_801_1">801<br>零件订购</div>
+					<div class="position-f gridX4 gridFY2P" for="posi_801_1"></div>
+
+					<div class="position gridX5 gridY2" for="posi_802_1">802<br>零件签收</div>
+					<div class="position-f gridX5 gridFY2P" for="posi_802_1"></div>
 
 					<div class="position gridX7 gridY2" for="posi_811_1">811<br>周边设备<br>维修</div>
 					<div class="position-f gridX7 gridFY2P" for="posi_811_1"></div>

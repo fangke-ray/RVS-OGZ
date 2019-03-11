@@ -105,6 +105,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<select id="edit_hazardous_cautions" multiple>${deviceHazardousClassification}</select>
 					</td>
 				</tr>
+				<tr>
+					<td class="ui-state-default td-title">代替使用方式</td>
+					<td class="td-content" id="edit_alter_flg" style="min-width:238px">
+						<input type="radio" name="alter_flg" alt="管理替代" id="alter_flg_yes" value="1" class="ui-widget-content" checked>
+						<label for="alter_flg_yes" radio>个别指定代替关系</label>
+						<input type="radio" name="alter_flg" alt="开放替代" id="alter_flg_no" value="0" class="ui-widget-content">
+						<label for="alter_flg_no" radio>开放同型号代替</label>
+					</td>
+				</tr>
 				<tr class="safety_guide">
 					<td class="ui-state-default td-title">安全操作手顺上传</td>
 					<td class="td-content">
