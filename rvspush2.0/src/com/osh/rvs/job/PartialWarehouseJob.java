@@ -542,7 +542,7 @@ public class PartialWarehouseJob implements Job {
 
 			// 标准时间 （M）
 			cell = row.createCell(++colIndex, Cell.CELL_TYPE_NUMERIC);
-			if (productionType == 10 || productionType == 11) {// A：收货
+			if (productionType == 10) {// A：收货
 				// 标准时间
 				standardTime = partialWarehouseMapper.countReceptStandardTime(key);
 				// 拆盒
@@ -552,6 +552,9 @@ public class PartialWarehouseJob implements Job {
 				standardTime = standardTime.add(moveCost);
 
 				cell.setCellValue(standardTime.doubleValue());
+			} else if (productionType == 11) {
+				// 标准时间=实际时间
+				cell.setCellValue(formulaEvaluator.evaluate(row.getCell(5)).getNumberValue());
 			} else if (productionType == 20) {// B1：核对+上架
 				standardTime = partialWarehouseMapper.countCollationAndOnShelfStandardTime(factPfKey);
 				cell.setCellValue(standardTime.doubleValue());
@@ -682,7 +685,7 @@ public class PartialWarehouseJob implements Job {
 		this.setCurrentLoadRate(sheet, formulaEvaluator, loadRateMap);
 
 		// 当天能率
-		this.setCurrentEnergyRate(sheet, energyRateMap);
+		this.setCurrentEnergyRate(sheet, formulaEvaluator, energyRateMap);
 
 	}
 
@@ -693,7 +696,7 @@ public class PartialWarehouseJob implements Job {
 	 * @param formulaEvaluator
 	 * @param map
 	 */
-	private void setCurrentEnergyRate(Sheet sheet, Map<String, Map<Integer, Double>> map) {
+	private void setCurrentEnergyRate(Sheet sheet, FormulaEvaluator formulaEvaluator, Map<String, Map<Integer, Double>> map) {
 		Row row = null;
 		for (String key : map.keySet()) {
 			Map<Integer, Double> rowMap = map.get(key);
@@ -716,6 +719,9 @@ public class PartialWarehouseJob implements Job {
 
 				if (!CommonStringUtil.isEmpty(cellValue) && !MIDDLE_LINE.equals(cellValue)) {
 					totalStandTime = totalStandTime.add(new BigDecimal(cellValue));
+				} else if (MIDDLE_LINE.equals(cellValue)) {//O：其它  标准时间==实际时间
+					double spendTime = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
+					totalStandTime = totalStandTime.add(new BigDecimal(spendTime));
 				}
 			}
 
