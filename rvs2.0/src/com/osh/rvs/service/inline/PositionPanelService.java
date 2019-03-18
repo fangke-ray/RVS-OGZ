@@ -444,7 +444,10 @@ public class PositionPanelService {
 		List<WaitingEntity> ret = dao.getWaitingMaterial(ar_line_id, section_id, position_id, operator_id, level);
 
 		PutinBalanceBound putinBalanceBound = null;
-		BigDecimal closestBalance = null; String closestBalanceWaiting = null;  
+		BigDecimal furthestBalance = null, closestBalance = null; // 最遠采樣，最近采樣值 
+		String furthestBalanceWaiting = null, closestBalanceWaiting = null; // 最遠采樣，最近采樣維修品 ID
+
+		int balancePos = 0;
 		if (process_code.equals("211") || process_code.equals("411")) { // 311 or 411
 			String ar_position_id = position_id;
 			if (process_code.equals("211")) {
@@ -455,6 +458,8 @@ public class PositionPanelService {
 				createPutinBalanceBound(section_id, ar_position_id, ar_line_id, conn);	
 			}
 			putinBalanceBound = putinBalanceBounds.get(ar_line_id);
+
+			balancePos = putinBalanceBound.getBalancePos();
 		}
 
 		for (WaitingEntity we : ret) {
@@ -480,22 +485,46 @@ public class PositionPanelService {
 				if ("00000000013".equals(ar_line_id) && we.getLevel() == 1) {
 					continue;
 				}
+				// PA或者BO的不計算
+				if (we.getBlock_status() != null && we.getBlock_status() > 0) {
+					continue;
+				}
 				MaterialService ms = new MaterialService();
 				MaterialEntity me = ms.loadSimpleMaterialDetailEntity(conn, we.getMaterial_id());
 				int erestingStandard = getPatLineStandard(me.getModel_name(), me.getCategory_name()
 						, me.getPat_id(), ar_line_id, conn);
 				we.setLine_minutes(erestingStandard);
-				BigDecimal balanceDiff = putinBalanceBound.evalBalanceDiff(erestingStandard).abs();
-				if (closestBalance == null || closestBalance.compareTo(balanceDiff) < 0) {
-					closestBalance = balanceDiff;
+				BigDecimal balanceDiff = putinBalanceBound.evalBalanceDiff(erestingStandard);
+				BigDecimal absBalanceDiff = balanceDiff.abs();
+
+				// 最接近
+				if (closestBalance == null || closestBalance.compareTo(absBalanceDiff) > 0) {
+					closestBalance = absBalanceDiff;
 					closestBalanceWaiting = we.getMaterial_id();
+				}
+				// 最遠
+				if (balancePos == 1 && balanceDiff.compareTo(BigDecimal.ZERO) < 0) {
+					// 目前平衡較高時，選擇最低					
+					if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) > 0) {
+						furthestBalance = balanceDiff;
+						furthestBalanceWaiting = we.getMaterial_id();
+					}
+				} else if (balancePos == -1 && balanceDiff.compareTo(BigDecimal.ZERO) > 0) {
+					// 目前平衡較低時，選擇最高			
+					if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) < 0) {
+						furthestBalance = balanceDiff;
+						furthestBalanceWaiting = we.getMaterial_id();
+					}
 				}
 			}
 		}
 
-		if (closestBalanceWaiting != null) {
+		String hitRecommended = furthestBalanceWaiting;
+		if (hitRecommended == null) hitRecommended = closestBalanceWaiting;
+
+		if (hitRecommended != null) {
 			for (WaitingEntity we : ret) {
-				if (we.getMaterial_id().equals(closestBalanceWaiting)) {
+				if (we.getMaterial_id().equals(hitRecommended)) {
 					we.setLine_minutes(- we.getLine_minutes()); // 标记为最适合
 					break;
 				}

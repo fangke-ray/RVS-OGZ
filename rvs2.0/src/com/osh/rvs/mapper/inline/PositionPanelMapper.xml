@@ -445,7 +445,7 @@
 		where pf.operate_result = 2
 		and position_id = #{position_id}
 		order by finish_time desc
-		limit 6;
+		limit 20;
 	]]>
 	</select>
 

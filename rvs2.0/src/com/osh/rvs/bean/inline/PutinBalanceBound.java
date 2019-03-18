@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.log4j.Logger;
+
 public class PutinBalanceBound {
 
-	/** 平均用时 */
+	private Logger log = Logger.getLogger(getClass());
+
+	/** 最近平均用时 */
 	private BigDecimal avgCost = null;
 
 	/** 先前投入标准时间 */
@@ -57,8 +61,23 @@ public class PutinBalanceBound {
 	public void putNowBalance(int newStandard) {
 		recentInputs.offer(newStandard);
 		recentInputs.poll();
-		avgCost = avgCost.multiply(new BigDecimal(5)).add(new BigDecimal(newStandard)).divide(new BigDecimal(6));
+		try {
+			avgCost = avgCost.multiply(new BigDecimal(4)).add(new BigDecimal(newStandard)).divide(new BigDecimal(5), 1, BigDecimal.ROUND_HALF_UP);
+		} catch (Exception e) {
+			log.error(avgCost + ">>>" + newStandard);
+			log.error(e.getMessage());
+		}
+		
 		evalNowBalance();
+	}
+
+	/**
+	 * 取得當前平均位置
+	 * 1：最近大於平均 0：最近等於平均 -1：最近小於平均
+	 * @return
+	 */
+	public int getBalancePos() {
+		return avgCost.compareTo(nowBalance);
 	}
 
 	public String toString() {
