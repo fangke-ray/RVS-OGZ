@@ -26,3 +26,6 @@ rvsscan2.0/.classpath
 rvsscan2.0/.tomcatplugin
 rvsscan2.0/.settings/*
 rvspush2.0/WebContent/war.bat
+rvs2.0/src/DevicesImport.java
+rvs2.0/src/framework/huiqing/action/BaseAction.java
+rvs2.0/src/LoadDevices.java
