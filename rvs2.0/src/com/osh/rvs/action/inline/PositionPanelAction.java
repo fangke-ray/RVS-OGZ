@@ -45,7 +45,6 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultPageService;
-import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;

@@ -151,17 +151,6 @@ public class InitServlet extends HttpServlet {
 
 			scheduler.scheduleJob(job, trigger);
 			
-//			job = newJob(OverTimeOfPositionJob.class)
-//				    .withIdentity("overTimeOfPositionJob", "rvspush")
-//				    .build();
-//
-//			trigger = newTrigger()
-//			    .withIdentity("overTimeOfPositionTrigger", "rvspush")
-//			    .withSchedule(cronSchedule("0 * * * * ?"))
-//			    .build();
-//
-//			scheduler.scheduleJob(job, trigger);
-
 //			// 周报任务脚本
 //			job = newJob(WeekStatisticsJob.class)
 //			    .withIdentity("weekStatisticsJob", "rvspush")

@@ -32,7 +32,7 @@ import framework.huiqing.common.util.copy.DateUtil;
 
 public class ForecastOverTimeOfMaterialJob implements Job {
 
-	public static Logger _log = Logger.getLogger("OverTimeOfPositionJob");
+	public static Logger _log = Logger.getLogger("ForecastOverTimeOfMaterialJob");
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		JobKey jobKey = context.getJobDetail().getKey();

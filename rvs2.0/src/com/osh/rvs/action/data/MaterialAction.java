@@ -825,7 +825,7 @@ public class MaterialAction extends BaseAction {
 
 		String fileName =req.getParameter("fileName");
 
-		String contentType = "";
+		String contentType = DownloadService.CONTENT_TYPE_ZIP;
 		if (CommonStringUtil.isEmpty(fileName)) {
 			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
 		}else{

@@ -62,15 +62,10 @@ public class TriggerServlet extends HttpServlet {
 	private static final String METHOD_POSITION_REPORT = "preport";
 	/** 点检中断通知到线长 */
 	private static final String METHOD_BREAK_TO_TEC = "breakToTec";
-	/** 分配通箱库位 */
-	private static final String METHOD_ASSIGN_TC_SPACE = "assign_tc_space";
 
 	private static final String POSITION_601 = "00000000051";
 	/** 推送信息 */
 	private static final String METHOD_POST_MESSAGE = "postMessage";
-	
-	/** 消耗品订购 **/
-	private static final String METHOD_CONSUMABLE_ORDER = "consumableOrder";
 	
 	/**一周KPI**/
 	private static final String METHOD_WEEKLY_KPI = "weeklykpi";
@@ -363,7 +358,6 @@ public class TriggerServlet extends HttpServlet {
 	}
 
 	private void start(String... parameters) throws IOException {
-		String material_id = parameters[2];
 		String position_id = "";
 		String section_id = "";
 		if (parameters.length > 4) {
@@ -372,6 +366,9 @@ public class TriggerServlet extends HttpServlet {
 		} else {
 			return;
 		}
+
+		@SuppressWarnings("unused")
+		String material_id = parameters[2];
 
 		// 通知使用该工位的页面
 		Map<String, MessageInbound> map = BoundMaps.getPositionBoundMap();
