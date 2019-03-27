@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.equipment.DeviceJigOrderDetailMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<select id="search" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT
+		device_jig_quotation.entrust_no,
+	    device_jig_quotation.quotation_no,
+		device_jig_order.order_no,
+	    device_jig_order_detail.object_type,
+	    device_jig_order_detail.model_name,
+	    device_jig_order_detail.system_code,
+	    device_jig_order_detail.name,
+	    device_jig_order_detail.order_from,
+	    device_jig_order_detail.quantity,
+	    device_jig_invoice.order_price,
+	    device_jig_invoice.order_price * device_jig_order_detail.quantity AS total_order_price,
+	    device_jig_invoice.origin_price,
+	    (device_jig_invoice.origin_price - device_jig_invoice.order_price) * device_jig_order_detail.quantity AS differ_price,
+	    applicator_operator.name AS applicator_operator_name,
+	    device_jig_order_detail.nesssary_reason,
+	    device_jig_order_detail.applicate_date,
+		device_jig_quotation.entrust_send_date,
+		device_jig_invoice.send_date,
+		device_jig_quotation.acquire_date,
+	    device_jig_quotation.delivery_osh_date,
+	    COALESCE(device_jig_order_detail.reorder_scheduled_date, device_jig_quotation.scheduled_date) AS scheduled_date,
+	    device_jig_order_detail.recept_date,
+	    device_jig_order_detail.confirm_flg,
+	    device_jig_order_detail.inline_recept_date,
+	    inline_receptor_operator.name AS inline_receptor_operator_name,
+	    device_jig_order_detail.budget_month,
+	    device_jig_order_detail.budget_description,
+	    device_jig_order_detail.order_key,
+	    device_jig_order_detail.device_type_id,
+	    device_jig_order_detail.applicator_id,
+	    device_jig_order_detail.confirm_quantity,
+	    device_jig_order_detail.quotation_id
+	FROM
+		device_jig_order_detail
+	JOIN
+		device_jig_order
+	ON
+		device_jig_order_detail.order_key = device_jig_order.order_key
+	JOIN
+		operator applicator_operator
+	ON
+		applicator_operator.operator_id = device_jig_order_detail.applicator_id
+	LEFT JOIN
+		operator inline_receptor_operator
+	ON
+		inline_receptor_operator.operator_id = device_jig_order_detail.inline_receptor_id
+	LEFT JOIN
+		device_jig_quotation
+	ON
+		device_jig_quotation.quotation_id = device_jig_order_detail.quotation_id
+	LEFT JOIN
+		device_jig_invoice
+	ON
+		device_jig_invoice.invoice_id = device_jig_order_detail.order_invoice_id
+	]]>
+	<where>
+	<if test="quotation_no!=null and quotation_no!=''">
+	<![CDATA[
+		AND device_jig_quotation.quotation_no = #{quotation_no}
+	]]>
+	</if>
+	<if test="order_no!=null and order_no!=''">
+	<![CDATA[
+		AND device_jig_order.order_no = #{order_no}
+	]]>
+	</if>
+	<if test="model_name!=null and model_name!=''">
+	<![CDATA[
+		AND (device_jig_order_detail.model_name LIKE CONCAT('%',#{model_name},'%') 
+		OR device_jig_order_detail.system_code LIKE CONCAT('%',#{model_name},'%') 
+		OR device_jig_order_detail.name LIKE CONCAT('%',#{model_name},'%'))
+	]]>
+	</if>
+	<if test="applicator_id!=null and applicator_id!=''">
+	<![CDATA[
+		AND device_jig_order_detail.applicator_id = #{applicator_id}
+	]]>
+	</if>
+	<if test="order_invoice_flg == 1">
+	<![CDATA[
+		AND device_jig_order_detail.order_invoice_id IS NULL
+	]]>
+	</if>
+	<if test="send_date_start!=null and send_date_start!=''">
+	<![CDATA[
+		AND device_jig_invoice.send_date >= #{send_date_start}
+	]]>
+	</if>
+	<if test="send_date_end!=null and send_date_end!=''">
+	<![CDATA[
+		AND device_jig_invoice.send_date <= #{send_date_end}
+	]]>
+	</if>
+	<if test="scheduled_date_start!=null and scheduled_date_start!=''">
+	<![CDATA[
+		AND device_jig_quotation.scheduled_date >= #{scheduled_date_start}
+	]]>
+	</if>
+	<if test="scheduled_date_end!=null and scheduled_date_end!=''">
+	<![CDATA[
+		AND device_jig_quotation.scheduled_date <= #{scheduled_date_end}
+	]]>
+	</if>
+	<if test="recept_date_start!=null and recept_date_start!=''">
+	<![CDATA[
+		AND device_jig_order_detail.recept_date >= #{recept_date_start}
+	]]>
+	</if>
+	<if test="recept_date_end!=null and recept_date_end!=''">
+	<![CDATA[
+		AND device_jig_order_detail.recept_date <= #{recept_date_end}
+	]]>
+	</if>
+	<if test="inline_recept_flg == 1">
+	<![CDATA[
+		AND device_jig_order_detail.inline_recept_date IS NULL
+	]]>
+	</if>
+	</where>
+	</select>
+	
+	<insert id="insert" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	INSERT INTO device_jig_order_detail
+	(
+	order_key,
+	object_type,
+	device_type_id,
+	model_name,
+	system_code,
+	name,
+	order_from,
+	quantity,
+	order_invoice_id,
+	applicator_id,
+	nesssary_reason,
+	applicate_date,
+	quotation_id,
+	reorder_scheduled_date,
+	recept_date,
+	confirm_flg,
+	confirm_quantity,
+	inline_recept_date,
+	inline_receptor_id,
+	budget_month,
+	budget_description
+	)
+	VALUES
+	(
+	#{order_key},
+	#{object_type},
+	#{device_type_id},
+	#{model_name},
+	#{system_code},
+	#{name},
+	#{order_from},
+	#{quantity},
+	#{order_invoice_id},
+	#{applicator_id},
+	#{nesssary_reason},
+	#{applicate_date},
+	#{quotation_id},
+	#{reorder_scheduled_date},
+	#{recept_date},
+	#{confirm_flg},
+	#{confirm_quantity},
+	#{inline_recept_date},
+	#{inline_receptor_id},
+	#{budget_month},
+	#{budget_description}
+	)
+	]]>
+	</insert>
+	
+	<delete id="delete" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	DELETE FROM device_jig_order_detail WHERE order_key = #{order_key} 
+											AND object_type = #{object_type} 
+											AND device_type_id = #{device_type_id}
+											AND model_name = #{model_name}
+											AND applicator_id = #{applicator_id}
+	]]>
+	</delete>
+	
+	<update id="update" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE 
+		device_jig_order_detail
+	SET
+		system_code = #{system_code},
+		name = #{name},
+		order_from = #{order_from},
+		quantity = #{quantity},
+		nesssary_reason = #{nesssary_reason}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<select id="searchDetail" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT
+		device_jig_order.order_no,
+		device_jig_order_detail.order_key,
+		device_jig_order_detail.object_type,
+		device_jig_order_detail.device_type_id,
+		device_type.name AS device_type_name,
+		device_jig_order_detail.model_name,
+		device_jig_order_detail.system_code,
+		device_jig_order_detail.name,
+		device_jig_order_detail.order_from,
+		device_jig_order_detail.quantity,
+		device_jig_order_detail.order_invoice_id,
+		device_jig_order_detail.applicator_id,
+		applicator_operator.name AS applicator_operator_name,
+		device_jig_order_detail.nesssary_reason,
+		device_jig_order_detail.applicate_date,
+		device_jig_order_detail.quotation_id,
+		device_jig_order_detail.reorder_scheduled_date,
+		device_jig_order_detail.recept_date,
+		device_jig_order_detail.confirm_flg,
+		device_jig_order_detail.confirm_quantity,
+		device_jig_order_detail.inline_recept_date,
+		device_jig_order_detail.inline_receptor_id,
+		device_jig_order_detail.budget_month,
+		device_jig_order_detail.budget_description,
+		device_spare.available_inventory,
+		device_jig_quotation.scheduled_date
+	FROM
+		device_jig_order_detail
+	JOIN
+		device_jig_order
+	ON
+		device_jig_order_detail.order_key = device_jig_order.order_key
+	JOIN
+		operator applicator_operator
+	ON
+		applicator_operator.operator_id = device_jig_order_detail.applicator_id
+	LEFT JOIN
+		device_type
+	ON
+		device_jig_order_detail.device_type_id = device_type.device_type_id
+	LEFT JOIN
+		device_spare
+	ON
+		device_spare.device_type_id = device_jig_order_detail.device_type_id 
+		AND device_spare.model_name = device_jig_order_detail.model_name
+		AND device_spare.device_spare_type = 1
+	LEFT JOIN
+		device_jig_quotation
+	ON
+		device_jig_quotation.quotation_id = device_jig_order_detail.quotation_id
+	]]>
+	<where>
+	<if test="order_key!=null and order_key!=''">
+	<![CDATA[
+		AND device_jig_order_detail.order_key = #{order_key}
+	]]>
+	</if>
+	<if test="object_type!=null and object_type!=''">
+	<![CDATA[
+		AND device_jig_order_detail.object_type = #{object_type}
+	]]>
+	</if>
+	<if test="device_type_id!=null and device_type_id!=''">
+	<![CDATA[
+		AND device_jig_order_detail.device_type_id = #{device_type_id}
+	]]>
+	</if>
+	<if test="model_name!=null and model_name!=''">
+	<![CDATA[
+		AND device_jig_order_detail.model_name = #{model_name}
+	]]>
+	</if>
+	<if test="quotation_id!=null and quotation_id!=''">
+		AND device_jig_order_detail.quotation_id = #{quotation_id}
+	</if>
+	</where>
+	</select>
+	
+	<select id="searchInvoice" resultType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT
+		device_jig_order_detail.object_type,
+	    device_jig_order_detail.device_type_id,
+	    device_type.name AS device_type_name,
+	    device_jig_order_detail.model_name
+	FROM
+		device_jig_order_detail
+	LEFT JOIN
+		device_jig_quotation
+	ON
+		device_jig_quotation.quotation_id = device_jig_order_detail.quotation_id
+	LEFT JOIN
+		device_type
+	ON
+		device_type.device_type_id = device_jig_order_detail.device_type_id
+	WHERE
+		device_jig_quotation.acquire_date IS NULL
+	GROUP BY
+		device_jig_order_detail.object_type,
+	    device_jig_order_detail.device_type_id,
+	    device_jig_order_detail.model_name
+	]]>
+	</select>
+	
+	<update id="updateInvoiceId" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		order_invoice_id = #{order_invoice_id}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<select id="searchUnQuotation" resultType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT
+		device_jig_order.order_no,
+	    device_jig_order_detail.object_type,
+	    device_jig_order_detail.model_name,
+	    device_jig_order_detail.system_code,
+	    device_jig_order_detail.name,
+	    device_jig_order_detail.order_from,
+	    device_jig_order_detail.quantity,
+	    device_jig_invoice.order_price,
+	    device_jig_invoice.order_price * device_jig_order_detail.quantity AS total_order_price,
+	    device_jig_invoice.origin_price,
+	    device_jig_order_detail.order_key,
+	    device_jig_order_detail.device_type_id,
+	    device_jig_order_detail.applicator_id
+	FROM
+		device_jig_order_detail
+	JOIN
+		device_jig_order
+	ON
+		device_jig_order_detail.order_key = device_jig_order.order_key
+	LEFT JOIN
+		device_jig_invoice
+	ON
+		device_jig_invoice.invoice_id = device_jig_order_detail.order_invoice_id
+	WHERE
+		device_jig_order_detail.quotation_id IS NULL
+	ORDER BY
+		device_jig_order.order_no
+	]]>
+	</select>
+	
+	<update id="updateQuotationId" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		quotation_id = #{quotation_id}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<update id="updateConfirm" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		confirm_flg = #{confirm_flg},
+		recept_date = #{recept_date}
+	]]>
+	<if test="confirm_flg == 2">
+	<![CDATA[
+		,reorder_scheduled_date = #{reorder_scheduled_date}
+	]]>
+	</if>
+	<![CDATA[
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<select id="getOrderDetail" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT 
+		order_key,
+	    object_type,
+	    device_type_id,
+	    model_name,
+	    system_code,
+	    name,
+	    order_from,
+	    quantity,
+	    order_invoice_id,
+	    applicator_id,
+	    nesssary_reason,
+	    applicate_date,
+	    quotation_id,
+	    reorder_scheduled_date,
+	    recept_date,
+	    confirm_flg,
+	    confirm_quantity,
+	    inline_recept_date,
+	    inline_receptor_id,
+	    budget_month,
+	    budget_description
+	FROM 
+		device_jig_order_detail
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</select>
+	
+	<update id="updateInlineRecept" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		inline_recept_date = #{inline_recept_date},
+		inline_receptor_id = #{inline_receptor_id}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<update id="updateBudget" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		budget_month = #{budget_month},
+		budget_description = #{budget_description}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<update id="updateConfirmQuantity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_order_detail
+	SET
+		confirm_quantity = #{confirm_quantity}
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+</mapper>

@@ -3,6 +3,8 @@ package com.osh.rvs.mapper.master;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.osh.rvs.bean.master.JigManageEntity;
 
 public interface JigManageMapper {
@@ -43,5 +45,13 @@ public interface JigManageMapper {
 	public Date checkWasteInPeriod(JigManageEntity toolsManageEntity);
 	
 	public void disband(JigManageEntity toolsManageEntity);
+
+	/**
+	 * 根据治具NO.查询
+	 * 
+	 * @param jig_no
+	 * @return
+	 */
+	public List<JigManageEntity> searchByJigNo(@Param("jig_no") String jig_no);
 
 }

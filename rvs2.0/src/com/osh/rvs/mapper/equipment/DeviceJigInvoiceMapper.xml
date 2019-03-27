@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.equipment.DeviceJigInvoiceMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<!-- 新建设备工具治具订购询价 -->
+	<insert id="insert" parameterType="DeviceJigInvoiceEntity">
+	<![CDATA[
+	INSERT INTO device_jig_invoice
+	(
+	object_type,
+	device_type_id,
+	model_name,
+	send_date,
+	order_price,
+	origin_price,
+	comment
+	)
+	VALUES
+	(
+	#{object_type},
+	#{device_type_id},
+	#{model_name},
+	#{send_date},
+	#{order_price},
+	#{origin_price},
+	#{comment}
+	)
+	]]>
+	</insert>
+	
+	<update id="updatePrice" parameterType="DeviceJigInvoiceEntity">
+	<![CDATA[
+	UPDATE 
+		device_jig_invoice
+	SET
+		order_price = #{order_price},
+		origin_price = #{origin_price}
+	WHERE
+		invoice_id = #{invoice_id}
+	]]>
+	</update>
+
+	<!-- 根据询价ID查询订购询价信息 -->
+	<select id="getDeviceJigInvoiceById" resultType="DeviceJigInvoiceEntity" parameterType="string">
+	<![CDATA[
+	SELECT
+		invoice_id,
+		object_type,
+		device_type_id,
+		model_name,
+		send_date,
+		order_price,
+		origin_price,
+		comment
+	FROM
+		device_jig_invoice
+	WHERE
+		invoice_id = #{invoice_id}
+	]]>
+	</select>
+	
+	<select id="getLastTimeInvoice" resultType="DeviceJigInvoiceEntity" parameterType="DeviceJigInvoiceEntity">
+	<![CDATA[
+	SELECT
+		invoice_id,
+		object_type,
+		device_type_id,
+		model_name,
+        send_date,
+		order_price,
+		origin_price,
+		comment
+	FROM
+		device_jig_invoice dji
+	WHERE
+		object_type = #{object_type}
+	AND
+		device_type_id = #{device_type_id}
+	AND
+		model_name = #{model_name}
+	AND 
+      send_date = (SELECT 
+      					MAX(send_date) 
+      			   FROM 
+      					device_jig_invoice sub 
+      				WHERE 
+      					sub.object_type = dji.object_type 
+      				AND 
+      					sub.device_type_id = dji.device_type_id
+      				AND 
+      					sub.model_name = dji.model_name
+      				)
+	]]>
+	</select>
+</mapper>

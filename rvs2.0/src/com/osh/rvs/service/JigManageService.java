@@ -385,4 +385,16 @@ public class JigManageService {
 		}
 	}
 
+	public List<ToolsManageForm> searchByJigNo(String jig_no, SqlSession conn) {
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+
+		List<ToolsManageForm> toolsDistributeForms = new ArrayList<ToolsManageForm>();
+
+		List<JigManageEntity> distributeEntities = dao.searchByJigNo(jig_no);
+
+		BeanUtil.copyToFormList(distributeEntities, toolsDistributeForms, CopyOptions.COPYOPTIONS_NOEMPTY, ToolsManageForm.class);
+
+		return toolsDistributeForms;
+	}
+
 }

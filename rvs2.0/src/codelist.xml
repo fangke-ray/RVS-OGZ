@@ -797,12 +797,30 @@
 		<value code="26">维修更换部件</value>
 		<value code="99">盘点</value>
 	</codelist>
-	
+
 	<codelist name="device_spare_adjust_manage_reason_type">
 		<value code="11">入库</value>
 		<value code="12">线上借调返还</value>
 		<value code="13">外借返还</value>
 		<value code="23">外借</value>
+	</codelist>
+
+	<codelist name="device_jig_object_type">
+		<value code="1">设备</value>
+		<value code="2">专用工具</value>
+		<value code="3">一般工具</value>
+	</codelist>
+
+	<codelist name="device_jig_order_from">
+		<value code="1">OMSC</value>
+		<value code="2">OSZ</value>
+		<value code="3">德国</value>
+		<value code="4">日本</value>
+	</codelist>
+
+	<codelist name="device_jig_confirm_flg">
+		<value code="1">OK</value>
+		<value code="2">NG</value>
 	</codelist>
 
 </codelist-config>

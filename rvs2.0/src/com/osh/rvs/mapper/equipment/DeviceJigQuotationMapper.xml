@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.equipment.DeviceJigQuotationMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> </cache -->
+
+	<select id="searchAll" resultType="DeviceJigQuotationEntity">
+	<![CDATA[
+	SELECT
+		quotation_id,
+		quotation_no,
+		acquire_date,
+		entrust_no,
+		entrust_send_date,
+		delivery_osh_date,
+		scheduled_date,
+		comment,
+		CASE
+			WHEN scheduled_date IS NULL THEN 1
+            ELSE 0
+        END AS scheduled_flg
+	FROM
+		device_jig_quotation
+	ORDER BY
+		scheduled_flg DESC,scheduled_date DESC
+	]]>
+	</select>
+
+	<!-- 新建设备工具治具订购报价 -->
+	<insert id="insert" parameterType="DeviceJigQuotationEntity">
+	<![CDATA[
+	INSERT INTO device_jig_quotation
+	(
+	quotation_no,
+	acquire_date,
+	entrust_no,
+	entrust_send_date,
+	delivery_osh_date,
+	scheduled_date,
+	comment
+	)
+	VALUES
+	(
+	#{quotation_no},
+	#{acquire_date},
+	#{entrust_no},
+	#{entrust_send_date},
+	#{delivery_osh_date},
+	#{scheduled_date},
+	#{comment}
+	)
+	]]>
+	</insert>
+	
+	<update id="update" parameterType="DeviceJigQuotationEntity">
+	<![CDATA[
+	UPDATE
+		device_jig_quotation
+	SET
+		scheduled_date = #{scheduled_date},
+		comment = #{comment}
+	]]>
+	<if test="acquire_date!=null and acquire_date!=''">
+	<![CDATA[
+		,acquire_date = #{acquire_date}
+	]]>
+	</if>
+	<if test="entrust_no!=null and entrust_no!=''">
+	<![CDATA[
+		,entrust_no = #{entrust_no}
+	]]>
+	</if>
+	<if test="entrust_send_date!=null and entrust_send_date!=''">
+	<![CDATA[
+		,entrust_send_date = #{entrust_send_date}
+	]]>
+	</if>
+	<if test="delivery_osh_date!=null and delivery_osh_date!=''">
+	<![CDATA[
+		,delivery_osh_date = #{delivery_osh_date}
+	]]>
+	</if>
+	<![CDATA[
+	WHERE
+		quotation_id = #{quotation_id}
+	]]>
+	</update>
+	
+	<select id="getDeviceJigQuotationById" resultType="DeviceJigQuotationEntity" parameterType="string">
+	<![CDATA[
+	SELECT
+		quotation_id,
+		quotation_no,
+		acquire_date,
+		entrust_no,
+		entrust_send_date,
+		delivery_osh_date,
+		scheduled_date,
+		comment
+	FROM
+		device_jig_quotation
+	WHERE
+		quotation_id = #{quotation_id}
+	]]>
+	</select>
+
+	<select id="getDeviceJigQuotationByQuotationNo" resultType="DeviceJigQuotationEntity" parameterType="string">
+	<![CDATA[
+	SELECT
+		quotation_id,
+		quotation_no,
+		acquire_date,
+		entrust_no,
+		entrust_send_date,
+		delivery_osh_date,
+		scheduled_date,
+		comment
+	FROM
+		device_jig_quotation
+	WHERE
+		quotation_no = #{quotation_no}
+	]]>
+	</select>
+</mapper>

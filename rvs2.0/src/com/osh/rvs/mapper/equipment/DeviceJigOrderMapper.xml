@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.equipment.DeviceJigOrderMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<insert id="insert" parameterType="DeviceJigOrderEntity">
+	<![CDATA[
+	INSERT INTO device_jig_order (order_no) VALUES (#{order_no})
+	]]>
+	</insert>
+	
+	<select id="searchUnQuotation" resultType="DeviceJigOrderEntity">
+	<![CDATA[
+	SELECT 
+	    device_jig_order.order_key,
+	    device_jig_order.order_no,
+	    GROUP_CONCAT(device_jig_order_detail.quotation_id) AS quotation_id
+	FROM
+	    device_jig_order
+	LEFT JOIN
+		device_jig_order_detail
+	ON
+		device_jig_order.order_key = device_jig_order_detail.order_key
+	GROUP BY
+		device_jig_order.order_key
+	HAVING 
+		quotation_id IS NULL
+	]]>
+	</select>
+	
+	<select id="getDeviceJigOrderByOrderNo" resultType="DeviceJigOrderEntity" parameterType="string">
+	<![CDATA[
+		SELECT order_key,order_no FROM device_jig_order WHERE order_no = #{order_no}
+	]]>
+	</select>
+</mapper>

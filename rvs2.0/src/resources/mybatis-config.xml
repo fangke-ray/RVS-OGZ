@@ -94,6 +94,10 @@
 		<typeAlias alias="PartialWarehouseDnEntity" type="com.osh.rvs.bean.partial.PartialWarehouseDnEntity"/>
 		<typeAlias alias="DeviceSpareEntity" type="com.osh.rvs.bean.equipment.DeviceSpareEntity"/>
 		<typeAlias alias="DeviceSpareAdjustEntity" type="com.osh.rvs.bean.equipment.DeviceSpareAdjustEntity"/>
+		<typeAlias alias="DeviceJigOrderEntity" type="com.osh.rvs.bean.equipment.DeviceJigOrderEntity"/>
+		<typeAlias alias="DeviceJigOrderDetailEntity" type="com.osh.rvs.bean.equipment.DeviceJigOrderDetailEntity"/>
+		<typeAlias alias="DeviceJigQuotationEntity" type="com.osh.rvs.bean.equipment.DeviceJigQuotationEntity"/>
+		<typeAlias alias="DeviceJigInvoiceEntity" type="com.osh.rvs.bean.equipment.DeviceJigInvoiceEntity"/>
 		<typeAlias alias="DeviceBackupEntity" type="com.osh.rvs.bean.equipment.DeviceBackupEntity"/>
 	</typeAliases>
 	<typeHandlers />
@@ -202,6 +206,10 @@
 		
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareAdjustMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigOrderMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigOrderDetailMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigQuotationMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigInvoiceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceBackupMapper.xml"/>
 	</mappers>
 </configuration> 

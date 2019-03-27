@@ -86,6 +86,9 @@
 		<form-bean name="FactProductionFeatureForm" type="com.osh.rvs.form.partial.FactProductionFeatureForm"></form-bean>
 		<form-bean name="PartialWarehouseForm" type="com.osh.rvs.form.partial.PartialWarehouseForm"></form-bean>
 		<form-bean name="DeviceSpareForm" type="com.osh.rvs.form.equipment.DeviceSpareForm"></form-bean>
+		<form-bean name="DeviceJigInvoiceForm" type="com.osh.rvs.form.equipment.DeviceJigInvoiceForm"></form-bean>
+		<form-bean name="DeviceJigQuotationForm" type="com.osh.rvs.form.equipment.DeviceJigQuotationForm"></form-bean>
+		<form-bean name="DeviceJigOrderDetailForm" type="com.osh.rvs.form.equipment.DeviceJigOrderDetailForm"></form-bean>
 		<form-bean name="deviceBackupForm" type="com.osh.rvs.form.equipment.DeviceBackupForm"></form-bean>
 	</form-beans>
 
@@ -931,6 +934,34 @@
 				parameter="method"
 				validate="false">
 				<forward name="init" path="/pages/equipment/device_spare.jsp"/>
+		</action>
+
+		<!-- 设备工具治具订购询价 -->
+		<action path="/device_jig_invoice"
+				type="com.osh.rvs.action.equipment.DeviceJigInvoiceAction"
+				name="DeviceJigInvoiceForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+		</action>
+		
+		<!-- 设备工具治具订购报价 -->
+		<action path="/device_jig_quotation"
+				type="com.osh.rvs.action.equipment.DeviceJigQuotationAction"
+				name="DeviceJigQuotationForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+		</action>
+
+		<!-- 设备工具订购申请 -->
+		<action path="/device_jig_order"
+				type="com.osh.rvs.action.equipment.DeviceJigOrderAction"
+				name="DeviceJigOrderDetailForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/equipment/device_jig_order.jsp"/>
 		</action>
 
 		<!-- 设备工具替代管理 -->

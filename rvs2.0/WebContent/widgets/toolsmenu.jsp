@@ -44,6 +44,7 @@ $(function() {
 		       <a target="_parent" href="devices_distribute.do">设备・一般工具分布</a><br>		      
 		       <a target="_parent" href="tools_distribute.do">专用工具分布</a><br>
 <% } %>
+			   <a target="_parent" href="device_jig_order.do">设备工具订购申请</a><br>
 			   <a target="_parent" href="device_backup.do">设备工具替代管理</a><br>
 		    </div>
 		   

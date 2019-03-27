@@ -494,4 +494,36 @@
 		WHERE jig_manage_id=#{jig_manage_id}
 	   ]]>
 	</update>
+	
+	<select id="searchByJigNo" resultType="JigManageEntity" parameterType="string">
+	<![CDATA[
+	SELECT 
+		jig_manage_id,
+	    manage_code,
+	    jig_no,
+	    jig_name,
+	    count_in,
+	    total_price,
+	    classify,
+	    manager_operator_id,
+	    section_id,
+	    line_id,
+	    position_id,
+	    location,
+	    import_date,
+	    provide_date,
+	    waste_date,
+	    waste_decide_date,
+	    status,
+	    responsible_operator_id,
+	    comment,
+	    delete_flg,
+	    updated_by,
+	    updated_time
+	FROM 
+		jig_manage
+	WHERE
+		jig_no = #{jig_no}
+	 ]]>
+	</select>
 </mapper>
