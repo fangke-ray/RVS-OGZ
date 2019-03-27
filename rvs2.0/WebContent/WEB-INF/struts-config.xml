@@ -725,16 +725,6 @@
 				<forward name="init" path="/pages/infect/electric_iron_device.jsp"></forward>
 		</action>
 
-		<!-- 烘箱管理 -->
-		<action path="/drying_oven_device" 
-				type="com.osh.rvs.action.infect.DryingOvenDeviceAction" 
-				name="DryingOvenDeviceForm"
-				parameter="method"
-				scope="request"
-				validate="false">
-			   <forward name="init" path="/widgets/infect/drying_oven_device.jsp" />
-		</action>
-
 		<!-- 客户管理 -->
 		<action path="/customer"
 				type="com.osh.rvs.action.master.CustomerAction"
