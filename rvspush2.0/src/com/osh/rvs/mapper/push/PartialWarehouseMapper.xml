@@ -72,7 +72,7 @@
 	<select id="countCollectCaseStandardTime" resultType="BigDecimal" parameterType="string">
 	<![CDATA[
 		SELECT
-		    COALESCE(SUM(pwd.quantity * pbs.collect_case),0)
+		    COALESCE(SUM(pwd.collation_quantity * pbs.collect_case),0)
 		FROM
 			partial_warehouse_detail pwd
 		JOIN
@@ -86,9 +86,9 @@
 		JOIN
 			fact_production_feature fpf
 		ON
-			fpf.partial_warehouse_key = pwd.key
+			fpf.fact_pf_key = pwd.fact_pf_key
 		WHERE
-			pwd.key = #{key}
+			fpf.fact_pf_key = #{fact_pf_key}
 	]]>
 	</select>
 	

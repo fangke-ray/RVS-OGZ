@@ -98,22 +98,28 @@ public class PartialCollationService {
 		BigDecimal totalTime = new BigDecimal("0");
 
 		for (PartialWarehouseDetailForm form : list) {
+			// 规格种别
 			String specKind = form.getSpec_kind();
-
+			// 数量
 			Integer quantity = Integer.valueOf(form.getQuantity());
 			// 上架
 			BigDecimal onShelf = new BigDecimal(form.getOn_shelf());
-
 
 			// 标准工时
 			BigDecimal time = new BigDecimal("0");
 
 			// 【B1：核对+上架】
 			if ("20".equals(productionType)) {
-				if (onShelf.compareTo(BigDecimal.ZERO) < 0)
+				if (onShelf.compareTo(BigDecimal.ZERO) < 0){//上架时间为负数
 					time = map.get(specKind).getCollation();
 					time = time.multiply(new BigDecimal(quantity));
-
+					
+					// 拆盒标准工时
+					BigDecimal collectCaseTime = map.get(specKind).getCollect_case();
+					// 乘以数量
+					collectCaseTime = collectCaseTime.multiply(new BigDecimal(quantity));
+					totalTime = totalTime.add(collectCaseTime);
+				}
 			} else if ("21".equals(productionType)) {// 【B2：核对】
 				if (onShelf.compareTo(BigDecimal.ZERO) > 0)
 					time =map.get(specKind).getCollation();

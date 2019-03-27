@@ -100,14 +100,8 @@ public class PartialReceptService {
 					// 总数量
 					Integer totalQuantity = specKindMap.get(specKind);
 
-					// 拆盒标准工时
-					BigDecimal collectCaseTime = standardMap.get(specKind).getCollect_case();
-
 					// 收货标准工时
 					BigDecimal receptTime = standardMap.get(specKind).getRecept();
-
-					collectCaseTime = collectCaseTime.multiply(new BigDecimal(totalQuantity));
-					totalTime = totalTime.add(collectCaseTime);
 
 					// 装箱数量
 					BigDecimal boxCount = new BigDecimal(standardMap.get(specKind).getBox_count());
