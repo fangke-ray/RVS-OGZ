@@ -111,12 +111,6 @@ public class PartialWarehouseService {
 						if (standardTime != null) {
 							totalStandardTime = totalStandardTime.add(standardTime);
 						}
-
-						standardTime = dao.searchCollectCaseStandardTime(entity);
-						if (standardTime != null) {
-							totalStandardTime = totalStandardTime.add(standardTime);
-						}
-
 						totalStandardTime = totalStandardTime.add(bdPartialReceptMoveCost);
 					} else if ("50".equals(productionType)) {// E1：NS工程出库,
 						totalStandardTime = totalStandardTime.add(new BigDecimal(NS_STANDARD_TIME));
@@ -124,6 +118,9 @@ public class PartialWarehouseService {
 						totalStandardTime = totalStandardTime.add(new BigDecimal(DEC_STANDARD_TIME));
 					} else if("20".equals(productionType)){//B1：核对+上架
 						totalStandardTime = dao.searchCurrentCollectAndOnShelfStandardTime(factPfKey);
+						//零件出入库拆盒工时标准
+						BigDecimal collectCaseTime = dao.searchCurrentCollectCaseStandardTime(factPfKey);
+						totalStandardTime = totalStandardTime.add(collectCaseTime);
 					} else if("21".equals(productionType)){//B2：核对
 						totalStandardTime = dao.searchCurrentCollectStandardTime(factPfKey);
 					} else if("30".equals(productionType)){//C：分装
@@ -324,7 +321,8 @@ public class PartialWarehouseService {
 	private PartialWarehouseEntity setPercent(String operatorID, String move, PartialWarehouseMapper dao) {
 		PartialWarehouseEntity entity = new PartialWarehouseEntity();
 		entity.setOperator_id(operatorID);
-
+		entity.setIsNow(2);
+		
 		PartialWarehouseEntity connd = new PartialWarehouseEntity();
 		// 操作者
 		connd.setOperator_id(operatorID);
@@ -339,12 +337,7 @@ public class PartialWarehouseService {
 		BigDecimal standardTime = dao.searchTodayReceptStandardTime(operatorID);
 		if(standardTime == null) standardTime = BigDecimal.ZERO;
 
-		// 拆盒标准工时(分钟)
-		entity.setIsNow(2);
-		BigDecimal collectCaseStandardTime = dao.searchCollectCaseStandardTime(entity);
-		if(collectCaseStandardTime == null) collectCaseStandardTime = BigDecimal.ZERO;
-
-		BigDecimal receptStandardTime = standardTime.add(collectCaseStandardTime);
+		BigDecimal receptStandardTime = standardTime;
 
 		//收货次数
 		Integer countRecept = dao.count(operatorID, "10");
@@ -368,6 +361,10 @@ public class PartialWarehouseService {
 		connd.setProduction_type(20);
 		standardTime = dao.searchTodayCollectAndOnShelfStandardTime(operatorID);
 		if (standardTime != null) {
+			// 拆盒标准工时(分钟)
+			BigDecimal collectCaseStandardTime = dao.searchTodayCollectCaseStandardTime(operatorID);
+			standardTime = standardTime.add(collectCaseStandardTime);
+			
 			totalStandardTime = totalStandardTime.add(standardTime);
 			actualTime = dao.searchSpentMins(connd);
 			if (actualTime != null) {

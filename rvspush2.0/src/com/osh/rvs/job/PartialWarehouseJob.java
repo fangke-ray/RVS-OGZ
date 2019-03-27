@@ -262,10 +262,6 @@ public class PartialWarehouseJob implements Job {
 							// 收货标准工时
 							BigDecimal receptStandardTime = dao.countReceptStandardTime(key);
 							standardTime = standardTime.add(receptStandardTime);
-
-							// 收货标准工时
-							BigDecimal collectCase = dao.countCollectCaseStandardTime(key);
-							standardTime = standardTime.add(collectCase);
 						}
 					}
 
@@ -277,6 +273,10 @@ public class PartialWarehouseJob implements Job {
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
 						BigDecimal collationStandardTime = dao.countCollationStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
+						
+						// 拆盒
+						BigDecimal collectCase = dao.countCollectCaseStandardTime(entity.getFact_pf_key());
+						standardTime = standardTime.add(collectCase);
 					}
 
 					break;
@@ -545,10 +545,6 @@ public class PartialWarehouseJob implements Job {
 			if (productionType == 10) {// A：收货
 				// 标准时间
 				standardTime = partialWarehouseMapper.countReceptStandardTime(key);
-				// 拆盒
-				BigDecimal collectCase = partialWarehouseMapper.countCollectCaseStandardTime(key);
-
-				standardTime = standardTime.add(collectCase);
 				standardTime = standardTime.add(moveCost);
 
 				cell.setCellValue(standardTime.doubleValue());
@@ -557,6 +553,10 @@ public class PartialWarehouseJob implements Job {
 				cell.setCellValue(formulaEvaluator.evaluate(row.getCell(5)).getNumberValue());
 			} else if (productionType == 20) {// B1：核对+上架
 				standardTime = partialWarehouseMapper.countCollationAndOnShelfStandardTime(factPfKey);
+				// 拆盒
+				BigDecimal collectCase = partialWarehouseMapper.countCollectCaseStandardTime(factPfKey);
+				standardTime = standardTime.add(collectCase);
+				
 				cell.setCellValue(standardTime.doubleValue());
 			} else if (productionType == 21) {// B2：核对
 				standardTime = partialWarehouseMapper.countCollationStandardTime(factPfKey);
@@ -855,7 +855,7 @@ public class PartialWarehouseJob implements Job {
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
 		//today.set(Calendar.MONTH, 0);
-		today.set(Calendar.DATE, 28);
+		//today.set(Calendar.DATE, 28);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();

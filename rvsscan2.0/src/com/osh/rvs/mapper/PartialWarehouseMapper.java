@@ -13,7 +13,7 @@ public interface PartialWarehouseMapper {
 
 	/**
 	 * 查询正在进行中的作业
-	 *
+	 * 
 	 */
 	public PartialWarehouseEntity searchUnFinish(@Param("operator_id") String operator_id);
 
@@ -67,38 +67,45 @@ public interface PartialWarehouseMapper {
 	 */
 	public BigDecimal searchTodayOnShelfStandardTime(@Param("operator_id") String operator_id);
 
-
 	/**
 	 * 作业次数
+	 * 
 	 * @param entity
 	 * @return
 	 */
-	public Integer count(@Param("operator_id") String operator_id,@Param("production_type") String production_type);
+	public Integer count(@Param("operator_id") String operator_id, @Param("production_type") String production_type);
 
 	/**
-	 * 零件出入库拆盒工时标准
-	 *
+	 * 当前作业零件出入库拆盒工时标准
+	 * 
 	 * @return
 	 */
-	public BigDecimal searchCollectCaseStandardTime(PartialWarehouseEntity entity);
+	public BigDecimal searchCurrentCollectCaseStandardTime(@Param("fact_pf_key") String fact_pf_key);
+
+	/**
+	 * 当日零件出入库拆盒工时标准
+	 * 
+	 * @return
+	 */
+	public BigDecimal searchTodayCollectCaseStandardTime(@Param("operator_id") String operator_id);
 
 	/**
 	 * 零件出入库工时标准
-	 *
+	 * 
 	 * @return
 	 */
 	public BigDecimal searchStandardTime(PartialWarehouseEntity entity);
 
 	/**
 	 * 统计作业时间(分钟)(isNow=1:当前正在做的总计用时，isNow=2:当日已经完成作业用时，isNow=3:当前正在作业用时)
-	 *
+	 * 
 	 * @return
 	 */
 	public Integer searchSpentMins(PartialWarehouseEntity entity);
 
 	/**
 	 * 当日收货数量
-	 *
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -106,15 +113,15 @@ public interface PartialWarehouseMapper {
 
 	/**
 	 * 当日核对+上架数量
-	 *
+	 * 
 	 * @param entity
 	 * @return
 	 */
 	public Integer searchCurrentCollationAndOnShelfQuantity(@Param("operator_id") String operator_id);
-	
+
 	/**
 	 * 当日核对数量
-	 *
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -122,7 +129,7 @@ public interface PartialWarehouseMapper {
 
 	/**
 	 * 当日分装/上架/出库数量
-	 *
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -130,14 +137,14 @@ public interface PartialWarehouseMapper {
 
 	/**
 	 * 待处理单
-	 *
+	 * 
 	 * @return
 	 */
 	public List<PartialWarehouseEntity> waittingProcess();
 
 	/**
 	 * 出库数量
-	 *
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -145,13 +152,14 @@ public interface PartialWarehouseMapper {
 
 	/**
 	 * 出库待处理单
-	 *
+	 * 
 	 * @return
 	 */
 	public List<PartialWarehouseEntity> waittingOutLine();
 
 	/**
 	 * 当前作业经过时间
+	 * 
 	 * @param fact_pf_key
 	 * @return
 	 */

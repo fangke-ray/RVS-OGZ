@@ -21,7 +21,7 @@ public interface PartialWarehouseMapper {
 	/**
 	 * 拆盒标准工时
 	 */
-	public BigDecimal countCollectCaseStandardTime(@Param("key") String key);
+	public BigDecimal countCollectCaseStandardTime(@Param("fact_pf_key") String fact_pf_key);
 
 	/**
 	 * 核对+上架标准工时
