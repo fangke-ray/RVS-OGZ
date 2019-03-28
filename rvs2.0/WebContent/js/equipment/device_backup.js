@@ -141,7 +141,7 @@ var showlist = function(listdata){
 				{name:'line_name',index:'line_name',width:90},
 				{name:'backup_in_manage',index:'backup_in_manage',width:210},
 				{name:'spare_available_inventory',index : 'spare_available_inventory',width:60,align:'right',
-					sorttype:'number',formatter:'number', formatoptions:{defaultValue:'-'}},
+					sorttype:'integer',formatter:'integer', formatoptions:{defaultValue:'-'}},
 				{name:'evaluation',index:'evaluation',width:50,align:'center',width:40,
 					formatter : function(value, rdata) {
 						if (value) {

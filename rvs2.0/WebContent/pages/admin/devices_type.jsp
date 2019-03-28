@@ -67,6 +67,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">
 						<select id="search_specialized" class="ui-widget-content">${specializedDeviceType}</select>
 					</td>
+					<td class="ui-state-default td-title">代替使用方式</td>
+					<td class="td-content" id="search_alter_flg" style="min-width:238px">
+						<input type="radio" name="alter_flg" id="search_alter_flg_all" value="" class="ui-widget-content" checked>
+						<label for="search_alter_flg_all" radio>(全部)</label>
+						<input type="radio" name="alter_flg" alt="管理替代" id="search_alter_flg_yes" value="1" class="ui-widget-content">
+						<label for="search_alter_flg_yes" radio>个别指定代替关系</label>
+						<input type="radio" name="alter_flg" alt="开放替代" id="search_alter_flg_free" value="0" class="ui-widget-content">
+						<label for="search_alter_flg_free" radio>开放同型号代替</label>
+						<input type="radio" name="alter_flg" alt="不便替代" id="search_alter_flg_forbid" value="2" class="ui-widget-content">
+						<label for="search_alter_flg_forbid" radio>不便互相代替</label>
+					</td>
 				</tr>
 			</table>
 			<div style="height:44px">
@@ -110,8 +121,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content" id="edit_alter_flg" style="min-width:238px">
 						<input type="radio" name="alter_flg" alt="管理替代" id="alter_flg_yes" value="1" class="ui-widget-content" checked>
 						<label for="alter_flg_yes" radio>个别指定代替关系</label>
-						<input type="radio" name="alter_flg" alt="开放替代" id="alter_flg_no" value="0" class="ui-widget-content">
-						<label for="alter_flg_no" radio>开放同型号代替</label>
+						<input type="radio" name="alter_flg" alt="开放替代" id="alter_flg_free" value="0" class="ui-widget-content">
+						<label for="alter_flg_free" radio>开放同型号代替</label>
+						<input type="radio" name="alter_flg" alt="不便替代" id="alter_flg_forbid" value="2" class="ui-widget-content">
+						<label for="alter_flg_forbid" radio>不便互相代替</label>
 					</td>
 				</tr>
 				<tr class="safety_guide">

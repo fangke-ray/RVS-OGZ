@@ -28,6 +28,7 @@ $(function(){
 	$("#resetbutton").click(function(){
 		$("#search_name").val("");
 		$("#search_specialized").val("").trigger("change");
+		$("#search_alter_flg input:eq(0)").attr("checked", true).trigger("change");
 	});
 
 	//新建---取消button
@@ -40,7 +41,7 @@ $(function(){
 		$("#show_no_photo").show();
 	});
 
-	$("#edit_alter_flg").buttonset();
+	$("#search_alter_flg, #edit_alter_flg").buttonset();
 
 	$("#update_photo").parent().on("change", "#update_photo", uploadPhoto);
 
@@ -55,7 +56,8 @@ var findit = function(data) {
 	if (!data) {
 		keepSearchData = {
 			"name":$("#search_name").val(),
-			"specialized":$("#search_specialized").val()
+			"specialized":$("#search_specialized").val(),
+			"alter_flg":$("#search_alter_flg input:checked").val()
 		};
 	} else {
 		keepSearchData = data;
@@ -105,11 +107,11 @@ function filed_list(finished){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['','治具点检ID','品名','特定<br>设备工具种类','危险归类', '安全操作<br>手顺','替代标记','删除标记','最后更新人','最后更新时间'],
+			colNames:['','治具点检ID','品名','特定<br>设备工具种类','危险归类', '安全操作<br>手顺','代替使用<br>方式','删除标记','最后更新人','最后更新时间'],
 			colModel:[
 				{name:'myac',fixed:true,width:40,sortable:false,resize:false,formatter:'actions',formatoptions:{keys:true, editbutton:false}},
 				{name:'devices_type_id',index:'devices_type_id', hidden:true},
-				{name:'name',index:'name',width : 80},
+				{name:'name',index:'name',width : 60},
 				{name:'specialized',index:'specialized',width : 35,formatter : 'select',
 					editoptions : {
 						value : $("#gSpecializedDeviceType").val()
@@ -121,8 +123,13 @@ function filed_list(finished){
 						value : "0:;1:有"
 					},align:'center'
 				},
-				{name:'alter_flg',index:'alter_flg',hidden:true},
-				{name:'delete_flg',index:'delete_flg',hidden:true},
+				{name : 'alter_flg', index : 'alter_flg', width : 20, align : 'center',
+					formatter : 'select',
+					editoptions : {
+						value : "0:自由;1:指定;2:不便"
+					}
+				},
+				{name:'delete_flg',index:'delete_flg',align:'center',hidden:true},
 				{name:'updated_by',index:'updated_by',width : 35},
 				{name:'updated_time',index:'updated_time',width : 50}
 				],

@@ -96,7 +96,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<span class="ui-icon ui-icon-circle-triangle-n"></span>
 						</a>
 					</div>
-				
+					<div class="ui-widget-content">
+						<span style="padding-left:2em;">评价说明：◎=本工程有替代品    ○=他工程有替代品    △=临时共用    ×=无替代品重点管理对象</span>
+					</div>
+		
 					<table id="list"></table>
 					<div id="listpager"></div>
 					<div class="ui-widget-header areabase"style="padding-top:4px;">
