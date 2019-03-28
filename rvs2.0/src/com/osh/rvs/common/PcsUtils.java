@@ -1912,6 +1912,12 @@ public class PcsUtils {
 											if ("1".equals(sInput)) {
 												xls.Replace("@#"+pcid+"??", CHECKED);
 											} else if ("-1".equals(sInput)) {
+												Dispatch cell = xls.Locate("@#"+pcid+"??");
+												if (cell != null) {
+													xls.SetCellBackGroundColor(cell, "255");
+													Dispatch font = xls.GetCellFont(cell);
+													Dispatch.put(font, "Color", "16777215"); // FFFFFF
+												}
 												xls.Replace("@#"+pcid+"??", FORBIDDEN);
 											}
 											xls.Replace("@#"+pcid+"??", NOCARE);
@@ -1927,7 +1933,11 @@ public class PcsUtils {
 															cell);
 												}
 												xls.Replace("@#"+pcid+"??", ""); // sign
-												xls.Replace("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??", DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+												if (dateCell != null) {
+													xls.SetNumberFormatLocal(dateCell, "m-d;@");
+													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												}
 											} else if ("-1".equals(sInput)) { 
 												// 不做
 												// if 611
@@ -1939,7 +1949,11 @@ public class PcsUtils {
 												} else {
 													xls.Replace("@#"+pcid+"??", NOCARE);
 												}
-												xls.Replace("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??", DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+												if (dateCell != null) {
+													xls.SetNumberFormatLocal(dateCell, "m-d;@");
+													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												}
 											}
 											break;
 										}
@@ -2042,7 +2056,11 @@ public class PcsUtils {
 													cell);
 										}
 										xls.Replace("@#"+pcid+"??", ""); // sign
-										xls.Replace("@#"+pcid.replaceAll("EN", "ED")+"??", DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
+										if (dateCell != null) {
+											xls.SetNumberFormatLocal(dateCell, "m-d;@");
+											xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										}
 									} else if ("-1".equals(sInput)) {
 										// 不做
 										// if 611
@@ -2053,7 +2071,11 @@ public class PcsUtils {
 											if (cell != null) xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 										}
 										xls.Replace("@#"+pcid+"??", NOCARE);
-										xls.Replace("@#"+pcid.replaceAll("EN", "ED")+"??", DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
+										if (dateCell != null) {
+											xls.SetNumberFormatLocal(dateCell, "m-d;@");
+											xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										}
 									}
 									break;
 								}
@@ -2131,6 +2153,11 @@ public class PcsUtils {
 						xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 						if (FoundValue.indexOf("@#EN611") < 0 && FoundValue.indexOf("@#EI611") < 0 && FoundValue.indexOf("@#ER611") < 0) {
 							hasBlank.add(FoundValue);
+						}
+					} else {
+						if (FoundValue.indexOf("@#EC") >= 0 && FoundValue.indexOf("@#EC000") < 0 
+								&& FoundValue.trim().length() <= 12) {
+							xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 						}
 					}
 					if (FoundValue.replaceAll("@#\\w{2}\\d{7}", "").equals(FoundValue)) {

@@ -284,6 +284,9 @@ public class ProductionFeatureService {
 						int rework = pfDao.getReworkCountWithPositions(params);
 						if (rework > neoRework) neoRework = rework;
 					}
+					if (position_id.equals("90") || position_id.equals("00000000090")) { // 部分完成
+						pfDao.removeWaiting(material_id, position_id);
+					}
 					entity.setRework(neoRework);
 					pfDao.insertProductionFeature(entity);
 
