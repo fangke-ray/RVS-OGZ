@@ -672,6 +672,7 @@ var showTips = function(quality_tip, material_comment) {
 	$("#comments_dialog").show();
 
 	if (quality_tip) {
+		$("#comments_dialog .comments_area").show();
 		$("#comments_dialog").addClass("shown").css({width:"1024px",opacity:"1"});
 		$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
 	} else {

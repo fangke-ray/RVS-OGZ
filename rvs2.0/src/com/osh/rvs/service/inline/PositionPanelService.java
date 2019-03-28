@@ -446,6 +446,7 @@ public class PositionPanelService {
 		PutinBalanceBound putinBalanceBound = null;
 		BigDecimal furthestBalance = null, closestBalance = null; // 最遠采樣，最近采樣值 
 		String furthestBalanceWaiting = null, closestBalanceWaiting = null; // 最遠采樣，最近采樣維修品 ID
+		boolean todayRecommended = false;
 
 		int balancePos = 0;
 		if (process_code.equals("211") || process_code.equals("411")) { // 311 or 411
@@ -482,11 +483,16 @@ public class PositionPanelService {
 			else if ("9".equals(we.getWaitingat())) we.setWaitingat("前序部分完成");
 
 			if (putinBalanceBound != null && !"3".equals(we.getWaitingat())) {
+				// 不经过 NS 的不在分解提示
 				if ("00000000013".equals(ar_line_id) && we.getLevel() == 1) {
 					continue;
 				}
 				// PA或者BO的不計算
 				if (we.getBlock_status() != null && we.getBlock_status() > 0) {
+					continue;
+				}
+				// 已有当日产出要求，则非当日产出不排
+				if (todayRecommended && we.getToday() == 0) {
 					continue;
 				}
 				MaterialService ms = new MaterialService();
@@ -497,23 +503,32 @@ public class PositionPanelService {
 				BigDecimal balanceDiff = putinBalanceBound.evalBalanceDiff(erestingStandard);
 				BigDecimal absBalanceDiff = balanceDiff.abs();
 
-				// 最接近
-				if (closestBalance == null || closestBalance.compareTo(absBalanceDiff) > 0) {
+				if (!todayRecommended && we.getToday() == 1) {
+					// 首个当日产出优先
 					closestBalance = absBalanceDiff;
 					closestBalanceWaiting = we.getMaterial_id();
-				}
-				// 最遠
-				if (balancePos == 1 && balanceDiff.compareTo(BigDecimal.ZERO) < 0) {
-					// 目前平衡較高時，選擇最低					
-					if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) > 0) {
-						furthestBalance = balanceDiff;
-						furthestBalanceWaiting = we.getMaterial_id();
+					furthestBalance = balanceDiff;
+					furthestBalanceWaiting = we.getMaterial_id();
+					todayRecommended = true;
+				} else {
+					// 最接近
+					if (closestBalance == null || closestBalance.compareTo(absBalanceDiff) > 0) {
+						closestBalance = absBalanceDiff;
+						closestBalanceWaiting = we.getMaterial_id();
 					}
-				} else if (balancePos == -1 && balanceDiff.compareTo(BigDecimal.ZERO) > 0) {
-					// 目前平衡較低時，選擇最高			
-					if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) < 0) {
-						furthestBalance = balanceDiff;
-						furthestBalanceWaiting = we.getMaterial_id();
+					// 最遠
+					if (balancePos == 1 && balanceDiff.compareTo(BigDecimal.ZERO) < 0) {
+						// 目前平衡較高時，選擇最低					
+						if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) > 0) {
+							furthestBalance = balanceDiff;
+							furthestBalanceWaiting = we.getMaterial_id();
+						}
+					} else if (balancePos == -1 && balanceDiff.compareTo(BigDecimal.ZERO) > 0) {
+						// 目前平衡較低時，選擇最高			
+						if (furthestBalance == null || furthestBalance.compareTo(balanceDiff) < 0) {
+							furthestBalance = balanceDiff;
+							furthestBalanceWaiting = we.getMaterial_id();
+						}
 					}
 				}
 			}
