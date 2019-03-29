@@ -24,6 +24,7 @@ import com.osh.rvs.job.DailyKpiJob;
 import com.osh.rvs.job.DailyKpiSheetsJob;
 import com.osh.rvs.job.DailyWorkSheetsJob;
 import com.osh.rvs.job.DayWorkTotalToMonthJob;
+import com.osh.rvs.job.DeviceJigOrderJob;
 import com.osh.rvs.job.ForecastOverTimeOfMaterialJob;
 import com.osh.rvs.job.InfectFilingJob;
 import com.osh.rvs.job.InfectWarningJob;
@@ -262,6 +263,16 @@ public class InitServlet extends HttpServlet {
 
 			trigger = newTrigger().withIdentity("partialWarehouseTrigger", "rvspush")
 					.withSchedule(dailyAtHourAndMinute(23, 05)) // 23, 05
+					.build();
+
+			scheduler.scheduleJob(job, trigger);
+			
+			// 设备工具订购申请
+			job = newJob(DeviceJigOrderJob.class).withIdentity("deviceJigOrderJob", "rvspush").build();
+
+			// 每天早上6点
+			trigger = newTrigger().withIdentity("deviceJigOrderTrigger", "rvspush")
+					.withSchedule(dailyAtHourAndMinute(6, 01)) // 6,1
 					.build();
 
 			scheduler.scheduleJob(job, trigger);

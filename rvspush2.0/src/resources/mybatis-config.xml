@@ -25,6 +25,9 @@
 		<typeAlias alias="ConsumableOrderEntity" type="com.osh.rvs.entity.ConsumableOrderEntity" />
 		<typeAlias alias="ProductionAssignEntity" type="com.osh.rvs.entity.ProductionAssignEntity" />
 		<typeAlias alias="PartialWarehouseEntity" type="com.osh.rvs.entity.PartialWarehouseEntity" />
+		<typeAlias alias="PostMessageEntity" type="com.osh.rvs.entity.PostMessageEntity" />
+		<typeAlias alias="DeviceTypeEntity" type="com.osh.rvs.entity.DeviceTypeEntity" />
+		<typeAlias alias="DeviceJigOrderEntity" type="com.osh.rvs.entity.DeviceJigOrderEntity" />
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -59,5 +62,8 @@
 		<mapper resource="com/osh/rvs/mapper/push/ProductionAssignMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/statistics/DailyKpiReachMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/PartialWarehouseMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/PostMessageMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/DevicesTypeMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/push/DeviceJigOrderMapper.xml" />
 	</mappers>
 </configuration> 

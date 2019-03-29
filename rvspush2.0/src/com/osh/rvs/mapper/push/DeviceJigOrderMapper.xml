@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.push.DeviceJigOrderMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="countUnInvoice" resultType="int">
+	<![CDATA[
+	SELECT 
+	    COUNT(TRUE)
+	FROM
+	    device_jig_order_detail
+	WHERE
+	    order_invoice_id IS NULL
+	AND
+		 F_GETWORKDAYS(applicate_date,CURRENT_DATE) > 5
+	]]>
+	</select>
+	
+	<select id="countOldInvoice" resultType="int" parameterType="date">
+	<![CDATA[
+	SELECT 
+    	COUNT(TRUE)
+	FROM
+	    device_jig_order_detail AS detail
+	JOIN
+		device_jig_invoice AS invoice
+	ON
+		detail.order_invoice_id = invoice.invoice_id
+	WHERE
+		detail.quotation_id IS NULL
+	AND
+		invoice.send_date < #{send_date}
+	]]>
+	</select>
+	
+	<select id="searchNearScheduledQuotation" resultType="DeviceJigOrderEntity">
+	<![CDATA[
+	SELECT
+		applicator_id,
+	    temp.scheduled_date,
+	    SUM(temp.quantity) AS quantity
+	FROM
+	(SELECT
+		device_jig_order_detail.applicator_id,
+	    device_jig_order_detail.quantity,
+	    device_jig_quotation.scheduled_date
+	FROM
+	    device_jig_order_detail
+	JOIN
+		device_jig_quotation
+	ON
+		device_jig_order_detail.quotation_id = device_jig_quotation.quotation_id
+	WHERE
+	   device_jig_order_detail.confirm_flg IS NULL
+	AND
+		F_ADDWORKDAYS(CURRENT_DATE,3) >= device_jig_quotation.scheduled_date
+	UNION
+	SELECT
+		applicator_id,
+	    quantity,
+	    reorder_scheduled_date AS scheduled_date
+	FROM
+	    device_jig_order_detail
+	WHERE
+	   confirm_flg = 2
+	AND
+		F_ADDWORKDAYS(CURRENT_DATE,3) >= reorder_scheduled_date) temp
+	GROUP BY
+		temp.applicator_id,temp.scheduled_date
+	ORDER BY
+		temp.applicator_id,temp.scheduled_date
+	]]>
+	</select>
+	
+	<select id="searchOverScheduledAndUnRecept" resultType="DeviceJigOrderEntity">
+	<![CDATA[
+	SELECT
+		applicator_id,
+		temp.scheduled_date,
+		SUM(temp.quantity) AS quantity
+	FROM
+	(SELECT
+		device_jig_order_detail.applicator_id,
+		device_jig_order_detail.quantity,
+		device_jig_quotation.scheduled_date
+	FROM
+		device_jig_order_detail
+	JOIN
+		device_jig_quotation
+	ON
+		device_jig_order_detail.quotation_id = device_jig_quotation.quotation_id
+	WHERE
+	   device_jig_order_detail.confirm_flg IS NULL
+	AND
+		device_jig_quotation.scheduled_date < CURRENT_DATE
+	UNION
+	SELECT
+		applicator_id,
+		quantity,
+		reorder_scheduled_date AS scheduled_date
+	FROM
+		device_jig_order_detail
+	WHERE
+	   confirm_flg = 2
+	AND
+		reorder_scheduled_date < CURRENT_DATE) temp
+	GROUP BY
+		temp.applicator_id,temp.scheduled_date
+	ORDER BY
+		temp.applicator_id,temp.scheduled_date
+	]]>
+	</select>
+	
+	<select id="searchUnInlineRecept" resultType="DeviceJigOrderEntity">
+	<![CDATA[
+	SELECT 
+	    applicator_id, 
+	    SUM(quantity) AS quantity
+	FROM
+	    device_jig_order_detail
+	JOIN
+	    operator 
+	ON 
+		operator.operator_id = device_jig_order_detail.applicator_id
+	WHERE
+	    operator.role_id <> 19
+	AND 
+		device_jig_order_detail.confirm_flg = 1
+	AND 
+		device_jig_order_detail.confirm_quantity > 0
+	AND 
+		device_jig_order_detail.inline_recept_date IS NULL
+	GROUP BY
+		applicator_id
+	]]>
+	</select>
+</mapper>

@@ -5,6 +5,7 @@ import static framework.huiqing.common.util.CommonStringUtil.fillChar;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
@@ -28,6 +29,7 @@ import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.inbound.PositionPanelInbound;
 import com.osh.rvs.job.DailyKpiJob;
 import com.osh.rvs.job.DailyWorkSheetsJob;
+import com.osh.rvs.job.DeviceJigOrderJob;
 import com.osh.rvs.job.PositionStandardTimeQueue;
 import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.service.MaterialService;
@@ -77,6 +79,11 @@ public class TriggerServlet extends HttpServlet {
 	private static final String METHOD_START_ALARM_CLOCK_QUEUE = "start_alarm_clock_queue";
 	/** 取消工位标准工时警报计时 **/
 	private static final String METHOD_STOP_ALARM_CLOCK_QUEUE = "stop_alarm_clock_queue";
+
+	/** 设备工具订购申请编辑 **/
+	private static final String METHOD_DEVICE_JIG_ORDER_APPLICATE = "device_jig_order_applicate";
+	/** 到货验收 **/
+	private static final String METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT = "device_jig_order_inline_recept";
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse arg1) throws ServletException, IOException {
@@ -147,6 +154,20 @@ public class TriggerServlet extends HttpServlet {
 				startAlarmClockQueue(parameters);
 			} else if (METHOD_STOP_ALARM_CLOCK_QUEUE.equals(method)){
 				PositionStandardTimeQueue.stopAlarmClockQueue(target, object);
+			} else if (METHOD_DEVICE_JIG_ORDER_APPLICATE.equals(method)) {
+				DeviceJigOrderJob deviceJigOrderJob = new DeviceJigOrderJob();
+				deviceJigOrderJob.deviceJigOrderEdit(target, object);
+			} else if (METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT.equals(method)){
+				Map<String,String> param = new HashMap<String, String>();
+				param.put("operator_id", parameters[2]);
+				param.put("order_key", parameters[3]);
+				param.put("object_type", parameters[4]);
+				param.put("device_type_id", parameters[5]);
+				param.put("model_name", parameters[6]);
+				param.put("applicator_id", parameters[7]);
+				param.put("manage_code", parameters[8]);
+				DeviceJigOrderJob deviceJigOrderJob = new DeviceJigOrderJob();
+				deviceJigOrderJob.inlineRecept(param);
 			}
 		}
 	}
