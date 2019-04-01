@@ -16,7 +16,7 @@ $(function () {
 	// 询价,验收
 	$("#order_invoice_flg,#inline_recept_flg,#colchooser").buttonset();
 	// 日期
-	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date,#recept_update_recept_date").datepicker({
+	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date").datepicker({
 		showButtonPanel : true,
 		dateFormat : "yy/mm/dd",
 		currentText : "今天"
@@ -116,12 +116,15 @@ $(function () {
 	var today = new Date();
 
 	$("#budget_update_budget_month").monthpicker({
-		showButtonPanel : true,
 		pattern: "yyyymm",
-		startYear: 2013,
+		startYear: 2018,
 		finalYear: today.getFullYear(),
 		selectedMonth: today.getMonth() + 1,
 		monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+	});
+
+	$("#budget_update_budget_month_clearer").click(function(evt) {
+		$("#budget_update_budget_month").val("");
 	});
 
 	findit();
@@ -367,38 +370,11 @@ function quotationTrackList(listdata){
 			hidegrid : false,
 			deselectAfterSort : false,
 			onSelectRow : function(rowid,statue){
-				let rowData = $("#quotationlist").getRowData(rowid);
-				let postData = {
-					"quotation_id" : rowData.quotation_id
-				};
 
 				//编辑报价按钮可用
 				$("#quotationtrack_dialog").next().find("div.ui-dialog-buttonset button:eq(0)").enable();
-				
-				$.ajax({
-					beforeSend : ajaxRequestType,
-					async : true,
-					url : servicePath + '?method=searchOrderDetail',
-					cache : false,
-					data : postData,
-					type : "post",
-					dataType : "json",
-					success : ajaxSuccessCheck,
-					error : ajaxError,
-					complete : function(xhrobj, textStatus) {
-						let resInfo = null;
-						try {
-							// 以Object形式读取JSON
-							eval('resInfo =' + xhrobj.responseText);
-							if (resInfo.errors.length > 0) {
-								// 共通出错信息框
-								treatBackMessages(null, resInfo.errors);
-							} else {
-								orderQuotationList(resInfo.detailList);
-							}
-						}catch(e){}
-					}
-				});
+
+				searchOrderDetailInQuotationList(rowid);
 			},
 			ondblClickRow : null,
 			viewsortcols : [ true, 'vertical', true ],
@@ -410,23 +386,61 @@ function quotationTrackList(listdata){
 	}
 
 	orderQuotationList([]);
-	
-	let $parentDialog = $("#quotationtrack_dialog").dialog({
-		title : "报价追踪",
-		width : 'auto',
-		height : 'auto',
-		resizable : false,
-		modal : true,
-		show : "blind",
-		buttons : {
-			"编辑报价" : function(){showQuotation($parentDialog);},
-			"确认收货" : function(){confirmRecept($parentDialog);},
-			"关闭" : function(){$(this).dialog('close');}
-		}
-	});
+
+	let $parentDialog = $("#quotationtrack_dialog");
+	if($parentDialog.length == 0 || !$parentDialog.is(":visible")) {
+		$parentDialog.dialog({
+			title : "报价追踪",
+			width : 'auto',
+			height : 'auto',
+			resizable : false,
+			modal : true,
+			show : "blind",
+			buttons : {
+				"编辑报价" : function(){showQuotation($parentDialog);},
+				"确认收货" : function(){confirmRecept($parentDialog);},
+				"关闭" : function(){$parentDialog.dialog('close');}
+			}
+		});
+	}
 	
 	$("#quotationtrack_dialog").next().find("div.ui-dialog-buttonset button:nth-last-child(n+2)").disable();
 };
+
+
+function searchOrderDetailInQuotationList(rowId){
+	if (!rowId) return;
+
+	let rowData = $("#quotationlist").getRowData(rowId);
+	let postData = {
+		"quotation_id" : rowData.quotation_id
+	};
+
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=searchOrderDetail',
+		cache : false,
+		data : postData,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj, textStatus) {
+			let resInfo = null;
+			try {
+				// 以Object形式读取JSON
+				eval('resInfo =' + xhrobj.responseText);
+				if (resInfo.errors.length > 0) {
+					// 共通出错信息框
+					treatBackMessages(null, resInfo.errors);
+				} else {
+					orderQuotationList(resInfo.detailList);
+				}
+			}catch(e){}
+		}
+	});
+}
 
 function orderQuotationList(listdata){
 	if ($("#gbox_order_quotationlist").length > 0) {
@@ -625,7 +639,7 @@ function showQuotation($parentDialog){
 												treatBackMessages(null, resInfo.errors);
 											} else {
 												$childDialog.dialog('close');
-												$parentDialog.dialog('close');
+												quotationTrack();
 												findit();
 											}
 										}catch(e){}
@@ -664,16 +678,16 @@ function confirmRecept($parentDialog){
 	}).select2Buttons().val(confirm_flg).trigger("change");
 	
 	$("#recept_update_reorder_scheduled_date").val(reorder_scheduled_date);
-	$("#recept_update_recept_date").val(recept_date);
+//	$("#recept_update_recept_date").val(recept_date);
 	
 	let buttons = {};
 	if(rowData.object_type == 1 || rowData.object_type == 3){//设备/一般工具
-		buttons["加入备品"] = function(){
+		buttons["收货到备品库"] = function(){
 			$childDialog.dialog('close');
-			addSpare(rowData,$parentDialog);
+			addSpare(rowData);
 		}
 	}
-	buttons["确定"] = function(){updateConfirm(rowData,$parentDialog,$childDialog);}
+	buttons["确定"] = function(){updateConfirm(rowData,$childDialog);}
 	buttons["关闭"] = function(){$(this).dialog('close');}
 	
 	let $childDialog = $("#update_recept").dialog({
@@ -694,7 +708,7 @@ function updateConfirm(rowData,...arrDialog){
 		"model_name" : rowData.model_name,// 型号/规格
 		"applicator_id" : rowData.applicator_id,// 申请人
 		"confirm_flg" : $("#recept_update_confirm_flg").val(),// 确认结果
-		"recept_date" : $("#recept_update_recept_date").val().trim(),// 收货时间
+//		"recept_date" : $("#recept_update_recept_date").val().trim(),// 收货时间
 		"reorder_scheduled_date" : $("#recept_update_reorder_scheduled_date").val().trim()// 重新订购纳期
 	};
 	
@@ -718,6 +732,7 @@ function updateConfirm(rowData,...arrDialog){
 					treatBackMessages(null, resInfo.errors);
 				} else {
 					arrDialog.forEach(item => item.dialog('close'));
+					searchOrderDetailInQuotationList($("#quotationlist").getGridParam("selrow"));
 					findit();
 				}
 			}catch(e){}
@@ -730,7 +745,7 @@ function addSpare(rowData,...arrDialog){
 	$("#add_device_spare_type").val("").trigger("change");
 	
 	let $childDialog = $("#add_spare").dialog({
-		title : "加入备品",
+		title : "作爲备品收貨",
 		width : 350,
 		height : 200,
 		resizable : false,
@@ -769,6 +784,7 @@ function addSpare(rowData,...arrDialog){
 							} else {
 								$childDialog.dialog('close');
 								arrDialog.forEach(item => item.dialog('close'));
+								searchOrderDetailInQuotationList($("#quotationlist").getGridParam("selrow"));
 								findit();
 							}
 						}catch(e){}
@@ -1154,11 +1170,11 @@ function invoiceList(listdata){
 		$("#invoicelist").jqGrid({
 			data : listdata,// 数据
 			height :461,// rowheight*rowNum+1
-			width : 500,
+			width : 600,
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['对象类别','品名','型号/规格','object_type','device_type_id'],
+			colNames : ['对象类别','品名','型号/规格','最近询价发送','object_type','device_type_id'],
 			colModel : [{name : 'object_type_name',index : 'object_type_name',width:100},
 						{name : 'device_type_name',index : 'device_type_name',width:100,formatter:function(value, options, rData){
 							if(!value){
@@ -1167,6 +1183,7 @@ function invoiceList(listdata){
 							return value;
 						}},
 						{name : 'model_name',index : 'model_name',width:100},
+	                    {name : 'send_date',index : 'send_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 						{name : 'object_type',index : 'object_type',hidden:true},
 						{name : 'device_type_id',index : 'device_type_id',hidden:true}
 			],
@@ -2013,10 +2030,10 @@ function list(listdata){
 			            {name : 'name',index : 'name',width:100,hidden:true},
 			            {name : 'order_from_name',index : 'order_from_name',width:100,hidden:true},
 			            {name : 'quantity',index : 'quantity',width:100,align:'right',sorttype:'number'},
-			            {name : 'order_price',index : 'order_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
-			            {name : 'total_order_price',index : 'total_order_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
-			            {name : 'origin_price',index : 'origin_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
-			            {name : 'differ_price',index : 'differ_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0}},
+			            {name : 'order_price',index : 'order_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
+			            {name : 'total_order_price',index : 'total_order_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
+			            {name : 'origin_price',index : 'origin_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:2,defaultValue:'-'}},
+			            {name : 'differ_price',index : 'differ_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
 			            {name : 'applicator_operator_name',index : 'applicator_operator_name',width:100},
 			            {name : 'nesssary_reason',index : 'nesssary_reason',width:100,hidden:true},
 			            {name : 'applicate_date',index : 'applicate_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
@@ -2118,6 +2135,8 @@ function list(listdata){
 					let	inline_recept_date = rowData.inline_recept_date.trim();
 						// 间隔天数
 					let	differDays = (now - (new Date(applicate_date))) / oneDay;
+						// 确认数量
+					let	confirm_quantity = rowData.confirm_quantity.trim();
 						// “报价单号”为空，并且“申请日期”早于当前日期一个自然月前
 					if(!quotation_no && differDays > 30){
 						// “订单号”，“分类”，“型号/规格”，“申请日期”单元格底色橙色
@@ -2161,10 +2180,15 @@ function list(listdata){
 						}
 					}
 					// “收货时间”存在并且“确认结果”是“OK”，但是“验收日期”是空
-					if(recept_date && confirm_flg == 1 && !inline_recept_date){
-						// “验收日期”，“验收人”底色橙色
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_inline_recept_date']").css({"background-color":"orange","color":"#fff"});
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_inline_receptor_operator_name']").css({"background-color":"orange","color":"#fff"});
+					if(recept_date && confirm_flg == 1){
+						if (confirm_quantity == 0) {
+							// “确认结果”底色橙色
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_confirm_flg_name']").css({"background-color":"orange","color":"#fff"});
+						} else if (!inline_recept_date) {
+							// “验收日期”，“验收人”底色橙色
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_inline_recept_date']").css({"background-color":"orange","color":"#fff"});
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_inline_receptor_operator_name']").css({"background-color":"orange","color":"#fff"});
+						}
 					}
 				}
 				$("#inlinereceptbutton,#budgetbutton").disable();

@@ -23,7 +23,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/equipment/device_backup.js"></script>
 
-<title>设备工具备品管理</title>
+<title>设备工具替代管理</title>
 </head>
 <body class="outer" style="overflow: auto;">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">

@@ -183,9 +183,9 @@ td.text-right{
 					<div>
 						<div id="chooser" class="ui-widget-content" style="border-bottom: 0;">
 							<div id="colchooser">
-								<input type="checkbox" id="colchooser_quotation"></input><label for="colchooser_quotation">报价发送</label>
 								<input type="checkbox" id="colchooser_buy"></input><label for="colchooser_buy">购买依赖</label>
 								<input type="checkbox" id="colchooser_invoice"></input><label for="colchooser_invoice">询价</label>
+								<input type="checkbox" id="colchooser_quotation"></input><label for="colchooser_quotation">报价发送</label>
 								<input type="checkbox" id="colchooser_recept"></input><label for="colchooser_recept">受领确认</label>
 							</div>
 						</div>
@@ -196,13 +196,13 @@ td.text-right{
 						<div class="ui-widget-header areabase"style="padding-top:4px;">
 						    <div id="executes" style="margin-left:4px;margin-top:4px;">
 								<input type="button" id="applicationbutton" class="ui-button" value="申请">
-								<input type="button" id="inlinereceptbutton" class="ui-button" value="验收">
 <% if (isTechnology) { %>
 								<input type="button" id="invoicebutton" class="ui-button" value="询价">
 								<input type="button" id="quotationsendbutton" class="ui-button" value="报价发送">
 								<input type="button" id="quotationtrackbutton" class="ui-button" value="报价追踪">
 								<input type="button" id="budgetbutton" class="ui-button" value="预算">
 <%} %>							
+								<input type="button" id="inlinereceptbutton" class="ui-button" value="验收">
 							</div>
 						</div>
 <%} %>
@@ -423,12 +423,12 @@ td.text-right{
 							<select id="recept_update_confirm_flg"></select>
 						</td>
 					</tr>
-					<tr>
+					<!--tr>
 						<td class="ui-state-default td-title">收货时间</td>
 						<td class="td-content">
 							<input type="text" class="ui-widget-content" id="recept_update_recept_date" readonly="readonly">
 						</td>
-					</tr>
+					</tr-->
 					<tr style="display: none;">
 						<td class="ui-state-default td-title">重新订购纳期</td>
 						<td class="td-content">
@@ -512,7 +512,8 @@ td.text-right{
 					<tr>
 						<td class="ui-state-default td-title">预算月</td>
 						<td class="td-content">
-							<input type="text" class="ui-widget-content" id="budget_update_budget_month">
+							<input type="text" class="ui-widget-content" id="budget_update_budget_month" readonly>
+							<input type="button" class="ui-button" value="ｘ" id="budget_update_budget_month_clearer" style="padding:0;">
 						</td>
 					</tr>
 					<tr>

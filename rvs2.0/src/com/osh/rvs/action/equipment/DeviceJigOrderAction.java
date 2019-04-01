@@ -740,6 +740,9 @@ public class DeviceJigOrderAction extends BaseAction {
 					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", msg));
 					errors.add(error);
 				} else {
+					// 作为OK收货
+					pageForm.setConfirm_flg("1"); // 1 = OK
+					deviceJigOrderDetailService.updateConfirm(pageForm, conn);
 					// 入库
 					deviceJigOrderDetailService.addSpare(pageForm, req, conn);
 				}

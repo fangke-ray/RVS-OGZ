@@ -126,6 +126,16 @@
 		AND device_jig_order_detail.inline_recept_date IS NULL
 	]]>
 	</if>
+	<if test="object_type==1">
+	<![CDATA[
+		AND device_jig_order_detail.object_type in (1, 3)
+	]]>
+	</if>
+	<if test="object_type==2">
+	<![CDATA[
+		AND device_jig_order_detail.object_type = 2
+	]]>
+	</if>
 	</where>
 	</select>
 	
@@ -299,26 +309,46 @@
 	<select id="searchInvoice" resultType="DeviceJigOrderDetailEntity">
 	<![CDATA[
 	SELECT
-		device_jig_order_detail.object_type,
-	    device_jig_order_detail.device_type_id,
-	    device_type.name AS device_type_name,
-	    device_jig_order_detail.model_name
-	FROM
-		device_jig_order_detail
-	LEFT JOIN
-		device_jig_quotation
-	ON
-		device_jig_quotation.quotation_id = device_jig_order_detail.quotation_id
-	LEFT JOIN
-		device_type
-	ON
-		device_type.device_type_id = device_jig_order_detail.device_type_id
-	WHERE
-		device_jig_quotation.acquire_date IS NULL
+		object_type,
+		device_type_id,
+		device_type_name,
+		model_name,
+		send_date
+	FROM (
+		SELECT
+			device_jig_order_detail.object_type,
+			device_jig_order_detail.device_type_id,
+			device_type.name AS device_type_name,
+			device_jig_order_detail.model_name,
+			device_jig_invoice.send_date,
+			device_jig_order_detail.applicate_date
+		FROM
+			device_jig_order_detail
+		LEFT JOIN
+			device_jig_quotation
+		ON
+			device_jig_quotation.quotation_id = device_jig_order_detail.quotation_id
+		LEFT JOIN
+			device_type
+		ON
+			device_type.device_type_id = device_jig_order_detail.device_type_id
+		LEFT JOIN
+			device_jig_invoice
+		ON
+			device_jig_invoice.object_type = device_jig_order_detail.object_type
+			AND device_jig_invoice.device_type_id = device_jig_order_detail.device_type_id
+			AND device_jig_invoice.model_name = device_jig_order_detail.model_name
+		WHERE
+			device_jig_quotation.acquire_date IS NULL
+		ORDER BY
+			device_jig_invoice.send_date DESC
+	) a_invoice
 	GROUP BY
-		device_jig_order_detail.object_type,
-	    device_jig_order_detail.device_type_id,
-	    device_jig_order_detail.model_name
+		a_invoice.object_type,
+			a_invoice.device_type_id,
+			a_invoice.model_name
+	ORDER BY
+		applicate_date, model_name
 	]]>
 	</select>
 	
@@ -504,7 +534,7 @@
 	UPDATE
 		device_jig_order_detail
 	SET
-		confirm_quantity = #{confirm_quantity}
+		confirm_quantity = coalesce(confirm_quantity, 0) + #{confirm_quantity}
 	WHERE
 		order_key = #{order_key} 
 	AND 
@@ -517,5 +547,5 @@
 		applicator_id = #{applicator_id}
 	]]>
 	</update>
-	
+
 </mapper>

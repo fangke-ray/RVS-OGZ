@@ -17,12 +17,14 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.form.equipment.DeviceJigOrderDetailForm;
 import com.osh.rvs.form.master.DevicesManageForm;
 import com.osh.rvs.service.BrandService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.LineService;
 import com.osh.rvs.service.SectionService;
+import com.osh.rvs.service.equipment.DeviceJigOrderDetailService;
 import com.osh.rvs.service.equipment.DeviceSpareService;
 
 import framework.huiqing.action.BaseAction;
@@ -211,6 +213,10 @@ public class DevicesManageAction extends BaseAction {
 				DeviceSpareService dsService = new DeviceSpareService();
 				dsService.setAsManageCode(form, 25, request, conn);
 			}
+			if ("order".equals(add_method)) {
+				// 订购品加入设备管理
+				service.setAsManageCode(form, conn);
+			}
 		}
 
 		listResponse.put("errors", errors);
@@ -317,16 +323,35 @@ public class DevicesManageAction extends BaseAction {
 
 		DevicesManageForm devicesManageForm = (DevicesManageForm)form;
 
-		// 判断备品
+		// 判断有同类管理要素
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
-		String use_spare = request.getParameter("use_spare");
-		if (use_spare == null) {
+		String use_manage = request.getParameter("use_manage");
+		if (errors.size() == 0 && use_manage == null) {
+			// 判断备品
 			DeviceSpareService dsService = new DeviceSpareService();
 			if (dsService.checkExistsStock(form, 1, conn) != null) {
 				MsgInfo info = new MsgInfo();
+				info.setErrcode("use_spare");
 				info.setErrmsg("");
 				infoes.add(info);
 				listResponse.put("infoes", infoes);
+			}
+			// 判断订购品
+			DeviceJigOrderDetailService djoService = new DeviceJigOrderDetailService();
+			DeviceJigOrderDetailForm searchForm = new DeviceJigOrderDetailForm();
+			searchForm.setObject_type("1");
+			searchForm.setInline_recept_flg("1");
+			searchForm.setDevice_type_id(devicesManageForm.getDevices_type_id());
+			searchForm.setModel_name(devicesManageForm.getModel_name());
+
+			List<Map<String, String>> hitOrders = service.checkExistsOrder(djoService.search(searchForm, conn));
+			if (hitOrders.size() > 0) {
+				MsgInfo info = new MsgInfo();
+				info.setErrcode("use_order");
+				info.setErrmsg("");
+				infoes.add(info);
+				listResponse.put("infoes", infoes);
+				listResponse.put("hitOrders", hitOrders);
 			}
 		}
 
@@ -336,10 +361,14 @@ public class DevicesManageAction extends BaseAction {
 			if (errors.size() == 0) {
 				service.replaceDevicesManage(request.getParameter("compare_status"),request.getParameter("old_manage_code"),devicesManageForm,conn,request.getSession(),errors);
 
-				if ("1".equals(use_spare)) {
+				if ("1".equals(use_manage)) {
 					// 备品加入设备管理
 					DeviceSpareService dsService = new DeviceSpareService();
 					dsService.setAsManageCode(form, 24, request, conn);
+				}
+				if ("2".equals(use_manage)) {
+					// 订购品加入设备管理
+					service.setAsManageCode(form, conn);
 				}
 			}
 		}

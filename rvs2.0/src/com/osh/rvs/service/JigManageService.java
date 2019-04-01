@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,10 +24,12 @@ import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
+import com.osh.rvs.form.equipment.DeviceJigOrderDetailForm;
 import com.osh.rvs.form.infect.ToolsDistributeForm;
 import com.osh.rvs.form.master.ToolsManageForm;
 import com.osh.rvs.mapper.master.JigManageMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
+import com.osh.rvs.service.equipment.DeviceJigOrderService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -395,6 +398,52 @@ public class JigManageService {
 		BeanUtil.copyToFormList(distributeEntities, toolsDistributeForms, CopyOptions.COPYOPTIONS_NOEMPTY, ToolsManageForm.class);
 
 		return toolsDistributeForms;
+	}
+
+	public void setAsManageCode(ActionForm form, HttpServletRequest request,
+			SqlSessionManager conn) {
+		DeviceJigOrderService doService = new DeviceJigOrderService();
+		ToolsManageForm jigForm = (ToolsManageForm) form;
+		String orderKey = request.getParameter("order_key");
+
+		int iCountIn = Integer.parseInt(jigForm.getCount_in(), 10);
+
+		doService.setAsManageCode(orderKey, 2, 
+				"00000000000", jigForm.getTools_no(), 
+				jigForm.getCompare_manager_operator_id(), iCountIn, conn);
+	}
+
+	public List<Map<String, String>> checkExistsOrder(
+			List<DeviceJigOrderDetailForm> searchedOrder, String count_in) {
+		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
+
+		int iCountIn = 0;
+		try {
+			iCountIn = Integer.parseInt(count_in, 10);
+		} catch (NumberFormatException e) {
+			return ret;
+		}
+		if (searchedOrder.size() > 0) {
+			for (DeviceJigOrderDetailForm djodForm : searchedOrder) {
+				if (djodForm.getConfirm_quantity() == null || !djodForm.getConfirm_quantity().equals(djodForm.getQuantity())) {
+					int iQuantity = Integer.parseInt(djodForm.getQuantity(), 10);
+					int iConfirmQuantity = 0;
+					if (djodForm.getConfirm_quantity() != null) {
+						iConfirmQuantity = Integer.parseInt(djodForm.getConfirm_quantity(), 10);
+					}
+					if (iQuantity - iConfirmQuantity < iCountIn) {
+						break;
+					}
+					Map<String, String> hit = new HashMap<String, String>();
+					hit.put("order_key", djodForm.getOrder_key());
+					hit.put("order_no", djodForm.getOrder_no());
+					hit.put("applicator_id", djodForm.getApplicator_id());
+					hit.put("operator_name", djodForm.getApplicator_operator_name());
+					ret.add(hit);
+				}
+			}
+		}
+		return ret;
 	}
 
 }

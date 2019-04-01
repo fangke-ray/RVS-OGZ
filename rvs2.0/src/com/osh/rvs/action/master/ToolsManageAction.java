@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.form.equipment.DeviceJigOrderDetailForm;
 import com.osh.rvs.form.master.ToolsManageForm;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.LineService;
@@ -22,6 +23,7 @@ import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.JigManageService;
 import com.osh.rvs.service.UploadService;
+import com.osh.rvs.service.equipment.DeviceJigOrderDetailService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -150,9 +152,15 @@ public class ToolsManageAction extends BaseAction {
 
 		service.customValidate(form, conn, errors);
 
+		String add_method = request.getParameter("add_method");
+
 		// 新建
 		if (errors.size() == 0) {
 			service.insertToolsManage(toolsManageForm, conn, request.getSession(), errors);
+			if ("order".equals(add_method)) {
+				// 订购品加入设备管理
+				service.setAsManageCode(form, request, conn);
+			}
 		}
 
 		listResponse.put("errors", errors);
@@ -262,16 +270,45 @@ public class ToolsManageAction extends BaseAction {
 		Validators v=BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ALL);
 		List<MsgInfo> errors=v.validate();
 
-		service.customValidate(form, conn, errors);
-		
-		service.validateStatus(form, conn, errors);
-		
 		ToolsManageForm toolsManageForm = (ToolsManageForm) form;
-		
-		if (errors.size() == 0) {
-			service.replace(request.getParameter("compare_status"),request.getParameter("old_manage_code"),toolsManageForm, conn, request);
+
+		// 判断有同类管理要素
+		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
+		String use_manage = request.getParameter("use_manage");
+		if (errors.size() == 0 && use_manage == null) {
+			// 判断订购品
+			DeviceJigOrderDetailService djoService = new DeviceJigOrderDetailService();
+			DeviceJigOrderDetailForm searchForm = new DeviceJigOrderDetailForm();
+			searchForm.setObject_type("2");
+			searchForm.setInline_recept_flg("1");
+			searchForm.setDevice_type_id("00000000000");
+			searchForm.setModel_name(toolsManageForm.getTools_no());
+
+			List<Map<String, String>> hitOrders = service.checkExistsOrder(djoService.search(searchForm, conn), toolsManageForm.getCount_in());
+			if (hitOrders.size() > 0) {
+				MsgInfo info = new MsgInfo();
+				info.setErrcode("use_order");
+				info.setErrmsg("");
+				infoes.add(info);
+				listResponse.put("infoes", infoes);
+				listResponse.put("hitOrders", hitOrders);
+			}
 		}
-		
+
+		if (infoes.size() == 0) {
+
+			service.customValidate(form, conn, errors);
+			
+			service.validateStatus(form, conn, errors);
+
+			if (errors.size() == 0) {
+				service.replace(request.getParameter("compare_status"),request.getParameter("old_manage_code"),toolsManageForm, conn, request);
+			}
+			if ("2".equals(use_manage)) {
+				// 订购品加入设备管理
+				service.setAsManageCode(form, request, conn);
+			}
+		}
 		listResponse.put("errors", errors);
 		returnJsonResponse(response, listResponse);
 		

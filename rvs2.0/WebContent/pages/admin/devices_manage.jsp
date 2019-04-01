@@ -139,6 +139,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="ui-widget-content" style="padding:4px;">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建设备工具" role="button" aria-disabled="false">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addsparebutton" value="备品加入管理" role="button" aria-disabled="false">
+			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addorderbutton" value="订购品加入管理" role="button" aria-disabled="false">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="replacebutton" value="替换新品" role="button" aria-disabled="false">
 			<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="deliverbutton" value="批量交付" role="button" aria-disabled="false">
 		</div>
@@ -455,7 +456,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 					<td class="ui-state-default td-title">备注</td>
 					<td class="td-content" colspan="3">
-						<textarea  style="resize: none;font-size: 12px; width: 502px; height: 61px;" id="add_comment" name="comment" alt="备注"></textarea>				
+						<textarea  style="resize: none;font-size: 12px; width: 502px; height: 61px;" id="add_comment" name="comment" alt="备注"></textarea>
+						<input type="hidden" id="hidden_order_key">
+						<input type="hidden" id="hidden_applicator_id">
 					</td>
 				</tr>
 			</tbody>
@@ -956,6 +959,30 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</table>	
 	<table id="sp_list"></table>
 	<div id="sp_listpager"></div>
+</div>
+
+<!-- 订购品加入管理 -->
+<div id="add_order_dialog" style="display:none;">
+	<table class="condform" style="border:1px solid #aaaaaa;margin-left:2px;">
+		<tbody>	
+		    <tr>
+				<td class="ui-state-default td-title">品名</td>
+				<td>
+					<input type="text" id="add_order_device_type_name" name="device_type_name" alt="品名" class="ui-widget-content">
+				</td>
+				<td class="ui-state-default td-title">型号</td>
+				<td>
+					<input type="text" id="add_order_model_name" name="model_name" alt="型号"  class="ui-widget-content">
+				</td>
+				<td class="ui-state-default td-title" style="text-align:center;">
+					<input type="button" class="ui-button" id="add_order_filterbutton" value="过滤"/>
+					<input type="button" class="ui-button" id="add_order_clearbutton" value="清除"/>
+				</td>
+			</tr>
+		</tbody>
+	</table>	
+	<table id="ord_list"></table>
+	<div id="ord_listpager"></div>
 </div>
 
 <!----------------------end----------------------------->

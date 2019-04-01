@@ -143,6 +143,9 @@ public class DevicesManageForm extends ActionForm {
 	@BeanField(title = "发放日期结束", name = "provide_date_end", type = FieldType.Date)
 	private String provide_date_end;// 发放日期结束
 
+	@BeanField(title = "设备工具治具订单 Key", name = "order_key", type = FieldType.String)
+	private String order_key;
+
 	public String getCompare_section_id() {
 		return compare_section_id;
 	}
@@ -469,6 +472,14 @@ public class DevicesManageForm extends ActionForm {
 
 	public void setAsset_no(String asset_no) {
 		this.asset_no = asset_no;
+	}
+
+	public String getOrder_key() {
+		return order_key;
+	}
+
+	public void setOrder_key(String order_key) {
+		this.order_key = order_key;
 	}
 
 }

@@ -7,9 +7,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
+import com.osh.rvs.bean.equipment.DeviceJigOrderDetailEntity;
 import com.osh.rvs.bean.equipment.DeviceJigOrderEntity;
 import com.osh.rvs.form.equipment.DeviceJigOrderForm;
 import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.mapper.equipment.DeviceJigOrderDetailMapper;
 import com.osh.rvs.mapper.equipment.DeviceJigOrderMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -59,4 +61,31 @@ public class DeviceJigOrderService {
 		return respList;
 
 	}
+
+	/**
+	 * 订购品导入管理编号
+	 * @param order_key
+	 * @param object_type
+	 * @param device_type_id
+	 * @param model_name
+	 * @param applicator_id
+	 * @param confirm_quantity
+	 * @param conn
+	 */
+	public void setAsManageCode(String order_key, int object_type,
+			String device_type_id, String model_name, String applicator_id,
+			int confirm_quantity, SqlSessionManager conn) {
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+
+		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		entity.setOrder_key(order_key);
+		entity.setObject_type(object_type);
+		entity.setDevice_type_id(device_type_id);
+		entity.setModel_name(model_name);
+		entity.setApplicator_id(applicator_id);
+		entity.setConfirm_quantity(confirm_quantity);
+
+		dao.updateConfirmQuantity(entity);
+	}
+
 }

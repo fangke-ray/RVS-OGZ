@@ -2,6 +2,7 @@ package com.osh.rvs.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -21,11 +22,13 @@ import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
+import com.osh.rvs.form.equipment.DeviceJigOrderDetailForm;
 import com.osh.rvs.form.master.DevicesManageForm;
 import com.osh.rvs.form.master.DevicesTypeForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
+import com.osh.rvs.service.equipment.DeviceJigOrderService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -583,5 +586,39 @@ public class DevicesManageService {
 		}
 
 		return result;
+	}
+
+	public void setAsManageCode(ActionForm form, SqlSessionManager conn) {
+		DeviceJigOrderService doService = new DeviceJigOrderService();
+		DevicesManageForm deviceForm = (DevicesManageForm) form;
+		String orderKey_objectType = deviceForm.getOrder_key();
+		String[] splt = orderKey_objectType.split("_");
+		doService.setAsManageCode(splt[0], splt[1].charAt(0) - '0', 
+				deviceForm.getDevices_type_id(), deviceForm.getModel_name(), 
+				deviceForm.getCompare_manager_operator_id(), 1, conn);
+	}
+
+	/**
+	 * 判断存在同类订购品
+	 * @param searchedOrder
+	 * @return
+	 */
+	public List<Map<String, String>> checkExistsOrder(
+			List<DeviceJigOrderDetailForm> searchedOrder) {
+		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
+		if (searchedOrder.size() > 0) {
+			for (DeviceJigOrderDetailForm djodForm : searchedOrder) {
+				if (djodForm.getConfirm_quantity() == null || !djodForm.getConfirm_quantity().equals(djodForm.getQuantity())) {
+					Map<String, String> hit = new HashMap<String, String>();
+					hit.put("order_key", djodForm.getOrder_key());
+					hit.put("order_no", djodForm.getOrder_no());
+					hit.put("applicator_id", djodForm.getApplicator_id());
+					hit.put("object_type", djodForm.getObject_type());
+					hit.put("operator_name", djodForm.getApplicator_operator_name());
+					ret.add(hit);
+				}
+			}
+		}
+		return ret;
 	}
 }

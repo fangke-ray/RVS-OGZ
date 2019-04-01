@@ -2,6 +2,7 @@ package com.osh.rvs.service.equipment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -384,6 +385,8 @@ public class DeviceJigOrderDetailService {
 		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
 
 		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		entity.setRecept_date(new Date());
+
 		// 复制表单数据
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
