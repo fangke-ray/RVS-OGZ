@@ -588,14 +588,19 @@ public class DevicesManageService {
 		return result;
 	}
 
-	public void setAsManageCode(ActionForm form, SqlSessionManager conn) {
+	public void setAsManageCode(ActionForm form,  HttpServletRequest request, 
+			SqlSessionManager conn) {
 		DeviceJigOrderService doService = new DeviceJigOrderService();
 		DevicesManageForm deviceForm = (DevicesManageForm) form;
 		String orderKey_objectType = deviceForm.getOrder_key();
 		String[] splt = orderKey_objectType.split("_");
+
+		LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		doService.setAsManageCode(splt[0], splt[1].charAt(0) - '0', 
 				deviceForm.getDevices_type_id(), deviceForm.getModel_name(), 
-				deviceForm.getCompare_manager_operator_id(), 1, conn);
+				deviceForm.getCompare_manager_operator_id(), 1, 
+				user.getOperator_id(), deviceForm.getManage_code(), conn);
 	}
 
 	/**
