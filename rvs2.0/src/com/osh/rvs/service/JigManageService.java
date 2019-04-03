@@ -405,12 +405,13 @@ public class JigManageService {
 		DeviceJigOrderService doService = new DeviceJigOrderService();
 		ToolsManageForm jigForm = (ToolsManageForm) form;
 		String orderKey = request.getParameter("order_key");
+		LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);
 
 		int iCountIn = Integer.parseInt(jigForm.getCount_in(), 10);
 
 		doService.setAsManageCode(orderKey, 2, 
 				"00000000000", jigForm.getTools_no(), 
-				jigForm.getCompare_manager_operator_id(), iCountIn, conn);
+				jigForm.getCompare_manager_operator_id(), iCountIn, user.getOperator_id(), null, conn);
 	}
 
 	public List<Map<String, String>> checkExistsOrder(

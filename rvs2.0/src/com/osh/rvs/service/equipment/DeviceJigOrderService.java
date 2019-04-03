@@ -9,6 +9,7 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.equipment.DeviceJigOrderDetailEntity;
 import com.osh.rvs.bean.equipment.DeviceJigOrderEntity;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.equipment.DeviceJigOrderForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.equipment.DeviceJigOrderDetailMapper;
@@ -62,6 +63,9 @@ public class DeviceJigOrderService {
 
 	}
 
+	/** 到货验收 **/
+	private static final String METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT = "device_jig_order_inline_recept";
+
 	/**
 	 * 订购品导入管理编号
 	 * @param order_key
@@ -74,7 +78,8 @@ public class DeviceJigOrderService {
 	 */
 	public void setAsManageCode(String order_key, int object_type,
 			String device_type_id, String model_name, String applicator_id,
-			int confirm_quantity, SqlSessionManager conn) {
+			int confirm_quantity, String login_operator_id, String manage_code,
+			SqlSessionManager conn) {
 		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
 
 		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
@@ -86,6 +91,22 @@ public class DeviceJigOrderService {
 		entity.setConfirm_quantity(confirm_quantity);
 
 		dao.updateConfirmQuantity(entity);
-	}
 
+		if (object_type == 2) {
+			manage_code = "" + confirm_quantity;
+		}
+		List<String> triggerList = new ArrayList<String>();
+		triggerList.add("http://localhost:8080/rvspush/trigger/" + METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT + "/" +
+				login_operator_id + "/" +
+				order_key + "/" +
+				object_type + "/" +
+				device_type_id + "/" +
+				model_name + "/" +
+				applicator_id + "/" +
+				manage_code);
+
+		// 控制其他工程
+		RvsUtils.sendTrigger(triggerList);
+
+	}
 }

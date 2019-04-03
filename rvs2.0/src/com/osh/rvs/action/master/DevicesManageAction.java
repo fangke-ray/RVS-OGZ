@@ -215,7 +215,7 @@ public class DevicesManageAction extends BaseAction {
 			}
 			if ("order".equals(add_method)) {
 				// 订购品加入设备管理
-				service.setAsManageCode(form, conn);
+				service.setAsManageCode(form, request, conn);
 			}
 		}
 
@@ -368,7 +368,7 @@ public class DevicesManageAction extends BaseAction {
 				}
 				if ("2".equals(use_manage)) {
 					// 订购品加入设备管理
-					service.setAsManageCode(form, conn);
+					service.setAsManageCode(form, request, conn);
 				}
 			}
 		}
