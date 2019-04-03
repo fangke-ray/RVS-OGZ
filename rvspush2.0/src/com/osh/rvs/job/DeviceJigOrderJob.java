@@ -1,12 +1,16 @@
 package com.osh.rvs.job;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.internet.InternetAddress;
+
+import org.apache.catalina.websocket.MessageInbound;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -17,11 +21,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 
+import com.osh.rvs.common.MailUtils;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.DeviceJigOrderEntity;
 import com.osh.rvs.entity.OperatorEntity;
 import com.osh.rvs.entity.PostMessageEntity;
+import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.mapper.push.CommonMapper;
 import com.osh.rvs.mapper.push.DeviceJigOrderMapper;
 import com.osh.rvs.mapper.push.DevicesTypeMapper;
@@ -315,8 +323,9 @@ public class DeviceJigOrderJob implements Job {
 			String operatorName = operatorMapper.getOperatorByID(operatorID).getName();
 
 			OperatorEntity operatorEntity = new OperatorEntity();
-			operatorEntity.setRole_id(RvsConsts.ROLE_DEVICEMANAGER);
-			// 设备管理员
+			operatorEntity.setRole_id(RvsConsts.ROLE_MANAGER);
+			operatorEntity.setSection_id("1");
+			// 经理
 			List<OperatorEntity> receiverList = operatorMapper.searchOperator(operatorEntity);
 
 			// 推送信息
@@ -339,8 +348,26 @@ public class DeviceJigOrderJob implements Job {
 				postMessageMapper.createPostMessageSendation(postMessageEntity);
 			}
 
+			Collection<InternetAddress> toIas = RvsUtils.getMailIas("device_jig_order_applicate.to", conn);
+			Collection<InternetAddress> ccIas = RvsUtils.getMailIas("device_jig_order_applicate.cc", conn);
+
+			// 发信
+			String subject = PathConsts.MAIL_CONFIG.getProperty("device_jig_order_applicate.title");
+			String mailContents = content +"\r\n请到RVS设备工具订购画面去确认。";
+			MailUtils.sendMail(toIas, ccIas, subject, mailContents);
+			
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
+				
+				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+				
+				//通知经理
+				for (OperatorEntity op : receiverList) {
+					MessageInbound mInbound = bMap.get(op.getOperator_id()); 
+					if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
+						((OperatorMessageInbound)mInbound).newMessage();
+				}
+				
 				log.info("Committed！");
 			}
 		} catch (Exception e) {
@@ -367,6 +394,7 @@ public class DeviceJigOrderJob implements Job {
 		try {
 			conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
 
+			CommonMapper commonMapper = conn.getMapper(CommonMapper.class);
 			DevicesTypeMapper devicesTypeMapper = conn.getMapper(DevicesTypeMapper.class);
 			PostMessageMapper postMessageMapper = conn.getMapper(PostMessageMapper.class);
 
@@ -380,6 +408,12 @@ public class DeviceJigOrderJob implements Job {
 			String modelName = param.get("model_name");
 			// 管理编号
 			String manageCode = param.get("manage_code");
+			// 申请人
+			String applicatorId = param.get("applicator_id");
+			
+			if(operatorID.equals(applicatorId)){
+				return;			
+			}
 
 			// 设备 /一般工具
 			String deviceTypName = "";
@@ -406,9 +440,21 @@ public class DeviceJigOrderJob implements Job {
 
 			// 建立推送信息
 			postMessageMapper.createPostMessage(postMessageEntity);
-
+			String postMessageId = commonMapper.getLastInsertID();
+			
+			postMessageEntity.setPost_message_id(postMessageId);
+			postMessageEntity.setReceiver_id(applicatorId);
+			// 建立推送信息接收人
+			postMessageMapper.createPostMessageSendation(postMessageEntity);
+			
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
+				
+				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+				MessageInbound mInbound = bMap.get(applicatorId); 
+				if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
+					((OperatorMessageInbound)mInbound).newMessage();
+				
 				log.info("Committed！");
 			}
 		} catch (Exception e) {
