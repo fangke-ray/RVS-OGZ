@@ -182,6 +182,12 @@ public class PartialWarehouseJob implements Job {
 		Cell cell = null;
 		PartialWarehouseEntity partialWarehouseEntity = null;
 		List<PartialWarehouseEntity> dailyWorkRecordList = null;
+		
+		//仓管人员负荷率警报标志下线
+		double lowLever = userDefineMap.get("strLowLever").divide(new BigDecimal(100)).doubleValue();
+		
+		//仓管人员能率警报标志下线
+		double efLowLever =  userDefineMap.get("efLowLever").divide(new BigDecimal(100)).doubleValue();
 
 		int colIndex = 2;
 
@@ -189,6 +195,12 @@ public class PartialWarehouseJob implements Job {
 		List<PartialWarehouseEntity> list = dao.countDailySpendTime(operatorId,DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
 
 		Map<Date, List<PartialWarehouseEntity>> map = new LinkedHashMap<Date, List<PartialWarehouseEntity>>();
+		
+		// 每天合计负荷率
+		Map<Date, Double> dailyLoadRateMap = new LinkedHashMap<Date, Double>();
+		
+		//每天合计能率
+		Map<Date,Double> dailyEnergyRateMap = new LinkedHashMap<Date,Double>();
 
 		for (int i = 0; i < list.size(); i++) {
 			partialWarehouseEntity = list.get(i);
@@ -358,27 +370,34 @@ public class PartialWarehouseJob implements Job {
 			// 合计负荷率
 			percent = totalSpendTime.divide(workTime, 4, RoundingMode.HALF_UP).doubleValue();
 			sheet.getRow(16).getCell(colIndex).setCellValue(percent);
+			
+			//合计负荷率低于“仓管人员负荷率警报标志下线”
+			if(percent < lowLever){
+				dailyLoadRateMap.put(finishTime, percent);
+			}
 
 			// 合计能率
 			percent = totalStandardTime.divide(totalSpendTime, 4, RoundingMode.HALF_UP).doubleValue();
 			sheet.getRow(17).getCell(colIndex).setCellValue(percent);
+			
+			//合计能率低于“仓管人员能率警报标志下线”
+			if(percent < efLowLever){
+				dailyEnergyRateMap.put(finishTime, percent);
+			}
 
 			//负荷率警报标志下线
 			row = sheet.getRow(18);
 			if(row == null) row = sheet.createRow(18);
-
 			cell = row.createCell(colIndex);
-			cell.setCellValue(userDefineMap.get("strLowLever").divide(new BigDecimal(100)).doubleValue());
+			cell.setCellValue(lowLever);
 			cell.setCellStyle(styleMap.get("percentStyle"));
 
 			//能率警报标志下线
 			row = sheet.getRow(19);
 			if(row == null) row = sheet.createRow(19);
-
 			cell = row.createCell(colIndex);
-			cell.setCellValue(userDefineMap.get("efLowLever").divide(new BigDecimal(100)).doubleValue());
+			cell.setCellValue(efLowLever);
 			cell.setCellStyle(styleMap.get("percentStyle"));
-
 
 			row = sheet.getRow(20);
 			if(row == null) row = sheet.createRow(20);
@@ -404,8 +423,115 @@ public class PartialWarehouseJob implements Job {
 		cell = row.createCell(10);
 		//总计工作时间
 		cell.setCellValue(monthWorkTime.doubleValue());
-
+		
+		//（日次）负荷率未达成目标跟踪分析
+		dailyUnReachLowLever(sheet, styleMap, userDefineMap, dailyLoadRateMap);
+		
+		//（日次）能率未达成目标跟踪分析
+		dailyUnReachEFLowLever(sheet, styleMap, userDefineMap, dailyEnergyRateMap);
 	}
+	
+	/**
+	 * （日次）负荷率未达成目标跟踪分析
+	 * @param sheet
+	 * @param styleMap 样式
+	 * @param userDefineMap 自定义参数
+	 * @param map 每日未达成目标数据集
+	 */
+	private void dailyUnReachLowLever(Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map){
+		Row row = null;
+		Cell cell = null;
+		
+		//不存在负荷率未达成目标
+		if(map.isEmpty()){
+			for(int i = 106;i <= 145;i++){
+				row = sheet.getRow(i);
+				row.setZeroHeight(true);
+			}
+			return;
+		}
+		
+		sheet.getRow(107).getCell(0).setCellValue("目标："+ userDefineMap.get("strLowLever").doubleValue() + "%");
+		
+		//（日次）负荷率未达成目标跟踪分析开始行索引
+		int rowIndex = 109;
+		//结束行索引
+		int rowEndIndex = rowIndex + 30;
+		
+		
+		//（日次）负荷率未达成目标跟踪分析
+		for(Date strDate :map.keySet()){
+			row = sheet.getRow(rowIndex);
+			
+			//发生日
+			cell = row.getCell(0);
+			cell.setCellValue(strDate);
+			cell.setCellStyle(styleMap.get("dayStyle"));
+			
+			//负荷率
+			cell = row.getCell(1);
+			cell.setCellValue(map.get(strDate));
+			cell.setCellStyle(styleMap.get("percentStyle"));
+			rowIndex ++;
+		}
+		
+		for(int i = rowIndex;i <= rowEndIndex;i++){
+			row = sheet.getRow(i);
+			//隐藏行
+			row.setZeroHeight(true);
+		}
+	}
+	
+	/**
+	 * （日次）能率未达成目标跟踪分析
+	 * @param sheet
+	 * @param styleMap 样式
+	 * @param userDefineMap 自定义参数
+	 * @param map 每日未达成目标数据集
+	 */
+	private void dailyUnReachEFLowLever(Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map){
+		Row row = null;
+		Cell cell = null;
+		
+		//不存在能率未达成目标
+		if(map.isEmpty()){
+			for(int i = 148;i <= 187;i++){
+				row = sheet.getRow(i);
+				row.setZeroHeight(true);
+			}
+			return;
+		}
+		
+		sheet.getRow(149).getCell(0).setCellValue("目标："+ userDefineMap.get("efLowLever").doubleValue() + "%");
+		
+		//（日次）能率未达成目标跟踪分析开始行索引
+		int rowIndex = 151;
+		//结束行索引
+		int rowEndIndex = rowIndex + 30;
+
+		//（日次）能率未达成目标跟踪分析
+		for(Date strDate :map.keySet()){
+			row = sheet.getRow(rowIndex);
+			
+			//发生日
+			cell = row.getCell(0);
+			cell.setCellValue(strDate);
+			cell.setCellStyle(styleMap.get("dayStyle"));
+			
+			//能率
+			cell = row.getCell(1);
+			cell.setCellValue(map.get(strDate));
+			cell.setCellStyle(styleMap.get("percentStyle"));
+			rowIndex ++;
+		}
+		
+		for(int i = rowIndex;i <= rowEndIndex;i++){
+			row = sheet.getRow(i);
+			//隐藏行
+			row.setZeroHeight(true);
+		}
+	}
+	
 
 	/**
 	 * 获取用户自定义参数
@@ -854,8 +980,8 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		//today.set(Calendar.MONTH, 0);
-		//today.set(Calendar.DATE, 28);
+		today.set(Calendar.MONTH, 2);
+		today.set(Calendar.DATE, 31);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
