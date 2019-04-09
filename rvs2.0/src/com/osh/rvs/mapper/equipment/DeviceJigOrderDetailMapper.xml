@@ -210,8 +210,33 @@
 		system_code = #{system_code},
 		name = #{name},
 		order_from = #{order_from},
-		quantity = #{quantity},
 		nesssary_reason = #{nesssary_reason}
+	]]>
+	<if test="quantity!=null and quantity!=''">
+	<![CDATA[
+		,quantity = #{quantity}
+	]]>
+	</if>
+	<![CDATA[
+	WHERE
+		order_key = #{order_key} 
+	AND 
+		object_type = #{object_type} 
+	AND 
+		device_type_id = #{device_type_id}
+	AND 
+		model_name = #{model_name}
+	AND 
+		applicator_id = #{applicator_id}
+	]]>
+	</update>
+	
+	<update id="updateApplicateDate" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	UPDATE 
+		device_jig_order_detail
+	SET
+		applicate_date = #{applicate_date}
 	WHERE
 		order_key = #{order_key} 
 	AND 
@@ -386,7 +411,8 @@
 	    device_jig_invoice.origin_price,
 	    device_jig_order_detail.order_key,
 	    device_jig_order_detail.device_type_id,
-	    device_jig_order_detail.applicator_id
+	    device_jig_order_detail.applicator_id,
+	    device_jig_order_detail.applicate_date
 	FROM
 		device_jig_order_detail
 	JOIN

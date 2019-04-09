@@ -44,6 +44,24 @@ import framework.huiqing.common.util.validator.Validators;
  */
 public class DeviceJigOrderDetailService {
 	private Logger log = Logger.getLogger(getClass());
+	
+	/**数据新建标记**/
+	private final String MODIFY_FLG_ADD = "add";
+	
+	/**数据删除标记**/
+	private final String MODIFY_FLG_REMOVE = "remove";
+	
+	/**数据更新标记**/
+	private final String MODIFY_FLG_CHANGE = "change";
+	
+	/**数据不变标记**/
+	private final String MODIFY_FLG_UNCHANGED = "unchanged";
+	
+	/**OK**/
+	private final String OK = "1";
+	
+	/**NG**/
+	private final String NG = "0";
 
 	/**
 	 * 检索
@@ -108,6 +126,12 @@ public class DeviceJigOrderDetailService {
 		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
 			isTechnology = true;
 		}
+		
+		// 经理
+		boolean isManager = false;
+		if(privacies.contains(RvsConsts.PRIVACY_PROCESSING)){
+			isManager = true;
+		}
 
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 		List<DeviceJigOrderDetailForm> list = new AutofillArrayList<DeviceJigOrderDetailForm>(DeviceJigOrderDetailForm.class);
@@ -150,6 +174,10 @@ public class DeviceJigOrderDetailService {
 						list.get(icounts).setApplicator_id(value[0]);
 					} else if ("applicator_operator_name".equals(column)) {
 						list.get(icounts).setApplicator_operator_name(value[0]);
+					}else if ("manage_comfirm_flg".equals(column)) {
+						list.get(icounts).setManage_comfirm_flg(value[0]);
+					}else if("applicate_date".equals(column)){
+						list.get(icounts).setApplicate_date(value[0]);
 					}
 				}
 			}
@@ -161,8 +189,10 @@ public class DeviceJigOrderDetailService {
 			String flg = form.getConfirm_flg_name();
 			// 对象类别
 			String objectType = form.getObject_type();
+			
+			String applicateDate = form.getApplicate_date();
 
-			if ("add".equals(flg) || "change".equals(flg)) {
+			if (MODIFY_FLG_ADD.equals(flg) || MODIFY_FLG_CHANGE.equals(flg)) {
 				Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 				v.add("order_key", v.required());
 				v.add("object_type", v.required("对象类别"));
@@ -175,13 +205,26 @@ public class DeviceJigOrderDetailService {
 
 				v.add("model_name", v.required("型号/规格"));
 				v.add("name", v.required("名称"));
-				v.add("quantity", v.required("数量"));
+				
+				if(CommonStringUtil.isEmpty(applicateDate)){
+					v.add("quantity", v.required("数量"));
+				}
 				v.add("applicator_id", v.required("申请人"));
-				v.delete("applicate_date");
 
 				if (isTechnology) {// 有PRIVACY_TECHNOLOGY权限者更新时，每行的"受注方"要作为必填项目检验
 					v.add("order_from", v.required("受注方"));
 				}
+				List<MsgInfo> errs = v.validate();
+				for (int j = 0; j < errs.size(); j++) {
+					errs.get(j).setLineno("第" + (i + 1) + "行");
+				}
+				errors.addAll(errs);
+			}else if(MODIFY_FLG_UNCHANGED.equals(flg)){
+				Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
+				if (isTechnology) {// 有PRIVACY_TECHNOLOGY权限者更新时，每行的"受注方"要作为必填项目检验
+					v.add("order_from", v.required("受注方"));
+				}
+				
 				List<MsgInfo> errs = v.validate();
 				for (int j = 0; j < errs.size(); j++) {
 					errs.get(j).setLineno("第" + (i + 1) + "行");
@@ -247,44 +290,89 @@ public class DeviceJigOrderDetailService {
 		if (errors.size() > 0)
 			return;
 
-		//修改标记
+		// 修改标记
 		int iModify = 0;
+		
+		// 经理确认标记
+		int iManageConfirm = 0;
 
 		for (DeviceJigOrderDetailForm form : list) {
-			String flg = form.getConfirm_flg_name();
+			// 数据修改标记
+			String modifyFlg = form.getConfirm_flg_name();
+			
+			// 经理确认标记
+			String manageComfirmFlg = form.getManage_comfirm_flg();
 
 			DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
 			// 复制表单数据
 			BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
-			if ("add".equals(flg)) {
-				// 申请日期为当前日期
-				entity.setApplicate_date(Calendar.getInstance().getTime());
+			if (MODIFY_FLG_ADD.equals(modifyFlg)) {
 				if (entity.getObject_type() == 2) {// 对象类别”为“治具”时，“品名”提交为0
 					entity.setDevice_type_id("0");
 				}
-				// 新建设备工具治具订单明细
-				dao.insert(entity);
+				
+				if(OK.equals(manageComfirmFlg)){// OK
+					// 申请日期为当前日期
+					entity.setApplicate_date(Calendar.getInstance().getTime());
+					// 新建设备工具治具订单明细
+					dao.insert(entity);
+					iManageConfirm++;
+				} else {
+					// 新建设备工具治具订单明细
+					dao.insert(entity);
+				}
 				iModify++;
-			} else if ("remove".equals(flg)) {
+			} else if (MODIFY_FLG_REMOVE.equals(modifyFlg) || NG.equals(manageComfirmFlg)) {
+				// 手动删除或者经理确认NG
 				// 删除明细
 				dao.delete(entity);
 				iModify++;
-			} else if ("change".equals(flg)) {
+			} else if (MODIFY_FLG_CHANGE.equals(modifyFlg)) {
 				// 更新明细
 				dao.update(entity);
 				iModify++;
+			} else if("".equals(modifyFlg)){
+				// 不可编辑数据确认
+				if(OK.equals(manageComfirmFlg)){// OK
+					// 申请日期为当前日期
+					entity.setApplicate_date(Calendar.getInstance().getTime());
+					dao.updateApplicateDate(entity);
+					
+					iManageConfirm++;
+				} else if(NG.equals(manageComfirmFlg)){
+					dao.delete(entity);
+					iModify++;
+				}
 			}
 		}
+		
+		
+		String orderNo = req.getParameter("order_no");
 
-		// 登录者role_id 是ROLE_DT_MANAGER= "00000000019"的人员的话就不需要推送。
-		if (!user.getRole_id().equals(RvsConsts.ROLE_DT_MANAGER) && iModify > 0) {
-			String orderNo = req.getParameter("order_no");
-
+		//经理确认
+		if(iManageConfirm > 0 && iModify == 0){
+			//推送给经理设备管理员
 			HttpAsyncClient httpclient = new DefaultHttpAsyncClient();
 			httpclient.start();
 			try {
-				String inUrl = "http://localhost:8080/rvspush/trigger/device_jig_order_applicate/" + orderNo + "/" + user.getOperator_id();
+				String inUrl = "http://localhost:8080/rvspush/trigger/device_jig_order_applicate/" + orderNo + "/" + user.getOperator_id()+"/deviceManager";
+				HttpGet request = new HttpGet(inUrl);
+				log.info("finger:" + request.getURI());
+				httpclient.execute(request, null);
+			} catch (Exception e) {
+			} finally {
+				Thread.sleep(100);
+				httpclient.shutdown();
+			}
+		}
+		
+		if (!isManager && iModify > 0){
+			// 推送给经理。
+			HttpAsyncClient httpclient = new DefaultHttpAsyncClient();
+			httpclient.start();
+			try {
+				String inUrl = "http://localhost:8080/rvspush/trigger/device_jig_order_applicate/" + orderNo + "/" + user.getOperator_id()+"/manager";
 				HttpGet request = new HttpGet(inUrl);
 				log.info("finger:" + request.getURI());
 				httpclient.execute(request, null);
@@ -468,6 +556,9 @@ public class DeviceJigOrderDetailService {
 
 		// 确认数量
 		Integer confirmQuantity = Integer.valueOf(form.getConfirm_quantity());
+		
+		//订单号
+		String orderNO = form.getOrder_no();
 
 		// 当前有效库存 + 确认数量
 		availableInventory = availableInventory + confirmQuantity;
@@ -491,7 +582,9 @@ public class DeviceJigOrderDetailService {
 		deviceSpareAdjustEntity.setAdjust_inventory(confirmQuantity);
 		// 调整负责人
 		deviceSpareAdjustEntity.setOperator_id(user.getOperator_id());
-
+		// 备注来源
+		deviceSpareAdjustEntity.setComment("订购单<order_no>" + orderNO + "</order_no>到货后入库。");
+		
 		// ②新建设备工具备品调整记录
 		deviceSpareAdjustMapper.insert(deviceSpareAdjustEntity);
 

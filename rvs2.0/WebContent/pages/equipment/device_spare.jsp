@@ -23,6 +23,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/equipment/device_spare.js"></script>
 
+<style type="text/css">
+order_no{
+	cursor: pointer;
+	color: blue;
+	text-decoration: underline;
+}
+</style>
+
 <title>设备工具备品管理</title>
 </head>
 <body class="outer" style="overflow: auto;">

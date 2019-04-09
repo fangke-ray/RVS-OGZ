@@ -75,6 +75,7 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		// 登录者ID
 		req.setAttribute("loginID", user.getOperator_id());
+		// 登录者名称
 		req.setAttribute("loginName", user.getName());
 
 		// 受注方
@@ -91,19 +92,34 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		DevicesTypeService devicesTypeService = new DevicesTypeService();
 		req.setAttribute("devicesTypeReferChooser", devicesTypeService.getDevicesTypeReferChooser(conn));
+		
+		// 订单号
+		String orderNo = req.getParameter("order_no");
+		req.setAttribute("initOrderNo", orderNo);
+		
+		// 型号/规格
+		String modelName = req.getParameter("model_name");
+		req.setAttribute("initModelName", modelName);
 
 		// 权限
 		String privacy = "";
-
+		// 角色
+		String role = "";
+		
 		List<Integer> privacies = user.getPrivacies();
 
+		// 经理
+		if(privacies.contains(RvsConsts.PRIVACY_PROCESSING)){// 进度操作
+			role = "manager";
+		}else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {// 线长操作
+			role = "line";
+		}
+		req.setAttribute("role", role);
+		
 		// 设备管理(设备管理画面)
 		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
 			privacy = "technology";
-		} else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {// 线长操作
-			privacy = "line";
-		}
-
+		} 
 		req.setAttribute("privacy", privacy);
 
 		// 迁移到页面
@@ -838,6 +854,52 @@ public class DeviceJigOrderAction extends BaseAction {
 		returnJsonResponse(res, listResponse);
 
 		log.info("DeviceJigOrderAction.doUpdateRecept end");
+	}
+	
+	/**
+	 * 修改订单号
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doUpdateOrderNo(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
+		log.info("DeviceJigOrderAction.doUpdateOrderNo start");
+
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		
+		DeviceJigOrderDetailForm deviceJigOrderDetailForm = (DeviceJigOrderDetailForm) form;
+		String orderNo = deviceJigOrderDetailForm.getOrder_no();
+		
+		DeviceJigOrderForm deviceJigOrderForm = new DeviceJigOrderForm();
+		deviceJigOrderForm.setOrder_no(orderNo);
+		deviceJigOrderForm.setOrder_key(deviceJigOrderDetailForm.getOrder_key());
+		
+		Validators v = BeanUtil.createBeanValidators(deviceJigOrderForm, BeanUtil.CHECK_TYPE_ALL);
+		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
+		
+		if(errors.size() == 0){
+			DeviceJigOrderForm tempForm = deviceJigOrderService.getDeviceJigOrderByOrderNo(orderNo, conn);
+			//订单号重复
+			if(tempForm != null){
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("dbaccess.recordDuplicated");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordDuplicated", "订单号" + orderNo));
+				errors.add(error);
+			}else{
+				deviceJigOrderService.update(deviceJigOrderForm, conn);
+			}
+		}
+
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+
+		log.info("DeviceJigOrderAction.doUpdateOrderNo end");
 	}
 
 }

@@ -54,7 +54,7 @@ public class DeviceJigOrderDetailForm extends ActionForm implements Serializable
 	@BeanField(title = "理由/必要性", name = "nesssary_reason", type = FieldType.String, length = 256)
 	private String nesssary_reason;
 
-	@BeanField(title = "申请日期", name = "applicate_date", type = FieldType.Date, notNull = true)
+	@BeanField(title = "申请日期", name = "applicate_date", type = FieldType.Date)
 	private String applicate_date;
 
 	@BeanField(title = "报价 ID", name = "quotation_id", type = FieldType.String, length = 11)
@@ -170,6 +170,9 @@ public class DeviceJigOrderDetailForm extends ActionForm implements Serializable
 	private String order_from_name;
 
 	private String confirm_flg_name;
+	
+	//经理确认标记
+	private String manage_comfirm_flg;
 
 	public String getOrder_key() {
 		return order_key;
@@ -589,6 +592,14 @@ public class DeviceJigOrderDetailForm extends ActionForm implements Serializable
 
 	public void setConfirm_quantity(String confirm_quantity) {
 		this.confirm_quantity = confirm_quantity;
+	}
+
+	public String getManage_comfirm_flg() {
+		return manage_comfirm_flg;
+	}
+
+	public void setManage_comfirm_flg(String manage_comfirm_flg) {
+		this.manage_comfirm_flg = manage_comfirm_flg;
 	}
 
 }

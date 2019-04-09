@@ -391,7 +391,7 @@ function quotationTrackList(listdata){
 	if($parentDialog.length == 0 || !$parentDialog.is(":visible")) {
 		$parentDialog.dialog({
 			title : "报价追踪",
-			width : 'auto',
+			width : 1200,
 			height : 'auto',
 			resizable : false,
 			modal : true,
@@ -454,7 +454,7 @@ function orderQuotationList(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['对象<br>类别','品名','型号/规格','系统<br>编码','名称','受注方','数量','申请人','确认结果','确认<br>数量','confirm_flg','order_key','object_type','device_type_id','applicator_id','scheduled_date','reorder_scheduled_date','recept_date'],
+			colNames : ['对象<br>类别','品名','型号/规格','系统<br>编码','名称','受注方','数量','申请人','确认结果','确认<br>数量','confirm_flg','order_key','object_type','device_type_id','applicator_id','scheduled_date','reorder_scheduled_date','recept_date','order_no'],
 			colModel : [{name : 'object_type_name',index : 'object_type_name',width:100},
 						{name : 'device_type_name',index : 'device_type_name',width:100},
 						{name : 'model_name',index : 'model_name',width:100},
@@ -472,7 +472,8 @@ function orderQuotationList(listdata){
 						{name : 'applicator_id',index : 'applicator_id',hidden:true},
 						{name : 'scheduled_date',index : 'scheduled_date',hidden:true},
 						{name : 'reorder_scheduled_date',index : 'reorder_scheduled_date',hidden:true},
-						{name : 'recept_date',index : 'recept_date',hidden:true}
+						{name : 'recept_date',index : 'recept_date',hidden:true},
+						{name : 'order_no',index : 'order_no',hidden:true}
 			],
 			rowNum : 30,
 			toppager : false,
@@ -759,6 +760,7 @@ function addSpare(rowData,...arrDialog){
 					"model_name" : rowData.model_name,// 型号/规格
 					"applicator_id" : rowData.applicator_id,// 申请者
 					"device_type_name" : rowData.device_type_name,
+					"order_no" : rowData.order_no,
 					"confirm_quantity" : $("#add_spare_confirm_quantity").val().trim(),// 确认数量
 					"device_spare_type" : $("#add_device_spare_type").val()// 备品种类
 				};
@@ -843,6 +845,8 @@ function quotationSend(){
 							let	device_type_id = obj.device_type_id;
 							// 申请人ID
 							let	applicator_id = obj.applicator_id;
+							// 申请日期
+							let applicate_date =  obj.applicate_date || '';
 							// 对象类别
 							let	object_type = obj.object_type;
 							// 对象类别名称
@@ -865,7 +869,7 @@ function quotationSend(){
 							let	origin_price = obj.origin_price || '';
 
 							let checkbox = "";
-							if(order_price){
+							if(applicate_date && order_price){
 								checkbox = `<input type="checkbox" for="${order_no}">`;
 							}
 							
@@ -1396,14 +1400,16 @@ function resetRowNum(){
 	});
 };
 function subClick(){
+	$(this).removeClass("ui-state-focus");
 	let $tr = $(this).closest("tr");
 	let	className = $tr.attr("class");
 	if(className == "unchanged" || className == "change"){
 		$tr.css({"background-color":"#CCC"}).removeClass("unchanged change").addClass("remove");
+		$tr.find("input,select").disable().prop("readonly",true);
 	}else if(className == "add"){
-		$tr.remove()
+		$tr.remove();
+		resetRowNum();
 	}
-	resetRowNum();
 };
 function objectTypeChange(){
 	let $tr = $(this).closest("tr");
@@ -1629,28 +1635,52 @@ function application(){
 					let list = resInfo.list;
 					let	content = '';
 					
-					list.forEach(item => {
-						content += `<tr order_key="${item.order_key}" order_no="${item.order_no}">
-										<td class="td-content">${item.order_no}</td>
-										<td class="td-content text-center"><input type="button" class="ui-button" value="选择"></td>
-									</tr>`;
-					});
+					// 设备管理员
+					let isTechnology = $("body").attr("istechnology") === "true" ? true:false;
+					
+					if(isTechnology){
+						list.forEach(item => {
+							content += `<tr order_key="${item.order_key}" order_no="${item.order_no}">
+											<td class="td-content">
+												<span style="display:inline-block;box-sizing:border-box;width:49%;">${item.order_no}</span>
+												<span style="display:inline-block;box-sizing:border-box;width:49%;">
+													<input type="button" class="ui-button order_no" value="修改订单号">
+												</span>
+											</td>
+											<td class="td-content text-center"><input type="button" class="ui-button choose" value="选择"></td>
+										</tr>`;
+						});
+					}else{
+						list.forEach(item => {
+							content += `<tr order_key="${item.order_key}" order_no="${item.order_no}">
+											<td class="td-content">${item.order_no}</td>
+											<td class="td-content text-center"><input type="button" class="ui-button choose" value="选择"></td>
+										</tr>`;
+						});
+					}
 					
 					$("#choose_order_no tbody").html(content);
-					$("#add_order_no").focus().val("");
+					
+					if(isTechnology){
+						$("#add_order_no").focus().val("").next().text("");
+					}else{
+						let randomOrderNo = "L" + Date.now().toString().slice(-8);
+						$("#add_order_no").val(randomOrderNo).hide().next().text(randomOrderNo);
+					}
 
 					if(list.length == 0){
 						$("#choose_order_no table:eq(0)").hide();
 					}else{
 						$("#choose_order_no table:eq(0)").show();
 					}
-					
+
 					let $thisDialog = $("#choose_order_no").dialog({
 						title : "申请",
-						width : 400,
+						width : 500,
 						height : 'auto',
 						resizable : false,
 						modal : true,
+						show:"blind",
 						buttons : {
 							"确认":function(){
 								let data = {
@@ -1687,10 +1717,65 @@ function application(){
 						}
 					});
 					
+					
+					$("#choose_order_no tbody input[type='button']").button();
 					// 选择事件
-					$("#choose_order_no tbody input").button().click(function(){
+					$("#choose_order_no tbody input.choose").click(function(){
 						let $tr = $(this).closest("tr");
 						showDetail($tr.attr("order_key"),$tr.attr("order_no"),$thisDialog);
+					});
+					
+					// 修改订单号
+					$("#choose_order_no tbody input.order_no").click(function(){
+						let $tr = $(this).closest("tr");
+						let order_no = $tr.attr("order_no");
+						let order_key = $tr.attr("order_key");
+						
+						$("#update_order_no").val(order_no);
+						
+						let $childDialog = $("#update_order_no_dialog").dialog({
+							title : "修改订单号",
+							width : 400,
+							height : 'auto',
+							resizable : false,
+							modal : true,
+							buttons : {
+								"确定":function(){
+									let postData = {
+										"order_key" : order_key,
+										"order_no" : $("#update_order_no").val().trim()
+									}
+									
+									$.ajax({
+										beforeSend : ajaxRequestType,
+										async : true,
+										url : servicePath + '?method=doUpdateOrderNo',
+										cache : false,
+										data : postData,
+										type : "post",
+										dataType : "json",
+										success : ajaxSuccessCheck,
+										error : ajaxError,
+										complete : function(xhrobj, textStatus) {
+											let resInfo = null;
+											try {
+												// 以Object形式读取JSON
+												eval('resInfo =' + xhrobj.responseText);
+												if (resInfo.errors.length > 0) {
+													// 共通出错信息框
+													treatBackMessages(null, resInfo.errors);
+												} else {
+													let $tr = $("#choose_order_no tr[order_key=" + order_key + "]");
+													$tr.attr("order_no",postData.order_no).find("span:eq(0)").text(postData.order_no);
+													$childDialog.dialog('close');
+												}
+											}catch(e){}
+										}
+									});
+								},
+								"关闭":function(){$(this).dialog('close');}
+							}
+						});
 					});
 				}
 			}catch(e){}
@@ -1721,7 +1806,7 @@ function showDetail(order_key,order_no,$parentDialog){
 					treatBackMessages(null, resInfo.errors);
 				} else {
 					let detailList = resInfo.detailList;
-					showDetailDialog(order_key,order_no,detailList,$parentDialog)
+					showDetailDialog(order_key,order_no,detailList,$parentDialog);
 				}
 			}catch(e){}
 		}
@@ -1737,12 +1822,15 @@ function showDetail(order_key,order_no,$parentDialog){
 function showDetailDialog(order_key,order_no,list,$parentDialog){
 	$("#order_detail tbody").html("");
 	if(list){
-		// 权限
-		let privacy = $("#privacy").val().trim();
+		// 设备管理员
+		let isTechnology = $("body").attr("istechnology") === "true" ? true:false;
+		// 角色
+		let role = $("#role").val().trim();
+		
 		let	loginID = $("#loginID").val().trim();
 		let	orderFromOptions = $("#hide_order_from").html();
 		let	content = '';
-		
+
 		list.forEach((item,index) => {
 			let rowNum = index + 1;
 			let	order_key = item.order_key;
@@ -1752,6 +1840,7 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 			let	device_type_name = item.device_type_name || '';
 			let	model_name = item.model_name;
 			let	applicator_id = item.applicator_id;
+			let applicate_date = item.applicate_date || '';
 			let	applicator_operator_name = item.applicator_operator_name;
 			let	system_code = item.system_code || '';
 			let	quantity = item.quantity || '';
@@ -1760,12 +1849,13 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 			let	order_from = item.order_from || '';
 			let	order_from_name =  item.order_from_name || '';
 			let	name = item.name;
-			
-			// 没有PRIVACY_TECHNOLOGY权限
-			if(privacy != "technology"){
+
+			// 经理角色
+			if(role === "manager"){
+				//登录的数据是当前登录者自己的
 				if(applicator_id == loginID){
 					content += `<tr class="unchanged" order_key="${order_key}" object_type="${object_type}" device_type_id="${device_type_id}" model_name="${model_name}" applicator_id="${applicator_id}">
-									<td class="ui-state-default rowNum">${rowNum}</td>
+									<td class="ui-state-default td-title rowNum">${rowNum}</td>
 									<td class="td-content">${object_type_name}</td>
 									<td class="td-content">${device_type_name}</td>
 									<td class="td-content">${model_name}</td>
@@ -1778,25 +1868,29 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 									<td class="td-content" value="${order_from}">
 										<select class="ui-widget-content order_from" order_from="${order_from}">${orderFromOptions}</select>
 									</td>
-									<td class="td-content" value="${quantity}">
-										<input type="text" class="ui-widget-content quantity" value="${quantity}">
+									<td class="td-content text-right" value="${quantity}">
+					${applicate_date!='' ? quantity :
+								String.raw`<input type="text" class="ui-widget-content quantity" value="${quantity}">`
+					}
 									</td>
 									<td class="td-content" value="${nesssary_reason}">
 										<input type="text" class="ui-widget-content nesssary_reason" value="${nesssary_reason}">
 									</td>
-									<td class="td-content">
-										${applicator_operator_name}
-									</td>
-									<td class="td-content text-right">
-										${available_inventory}
-									</td>
-									<td class="td-content text-center" style="width:50px;">
-										<input type="button" class="ui-button subtract" value="-"/>
-									</td>
+									<td class="td-content">${applicator_operator_name}</td>
+									<td class="td-content text-right">${available_inventory}</td>
+					${applicate_date!='' ? String.raw`<td class="td-content text-center" applicate_date=${applicate_date} style="width:90px;">OK</td>` : 
+						String.raw`<td class="td-content text-center manager_confirm" style="width:90px;">
+						 				<input type="radio" name="manager_confirm_${index}" id="manager_confirm_${index}_ok" class="ui-widget-content" value="1">
+						 				<label for="manager_confirm_${index}_ok">OK</label>
+						 				<input type="radio" name="manager_confirm_${index}" id="manager_confirm_${index}_ng" class="ui-widget-content" value="0">
+						 				<label for="manager_confirm_${index}_ng">NG</label>
+						 		   </td>`}
+								   <td class="td-content text-center"><input type="button" class="ui-button subtract" value="-"/></td>
 								</tr>`;
 				}else{
+					//不是自己的数据
 					content += `<tr order_key= "${order_key}" object_type="${object_type}" device_type_id="${device_type_id}" model_name="${model_name}" applicator_id="${applicator_id}">
-									<td class="ui-state-default rowNum">${rowNum}</td>
+									<td class="ui-state-default td-title rowNum">${rowNum}</td>
 									<td class="td-content">${object_type_name}</td>
 									<td class="td-content">${device_type_name}</td>
 									<td class="td-content">${model_name}</td>
@@ -1807,12 +1901,67 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 									<td class="td-content">${nesssary_reason}</td>
 									<td class="td-content">${applicator_operator_name}</td>
 									<td class="td-content text-right">${available_inventory}</td>
-									<td class="td-content" style="width:50px;"></td>
+				${applicate_date!='' ? String.raw`<td class="td-content text-center" applicate_date=${applicate_date} style="width:90px;">OK</td>` : 
+						String.raw`<td class="td-content text-center manager_confirm" style="width:90px;">
+						 				<input type="radio" name="manager_confirm_${index}" id="manager_confirm_${index}_ok" class="ui-widget-content" value="1">
+						 				<label for="manager_confirm_${index}_ok">OK</label>
+						 				<input type="radio" name="manager_confirm_${index}" id="manager_confirm_${index}_ng" class="ui-widget-content" value="0">
+						 				<label for="manager_confirm_${index}_ng">NG</label>
+						 		   </td>`}
+				 				   <td class="td-content"></td>
+				 				</tr>`;
+				}
+			} else if(role === "line"){//线长角色
+				//登录的数据是当前登录者自己的
+				if(applicator_id == loginID){
+					content += `<tr class="unchanged" order_key="${order_key}" object_type="${object_type}" device_type_id="${device_type_id}" model_name="${model_name}" applicator_id="${applicator_id}">
+									<td class="ui-state-default td-title rowNum">${rowNum}</td>
+									<td class="td-content">${object_type_name}</td>
+									<td class="td-content">${device_type_name}</td>
+									<td class="td-content">${model_name}</td>
+									<td class="td-content" value="${system_code}">
+										<input type="text" class="ui-widget-content system_code" value="${system_code}">
+									</td>
+									<td class="td-content" value="${name}">
+										<input type="text" class="ui-widget-content name" value="${name}">
+									</td>
+									<td class="td-content" value="${order_from}">
+										<select class="ui-widget-content order_from" order_from="${order_from}">${orderFromOptions}</select>
+									</td>
+									<td class="td-content text-right" value="${quantity}">
+				${applicate_date!='' ? quantity :
+						String.raw`<input type="text" class="ui-widget-content quantity" value="${quantity}">`
+				}
+									</td>
+									<td class="td-content" value="${nesssary_reason}">
+										<input type="text" class="ui-widget-content nesssary_reason" value="${nesssary_reason}">
+									</td>
+									<td class="td-content">	${applicator_operator_name}</td>
+									<td class="td-content text-right">${available_inventory}</td>
+									<td class="td-content text-center" style="width:90px;" applicate_date="${applicate_date}">${applicate_date!='' ? applicate_date : ''}</td>
+									<td class="td-content text-center"><input type="button" class="ui-button subtract" value="-"/></td>
+								</tr>`;
+				}else{
+					//不是自己的数据,数据只度
+					content += `<tr order_key= "${order_key}" object_type="${object_type}" device_type_id="${device_type_id}" model_name="${model_name}" applicator_id="${applicator_id}">
+									<td class="ui-state-default td-title rowNum">${rowNum}</td>
+									<td class="td-content">${object_type_name}</td>
+									<td class="td-content">${device_type_name}</td>
+									<td class="td-content">${model_name}</td>
+									<td class="td-content">${system_code}</td>
+									<td class="td-content">${name}</td>
+									<td class="td-content">${order_from_name}</td>
+									<td class="td-content text-right">${quantity}</td>
+									<td class="td-content">${nesssary_reason}</td>
+									<td class="td-content">${applicator_operator_name}</td>
+									<td class="td-content text-right">${available_inventory}</td>
+									<td class="td-content text-center" style="width:90px;" applicate_date="${applicate_date}">${applicate_date!='' ? applicate_date : ''}</td>
+								 	<td class="td-content"></td>
 								</tr>`;
 				}
-			}else{// 有PRIVACY_TECHNOLOGY权限
+			}else if(isTechnology){//设备管理权限
 				content += `<tr class="unchanged" order_key= "${order_key}" object_type="${object_type}" device_type_id="${device_type_id}" model_name="${model_name}" applicator_id="${applicator_id}">
-								<td class="ui-state-default rowNum">${rowNum}</td>
+								<td class="ui-state-default td-title rowNum">${rowNum}</td>
 								<td class="td-content">${object_type_name}</td>
 								<td class="td-content">${device_type_name}</td>
 								<td class="td-content">${model_name}</td>
@@ -1825,32 +1974,29 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 								<td class="td-content" value="${order_from}">
 									<select class="ui-widget-content order_from" order_from="${order_from}">${orderFromOptions}</select>
 								</td>
-								<td class="td-content" value="${quantity}">
-									<input type="text" class="ui-widget-content quantity" value="${quantity}">
+								<td class="td-content text-right" value="${quantity}">
+				${applicate_date!='' ? quantity :
+						String.raw`<input type="text" class="ui-widget-content quantity" value="${quantity}">`
+				}
 								</td>
 								<td class="td-content" value="${nesssary_reason}">
 									<input type="text" class="ui-widget-content nesssary_reason" value="${nesssary_reason}">
 								</td>
-								<td class="td-content">
-									${applicator_operator_name}
-								</td>
-								<td class="td-content text-right">
-									${available_inventory}
-								</td>
-								<td class="td-content text-center" style="width:50px;">
-									<input type="button" class="ui-button subtract" value="-"/>
-								</td>
+								<td class="td-content">${applicator_operator_name}</td>
+								<td class="td-content text-right">${available_inventory}</td>
+								<td class="td-content text-center" style="width:90px;" applicate_date="${applicate_date}">${applicate_date!='' ? applicate_date : ''}</td>
+								<td class="td-content text-center"><input type="button" class="ui-button subtract" value="-"/></td>
 							</tr>`;
 			}
 		});
+
+		let $table = $("#order_detail table");
+		$table.find("tbody").html(content);
+		$table.find("tbody input.ui-button").button();
 		
-		$("#order_detail tbody").html(content);
-		$("#order_detail tbody input.ui-button").button();
-		
+		$table.find("td.manager_confirm").buttonset();
 		// 已有的数据完成赋值
-		$("#order_detail tbody select").each(function(){
-			$(this).val($(this).attr("order_from"));
-		});
+		$table.find("select.order_from").each((index,select) => $(select).val($(select).attr("order_from")));
 	}
 	
 	$("#add_row").unbind("click").click(() => addRow(order_key));
@@ -1868,7 +2014,7 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 					let $tr = $(tr);
 					let className = $tr.attr("class") || '';
 					
-					// 数据区分标记[add，change，remove]
+					// 数据区分标记[add，change，unchanged，remove]
 					data["device_jig_order_detail.confirm_flg_name[" + index + "]"] = className;
 					// 订购单KEY
 					data["device_jig_order_detail.order_key[" + index + "]"] = $tr.attr("order_key");
@@ -1890,6 +2036,10 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 					data["device_jig_order_detail.nesssary_reason[" + index + "]"] = $tr.find("input.nesssary_reason").val();
 					// 申请人
 					data["device_jig_order_detail.applicator_id[" + index + "]"] = $tr.attr("applicator_id");
+					//经理确认
+					data["device_jig_order_detail.manage_comfirm_flg[" + index + "]"] = $tr.find("td.manager_confirm").attr("manager_confirm") || $tr.find("td.manager_confirm input[type='radio']:checked").val() || '';
+					data["device_jig_order_detail.applicate_date[" + index + "]"] = $tr.find("td[applicate_date]").attr("applicate_date") || '';
+					
 				});
 				
 				data["order_no"] = order_no;
@@ -1925,14 +2075,17 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 	});
 };
 function addRow(orderKey){
+	// 角色
+	let role = $("#role").val().trim();
+	
 	let loginID = $("#loginID").val().trim();
 	let	loginName = $("#loginName").val().trim();
 	let	orderFromOptions = $("#hide_order_from").html();
 	let	objectTypeOptions = $("#hide_object_type").html();
 	let	id = Date.now();
 
-	let content = `<tr class="add" id="${id}" order_key= "${orderKey}" applicator_id="${loginID}">
-					<td class="ui-state-default rowNum"></td>
+	let content =`<tr class="add" id="${id}" order_key= "${orderKey}" applicator_id="${loginID}">
+					<td class="ui-state-default td-title rowNum"></td>
 					<td class="td-content">
 						<select class="ui-widget-content object_type">${objectTypeOptions}</select>
 					</td>
@@ -1958,12 +2111,12 @@ function addRow(orderKey){
 					<td class="td-content">
 						<input type="text" class="ui-widget-content nesssary_reason">
 					</td>
-					<td class="td-content">
-						${loginName}
-					</td>
-					<td class="td-content available_inventory text-right">
-					</td>
-					<td class="td-content text-center" style="width:50px;">
+					<td class="td-content">	${loginName}</td>
+					<td class="td-content available_inventory text-right"></td>
+	${role === "manager" ? String.raw`<td class="td-content text-center manager_confirm" manager_confirm="1" style="width:90px;">OK</td>` : 
+		 String.raw`<td class="td-content"style="width:90px;"></td>`
+	}
+		 			<td class="td-content text-center" style="width:50px;">
 						<input type="button" class="ui-button subtract" value="-"/>
 					</td>
 				</tr>`;
@@ -2121,6 +2274,9 @@ function list(listdata){
 					let	quotation_no = rowData.quotation_no;
 						// 申请日期
 					let	applicate_date = rowData.applicate_date.trim();
+					if(applicate_date.length == 8){
+						applicate_date = "20" + applicate_date;
+					}
 						// 确认接收日期
 					let	acquire_date = rowData.acquire_date.trim();
 						// 询价发送日期
@@ -2134,16 +2290,19 @@ function list(listdata){
 						// 验收日期
 					let	inline_recept_date = rowData.inline_recept_date.trim();
 						// 间隔天数
-					let	differDays = (now - (new Date(applicate_date))) / oneDay;
+					let	differDays = "";
 						// 确认数量
 					let	confirm_quantity = rowData.confirm_quantity.trim();
 						// “报价单号”为空，并且“申请日期”早于当前日期一个自然月前
-					if(!quotation_no && differDays > 30){
-						// “订单号”，“分类”，“型号/规格”，“申请日期”单元格底色橙色
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_order_no']").css({"background-color":"orange","color":"#fff"});
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_object_type_name']").css({"background-color":"orange","color":"#fff"});
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_model_name']").css({"background-color":"orange","color":"#fff"});
-						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_applicate_date']").css({"background-color":"orange","color":"#fff"});
+					if(!quotation_no && applicate_date){
+						differDays = (now - (new Date(applicate_date))) / oneDay;
+						if(differDays > 30){
+							// “订单号”，“分类”，“型号/规格”，“申请日期”单元格底色橙色
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_order_no']").css({"background-color":"orange","color":"#fff"});
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_object_type_name']").css({"background-color":"orange","color":"#fff"});
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_model_name']").css({"background-color":"orange","color":"#fff"});
+							$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_applicate_date']").css({"background-color":"orange","color":"#fff"});
+						}
 					}
 					// “确认接收日期”为空，并且“询价发送日期”早于离当前日往前最早的25日
 					// “离当前日往前最早的25日”，就是说本月还没到25日就是上月25日，本月过了25日就是本月25日。
@@ -2158,7 +2317,7 @@ function list(listdata){
 							if(tempNow.getMonth() == 0){// 跨年取月份
 								tempNow.setFullYear(tempNow.getFullYear()-1, 11, 25);
 							}else{
-								tempNow.setMonth(tempNow.getMonth() - 1, 25)
+								tempNow.setMonth(tempNow.getMonth() - 1, 25);
 							}
 						}
 						

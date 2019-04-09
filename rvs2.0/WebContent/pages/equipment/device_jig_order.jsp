@@ -22,7 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/jquery.mtz.monthpicker.min.js"></script>
-<script type="text/javascript" src="js/equipment/device_jig_order.js"></script>
+<script type="text/javascript" src="js/equipment/device_jig_order.es5.js"></script>
 
 <style type="text/css">
 .text-center {
@@ -36,32 +36,53 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 .referchooser {
 	z-index:1050;
 }
+#order_detail table{
+	border-collapse: collapse;
+}
 
 #order_detail tbody tr{
 	height: 30px;
 }
 
+#order_detail tbody td{
+	font-weight: normal;
+}
+
 #order_detail td.td-title{
 	width:92px;
-	padding:3px;
+	padding:0px;
 	text-align: center;
+	border-color: #aaa;
 }
 
 #order_detail td.td-content{
 	width:92px;
+	border-color: #aaa;
 }
 
-#order_detail td.ui-state-default.rowNum{
+#order_detail td.rowNum{
 	width:30px;
 	text-align: center;
 }
 
+#order_detail tr td:last-child{
+	width: 50px;
+}
+
 #order_detail input[type='text']{
-	width:90px;
+	width:85px;
 }
 
 #order_detail input[type='text'].nesssary_reason{
 	width:160px;
+}
+
+#order_detail .ui-buttonset span{
+	padding: 0.1em 0.3em !important;
+}
+
+#order_detail input.subtract,#add_row{
+	padding: .1em 1em;
 }
 
 #quotationsend tbody tr{
@@ -80,9 +101,11 @@ td.text-right{
 <% 
 	String privacy = (String) request.getAttribute("privacy");
 	boolean isTechnology = ("technology").equals(privacy);
-	boolean isLine = ("line").equals(privacy);
+	String role = (String) request.getAttribute("role");
+	boolean isLine = ("line").equals(role);
+	boolean isManager = ("manager").equals(role);
 %>
-<body class="outer" style="overflow: auto;">
+<body class="outer" style="overflow: auto;" istechnology="<%= isTechnology%>">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 		<div id="basearea" class="dwidth-full" style="margin: auto;">
 			<jsp:include page="/header.do" flush="true">
@@ -117,11 +140,11 @@ td.text-right{
 										</td>
 										<td class="ui-state-default td-title">订单号</td>
 								   		<td class="td-content">
-											<input id="search_order_no" type="text" class="ui-widget-content">
+											<input id="search_order_no" type="text" class="ui-widget-content" value="${initOrderNo }">
 										</td>
 										<td class="ui-state-default td-title">订购品</td>
 								   		<td class="td-content">
-											<input id="search_model_name" type="text" class="ui-widget-content">
+											<input id="search_model_name" type="text" class="ui-widget-content" value="${initModelName }">
 										</td>
 									</tr>
 									<tr>
@@ -192,7 +215,7 @@ td.text-right{
 						
 						<table id="list"></table>
 						<div id="listpager"></div>
-<% if (isTechnology || isLine) { %>
+<% if (isTechnology || isLine || isManager) { %>
 						<div class="ui-widget-header areabase"style="padding-top:4px;">
 						    <div id="executes" style="margin-left:4px;margin-top:4px;">
 								<input type="button" id="applicationbutton" class="ui-button" value="申请">
@@ -238,6 +261,22 @@ td.text-right{
 							<td class="ui-state-default td-title">订单号</td>
 							<td class="td-content">
 								<input type="text" id="add_order_no" class="ui-widget-content">
+								<span></span>
+							</td>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+		
+		<div id="update_order_no_dialog" style="display: none;">
+			<div class="ui-widget-content">
+				<table class="condform">
+					<thead>
+						<tr>
+							<td class="ui-state-default td-title">订单号</td>
+							<td class="td-content">
+								<input type="text" id="update_order_no" class="ui-widget-content">
 							</td>
 						</tr>
 					</thead>
@@ -250,18 +289,19 @@ td.text-right{
 				<table class="condform" style="width: 99.6%;">
 					<thead>
 						<tr>
-							<td class="ui-state-default td-title" style="width:30px;">行号</td>
+							<td class="ui-state-default td-title" style="width:35px;">行号</td>
 							<td class="ui-state-default td-title">对象类别</td>
 							<td class="ui-state-default td-title" style="width: 140px;">品名</td>
 							<td class="ui-state-default td-title">型号/规格</td>
 							<td class="ui-state-default td-title">系统编码</td>
-							<td class="ui-state-default td-title">名称</td>
-							<td class="ui-state-default td-title">受注方</td>
-							<td class="ui-state-default td-title" >数量</td>
-							<td class="ui-state-default td-title" style="width:180px;">理由/必要性</td>
-							<td class="ui-state-default td-title" style="width: 100px;">申请人</td>
-							<td class="ui-state-default td-title" style="width: 100px;">现有备品数</td>
-							<td class="td-content text-center" style="width: 50px;">
+							<td class="ui-state-default td-title" style="width: 140px;">名称</td>
+							<td class="ui-state-default td-title" style="width: 50px;">受注方</td>
+							<td class="ui-state-default td-title" style="width: 60px;">数量</td>
+							<td class="ui-state-default td-title" style="width: 180px;">理由/必要性</td>
+							<td class="ui-state-default td-title" style="width: 60px;">申请人</td>
+							<td class="ui-state-default td-title" style="width: 60px;">现有备品数</td>
+							<td class="ui-state-default td-title confirm" style="width: 80px;">经理确认</td>
+							<td class="td-content text-center">
 								<input type="button" id="add_row" class="ui-button" value="+"/>
 							</td>
 						</tr>
@@ -550,7 +590,7 @@ td.text-right{
 			<table  class="subform">${devicesTypeReferChooser}</table>
 		</div>
 		
-		<input type="hidden" id="privacy" value="${privacy }">
+		<input type="hidden" id="role" value="${role }">
 		<input type="hidden" id="loginID" value="${loginID }">
 		<input type="hidden" id="loginName" value="${loginName }">
 		<select id="hide_order_from" style="display:none;">${sOrderFrom }</select>

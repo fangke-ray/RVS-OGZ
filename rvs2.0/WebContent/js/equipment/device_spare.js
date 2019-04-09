@@ -88,6 +88,12 @@ $(function(){
 			showBrandDetail($("#update_brand_id").val());
 		}
 	});
+   	
+   	$("#adjustlist").on("click","order_no",function(){
+   		let order_no = $(this).text().trim();
+   		let model_name = $("#update_model_name").text().trim();
+   		window.location.href = "./device_jig_order.do?method=init&order_no=" + order_no + "&model_name=" + model_name;
+   	});
 
     findit();
 });
@@ -619,6 +625,10 @@ function list(listdata){
 					
 					if(available_inventory < safety_lever){
 						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_available_inventory']").css({"background-color":"orange","color":"#fff"});
+					}else if(available_inventory == safety_lever){
+						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_available_inventory']").css({"background-color":"#FFFF99","color":"#000"});
+					}else{
+						$("#list tr#" + IDS[i] + " td[aria\\-describedby='list_available_inventory']").css({"background-color":"#339999","color":"#fff"});
 					}
 				}
 			}

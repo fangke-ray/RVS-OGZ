@@ -11,6 +11,12 @@
 	]]>
 	</insert>
 	
+	<update id="update" parameterType="DeviceJigOrderEntity">
+	<![CDATA[
+	UPDATE device_jig_order SET order_no = #{order_no} WHERE order_key = #{order_key}
+	]]>
+	</update>
+	
 	<select id="searchUnQuotation" resultType="DeviceJigOrderEntity">
 	<![CDATA[
 	SELECT 

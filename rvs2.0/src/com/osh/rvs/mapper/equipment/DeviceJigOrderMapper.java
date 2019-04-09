@@ -19,6 +19,12 @@ public interface DeviceJigOrderMapper {
 	 * @param entity
 	 */
 	public void insert(DeviceJigOrderEntity entity);
+	
+	/**
+	 * 更新设备工具治具订单
+	 * @param entity
+	 */
+	public void update(DeviceJigOrderEntity entity);
 
 	/**
 	 * 查询未发放申请单号

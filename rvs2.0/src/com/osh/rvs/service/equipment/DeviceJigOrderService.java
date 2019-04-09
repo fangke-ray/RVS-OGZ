@@ -26,6 +26,13 @@ import framework.huiqing.common.util.message.ApplicationMessage;
  * 
  */
 public class DeviceJigOrderService {
+	/**
+	 * 新建设备工具治具订单
+	 * @param form
+	 * @param conn
+	 * @param errors
+	 * @return
+	 */
 	public String insert(ActionForm form, SqlSessionManager conn, List<MsgInfo> errors) {
 		// 数据连接
 		DeviceJigOrderMapper deviceJigOrderMapper = conn.getMapper(DeviceJigOrderMapper.class);
@@ -34,8 +41,9 @@ public class DeviceJigOrderService {
 		DeviceJigOrderEntity entity = new DeviceJigOrderEntity();
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
-		DeviceJigOrderEntity dbEntity = deviceJigOrderMapper.getDeviceJigOrderByOrderNo(entity.getOrder_no());
-		if (dbEntity != null) {
+		DeviceJigOrderForm deviceJigOrderForm = this.getDeviceJigOrderByOrderNo(entity.getOrder_no(), conn);
+		
+		if (deviceJigOrderForm != null) {
 			MsgInfo error = new MsgInfo();
 			error.setErrcode("dbaccess.recordDuplicated");
 			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordDuplicated", "订单号" + entity.getOrder_no()));
@@ -49,6 +57,45 @@ public class DeviceJigOrderService {
 
 		return lastInsertID;
 	}
+	
+	/**
+	 * 根据订单号查询
+	 * @param orderNo
+	 * @param conn
+	 * @return
+	 */
+	public DeviceJigOrderForm getDeviceJigOrderByOrderNo(String orderNo,SqlSession conn){
+		// 数据连接
+		DeviceJigOrderMapper deviceJigOrderMapper = conn.getMapper(DeviceJigOrderMapper.class);
+		
+		DeviceJigOrderEntity entity = deviceJigOrderMapper.getDeviceJigOrderByOrderNo(orderNo);
+		
+		DeviceJigOrderForm respForm = null;
+		
+		if(entity!=null){
+			respForm = new DeviceJigOrderForm();
+			BeanUtil.copyToForm(entity, respForm, CopyOptions.COPYOPTIONS_NOEMPTY);
+		}
+		
+		return respForm;
+	}
+	
+	/**
+	 * 更新设备工具治具订单
+	 * @param form
+	 * @param conn
+	 */
+	public void update(ActionForm form,SqlSessionManager conn){
+		// 数据连接
+		DeviceJigOrderMapper deviceJigOrderMapper = conn.getMapper(DeviceJigOrderMapper.class);
+		
+		DeviceJigOrderEntity entity = new DeviceJigOrderEntity();
+		//复制表单数据
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		
+		deviceJigOrderMapper.update(entity);
+	}
+	
 
 	public List<DeviceJigOrderForm> searchUnProvide(SqlSession conn) {
 		// 数据连接

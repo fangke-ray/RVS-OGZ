@@ -21,7 +21,11 @@
 	    ds.location,
 	    ds.comment,
 	    ds.benchmark * ds.price AS total_benchmark_price,
-	    ds.available_inventory * ds.price AS total_available_price
+	    ds.available_inventory * ds.price AS total_available_price,
+	    CASE
+			WHEN available_inventory < safety_lever THEN 1
+			ELSE 0
+	    END AS flg
 	]]>
 	<if test="adjust_time_start!=null or adjust_time_end!=null">
 	<![CDATA[
@@ -95,7 +99,7 @@
  	]]>
  	</if>
  	</where>
- 	ORDER BY device_spare_type, model_name
+ 	ORDER BY flg,device_spare_type, model_name
 	</select>
 	
 	<insert id="insert" parameterType="DeviceSpareEntity">

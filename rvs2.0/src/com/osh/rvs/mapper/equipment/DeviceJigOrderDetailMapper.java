@@ -39,6 +39,12 @@ public interface DeviceJigOrderDetailMapper {
 	 * @param entity
 	 */
 	public void update(DeviceJigOrderDetailEntity entity);
+	
+	/**
+	 * 更新申请日期
+	 * @param entity
+	 */
+	public void updateApplicateDate(DeviceJigOrderDetailEntity entity);
 
 	public List<DeviceJigOrderDetailEntity> searchDetail(DeviceJigOrderDetailEntity entity);
 
