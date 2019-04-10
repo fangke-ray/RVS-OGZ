@@ -156,7 +156,11 @@ public class TriggerServlet extends HttpServlet {
 				PositionStandardTimeQueue.stopAlarmClockQueue(target, object);
 			} else if (METHOD_DEVICE_JIG_ORDER_APPLICATE.equals(method)) {
 				DeviceJigOrderJob deviceJigOrderJob = new DeviceJigOrderJob();
-				deviceJigOrderJob.deviceJigOrderEdit(target, object);
+				if("deviceManager".equals(action)){
+					deviceJigOrderJob.deviceJigOrderConfirm(target, object);
+				}else if("manager".equals(action)){
+					deviceJigOrderJob.deviceJigOrderEdit(target, object);
+				}
 			} else if (METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT.equals(method)){
 				Map<String,String> param = new HashMap<String, String>();
 				param.put("operator_id", parameters[2]);

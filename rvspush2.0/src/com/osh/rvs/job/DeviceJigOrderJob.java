@@ -384,6 +384,68 @@ public class DeviceJigOrderJob implements Job {
 			conn = null;
 		}
 	}
+	
+	/**
+	 * 设备工具订购申请确认
+	 * @param orderNO
+	 * @param operatorID
+	 */
+	public void deviceJigOrderConfirm(String orderNO, String operatorID) {
+		// 取得数据库连接
+		SqlSessionManager conn = getTempWritableConn();
+		try {
+			conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
+
+			CommonMapper commonMapper = conn.getMapper(CommonMapper.class);
+			OperatorMapper operatorMapper = conn.getMapper(OperatorMapper.class);
+			PostMessageMapper postMessageMapper = conn.getMapper(PostMessageMapper.class);
+
+			// 更新人名称
+			String operatorName = operatorMapper.getOperatorByID(operatorID).getName();
+			
+			OperatorEntity operatorEntity = new OperatorEntity();
+			operatorEntity.setRole_id(RvsConsts.ROLE_DEVICEMANAGER);
+			// 设备管理员
+			List<OperatorEntity> receiverList = operatorMapper.searchOperator(operatorEntity);
+
+			// 推送信息
+			String content = operatorName + "确认了设备工具订购单" + orderNO + "，请知晓。";
+			PostMessageEntity postMessageEntity = new PostMessageEntity();
+			postMessageEntity.setLevel(2);
+			postMessageEntity.setOccur_time(Calendar.getInstance().getTime());
+			postMessageEntity.setReason(31);
+			postMessageEntity.setSender_id(operatorID);
+			postMessageEntity.setContent(content);
+
+			// 建立推送信息
+			postMessageMapper.createPostMessage(postMessageEntity);
+			String postMessageId = commonMapper.getLastInsertID();
+
+			for (OperatorEntity op : receiverList) {
+				postMessageEntity.setPost_message_id(postMessageId);
+				postMessageEntity.setReceiver_id(op.getOperator_id());
+				// 建立推送信息接收人
+				postMessageMapper.createPostMessageSendation(postMessageEntity);
+			}
+			
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.commit();
+				log.info("Committed！");
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.rollback();
+				log.info("Rolled back！");
+			}
+		} finally {
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.close();
+				log.info("Close Connnection！");
+			}
+			conn = null;
+		}
+	}
 
 	/**
 	 * 到货验收
