@@ -235,8 +235,8 @@ public class PartialWarehouseJob implements Job {
 			// 设置列宽
 			sheet.setColumnWidth(colIndex, 256 * 11);
 
-			// 创建第二行到第十八行单元格
-			for (int rowIndex = 1; rowIndex <= 17; rowIndex++) {
+			// 创建第二行到第二十行单元格
+			for (int rowIndex = 1; rowIndex <= 19; rowIndex++) {
 				row = sheet.getRow(rowIndex);
 				// 创建单元格对象
 				CellUtil.createCell(row, colIndex, "一", row.getCell(colIndex - 1).getCellStyle());
@@ -333,8 +333,14 @@ public class PartialWarehouseJob implements Job {
 
 					standardTime = new BigDecimal(dailyWorkRecordList.size() * DEC_STANDARD_TIME);
 					break;
-				case 99://O：其它
+				case 52://E3：其他维修出库
 					row = sheet.getRow(15);
+					row2 = sheet.getRow(16);
+
+					standardTime = new BigDecimal(spendTime);//标准时间和实际时间一样
+					break;
+				case 99://O：其它
+					row = sheet.getRow(17);
 					standardTime = new BigDecimal(spendTime);//标准时间和实际时间一样
 					break;
 				default:
@@ -369,7 +375,7 @@ public class PartialWarehouseJob implements Job {
 
 			// 合计负荷率
 			percent = totalSpendTime.divide(workTime, 4, RoundingMode.HALF_UP).doubleValue();
-			sheet.getRow(16).getCell(colIndex).setCellValue(percent);
+			sheet.getRow(18).getCell(colIndex).setCellValue(percent);
 			
 			//合计负荷率低于“仓管人员负荷率警报标志下线”
 			if(percent < lowLever){
@@ -378,7 +384,7 @@ public class PartialWarehouseJob implements Job {
 
 			// 合计能率
 			percent = totalStandardTime.divide(totalSpendTime, 4, RoundingMode.HALF_UP).doubleValue();
-			sheet.getRow(17).getCell(colIndex).setCellValue(percent);
+			sheet.getRow(19).getCell(colIndex).setCellValue(percent);
 			
 			//合计能率低于“仓管人员能率警报标志下线”
 			if(percent < efLowLever){
@@ -386,21 +392,21 @@ public class PartialWarehouseJob implements Job {
 			}
 
 			//负荷率警报标志下线
-			row = sheet.getRow(18);
-			if(row == null) row = sheet.createRow(18);
+			row = sheet.getRow(20);
+			if(row == null) row = sheet.createRow(20);
 			cell = row.createCell(colIndex);
 			cell.setCellValue(lowLever);
 			cell.setCellStyle(styleMap.get("percentStyle"));
 
 			//能率警报标志下线
-			row = sheet.getRow(19);
-			if(row == null) row = sheet.createRow(19);
+			row = sheet.getRow(21);
+			if(row == null) row = sheet.createRow(21);
 			cell = row.createCell(colIndex);
 			cell.setCellValue(efLowLever);
 			cell.setCellStyle(styleMap.get("percentStyle"));
 
-			row = sheet.getRow(20);
-			if(row == null) row = sheet.createRow(20);
+			row = sheet.getRow(22);
+			if(row == null) row = sheet.createRow(22);
 			cell = row.createCell(colIndex);
 
 			//未记录时间
@@ -418,9 +424,9 @@ public class PartialWarehouseJob implements Job {
 			sheet.setColumnWidth(i, 0);
 		}
 
-		row = sheet.getRow(22);
-		if(row == null) row = sheet.createRow(22);
-		cell = row.createCell(10);
+		row = sheet.getRow(24);
+		if(row == null) row = sheet.createRow(24);
+		cell = row.createCell(11);
 		//总计工作时间
 		cell.setCellValue(monthWorkTime.doubleValue());
 		
@@ -444,20 +450,19 @@ public class PartialWarehouseJob implements Job {
 		
 		//不存在负荷率未达成目标
 		if(map.isEmpty()){
-			for(int i = 106;i <= 145;i++){
+			for(int i = 108;i <= 147;i++){
 				row = sheet.getRow(i);
 				row.setZeroHeight(true);
 			}
 			return;
 		}
 		
-		sheet.getRow(107).getCell(0).setCellValue("目标："+ userDefineMap.get("strLowLever").doubleValue() + "%");
+		sheet.getRow(109).getCell(0).setCellValue("目标："+ userDefineMap.get("strLowLever").doubleValue() + "%");
 		
 		//（日次）负荷率未达成目标跟踪分析开始行索引
-		int rowIndex = 109;
+		int rowIndex = 111;
 		//结束行索引
 		int rowEndIndex = rowIndex + 30;
-		
 		
 		//（日次）负荷率未达成目标跟踪分析
 		for(Date strDate :map.keySet()){
@@ -495,17 +500,17 @@ public class PartialWarehouseJob implements Job {
 		
 		//不存在能率未达成目标
 		if(map.isEmpty()){
-			for(int i = 148;i <= 187;i++){
+			for(int i = 150;i <= 189;i++){
 				row = sheet.getRow(i);
 				row.setZeroHeight(true);
 			}
 			return;
 		}
 		
-		sheet.getRow(149).getCell(0).setCellValue("目标："+ userDefineMap.get("efLowLever").doubleValue() + "%");
+		sheet.getRow(151).getCell(0).setCellValue("目标："+ userDefineMap.get("efLowLever").doubleValue() + "%");
 		
 		//（日次）能率未达成目标跟踪分析开始行索引
-		int rowIndex = 151;
+		int rowIndex = 153;
 		//结束行索引
 		int rowEndIndex = rowIndex + 30;
 
@@ -699,12 +704,14 @@ public class PartialWarehouseJob implements Job {
 				cell.setCellValue(NS_STANDARD_TIME);
 			} else if (productionType == 51) {// E2：分解工程出库
 				cell.setCellValue(DEC_STANDARD_TIME);
+			} else if (productionType == 52) {// E3：其他维修出库
+				cell.setCellValue(MIDDLE_LINE);
 			}
 			cell.setCellStyle(styleMap.get("alignRightStyle"));
 
 			// 能率
 			cell = row.createCell(++colIndex);
-			if (productionType == 99) {// O：其它
+			if (productionType == 99 || productionType == 52) {// O：其它，E3：其他维修出库
 				cell.setCellValue(1);
 			} else {
 				cell.setCellFormula("IFERROR(IF(G" + rowNum + "=\"\",\"\",(G" + rowNum + "/" + "F" + rowNum + ")),\"一\")");
@@ -726,7 +733,7 @@ public class PartialWarehouseJob implements Job {
 			if (productionType == 99) {// O：其它
 				comment = partialWarehouseMapper.getComment(factPfKey);
 				cell.setCellValue(comment);
-			} else if (productionType == 50 || productionType == 51) {
+			} else if (productionType == 50 || productionType == 51 || productionType == 52) {
 			} else {
 				List<PartialWarehouseEntity> list = new ArrayList<PartialWarehouseEntity>();
 				if (productionType == 10 || productionType == 11) {
@@ -845,7 +852,7 @@ public class PartialWarehouseJob implements Job {
 
 				if (!CommonStringUtil.isEmpty(cellValue) && !MIDDLE_LINE.equals(cellValue)) {
 					totalStandTime = totalStandTime.add(new BigDecimal(cellValue));
-				} else if (MIDDLE_LINE.equals(cellValue)) {//O：其它  标准时间==实际时间
+				} else if (MIDDLE_LINE.equals(cellValue)) {//O：其它, E3：其他维修出库  标准时间==实际时间
 					double spendTime = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
 					totalStandTime = totalStandTime.add(new BigDecimal(spendTime));
 				}

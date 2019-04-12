@@ -125,6 +125,7 @@ function step (production_type) {
 		break;
 	case "50":
 	case "51":
+	case "52":
 		$("#outstoragebutton").trigger("click");
 		break;
 	case "99":

@@ -108,6 +108,11 @@ public class PartialWarehouseEntity implements Serializable {
 	 * 分解出库
 	 */
 	private Integer dec_outline;
+	
+	/**
+	 * 其他出库
+	 */
+	private Integer other_outline;
 
 	private Integer isNow;
 
@@ -124,6 +129,8 @@ public class PartialWarehouseEntity implements Serializable {
 	private Integer ns_outline_percent;
 
 	private Integer dec_outline_percent;
+	
+	private Integer other_outline_percent;
 
 	private BigDecimal total_percent;
 
@@ -414,6 +421,22 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setFact_pf_key(String fact_pf_key) {
 		this.fact_pf_key = fact_pf_key;
+	}
+
+	public Integer getOther_outline() {
+		return other_outline;
+	}
+
+	public void setOther_outline(Integer other_outline) {
+		this.other_outline = other_outline;
+	}
+
+	public Integer getOther_outline_percent() {
+		return other_outline_percent;
+	}
+
+	public void setOther_outline_percent(Integer other_outline_percent) {
+		this.other_outline_percent = other_outline_percent;
 	}
 
 }

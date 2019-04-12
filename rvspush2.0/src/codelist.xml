@@ -309,6 +309,7 @@
 		<value code="40">D：上架</value>
 		<value code="50">E1：NS 工程出库</value>
 		<value code="51">E2：分解工程出库</value>
+		<value code="52">E3：其他维修出库</value>
 		<value code="99">O：其它</value>
 	</codelist>
 	

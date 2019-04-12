@@ -192,7 +192,8 @@ function setProcess(list){
 		var progressBar = "";
 
 		if(production_type){
-			if(production_type == 99){
+			// 其他/其他出库
+			if(production_type == 99 || production_type == 52){
 				progressBar = `<div class='tube-liquid tube-green' style='width:99%;text-align:right;'></div>`;
 				spentMins = minuteFormat(spentMins);
 			}else{
@@ -228,7 +229,7 @@ function setProcess(list){
 				    </div>
 				    <div class="flex-box" style="background-color: #DBEEF4;">
 						<div class="item" style="flex:4">
-							<div class="waiting tube" id="p_rate" style="height: 20px; margin: auto; margin-top: 3px;">${progressBar}</div>
+							<div class="waiting tube" id="p_rate" style="height: 20px; margin: auto; margin-top: 2px;">${progressBar}</div>
 						</div>
 						<div class="item">
 							<span class="time">${spentMins}</span>
@@ -254,7 +255,8 @@ function setCurrentResult(list){
 		if(item.on_shelf) $("#resultarea .result:eq(5)").find(".item[for=" + item.operator_id + "]").text(item.on_shelf +" 包");
 		if(item.ns_outline) $("#resultarea .result:eq(6)").find(".item[for=" + item.operator_id + "]").text(item.ns_outline +" 单");
 		if(item.dec_outline) $("#resultarea .result:eq(7)").find(".item[for=" + item.operator_id + "]").text(item.dec_outline +" 单");
-		if(item.spentMins) $("#resultarea .result:eq(8)").find(".item[for=" + item.operator_id + "]").text(item.spentMins +" 分钟").next().text("100 %");
+		if(item.other_outline) $("#resultarea .result:eq(8)").find(".item[for=" + item.operator_id + "]").text(item.other_outline +" 单");
+		if(item.spentMins) $("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").text(item.spentMins +" 分钟").next().text("100 %");
 	});
 };
 
@@ -342,6 +344,17 @@ function setPercent(resInfo){
 			$("#resultarea .result:eq(7)").find(".item[for=" + item.operator_id + "]").next()
 			.removeClass("over low").text(dec_outline_percent +" %").addClass(className);
 		}
+		if(item.other_outline_percent){
+			var other_outline_percent = item.other_outline_percent * 1;
+			var className = "";
+			if(other_outline_percent < efLowLever){
+				className = "low";
+			}else if(other_outline_percent > efHighLever){
+				className = "over";
+			}
+			$("#resultarea .result:eq(8)").find(".item[for=" + item.operator_id + "]").next()
+			.removeClass("over low").text(other_outline_percent +" %").addClass(className);
+		}
 		if(item.total_percent) {
 			var total_percent = item.total_percent * 1;
 			var color = "";
@@ -350,7 +363,7 @@ function setPercent(resInfo){
 			}else if(total_percent > efHighLever){
 				color = "#4ABD62";
 			}
-			$("#resultarea .result:eq(9)").find(".item[for=" + item.operator_id + "]").next()
+			$("#resultarea .result:eq(10)").find(".item[for=" + item.operator_id + "]").next()
 			.find(".per").eq(1).text(total_percent +" %").css({"color":color});
 		}
 	});
@@ -518,14 +531,18 @@ function judgeStatus(obj){
 			if(time){
 				if(process_code == 252 || process_code == 504){
 					content ="分解出库中";
-				}else{
+				}else if(process_code == 321){
 					content ="NS出库中";
+				}else {
+					content ="其他出库中";
 				}
 			}else{
 				if(process_code == 252 || process_code == 504){
 					content ="等待分解出库";
-				}else{
+				}else if(process_code == 321){
 					content ="等待NS出库";
+				}else {
+					content ="等待其他出库";
 				}
 			}
 		}else{

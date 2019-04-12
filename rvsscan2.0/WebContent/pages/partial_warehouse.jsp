@@ -83,13 +83,8 @@ ${standard_column.css}
 	background-color: #FFFF00;
 }
 
-/* E1、NS 出库 */
-#axis_base .operator_flex .production_feature[d_type="50"] {
-	background-color: #00FF00;
-}
-
-/* E2、分解出库 */
-#axis_base .operator_flex .production_feature[d_type="51"] {
+/* E1、NS 出库, E2、分解出库,E3、其他出库*/
+#axis_base .operator_flex .production_feature[d_type^="5"] {
 	background-color: #00FF00;
 }
 
@@ -131,8 +126,8 @@ ${standard_column.css}
 
 .flex-box {
 	display: flex;
-	height: 30px;
-	line-height: 30px;
+	height: 26px;
+	line-height: 26px;
 	font-size: 16px;
 	border: 1px solid #78C1D4;
 }
@@ -198,8 +193,8 @@ ${standard_column.css}
 }
 
 .result:first-child {
-	height: 34px;
-	line-height: 34px;
+	height: 26px;
+	line-height: 26px;
 	background-color: #000;
 	color: #fff;
 	text-align: center;
@@ -394,6 +389,13 @@ ${standard_column.css}
 					</div>
 					<div class="result">
 						<div class="item" style="background-color: #00FF00;">E2、分解出库</div>
+						<div class="item">一</div>
+						<div class="item">一</div>
+						<div class="item">一</div>
+						<div class="item">一</div>
+					</div>
+					<div class="result">
+						<div class="item" style="background-color: #00FF00;">E3、其他维修出库</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
 						<div class="item">一</div>
