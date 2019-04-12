@@ -59,12 +59,23 @@ public class XlsUtil {
 
 	// 放置图片到格子
 	public void sign(String sImgFile, Dispatch cell) {
+		sign(sImgFile, cell, 100);
+	}
+	public void sign(String sImgFile, Dispatch cell, int scalePercent) {
 		Dispatch select = Dispatch.call(sheet, "Pictures").toDispatch();
 		try {
 			Dispatch pic = Dispatch.call(select, "Insert", sImgFile.replaceAll("/", "\\\\")).toDispatch();
 			int jleft = 1;
 			int cellWidth = Dispatch.get(cell, "Width").changeType(Variant.VariantInt).getInt();
 			int picWidth = Dispatch.get(pic, "Width").changeType(Variant.VariantInt).getInt();
+			int picHeight = Dispatch.get(pic, "Height").changeType(Variant.VariantInt).getInt();
+
+			if ((scalePercent < 75 && scalePercent > 10) || scalePercent > 120) {
+				if (scalePercent < 40 && cellWidth < picWidth * 100 / scalePercent) scalePercent = 40;
+				Dispatch.put(pic, "Height", picHeight * 100 / scalePercent); // 图片高
+				picWidth = picWidth * 100 / scalePercent;
+				Dispatch.put(pic, "Width", picWidth); // 图片宽
+			}
 
 			if (cellWidth > picWidth) {
 				jleft = (cellWidth - picWidth) / 2;
@@ -348,6 +359,12 @@ public class XlsUtil {
 			return (cellWidth - picWidth) / 2 - 1;
 		}
 	}
+	public void SetNumberFormatLocal(String position, String style) {
+		sheet = Dispatch.get(workbook, "ActiveSheet").toDispatch();
+		Dispatch cell = Dispatch.invoke(sheet, "Range", Dispatch.Get, new Object[] { position }, new int[1])
+				.toDispatch();
+		Dispatch.put(cell, "NumberFormatLocal", style);
+	}
 	public void SetNumberFormatLocal(Dispatch cell, String style) {
 		Dispatch.put(cell, "NumberFormatLocal", style);
 	}
@@ -443,6 +460,12 @@ public class XlsUtil {
 		return mergedRange;
 	}
 
+	public void Merge(String rangeName) {
+		Dispatch range = Dispatch.invoke(sheet, "Range", Dispatch.Get, new Object[] { rangeName }, new int[1])
+				.toDispatch();
+		Dispatch.call(range, "Merge");
+	}
+
 	public Dispatch getPageSetup(Dispatch sheet) {
 		Dispatch page = Dispatch.get(sheet, "PageSetup").toDispatch();
 		return page;
@@ -486,16 +509,14 @@ public class XlsUtil {
 		Dispatch.put(workbook,"CheckCompatibility",false);
 	}
 
-
-	public float getPageZoom(){
-		return 0.0f;
-	}
-	//Set Sht = Worksheets("Sheet1")
-	//Sht.PageSetup.Zoom = 82.95
-	//s = Sht.PageSetup.Zoom
-	//MsgBox s
-	//Sht.PrintPreview
-	public void setPageZoom(){
-		
+	public int getPageZoom(){
+		Dispatch pageSetup = Dispatch.get(sheet, "PageSetup").toDispatch();
+//		int fitToPagesWide = Dispatch.get(pageSetup, "FitToPagesWide").changeType(Variant.VariantInt).getInt();
+//		int fitToPagesTall = Dispatch.get(pageSetup, "FitToPagesTall").changeType(Variant.VariantInt).getInt();
+		int zoom = Dispatch.get(pageSetup, "Zoom").changeType(Variant.VariantInt).getInt();
+		if (zoom == 0) {
+			return 100;
+		}
+		return zoom;
 	}
 }

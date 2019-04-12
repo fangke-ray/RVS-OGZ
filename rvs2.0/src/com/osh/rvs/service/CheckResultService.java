@@ -52,6 +52,44 @@ public class CheckResultService {
 		return ret;
 	}
 
+	static int getAxis(Calendar adjustCal, Integer itemType, Integer fileType) {
+		if (itemType == TYPE_ITEM_MONTH && fileType == TYPE_FILED_YEAR) {
+			int month = adjustCal.get(Calendar.MONTH);
+			if (month < 3) {
+				return month + 9;
+			} else {
+				return month - 3;
+			}
+		} else if (itemType == TYPE_ITEM_PERIOD && fileType == TYPE_FILED_YEAR) {
+			int month = adjustCal.get(Calendar.MONTH);
+			if (month < 3) {
+				return 1;
+			} else if (month >= 9) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else if (itemType == TYPE_ITEM_YEAR && fileType == TYPE_FILED_YEAR) {
+			return 0;
+		} else if (itemType == TYPE_ITEM_DAY && fileType == TYPE_FILED_MONTH) {
+			return adjustCal.get(Calendar.DATE) - 1;
+		} else if (itemType == TYPE_ITEM_WEEK && fileType == TYPE_FILED_WEEK_OF_MONTH) {
+			int ret = 0;
+			// java里的第一周如果没工作日则不算第一周,同理月末跨越下一周但没有工作日则算上一月的最后周
+			Date[][] wesOfMonth = getWeekEndsOfMonth(adjustCal);
+			for (int j = 0; j < wesOfMonth.length; j++) {
+				Date[] wes = wesOfMonth[j];
+				if (adjustCal.getTimeInMillis() <= wes[1].getTime()) {
+					ret = j;
+					break;
+				}
+			}
+
+			return ret;
+		}
+		return 0;
+	}
+
 	static int getMaxAxis(Integer itemType, Integer fileType) {
 		if (fileType == TYPE_FILED_YEAR) {
 			if (itemType == TYPE_ITEM_MONTH) {
@@ -303,7 +341,7 @@ public class CheckResultService {
 				neo.setExpireOfWeek(expireDate);
 			}
 			if (neo.getLastOfWeek() == null) {
-				Date lastDate = new Date(neo.getEndOfWeek().getTime() + 1);
+				Date lastDate = new Date(neo.getEndOfWeek().getTime() + 86400001l);
 				// 往前1天开始算天数
 				cond.put("date", lastDate);
 				cond.put("interval", -1);
@@ -337,7 +375,7 @@ public class CheckResultService {
 				neo.setExpireOfMonthOfJig(expireDate);
 			}
 			if (neo.getLastOfMonth() == null) {
-				Date lastDate = new Date(neo.getEndOfMonth().getTime() + 1);
+				Date lastDate = new Date(neo.getEndOfMonth().getTime() + 86400001l);
 
 				cond.put("date", lastDate);
 				// 月3天宽限
@@ -368,7 +406,7 @@ public class CheckResultService {
 				neo.setExpireOfHbp(expireDate);
 			}
 			if (neo.getLastOfHbp() == null) {
-				Date lastDate = new Date(neo.getEndOfHbp().getTime() + 1);
+				Date lastDate = new Date(neo.getEndOfHbp().getTime() + 86400001l);
 
 				cond.put("date", lastDate);
 				// 月3天宽限
@@ -399,6 +437,9 @@ public class CheckResultService {
 			return "∞";
 		}
 		return plainString.replaceAll("^(\\-?\\d*\\.\\d*[1-9])0*$", "$1").replaceAll("^(\\-?\\d*)\\.0*$", "$1");
+	}
+	static String getScale(BigDecimal plainBd, int scale) {
+		return plainBd.setScale(scale, BigDecimal.ROUND_HALF_UP).toPlainString();
 	}
 
 	/**

@@ -1,7 +1,12 @@
 package com.osh.rvs.action;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.arnx.jsonic.JSON;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -9,7 +14,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.infect.CheckedFileStorageEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.service.CheckResultFileService;
 import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.FilingDownloadService;
 
@@ -64,9 +71,45 @@ public class FilingDownloadAction extends BaseAction {
 
 		filePath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + filePath+ fileName;
 
-		service.writeFile(res, contentType, fileName, filePath);
+		service.writeFile(res, contentType, strFileName, filePath);
 
 		logger.info("FilingDownloadAction.download end");
+		return null;
+	}
+
+	public ActionForward make(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+		String sEntity = req.getParameter("entity");
+		sEntity = new String(sEntity.getBytes("ISO-8859-1"), "utf-8");
+
+		CheckResultFileService service = new CheckResultFileService();
+
+		CheckedFileStorageEntity cfsEntity = 
+				JSON.decode(sEntity, CheckedFileStorageEntity.class);
+
+		String sEncodedDeviceList = req.getParameter("encodedDeviceList");
+		if (sEncodedDeviceList != null) {
+			@SuppressWarnings({ "unchecked" })
+			List<String> lEncodedDeviceList = 
+					JSON.decode(sEncodedDeviceList, ArrayList.class);
+
+			service.makeFileGroup(cfsEntity, lEncodedDeviceList, conn);
+		}
+
+		String sDeviceId = req.getParameter("sDeviceId");
+		if (sDeviceId != null) {
+			List<String> lEncodedDeviceList = new ArrayList<String>();
+			lEncodedDeviceList.add(sDeviceId);
+			service.makeFileGroup(cfsEntity, lEncodedDeviceList, conn);
+		}
+
+//		String sJigOperaterId = req.getParameter("sJigOperaterId");
+//		if (sJigOperaterId != null) {
+//			List<String> lEncodedJigList = new ArrayList<String>();
+//			lEncodedJigList.add(sDeviceId);
+//			service.makeFileJigs(cfsEntity, lEncodedJigList, conn);
+//		}
+
 		return null;
 	}
 }

@@ -42,12 +42,6 @@ public interface DevicesManageMapper {
    /** 简单废弃 */
    public int disband(DevicesManageEntity dme);
 
-   /**确认区间内是否发生交付*/
-   public DevicesManageEntity checkProvideInPeriod(DevicesManageEntity devicesManageEntity);
-
-   /**确认区间内是否发生废弃*/
-   public DevicesManageEntity checkWasteInPeriod(DevicesManageEntity devicesManageEntity);
-
    public List<DevicesManageEntity> getManageCode(DevicesManageEntity devicesManageEntity);
 
    public List<DeviceTypeEntity> getDeviceTypeOfPosition(DevicesManageEntity dme);
@@ -55,4 +49,6 @@ public interface DevicesManageMapper {
 	public List<String> getAllManageCode();
 
 	public int insertDeviceManageRecord(DevicesManageEntity dme);
+
+	public List<DevicesManageEntity> getDeviceManageRecordInPeriod(DevicesManageEntity devicesManageEntity);
 }

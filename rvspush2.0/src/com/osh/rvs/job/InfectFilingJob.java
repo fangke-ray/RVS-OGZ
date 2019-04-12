@@ -30,6 +30,7 @@ import org.quartz.JobKey;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.CheckedFileStorageEntity;
 import com.osh.rvs.entity.PeriodsEntity;
+import com.osh.rvs.entity.PositionEntity;
 import com.osh.rvs.mapper.push.HolidayMapper;
 import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.mapper.statistics.InfectMapper;
@@ -144,7 +145,7 @@ public class InfectFilingJob implements Job {
 				neo.setStartOfHMonth(cal.getTime());
 				neo.setEndOfHMonth(neo.getEndOfMonth());
 			}
-			
+
 			// 半期开始终了
 			cal.setTime(today);
 			int nowMonth = cal.get(Calendar.MONTH);
@@ -206,8 +207,6 @@ public class InfectFilingJob implements Job {
 				}
 				neo.setExpireOfWeek(expireDate);
 			}
-			if (neo.getExpireOfMonth() == null) {
-			}
 
 			periodsOfDate.put(todayString, neo);
 		}
@@ -229,22 +228,31 @@ public class InfectFilingJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 
-		today.set(Calendar.YEAR, 2017);
+		today.set(Calendar.YEAR, 2019);
 		today.set(Calendar.MONTH, Calendar.APRIL);
-		today.set(Calendar.DATE, 28);
+		today.set(Calendar.DATE, 1);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
 		today.set(Calendar.MINUTE, 0);
 		today.set(Calendar.SECOND, 0);
 		today.set(Calendar.MILLISECOND, 0);
 
+//		String destPath = "E:\\rvsG\\Infections\\151P";
+//
+//		File fdestPath = new File(destPath);
+//		for (File p : fdestPath.listFiles()) {
+//			if (p.isDirectory())
+//			for (File f : p.listFiles()) {
+//				f.setLastModified(today.getTimeInMillis());
+//			}
+//		}
 		// 取得数据库连接
 		SqlSessionManager conn = getTempWritableConn();
 
 		InfectFilingJob job = new InfectFilingJob();
 		try {
 			conn.startManagedSession(false);
-			// job.makeOfMonth(today, conn);
+			job.makeOfMonth(today, conn);
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
 				job.makeOfPeriod(today, conn);
@@ -273,26 +281,27 @@ public class InfectFilingJob implements Job {
 		// 上期底
 		periodEnd.setTimeInMillis(adjustDate.getTimeInMillis());
 		periodEnd.set(Calendar.DATE, 1);
-		periodEnd.add(Calendar.DATE, -1);
 
 		// 上期初
 		periodStart.setTimeInMillis(adjustDate.getTimeInMillis());
 		periodStart.set(Calendar.DATE, 1);
 		periodStart.add(Calendar.YEAR, -1);
 
-		String sPeriod = RvsUtils.getBussinessYearString(periodEnd); // 147P\QR-B31002-20
+		String sPeriod = RvsUtils.getBussinessYearString(periodStart); // 147P\QR-B31002-20
 
 		Date dPeriodStart = periodStart.getTime();
+		Date dPeriodNextPeriod = periodEnd.getTime();
+		periodEnd.add(Calendar.DATE, -1);
 		Date dPeriodEnd = periodEnd.getTime();
 
 		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 
 		// 单独归档
-		List<Map<String, Object>> retSingle = ifMapper.getSingleOfPeriod(dPeriodStart, dPeriodEnd);
+		List<Map<String, Object>> retSingle = ifMapper.getSingleOfPeriod(dPeriodStart, dPeriodNextPeriod);
 
 		// 重复文件
 		Set<String> fileNames = new HashSet<String>();
-		
+
 		for (Map<String, Object> ret : retSingle) {
 			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
 			String check_file_manage_id = "" + ret.get("check_file_manage_id");
@@ -301,8 +310,9 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dPeriodStart);
 			checked_file_storage.setFiling_date(dPeriodEnd);
-			String storage_file_name = checkStroageFileName
-					(ret.get("check_manage_code") + "_" + ret.get("manage_code"), sPeriod, fileNames);
+			String storage_file_name = encodeFileNameAsFullchar(ret.get("check_manage_code") + "_" + ret.get("manage_code"));
+
+			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
 
 			checked_file_storage.setStorage_file_name(storage_file_name);
 			checked_file_storage.setTemplate_file_name("" + ret.get("sheet_file_name"));
@@ -317,7 +327,7 @@ public class InfectFilingJob implements Job {
 		}
 
 		// 按工位归档
-		List<Map<String, Object>> retOnPosition = ifMapper.getOnPositionOfPeriod(dPeriodStart, dPeriodEnd);
+		List<Map<String, Object>> retOnPosition = ifMapper.getOnPositionOfPeriod(dPeriodStart, dPeriodNextPeriod);
 		_log.info("retOnPosition:" + retOnPosition.size());
 
 		String comparePosition = "";
@@ -327,7 +337,7 @@ public class InfectFilingJob implements Job {
 		List<String> current = new ArrayList<String>();
 		String sPosition = "";
 		for (Map<String, Object> device : retOnPosition) {
-			sPosition = "" + device.get("section_id") + "|" + device.get("position_id") + "|" 
+			sPosition = "" + device.get("section_id") + "|" + device.get("position_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
 			if (!devicesOfPosition.containsKey(sPosition)) {
 				if(!isEmpty(comparePosition)) {
@@ -359,7 +369,9 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dPeriodStart);
 			checked_file_storage.setFiling_date(dPeriodEnd);
-			String storage_file_name = cutter[3] + "_" + sProcessCode + "_" + sPeriod;
+			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sProcessCode + "_" + sPeriod);
+
+			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
 			String check_file_manage_id = "" + cutter[2];
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
@@ -379,7 +391,7 @@ public class InfectFilingJob implements Job {
 		}
 
 		// 按工程归档
-		List<Map<String, Object>> retOnLine = ifMapper.getOnLineOfPeriod(dPeriodStart, dPeriodEnd);
+		List<Map<String, Object>> retOnLine = ifMapper.getOnLineOfPeriod(dPeriodStart, dPeriodNextPeriod);
 		_log.info("retOnLine:" + retOnLine.size());
 
 		String compareLine = "";
@@ -389,7 +401,7 @@ public class InfectFilingJob implements Job {
 		current = new ArrayList<String>();
 		String sLine = "";
 		for (Map<String, Object> device : retOnLine) {
-			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|" 
+			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
 			if (!devicesOfLine.containsKey(sLine)) {
 				if(!isEmpty(compareLine)) {
@@ -421,7 +433,9 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dPeriodStart);
 			checked_file_storage.setFiling_date(dPeriodEnd);
-			String storage_file_name = cutter[3] + "_" + sLineName + "_" + sPeriod;
+			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sLineName + "_" + sPeriod);
+
+			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
 			String check_file_manage_id = "" + cutter[2];
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
@@ -457,17 +471,21 @@ public class InfectFilingJob implements Job {
 		monthStart.setTimeInMillis(monthEnd.getTimeInMillis());
 		monthStart.set(Calendar.DATE, 1);
 
-		String sPeriod = RvsUtils.getBussinessYearString(monthEnd); // 147P\QR-B31002-20
+		String sPeriod = RvsUtils.getBussinessYearString(monthStart); // 147P\QR-B31002-20
 		String sMonth = monthStart.get(Calendar.MONTH) + 1 + "月";
 
 		Date dMonthStart = monthStart.getTime();
 		Date dMonthEnd = monthEnd.getTime();
 
+		// 上月底 -> 本月初
+		monthEnd.add(Calendar.DATE, 1);
+		Date dNextMonth = monthEnd.getTime();
+
 		// 重复文件
 		Set<String> fileNames = new HashSet<String>();
 
 		// 单独归档
-		List<Map<String, Object>> retSingle = ifMapper.getSingleOfMonth(dMonthStart, dMonthEnd);
+		List<Map<String, Object>> retSingle = ifMapper.getSingleOfMonth(dMonthStart, dNextMonth);
 
 		for (Map<String, Object> ret : retSingle) {
 			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
@@ -479,6 +497,8 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setFiling_date(dMonthEnd);
 			String storage_file_name = checkStroageFileName
 					(ret.get("check_manage_code") + "_" + ret.get("manage_code"), sPeriod + sMonth, fileNames);
+
+			storage_file_name = encodeFileNameAsFullchar(storage_file_name);
 
 			checked_file_storage.setStorage_file_name(storage_file_name);
 			checked_file_storage.setTemplate_file_name("" + ret.get("sheet_file_name"));
@@ -495,7 +515,7 @@ public class InfectFilingJob implements Job {
 		fileNames.clear();
 
 		// 按工位归档
-		List<Map<String, Object>> retOnPosition = ifMapper.getOnPositionOfMonth(dMonthStart, dMonthEnd);
+		List<Map<String, Object>> retOnPosition = ifMapper.getOnPositionOfMonth(dMonthStart, dNextMonth);
 		_log.info("retOnPosition:" + retOnPosition.size());
 
 		String comparePosition = "";
@@ -505,8 +525,10 @@ public class InfectFilingJob implements Job {
 		List<String> current = new ArrayList<String>();
 		String sPosition = "";
 		for (Map<String, Object> device : retOnPosition) {
-			sPosition = "" + device.get("section_id") + "|" + device.get("position_id") + "|" 
+			sPosition = "" + device.get("section_id") + "|" + device.get("position_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
+			Object oSpecialized = device.get("specialized");
+			if (oSpecialized != null) sPosition += ("|" + oSpecialized);
 			if (!devicesOfPosition.containsKey(sPosition)) {
 				if(!isEmpty(comparePosition)) {
 					devicesOfPosition.put(comparePosition, current);
@@ -532,6 +554,12 @@ public class InfectFilingJob implements Job {
 			List<String> lDevices = devicesOfPosition.get(iPosition);
 			String[] cutter = iPosition.split("\\|");
 			String sProcessCode = pMapper.getPositionWithSectionByID(cutter[0], cutter[1]);
+			if (sProcessCode == null) {
+				PositionEntity pEntity = pMapper.getPositionByID(cutter[1]);
+				if (pEntity != null) {
+					sProcessCode = "(未知部门) " + pEntity.getProcess_code() + " " + pEntity.getName();
+				}
+			}
 			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
 
 			checked_file_storage.setSection_id(cutter[0]);
@@ -540,6 +568,10 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setStart_record_date(dMonthStart);
 			checked_file_storage.setFiling_date(dMonthEnd);
 			String storage_file_name = cutter[3] + "_" + sProcessCode + "_" + sPeriod + sMonth;
+			
+			storage_file_name = checkStroageFileName(encodeFileNameAsFullchar(storage_file_name), sPeriod, fileNames);
+			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
+
 			String check_file_manage_id = "" + cutter[2];
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
@@ -547,7 +579,7 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setTemplate_file_name(fileNameOfPosition.get(iPosition));
 			for (String lDevice : lDevices) {
 				checked_file_storage.setDevices_manage_id("" + lDevice);
-				 ifMapper.recordFileData(checked_file_storage);
+				ifMapper.recordFileData(checked_file_storage);
 			}
 			try {
 				makeFileGroup(checked_file_storage, lDevices);
@@ -561,7 +593,7 @@ public class InfectFilingJob implements Job {
 		fileNames.clear();
 
 		// 按工程归档
-		List<Map<String, Object>> retOnLine = ifMapper.getOnLineOfMonth(dMonthStart, dMonthEnd);
+		List<Map<String, Object>> retOnLine = ifMapper.getOnLineOfMonth(dMonthStart, dNextMonth);
 		_log.info("retOnLine:" + retOnLine.size());
 
 		String compareLine = "";
@@ -571,8 +603,10 @@ public class InfectFilingJob implements Job {
 		current = new ArrayList<String>();
 		String sLine = "";
 		for (Map<String, Object> device : retOnLine) {
-			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|" 
+			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
+			Object oSpecialized = device.get("specialized");
+			if (oSpecialized != null) sLine += ("|" + oSpecialized);
 			if (!devicesOfLine.containsKey(sLine)) {
 				if(!isEmpty(compareLine)) {
 					devicesOfLine.put(compareLine, current);
@@ -604,6 +638,9 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setStart_record_date(dMonthStart);
 			checked_file_storage.setFiling_date(dMonthEnd);
 			String storage_file_name = cutter[3] + "_" + sLineName + "_" + sPeriod + sMonth;
+			storage_file_name = checkStroageFileName(encodeFileNameAsFullchar(storage_file_name), sPeriod, fileNames);
+			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
+
 			String check_file_manage_id = "" + cutter[2];
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
@@ -622,6 +659,35 @@ public class InfectFilingJob implements Job {
 			_log.info(cutter[3] + sLineName + ">>" + CommonStringUtil.joinBy(";", lDevices.toArray(new String[lDevices.size()])));
 		}
 
+	}
+
+	private String encodeFileNameAsFullchar(String storage_file_name) {
+		// \\ : * ? " < > |
+		if (storage_file_name.indexOf('/') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("/", "／");
+		}
+		if (storage_file_name.indexOf('\\') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("\\\\", "＼");
+		}
+		if (storage_file_name.indexOf(':') >= 0) {
+			storage_file_name = storage_file_name.replaceAll(":", "：");
+		}
+		if (storage_file_name.indexOf('*') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("*", "＊");
+		}
+		if (storage_file_name.indexOf('?') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("?", "？");
+		}
+		if (storage_file_name.indexOf('<') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("<", "＜");
+		}
+		if (storage_file_name.indexOf('>') >= 0) {
+			storage_file_name = storage_file_name.replaceAll(">", "＞");
+		}
+		if (storage_file_name.indexOf('|') >= 0) {
+			storage_file_name = storage_file_name.replaceAll("\\|", "｜");
+		}
+		return storage_file_name;
 	}
 
 	/**
@@ -650,6 +716,7 @@ public class InfectFilingJob implements Job {
 		return sRet;
 	}
 
+	private static final String MAKE_URL = "http://localhost:8080/rvsG2/filingdownload.do?method=make";
 	// 单独归档
 	@SuppressWarnings("static-access")
 	private void makeFileSingle(CheckedFileStorageEntity checked_file_storage) throws IOException {
@@ -657,14 +724,13 @@ public class InfectFilingJob implements Job {
 		try {
 			String encodedEntity = java.net.URLEncoder.encode(json.encode(checked_file_storage), "UTF-8");
 			String sDeviceId = checked_file_storage.getDevices_manage_id();
-			String destUrl = "http://localhost:8080/rvs/filingdownload.do?method=make&entity="+
-					encodedEntity+"&sDeviceId=" + sDeviceId;
+			String destUrl = MAKE_URL + "&entity="+ encodedEntity+"&sDeviceId=" + sDeviceId;
 			_log.info("destUrl=" + destUrl);
 			URL url = new URL(destUrl);
 			url.getQuery();
 			URLConnection urlconn = url.openConnection();
 			HttpURLConnection hUrlconn = (HttpURLConnection) urlconn;
-	        
+
 			hUrlconn.setDoOutput(true);
 			hUrlconn.setRequestMethod("POST");
 			hUrlconn.setRequestProperty("Accept-Charset", "utf-8");
@@ -688,7 +754,7 @@ public class InfectFilingJob implements Job {
 		try {
 			String encodedEntity = java.net.URLEncoder.encode(json.encode(checked_file_storage), "UTF-8");
 			String encodedDeviceList = json.encode(lDevices);
-			String destUrl = "http://localhost:8080/rvs/filingdownload.do?method=make&entity="+
+			String destUrl = MAKE_URL + "&entity="+
 					encodedEntity+"&encodedDeviceList=" + encodedDeviceList;
 			_log.info("destUrl=" + destUrl);
 			URL url = new URL(destUrl);

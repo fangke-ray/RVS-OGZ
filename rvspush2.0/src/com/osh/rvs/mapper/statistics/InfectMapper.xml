@@ -10,13 +10,17 @@
 			select dm.devices_manage_id, 
 			dm.manage_code, cfm.check_manage_code, cfm.sheet_file_name,
 			cfm.check_file_manage_id from devices_manage dm join
-			(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
-and checked_status <> 0
-			group by manage_id,check_file_manage_id) cim
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{monthStart} and #{monthEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{monthStart} and #{monthEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 			on dm.devices_manage_id = cim.manage_id
 			join check_file_manage cfm
-			on dm.devices_type_id = cfm.devices_type_id
-			and cfm.filing_means = 1 and cycle_type in (0,1)
+			on dm.device_type_id = cfm.device_type_id
+			and cfm.filing_means = 1 and cycle_type in (7,6)
 			and cim.check_file_manage_id = cfm.check_file_manage_id
 			order by dm.provide_date
 			;
@@ -26,14 +30,20 @@ and checked_status <> 0
 	<select id="getOnPositionOfMonth" resultType="map">
 		<![CDATA[ 
 select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
-dm.section_id, dm.position_id from devices_manage dm join
-(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
-and checked_status <> 0
-group by manage_id,check_file_manage_id) cim
+dm.section_id, dm.position_id, cast(dt.specialized as unsigned) as specialized
+from devices_manage dm 
+join device_type dt on dm.device_type_id = dt.device_type_id
+join
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{monthStart} and #{monthEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{monthStart} and #{monthEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
-on dm.devices_type_id = cfm.devices_type_id
-and cfm.filing_means = 2 and cycle_type in (0,1)
+on cfm.filing_means = 2 and cycle_type in (7,6)
 			and cim.check_file_manage_id = cfm.check_file_manage_id
 order by section_id, position_id, check_file_manage_id
 ;
@@ -43,14 +53,20 @@ order by section_id, position_id, check_file_manage_id
 	<select id="getOnLineOfMonth" resultType="map">
 		<![CDATA[ 
 select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
-dm.section_id, dm.line_id from devices_manage dm join
-(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{monthStart} and #{monthEnd}
-and checked_status <> 0
-group by manage_id,check_file_manage_id) cim
+dm.section_id, dm.line_id, cast(dt.specialized as unsigned) as specialized
+from devices_manage dm 
+join device_type dt on dm.device_type_id = dt.device_type_id
+join
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{monthStart} and #{monthEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{monthStart} and #{monthEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
-on dm.devices_type_id = cfm.devices_type_id
-and cfm.filing_means = 3 and cycle_type in (0,1)
+on cfm.filing_means = 3 and cycle_type in (7,6)
 			and cim.check_file_manage_id = cfm.check_file_manage_id
 order by section_id, line_id, check_file_manage_id
 ;
@@ -77,12 +93,17 @@ VALUES
 			select dm.devices_manage_id, 
 			dm.manage_code, cfm.check_manage_code, cfm.sheet_file_name,
 			cfm.check_file_manage_id from devices_manage dm join
-			(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
-			group by manage_id,check_file_manage_id) cim
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{periodStart} and #{periodEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{periodStart} and #{periodEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 			on dm.devices_manage_id = cim.manage_id
 			join check_file_manage cfm
-			on dm.devices_type_id = cfm.devices_type_id
-			and cfm.filing_means = 1 and cycle_type in (2,3)
+			on dm.device_type_id = cfm.device_type_id
+			and cfm.filing_means = 1 and cycle_type = 8
 			and cim.check_file_manage_id = cfm.check_file_manage_id
 			order by dm.provide_date
 			;
@@ -92,15 +113,21 @@ VALUES
 	<select id="getOnPositionOfPeriod" resultType="map">
 		<![CDATA[ 
 select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
-dm.section_id, dm.position_id from devices_manage dm join
-(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
-and checked_status <> 0
-group by manage_id,check_file_manage_id) cim
+dm.section_id, dm.position_id, cast(dt.specialized as unsigned) as specialized
+from devices_manage dm 
+join device_type dt on dm.device_type_id = dt.device_type_id
+join
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{periodStart} and #{periodEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{periodStart} and #{periodEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
-on dm.devices_type_id = cfm.devices_type_id
-and cfm.filing_means = 2 and cycle_type in (4)
-and cim.check_file_manage_id = cfm.check_file_manage_id
+on cfm.filing_means = 2 and cycle_type = 8
+			and cim.check_file_manage_id = cfm.check_file_manage_id
 order by section_id, position_id, check_file_manage_id
 ;
 		]]>
@@ -109,14 +136,20 @@ order by section_id, position_id, check_file_manage_id
 	<select id="getOnLineOfPeriod" resultType="map">
 		<![CDATA[ 
 select dm.devices_manage_id, cfm.check_file_manage_id, cfm.check_manage_code, cfm.sheet_file_name, 
-dm.section_id, dm.line_id from devices_manage dm join
-(select manage_id,check_file_manage_id from device_check_result dcr where date(dcr.check_confirm_time) between #{periodStart} and #{periodEnd}
-and checked_status <> 0
-group by manage_id,check_file_manage_id) cim
+dm.section_id, dm.line_id, cast(dt.specialized as unsigned) as specialized
+from devices_manage dm 
+join device_type dt on dm.device_type_id = dt.device_type_id
+join
+			(select manage_id,check_file_manage_id from device_check_result dcr where dcr.check_confirm_time between #{periodStart} and #{periodEnd}
+			and checked_status <> 0
+			group by manage_id,check_file_manage_id
+			UNION
+			SELECT manage_id,check_file_manage_id FROM device_manager_confirm where confirm_time between #{periodStart} and #{periodEnd}
+			group by manage_id,check_file_manage_id
+			) cim
 on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
-on dm.devices_type_id = cfm.devices_type_id
-and cfm.filing_means = 3 and cycle_type in (2,3, 4)
+on cfm.filing_means = 3 and cycle_type = 8
 			and cim.check_file_manage_id = cfm.check_file_manage_id
 order by section_id, line_id, check_file_manage_id
 ;

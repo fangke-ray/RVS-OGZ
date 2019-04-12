@@ -20,11 +20,11 @@ import static com.osh.rvs.service.CheckResultService.TYPE_ITEM_MONTH;
 import static com.osh.rvs.service.CheckResultService.TYPE_ITEM_PERIOD;
 import static com.osh.rvs.service.CheckResultService.TYPE_ITEM_WEEK;
 import static com.osh.rvs.service.CheckResultService.TYPE_ITEM_YEAR;
+import static com.osh.rvs.service.CheckResultService.getAxis;
 import static com.osh.rvs.service.CheckResultService.getDayOfAxis;
 import static com.osh.rvs.service.CheckResultService.getNoScale;
 import static com.osh.rvs.service.CheckResultService.getPeriodsOfDate;
 import static com.osh.rvs.service.CheckResultService.getStartOfPeriod;
-import static com.osh.rvs.service.CheckResultService.getWeekEndsOfMonth;
 import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
 
 import java.io.BufferedReader;
@@ -413,10 +413,11 @@ public class CheckResultPageService {
 			checkFileList = eidMapper.searchElectricIronDeviceOnLineByManager(condEntity);
 		} else {
 			condEntity.setSection_id(section_id);
+			String cond_position_id = condEntity.getPosition_id();
 			if (positionList != null && positionList.size() > 0) {
 				checkFileList = new ArrayList<DevicesManageEntity>();
 				for (PositionEntity position : positionList) {
-					if (position_id == null || position_id.equals(position.getPosition_id())) {
+					if (cond_position_id == null || cond_position_id.equals(position.getPosition_id())) {
 						condEntity.setPosition_id(position.getPosition_id());
 						checkFileList.addAll(eidMapper.searchElectricIronDeviceOnLineByOperator(condEntity));
 					}
@@ -717,7 +718,7 @@ public class CheckResultPageService {
 					if (cond_position_id == null || cond_position_id.equals(position.getPosition_id())) {
 						condEntity.setSection_id(section_id);
 						condEntity.setLine_id(line_id);
-						condEntity.setPosition_id(position.getPosition_id());
+						condEntity.setPosition_id(position.getPosition_id()); // TODO ?
 						checkFileList.addAll(cfmMapper.searchManageCodeByOperator(condEntity));
 					}
 				}
@@ -1165,44 +1166,6 @@ public class CheckResultPageService {
 		return null;
 	}
 
-	private int getAxis(Calendar adjustCal, Integer itemType, Integer fileType) {
-		if (itemType == TYPE_ITEM_MONTH && fileType == TYPE_FILED_YEAR) {
-			int month = adjustCal.get(Calendar.MONTH);
-			if (month < 3) {
-				return month + 9;
-			} else {
-				return month - 3;
-			}
-		} else if (itemType == TYPE_ITEM_PERIOD && fileType == TYPE_FILED_YEAR) {
-			int month = adjustCal.get(Calendar.MONTH);
-			if (month < 3) {
-				return 1;
-			} else if (month >= 9) {
-				return 1;
-			} else {
-				return 0;
-			}
-		} else if (itemType == TYPE_ITEM_YEAR && fileType == TYPE_FILED_YEAR) {
-			return 0;
-		} else if (itemType == TYPE_ITEM_DAY && fileType == TYPE_FILED_MONTH) {
-			return adjustCal.get(Calendar.DATE) - 1;
-		} else if (itemType == TYPE_ITEM_WEEK && fileType == TYPE_FILED_WEEK_OF_MONTH) {
-			int ret = 0;
-			// java里的第一周如果没工作日则不算第一周,同理月末跨越下一周但没有工作日则算上一月的最后周
-			Date[][] wesOfMonth = getWeekEndsOfMonth(adjustCal);
-			for (int j = 0; j < wesOfMonth.length; j++) {
-				Date[] wes = wesOfMonth[j];
-				if (adjustCal.getTimeInMillis() <= wes[1].getTime()) {
-					ret = j;
-					break;
-				}
-			}
-
-			return ret;
-		}
-		return 0;
-	}
-
 	private String getStatusT(String status, boolean isLeader, int current, String manage_id) {
 		if (status == null || "0".equals(status)) {
 			if (current == 0) {
@@ -1366,7 +1329,7 @@ public class CheckResultPageService {
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		List<UsageCheckForm> ucForms = new AutofillArrayList<UsageCheckForm>(UsageCheckForm.class);
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
-		List<UsageCheckForm> refForms = new AutofillArrayList<UsageCheckForm>(UsageCheckForm.class);
+
 		List<CheckUnqualifiedRecordForm> curForms = new AutofillArrayList<CheckUnqualifiedRecordForm>(CheckUnqualifiedRecordForm.class);
 
 		String section_id = request.getParameter("section_id");
@@ -1409,19 +1372,6 @@ public class CheckResultPageService {
 						curForms.get(icounts).setCheck_item(value[0]);
 					} else if ("unqualified_status".equals(column)) {
 						curForms.get(icounts).setUnqualified_status(value[0]);
-					}
-				} else if ("refer".equals(entity)) {
-					String column = m.group(2);
-					int icounts = Integer.parseInt(m.group(3));
-					String[] value = parameterMap.get(parameterKey);
-
-					// ODO 全
-					if ("manage_id".equals(column)) {
-						refForms.get(icounts).setManage_id(value[0]);
-					} else if ("item_seq".equals(column)) {
-						refForms.get(icounts).setItem_seq(value[0]);
-					} else if ("digit".equals(column)) {
-						refForms.get(icounts).setDigit(value[0]);
 					}
 				}
 			}
@@ -1489,13 +1439,6 @@ public class CheckResultPageService {
 					blockID = entity.getManage_id();
 				}
 			}
-		}
-
-		for (UsageCheckForm refForm : refForms) {
-			CheckResultEntity entity = new CheckResultEntity();
-			entity.setCheck_file_manage_id(check_file_manage_id);
-			BeanUtil.copyToBean(refForm, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-			mapper.insertDeviceCheckRefer(entity);
 		}
 
 		// 产生中断

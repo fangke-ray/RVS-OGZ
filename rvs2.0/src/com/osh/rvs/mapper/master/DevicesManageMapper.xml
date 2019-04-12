@@ -470,6 +470,7 @@
 		    dm.`line_id`,
 		    dm.`position_id`,
 		    dm.`responsible_operator_id`,
+		    ot.name as responsible_operator,
 		    dm.`import_date`,
 		    dm.`provide_date`,
 		    dm.`waste_date`,
@@ -483,6 +484,8 @@
 		ON dm.device_type_id = dt.device_type_id
 		LEFT JOIN brand b
 		ON dm.brand_id = b.brand_id
+        left join
+		    operator ot ON dm.responsible_operator_id = ot.OPERATOR_ID
 		WHERE dm.`devices_manage_id` = #{devices_manage_id}
 		;
 		]]>
@@ -535,32 +538,6 @@
 		WHERE devices_manage_id=#{devices_manage_id}
 	   ]]>
 	</update>
-
-	<select id="checkProvideInPeriod"  parameterType="DevicesManageEntity" resultType="DevicesManageEntity">
-	 <![CDATA[
-		select provide_date,o.job_no as provider, manage_code,
-		case when s.name is null then p.process_code
-		else concat(s.name, ' ', p.process_code)
-		end as process_code from devices_manage dm
-		LEFT JOIN operator o on dm.updated_by = o.operator_id
-		LEFT JOIN position p on dm.position_id = p.position_id
-		LEFT JOIN section s on dm.section_id = s.section_id
-		WHERE devices_manage_id=#{devices_manage_id} AND dm.provide_date between #{provide_date_start} and #{provide_date_end};
-	]]>
-	</select>
-
-	<select id="checkWasteInPeriod"  parameterType="DevicesManageEntity" resultType="DevicesManageEntity">
-	 <![CDATA[
-		select waste_date,o.job_no as provider, manage_code,
-		case when s.name is null then p.process_code
-		else concat(s.name, ' ', p.process_code)
-		end as process_code from devices_manage dm
-		LEFT JOIN operator o on dm.updated_by = o.operator_id
-		LEFT JOIN position p on dm.position_id = p.position_id
-		LEFT JOIN section s on dm.section_id = s.section_id
-		WHERE devices_manage_id=#{devices_manage_id} AND dm.waste_date between #{provide_date_start} and #{provide_date_end};
-	]]>
-	</select>
 
     <select id="getManageCode" resultType="DevicesManageEntity" parameterType="DevicesManageEntity">
 		<![CDATA[ 
@@ -622,24 +599,43 @@
     </select>
 
 	<insert id="insertDeviceManageRecord" parameterType="DevicesManageEntity">
-INSERT INTO `device_manage_record`
-(
-`old_manage_code`,
-`new_manage_code`,
-`old_position_id`,
-`new_position_id`,
-updated_by,
-updated_time,
-`event`)
-VALUES
-(
-#{old_manage_code},
-#{manage_code},
-#{old_position_id},
-#{position_id},
-#{updated_by},
-current_timestamp,
-#{event});
+		INSERT INTO `device_manage_record`
+		(
+		`manage_id`,
+		`old_manage_code`,
+		`new_manage_code`,
+		`old_position_id`,
+		`new_position_id`,
+		updated_by,
+		updated_time,
+		`event`)
+		VALUES
+		(
+		#{devices_manage_id},
+		#{old_manage_code},
+		#{manage_code},
+		#{old_position_id},
+		#{position_id},
+		#{updated_by},
+		current_timestamp,
+		#{event});
     </insert>
 
+	<select id="getDeviceManageRecordInPeriod" resultType="DevicesManageEntity">
+		SELECT `dmr_key`,
+			`old_manage_code`,
+			`new_manage_code` as manage_code,
+			pos_o.process_code as `old_position_id`,
+			pos_n.process_code,
+			`event`,
+			op.job_no as `updated_by`,
+			dmr.`updated_time`
+		FROM `device_manage_record` dmr
+		LEFT JOIN position pos_o on dmr.old_position_id = pos_o.position_id
+		LEFT JOIN position pos_n on dmr.new_position_id = pos_n.position_id
+		JOIN operator op on dmr.updated_by = op.operator_id
+		WHERE `manage_id` = #{devices_manage_id}
+		AND dmr.`updated_time` between #{provide_date_start} and #{provide_date_end}
+		ORDER BY dmr.updated_time;
+    </select>
 </mapper>
