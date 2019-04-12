@@ -90,10 +90,15 @@ public class PartialOutStorageAction extends BaseAction {
 
 				// 工位代码
 				String processCode = factProductionFeatureEntity.getProcess_code();
+				// NS
 				if ("321".equals(processCode)) {
 					callbackResponse.put("leagal_overline", "6");
-				} else {
+				} else if("252".equals(processCode) || "504".equals(processCode)){
+					// 分解
 					callbackResponse.put("leagal_overline", "9");
+				} else{
+					// 其他出库
+					callbackResponse.put("leagal_overline", "");
 				}
 
 				// 作业经过时间

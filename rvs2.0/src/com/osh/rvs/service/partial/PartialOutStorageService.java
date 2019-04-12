@@ -46,10 +46,15 @@ public class PartialOutStorageService {
 		// 工位代码
 		String processCode = factProductionFeatureEntity.getProcess_code();
 		Integer productionType = null;
+		// NS
 		if ("321".equals(processCode)) {
 			productionType = 50;
-		} else {
+		} else if("252".equals(processCode) || "504".equals(processCode)){
+			// 分解
 			productionType = 51;
+		}else{
+			//其他
+			productionType = 52;
 		}
 
 		factProductionFeatureEntity.setOperator_id(user.getOperator_id());

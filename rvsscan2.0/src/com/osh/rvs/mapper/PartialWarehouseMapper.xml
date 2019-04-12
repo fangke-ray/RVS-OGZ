@@ -755,7 +755,7 @@
 	ON
 		material_partial.material_id = material.material_id AND material_partial.occur_times = 1
 	WHERE
-		v_position.process_code IN(252,321,504)
+		(v_position.process_code IN(252,321,504,570,802) OR v_position.position_id= 999)
 	AND
 		pf.finish_time IS NULL
 	]]>

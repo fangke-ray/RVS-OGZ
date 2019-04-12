@@ -116,6 +116,8 @@ public class PartialWarehouseService {
 						totalStandardTime = totalStandardTime.add(new BigDecimal(NS_STANDARD_TIME));
 					} else if ("51".equals(productionType)) {// E2：分解工程出库
 						totalStandardTime = totalStandardTime.add(new BigDecimal(DEC_STANDARD_TIME));
+					} else if ("52".equals(productionType)) {//E3：其他维修出库
+						totalStandardTime = totalStandardTime.add(new BigDecimal(0));
 					} else if("20".equals(productionType)){//B1：核对+上架
 						totalStandardTime = dao.searchCurrentCollectAndOnShelfStandardTime(factPfKey);
 						//零件出入库拆盒工时标准
@@ -307,6 +309,11 @@ public class PartialWarehouseService {
 		connd.setProduction_type(51);
 		Integer decOutline = onShelf = dao.countOutLineQuantity(connd);
 		entity.setDec_outline(decOutline);
+		
+		// E3、其他出库数量
+		connd.setProduction_type(52);
+		Integer otherOutline = onShelf = dao.countOutLineQuantity(connd);
+		entity.setOther_outline(otherOutline);
 
 		// O、其它（分钟）
 		connd.setProduction_type(99);
@@ -436,6 +443,18 @@ public class PartialWarehouseService {
 
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
 			entity.setDec_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
+		}
+		
+		// E3、分解出库标准工时(分钟)
+		connd.setProduction_type(52);
+		actualTime = dao.searchSpentMins(connd);
+		if (actualTime != null) {
+			// 标准时间等于实际时间
+			standardTime = new BigDecimal(actualTime);
+			
+			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
+			totalStandardTime = totalStandardTime.add(new BigDecimal(actualTime));
+			entity.setOther_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}
 
 		// O、其它
