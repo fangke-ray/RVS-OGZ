@@ -24,24 +24,33 @@
 
 	<select id="getExpiredDevices" resultType="map">
 		<![CDATA[ 
-		SELECT manage_code,sec.section_id, sec.name as section_name,process_code,pos.line_id,manager_operator_id 
+		SELECT dm.devices_manage_id, manage_code,sec.section_id, sec.name as section_name,process_code,pos.line_id,manager_operator_id 
 		FROM devices_manage dm 
+		join device_type dt 
+			ON dm.device_type_id = dt.device_type_id
 		join position pos
 			on pos.position_id = dm.position_id
 		join section sec
 			on sec.section_id = dm.section_id
+		join (select manage_id, check_file_manage_id, item_seq from device_check_result where 
+			check_confirm_time between #{startDate} and date_add(#{endDate}, interval 1 day)
+			and checked_status = 0) nc
+		on nc.manage_id = dm.devices_manage_id
+		join (select device_type_id, 
+			coalesce(dci.specified_model_name, cfm.specified_model_name) as specified_model_name, 
+			cfm.check_file_manage_id, dci.seq_no
+			from check_file_manage cfm 
+			left join devices_check_item dci
+				on cfm.check_file_manage_id = dci.check_file_manage_id
+			where 
+			cfm.delete_flg = 0
+			and (dci.trigger_state = #{cycle_type} or dci.trigger_state is null)) cfml
+		on cfml.check_file_manage_id = nc.check_file_manage_id
+		and (cfml.seq_no = nc.item_seq or dt.specialized = 2)
 		where (responsible_operator_id is not null or dm.position_id is not null or dm.line_id is not null)
-			and dm.section_id != 6 and dm.delete_flg = 0 and status = 1 and manage_level = 1
-			and exists(select 1 from device_check_result where manage_id = dm.devices_manage_id 
-			and date(check_confirm_time) between #{startDate} and #{endDate}
-			and checked_status = 0)
-			and dm.provide_date != current_date
-			and exists(select 1 from check_file_manage cfm where dm.device_type_id = cfm.device_type_id
-			and cfm.delete_flg = 0
-			and (cfm.specified_model_name is null
-			        OR cfm.specified_model_name LIKE CONCAT('%', dm.model_name, '%'))
-			and cycle_type = #{cycle_type}
-			and access_place = 2)
+			and dm.section_id != 6 and dm.delete_flg = 0 and status = 1
+			and (dm.provide_date IS NULL OR dm.provide_date != current_date)
+		group by dm.devices_manage_id
 		order by manager_operator_id,process_code
 		;
 		]]>

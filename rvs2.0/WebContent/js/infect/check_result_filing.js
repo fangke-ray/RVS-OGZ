@@ -16,6 +16,7 @@ $(function(){
 	setReferChooser($("#hidden_sheet_file_name"),$("#sheet_file_name_referchooser"));
 	setReferChooser($("#hidden_device_name"),$("#device_name_referchooser"));
 	setReferChooser($("#hidden_detail_devices_manage_id"),$("#device_name_referchooser"));
+	setReferChooser($("#hidden_detail_jig_manage_id"),$("#jig_name_referchooser"));
 	
     $("#search_access_place,#search_cycle_type,#search_branch").select2Buttons();
 
@@ -52,6 +53,8 @@ $(function(){
 	$("#detailresetbutton").click(function(){
 	    $("#search_devices_manage_id").val("");
 	    $("#hidden_detail_devices_manage_id").val("");
+	    $("#search_jig_manage_id").val("");
+	    $("#hidden_detail_jig_manage_id").val("");
 		$("#search_branch").val("").trigger("change");
 		$("#search_filing_date_start").val("");
 		$("#search_filing_date_end").val("");
@@ -247,6 +250,8 @@ var showEdit = function() {
     $("#searcharea,#search_item,#searchform,#listarea").hide(); 
     $("#search_devices_manage_id").val("");
     $("#hidden_detail_devices_manage_id").val("");
+    $("#search_jig_manage_id").val("");
+    $("#hidden_detail_jig_manage_id").val("");
 	$("#search_branch").val("");
 	$("#search_filing_date_start").val("");
 	$("#search_filing_date_end").val("");
@@ -257,6 +262,13 @@ var showEdit = function() {
 	var data={
 	          "check_file_manage_id":rowData.check_file_manage_id
 	};
+	if (rowData.check_file_manage_id == "00000000000") {
+		$("#search_devices_manage_id").hide();
+		$("#search_jig_manage_id").show();
+	} else {
+		$("#search_devices_manage_id").show();
+		$("#search_jig_manage_id").hide();
+	}
 	$.ajax({
 	      beforeSend : ajaxRequestType,
 	      async : true,
@@ -307,7 +319,7 @@ function detail_list(item_list){
     } else {
 		$("#detail_list").jqGrid({
 			data:item_list,
-            height: 200,
+            height: 231,
             width: 990,
             rowheight: 23,
             datatype: "local",
@@ -358,6 +370,9 @@ var findEdit = function() {
 	          "filing_date_start":$("#search_filing_date_start").val(),
 	          "filing_date_end":$("#search_filing_date_end").val()
 	};
+	if (rowData.check_file_manage_id == "00000000000") {
+		data["devices_manage_id"] = $("#hidden_detail_jig_manage_id").val()
+	}
 	$.ajax({
 	      beforeSend : ajaxRequestType,
 	      async : true,
@@ -370,39 +385,6 @@ var findEdit = function() {
 	      error : ajaxError,
 	      complete : detail_handleComplete
 	});
-};
-
-/*删除*/
-var showDelete = function(rid) { 
-	var rowData = $("#list").getRowData(rid);
-    $("#confirmmessage").text("删除不能恢复。确认要删除["+rowData.daily_sheet_manage_no+"]的记录吗？");
-    $("#confirmmessage").dialog({
-        resizable:false,
-        modal : true,
-        title : "删除确认",
-        buttons : {
-            "确认" : function() {
-                 $(this).dialog("close");
-				 $("#confirmmessage").text("删除已经完成。");
-				 $("#confirmmessage").dialog({
-					width : 320,
-					height : 'auto',
-					resizable : false,
-					show : "blind",
-					modal : true,
-					title : "删除",
-					buttons : {
-						"关闭" : function() {
-							$(this).dialog("close");
-						}
-					}
-				});
-            },
-            "取消" : function() {
-                $(this).dialog("close");
-            }
-        }
-    });
 };
 
 /*初始页面显示*/

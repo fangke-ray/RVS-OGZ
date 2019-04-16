@@ -66,6 +66,7 @@ public class InfectFilingJob implements Job {
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL || month == Calendar.OCTOBER) {
 				makeOfPeriod(today, conn);
+				makeOfJig(today, conn);
 			}
 
 			conn.commit();
@@ -252,10 +253,11 @@ public class InfectFilingJob implements Job {
 		InfectFilingJob job = new InfectFilingJob();
 		try {
 			conn.startManagedSession(false);
-			job.makeOfMonth(today, conn);
+			// job.makeOfMonth(today, conn);
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
-				job.makeOfPeriod(today, conn);
+			//	job.makeOfPeriod(today, conn);
+				job.makeOfJig(today, conn);
 			}
 			conn.commit();
 		} catch (Exception e) {
@@ -661,6 +663,95 @@ public class InfectFilingJob implements Job {
 
 	}
 
+	private void makeOfJig(Calendar adjustDate, SqlSessionManager conn) {
+		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
+		// 期开始终了时间
+		Calendar periodStart = Calendar.getInstance();
+		Calendar periodEnd = Calendar.getInstance();
+
+		// 上期底
+		periodEnd.setTimeInMillis(adjustDate.getTimeInMillis());
+		periodEnd.set(Calendar.DATE, 1);
+
+		// 上期初
+		periodStart.setTimeInMillis(adjustDate.getTimeInMillis());
+		periodStart.set(Calendar.DATE, 1);
+		periodStart.add(Calendar.YEAR, -1);
+
+		String sPeriod = RvsUtils.getBussinessYearString(periodStart); // 147P\QR-B31002-20
+
+		Date dPeriodStart = periodStart.getTime();
+		Date dPeriodNextPeriod = periodEnd.getTime();
+		periodEnd.add(Calendar.DATE, -1);
+		Date dPeriodEnd = periodEnd.getTime();
+
+		// 治具归档
+		List<Map<String, Object>> retJig = ifMapper.getJig(dPeriodStart, dPeriodNextPeriod);
+		Map<String, List<Map<String, Object>>> retJigGroup = new HashMap<String, List<Map<String, Object>>>();
+
+		String current_p_and_o = null;
+		List<Map<String, Object>> retJigByPO = null;
+		for (Map<String, Object> ret : retJig) {
+			String p_and_o = ret.get("section_id") + "_" + ret.get("position_id") + "_" + ret.get("responsible_operator_id");
+			if (current_p_and_o == null) {
+				retJigByPO = new ArrayList<Map<String, Object>>();
+				current_p_and_o = p_and_o;
+			} else if (!current_p_and_o.equals(p_and_o)) {
+				retJigGroup.put(current_p_and_o, retJigByPO);
+				retJigByPO = new ArrayList<Map<String, Object>>();
+				current_p_and_o = p_and_o;
+			}
+			retJigByPO.add(ret);
+		}
+		if (retJigByPO != null) {
+			retJigGroup.put(current_p_and_o, retJigByPO);
+		}
+
+		// 重复文件
+		Set<String> fileNames = new HashSet<String>();
+
+		for (String p_and_o_id : retJigGroup.keySet()) {
+			List<Map<String, Object>> rets = retJigGroup.get(p_and_o_id);
+			Map<String, Object> ret0 = rets.get(0);
+			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
+
+			checked_file_storage.setStart_record_date(dPeriodStart);
+			checked_file_storage.setFiling_date(dPeriodEnd);
+			String storage_file_name = "QF0601-5专用工具定期清点保养记录_"
+					+ encodeFileNameAsFullchar(ret0.get("process_code") + "_" 
+							+ nullToAlter(ret0.get("name"), "（责任者未定）"));
+
+			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
+
+			checked_file_storage.setStorage_file_name(storage_file_name);
+			checked_file_storage.setCheck_file_manage_id("00000000000");
+			checked_file_storage.setSection_id("" + ret0.get("section_id"));
+			checked_file_storage.setLine_id("" + ret0.get("line_id"));
+			checked_file_storage.setPosition_id("" + ret0.get("position_id"));
+
+			List<String> jigList = new ArrayList<String>();
+			for(Map<String, Object> ret : rets) {
+				String jig_manage_id = "" + ret.get("jig_manage_id");
+				checked_file_storage.setDevices_manage_id(jig_manage_id);
+				jigList.add(jig_manage_id);
+				ifMapper.recordFileData(checked_file_storage);
+			}
+
+			try {
+				makeFileJig(checked_file_storage, current_p_and_o, jigList);
+			} catch (IOException e) {
+				_log.error(e.getMessage(), e);
+				continue;
+			}
+
+		}
+	}
+
+	private String nullToAlter(Object object, String alter) {
+		if (object == null) return alter;
+		return CommonStringUtil.nullToAlter("" + object, alter);
+	}
+
 	private String encodeFileNameAsFullchar(String storage_file_name) {
 		// \\ : * ? " < > |
 		if (storage_file_name.indexOf('/') >= 0) {
@@ -716,7 +807,7 @@ public class InfectFilingJob implements Job {
 		return sRet;
 	}
 
-	private static final String MAKE_URL = "http://localhost:8080/rvsG2/filingdownload.do?method=make";
+	private static final String MAKE_URL = "http://localhost:8080/rvs/filingdownload.do?method=make";
 	// 单独归档
 	@SuppressWarnings("static-access")
 	private void makeFileSingle(CheckedFileStorageEntity checked_file_storage) throws IOException {
@@ -767,6 +858,35 @@ public class InfectFilingJob implements Job {
 			hUrlconn.setRequestProperty("Accept-Charset", "utf-8");
 			hUrlconn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=utf8");
 			// hUrlconn.setRequestProperty("Content-Length", String.valueOf(parameterBuffer.length()));
+
+			hUrlconn.setReadTimeout(30000); // 等返回
+			hUrlconn.connect();
+			hUrlconn.getContent();
+		} catch (Exception e) {
+			_log.error("Failed", e);
+		}
+	}
+
+	@SuppressWarnings("static-access")
+	private void makeFileJig(
+			CheckedFileStorageEntity checked_file_storage, String operator_id, List<String> lJigs) throws IOException {
+
+		// 要求主工程建立文件
+		try {
+			String encodedEntity = java.net.URLEncoder.encode(json.encode(checked_file_storage), "UTF-8");
+			String encodedDeviceList = json.encode(lJigs);
+			String destUrl = MAKE_URL + "&entity="+
+					encodedEntity+"&encodedDeviceList=" + encodedDeviceList + "&sJigOperaterId=" + operator_id;
+			_log.info("destUrl=" + destUrl);
+			URL url = new URL(destUrl);
+			url.getQuery();
+			URLConnection urlconn = url.openConnection();
+			HttpURLConnection hUrlconn = (HttpURLConnection) urlconn;
+
+			hUrlconn.setDoOutput(true);
+			hUrlconn.setRequestMethod("POST");
+			hUrlconn.setRequestProperty("Accept-Charset", "utf-8");
+			hUrlconn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=utf8");
 
 			hUrlconn.setReadTimeout(30000); // 等返回
 			hUrlconn.connect();

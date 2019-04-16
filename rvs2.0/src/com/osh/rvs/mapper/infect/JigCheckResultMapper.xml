@@ -156,7 +156,7 @@
       <![CDATA[
       SELECT 
 		    date(n_cr.check_confirm_time) as check_confirm_time,
-		    op.name as operator ,
+		    op.name as operator , op.job_no,
 		    CASE
 		        WHEN n_cr.broken > 0 THEN 2
 		        WHEN n_cr.lost > 0 THEN 3

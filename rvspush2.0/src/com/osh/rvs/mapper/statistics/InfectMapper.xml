@@ -155,4 +155,26 @@ order by section_id, line_id, check_file_manage_id
 ;
 		]]>
 	</select>
+	
+	<select id="getJig" resultType="map">
+		<![CDATA[ 
+select jm.jig_manage_id, 
+jm.manage_code, jm.jig_no, jm.count_in, 
+jm.section_id, pos.line_id,
+jm.position_id, jm.responsible_operator_id,
+pos.process_code, op.name
+from jig_manage jm
+join 
+			(select manage_id from jig_check_result jcr where jcr.check_confirm_time between #{periodStart} and #{periodEnd}
+			and checked_status <> 0
+			group by manage_id) cim
+			on jm.jig_manage_id = cim.manage_id
+join position pos
+on jm.position_id = pos.position_id
+left join operator op
+on jm.responsible_operator_id = op.operator_id
+order by jm.position_id, jm.section_id, jm.responsible_operator_id, jm.manage_code;
+;
+		]]>
+	</select>
 </mapper>

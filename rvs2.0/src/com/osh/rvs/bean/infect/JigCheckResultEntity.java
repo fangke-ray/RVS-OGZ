@@ -37,6 +37,7 @@ public class JigCheckResultEntity implements Serializable {
 	private String item_seq;
 	private String operator;
 	private String operator_id;
+	private String job_no;
 	private String check_confirm_time;
 	private String digit;
 	private String checked_status;
@@ -279,6 +280,12 @@ public class JigCheckResultEntity implements Serializable {
 	}
 	public void setResponsible_operator_id(String responsible_operator_id) {
 		this.responsible_operator_id = responsible_operator_id;
+	}
+	public String getJob_no() {
+		return job_no;
+	}
+	public void setJob_no(String job_no) {
+		this.job_no = job_no;
 	}  
 	
 	

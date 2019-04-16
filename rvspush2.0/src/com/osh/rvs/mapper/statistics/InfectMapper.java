@@ -67,4 +67,13 @@ public interface InfectMapper {
 	public List<Map<String, Object>> getOnLineOfPeriod(
 			@Param("periodStart") Date periodStart,
 			@Param("periodEnd") Date periodEnd);	
+
+	/**
+	 * 查询归档的治具
+	 * 
+	 * @return
+	 */
+	public List<Map<String, Object>> getJig(
+			@Param("periodStart") Date periodStart,
+			@Param("periodEnd") Date periodEnd);
 }

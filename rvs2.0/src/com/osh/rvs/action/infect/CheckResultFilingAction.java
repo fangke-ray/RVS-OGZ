@@ -18,7 +18,6 @@ import org.apache.struts.upload.FormFile;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.infect.CheckResultFilingForm;
-import com.osh.rvs.service.CheckResultFileService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.infect.CheckResultFilingService;
 
@@ -59,7 +58,11 @@ public class CheckResultFilingAction extends BaseAction {
 		//上传附表--设备名称
 		String dnReferChooser = service.searchDeviceNames(conn);
 		request.setAttribute("dnReferChooser", dnReferChooser);
-		
+	
+		//上传附表--治具名称
+		String jnReferChooser = service.searchJigNames(conn);
+		request.setAttribute("jnReferChooser", jnReferChooser);
+
 		//类型
 		request.setAttribute("sAccessPlace", CodeListUtils.getGridOptions("access_place"));
 		request.setAttribute("goAccessPlace", CodeListUtils.getSelectOptions("access_place", null, ""));

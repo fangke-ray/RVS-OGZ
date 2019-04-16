@@ -120,6 +120,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="td-content">
 								<input type="text" name="devices_manage_id" readonly="readonly" alt="管理编号" id="search_devices_manage_id" class="ui-widget-content"/>
 								<input type="hidden" id="hidden_detail_devices_manage_id"/>
+								<input type="text" name="jig_manage_id" readonly="readonly" alt="管理编号" id="search_jig_manage_id" class="ui-widget-content" style="display:none;"/>
+								<input type="hidden" id="hidden_detail_jig_manage_id"/>
 							</td>
 							<td class="ui-state-default td-title">文件从属</td>
 							<td class="td-content"><select id="search_branch">${goBranch}</select></td>	
@@ -236,6 +238,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</table>
 			<table  class="subform">${dnReferChooser}</table>
 		</div>	
+
+		<!-- 上传附件 治具名称 -->
+		<div id="jig_name_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="display:none;position:absolute;z-index:20000">
+			<table width="200px">
+				<tr>
+					<td></td>
+					<td width="50%">过滤字:<input type="text"/></td>
+					<td width="50%" align="right"><input type="button" class="ui-button" style="float:right;" value="清空"/></td>
+				</tr>
+			</table>
+			<table  class="subform">${jnReferChooser}</table>
+		</div>	
+
 		</div>
 
 		<div class="clear"></div>

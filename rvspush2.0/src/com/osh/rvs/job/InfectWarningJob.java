@@ -267,7 +267,7 @@ public class InfectWarningJob implements Job {
 			if (dToday.after(periodsEntity.getExpireOfWeek())) {
 				periodsMap.put("startDate", periodsEntity.getStartOfWeek());
 				periodsMap.put("endDate", periodsEntity.getEndOfWeek());
-				periodsMap.put("cycle_type", 6); // 周/月
+				periodsMap.put("cycle_type", 2); // 周
 				expiredInfects = mapper.getExpiredDevices(periodsMap);
 				_log.info("未点检设备工具月(周点)表单  Count: " + expiredInfects.size());
 				unchecked2Mail(TITLE_DEV, "超过时限未点检设备工具一览", expiredInfects, omapper);
@@ -276,7 +276,7 @@ public class InfectWarningJob implements Job {
 			if (dToday.after(periodsEntity.getExpireOfMonth())) {
 				periodsMap.put("startDate", periodsEntity.getStartOfMonth());
 				periodsMap.put("endDate", periodsEntity.getEndOfMonth());
-				periodsMap.put("cycle_type", 7); // 月/年
+				periodsMap.put("cycle_type", 3); // 月
 				expiredInfects = mapper.getExpiredDevices(periodsMap);
 				_log.info("未点检设备工具月表单  Count: " + expiredInfects.size());
 				unchecked2Mail(TITLE_DEV, "超过时限未点检设备工具一览", expiredInfects, omapper);
@@ -285,7 +285,7 @@ public class InfectWarningJob implements Job {
 			if (dToday.after(periodsEntity.getExpireOfHbp())) {
 				periodsMap.put("startDate", periodsEntity.getStartOfHbp());
 				periodsMap.put("endDate", periodsEntity.getEndOfHbp());
-				periodsMap.put("cycle_type", 8); // 半期/年
+				periodsMap.put("cycle_type", 4); // 半期
 				expiredInfects = mapper.getExpiredDevices(periodsMap);
 				_log.info("未点检设备工具半期表单  Count: " + expiredInfects.size());
 				unchecked2Mail(TITLE_DEV, "超过时限未点检设备工具一览", expiredInfects, omapper);

@@ -19,10 +19,12 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
 import com.osh.rvs.bean.infect.CheckResultFilingEntity;
+import com.osh.rvs.bean.master.JigManageEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.infect.CheckResultFilingForm;
 import com.osh.rvs.mapper.infect.CheckResultFilingMapper;
+import com.osh.rvs.mapper.master.JigManageMapper;
 
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -129,12 +131,17 @@ public class CheckResultFilingService {
 			   filingDate.setTime(resultFilingEntity.getFiling_date());//获取点检表归档日期
 			   //点检表归档日期转成SORC财年
 			   String strFilingDate = RvsUtils.getBussinessYearString(filingDate);
-			   
+
 			   //对应类型是日常+归档周期是周月
-			   if(resultFilingEntity.getAccess_place()==1 || resultFilingEntity.getCycle_type()==1){
-				   //获取财年中的月份
-				   int month =filingDate.get(Calendar.MONTH)+1;
-				   strFilingDate=strFilingDate+" "+month+"月";
+			   if (!"00000000000".equals(resultFilingEntity.getCheck_file_manage_id())) {
+				   if(resultFilingEntity.getAccess_place()==1 
+						   || resultFilingEntity.getCycle_type()==6 || resultFilingEntity.getCycle_type()==7){
+					   //获取财年中的月份
+					   int month =filingDate.get(Calendar.MONTH)+1;
+					   strFilingDate=strFilingDate+" "+month+"月";
+				   }
+			   } else {
+				   resultFilingEntity.setCheck_manage_code("QF0601-5");
 			   }
 			  
 			   resultFilingEntity.setWork_period(strFilingDate);
@@ -178,7 +185,30 @@ public class CheckResultFilingService {
 			return "";
 		}
 	}
-   
+
+	public String searchJigNames(SqlSession conn) {
+		// 取得权限下拉框信息
+		List<String[]> dList = new ArrayList<String[]>();
+
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		// 点检表名称list
+		List<JigManageEntity> resultBeanList = dao.searchJigManage(new JigManageEntity());
+
+		if (resultBeanList != null && resultBeanList.size() > 0) {
+			for (JigManageEntity entity : resultBeanList) {
+				String[] dline = new String[3];
+				dline[0] = entity.getJig_manage_id();
+				dline[2] = entity.getJig_no();
+				dline[1] = entity.getManage_code();
+				dList.add(dline);
+			}
+			String pReferChooser = CodeListUtils.getReferChooser(dList);
+			return pReferChooser;
+		} else {
+			return "";
+		}
+	}
+
    /**
     * 点检表名称List
     * @param conn 数据库会话

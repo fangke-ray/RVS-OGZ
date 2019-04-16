@@ -48,7 +48,6 @@ import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.JigManageEntity;
 import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.bean.master.SectionEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.XlsUtil;
@@ -62,7 +61,6 @@ import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.JigManageMapper;
 import com.osh.rvs.mapper.master.LineMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
-import com.osh.rvs.mapper.master.SectionMapper;
 
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
@@ -119,7 +117,7 @@ public class CheckResultFileService {
 
 		XlsUtil cacheXls = null;
 		try {
-			cacheXls = new XlsUtil(cachePath, true);
+			cacheXls = new XlsUtil(cachePath, false);
 			cacheXls.SelectActiveSheet();
 
 			// 取得页面缩放
@@ -606,56 +604,9 @@ public class CheckResultFileService {
 			}
 		}
 
-		if (comments.size() > 0) {
-			// Sort
-			Collections.sort(comments, new Comparator<Map<String, String>> (){
-				@Override
-				public int compare(Map<String, String> comment1, Map<String, String> comment2) {
-					return comment1.get("comment_date").compareTo(comment2.get("comment_date"));
-				}
-			});
+		// 附加备注页
+		addCommentPage(comments, cachePath, targetPath + "\\" + cfsEntity.getStorage_file_name());
 
-			int pageNo = 0, itemNo = 0;
-			// 取得点检表信息
-			String templateCommentFileXls = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\点检备注.xlsx";
-
-			do {
-				pageNo = 0;
-				FileUtils.copyFile(new File(templateCommentFileXls), new File(cachePath + "_comment.xls"));
-
-				String targetCommentFileXls = targetPath + "\\" + cfsEntity.getStorage_file_name() + "_comment.pdf";
-				cacheXls = null;
-				try {
-					cacheXls = new XlsUtil(cachePath + "_comment.xls", false);
-					cacheXls.SelectActiveSheet();
-
-					int setLine = 5; // Const
-					for ( ; itemNo < comments.size(); itemNo++) {
-						Map<String, String> comment = comments.get(itemNo);
-						cacheXls.SetValue("B" + setLine, comment.get("manage_code"));
-						cacheXls.SetValue("C" + setLine, comment.get("comment_date"));
-						cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + comment.get("job_no").toUpperCase(), "D" + setLine);
-						cacheXls.SetValue("E" + setLine, comment.get("comment"));
-						setLine +=2;
-						pageNo++;
-						if (pageNo > COMMENTS_PAGE_ITEM) break;
-					}
-
-//					/ 保存到 PDF
-					cacheXls.SaveAsPdf(targetCommentFileXls);
-				} catch (Exception e) {
-					_logger.error(e.getMessage(), e);
-					if (cacheXls != null) {
-						cacheXls.CloseExcel(false);
-					}
-				} finally {
-					cacheXls = null;
-				}
-				// PDF 合并
-				joinPdf(targetFile, targetCommentFileXls);
-				if (itemNo >= comments.size()) break;
-			} while(true);
-		}
 	}
 
 	private static final int COMMENTS_PAGE_ITEM = 14;
@@ -1251,7 +1202,7 @@ public class CheckResultFileService {
 								if (cpn.cycleType != itemType) { // 一致的周期
 									continue;
 								}
-								if (checkPosManageNo.shiftY > 0) { // 多对象 TODO
+								if (checkPosManageNo.shiftY > 0) { // 多对象
 									cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
 											+ (cpn.startY  + cpn.shiftY * iDev);
 								} else {
@@ -1281,7 +1232,7 @@ public class CheckResultFileService {
 								+ (checkPos.startY + checkPos.shiftY * iDev);
 						cell = cacheXls.getRange(cellName);
 						cacheXls.SetValue(cell, "-");
-						cacheXls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+						XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 					}
 				} // for Axis End
 			} // for ChecksheetItem End
@@ -1382,8 +1333,8 @@ public class CheckResultFileService {
 	 * 生成治具文档
 	 */
 	public void makeFileJigs(CheckedFileStorageEntity cfsEntity,
-			List<String> sEncodedJigList, SqlSession conn) {
-		JigCheckResultMapper crMapper = conn.getMapper(JigCheckResultMapper.class);
+			List<String> sEncodedJigList, String sJigOperaterId, SqlSession conn) {
+		JigCheckResultMapper jcrMapper = conn.getMapper(JigCheckResultMapper.class);
 		JigManageMapper tmMapper = conn.getMapper(JigManageMapper.class);
 
 		Date filingDate = cfsEntity.getFiling_date();
@@ -1396,8 +1347,8 @@ public class CheckResultFileService {
 		adjustCal.set(Calendar.MILLISECOND, 0);
 
 		// 复制模板到临时文件
-		String ext = ".xlsx";
-		String srcPath = PathConsts.BASE_PATH + PathConsts.DEVICEINFECTION + "\\专用工具定期清点保养记录模板.xlsx";
+		String ext = ".xls";
+		String srcPath = PathConsts.BASE_PATH + PathConsts.DEVICEINFECTION + "\\QF0601-5专用工具定期清点保养记录.xls";
 		String cacheFilename =  cfsEntity.getStorage_file_name() + filingDate.getTime() + ext;
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(filingDate, "yyyyMM") + "\\" + cacheFilename;
 		try {
@@ -1407,10 +1358,9 @@ public class CheckResultFileService {
 			return;
 		}
 		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
-				RvsUtils.getBussinessYearString(adjustCal) + "\\治具";
+				RvsUtils.getBussinessYearString(adjustCal) + "\\QF0601-5";
 		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
 
-		String section_id = cfsEntity.getSection_id();
 		String line_id = cfsEntity.getLine_id();
 		String position_id = cfsEntity.getPosition_id();
 
@@ -1422,14 +1372,7 @@ public class CheckResultFileService {
 			// 取得本期
 			String bperiod = RvsUtils.getBussinessYearString(adjustCal);
 
-			// 工程
 			String sLineName = "";
-			SectionMapper sMapper = conn.getMapper(SectionMapper.class);
-			SectionEntity sEntity = sMapper.getSectionByID(section_id);
-			if (sEntity != null) {
-				sLineName += sEntity.getName() + "\n";
-			}
-
 			LineMapper lMapper = conn.getMapper(LineMapper.class);
 			LineEntity lEntity = lMapper.getLineByID(line_id);
 			if (lEntity != null) {
@@ -1442,7 +1385,7 @@ public class CheckResultFileService {
 			// 工位
 			PositionEntity pEntity = pMapper.getPositionByID(position_id);
 			if (pEntity != null) {
-				sLineName += pEntity.getProcess_code() + " ";
+				sLineName = pEntity.getProcess_code() + " " + pEntity.getName();
 			}
 			Dispatch positionCell = cacheXls.Locate("#G[POSITION#");
 			String FoundValue = Dispatch.get(positionCell, "Value").toString();
@@ -1467,7 +1410,8 @@ public class CheckResultFileService {
 			int axis = getMaxAxis(TYPE_ITEM_MONTH, TYPE_FILED_YEAR);
 
 			// 普通设备工具
-			setJig(cacheXls, sEncodedJigList, axis, axisType, crMapper, tmMapper, monCal, conn);
+			CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+			setJig(cacheXls, sEncodedJigList, sJigOperaterId, axis, axisType, jcrMapper, tmMapper, crMapper, monCal, conn);
 
 			File fTargetPath = new File(targetPath);
 			if (!fTargetPath.exists()) {
@@ -1475,6 +1419,59 @@ public class CheckResultFileService {
 			}
 			cacheXls.SaveAsPdf(targetFile); // SaveAsPdf
 			cacheXls.Release();
+
+			// 查询备注
+			// 备注信息
+			List<Map<String, String>> comments = new ArrayList<Map<String, String>>();
+			JigManageEntity conditionOfJig = new JigManageEntity();
+			conditionOfJig.setProvide_date_start(cfsEntity.getStart_record_date());
+			conditionOfJig.setProvide_date_end(cfsEntity.getFiling_date());
+			CheckResultEntity conditionOfComment = new CheckResultEntity();
+			conditionOfComment.setCheck_confirm_time_start(cfsEntity.getStart_record_date());
+			conditionOfComment.setCheck_confirm_time_end(cfsEntity.getFiling_date());
+			for (int iDev = 0; iDev < sEncodedJigList.size(); iDev ++) {
+				conditionOfJig.setJig_manage_id(sEncodedJigList.get(iDev));
+
+				JigManageEntity provide_date = tmMapper.checkProvideInPeriod(conditionOfJig);
+				JigManageEntity waste_date = tmMapper.checkWasteInPeriod(conditionOfJig);
+
+				// 发布日期
+				if (provide_date != null && provide_date.getProvide_date() != null) {
+					Map<String, String> comment = new HashMap<String, String>();
+					comment.put("manage_code", provide_date.getManage_code());
+					comment.put("job_no", provide_date.getProvider());
+					comment.put("comment", ApplicationMessage.WARNING_MESSAGES.getMessage("info.infect.jig.filing.provide", 
+							provide_date.getManage_code(), provide_date.getProcess_code()));
+					comment.put("comment_date", DateUtil.toString(provide_date.getProvide_date(), DateUtil.ISO_DATE_PATTERN));
+					comments.add(comment);
+				}
+				// 废弃日期
+				if (waste_date != null && waste_date.getWaste_date() != null) {
+					Map<String, String> comment = new HashMap<String, String>();
+					comment.put("manage_code", waste_date.getManage_code());
+					comment.put("job_no", waste_date.getProvider());
+					comment.put("comment", ApplicationMessage.WARNING_MESSAGES.getMessage("info.infect.jig.filing.waste", 
+							waste_date.getManage_code(), waste_date.getProcess_code()));
+					comment.put("comment_date", DateUtil.toString(waste_date.getWaste_date(), DateUtil.ISO_DATE_PATTERN));
+					comments.add(comment);
+				}
+
+				// 备注信息
+				conditionOfComment.setManage_id(sEncodedJigList.get(iDev));
+				List<CheckResultEntity> commentsList = crMapper.getJigCheckCommentInPeriodByManageId(conditionOfComment);
+				for (CheckResultEntity cre : commentsList) {
+					Map<String, String> comment = new HashMap<String, String>();
+					comment.put("manage_code", cre.getManage_code());
+					comment.put("job_no", cre.getJob_no());
+					comment.put("comment", cre.getComment());
+					comment.put("comment_date", DateUtil.toString(cre.getCheck_confirm_time(), DateUtil.ISO_DATE_PATTERN));
+					comments.add(comment);
+				}
+
+			}
+
+			// 附加备注页
+			addCommentPage(comments, cachePath, targetPath + "\\" + cfsEntity.getStorage_file_name());
 
 		} catch (Exception e) {
 			_logger.error(e.getMessage(), e);
@@ -1495,33 +1492,32 @@ public class CheckResultFileService {
 	 * @param cfsEntity 归档文件信息
 	 * @param crMapper
 	 * @param tmMapper
+	 * @param crMapper 
 	 * @param monCal 去期间头
 	 * @param conn
 	 */
-	private void setJig(XlsUtil cacheXls, List<String> sEncodedJigList,
+	private void setJig(XlsUtil cacheXls, List<String> sEncodedJigList, String sJigOperaterId,
 			int axis, int axisType,
-			JigCheckResultMapper crMapper, JigManageMapper tmMapper, Calendar monCal, SqlSession conn) {
+			JigCheckResultMapper jcrMapper, JigManageMapper tmMapper, CheckResultMapper crMapper, Calendar monCal, SqlSession conn) {
 		// 循环填写各治具
 		int insertRow = INSERT_START_ROW_FOR_JIG;
 
+		Map<Integer, Map<String, Integer>> jobNoMap = new HashMap<Integer, Map<String, Integer>>();
+		Map<Integer, String> checkTimeMap = new HashMap<Integer, String>();
 		for (int iJig = 0; iJig < sEncodedJigList.size(); iJig++) {
-			insertRow++;
 
 			String jig_id = sEncodedJigList.get(iJig);
 			JigManageEntity tmEntity = tmMapper.getByKey(jig_id);
 
-			String cellName = null;
-			Dispatch cell = null;
-
 			cacheXls.getAndActiveSheetBySeq(2);
 
-			Dispatch selection = cacheXls.Select("1:2");
+			Dispatch selection = cacheXls.Select("1:1");
 			Dispatch.call(selection, "Copy");
 
 			// Sheets("Sheet1").Select
 			cacheXls.getAndActiveSheetBySeq(1);
 			// Rows("4:4").Select
-			selection = cacheXls.Select(insertRow + ":" + insertRow);
+			selection = cacheXls.SelectRow(insertRow + ":" + insertRow);
 			// Selection.Insert Shift:=xlDown
 			Dispatch.call(selection, "Insert", new Variant(1));
 
@@ -1533,8 +1529,8 @@ public class CheckResultFileService {
 			cacheXls.SetValue("C" + insertRow, getNoScale(tmEntity.getJig_no()));
 			//专用工具名称
 			cacheXls.SetValue("D" + insertRow, getNoScale(tmEntity.getJig_name()));
-			// 备注 TODO
-			// cacheXls.SetValue("S" + insertRow, getNoScale(tmEntity.getTools_name()));
+			// 树立
+			cacheXls.SetValue("E" + insertRow, "" + tmEntity.getCount_in());
 
 			// 循环填写每月份 G->
 			Calendar startCal = Calendar.getInstance();
@@ -1542,21 +1538,185 @@ public class CheckResultFileService {
 			Calendar endcal = Calendar.getInstance();
 			endcal.setTime(monCal.getTime());
 
-			for (int iM = 0; iM < axis; iM++) {
+			// 点检结果
+			for (int iAxis = 0; iAxis <= axis; iAxis++) {
 				endcal.add(Calendar.MONTH, 1);
 				JigCheckResultEntity condition = new JigCheckResultEntity();
 				condition.setManage_id(jig_id);
 				condition.setFirstDate(DateUtil.toString(startCal.getTime(), DateUtil.DATE_PATTERN));
 				condition.setLastDate(DateUtil.toString(endcal.getTime(), DateUtil.DATE_PATTERN));
-				List<JigCheckResultEntity> result = crMapper.searchCheckResult(condition);
+				List<JigCheckResultEntity> result = jcrMapper.searchCheckResult(condition);
 				if (result.size() > 0) {
-					String sCheckedStatus = result.get(0).getChecked_status();
-					cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iM)
+					String sCheckedStatus = null;
+					sCheckedStatus = result.get(0).getChecked_status();
+					checkTimeMap.put(iAxis, result.get(0).getCheck_confirm_time());
+					for(JigCheckResultEntity result0 : result) {
+						String jobNo = result0.getJob_no();
+						recordJobNoMap(jobNoMap, iAxis, jobNo);
+					}
+
+					cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis)
 							+ insertRow, getNoScale(getFileStatusD(sCheckedStatus, null)));
+				} else {
+					cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis)
+							+ insertRow, "/");
 				}
+				startCal.add(Calendar.MONTH, 1);
 			}
 
+			insertRow++;
 		}
+
+		// 担当印
+		Dispatch sign = cacheXls.Locate("担当印");
+		String rowSign = null;
+		while (true) {
+			rowSign = XlsUtil.getExcelRowNo(sign);
+			String col = XlsUtil.getExcelColNo(sign);
+			if ("6".equals(col)) {
+				break;
+			}
+			sign = cacheXls.LocateNext(sign);
+			if (sign == null) break;
+		}
+		String[] p_o = sJigOperaterId.split("_");
+		if (rowSign != null) {
+			Integer iRowSign = Integer.parseInt(rowSign);
+			Calendar startCal = Calendar.getInstance();
+			startCal.setTime(monCal.getTime());
+			Calendar endcal = Calendar.getInstance();
+			endcal.setTime(monCal.getTime());
+			for (int iAxis = 0; iAxis <= axis; iAxis++) {
+				endcal.add(Calendar.MONTH, 1);
+				String jobNo = getBestJobNo(jobNoMap, iAxis);
+				if (jobNo != null) {
+					Dispatch cell = cacheXls.getRange(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + rowSign);
+					cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell);
+
+					String checkedDate = checkTimeMap.get(iAxis);
+					if (checkedDate != null) {
+						cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 1), 
+								checkedDate);
+						cacheXls.SetNumberFormatLocal(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 1), "m-d");
+					}
+
+					// 线长 确认印
+					CheckResultEntity dusEntity = new CheckResultEntity();
+					dusEntity.setCheck_confirm_time_start(startCal.getTime());
+					dusEntity.setCheck_confirm_time_end(endcal.getTime());
+					dusEntity.setPosition_id(p_o[1]);
+					dusEntity.setSection_id(p_o[0]);
+					List<CheckResultEntity> upperStamp = crMapper.getJigUpperStamp(dusEntity);
+
+					if (upperStamp.size() > 0) {
+						Date dConfirmDate = upperStamp.get(0).getCheck_confirm_time();
+						jobNo = upperStamp.get(0).getJob_no();
+
+						cell = cacheXls.getRange(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 2));
+						cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell);
+
+						cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 3), 
+								DateUtil.toString(dConfirmDate, "M-d"));
+						cacheXls.SetNumberFormatLocal(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 3), "m-d");
+					}
+					startCal.add(Calendar.MONTH, 1);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * 附加备注页
+	 * @param comments
+	 * @param cachePath
+	 * @param targetFileName
+	 * @throws IOException
+	 */
+	private void addCommentPage(List<Map<String, String>> comments, String cachePath, String targetFileName) throws IOException {
+		if (comments.size() > 0) {
+			// Sort
+			Collections.sort(comments, new Comparator<Map<String, String>> (){
+				@Override
+				public int compare(Map<String, String> comment1, Map<String, String> comment2) {
+					return comment1.get("comment_date").compareTo(comment2.get("comment_date"));
+				}
+			});
+
+			int pageNo = 0, itemNo = 0;
+			// 取得点检表信息
+			String templateCommentFileXls = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\点检备注.xlsx";
+
+			do {
+				pageNo = 0;
+				FileUtils.copyFile(new File(templateCommentFileXls), new File(cachePath + "_comment.xls"));
+
+				String targetCommentFileXls = targetFileName + "_comment.pdf";
+				XlsUtil cacheXls = null;
+				try {
+					cacheXls = new XlsUtil(cachePath + "_comment.xls", false);
+					cacheXls.SelectActiveSheet();
+
+					int setLine = 5; // Const
+					for ( ; itemNo < comments.size(); itemNo++) {
+						Map<String, String> comment = comments.get(itemNo);
+						cacheXls.SetValue("B" + setLine, comment.get("manage_code"));
+						cacheXls.SetValue("C" + setLine, comment.get("comment_date"));
+						cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + comment.get("job_no").toUpperCase(), "D" + setLine);
+						cacheXls.SetValue("E" + setLine, comment.get("comment"));
+						setLine +=2;
+						pageNo++;
+						if (pageNo > COMMENTS_PAGE_ITEM) break;
+					}
+
+//					/ 保存到 PDF
+					cacheXls.SaveAsPdf(targetCommentFileXls);
+				} catch (Exception e) {
+					_logger.error(e.getMessage(), e);
+					if (cacheXls != null) {
+						cacheXls.CloseExcel(false);
+					}
+				} finally {
+					cacheXls = null;
+				}
+				// PDF 合并
+				joinPdf(targetFileName + ".pdf", targetCommentFileXls);
+				if (itemNo >= comments.size()) break;
+			} while(true);
+		}
+	}
+
+	/**
+	 * 点检最多人记录
+	 * @param jobNoMap
+	 * @param iAxis
+	 * @param jobNo
+	 */
+	private void recordJobNoMap(Map<Integer, Map<String, Integer>> jobNoMap,
+			Integer iAxis, String jobNo) {
+		if (jobNo == null) return;
+		if (!jobNoMap.containsKey(iAxis)) {
+			jobNoMap.put(iAxis, new HashMap<String, Integer> ());
+		}
+		Map<String, Integer> jobNoMapOfAxis = jobNoMap.get(iAxis);
+		if (!jobNoMapOfAxis.containsKey(jobNo)) {
+			jobNoMapOfAxis.put(jobNo, 0);
+		}
+		jobNoMapOfAxis.put(jobNo, jobNoMapOfAxis.get(jobNo) + 1);
+	}
+
+	private String getBestJobNo(Map<Integer, Map<String, Integer>> jobNoMap,
+			int iAxis) {
+		Map<String, Integer> jobNoMapOfAxis = jobNoMap.get(iAxis);
+		if (jobNoMapOfAxis == null) return null;
+		int maxCount = 0; String bestJobNo = null;
+		for (String jobNo : jobNoMapOfAxis.keySet()) {
+			if (jobNoMapOfAxis.get(jobNo) > maxCount) {
+				maxCount = jobNoMapOfAxis.get(jobNo);
+				bestJobNo = jobNo;
+			}
+		}
+		return bestJobNo;
 	}
 
 	private String getFileStatusD(String status, BigDecimal digit) {

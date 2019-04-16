@@ -470,15 +470,21 @@
 
 	<select id="checkProvideInPeriod"  parameterType="Date" resultType="JigManageEntity">
 	 <![CDATA[
-		select provide_date from jig_manage dm 
-		WHERE jig_manage_id=#{jig_manage_id} dm.provide_date between #{provide_date_start} and #{provide_date_end};
+		select provide_date,o.job_no as provider, manage_code, p.process_code
+		FROM jig_manage jm
+		LEFT JOIN operator o on jm.updated_by = o.operator_id
+		LEFT JOIN position p on jm.position_id = p.position_id
+		WHERE jig_manage_id=#{jig_manage_id} AND jm.provide_date between #{provide_date_start} and #{provide_date_end};
 	]]>
 	</select>
 
 	<select id="checkWasteInPeriod"  parameterType="Date" resultType="JigManageEntity">
 	 <![CDATA[
-		select waste_date from jig_manage dm 
-		WHERE jig_manage_id=#{jig_manage_id} dm.waste_date between #{provide_date_start} and #{provide_date_end};
+		select waste_date,o.job_no as provider, manage_code, p.process_code
+		FROM jig_manage jm
+		LEFT JOIN operator o on jm.updated_by = o.operator_id
+		LEFT JOIN position p on jm.position_id = p.position_id
+		WHERE jig_manage_id=#{jig_manage_id} AND jm.waste_date between #{provide_date_start} and #{provide_date_end};
 	]]>
 	</select>
 	

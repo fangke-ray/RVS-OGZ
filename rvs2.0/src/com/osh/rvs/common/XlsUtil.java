@@ -194,7 +194,7 @@ public class XlsUtil {
 	}
 
 	// 取得位置地址
-	public String GetAddress(Dispatch range) {
+	public static String GetAddress(Dispatch range) {
 		String address = Dispatch.get(range, "Address").toString();
 		return address;
 	}
@@ -293,7 +293,7 @@ public class XlsUtil {
 	}
 
 	// 替换文字
-	public void ReplaceInCell(Dispatch cell, String source, String target) {
+	public static void ReplaceInCell(Dispatch cell, String source, String target) {
 
 	    Variant xlLookAt = new Variant(new Integer(2));  
 		  
@@ -351,7 +351,7 @@ public class XlsUtil {
 		}
 	}
 
-	private int getWidthPosition(Dispatch cell, int picWidth) {
+	private static int getWidthPosition(Dispatch cell, int picWidth) {
 		int cellWidth = Dispatch.get(cell, "Width").changeType(Variant.VariantInt).getInt();
 		if (cellWidth < picWidth + 2) {
 			return 0;
@@ -386,7 +386,7 @@ public class XlsUtil {
 				.toDispatch();
 		SetCellBackGroundColor(cell, colorCode);
 	}
-	public void SetCellBackGroundColor(Dispatch cell, String colorCode) {
+	public static void SetCellBackGroundColor(Dispatch cell, String colorCode) {
 		if (cell == null) return;
 		Dispatch interior = Dispatch.get(cell, "Interior").toDispatch();
 
@@ -441,7 +441,7 @@ public class XlsUtil {
 		return retr;
 	}
 
-	public String getCellLocation(Dispatch cell) {
+	public static String getCellLocation(Dispatch cell) {
 		String drow = Dispatch.get(cell, "Row").toString();
 		String dcol = Dispatch.get(cell, "Column").toString();
 		return getExcelColCode(dcol) + drow;
@@ -466,7 +466,7 @@ public class XlsUtil {
 		Dispatch.call(range, "Merge");
 	}
 
-	public Dispatch getPageSetup(Dispatch sheet) {
+	public Dispatch getPageSetup() {
 		Dispatch page = Dispatch.get(sheet, "PageSetup").toDispatch();
 		return page;
 		// Dispatch.put(page, "Zoom", false);
@@ -487,8 +487,16 @@ public class XlsUtil {
 		Dispatch.call(cell, "Select");
 		return xl.getProperty("Selection").toDispatch();
 	}
-	
-	public void Print(String path) {
+
+	public Dispatch SelectRow(String row) {
+		sheet = Dispatch.get(workbook, "ActiveSheet").toDispatch();
+		Dispatch rows = Dispatch.invoke(sheet, "Rows", Dispatch.Get, new Object[] { row }, new int[1])
+				.toDispatch();
+		Dispatch.call(rows, "Select");
+		return xl.getProperty("Selection").toDispatch();
+	}
+
+	public static void Print(String path) {
 		 ComThread.InitSTA();
 		 
 		 ActiveXComponent xl = new ActiveXComponent("Excel.Application");

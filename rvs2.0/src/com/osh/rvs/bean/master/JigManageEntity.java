@@ -81,6 +81,10 @@ public class JigManageEntity implements Serializable {
 
 	private Date waste_date_end;// 废弃日期开始
 
+	//发放日期  开始结束
+	private Date provide_date_start;                    
+	private Date provide_date_end;                    
+
 	public String getSection_name() {
 		return section_name;
 	}
@@ -304,6 +308,18 @@ public class JigManageEntity implements Serializable {
 	}
 	public void setWaste_decide_date(Date waste_decide_date) {
 		this.waste_decide_date = waste_decide_date;
+	}
+	public Date getProvide_date_start() {
+		return provide_date_start;
+	}
+	public void setProvide_date_start(Date provide_date_start) {
+		this.provide_date_start = provide_date_start;
+	}
+	public Date getProvide_date_end() {
+		return provide_date_end;
+	}
+	public void setProvide_date_end(Date provide_date_end) {
+		this.provide_date_end = provide_date_end;
 	}
 
 }
