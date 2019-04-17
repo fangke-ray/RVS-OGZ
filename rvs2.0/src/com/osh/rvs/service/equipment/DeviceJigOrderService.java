@@ -109,6 +109,16 @@ public class DeviceJigOrderService {
 		return respList;
 
 	}
+	
+	public String getMaxTempOrderNo(SqlSession conn){
+		// 数据连接
+		DeviceJigOrderMapper dao = conn.getMapper(DeviceJigOrderMapper.class);
+		
+		String orderNO = dao.getMaxTempOrderNo();
+		
+		return orderNO;
+	}
+	
 
 	/** 到货验收 **/
 	private static final String METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT = "device_jig_order_inline_recept";

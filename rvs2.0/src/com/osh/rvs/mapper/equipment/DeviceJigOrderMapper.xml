@@ -41,4 +41,10 @@
 		SELECT order_key,order_no FROM device_jig_order WHERE order_no = #{order_no}
 	]]>
 	</select>
+	
+	<select id="getMaxTempOrderNo" resultType="string">
+	<![CDATA[
+		SELECT MAX(order_no) FROM rvsgdb.device_jig_order WHERE order_no LIKE 'L%'
+	]]>
+	</select>
 </mapper>

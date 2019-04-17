@@ -179,6 +179,9 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		List<DeviceJigOrderForm> list = deviceJigOrderService.searchUnProvide(conn);
 		listResponse.put("list", list);
+		
+		String tempOrderNo = deviceJigOrderService.getMaxTempOrderNo(conn);
+		listResponse.put("tempOrderNo", tempOrderNo);
 
 		listResponse.put("errors", errors);
 

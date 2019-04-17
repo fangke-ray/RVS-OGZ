@@ -40,4 +40,10 @@ public interface DeviceJigOrderMapper {
 	 * @return
 	 */
 	public DeviceJigOrderEntity getDeviceJigOrderByOrderNo(@Param("order_no") String order_no);
+	
+	/**
+	 * 查询最大临时订单号
+	 * @return
+	 */
+	public String getMaxTempOrderNo();
 }
