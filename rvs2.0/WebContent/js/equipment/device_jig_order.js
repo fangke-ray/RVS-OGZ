@@ -2002,7 +2002,7 @@ function showDetailDialog(order_key,order_no,list,$parentDialog){
 	$("#add_row").unbind("click").click(() => addRow(order_key));
 	
 	let $childDialg = $("#order_detail").dialog({
-		title : "设备工具治具订单明细",
+		title : "设备/专用工具/一般工具订单明细",
 		width : 1250,
 		height : 500,
 		resizable : false,
