@@ -1685,8 +1685,23 @@ function application() {
 					if (isTechnology) {
 						$("#add_order_no").focus().val("").next().text("");
 					} else {
-						var randomOrderNo = "L" + Date.now().toString().slice(-8);
-						$("#add_order_no").val(randomOrderNo).hide().next().text(randomOrderNo);
+						var tempOrderNo = resInfo.tempOrderNo;
+						if (!tempOrderNo) {
+							tempOrderNo = "L001";
+						} else {
+							tempOrderNo = tempOrderNo.substring(1);
+							tempOrderNo = tempOrderNo * 1;
+							tempOrderNo++;
+							if (tempOrderNo < 10) {
+								tempOrderNo = "L00" + tempOrderNo;
+							} else if (tempOrderNo < 100) {
+								tempOrderNo = "L0" + tempOrderNo;
+							} else {
+								tempOrderNo = "L" + tempOrderNo;
+							}
+						}
+
+						$("#add_order_no").val(tempOrderNo).hide().next().text(tempOrderNo);
 					}
 
 					if (_list.length == 0) {
