@@ -2495,7 +2495,7 @@ public class CheckResultPageService {
 	private void getTStampRow(Map<Integer, Date> checkedDate, Map<Integer, String> jobNo, int axis, StringBuffer checkContent) {
 		for (int i=0; i< 5; i++) {
 			if (jobNo.containsKey(i)) {
-				checkContent.append("<td>"+DateUtil.toString(checkedDate.get(i), "MM-dd")+"</td><td colspan=2><img src='/images/sign/"+jobNo.get(i)+"'></td>");
+				checkContent.append("<td colspan=2 style='border-right:0'><img src='/images/sign/"+jobNo.get(i)+"'></td><td style='border-left:0'>"+DateUtil.toString(checkedDate.get(i), "MM-dd")+"</td>");
 			} else {
 				checkContent.append("<td colspan=3></td>");
 			}

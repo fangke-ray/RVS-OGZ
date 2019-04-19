@@ -470,8 +470,10 @@
 		            device_check_result
 		        where
 		        	manage_id = #{manage_id}
+		<if test="item_seq!=null and item_seq!=''">
 		        and
 		        	item_seq = #{item_seq}
+		</if>
 		        and
 		        	check_file_manage_id = #{check_file_manage_id}
 		        and
@@ -515,22 +517,9 @@
 		on dcr.operator_id = op.operator_id
 	</select>
 
-	<select id="getDeviceReferInPeriod"  parameterType="CheckResultEntity" resultType="CheckResultEntity">
-		select 
-            item_seq, base_digit as digit
-        from
-            device_check_refer
-        where
-        	manage_id = #{manage_id}
-        and
-        	check_file_manage_id = #{check_file_manage_id}
-        and
-            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
-	</select>
-
     <select id="getJigUpperStamp" resultType="CheckResultEntity" parameterType="CheckResultEntity">
 		<![CDATA[ 
-		SELECT op.job_no FROM jig_manager_confirm tmc
+		SELECT op.job_no, confirm_time as check_confirm_time FROM jig_manager_confirm tmc
 		join operator op
 		on tmc.upper_confirmer_id = op.operator_id
 		where confirm_time between #{check_confirm_time_start} and date_add(#{check_confirm_time_end}, interval 1 day)
@@ -568,6 +557,12 @@
 		   <if test="line_id!=null and line_id!='' ">
 		and dmc.manage_id in (select devices_manage_id from devices_manage where line_id = #{line_id} and delete_flg = 0)
 		   </if>
+		   <if test="manage_ids!=null">
+		and dmc.manage_id in
+		<foreach item="id" collection="manage_ids" open="(" separator="," close=")">
+			#{id}
+		</foreach> 
+		   </if>
 		<![CDATA[ 
 		and dmc.check_file_manage_id = #{check_file_manage_id}
 		order by confirm_time desc;
@@ -596,19 +591,6 @@
 			AND checked_status = 0
 		]]>
 	</delete>
-
-	<insert id="insertDeviceCheckRefer" parameterType="CheckResultEntity">
-		<![CDATA[ 
-		INSERT INTO `device_check_refer`
-			(`manage_id`,
-			`check_file_manage_id`,
-			`item_seq`,
-			`check_confirm_time`,
-			`base_digit`)
-		VALUES 
-			(#{manage_id}, #{check_file_manage_id}, #{item_seq}, current_timestamp, #{digit});
-		]]>
-	</insert>
 
 	<select id="getEIDeviceCheckOfDate"  parameterType="CheckResultEntity" resultType="CheckResultEntity">
 		select 
@@ -658,12 +640,21 @@
 	</select>
 
 	<select id="getJigCheckCommentInPeriodByManageId"  parameterType="CheckResultEntity" resultType="CheckResultEntity">
-		SELECT group_concat(content, ' ' , date_format(input_time, '%m-%d') order by input_time separator '\n') FROM check_comment
+		SELECT 
+			content as `comment`,
+			date(input_time) as check_confirm_time,
+			op.job_no,
+			dm.manage_code
+		FROM check_comment cc
+		JOIN operator op
+		ON cc.operator_id = op.operator_id
+		JOIN devices_manage dm
+		ON cc.manage_id = dm.devices_manage_id
 		where manage_id = #{manage_id}
 		and object_type = 2
 		and input_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
-		;
-	</select>
+		order by input_time
+		;	</select>
 
 	<select id="getDeviceCheckCommentInPeriodByManageIdGroup"  parameterType="CheckResultEntity" resultType="String">
 		SELECT group_concat(content, ' ' , date_format(input_time, '%m-%d') order by input_time separator '\n') FROM check_comment
