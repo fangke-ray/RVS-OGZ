@@ -99,6 +99,7 @@
 		<typeAlias alias="DeviceJigQuotationEntity" type="com.osh.rvs.bean.equipment.DeviceJigQuotationEntity"/>
 		<typeAlias alias="DeviceJigInvoiceEntity" type="com.osh.rvs.bean.equipment.DeviceJigInvoiceEntity"/>
 		<typeAlias alias="DeviceBackupEntity" type="com.osh.rvs.bean.equipment.DeviceBackupEntity"/>
+		<typeAlias alias="OperationStandardDocEntity" type="com.osh.rvs.bean.manage.OperationStandardDocEntity"/>
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -211,5 +212,6 @@
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigQuotationMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigInvoiceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceBackupMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/manage/OperationStandardDocMapper.xml"/>
 	</mappers>
 </configuration> 

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.osh.rvs.mapper.manage.OperationStandardDocMapper">
+	
+	<select id="search" resultType="OperationStandardDocEntity" parameterType="OperationStandardDocEntity">
+	<![CDATA[
+	SELECT
+		operation_standard_doc.model_id,
+	    operation_standard_doc.position_id,
+		v_model.category_name,
+	    v_model.name AS model_name,
+		v_position.line_name,
+	    v_position.process_code,
+	    v_position.name AS position_name,
+	    COUNT(TRUE) AS total_doc
+	FROM
+		operation_standard_doc
+	JOIN
+		v_model
+	ON
+		operation_standard_doc.model_id = v_model.model_id
+	JOIN
+		v_position
+	ON
+		operation_standard_doc.position_id = v_position.position_id
+	]]>
+	<where>
+	<if test="category_id!=null and category_id!=''">
+	<![CDATA[
+		AND v_model.category_id = #{category_id}
+	]]>
+	</if>
+	<if test="line_id!=null and line_id!=''">
+	<![CDATA[
+		AND v_position.line_id = #{line_id}
+	]]>
+	</if>
+	<if test="model_id!=null and model_id!=''">
+	<![CDATA[
+		AND v_model.model_id = #{model_id}
+	]]>
+	</if>
+	<if test="position_id!=null and position_id!=''">
+	<![CDATA[
+		AND v_position.position_id = #{position_id}
+	]]>
+	</if>
+	</where>
+	<![CDATA[
+	GROUP BY
+		operation_standard_doc.model_id,operation_standard_doc.position_id
+	]]>
+	</select>
+	
+	<insert id="insert" parameterType="OperationStandardDocEntity">
+	<![CDATA[
+	INSERT INTO operation_standard_doc
+	(
+	model_id,
+	position_id,
+	doc_seq,
+	doc_url,
+	page_no
+	)
+	VALUES
+	(
+	#{model_id},
+	#{position_id},
+	#{doc_seq},
+	#{doc_url},
+	#{page_no}
+	)
+	]]>
+	</insert>
+	
+	<delete id="delete" parameterType="OperationStandardDocEntity">
+	<![CDATA[
+	DELETE FROM operation_standard_doc 
+	]]>
+	<where>
+	<if test="model_id!=null and model_id!=''">
+	<![CDATA[
+	AND 
+		model_id = #{model_id}
+	]]>
+	</if>
+	<if test="position_id!=null and position_id!=''">
+	<![CDATA[
+	AND 
+		position_id = #{position_id}
+	]]>
+	</if>
+	</where>
+	</delete>
+	
+	<select id="searchAllModel" resultType="OperationStandardDocEntity">
+	<![CDATA[
+	SELECT
+		operation_standard_doc.model_id,
+		v_model.name AS model_name,
+		v_model.category_name
+	FROM
+		operation_standard_doc
+	JOIN
+		v_model
+	ON
+		operation_standard_doc.model_id = v_model.model_id
+	GROUP BY
+		operation_standard_doc.model_id
+	]]>
+	</select>
+	
+	<select id="searchDetail" resultType="OperationStandardDocEntity" parameterType="OperationStandardDocEntity">
+	<![CDATA[
+	SELECT
+		model_id,
+		position_id,
+		doc_seq,
+		doc_url,
+		page_no
+	FROM
+		operation_standard_doc
+	]]>
+	<where>
+	<if test="model_id!=null and model_id!=''">
+	<![CDATA[
+	AND 
+		model_id = #{model_id}
+	]]>
+	</if>
+	<if test="position_id!=null and position_id!=''">
+	<![CDATA[
+	AND
+		position_id = #{position_id}
+	]]>
+	</if>
+	</where>
+	</select>
+	
+	
+</mapper>

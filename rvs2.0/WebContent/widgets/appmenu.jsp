@@ -152,6 +152,7 @@ $(function() {
 		        <a href="scheduleProcessing.do">RA (Racing Area) 管理</a><br>
 		        <a href="forSolutionArea.do">PA (Pending Area) 管理</a><br>
 	<% } %>
+				<a href="operation_standard_doc.do">作业基准书管理</a><br>
     </div>
 <% } %>
 
