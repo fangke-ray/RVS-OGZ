@@ -168,16 +168,41 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.1.387</p>
+								<p id="nee">2.3.417</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2019年2月20日</p>
+								<p>2019年4月17日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/4/17 2.3.417 更新</p>
+								<p>设备・专用工具管理：设备工具订购申请推送方式修改。</p>
+								<p>物料作业：其他维修零件出库。</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/3/28 2.3.410 更新</p>
+								<p>设备・专用工具管理：设备工具备品管理。</p>
+								<p>设备・专用工具管理：点检归档查询。</p>
+								<p>生产线线管理：重要工程日次点检。</p>
+								<p>设备・专用工具管理：设备工具替代管理。</p>
+								<p>设备・专用工具管理：设备工具订购申请。</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/2/22 2.1.389 更新</p>
+								<p>展示：周边修理展示。</p>
+								<p>设备・专用工具点检：线长确认判定查询与判定。</p>
+								<p>文档：出入库月报下载。</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>19/1/31 2.1.379 更新</p>

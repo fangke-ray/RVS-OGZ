@@ -8,7 +8,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <base href="<%=basePath%>">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<link rel="stylesheet" type="text/css" href="css/custom.css">
+<link rel="stylesheet" type="text/css" href="css/custom.css?version=418">
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
 <style>
@@ -29,7 +29,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/inline/position_panel.js"></script>
+<script type="text/javascript" src="js/inline/position_panel.js?version=418"></script>
 <script type="text/javascript" src="js/common/material_detail_ctrl.js"></script>
 
 <title>欢迎登录RVS系统</title>
@@ -188,7 +188,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div>
 	<div id="process_dialog"></div>
 	<div id="break_dialog"></div>
-	<div id="comments_dialog" style="display:none;">
+	<div id="comments_dialog" style="display:none;width:576px;">
+		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
+		</textarea>
+	</div>
+	<div id="comments_sidebar" style="display:none;">
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix">
 			<span class="areatitle icon-enter-2">提示相关信息</span>
 		</div>

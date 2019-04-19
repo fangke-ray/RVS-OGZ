@@ -991,6 +991,10 @@ public class PositionPanelAction extends BaseAction {
 	
 			// 取得现在处理中的批量
 			service.searchWorkingBatch(listResponse, user, conn);
+
+			// 取得设备工具的危险归类/安全手册信息
+			DevicesManageService dmS = new DevicesManageService();
+			listResponse.put("position_hcsgs", dmS.getOfPositionHazardousCautionsAndSafetyGuide(section_id, position_id, conn));
 		}
 
 		// 检查发生错误时报告错误信息

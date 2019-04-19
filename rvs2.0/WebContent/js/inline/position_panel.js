@@ -596,10 +596,14 @@ var treatStart = function(resInfo) {
 		}
 	});
 
-	if (resInfo.quality_tip || resInfo.material_comment || (device_safety_guide && device_safety_guide.length)) {
+	if (resInfo.quality_tip || resInfo.material_comment) {
 		showTips(resInfo.quality_tip, resInfo.material_comment);
+	}
+
+	if (resInfo.material_comment || (device_safety_guide && device_safety_guide.length)) {
+		showSidebar(resInfo.material_comment);
 	} else {
-		$("#comments_dialog").hide();
+		$("#comments_sidebar").hide();
 	}
 
 	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
@@ -631,17 +635,36 @@ var treatStart = function(resInfo) {
 };
 
 var showTips = function(quality_tip, material_comment) {
-
-	var $ul = $("<ul/>");
-	var $content = $("<div class='tip_pages'/>");
-	
+	// side_edge TODO
+	$("#comments_dialog textarea").val(material_comment);
+	$("#comments_dialog").find("img").remove();
 	if (quality_tip) {
-		$ul.append("<li><input type='radio' id='st_quality_tip' name='showTips'><label for='st_quality_tip'>质量提示<label></li>");
-		$content.append("<div class='tip_page' for='st_quality_tip'><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
+		$("#comments_dialog").append("<br/><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
 		if (quality_tip.bind_type == 1) {
 			document.cookie = "qt4=" + (new Date()).getTime();
 		}
 	}
+ 	$("#comments_dialog").dialog({
+		modal : false,
+		resizable:false,
+		width : '576px',
+		title : "维修对象相关信息",
+		closeOnEscape: false
+	});
+}
+
+var showSidebar = function(material_comment) {
+
+	var $ul = $("<ul/>");
+	var $content = $("<div class='tip_pages'/>");
+	
+//	if (quality_tip) {
+//		$ul.append("<li><input type='radio' id='st_quality_tip' name='showTips'><label for='st_quality_tip'>质量提示<label></li>");
+//		$content.append("<div class='tip_page' for='st_quality_tip'><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
+//		if (quality_tip.bind_type == 1) {
+//			document.cookie = "qt4=" + (new Date()).getTime();
+//		}
+//	}
 	if (material_comment) {
 		$ul.append("<li><input type='radio' id='st_material_comment' name='showTips'><label for='st_material_comment'>维修对象备注<label></li>");
 		$content.append("<div class='tip_page' for='st_material_comment'>" + material_comment + "</img>");
@@ -659,27 +682,27 @@ var showTips = function(quality_tip, material_comment) {
 	}
 	$content.children().hide();
 
-	$("#comments_dialog .comments_area").html("")
+	$("#comments_sidebar .comments_area").html("")
 		.append($content)
 		.append($ul)
 		.find("ul").buttonset()
 		.find("input:radio").change(function(){
-			$("#comments_dialog .tip_page").hide();
-			$("#comments_dialog .tip_page[for='" + $(this).attr("id") + "']").show();
+			$("#comments_sidebar .tip_page").hide();
+			$("#comments_sidebar .tip_page[for='" + $(this).attr("id") + "']").show();
 		})
 		.end().find("input:radio:eq(0)").attr("checked", "checked").trigger("change");
+	$("#comments_sidebar .comments_area").hide();
+	$("#comments_sidebar").removeClass("shown").css({width:"30px",opacity:".5"});
+	$("#comments_sidebar .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
 
-	$("#comments_dialog").show();
+	$("#comments_sidebar").show();
 
-	if (quality_tip) {
-		$("#comments_dialog .comments_area").show();
-		$("#comments_dialog").addClass("shown").css({width:"1024px",opacity:"1"});
-		$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
-	} else {
-		$("#comments_dialog .comments_area").hide();
-		$("#comments_dialog").removeClass("shown").css({width:"30px",opacity:".5"});
-		$("#comments_dialog .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
-	}
+//	if (quality_tip) {
+//		$("#comments_dialog .comments_area").show();
+//		$("#comments_dialog").addClass("shown").css({width:"1024px",opacity:"1"});
+//		$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
+//	} else {
+//	}
 }
 
 var doInit_ajaxSuccess = function(xhrobj, textStatus){
@@ -754,9 +777,9 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				showPartialRecept(resInfo);
 			} else {
 				if (device_safety_guide && device_safety_guide.length) {
-					showTips(null, null);
+					showSidebar(null);
 				} else {
-					$("#comments_dialog").hide();
+					$("#comments_sidebar").hide();
 				}
 			}
 
@@ -884,8 +907,8 @@ var getBlock = function(block_status) {
 var getLineMinutes = function(line_minutes){
 	if (line_minutes) {
 		var retDiv = "<div class='plan_advise'>";
-		if (line_minutes > 0) retDiv += "<span>" + minuteFormat(line_minutes) + "</span>";
-		if (line_minutes < 0) retDiv += "<span class='osusume'>" + minuteFormat(-line_minutes) + "</span>";
+		if (line_minutes > 0) retDiv += "<span title='本工程预计完成总工时'>" + minuteFormat(line_minutes) + "</span>";
+		if (line_minutes < 0) retDiv += "<span title='投入此维修品最适合保证工程平衡' class='osusume'>" + minuteFormat(-line_minutes) + "</span>";
 		retDiv += "</div>";
 		return retDiv;
 	} else {
@@ -985,26 +1008,26 @@ $(function() {
 		showMaterial(material_id);
 	});
 
-	$("#comments_dialog .ui-widget-header span").on("click",function(){
+	$("#comments_sidebar .ui-widget-header span").on("click",function(){
 
-		if($("#comments_dialog").hasClass("shown")){
-			$("#comments_dialog .tip_pages").css("overflow-y", "hidden");
-			$("#comments_dialog img").hide();
-			$("#comments_dialog .comments_area").slideUp(200,function(){
-				$("#comments_dialog .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
-				$("#comments_dialog").animate({width:"30px",opacity:".5"},300);
+		if($("#comments_sidebar").hasClass("shown")){
+			$("#comments_sidebar .tip_pages").css("overflow-y", "hidden");
+			$("#comments_sidebar img").hide();
+			$("#comments_sidebar .comments_area").slideUp(200,function(){
+				$("#comments_sidebar .ui-widget-header span").removeClass("icon-enter-2").addClass("icon-share");
+				$("#comments_sidebar").animate({width:"30px",opacity:".5"},300);
 			});
-			$("#comments_dialog").removeClass("shown");
+			$("#comments_sidebar").removeClass("shown");
 		}else{
 
-			$("#comments_dialog").animate({width:"1024px",opacity:"1"},300,function(){
-				$("#comments_dialog .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
-				$("#comments_dialog .comments_area").slideDown(200,function(){
-					$("#comments_dialog img").show();
-					$("#comments_dialog .tip_pages").css("overflow-y", "auto");
+			$("#comments_sidebar").animate({width:"1024px",opacity:"1"},300,function(){
+				$("#comments_sidebar .ui-widget-header span").removeClass("icon-share").addClass("icon-enter-2");
+				$("#comments_sidebar .comments_area").slideDown(200,function(){
+					$("#comments_sidebar img").show();
+					$("#comments_sidebar .tip_pages").css("overflow-y", "auto");
 				});
 			});
-			$("#comments_dialog").addClass("shown");
+			$("#comments_sidebar").addClass("shown");
 		}
 	});
 
@@ -1393,8 +1416,12 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 					$('#partialconfirmarea').dialog("close");
 				}
 				if ($("#comments_dialog:visible").length > 0) {
-					$("#comments_dialog .comments_area").val("");
-					$("#comments_dialog").hide();
+					$("#comments_dialog textarea").val("");
+					$("#comments_dialog").dialog("close");
+				}
+				if ($("#comments_sidebar:visible").length > 0) {
+					$("#comments_sidebar .comments_area").val("");
+					$("#comments_sidebar").hide();
 				}
 			}
 		}
@@ -1482,6 +1509,7 @@ var convertMinute =function(sminute) {
 
 var showMaterial = function(material_id) {
 	$process_dialog = $("#process_dialog");
+	if ($process_dialog.length == 0) return;
 	$process_dialog.hide();
 	// 导入编辑画面
 	$process_dialog.load("widget.do?method=materialDetail&material_id=" + material_id,
