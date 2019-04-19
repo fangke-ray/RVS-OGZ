@@ -36,7 +36,7 @@ $(function () {
 		let	colsname;
 		switch (colid) {
 		case "colchooser_quotation":
-			colsname = ['entrust_no','entrust_send_date','acquire_date','delivery_osh_date'];
+			colsname = ['acquire_date','delivery_osh_date'];
 			break;
 		case "colchooser_buy":
 			colsname = ['system_code','name','order_from_name','nesssary_reason'];
@@ -339,11 +339,11 @@ function quotationTrackList(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['报价单号','确认<br>接收日期','委托<br>单号','委托<br>发送日期','发送<br>OSH日期','预计<br>纳期','有无<br>备注','comment','quotation_id'],
+			colNames : ['报价单号','确认<br>接收日期','委托<br>单号','委托<br>发送日期','发送<br>OSH日期','预计纳期','有无<br>备注','comment','quotation_id'],
 			colModel : [{name : 'quotation_no',index : 'quotation_no',width:100},
 						{name : 'acquire_date',index : 'acquire_date',width:70,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
-						{name : 'entrust_no',index : 'entrust_no',width:80},
-						{name : 'entrust_send_date',index : 'entrust_send_date',width:70,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
+						{name : 'entrust_no',index : 'entrust_no',width:80,hidden:true},
+						{name : 'entrust_send_date',index : 'entrust_send_date',width:70,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'},hidden:true},
 						{name : 'delivery_osh_date',index : 'delivery_osh_date',width:70,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 						{name : 'scheduled_date',index : 'scheduled_date',width:70,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 						{name : 'comment_flg',index : 'comment_flg',width:40,align:'center',formatter:function(value,option,rData){
@@ -561,23 +561,11 @@ function showQuotation($parentDialog){
 					}else{
 						$table.find("tr:eq(1) td:eq(1)").html(`<input type="text" class="ui-widget-content acquire_date" readonly="readonly"></td>`);
 					}
-					// 委托单号
-					if(quotationForm.entrust_no){
-						$table.find("tr:eq(2) td:eq(1)").text(quotationForm.entrust_no);
-					}else{
-						$table.find("tr:eq(2) td:eq(1)").html(`<input type="text" class="ui-widget-content entrust_no"></td>`);
-					}
-					// 委托发送日期
-					if(quotationForm.entrust_send_date){
-						$table.find("tr:eq(3) td:eq(1)").text(quotationForm.entrust_send_date);
-					}else{
-						$table.find("tr:eq(3) td:eq(1)").html(`<input type="text" class="ui-widget-content entrust_send_date" readonly="readonly"></td>`);
-					}
 					// 发送OSH日期
 					if(quotationForm.delivery_osh_date){
-						$table.find("tr:eq(4) td:eq(1)").text(quotationForm.delivery_osh_date);
+						$table.find("tr:eq(2) td:eq(1)").text(quotationForm.delivery_osh_date);
 					}else{
-						$table.find("tr:eq(4) td:eq(1)").html(`<input type="text" class="ui-widget-content delivery_osh_date" readonly="readonly"></td>`);
+						$table.find("tr:eq(2) td:eq(1)").html(`<input type="text" class="ui-widget-content delivery_osh_date" readonly="readonly"></td>`);
 					}
 					// 预计纳期
 					$("#update_scheduled_date").val(quotationForm.scheduled_date);
@@ -593,7 +581,7 @@ function showQuotation($parentDialog){
 					let $childDialog = $("#quotation_detail").dialog({
 						title : "报价编辑",
 						width : 450,
-						height : 400,
+						height : 320,
 						resizable : false,
 						modal : true,
 						buttons : {
@@ -606,14 +594,6 @@ function showQuotation($parentDialog){
 								// 确认接收日期
 								if($table.find("input.acquire_date").length == 1){
 									postData["acquire_date"] =  $table.find("input.acquire_date").val().trim();
-								}
-								// 委托单号
-								if($table.find("input.entrust_no").length == 1){
-									postData["entrust_no"] =  $table.find("input.entrust_no").val().trim();
-								}
-								// 委托发送日期
-								if($table.find("input.entrust_send_date").length == 1){
-									postData["entrust_send_date"] =  $table.find("input.entrust_send_date").val().trim();
 								}
 								// 发送OSH日期
 								if($table.find("input.delivery_osh_date").length == 1){
@@ -1051,7 +1031,7 @@ function applicateList(list,postData){
 		// 申请人名称
 		let	applicator_operator_name = item.applicator_operator_name;
 		// 申请日期
-		let	applicate_date = item.applicate_date;
+		let	applicate_date = item.applicate_date || '等待确认申请';
 		
 		content += `<tr order_key="${item.order_key}" object_type="${item.object_type}" device_type_id="${item.device_type_id}" model_name="${item.model_name}" applicator_id="${item.applicator_id}">
 						<td class="td-content text-center"><input type="checkbox"></td>

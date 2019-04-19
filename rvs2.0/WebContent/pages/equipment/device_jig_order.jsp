@@ -427,14 +427,6 @@ td.text-right{
 						<td class="td-content"></td>
 					</tr>
 					<tr>	
-						<td class="ui-state-default td-title">委托单号</td>
-						<td class="td-content"></td>
-					</tr>
-					<tr>	
-						<td class="ui-state-default td-title">委托发送日期</td>
-						<td class="td-content"></td>
-					</tr>
-					<tr>	
 						<td class="ui-state-default td-title">发送OSH日期</td>
 						<td class="td-content"></td>
 					</tr>
