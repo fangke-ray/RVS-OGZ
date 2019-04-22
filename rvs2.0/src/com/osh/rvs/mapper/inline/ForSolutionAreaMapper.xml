@@ -252,16 +252,19 @@ FROM `for_solution_area`
 			)
 			</if>
 			<if test="line_id!=null and line_id eq '00000000050'">
-			AND (`position_id` = #{position_id} OR `position_id` = 79)
+			AND (`position_id` = #{position_id} OR `position_id` = 79 OR `position_id` IS NULL)
 			</if>
 			<if test="line_id!=null and line_id eq '00000000060'">
-			AND (`position_id` = #{position_id} OR `position_id` = 94)
+			AND (`position_id` = #{position_id} OR `position_id` = 94 OR `position_id` IS NULL)
 			</if>
 			<if test="line_id!=null and line_id eq '00000000061'">
 			AND `position_id` = #{position_id}
 			</if>
 			<if test="line_id!=null and line_id eq '00000000070'">
-			AND `position_id` = #{position_id}
+			AND (`position_id` = #{position_id} OR `position_id` = 98 OR `position_id` IS NULL)
+			</if>
+			<if test="line_id!=null and line_id eq '00000000054'">
+			AND (`position_id` = #{position_id} OR `position_id` = 99 OR `position_id` IS NULL)
 			</if>
 			<if test="line_id!=null">
 			AND #{line_id} != '7654321'

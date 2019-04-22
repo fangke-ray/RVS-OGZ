@@ -3,7 +3,6 @@ package com.osh.rvs.service;
 import static framework.huiqing.common.util.CommonStringUtil.joinBy;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
-import com.osh.rvs.bean.partial.MaterialPartialEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.ProductionFeatureForm;
@@ -30,7 +28,7 @@ import com.osh.rvs.mapper.inline.ProductionAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
-import com.osh.rvs.mapper.partial.MaterialPartialMapper;
+import com.osh.rvs.service.partial.MaterialPartialService;
 import com.osh.rvs.service.proxy.ProcessAssignProxy;
 
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -457,26 +455,12 @@ public class ProductionFeatureService {
 				}
 			} else
 			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || 
-					"00000000026".equals(position_id) || "00000000093".equals(position_id)) { // 零件订购
+					"00000000026".equals(position_id) || "00000000093".equals(position_id)
+					|| "00000000097".equals(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
 				if (isFact) {
-					// 如果没有零件BO信息
-					MaterialPartialEntity entity = new MaterialPartialEntity();
-					entity.setMaterial_id(material_id);
-
-					MaterialPartialMapper mpDao = conn.getMapper(MaterialPartialMapper.class);
-					List<MaterialPartialEntity> lResultBean = mpDao.searchMaterialByKey(material_id);
-
-					entity.setOccur_times(1);
-					entity.setBo_flg(RvsConsts.BO_FLG_WAITING);
-					entity.setOrder_date(new Date());
-	
-					// 就新建BO信息
-					if (lResultBean.size() == 0) {
-						mpDao.insertMaterialPartial(entity);
-					} else {
-						mpDao.updateBoFlgAndOrderDate(entity);
-					}
+					MaterialPartialService mptlService = new MaterialPartialService();
+					mptlService.createMaterialPartialWithExistCheck(material_id, conn);
 				}
 			} else
 
@@ -633,6 +617,10 @@ public class ProductionFeatureService {
 //				// NS零件订购单已交付
 //			}
 			nPf.setPosition_id(nextPosition_id);
+			if (isFact && "00000000099".equals(nextPosition_id)) {
+				MaterialPartialService mptlService = new MaterialPartialService();
+				mptlService.createMaterialPartialWithExistCheck(material_id, conn);
+			}
 			fingerPosition(mEntity, fixed, nPf, conn, pfDao, paProxy, ret, triggerList, isFact);
 		}
 

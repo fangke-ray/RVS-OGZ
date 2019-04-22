@@ -148,7 +148,28 @@ public class MaterialPartialService {
 		MaterialPartialMapper dao = conn.getMapper(MaterialPartialMapper.class);
 		dao.createMaterialPartialAtOrderPosition(insertBean);
 	}
-	
+
+	public void createMaterialPartialWithExistCheck(String material_id,
+			SqlSessionManager conn) {
+		// 如果没有零件BO信息
+		MaterialPartialEntity entity = new MaterialPartialEntity();
+		entity.setMaterial_id(material_id);
+
+		MaterialPartialMapper mpDao = conn.getMapper(MaterialPartialMapper.class);
+		List<MaterialPartialEntity> lResultBean = mpDao.searchMaterialByKey(material_id);
+
+		entity.setOccur_times(1);
+		entity.setBo_flg(RvsConsts.BO_FLG_WAITING);
+		entity.setOrder_date(new Date());
+
+		// 就新建BO信息
+		if (lResultBean.size() == 0) {
+			mpDao.insertMaterialPartial(entity);
+		} else {
+			mpDao.updateBoFlgAndOrderDate(entity);
+		}
+	}
+
 	public List<MaterialPartialForm> searchMaterial(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
 		// 表单复制到数据对象
 		MaterialPartialEntity conditionBean = new MaterialPartialEntity();
@@ -1363,5 +1384,5 @@ public class MaterialPartialService {
 		}
 		return cacheName;
 	}
-	
+
 }

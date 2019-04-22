@@ -167,7 +167,10 @@ public class ForSolutionAreaService {
 
 	public List<ForSolutionAreaEntity> checkBlock(String material_id, String position_id, String line_id, SqlSession conn) {
 		ForSolutionAreaMapper mapper = conn.getMapper(ForSolutionAreaMapper.class);
-		if ("00000000021".equals(position_id) || "00000000027".equals(position_id)) {
+		if ("00000000021".equals(position_id) || "00000000027".equals(position_id) ||
+				"00000000079".equals(position_id) || "00000000094".equals(position_id) ||
+				"00000000098".equals(position_id) || "00000000099".equals(position_id)) { // 零件签收
+
 			return null; // TODO 客户要求移出
 		}
 		return mapper.checkOffline(material_id, position_id, line_id);
