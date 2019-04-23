@@ -87,7 +87,7 @@ function addRow(){
 	
 	var tr = '<tr>';
 		tr +='<td class="ui-state-default"></td>';
-		tr +='<td class="td-content"><input type="text" class="ui-widget-content url"></td>';
+		tr +='<td class="td-content"><input type="text" class="ui-widget-content url"><input type="button" class="ui-button" value="打开文件" onclick="openPDF(this);"/></td>';
 		tr +='<td class="td-content"><input type="text" class="ui-widget-content no"></td>';
 		tr +='<td class="td-content"><input type="button" class="ui-button subtract" value="-"/></td>';
 		tr +='</tr>';
@@ -397,7 +397,7 @@ function showEdit(data){
 					list.forEach(function(item,index){
 						content +='<tr>';
 						content +='<td class="ui-state-default">' + (index+1) + '</td>';
-						content +='<td class="td-content"><input type="text" class="ui-widget-content url" value="' + item.doc_url + '"></td>';
+						content +='<td class="td-content"><input type="text" class="ui-widget-content url" value="' + item.doc_url + '"><input type="button" class="ui-button" value="打开文件" onclick="openPDF(this);"/></td>';
 						content +='<td class="td-content"><input type="text" class="ui-widget-content no" value="' + item.page_no + '"></td>';
 						content +='<td class="td-content"><input type="button" class="ui-button subtract" value="-"/></td>';
 						content +='</tr>';
@@ -423,6 +423,17 @@ function showEdit(data){
 			}catch(e){}
 		}
 	});
+};
+function openPDF(btn){
+	var $tr = $(btn).closest("tr");
+	var url = $tr.find("input.url").val().trim();
+	var page = $tr.find("input.no").val().trim();
+
+	if(url && page){
+		window.sessionStorage.setItem("url",url);
+		window.sessionStorage.setItem("page",page);
+		window.open("pages/pdfView.html","_blank");
+	}
 };
 function update(){
 	var len = $("#updateform tbody tr").length;
