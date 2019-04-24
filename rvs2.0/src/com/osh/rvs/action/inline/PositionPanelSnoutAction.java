@@ -37,6 +37,7 @@ import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
 import com.osh.rvs.service.inline.PositionPanelService;
@@ -58,6 +59,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	private static final String SNOUT_MODEL_EXCLUDED = "0";
 	private static final String SNOUT_MODEL_INCLUDED = "1";
 	private static final String SNOUT_MODEL_INCLUDED_AND_REWORKED = "2";
+	private static String WORK_STATUS_FORBIDDEN = "-1";
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -147,7 +149,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelSnoutAction.jsinit start");
-		Map<String, Object> listResponse = new HashMap<String, Object>();
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 
@@ -157,113 +159,129 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 		String section_id = user.getSection_id();
 		String process_code = user.getProcess_code();
+		String position_id = user.getPosition_id();
+		String line_id = user.getLine_id();
 
-		String stepOptions = "";
-		// 设定正常中断选项
-		String steps = PathConsts.POSITION_SETTINGS.getProperty("steps."+process_code);
-		if (steps != null) {
-			String[] steparray = steps.split(",");
-			for (String step : steparray) {
-				step = step.trim();
-				String stepname = PathConsts.POSITION_SETTINGS.getProperty("step." + process_code + "." + step);
-				stepOptions += "<option value=\"" + step + "\">" + stepname + "</option>";
+		CheckResultPageService crService = new CheckResultPageService();
+		crService.checkForPosition(section_id, position_id, line_id, conn);
+
+		PositionPanelService ppservice = new PositionPanelService();
+		String infectString = ppservice.getInfectMessageByPosition(section_id,
+				position_id, line_id, conn);
+
+		callbackResponse.put("infectString", infectString);
+
+		if (infectString.indexOf("限制工作") >= 0) {
+			callbackResponse.put("workstauts", WORK_STATUS_FORBIDDEN);
+		} else {
+
+			String stepOptions = "";
+			// 设定正常中断选项
+			String steps = PathConsts.POSITION_SETTINGS.getProperty("steps."+process_code);
+			if (steps != null) {
+				String[] steparray = steps.split(",");
+				for (String step : steparray) {
+					step = step.trim();
+					String stepname = PathConsts.POSITION_SETTINGS.getProperty("step." + process_code + "." + step);
+					stepOptions += "<option value=\"" + step + "\">" + stepname + "</option>";
+				}
 			}
-		}
-		listResponse.put("stepOptions", stepOptions);
+			callbackResponse.put("stepOptions", stepOptions);
 
-		String breakOptions = "";
+			String breakOptions = "";
 
-		// 设定异常中断选项
-		steps = PathConsts.POSITION_SETTINGS.getProperty("break."+process_code);
-		if (steps != null) {
-			String[] steparray = steps.split(",");
-			for (String step : steparray) {
-				step = step.trim();
-				String stepname = PathConsts.POSITION_SETTINGS.getProperty("break." + process_code + "." + step);
-				breakOptions += "<option value=\"" + step + "\">" + stepname + "</option>";
+			// 设定异常中断选项
+			steps = PathConsts.POSITION_SETTINGS.getProperty("break."+process_code);
+			if (steps != null) {
+				String[] steparray = steps.split(",");
+				for (String step : steparray) {
+					step = step.trim();
+					String stepname = PathConsts.POSITION_SETTINGS.getProperty("break." + process_code + "." + step);
+					breakOptions += "<option value=\"" + step + "\">" + stepname + "</option>";
+				}
 			}
-		}
-		// 设定一般中断选项
-		breakOptions += CodeListUtils.getSelectOptions("break_reason", null);
+			// 设定一般中断选项
+			breakOptions += CodeListUtils.getSelectOptions("break_reason", null);
 
-		listResponse.put("breakOptions", breakOptions);
+			callbackResponse.put("breakOptions", breakOptions);
 
-		// 设定暂停选项
-		String pauseOptions = "";
+			// 设定暂停选项
+			String pauseOptions = "";
 
-		pauseOptions += PauseFeatureService.getPauseReasonSelectOptions();
-		listResponse.put("pauseOptions", pauseOptions);
+			pauseOptions += PauseFeatureService.getPauseReasonSelectOptions();
+			callbackResponse.put("pauseOptions", pauseOptions);
 
-		// 取得等待区一览
-		listResponse.put("waitings", sservice.getWaitingMaterial(section_id, user.getPosition_id(),
-				user.getOperator_id(), process_code, conn));
+			// 取得等待区一览
+			callbackResponse.put("waitings", sservice.getWaitingMaterial(section_id, user.getPosition_id(),
+					user.getOperator_id(), process_code, conn));
 
-		// 先端预制，取得可制作的型号
-		listResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getSnoutModels(conn), "", "(未选择)", false));
+			// 先端预制，取得可制作的型号
+			callbackResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getSnoutModels(conn), "", "(未选择)", false));
 
-		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
-		SoloProductionFeatureEntity pfBean = new SoloProductionFeatureEntity();
-		pfBean.setOperator_id(user.getOperator_id());
-		pfBean.setAction_time_null(0);
-		pfBean.setFinish_time_null(1);
+			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+			SoloProductionFeatureEntity pfBean = new SoloProductionFeatureEntity();
+			pfBean.setOperator_id(user.getOperator_id());
+			pfBean.setAction_time_null(0);
+			pfBean.setFinish_time_null(1);
 
-		// 判断是否有在进行中的维修对象
-		List<SoloProductionFeatureEntity> workingPfs = dao.searchSoloProductionFeature(pfBean);
-		// 进行中的话
-		if (workingPfs.size() > 0) {
-			SoloProductionFeatureEntity workingPf = workingPfs.get(0);
-			if (RvsConsts.OPERATE_RESULT_SUPPORT == workingPf.getOperate_result()) {
-				MsgInfo msginfo = new MsgInfo();
-				msginfo.setErrcode("info.linework.supportingRemain");
-				msginfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.supportingRemain"));
-				infoes.add(msginfo);
-				listResponse.put("redirect", "support.do");
-			} else if (RvsConsts.OPERATE_RESULT_WORKING == workingPf.getOperate_result()) {
-				// 取得作业信息
-				// getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, conn);
+			// 判断是否有在进行中的维修对象
+			List<SoloProductionFeatureEntity> workingPfs = dao.searchSoloProductionFeature(pfBean);
+			// 进行中的话
+			if (workingPfs.size() > 0) {
+				SoloProductionFeatureEntity workingPf = workingPfs.get(0);
+				if (RvsConsts.OPERATE_RESULT_SUPPORT == workingPf.getOperate_result()) {
+					MsgInfo msginfo = new MsgInfo();
+					msginfo.setErrcode("info.linework.supportingRemain");
+					msginfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.supportingRemain"));
+					infoes.add(msginfo);
+					callbackResponse.put("redirect", "support.do");
+				} else if (RvsConsts.OPERATE_RESULT_WORKING == workingPf.getOperate_result()) {
+					// 取得作业信息
+					// getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, conn);
 
-				// 取得工程检查票
-				getPcses(listResponse, workingPf, user.getLine_id(), conn);
+					// 取得工程检查票
+					getPcses(callbackResponse, workingPf, user.getLine_id(), conn);
 
-				// 取得本先端头第一次作业 的开始时间 TODO
-				listResponse.put("action_time", DateUtil.toString(sservice.getFirstPaceOnRework(workingPf, conn), "HH:mm:ss"));
-				listResponse.put("spent_mins", sservice.getTotalTime(workingPf, conn) / 60);
+					// 取得本先端头第一次作业 的开始时间 TODO
+					callbackResponse.put("action_time", DateUtil.toString(sservice.getFirstPaceOnRework(workingPf, conn), "HH:mm:ss"));
+					callbackResponse.put("spent_mins", sservice.getTotalTime(workingPf, conn) / 60);
 
-				listResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
-				listResponse.put("model_name", workingPf.getModel_name());
-				listResponse.put("serial_no", workingPf.getSerial_no());
-				listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(workingPf.getModel_name(), null, user, "301"));
+					callbackResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
+					callbackResponse.put("model_name", workingPf.getModel_name());
+					callbackResponse.put("serial_no", workingPf.getSerial_no());
+					callbackResponse.put("leagal_overline", RvsUtils.getZeroOverLine(workingPf.getModel_name(), null, user, "301"));
 
-				// 页面设定为编辑模式
-				listResponse.put("workstauts", "1");
-			} else if (RvsConsts.OPERATE_RESULT_PAUSE == workingPf.getOperate_result()) {
-				// 暂停中的话
-//				// 取得作业信息
-//				getProccessingData(listResponse, pauseingPf.getMaterial_id(), pauseingPf, user, conn);
+					// 页面设定为编辑模式
+					callbackResponse.put("workstauts", "1");
+				} else if (RvsConsts.OPERATE_RESULT_PAUSE == workingPf.getOperate_result()) {
+					// 暂停中的话
+	//				// 取得作业信息
+	//				getProccessingData(listResponse, pauseingPf.getMaterial_id(), pauseingPf, user, conn);
 
-				// 取得工程检查票
-				getPcses(listResponse, workingPf, user.getLine_id(), conn);
+					// 取得工程检查票
+					getPcses(callbackResponse, workingPf, user.getLine_id(), conn);
 
-				//spent_mins
-				// listResponse.put("spent_mins", (Integer) listResponse.get("spent_mins") + pauseingPf.getUse_seconds() / 60);
-				listResponse.put("action_time", DateUtil.toString(workingPf.getAction_time(), "HH:mm:ss"));
-				listResponse.put("spent_mins", sservice.getTotalTime(workingPf, conn) / 60);
+					//spent_mins
+					// listResponse.put("spent_mins", (Integer) listResponse.get("spent_mins") + pauseingPf.getUse_seconds() / 60);
+					callbackResponse.put("action_time", DateUtil.toString(workingPf.getAction_time(), "HH:mm:ss"));
+					callbackResponse.put("spent_mins", sservice.getTotalTime(workingPf, conn) / 60);
 
-				listResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
-				listResponse.put("model_name", workingPf.getModel_name());
-				listResponse.put("serial_no", workingPf.getSerial_no());
-				listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(workingPf.getModel_name(), null, user, "301"));
+					callbackResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
+					callbackResponse.put("model_name", workingPf.getModel_name());
+					callbackResponse.put("serial_no", workingPf.getSerial_no());
+					callbackResponse.put("leagal_overline", RvsUtils.getZeroOverLine(workingPf.getModel_name(), null, user, "301"));
 
-				// 页面设定为编辑模式
-				listResponse.put("workstauts", "2");
+					// 页面设定为编辑模式
+					callbackResponse.put("workstauts", "2");
+				}
 			}
 		}
 
 		// 检查发生错误时报告错误信息
-		listResponse.put("errors", infoes);
+		callbackResponse.put("errors", infoes);
 
 		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
+		returnJsonResponse(res, callbackResponse);
 
 		log.info("PositionPanelSnoutAction.jsinit end");
 	}

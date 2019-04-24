@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -257,7 +258,7 @@ public class PositionPanelService {
 									String blockReason = CodeListUtils.getValue("offline_reason", ""+block.getReason());
 									msgInfo = new MsgInfo();
 									msgInfo.setComponentid("material_id");
-									msgInfo.setErrcode("info.linework.notInWaiting");
+									msgInfo.setErrcode("info.linework.blockedForSolve");
 									msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.blockedForSolve"
 											, waiting.getSorc_no(), blockReason, block.getComment()));
 									errors.add(msgInfo);
@@ -1016,7 +1017,7 @@ public class PositionPanelService {
 		curEntity.setPosition_id(position_id);
 		boolean hasBlocked = curMapper.checkBlockedToolsOnPosition(curEntity);
 		if (hasBlocked) {
-			return "本工位治具点检发生不合格且未解决，将限制工作。";
+			return "本工位专用工具点检发生不合格且未解决，将限制工作。";
 		}
 		hasBlocked = curMapper.checkBlockedDevicesOnPosition(curEntity);
 		if (hasBlocked) {
@@ -1041,10 +1042,21 @@ public class PositionPanelService {
 
 		String retComments = "";
 		if (list.size() > 0) {
+			Set<String> responsibleOperatorName = new HashSet<String>();
+			for (CheckResultEntity cr : list) {
+				String name = cr.getOperator_name();
+				if (name == null) name = "(无负责)";
+				responsibleOperatorName.add(name);
+			}
+			String responsibleOperatorString = "(";
+			for (String ron : responsibleOperatorName) {
+				responsibleOperatorString += ron + " ";
+			}
+			responsibleOperatorString += ")";
 			if (DateUtil.compareDate(today, period.getExpireOfMonthOfJig()) >= 0) {
-				retComments += "本工位有"+list.size()+"件治具在期限前未作点检，将限制工作。\n";
+				retComments += "本工位有"+list.size()+"件专用工具" + responsibleOperatorString + "在期限前未作点检，将限制工作。\n";
 			} else {
-				retComments += "本工位有"+list.size()+"件治具尚未点检，期限为"+
+				retComments += "本工位有"+list.size()+"件专用工具尚未点检，期限为"+
 						DateUtil.toString(period.getExpireOfMonthOfJig(), DateUtil.ISO_DATE_PATTERN)+"，请在期限前完成点检。\n";
 			}
 		}

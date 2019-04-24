@@ -376,7 +376,11 @@ public class UploadService {
 
 	private String reverOcmRank(String gValue) {
 		if (!reverOcmRankMap.containsKey(gValue)) {
-			reverOcmRankMap.put(gValue, CodeListUtils.getKeyByValue("material_ocm_direct_rank", gValue, ""));
+			String code = CodeListUtils.getKeyByValue("material_ocm_direct_rank", gValue, "");
+			if ("".equals(code)) {
+				code = CodeListUtils.getKeyByValue("material_level", gValue, "");
+			}
+			reverOcmRankMap.put(gValue, code);
 		}
 		return reverOcmRankMap.get(gValue);
 	}

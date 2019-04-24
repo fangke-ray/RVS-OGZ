@@ -82,7 +82,7 @@ function startScanner(){
 						type = "21";
 					}
 					
-					if(allPartialMap.has(data.code)){
+					if(allPartialMap.has(partialForm.code)){
 						var production_type = $("#hide_production_type").val();
 						if(production_type != type){
 							var errorData = `零件编号[${partialForm.code}]不适用于当前作业内容！`;
@@ -92,7 +92,7 @@ function startScanner(){
 							updateList(partialForm.partial_id);
 						}
 					}else{
-						var warnData = `零件编号[${partialForm.code}]在零件入库单[${warehouse_no}]中不存在，是否新建入库单！`;
+						var warnData = `零件编号[${partialForm.code}]在零件入库单[${warehouse_no}]中不存在，是否新建到入库单中？`;
 						warningConfirm(warnData,function(){
 							var production_type = $("#hide_production_type").val();
 							if(production_type != type){

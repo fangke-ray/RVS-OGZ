@@ -20,6 +20,7 @@ import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.qa.ServiceRepairManageEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.qa.ServiceRepairManageForm;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.PauseFeatureService;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.qa.ServiceRepairManageService;
@@ -115,6 +116,10 @@ public class ServiceRepairRefereeAction extends BaseAction{
 		String section_id = null;
 		String position_id = "00000000051";
 		String line_id = "00000000015";
+
+		CheckResultPageService crService = new CheckResultPageService();
+		crService.checkForPosition("00000000007", position_id, line_id, conn);
+
 		PositionPanelService ppservice = new PositionPanelService();
 		String infectString = ppservice.getInfectMessageByPosition(section_id,
 				position_id, line_id, conn);

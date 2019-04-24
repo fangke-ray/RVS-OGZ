@@ -9,6 +9,10 @@ table.condform .diGrp td {
 	border-top-width: 0;
 	border-bottom-width: 0;
 }
+table.condform .endGrp td {
+	border-top-width: 0;
+	border-bottom-width: 1;
+}
 table.condform .diGrp:last-child td,
 table.condform .diGrp td[rowspan] {
 	border-bottom-width: 1px;
@@ -70,11 +74,24 @@ table.condform .diGrp td[rowspan] {
 		});
 	});
 
+	var getTrDisp = function(countGroup, thisGroup) {
+		if(countGroup == 0) {
+			if (thisGroup != -1) return '';
+			return ' class="endGrp"';
+		} else {
+			console.log("thisGroup=" + thisGroup);
+			if (thisGroup == 0) return '';
+			return ' class="diGrp"';
+		}
+	}
 	var showPeripheral = function(resInfo) {
 		var tbodyContent = "";
+		var countGroup = 0;
 		$.each(resInfo.peripheralData,function(index,peripheralData){
+			if (peripheralData.group >=0) countGroup = peripheralData.group;
+			countGroup--;
 			var normal = (peripheralData.group >=0) + (peripheralData.group > 0);
-			tbodyContent += '<tr' + (normal == 1 ? '' : ' class="diGrp"') + '>'
+			tbodyContent += '<tr' + getTrDisp(countGroup, peripheralData.group) + '>'
 				+ (normal ? '<td class="td-content" style="width:auto;"' 
 					+ ((normal > 1) ? ' rowspan="' + peripheralData.group + '"' : '') + '>' + peripheralData.seq + '</td>' : '')
 				+'<td class="td-content">' + peripheralData.device_type_name + '</td>'

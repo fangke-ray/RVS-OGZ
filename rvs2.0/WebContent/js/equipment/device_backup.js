@@ -33,7 +33,12 @@ $(function(){
 	$("#setbutton").click(showDetail);
 	$("#resetbutton").click(reset);
 
-	$("#submitbutton").click(submit);
+	var $submitbutton = $("#submitbutton");
+	if ($submitbutton.length == 0) {
+		$("#setbutton").val("查看");
+	} else {
+		$submitbutton.click(submit);
+	}
 	$("#reportbutton").click(makeReport);
 
 	obj_manage_level = selecOptions2Object($("#hidden_goManage_level").val());
@@ -227,9 +232,9 @@ var showDetailComplete = function(xhrobj, rowData) {
 		if (resInfo.lSameModel.length + resInfo.lOtherModel.length == 0) {
 			$piresBody.append("<tr><td colspan=6>没有同样品名的设备！</tr>");
 		} else {
-			$piresBody.append(drawPiresBody(rowData.manage_code, resInfo.lSameModel));
+			$piresBody.append(drawPiresBody(rowData.manage_code, rowData.line_name, resInfo.lSameModel));
 			$piresBody.append("<tr><td colspan=6>——此处以上为同型号————————————————————————以下为不同型号——</tr>");
-			$piresBody.append(drawPiresBody(rowData.manage_code, resInfo.lOtherModel));
+			$piresBody.append(drawPiresBody(rowData.manage_code, rowData.line_name, resInfo.lOtherModel));
 		}
 
 		for (var iR in resInfo.relations) {
@@ -264,13 +269,13 @@ var showDetailComplete = function(xhrobj, rowData) {
 	}
 }
 
-var drawPiresBody = function(manage_code, devices){
+var drawPiresBody = function(manage_code, line_name, devices){
 	var retString = "";
 	for (var i in devices) {
 		var device = devices[i];
 		retString += "<tr manage_id='" + device.devices_manage_id + "'><td>" + device.manage_code + "</td><td>" + getStatus(device.manage_level, device.status) 
 			+ "</td><td>" + device.model_name + "</td><td>" + getLine(device.section_name, device.line_name)
-			+ "</td><td class='ub'><button>不可以</button> 代替" + manage_code 
+			+ "</td><td class='ub'><button" + ((line_name == device.line_name) ? " coline" : "") + ">不可以</button> 代替" + manage_code 
 			+ "作业</td><td class='bu'><button>不可以</button> 用" + manage_code + "代替作业</td></tr>";
 	}
 
@@ -303,8 +308,10 @@ var getLine = function(section_name, line_name) {
 var checkEvaluation = function(){
 	var $buttons = $("#pires .ub button");
 	
-	if ($buttons.filter("[usage='1']").length > 0) {
+	if ($buttons.filter("[usage='1'][coline]").length > 0) {
 		$("#set_evaluation").text("◎");
+	} else if ($buttons.filter("[usage='1']").length > 0) {
+		$("#set_evaluation").text("○");
 	} else if ($buttons.filter("[usage='0']").length > 0) {
 		$("#set_evaluation").text("△");
 	} else {

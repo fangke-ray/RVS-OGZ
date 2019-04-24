@@ -110,7 +110,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/common/pcs_editor.js?version=103"></script>
-<script type="text/javascript" src="js/inline/position_panel.js?version=418"></script>
+<script type="text/javascript" src="js/inline/position_panel_snout.js?version=418"></script>
 
 <title>欢迎登录RVS系统</title>
 </head>
@@ -163,9 +163,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<td class="td-content-text">${position.break_count}台次</td>
 								<td class="ui-state-default td-title">等待件数</td>
 								<td class="td-content-text" id="p_waiting_count">${position.waiting_count}台</td>
-							</tr>
-							<tr>
-								<td class="td-content-text" colspan="7" id="flowtext" style="text-align: left;"></td>
 							</tr>
 							<tr id="toInfect" style="display:none;">
 								<td class="ui-state-default td-title" style="background:#f9ec54;">待处理点检项目</td>

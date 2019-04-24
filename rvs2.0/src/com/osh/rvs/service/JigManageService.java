@@ -136,6 +136,9 @@ public class JigManageService {
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.updateJigManage(toolsManageEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 	
 	/* 验证管理编号不能重复 */
@@ -211,6 +214,9 @@ public class JigManageService {
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.insertJigManage(toolsManageEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 	
 	/**
@@ -231,6 +237,9 @@ public class JigManageService {
 		toolsManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.deleteJigManage(toolsManageEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 	
 	// 取得责任人员
@@ -314,6 +323,8 @@ public class JigManageService {
 			dao.disband(toolsManageEntity);
 		}
 				
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	//批量交付
@@ -340,12 +351,15 @@ public class JigManageService {
 					dao.deliverJigManage(conditionEntity);
 				}
 			}
-			
+
+			// 清除工位待点检品判断
+			CheckResultPageService.todayCheckedMap.clear();
+
 		} else {
 			error.setComponentid("tools_manage_id");
 			error.setErrcode("validator.required.multidetail");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required.multidetail", "要交付的治具工具",
-					null, "要交付的治具工具"));
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required.multidetail", "要交付的专用工具",
+					null, "要交付的专用工具"));
 			errors.add(error);
 		}
 	}

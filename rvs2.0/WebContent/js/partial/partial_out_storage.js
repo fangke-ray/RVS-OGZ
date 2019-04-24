@@ -14,7 +14,7 @@ $(function () {
 
 	// 结束
 	$("#endbutton").click(function(){
-		warningConfirm("是否结束作业！",function(){
+		warningConfirm("是否结束出库作业？",function(){
 			doEnd();
 		},function(){});
 	});

@@ -111,7 +111,7 @@ var filed_list=function(listdata){
 			width: 990,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['','管理编号','治具No.','治具品名','型号','分发课室','责任工程','责任工位','责任人员','发放日期','发放者','状态','备注'],
+			colNames:['','管理编号','专用工具No.','专用工具品名','型号','分发课室','责任工程','责任工位','责任人员','发放日期','发放者','状态','备注'],
 			colModel:[
 				{name:'tools_check_manage_id',index:'tools_check_manage_id',hidden:true},
 				{name:'manage_code',index:'manage_code',width:100},
@@ -186,7 +186,7 @@ var showDetail=function(){
 	
 	$("#detail").dialog({
 		position : 'center',
-		title : "治具分布详细信息",
+		title : "专用工具分布详细信息",
 		width : 450,
 		height : 640,
 		resizable : false,

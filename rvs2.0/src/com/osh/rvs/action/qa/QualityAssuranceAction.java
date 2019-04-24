@@ -25,8 +25,6 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
-import com.osh.rvs.bean.infect.CheckResultEntity;
-import com.osh.rvs.bean.infect.PeriodsEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
@@ -35,12 +33,10 @@ import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
-import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultPageService;
-import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
@@ -54,7 +50,6 @@ import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
-import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class QualityAssuranceAction extends BaseAction {
@@ -176,18 +171,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 		// 设定待点检信息
 		CheckResultPageService crService = new CheckResultPageService();
-		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
-		CheckResultEntity condEntity = new CheckResultEntity();
-		PeriodsEntity periodsEntity = CheckResultService.getPeriodsOfDate(DateUtil.toString(new Date(), DateUtil.ISO_DATE_PATTERN), conn);
-		try {
-			crService.getDevices(null, section_id, null, user.getPosition_id(), user.getPositions(), user.getLine_id(), condEntity, periodsEntity, conn, crMapper, -1);
-
-			crService.getTorsionDevices(null, section_id, null, user.getPosition_id(), null, condEntity, periodsEntity, conn, crMapper, -1);
-			crService.getElectricIronDevices(null, section_id, null, user.getPosition_id(), null, condEntity, periodsEntity, conn, crMapper, -1);
-
-		} catch(Exception tex) {
-			log.error("dmmm:" + tex.getMessage());
-		}
+		crService.checkForPosition(section_id, qs_position_id, user.getLine_id(), conn);
 
 		PositionPanelService ppservice = new PositionPanelService();
 		String infectString = ppservice.getInfectMessageByPosition(section_id,
@@ -425,14 +409,11 @@ public class QualityAssuranceAction extends BaseAction {
 				MaterialService ms = new MaterialService();
 				ms.getMaterialComment(material_id, listResponse, conn);
 			}
-
-			// 取得工程检查票-611
-			waitingPf.setProcess_code("611");
-
 			// 判断是否线长
 			boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
 
 			// 取得工程检查票
+			waitingPf.setProcess_code(process_code);
 			getPf(waitingPf, qa_checked, isLeader, listResponse, conn);
 		}
 

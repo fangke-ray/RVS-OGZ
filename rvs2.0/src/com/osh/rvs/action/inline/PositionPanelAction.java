@@ -970,15 +970,14 @@ public class PositionPanelAction extends BaseAction {
 		String line_id = user.getLine_id();
 		String process_code = user.getProcess_code();
 
-		// 取得待点检信息
-		String infectString = service.getInfectMessageByPosition(section_id,
-				position_id, line_id, conn);
-
-		listResponse.put("infectString", infectString);
-
 		// 设定待点检信息
 		CheckResultPageService crService = new CheckResultPageService();
 		crService.checkForPosition(user.getSection_id(), position_id, user.getLine_id(), conn);
+
+		// 取得待点检信息
+		String infectString = service.getInfectMessageByPosition(section_id, position_id, line_id, conn);
+
+		listResponse.put("infectString", infectString);
 
 		if (infectString.indexOf("限制工作") >= 0) {
 			listResponse.put("workstauts", WORK_STATUS_FORBIDDEN);

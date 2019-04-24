@@ -96,8 +96,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<span class="ui-icon ui-icon-circle-triangle-n"></span>
 						</a>
 					</div>
+					<style>
+						#list td[aria-describedby="list_evaluation"],
+						.evaluation_tag,
+						#set_evaluation
+						{
+							font-size: 16px;
+						}
+					</style>
 					<div class="ui-widget-content">
-						<span style="padding-left:2em;">评价说明：◎=本工程有替代品    ○=他工程有替代品    △=临时共用    ×=无替代品重点管理对象</span>
+						<span style="padding-left:2em;">评价说明：<span class="evaluation_tag">◎</span>=本工程有替代品    <span class="evaluation_tag">○</span>=他工程有替代品    <span class="evaluation_tag">△</span>=临时共用    <span class="evaluation_tag">×</span>=无替代品重点管理对象</span>
 					</div>
 		
 					<table id="list"></table>
@@ -112,7 +120,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				
 				<div id="setarea" style="display: none;">
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-					   	 <span class="areatitle">新建设备工具备品</span>
+					   	 <span class="areatitle">设定设备代替关系</span>
 					     <a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 						 	<span class="ui-icon ui-icon-circle-triangle-w"></span>
 						 </a>
@@ -164,15 +172,29 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							</table>
 							<div style="height:44px">
 								<input type="button" class="ui-button" id="gobackbutton" value="取消" style="float:right;right:2px">
-								<input type="button" class="ui-button" id="submitbutton" value="提交更新" style="float:right;right:2px">					
+<%
+	String privacy = (String) request.getAttribute("privacy");
+	boolean isTech = ("technology").equals(privacy);
+	if (isTech) {
+%>
+								<input type="button" class="ui-button" id="submitbutton" value="提交更新" style="float:right;right:2px">
+<%
+	}
+%>
 							</div>
 							<style>
-								#set_evaluation{font-size: large;} 
 								#pires{width:710px;}
 								#pires th,#pires td {padding: 0 2px;}
 								#pires button{background-color:white;border-color:black;width:72px;padding:0 0;}
 								#pires button[usage="1"]{background-color:lightgreen;}
 								#pires button[usage="0"]{background-color:yellow;}
+<%
+	if (!isTech) {
+%>
+								#pires button{pointer-events: none;border:0;}
+<%
+	}
+%>
 							</style>
 							<table id="pires" class="condform">
 								<thead>

@@ -852,7 +852,7 @@ $(function() {
 				break;
 			}
 		}
-		if (wip_date &&
+		if (wip_date && !f_isPeripheralFix(level) &&
 			(img_operate_result != "完成")) {
 			errorPop(rowdata["sorc_no"]+"在库超时，并且没有进行图像检查，请先完成图像检查。");
 			return;
@@ -1394,7 +1394,7 @@ var showInlinePlan=function() {
 						// 同意日
 						tbodyText += "<td>" + material.agreed_date + "</td>";
 						// WIP 库位
-						tbodyText += (material.operate_result == 2 ? "<td>" : "<td img_check_need>") 
+						tbodyText += ((material.operate_result == 2 || f_isPeripheralFix(material.level)) ? "<td>" : "<td img_check_need>") 
 							+ (material.wip_location || "(无)") + "</td>";
 						// 投线课室
 						if (material.fix_type == 1) {

@@ -127,8 +127,10 @@ var reset = function(){
 /*设备工具点检种类一览*/
 function devices_usage_check_list(usage_check_list){
 	if ($("#gbox_usage_check_list").length > 0) {
+		var curpagenum = $("#usage_check_list").jqGrid('getGridParam', 'page');
         $("#usage_check_list").jqGrid().clearGridData();
-        $("#usage_check_list").jqGrid('setGridParam',{data:usage_check_list}).trigger("reloadGrid", [{current:false}]);
+        $("#usage_check_list").jqGrid('setGridParam',{data:usage_check_list, page:curpagenum})
+        	.trigger("reloadGrid", [{current:false}]);
     } else {
 		$("#usage_check_list").jqGrid({
 			data:usage_check_list,

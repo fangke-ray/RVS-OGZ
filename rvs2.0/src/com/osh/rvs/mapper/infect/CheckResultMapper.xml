@@ -307,17 +307,20 @@
 
 	<select id="searchToolUncheckedOnPosition"  parameterType="CheckResultEntity" resultType="CheckResultEntity">
 		<![CDATA[ 
-		select distinct tm.jig_manage_id from jig_manage tm 
+		select distinct tm.jig_manage_id, op.name as operator_name 
+		from jig_manage tm 
 		LEFT JOIN jig_check_result tcr 
 		ON tcr.manage_id = tm.jig_manage_id
 		AND check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
+		LEFT JOIN operator op
+		ON tm.responsible_operator_id = op.operator_id
 		WHERE
 		tm.section_id = #{section_id}
 		AND
 		tm.position_id = #{position_id}
 		AND
 		tcr.checked_status is null
-		AND delete_flg = 0 AND status = 1
+		AND tm.delete_flg = 0 AND status = 1
 		AND (tm.provide_date != current_date OR tm.provide_date is null)
 		and NOT EXISTS (SELECT 1 FROM check_unqualified_record cur 
 			where cur.manage_id = tm.jig_manage_id and cur.manage_id = 2
@@ -430,7 +433,6 @@
 		AND ((dm.status = 1 AND cfm.access_place != 9) OR (dm.status = 5 AND cfm.access_place = 9))
 		AND (dm.provide_date != current_date or dm.provide_date is null)
 		AND cfm.confirm_cycle = #{cycle_type}
-		AND cfm.filing_means = 1
 		AND NOT EXISTS (SELECT 1 FROM device_manager_confirm where check_file_manage_id = cfm.check_file_manage_id
 		AND manage_id = dm.devices_manage_id
 		AND confirm_time >= #{check_confirm_time_start}

@@ -1,5 +1,6 @@
 var servicePath="external_adjustment.do";
 var datalist=[];
+var obj_effect_interval = {};
 
 $(function(){
     $("#searcharea span.ui-icon,#listarea span.ui-icon").bind("click",function() {
@@ -24,6 +25,8 @@ $(function(){
     setReferChooser($("#hidden_search_brand_id"),$("#brand_referchooser"));
     setReferChooser($("#hidden_add_brand_id"),$("#brand_referchooser"));
     setReferChooser($("#hidden_update_brand_id"),$("#brand_referchooser"));
+
+   	obj_effect_interval = selecOptions2Object($("#sEffectInterval").val());
 
      //校验日期  过期日期
     $("#search_checked_date_start,#search_checked_date_end,#search_available_end_date_start,#search_available_end_date_end,#add_checked_date,#update_checked_date").datepicker({
@@ -661,18 +664,8 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
             $("#detail_label_available_end_date").text(resInfo.finished.available_end_date);//过期日期
             
             var effect_interval=resInfo.finished.effect_interval;//有效期
-            if(effect_interval==1){
-                $("#detail_label_effect_interval").text("半年");
-            }else if(effect_interval==2){
-                $("#detail_label_effect_interval").text("1年");
-            }else if(effect_interval==4){
-                $("#detail_label_effect_interval").text("2年");
-            }else if(effect_interval==6){
-                $("#detail_label_effect_interval").text("3年");
-            }else if(effect_interval==12){
-                $("#detail_label_effect_interval").text("6年");
-            }
-            
+            $("#detail_label_effect_interval").text(obj_effect_interval[resInfo.finished.effect_interval]);
+
             $("#hidden_effect_interval").val(effect_interval);
             $("#hidden_devices_manage_id").val(resInfo.finished.devices_manage_id);
             $("#hidden_checked_date").val(resInfo.finished.checked_date);//

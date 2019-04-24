@@ -81,6 +81,9 @@ public class CheckFileManageService {
 
 		CheckFileManageMapper dao = conn.getMapper(CheckFileManageMapper.class);
 		dao.delete(entity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	/**
@@ -107,6 +110,9 @@ public class CheckFileManageService {
 
 		CheckFileManageMapper dao = conn.getMapper(CheckFileManageMapper.class);
 		dao.insert(entity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	/**
@@ -249,6 +255,9 @@ public class CheckFileManageService {
 		
 		CheckFileManageMapper dao = conn.getMapper(CheckFileManageMapper.class);
 		dao.update(entity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	/**

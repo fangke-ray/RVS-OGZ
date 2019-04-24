@@ -21,7 +21,7 @@ public class FinalCheckService {
 	@SuppressWarnings("unused")
 	private static final String TARGET_RATE_146P = "99.8%";
 	private static final String TARGET_RATE_149P = "99.6%";
-	private static final Integer ID_613 = 00000000065;
+	private static final Integer ID_613 = 65;
     /**
 	 * 返回品保展示数据
 	 * 
@@ -141,7 +141,7 @@ public class FinalCheckService {
 
 		for(Map<String, Object> cntByProcess : passCounts) {
 			int cnt = getAsInteger(cntByProcess, "cnt");
-			if (cntByProcess.get("process_code") == ID_613) {
+			if (ID_613.equals(getAsInteger(cntByProcess, "position_id"))) {
 				listResponse.put("currentPassCountP", cnt);
 			}
 			passCount += cnt;
@@ -149,7 +149,7 @@ public class FinalCheckService {
 
 		for(Map<String, Object> cntByProcess : unqualifiedCounts) {
 			int cnt = getAsInteger(cntByProcess, "cnt");
-			if (cntByProcess.get("process_code") == ID_613) {
+			if (ID_613.equals(getAsInteger(cntByProcess, "position_id"))) {
 				listResponse.put("currentUnqualifiedCountP", cnt);
 			}
 			unqualifiedCount += cnt;
@@ -157,7 +157,7 @@ public class FinalCheckService {
 
 		for(Map<String, Object> cntByProcess : waitingCounts) {
 			int cnt = getAsInteger(cntByProcess, "cnt");
-			if (cntByProcess.get("process_code") == ID_613) {
+			if (ID_613.equals(getAsInteger(cntByProcess, "position_id"))) {
 				listResponse.put("currentWaitingCountP", cnt);
 			}
 			waitingCount += cnt;
@@ -165,7 +165,7 @@ public class FinalCheckService {
 
 		for(Map<String, Object> cntByProcess : waitingConfirmCounts) {
 			int cnt = getAsInteger(cntByProcess, "cnt");
-			if (cntByProcess.get("process_code") == ID_613) {
+			if (ID_613.equals(getAsInteger(cntByProcess, "position_id"))) {
 				listResponse.put("currentWaitingConfirmCountP", cnt);
 			}
 			waitingConfirmCount += cnt;

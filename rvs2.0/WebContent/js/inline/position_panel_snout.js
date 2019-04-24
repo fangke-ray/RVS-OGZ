@@ -366,6 +366,12 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
+	
+			if (resInfo.workstauts == -1) {
+				showBreakOfInfect(resInfo.infectString);
+				return;
+			}
+
 			// 建立等待区一览
 			var reason = "";
 			var waiting_html = "";
@@ -411,6 +417,13 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				}
 			}
 
+			if (resInfo.infectString) {
+				$("#toInfect").show()
+				.find("td:eq(1)").html(decodeText(resInfo.infectString));
+			} else {
+				$("#toInfect").hide();
+			}
+
 			// 暂停理由
 			$("#input_model_id").html(resInfo.modelOptions).select2Buttons();
 			pauseOptions = resInfo.pauseOptions;
@@ -438,6 +451,43 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 //				+ e.lineNumber + " fileName: " + e.fileName);
 //	};
 };
+
+var showBreakOfInfect = function(infectString) {
+	var $break_dialog = $('#break_dialog');
+	$break_dialog.html(decodeText(infectString));
+	if ($break_dialog.html().indexOf("opd_pop") >= 0) {
+		$break_dialog.find("span").attr("id", "opd_loader_past");
+	}
+
+	var closeButtons = {
+		"退出回首页":function() {
+				window.location.href = "./panel.do?method=init";
+		}
+	}
+	if (infectString.indexOf("点检") >= 0) {
+		closeButtons ={
+			"进行点检":function() {
+				window.location.href = "./usage_check.do?from=position";
+			},
+			"退出回首页":function() {
+					window.location.href = "./panel.do?method=init";
+			}
+		}
+	}
+
+	$break_dialog.dialog({
+		modal : true,
+		resizable:false,
+		dialogClass : 'ui-error-dialog',
+		width : 'auto',
+		title : "工位工作不能进行",
+		closeOnEscape: false,
+		close: function(){
+			window.location.href = "./panel.do?method=init";
+		},
+		buttons : closeButtons
+	});
+}
 
 var expeditedColor = function(expedited) {
 	if (expedited == -1) return ' tube-gray'; // 普通

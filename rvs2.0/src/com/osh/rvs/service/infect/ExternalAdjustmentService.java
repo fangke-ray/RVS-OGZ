@@ -303,17 +303,7 @@ public class ExternalAdjustmentService {
 			
 			Integer effect_interval = entity.getEffect_interval();// 有效期
 
-			if (effect_interval == 1) {// 半年
-				cal.add(Calendar.MONTH, 6);
-			} else if (effect_interval == 2) {// 1年
-				cal.add(Calendar.YEAR, 1);
-			} else if (effect_interval == 4) {// 2年
-				cal.add(Calendar.YEAR, 2);
-			} else if (effect_interval == 6) {// 3年
-				cal.add(Calendar.YEAR, 3);
-			} else if (effect_interval == 12) {// 6年
-				cal.add(Calendar.YEAR, 6);
-			}
+			cal.add(Calendar.MONTH, effect_interval);
 			cal.add(Calendar.DAY_OF_MONTH, -1);
 
 			entity.setAvailable_end_date(cal.getTime());//给过期日期赋值    

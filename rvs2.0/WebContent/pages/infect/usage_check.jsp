@@ -85,7 +85,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</td>
 					</tr>
 					<tr>
-						<td class="ui-state-default td-title" style="width: 130px;">设备/治具管理编号</td>
+						<td class="ui-state-default td-title" style="width: 130px;">设备工具/专用工具管理编号</td>
 						<td class="td-content">
 							<input type="text" id="search_manage_no" maxlength="120" class="ui-widget-content">
 						</td>

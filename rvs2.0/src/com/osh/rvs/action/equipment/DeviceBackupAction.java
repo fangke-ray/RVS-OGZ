@@ -14,7 +14,9 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.equipment.DeviceBackupForm;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.DownloadService;
@@ -62,6 +64,15 @@ public class DeviceBackupAction extends BaseAction {
 		String pReferChooser = positionService.getOptions(conn);
 		// 工位信息设定
 		req.setAttribute("pReferChooser", pReferChooser);
+
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies = user.getPrivacies();
+		// 设备管理(设备管理画面)
+		String privacy = "";
+		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
+			privacy = "technology";
+		} 
+		req.setAttribute("privacy", privacy);
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

@@ -131,7 +131,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 	<!-- 检查是否是当前ID -->
 	<select id="checkIdIsCurrent" parameterType="CheckFileManageEntity" resultType="String">
 		<![CDATA[
-			SELECT check_file_manage_id FROM check_file_manage WHERE check_manage_code=#{check_manage_code} AND delete_flg!=1
+			SELECT check_file_manage_id FROM check_file_manage WHERE check_manage_code=#{check_manage_code} AND delete_flg!=1 LIMIT 1
 		]]>	
 	</select> 
 

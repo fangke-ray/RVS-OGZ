@@ -180,6 +180,9 @@ public class DevicesManageService {
 				dao.insertDeviceManageRecord(dme);
 			}
 			dao.updateDevicesManage(devicesManageEntity);
+
+			// 清除工位待点检品判断
+			CheckResultPageService.todayCheckedMap.clear();
 		}
 	}
 
@@ -227,6 +230,9 @@ public class DevicesManageService {
 		devicesManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.insertDevicesManage(devicesManageEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 
 		// 登记设备管理变更记录
 		if (event != 0) {
@@ -353,6 +359,9 @@ public class DevicesManageService {
 		devicesManageEntity.setUpdated_by(user.getOperator_id());
 
 		dao.deleteDevicesManage(devicesManageEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	// 取得设备管理人员
@@ -395,6 +404,8 @@ public class DevicesManageService {
 		dme.setUpdated_by(operator_id);
 		DevicesManageMapper mapper = conn.getMapper(DevicesManageMapper.class);
 		mapper.exchange(dme);
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	public void disband(DevicesManageForm devicesManageForm,
@@ -404,6 +415,8 @@ public class DevicesManageService {
 		dme.setUpdated_by(operator_id);
 		DevicesManageMapper mapper = conn.getMapper(DevicesManageMapper.class);
 		mapper.disband(dme);
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 	
 	//批量交付
@@ -462,6 +475,9 @@ public class DevicesManageService {
 					}
 
 					dao.deliverDevicesManage(conditionEntity);
+
+					// 清除工位待点检品判断
+					CheckResultPageService.todayCheckedMap.clear();
 				}
 			}
 
@@ -554,6 +570,9 @@ public class DevicesManageService {
 			devicesManageEntity.setUpdated_by(user.getOperator_id());//发放者是登录人
 			dao.disband(devicesManageEntity);
 		}
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	public List<DevicesTypeForm> getOfPositionHazardousCautionsAndSafetyGuide(

@@ -28,6 +28,7 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
+import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.CustomerService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
@@ -130,6 +131,11 @@ public class QuotationAction extends BaseAction {
 		String line_id = user.getLine_id();
 		String position_id = user.getPosition_id();
 		String process_code = user.getProcess_code();
+
+		// 设定待点检信息
+		CheckResultPageService crService = new CheckResultPageService();
+		crService.checkForPosition(section_id, position_id, line_id, conn);
+
 		PositionPanelService ppservice = new PositionPanelService();
 		String infectString = ppservice.getInfectMessageByPosition(section_id,
 					position_id, line_id, conn);

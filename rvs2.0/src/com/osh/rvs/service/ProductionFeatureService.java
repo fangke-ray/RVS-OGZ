@@ -528,7 +528,7 @@ public class ProductionFeatureService {
 					}
 				}
 			} else
-			if ("00000000088".equals(position_id) || "00000000089".equals(position_id)) {
+			if ("00000000088".equals(position_id) || "00000000089".equals(position_id) || "00000000099".equals(position_id)) {
 				if (isFact) {
 					// 检查本工程是否都完成 // 300 400 TODO
 					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);

@@ -69,7 +69,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		display:none;
 	}
 	</style>
-<title>治具分布</title>
+<title>专用工具分布</title>
 </head>
 <body class="outer" style="overflow: auto;">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
@@ -81,7 +81,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div class="ui-widget-panel ui-corner-all width-full" style="align: center; padding-top: 16px;" id="body-3">
 			<div id="body-lft" style="width: 256px; float: left;">
 				<jsp:include page="/appmenu.do?method=tinit" flush="true">
-					<jsp:param name="linkto" value="设备工具/治具信息管理"/>
+					<jsp:param name="linkto" value="设备工具•专用工具信息管理"/>
 				</jsp:include>
 			</div>
 			<div style="width: 1012px; float: left;">
@@ -103,11 +103,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<td class="td-content">
 							<input id="search_manage_code" maxlength="14" class="ui-widget-content" type="text">
 						</td>
-						<td class="ui-state-default td-title">治具No.</td>
+						<td class="ui-state-default td-title">专用工具No.</td>
 						<td class="td-content">
 							<input id="search_tools_no" name="tools_no" class="ui-widget-content" type="text">
 						</td>
-						<td class="ui-state-default td-title">治具品名</td>
+						<td class="ui-state-default td-title">专用工具品名</td>
 						<td class="td-content">
 							<input id="search_tools_name" name="tools_name" readonly="readonly" class="ui-widget-content" type="text">
 						    <input id="hidden_search_tools_name" name="tools_name"  type="hidden">
@@ -152,7 +152,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<div id="listarea" class="">
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-			<span class="areatitle">治具分布一览</span>
+			<span class="areatitle">专用工具分布一览</span>
 			<a target="_parent" role="link" href="javascript:void(0)" class="HeaderButton areacloser">
 				<span class="ui-icon ui-icon-circle-triangle-n"></span>
 			</a>
@@ -178,13 +178,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">治具No.</td>
+					<td class="ui-state-default td-title">专用工具No.</td>
 					<td class="td-content">
 						<label id="label_tools_no"></label>
 					</td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">治具品名</td>
+					<td class="ui-state-default td-title">专用工具品名</td>
 					<td class="td-content">
 						<label id="label_tools_name"></label>
 					</td>

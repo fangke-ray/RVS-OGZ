@@ -829,8 +829,6 @@ public class CheckResultPageService {
 
 				}
 
-				if (ucList == null) continue; if (isLeader == -1) continue; // 仅仅是判断待点检的情况
-
 				// 根据当前点检（或待点检）记录取得状态
 				for (CheckResultEntity checkResult : checkResults) {
 					Integer checked_status = checkResult.getChecked_status();
@@ -909,6 +907,8 @@ public class CheckResultPageService {
 					}
 				}
 			}
+
+			if (ucList == null) continue; if (isLeader == -1) continue; // 仅仅是判断待点检的情况
 
 			// 返回值
 			UsageCheckForm ucForm = new UsageCheckForm();
@@ -2853,6 +2853,8 @@ public class CheckResultPageService {
 		crMapper.inputCheckComment(condition);
 	}
 
+	// 当日工位已判断点检记录
+	public static Map<String, String> todayCheckedMap = new HashMap<String, String>();
 
 	/**
 	 * 工位检测未点检设备/治具
@@ -2860,6 +2862,10 @@ public class CheckResultPageService {
 	 * @throws NullPointerException 
 	 */
 	public void checkForPosition(String section_id, String position_id, String line_id, SqlSession conn) throws NullPointerException, Exception {
+		String todayString = DateUtil.toString(new Date(), DateUtil.ISO_DATE_PATTERN);
+		String checkedDate = todayCheckedMap.get(section_id + "_" + position_id);
+		if (checkedDate != null && checkedDate.equals(todayString)) return;
+
 		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
 		CheckResultEntity condEntity = new CheckResultEntity();
 		PeriodsEntity periodsEntity = getPeriodsOfDate(DateUtil.toString(new Date(), DateUtil.ISO_DATE_PATTERN), conn);
@@ -2868,6 +2874,8 @@ public class CheckResultPageService {
 
 			getTorsionDevices(null, section_id, null, position_id, null, condEntity, periodsEntity, conn, crMapper, -1);
 			getElectricIronDevices(null, section_id, null, position_id, null, condEntity, periodsEntity, conn, crMapper, -1);
+
+			todayCheckedMap.put(section_id + "_" + position_id, todayString);
 
 		} catch(Exception tex) {
 			_logger.error("dmmm:" + tex.getMessage(), tex);
