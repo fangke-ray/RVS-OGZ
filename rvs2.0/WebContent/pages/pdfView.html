@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PDF预览</title>
+<style>
+html,body {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+}
+</style>
+<script type="text/javascript" src="../js/pdfobject.js"></script>
+<script type="text/javascript">
+	window.onload = function () {
+		var url = window.sessionStorage.getItem("url");
+		var page = window.sessionStorage.getItem("page");
+		var options = {
+			page : page
+		}
+		PDFObject.embed(url, "#container", options);
+
+		window.sessionStorage.removeItem("url");
+		window.sessionStorage.removeItem("page");
+	}
+</script>
+</head>
+<body>
+	<div id="container" style="height: 100%;"></div>
+</body>
+</html>

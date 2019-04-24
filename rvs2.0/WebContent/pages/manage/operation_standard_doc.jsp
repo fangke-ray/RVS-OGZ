@@ -21,8 +21,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
-<script type="text/javascript" src="js/pdf.js"></script>
-<script type="text/javascript" src="js/pdf.worker.js"></script>
 <script type="text/javascript" src="js/manage/operation_standard_doc.js"></script>
 
 <style type="text/css">
@@ -45,7 +43,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 }
 
 #updateform tr > td:nth-child(2) > input[type='text']{
-	width: 86%;
+	width: 84%;
 }
 
 #updateform tr > td:nth-child(2) > input[type='button']{
