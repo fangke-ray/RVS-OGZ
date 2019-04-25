@@ -97,7 +97,7 @@ and pos.process_code in ('221', '222','231','241')
 		p.process_code, 
 timestampdiff(minute, current_date, cnt.action_time) as action_time,
 timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)) as finish_time,
-		cnt.sorc_no, cnt.d_type FROM
+		cnt.sorc_no, cnt.model_name, cnt.d_type FROM
 			(SELECT
 				a.operator_id,
 				a.position_id,
@@ -106,10 +106,13 @@ timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)
 				a.finish_time as finish_time,
 				am.omr_notifi_no as sorc_no,
 				a.operate_result,
+				mdl.name as model_name,
 				1 as d_type
 			FROM production_feature a
 			JOIN material am
 			ON a.material_id = am.material_id
+			JOIN model mdl
+			ON am.model_id = mdl.model_id
 			WHERE a.action_time >= current_date
 			and not (a.operate_result = 4 AND a.finish_time is null)
 			AND a.position_id <> 24 -- 先端预制特别显示
@@ -122,6 +125,7 @@ timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)
 				b.pause_finish_time as finish_time,
 				'' as sorc_no,
 				null as operate_result,
+				null as model_name,
 				CASE
 					WHEN reason in (58, 59, 66, 67, 68, 69) THEN 2 -- 直接作业工时
 					WHEN reason in (50, 51, 52, 53, 54, 55, 56, 57) THEN 3 -- 准备中
@@ -149,6 +153,7 @@ timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)
 				END
 				, spf.serial_no) as sorc_no,
 				spf.operate_result,
+				null as model_name,
 				1 as d_type
 				FROM solo_production_feature spf
 				WHERE spf.action_time >= current_date
@@ -162,6 +167,7 @@ timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)
 				gmpp.mixing_finish_time as finish_time,
 				gmt.binder_name AS sorc_no,
 				null as operate_result,
+				null as model_name,
 				2 as d_type
 			FROM 
 				glue_mixing_process_pace gmpp

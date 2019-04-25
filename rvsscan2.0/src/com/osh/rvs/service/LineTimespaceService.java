@@ -354,6 +354,7 @@ public class LineTimespaceService {
 			retPf.put("operator_name", "" + feature.get("operator_name"));
 			retPf.put("process_code", "" + feature.get("process_code"));
 			retPf.put("sorc_no", "" + feature.get("sorc_no"));
+			retPf.put("model_name", "" + feature.get("model_name"));
 			retPf.put("d_type", "" + feature.get("d_type"));
 
 			Integer workCountFlg = (Integer) feature.get("WORK_COUNT_FLG");

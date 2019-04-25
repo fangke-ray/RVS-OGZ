@@ -139,6 +139,25 @@ ${standard_column.css}
 	box-shadow : none;
 	margin-left : 33%;
 }
+/* 直接作业工时-特定维修对象工位标记 */
+#axis_base .operator_flex .production_feature[d_type="1"][process_code]:before {
+	left:0;
+	top:0;
+	background-color:yellow;
+	content: attr(process_code);
+	border-bottom-right-radius:1.6em 0.8em;
+	padding:0 0.6em 0 0.1em;
+	position:absolute;
+}
+#axis_base .operator_flex .production_feature[d_type="1"][process_code^="811"]:before {
+	background-color:green;
+	color:white;
+}
+#axis_base .operator_flex .production_feature[d_type="1"][process_code^="181"]:before,
+#axis_base .operator_flex .production_feature[d_type="1"][process_code^="613"]:before {
+	background-color:deeppink;
+	color:white;
+}
 </style>
 
 <title>${section_name} ${line_name}</title>
@@ -148,11 +167,10 @@ ${standard_column.css}
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
 <script type="text/javascript" src="js/highcharts.js"></script>
 <script type="text/javascript" src="js/jquery.flipCounter.1.2.pack.js"></script>
+<script type="text/javascript" src="js/donuts.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/jquery.flipCounter.1.2.pack.js"></script>
-<script type="text/javascript" src="js/donuts.js"></script>
-<script type="text/javascript" src="js/scan/peripheral_line_situation.js"></script>
+<script type="text/javascript" src="js/scan/peripheral_line_situation.js?v=424"></script>
 
 <div class="width-full" style="align:center;margin:auto;margin-top:16px;">
 <div id="basearea" class="dwidth-full" style="margin:auto;">

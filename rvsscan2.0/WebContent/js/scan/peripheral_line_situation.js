@@ -67,8 +67,9 @@ var refresh_ajaxSuccess = function(xhrobj,textStatus){
 	for (var ipf in pfs) {
 		var pf = pfs[ipf];
 
-		var $item = $('<div class="production_feature" d_type="' + pf.d_type + '" style="bottom:' + 
-			pf.action_time + 'px;height:' + pf.spare_minutes + 'px;"' + '>' + 
+		var $item = $('<div class="production_feature" d_type="' + pf.d_type + '"' +
+			(pf.d_type == 1 ? " process_code='" + pf.process_code + " " + (pf.model_name || "") + "'" : "") + 
+			' style="bottom:' + pf.action_time + 'px;height:' + pf.spare_minutes + 'px;"' + '>' + 
 			(pf.finish ? "<div class='count_no'>" + getPositionCountNo(pf.job_no) + "</div>" : "") +
 			'</div>');
 		var $y_column = $y_columns.children(".y_column[for=" + pf.job_no + "]");
