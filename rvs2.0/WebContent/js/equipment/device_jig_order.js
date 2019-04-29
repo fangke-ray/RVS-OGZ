@@ -2283,7 +2283,7 @@ function list(listdata){
 	                    {name : 'quotation_id',index : 'quotation_id',hidden:true},
 	                    {name : 'budget_description',index : 'budget_description',hidden:true},
 	                    {name : 'hide_invoice_date',index : 'hide_invoice_date',hidden:true,formatter:function(value, options, rData){
-	                    		return rData.invoice_date;
+	                    		return rData.invoice_date || '';
 	                    }}
             ],
 			rowNum : 20,
