@@ -593,4 +593,20 @@ public class DeviceJigOrderDetailService {
 		// ③更新确认数量
 		deviceJigOrderDetailMapper.updateConfirmQuantity(deviceJigOrderDetailEntity);
 	}
+	
+	/**
+	 * 发票登记
+	 * @param form
+	 * @param conn
+	 */
+	public void updateTicket(ActionForm form,SqlSessionManager conn){
+		// 数据连接
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+
+		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		// 复制表单数据
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		dao.updateTicket(entity);
+	}
 }

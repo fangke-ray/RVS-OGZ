@@ -16,7 +16,7 @@ $(function () {
 	// 询价,验收
 	$("#order_invoice_flg,#inline_recept_flg,#colchooser").buttonset();
 	// 日期
-	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date").datepicker({
+	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date,#recept_update_reorder_invoice_date,#add_spare_invoice_date,#ticket_invoice_date").datepicker({
 		showButtonPanel : true,
 		dateFormat : "yy/mm/dd",
 		currentText : "今天"
@@ -45,7 +45,7 @@ $(function () {
 			colsname = ['order_price','differ_price','send_date'];
 			break;
 		case "colchooser_recept":
-			colsname = ['recept_date', 'inline_receptor_operator_name','budget_month'];
+			colsname = ['recept_date', 'inline_receptor_operator_name','budget_month','invoice_no','invoice_date'];
 			break;
 		default:
 			return;
@@ -112,6 +112,8 @@ $(function () {
 	$("#inlinereceptbutton").disable().click(inlineRecept);
 	// 预算
 	$("#budgetbutton").disable().click(budget);
+	// 发票登记
+	$("#ticketregisterbutton").disable().click(invoiceRegister);
 	
 	var today = new Date();
 
@@ -148,7 +150,8 @@ function findit () {
 		"scheduled_date_end" : $("#search_scheduled_date_end").val(),// 预计结束纳期
 		"recept_date_start" : $("#search_recept_date_start").val(),// 收货开始时间
 		"recept_date_end" : $("#search_recept_date_end").val(),// 收货结束时间
-		"inline_recept_flg" : $("#inline_recept_flg input:checked").val()// 验收
+		"inline_recept_flg" : $("#inline_recept_flg input:checked").val(),// 验收
+		"invoice_no" : $("#search_invoice_no").val()//发票号
 	};
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -172,6 +175,62 @@ function findit () {
 					list(resInfo.orderList);
 				}
 			}catch(e){}
+		}
+	});
+};
+//发票登记
+function invoiceRegister(){
+	let rowId = $("#list").jqGrid("getGridParam","selrow");
+    let	rowData = $("#list").getRowData(rowId);
+    
+    $("#ticket_invoice_no").val(rowData.invoice_no.trim());
+    $("#ticket_invoice_date").val(rowData.hide_invoice_date.trim());
+    
+    let $dialog = $("#ticket_dialog").dialog({
+		title : "发票登记",
+		width : 350,
+		height : 'auto',
+		resizable : false,
+		modal : true,
+		buttons : {
+			"确定" : function(){
+				let postData = {
+					"order_key" : rowData.order_key,// 订购单KEY
+					"object_type" : rowData.object_type,// 对象类别
+					"device_type_id" : rowData.device_type_id,//设备ID
+					"model_name" : rowData.model_name,// 型号/规格
+					"applicator_id" : rowData.applicator_id,// 申请人
+					"invoice_no" : $("#ticket_invoice_no").val().trim(),
+					"invoice_date" : $("#ticket_invoice_date").val().trim()
+				}
+				
+				$.ajax({
+					beforeSend : ajaxRequestType,
+					async : true,
+					url : servicePath + '?method=doUpdateTicket',
+					cache : false,
+					data : postData,
+					type : "post",
+					dataType : "json",
+					success : ajaxSuccessCheck,
+					error : ajaxError,
+					complete : function(xhrobj, textStatus) {
+						let resInfo = null;
+						try {
+							// 以Object形式读取JSON
+							eval('resInfo =' + xhrobj.responseText);
+							if (resInfo.errors.length > 0) {
+								// 共通出错信息框
+								treatBackMessages(null, resInfo.errors);
+							} else {
+								$dialog.dialog('close');
+								findit();
+							}
+						}catch(e){}
+					}
+				});
+			},
+			"关闭" : function(){$(this).dialog('close');}
 		}
 	});
 };
@@ -454,7 +513,7 @@ function orderQuotationList(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['对象<br>类别','品名','型号/规格','系统<br>编码','名称','受注方','数量','申请人','确认结果','确认<br>数量','confirm_flg','order_key','object_type','device_type_id','applicator_id','scheduled_date','reorder_scheduled_date','recept_date','order_no'],
+			colNames : ['对象<br>类别','品名','型号/规格','系统<br>编码','名称','受注方','数量','申请人','确认结果','确认<br>数量','confirm_flg','order_key','object_type','device_type_id','applicator_id','scheduled_date','reorder_scheduled_date','recept_date','order_no','invoice_no','invoice_date'],
 			colModel : [{name : 'object_type_name',index : 'object_type_name',width:100},
 						{name : 'device_type_name',index : 'device_type_name',width:100},
 						{name : 'model_name',index : 'model_name',width:100},
@@ -473,7 +532,9 @@ function orderQuotationList(listdata){
 						{name : 'scheduled_date',index : 'scheduled_date',hidden:true},
 						{name : 'reorder_scheduled_date',index : 'reorder_scheduled_date',hidden:true},
 						{name : 'recept_date',index : 'recept_date',hidden:true},
-						{name : 'order_no',index : 'order_no',hidden:true}
+						{name : 'order_no',index : 'order_no',hidden:true},
+						{name : 'invoice_no',index : 'invoice_no',hidden:true},
+						{name : 'invoice_date',index : 'invoice_date',hidden:true}
 			],
 			rowNum : 30,
 			toppager : false,
@@ -645,6 +706,10 @@ function confirmRecept($parentDialog){
 	let	reorder_scheduled_date = rowData.reorder_scheduled_date.trim();
 	// 收货时间
 	let	recept_date = rowData.recept_date.trim();
+	// 发票号
+	let invoice_no = rowData.invoice_no.trim();
+	// 发票收到日期
+	let invoice_date =  rowData.invoice_date.trim();
 	
 	$("#recept_update_confirm_flg").html($("#hide_confirm_flg").html());
 	
@@ -654,12 +719,18 @@ function confirmRecept($parentDialog){
 	$("#recept_update_confirm_flg").unbind("change").bind("change",function(){
 		let value = this.value;
 		let	$tr = $("#recept_update_reorder_scheduled_date").closest("tr");
-
+		let $invoiceTr = $("#update_recept tr.invoice");
+		
 		value == 2 ? $tr.show() : $tr.hide();
+		value == 1 ? $invoiceTr.show() : $invoiceTr.hide();
+		
 	}).select2Buttons().val(confirm_flg).trigger("change");
 	
 	$("#recept_update_reorder_scheduled_date").val(reorder_scheduled_date);
 //	$("#recept_update_recept_date").val(recept_date);
+	
+	$("#recept_update_reorder_invoice_no").val(invoice_no);
+	$("#recept_update_reorder_invoice_date").val(invoice_date);
 	
 	let buttons = {};
 	if(rowData.object_type == 1 || rowData.object_type == 3){//设备/一般工具
@@ -690,7 +761,9 @@ function updateConfirm(rowData,...arrDialog){
 		"applicator_id" : rowData.applicator_id,// 申请人
 		"confirm_flg" : $("#recept_update_confirm_flg").val(),// 确认结果
 //		"recept_date" : $("#recept_update_recept_date").val().trim(),// 收货时间
-		"reorder_scheduled_date" : $("#recept_update_reorder_scheduled_date").val().trim()// 重新订购纳期
+		"reorder_scheduled_date" : $("#recept_update_reorder_scheduled_date").val().trim(),// 重新订购纳期
+		"invoice_no" : $("#recept_update_reorder_invoice_no").val().trim(),//发票号
+		"invoice_date" : $("#recept_update_reorder_invoice_date").val().trim()//发票收到日期
 	};
 	
 	$.ajax({
@@ -724,11 +797,13 @@ function updateConfirm(rowData,...arrDialog){
 function addSpare(rowData,...arrDialog){
 	$("#add_spare_confirm_quantity").val("");
 	$("#add_device_spare_type").val("").trigger("change");
+	$("#add_spare_invoice_no").val("");
+	$("#add_spare_invoice_date").val("");
 	
 	let $childDialog = $("#add_spare").dialog({
 		title : "作爲备品收貨",
 		width : 350,
-		height : 200,
+		height : 260,
 		resizable : false,
 		modal : true,
 		buttons : {
@@ -742,7 +817,9 @@ function addSpare(rowData,...arrDialog){
 					"device_type_name" : rowData.device_type_name,
 					"order_no" : rowData.order_no,
 					"confirm_quantity" : $("#add_spare_confirm_quantity").val().trim(),// 确认数量
-					"device_spare_type" : $("#add_device_spare_type").val()// 备品种类
+					"device_spare_type" : $("#add_device_spare_type").val(),// 备品种类
+					"invoice_no" : $("#add_spare_invoice_no").val().trim(),
+					"invoice_date" : $("#add_spare_invoice_date").val().trim()
 				};
 				
 				$.ajax({
@@ -2166,9 +2243,9 @@ function list(listdata){
 			rowheight : 23,
 			shrinkToFit:true,
 			datatype : "local",
-			colNames : ['委托单号','报价单号','订单号','分类','型号/规格','系统编码','名称','受注方','数量','单价','金额',
-			            '日本价格','差异','申请者','理由/必要性','申请日期','委托发送日期','询价发送日期','确认接收日期',
-			            '发送OSH日期','预计纳期','收货时间','确认结果','验收日期','验收人','预算月','order_key','object_type','device_type_id','applicator_id','confirm_flg','confirm_quantity','quotation_id','budget_description'],
+			colNames : ['委托<br>单号','报价<br>单号','订单号','分类','型号/规格','系统编码','名称','受注方','数量','单价','金额',
+			            '日本<br>价格','差异','申请者','理由/必要性','申请<br>日期','委托发送<br>日期','询价发送<br>日期','确认接收<br>日期',
+			            '发送OSH<br>日期','预计<br>纳期','收货<br>时间','确认<br>结果','验收<br>日期','验收人','预算月','发票号','发票<br>收到日期','order_key','object_type','device_type_id','applicator_id','confirm_flg','confirm_quantity','quotation_id','budget_description','hide_invoice_date'],
 			colModel : [{name : 'entrust_no',index : 'entrust_no',width:100,hidden:true},
 			            {name : 'quotation_no',index : 'quotation_no',width:100},
 			            {name : 'order_no',index : 'order_no',width:100},
@@ -2195,6 +2272,8 @@ function list(listdata){
 	                    {name : 'inline_recept_date',index : 'inline_recept_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 	                    {name : 'inline_receptor_operator_name',index : 'inline_receptor_operator_name',width:100,hidden:true},
 	                    {name : 'budget_month',index : 'budget_month',width:100,align:'center',hidden:true},
+	                    {name : 'invoice_no',index : 'invoice_no',width:100,align:'center',hidden:true},
+	                    {name : 'invoice_date',index : 'invoice_date',width:100,hidden:true,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 	                    {name : 'order_key',index : 'order_key',hidden:true},
 	                    {name : 'object_type',index : 'object_type',hidden:true},
 	                    {name : 'device_type_id',index : 'device_type_id',hidden:true},
@@ -2202,7 +2281,10 @@ function list(listdata){
 	                    {name : 'confirm_flg',index : 'confirm_flg',hidden:true},
 	                    {name : 'confirm_quantity',index : 'confirm_quantity',hidden:true},
 	                    {name : 'quotation_id',index : 'quotation_id',hidden:true},
-	                    {name : 'budget_description',index : 'budget_description',hidden:true}
+	                    {name : 'budget_description',index : 'budget_description',hidden:true},
+	                    {name : 'hide_invoice_date',index : 'hide_invoice_date',hidden:true,formatter:function(value, options, rData){
+	                    		return rData.invoice_date;
+	                    }}
             ],
 			rowNum : 20,
 			toppager : false,
@@ -2246,6 +2328,12 @@ function list(listdata){
 					$("#budgetbutton").enable();
 				}else{
 					$("#budgetbutton").disable();
+				}
+				
+				if(confirm_flg == 1){
+					$("#ticketregisterbutton").enable();
+				}else{
+					$("#ticketregisterbutton").disable();
 				}
 			},
 			ondblClickRow : function(rid, iRow, iCol, e){},
@@ -2345,7 +2433,7 @@ function list(listdata){
 						}
 					}
 				}
-				$("#inlinereceptbutton,#budgetbutton").disable();
+				$("#inlinereceptbutton,#budgetbutton,#ticketregisterbutton").disable();
 			}
 		});
 	}

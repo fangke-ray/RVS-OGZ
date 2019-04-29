@@ -185,6 +185,16 @@ td.text-right{
 											<label for="search_inline_recept_yes">未验收</label>
 										</td>
 									</tr>
+									<tr>
+										<td class="ui-state-default td-title">发票号</td>
+										<td class="td-content">
+											<input type="text" class="ui-widget-content" id="search_invoice_no">
+										</td>
+										<td class="ui-state-default td-title"></td>
+										<td class="td-content"></td>
+										<td class="ui-state-default td-title"></td>
+										<td class="td-content"></td>
+									</tr>
 								</tbody>
 							</table>
 							<div style="height:44px">
@@ -224,6 +234,7 @@ td.text-right{
 								<input type="button" id="quotationsendbutton" class="ui-button" value="报价发送">
 								<input type="button" id="quotationtrackbutton" class="ui-button" value="报价追踪">
 								<input type="button" id="budgetbutton" class="ui-button" value="预算">
+								<input type="button" id="ticketregisterbutton" class="ui-button" value="发票登记">
 <%} %>							
 								<input type="button" id="inlinereceptbutton" class="ui-button" value="验收">
 							</div>
@@ -467,6 +478,18 @@ td.text-right{
 							<input type="text" class="ui-widget-content" id="recept_update_reorder_scheduled_date" readonly="readonly">
 						</td>
 					</tr>
+					<tr style="display: none;" class="invoice">
+						<td class="ui-state-default td-title">发票号</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="recept_update_reorder_invoice_no">
+						</td>
+					</tr>
+					<tr style="display: none;" class="invoice">
+						<td class="ui-state-default td-title">发票收到日期</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="recept_update_reorder_invoice_date" readonly="readonly">
+						</td>
+					</tr>
 				</table>
 			</div>
 		</div>
@@ -484,6 +507,18 @@ td.text-right{
 						<td class="ui-state-default td-title">备品种类</td>
 						<td class="td-content">
 							<select id="add_device_spare_type">${goDeviceSpareType }</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="ui-state-default td-title">发票号</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="add_spare_invoice_no">
+						</td>
+					</tr>
+					<tr>
+						<td class="ui-state-default td-title">发票收到日期</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="add_spare_invoice_date" readonly="readonly">
 						</td>
 					</tr>
 				</table>
@@ -552,6 +587,25 @@ td.text-right{
 						<td class="ui-state-default td-title">预算说明</td>
 						<td class="td-content">
 							<textarea class="ui-widget-content" cols="35" style="resize: none;" id="budget_update_budget_description"></textarea>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+		<div id="ticket_dialog" style="display: none;">
+			<div class="ui-widget-content">
+				<table class="condform" style="width:99.6%;">
+					<tr>
+						<td class="ui-state-default td-title">发票号</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="ticket_invoice_no">
+						</td>
+					</tr>
+					<tr>
+						<td class="ui-state-default td-title">发票收到日期</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content" id="ticket_invoice_date" readonly="readonly">
 						</td>
 					</tr>
 				</table>
