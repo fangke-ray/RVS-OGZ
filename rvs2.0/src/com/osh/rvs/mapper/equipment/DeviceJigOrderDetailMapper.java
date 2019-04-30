@@ -107,4 +107,10 @@ public interface DeviceJigOrderDetailMapper {
 	 */
 	public void updateConfirmQuantity(DeviceJigOrderDetailEntity entity);
 
+	/**
+	 * 发票登记
+	 * @param entity
+	 */
+	public void updateTicket(DeviceJigOrderDetailEntity entity);
+
 }

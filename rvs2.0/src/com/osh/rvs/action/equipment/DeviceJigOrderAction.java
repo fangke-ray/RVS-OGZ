@@ -909,4 +909,34 @@ public class DeviceJigOrderAction extends BaseAction {
 		log.info("DeviceJigOrderAction.doUpdateOrderNo end");
 	}
 
+	/**
+	 * 发票登记
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doUpdateTicket(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn)throws Exception{
+		log.info("DeviceJigOrderAction.doUpdateTicket start");
+		
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		
+		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
+		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
+		
+		if(errors.size() == 0){
+			deviceJigOrderDetailService.updateTicket(form, conn);
+		}
+		
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		
+		log.info("DeviceJigOrderAction.doUpdateTicket end");
+	}
+	
 }

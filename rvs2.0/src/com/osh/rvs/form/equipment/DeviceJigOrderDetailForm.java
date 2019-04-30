@@ -84,6 +84,12 @@ public class DeviceJigOrderDetailForm extends ActionForm implements Serializable
 	@BeanField(title = "预算说明", name = "budget_description", type = FieldType.String, length = 256)
 	private String budget_description;
 
+	@BeanField(title = "发票号", name = "invoice_no", type = FieldType.String, length = 8)
+	private String invoice_no;
+
+	@BeanField(title = "发票收到日期", name = "invoice_date", type = FieldType.Date)
+	private String invoice_date;
+
 	@BeanField(title = "报价单号", name = "quotation_no", type = FieldType.String, length = 9)
 	private String quotation_no;
 
@@ -332,6 +338,22 @@ public class DeviceJigOrderDetailForm extends ActionForm implements Serializable
 
 	public void setBudget_description(String budget_description) {
 		this.budget_description = budget_description;
+	}
+
+	public String getInvoice_no() {
+		return invoice_no;
+	}
+
+	public void setInvoice_no(String invoice_no) {
+		this.invoice_no = invoice_no;
+	}
+
+	public String getInvoice_date() {
+		return invoice_date;
+	}
+
+	public void setInvoice_date(String invoice_date) {
+		this.invoice_date = invoice_date;
 	}
 
 	public String getQuotation_no() {

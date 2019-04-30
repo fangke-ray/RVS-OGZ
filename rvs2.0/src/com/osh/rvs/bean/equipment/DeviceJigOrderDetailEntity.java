@@ -122,6 +122,16 @@ public class DeviceJigOrderDetailEntity implements Serializable {
 	 */
 	private String budget_description;
 
+	/**
+	 * 发票号
+	 */
+	private String invoice_no;
+
+	/**
+	 * 发票收到日期
+	 */
+	private Date invoice_date;
+
 	// 报价单号
 	private String quotation_no;
 
@@ -354,6 +364,22 @@ public class DeviceJigOrderDetailEntity implements Serializable {
 
 	public void setBudget_description(String budget_description) {
 		this.budget_description = budget_description;
+	}
+
+	public String getInvoice_no() {
+		return invoice_no;
+	}
+
+	public void setInvoice_no(String invoice_no) {
+		this.invoice_no = invoice_no;
+	}
+
+	public Date getInvoice_date() {
+		return invoice_date;
+	}
+
+	public void setInvoice_date(Date invoice_date) {
+		this.invoice_date = invoice_date;
 	}
 
 	public String getQuotation_no() {
