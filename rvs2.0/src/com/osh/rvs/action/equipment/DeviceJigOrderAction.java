@@ -179,9 +179,13 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		List<DeviceJigOrderForm> list = deviceJigOrderService.searchUnProvide(conn);
 		listResponse.put("list", list);
-		
-		String tempOrderNo = deviceJigOrderService.getMaxTempOrderNo(conn);
-		listResponse.put("tempOrderNo", tempOrderNo);
+
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		List<Integer> privacies = user.getPrivacies();
+		if (!privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)) {
+			String tempOrderNo = deviceJigOrderService.getMaxTempOrderNo(conn);
+			listResponse.put("tempOrderNo", tempOrderNo);
+		} 
 
 		listResponse.put("errors", errors);
 
