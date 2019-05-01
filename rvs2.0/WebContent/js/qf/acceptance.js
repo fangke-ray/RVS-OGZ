@@ -807,6 +807,10 @@ function loadImpListData(curpagenum,selectedRows) {
 	        }).trigger("reloadGrid");
 
 	        if(curpagenum){
+				var maxpage = parseInt((reception_listdata.length - 1) / 50) + 1;
+				if (curpagenum > maxpage) {
+					curpagenum = maxpage;
+				}
 	        	$("#imp_list").jqGrid('setGridParam', {
 		            page:curpagenum
 		        }).trigger("reloadGrid");

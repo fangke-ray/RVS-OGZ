@@ -1914,7 +1914,7 @@ public class PcsUtils {
 											} else if ("-1".equals(sInput)) {
 												Dispatch cell = xls.Locate("@#"+pcid+"??");
 												if (cell != null) {
-													xls.SetCellBackGroundColor(cell, "255");
+													XlsUtil.SetCellBackGroundColor(cell, "255");
 													Dispatch font = xls.GetCellFont(cell);
 													Dispatch.put(font, "Color", "16777215"); // FFFFFF
 												}
@@ -1943,9 +1943,9 @@ public class PcsUtils {
 												// if 611
 												if (pcid.indexOf("N611") >= 0) {
 													Dispatch cell = xls.Locate("@#"+pcid+"??");
-													if (cell != null)  xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+													if (cell != null)  XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 													cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
-													if (cell != null) xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+													if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 												} else {
 													xls.Replace("@#"+pcid+"??", NOCARE);
 												}
@@ -2066,9 +2066,9 @@ public class PcsUtils {
 										// if 611
 										if (pcid.indexOf("N611") >= 0) {
 											Dispatch cell = xls.Locate("@#"+pcid+"??");
-											if (cell != null) xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+											if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 											cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
-											if (cell != null) xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+											if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 										}
 										xls.Replace("@#"+pcid+"??", NOCARE);
 										Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
@@ -2086,7 +2086,7 @@ public class PcsUtils {
 									String FoundValue = null;
 									if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
 									while (FoundValue != null) {
-										xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+										XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 										xls.SetValue(cell, "发生返工");
 										cell = xls.Locate(Xkey);
 										if (cell == null) {
@@ -2108,7 +2108,7 @@ public class PcsUtils {
 										Dispatch cell = xls.Locate("@#"+pcid+"??");
 										if (cell != null) {
 											xls.SetValue(cell, UNQUALIFIED);
-											xls.SetCellBackGroundColor(cell, "255"); 
+											XlsUtil.SetCellBackGroundColor(cell, "255"); 
 											Dispatch font = xls.GetCellFont(cell);
 											Dispatch.put(font, "Color", "16777215"); // FFFFFF
 										}
@@ -2150,14 +2150,14 @@ public class PcsUtils {
 				// String compareValue = "ZZZ$$$Z$";
 				while (FoundValue != null) {
 					if (FoundValue.indexOf("@#EC") < 0 && FoundValue.indexOf("@#LC") < 0 && FoundValue.indexOf("@#GI") < 0) {
-						xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+						XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 						if (FoundValue.indexOf("@#EN611") < 0 && FoundValue.indexOf("@#EI611") < 0 && FoundValue.indexOf("@#ER611") < 0) {
 							hasBlank.add(FoundValue);
 						}
 					} else {
 						if (FoundValue.indexOf("@#EC") >= 0 && FoundValue.indexOf("@#EC000") < 0 
 								&& FoundValue.trim().length() <= 12) {
-							xls.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+							XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
 						}
 					}
 					if (FoundValue.replaceAll("@#\\w{2}\\d{7}", "").equals(FoundValue)) {

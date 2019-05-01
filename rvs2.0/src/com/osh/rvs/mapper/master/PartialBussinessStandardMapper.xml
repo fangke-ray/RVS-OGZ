@@ -41,21 +41,5 @@
 	)
 	]]>
 	</update>
-	
-	<select id="getPartialBussinessStandardBySpecKind" resultType="PartialBussinessStandardEntity" parameterType="string">
-	<![CDATA[
-	SELECT
-		spec_kind,
-	    box_count,
-	    recept,
-	    collect_case,
-	    collation,
-	    on_shelf,
-	    unpack
-	FROM
-		partial_bussiness_standard
-	WHERE
-		spec_kind = #{spec_kind}
-	]]>
-	</select>
+
 </mapper>

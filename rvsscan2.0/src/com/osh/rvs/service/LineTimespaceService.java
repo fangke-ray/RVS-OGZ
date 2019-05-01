@@ -15,7 +15,7 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.LineTimespaceMapper;
 
 public class LineTimespaceService {
-	public static Map<String, String> TYPES = new HashMap<String, String>();
+	private static Map<String, String> TYPES = new HashMap<String, String>();
 	static {
 		TYPES.put("TJF", "JF");
 		TYPES.put("PCF", "CF");

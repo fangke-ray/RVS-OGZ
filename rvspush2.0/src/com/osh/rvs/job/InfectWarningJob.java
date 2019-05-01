@@ -73,7 +73,7 @@ public class InfectWarningJob implements Job {
 
 	}
 
-	public synchronized static PeriodsEntity getPeriodsOfDate(String dayString,
+	private synchronized static PeriodsEntity getPeriodsOfDate(String dayString,
 			SqlSession conn){
 		if (periodsOfDate.containsKey(dayString)) {
 			return periodsOfDate.get(dayString);
@@ -391,7 +391,7 @@ public class InfectWarningJob implements Job {
 		}
 	}
 
-	public static SqlSession getTempConn() {
+	private static SqlSession getTempConn() {
 		_log.info("new Connnection");
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 		return factory.openSession(TransactionIsolationLevel.READ_COMMITTED);

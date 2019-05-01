@@ -276,6 +276,8 @@ public class HeaderAction extends BaseAction {
 			return "工位仕挂超过上限。";
 		} else if (RvsConsts.WARNING_REASON_POSITION_OVERTIME.equals(reason)) {
 			return "工位作业时间超出标准。";
+		} else if (RvsConsts.WARNING_REASON_INFECT_ERROR.equals(reason)) {
+			return "点检不通过需处理。";
 		}
 		return "";
 	}

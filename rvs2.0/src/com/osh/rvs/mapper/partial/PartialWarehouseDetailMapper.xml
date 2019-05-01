@@ -84,7 +84,7 @@
 	]]>
 	</update>
 	
-	<select id="countQuantityOfSpecKind" parameterType="string" resultType="PartialWarehouseDetailEntity">
+	<!-- select id="countQuantityOfSpecKind" parameterType="string" resultType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		SELECT 
 			v_partial.spec_kind,
@@ -107,8 +107,8 @@
 		GROUP BY 
 			pbs.spec_kind
 	]]>
-	</select>
-	
+	</select-->
+
 	<select id="searchUnpackByKey" parameterType="PartialWarehouseDetailEntity" resultType="PartialWarehouseDetailEntity">
 	<![CDATA[
 		SELECT

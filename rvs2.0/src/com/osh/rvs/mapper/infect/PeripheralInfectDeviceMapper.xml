@@ -44,17 +44,6 @@ group by model_id) cg ON pid.model_id = cg.model_id
 		ORDER BY pid.model_id, pid.seq, pid.model_name
 	</select>	
 
-	<select id="getMaxSeq" resultType="String" parameterType="PeripheralInfectDeviceEntity">
-		<![CDATA[
-		    SELECT 
-				MAX(seq)
-		    FROM 
-				peripheral_infect_device	
-		    WHERE 
-				model_id = #{model_id}
-		]]>
-	</select>
-
 	<insert id="insert" parameterType="PeripheralInfectDeviceEntity">
 		<![CDATA[ 
 		INSERT INTO peripheral_infect_device (

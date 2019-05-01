@@ -20,7 +20,6 @@ public interface LineLeaderMapper {
 	public long getWorkingMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id);
 
 	// 当日计划件数
-	public long getTodayPlanMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("kind") String kind);
 	public long getTodayCompleteMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("kind") String kind);
 	public List<LineLeaderEntity> getBreakingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id);
 	public List<LineLeaderEntity> getExpeditingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id);
@@ -31,7 +30,7 @@ public interface LineLeaderMapper {
 
 	public Integer getOutPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id, @Param("line_id") String line_id);
 
-	public Integer getPlanPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id);
+//	public Integer getPlanPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id);
 
 	public Integer getProduceActualOfDecByBoard(@Param("section_id") String section_id);
 	public Integer getProduceActualOfNsByBoard(@Param("section_id") String section_id);

@@ -20,19 +20,19 @@ import framework.huiqing.common.util.copy.DateUtil;
 
 public class RvsUtils {
 
-	protected static final Logger logger = Logger.getLogger("Production");
+	protected static final Logger logger = Logger.getLogger("Production"); // NO_UCD (use private)
 
 	/**
 	 * 用时(分钟)转换为小时+分格式。
 	 * @param minutes 分钟数
 	 */
-	public static String formatMinutes(int minutes) {
+	public static String formatMinutes(int minutes) { // NO_UCD (unused code)
 		int hours = minutes / 60;
 		int minutesRemain = minutes % 60;
 		return (hours == 0 ? "" : "" + hours + "小时") + minutesRemain + "分";
 	}
 
-	public static String regfy(String modelName) {
+	public static String regfy(String modelName) { // NO_UCD (unused code)
 		if (modelName == null)
 			return null;
 		else {
@@ -41,14 +41,14 @@ public class RvsUtils {
 		}
 	}
 
-	public static String get2Char(String num) {
+	public static String get2Char(String num) { // NO_UCD (unused code)
 		if (num == null) return null;
 		return num.length() == 1 ? "0"+num : num;
 	}
 
 	private static Map<String, String> overLineCache = new HashMap<String, String>();
 
-	public static String getZeroOverLine(String model_name, String category_name, LoginData user, String spprocess_code) throws Exception {
+	public static String getZeroOverLine(String model_name, String category_name, LoginData user, String spprocess_code) throws Exception { // NO_UCD (use private)
 		// 取得用户信息
 		String process_code;
 		if (spprocess_code != null) {
@@ -167,7 +167,7 @@ public class RvsUtils {
 		return sOverline;
 	}
 
-	public static Map<String, String> reverseLinkedMap(Map<String, String> oldMap) {
+	public static Map<String, String> reverseLinkedMap(Map<String, String> oldMap) { // NO_UCD (unused code)
 		Map<String, String> newMap = new LinkedHashMap<String, String>();
 
 		List<String> tmpKeyList = new ArrayList<String>();
@@ -183,7 +183,7 @@ public class RvsUtils {
 		return newMap;
 	}
 	
-	public static String arrivalPlanDate2String(Date arrival_plan_date, String sPattern) {
+	public static String arrivalPlanDate2String(Date arrival_plan_date, String sPattern) { // NO_UCD (unused code)
 		String sArrivalPlanDate = DateUtil.toString(arrival_plan_date, "yyyy");
 		if (sArrivalPlanDate == null) {
 			return "-";
@@ -199,7 +199,7 @@ public class RvsUtils {
 	private static SimpleDateFormat dfE = new SimpleDateFormat("M月", new Locale("EN"));
 	private static SimpleDateFormat dfS = new SimpleDateFormat("M/d");
 
-	public static int getMonthAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> years, List<String> months) {
+	public static int getMonthAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> years, List<String> months) { // NO_UCD (use private)
 		if (adjustDate == null || years == null || months == null) {
 			return -1;
 		}
@@ -235,7 +235,7 @@ public class RvsUtils {
 		return currentIndex;
 	}
 
-	public static int getMonthPastHalfYear(Date adjustDate, List<String> years, List<String> months) {
+	public static int getMonthPastHalfYear(Date adjustDate, List<String> years, List<String> months) { // NO_UCD (unused code)
 		if (adjustDate == null || years == null || months == null) {
 			return -1;
 		}
@@ -315,11 +315,11 @@ public class RvsUtils {
 	}
 	
 	
-	public static int getMonthAndWeekAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> axisTexts) {
+	public static int getMonthAndWeekAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> axisTexts) { // NO_UCD (unused code)
 		return getMonthAndWeekAxisInBussinessYear(adjustDate, toEnd, toNow, axisTexts ,null, null);
 	}
 	
-	public static int getMonthAndWeekAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> axisTexts, List<String> years, List<String> months) {
+	public static int getMonthAndWeekAxisInBussinessYear(Date adjustDate, boolean toEnd, boolean toNow, List<String> axisTexts, List<String> years, List<String> months) { // NO_UCD (use private)
 		if (adjustDate == null || axisTexts == null) {
 			return -1;
 		}
@@ -452,7 +452,7 @@ public class RvsUtils {
 		return currentIndex;
 	}
 	
-	public static String getBussinessYearString(Calendar date) {
+	public static String getBussinessYearString(Calendar date) { // NO_UCD (use private)
 		int adjustYear = date.get(Calendar.YEAR);
 		int adjustMonth = date.get(Calendar.MONTH);
 		

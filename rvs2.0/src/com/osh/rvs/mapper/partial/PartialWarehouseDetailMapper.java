@@ -42,14 +42,6 @@ public interface PartialWarehouseDetailMapper {
 	public void update(PartialWarehouseDetailEntity entity) throws Exception;
 
 	/**
-	 * 统计各个规格种别总数量
-	 *
-	 * @param entity
-	 * @return
-	 */
-	public List<PartialWarehouseDetailEntity> countQuantityOfSpecKind(@Param("key") String key);
-
-	/**
 	 * 查询需要分装的零件入库明细
 	 *
 	 * @param entity

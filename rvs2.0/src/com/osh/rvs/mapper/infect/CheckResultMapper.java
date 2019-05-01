@@ -82,11 +82,6 @@ public interface CheckResultMapper {
 	public List<CheckResultEntity> getTorsionDeviceCheckInPeriod(CheckResultEntity cre);
 
 	/**
-	 * 取得设备工具参照值
-	 */
-	public List<CheckResultEntity> getDeviceReferInPeriod(CheckResultEntity cre);
-
-	/**
 	 * 保存设备工具点检记录
 	 */
 	public void insertDeviceCheck(CheckResultEntity entity);
@@ -95,11 +90,6 @@ public interface CheckResultMapper {
 	 * 删除设备工具待点检记录
 	 */
 	public int removeWaitDeviceCheck(CheckResultEntity wait) throws Exception;
-
-	/**
-	 * 保存设备工具参照值
-	 */
-	public void insertDeviceCheckRefer(CheckResultEntity entity);
 
 	/**
 	 * 取得需要做的定期点检(力矩工具)

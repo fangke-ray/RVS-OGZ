@@ -44,6 +44,7 @@ public class ReadInfect {
 	private static Map<String, String> styleidmap = new HashMap<String, String>();
 
 	// ss:WrapText="1"
+	@SuppressWarnings("unused")
 	private static final String SS_WRAPTEXT_1 = "white-space:normal; word-break:break-all; overflow:hidden; ";
 
 	private static Logger _logger = Logger.getLogger(ReadInfect.class); 
@@ -133,7 +134,8 @@ public class ReadInfect {
 				String styleid = style.getAttributes().getNamedItem("ss:ID").getNodeValue();
 				if (!findDefault) {
 					if ("Default".equalsIgnoreCase(styleid)) {
-						// 生成Default css
+						// 生成Default css TODO
+						@SuppressWarnings("unused")
 						NodeList borders = ((Element)style).getElementsByTagName("Borders");
 
 						findDefault = true;
@@ -158,7 +160,7 @@ public class ReadInfect {
 				// 取得参照值
 				if (tables!=null && tables.getLength() > 0) {
 					refertable = (Element) tables.item(0);
-					NodeList columns = refertable.getElementsByTagName("Column");
+//					NodeList columns = refertable.getElementsByTagName("Column");
 					NodeList rows = refertable.getElementsByTagName("Row");
 					if (rows.getLength() > 0)
 						for (int irow =0;irow<rows.getLength();irow++) { // 行的循环
@@ -185,11 +187,11 @@ public class ReadInfect {
 
 			// sheet的循环
 			Node worksheet = tnl.item(0);
-			String sheetname = worksheet.getAttributes().getNamedItem("ss:Name").getNodeValue();
+//			String sheetname = worksheet.getAttributes().getNamedItem("ss:Name").getNodeValue();
 			NodeList tables = ((Element) worksheet).getElementsByTagName("Table");
 			if (tables!=null && tables.getLength() > 0) {
 			Element table = (Element) tables.item(0);
-			int sheetrows = getAttributeIntValue(table.getAttributes().getNamedItem("ss:ExpandedRowCount"));
+//			int sheetrows = getAttributeIntValue(table.getAttributes().getNamedItem("ss:ExpandedRowCount"));
 			int sheetcols = getAttributeIntValue(table.getAttributes().getNamedItem("ss:ExpandedColumnCount"));
 
 			NodeList columns = table.getElementsByTagName("Column");
@@ -228,7 +230,7 @@ public class ReadInfect {
 				Integer irowspan = null;
 
 				Element row = (Element)rows.item(irow);
-				int trheight = getAttributeIntValue(row.getAttributes().getNamedItem("ss:Height"));
+//				int trheight = getAttributeIntValue(row.getAttributes().getNamedItem("ss:Height"));
 
 				// ss:Span --> 纯空行
 				Node ssSpan = row.getAttributes().getNamedItem("ss:Span");
@@ -1056,6 +1058,7 @@ public class ReadInfect {
 
 	public static SqlSessionManager getTempWritableConn() {
 		_logger.info("new Connnection");
+		@SuppressWarnings("static-access")
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 		return SqlSessionManager.newInstance(factory);
 	}

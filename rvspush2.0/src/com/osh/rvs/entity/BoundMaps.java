@@ -10,7 +10,7 @@ import org.apache.catalina.websocket.MessageInbound;
 public class BoundMaps {
 
 	private static Map<String, MessageInbound> positionBoundMap;
-	private static Map<String, MessageInbound> lineSocketMap;
+//	private static Map<String, MessageInbound> lineSocketMap;
 	private static Map<String, MessageInbound> messageSocketMap;
 
 	private static Map<String, OperatorEntity> leaderMap;
@@ -57,7 +57,7 @@ public class BoundMaps {
 
 	public static void init() {
 		positionBoundMap = Collections.synchronizedMap(new HashMap<String, MessageInbound>());
-		lineSocketMap = Collections.synchronizedMap(new HashMap<String, MessageInbound>());
+//		lineSocketMap = Collections.synchronizedMap(new HashMap<String, MessageInbound>());
 		messageSocketMap = Collections.synchronizedMap(new HashMap<String, MessageInbound>());
 		leaderMap = Collections.synchronizedMap(new HashMap<String, OperatorEntity>());
 	}

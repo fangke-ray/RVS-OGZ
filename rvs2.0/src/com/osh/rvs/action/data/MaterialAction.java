@@ -238,6 +238,7 @@ public class MaterialAction extends BaseAction {
 //				}
 			}
 
+			@SuppressWarnings("unused")
 			Integer iOccur_times = null;
 			if (occur_times != null) {
 				iOccur_times = Integer.parseInt(occur_times);

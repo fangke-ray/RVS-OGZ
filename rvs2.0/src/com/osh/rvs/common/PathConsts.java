@@ -47,7 +47,7 @@ public class PathConsts {
 	}
 
 	/**
-	 * ¸üĞÂÅäÖÃÎÄ¼ş£¬Ğè¼ì²éÄÚÈİÊÇ·ñÒ»ÖÂ
+	 * æ›´æ–°é…ç½®æ–‡ä»¶ï¼Œéœ€æ£€æŸ¥å†…å®¹æ˜¯å¦ä¸€è‡´
 	 * @throws Exception
 	 */
 	public static void loadWithCheck() throws Exception {
@@ -55,7 +55,7 @@ public class PathConsts {
 			InputStream in = new BufferedInputStream(new
 					FileInputStream(PathConsts.BASE_PATH + PathConsts.PROPERTIES + "\\positionsettings.properties"));
 
-			// ¼ì²éÒ»ÖÂĞÔµÄMap
+			// æ£€æŸ¥ä¸€è‡´æ€§çš„Map
 			Set<String> checkProsList = new HashSet<String>();
 			if (!PathConsts.POSITION_SETTINGS.isEmpty()) {
 				int count = 10;
@@ -74,7 +74,7 @@ public class PathConsts {
 					unmatchCount++;
 				}
 			}
-			if (unmatchCount > 2) throw new Exception("ÎÄ¼şÄÚÈİ´ó¸Ä¶¯£¬ĞèÈ·ÈÏÉÏ´«ÎÄ¼ş£¡");
+			if (unmatchCount > 2) throw new Exception("æ–‡ä»¶å†…å®¹å¤§æ”¹åŠ¨ï¼Œéœ€ç¡®è®¤ä¸Šä¼ æ–‡ä»¶ï¼");
 
 //			mail.properties
 
@@ -99,7 +99,7 @@ public class PathConsts {
 					unmatchCount++;
 				}
 			}
-			if (unmatchCount > 2) throw new Exception("ÎÄ¼şÄÚÈİ´ó¸Ä¶¯£¬ĞèÈ·ÈÏÉÏ´«ÎÄ¼ş£¡");
+			if (unmatchCount > 2) throw new Exception("æ–‡ä»¶å†…å®¹å¤§æ”¹åŠ¨ï¼Œéœ€ç¡®è®¤ä¸Šä¼ æ–‡ä»¶ï¼");
 
 		} catch (FileNotFoundException e) {
 			throw e;

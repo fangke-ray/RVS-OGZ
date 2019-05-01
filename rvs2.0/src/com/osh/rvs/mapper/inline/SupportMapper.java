@@ -15,8 +15,5 @@ public interface SupportMapper {
 	public int getSupportPace(ProductionFeatureEntity pfBean);
 
 	public ProductionFeatureEntity searchSupportingProductionFeature(ProductionFeatureEntity pfBean);
-
-	public ProductionFeatureEntity searchComposeStorageWork(ProductionFeatureEntity pfBean);
-	/**  */
 	
 }

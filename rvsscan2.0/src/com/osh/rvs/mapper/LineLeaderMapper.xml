@@ -167,7 +167,7 @@
 			;
 	</select>
 
-	<select id="getTodayPlanMaterialCounts" resultType="long">
+	<!-- select id="getTodayPlanMaterialCounts" resultType="long">
 		<![CDATA[
 			SELECT COUNT(1)
 			FROM material m
@@ -183,7 +183,7 @@
 			AND vm.kind = #{kind}
 		]]>
 		</if>
-	</select>
+	</select -->
 
 	<select id="getTodayCompleteMaterialCounts" resultType="long">
 		<![CDATA[
@@ -393,7 +393,7 @@
 		]]>
 	</select>
 
-	<select id="getPlanPeriod" resultType="int">
+	<!-- select id="getPlanPeriod" resultType="int">
 		SELECT count(1) FROM schedule_history sh 
 		join material ma
 		on sh.material_id = ma.material_id
@@ -401,7 +401,7 @@
 		and remove_flg = 0
 		and ma.section_id = #{section_id}
 		and sh.plan_day_period = #{out_period};
-	</select>
+	</select -->
 
 	<select id="getOutPeriod" resultType="int">
 		select 

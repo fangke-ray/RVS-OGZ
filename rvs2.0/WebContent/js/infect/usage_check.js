@@ -128,6 +128,10 @@ var reset = function(){
 function devices_usage_check_list(usage_check_list){
 	if ($("#gbox_usage_check_list").length > 0) {
 		var curpagenum = $("#usage_check_list").jqGrid('getGridParam', 'page');
+		var maxpage = parseInt((usage_check_list.length - 1) / 20) + 1;
+		if (curpagenum > maxpage) {
+			curpagenum = maxpage;
+		}
         $("#usage_check_list").jqGrid().clearGridData();
         $("#usage_check_list").jqGrid('setGridParam',{data:usage_check_list, page:curpagenum})
         	.trigger("reloadGrid", [{current:false}]);

@@ -9,8 +9,6 @@ public interface PeripheralInfectDeviceMapper {
 	/* 周边设备点检关系详细数据 */
 	public List<PeripheralInfectDeviceEntity> search(PeripheralInfectDeviceEntity entity);
 
-	public String getMaxSeq(PeripheralInfectDeviceEntity entity);
-
 	public int insert(PeripheralInfectDeviceEntity entity) throws Exception;
 
 	public int delete(PeripheralInfectDeviceEntity entity) throws Exception;

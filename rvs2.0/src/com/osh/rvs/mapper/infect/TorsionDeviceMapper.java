@@ -31,6 +31,4 @@ public List<DevicesManageEntity> searchTorsionDeviceOnLineByManager(
 
 public List<DevicesManageEntity> searchTorsionDeviceOnLineByOperator(
 		CheckResultEntity condEntity);
-
-public List<String> getSeqItemsByTorsionSetting(String devices_manage_id);
 }

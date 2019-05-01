@@ -20,8 +20,6 @@ public interface DevicesTypeMapper {
 	/*查询所有设备品名--referChooser*/
 	public List<DeviceTypeEntity> getAllDeviceName();
 
-	public List<DeviceTypeEntity> getHazardousClassificationById(String id);
-
 	public void insertHazardousCaution(DeviceTypeEntity devicesTypeEntity);
 
 	public void removeHazardousCautionById(String id);

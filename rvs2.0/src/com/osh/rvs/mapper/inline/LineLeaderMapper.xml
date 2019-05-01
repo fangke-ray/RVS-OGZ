@@ -99,8 +99,8 @@
 			  ON `m`.model_id = `mdl`.model_id
 			JOIN category c
 			  ON `mdl`.category_id = `c`.category_id
-			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result, `pfp`.light_division_flg,pfp.position_name FROM (
-					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result, p.light_division_flg,p.name AS position_name
+			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.process_code, `pfp`.operate_result, `pfp`.light_division_flg,pfp.position_name, `pfp`.inline_time FROM (
+					SELECT `pf`.material_id, `pf`.position_id, `p`.process_code, `pf`.operate_result, p.light_division_flg,p.name AS position_name, pma.inline_time
 					FROM production_feature pf
 					JOIN `position` p
 					ON `pf`.position_id = `p`.position_id
@@ -111,12 +111,13 @@
 				        pma.outline_time IS NULL
 				        AND pma.break_back_flg = 0
 				        AND operate_result not in (5 , 8)
-		-- [AND (`pf`.operate_result = 3 OR `pf`.finish_time is null)]
 					  AND `pf`.section_id = #{section_id}
 					ORDER BY (1-ISNULL(`pf`.action_time)) ,
 					`pf`.action_time DESC, (`pf`.operate_result = 3) DESC, `pf`.operate_result DESC
 				) pfp
-				GROUP BY `pfp`.material_id) ppf1
+				GROUP BY `pfp`.material_id
+				having not (`pfp`.operate_result = 3 and process_code = 302 and inline_time is not null)
+				) ppf1
 				ON `m`.material_id = `ppf1`.material_id
 			LEFT JOIN 
 				(SELECT

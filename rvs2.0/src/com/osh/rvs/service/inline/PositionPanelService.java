@@ -391,7 +391,7 @@ public class PositionPanelService {
 	 * @param conn
 	 * @return
 	 */
-	public MaterialForm getMaterialInfo(String material_id, SqlSession conn) {
+	public MaterialForm getMaterialInfo(String material_id, SqlSession conn) { // NO_UCD (use default)
 		MaterialForm materialForm = new MaterialForm();
 		PositionPanelMapper dao = conn.getMapper(PositionPanelMapper.class);
 		MaterialEntity materialEntity = dao.getMaterialDetail(material_id);

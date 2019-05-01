@@ -90,7 +90,7 @@ public class TorsionDeviceService {
 		
 		dao.insertTorsionDevice(conditionEntity);
 	}
-	
+
 	//力矩点检序号补齐成两位
 	public String addZero(Integer seq){
 		 DecimalFormat df = new DecimalFormat("00");

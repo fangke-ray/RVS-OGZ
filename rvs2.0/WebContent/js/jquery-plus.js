@@ -621,6 +621,7 @@ var setReferChooser = function(target, jthis, jfather, callback) {
 		});
 	
 		filter.change(function() {
+			refTr = jthis.find(".subform > tbody > tr");
 			if (this.value === "") {
 				refTr.show();
 			} else {

@@ -514,14 +514,14 @@ function orderQuotationList(listdata){
 			shrinkToFit:true,
 			datatype : "local",
 			colNames : ['对象<br>类别','品名','型号/规格','系统<br>编码','名称','受注方','数量','申请人','确认结果','确认<br>数量','confirm_flg','order_key','object_type','device_type_id','applicator_id','scheduled_date','reorder_scheduled_date','recept_date','order_no','invoice_no','invoice_date'],
-			colModel : [{name : 'object_type_name',index : 'object_type_name',width:100},
+			colModel : [{name : 'object_type_name',index : 'object_type_name',width:60},
 						{name : 'device_type_name',index : 'device_type_name',width:100},
-						{name : 'model_name',index : 'model_name',width:100},
+						{name : 'model_name',index : 'model_name',width:110},
 						{name : 'system_code',index : 'system_code',width:100},
-						{name : 'name',index : 'name',width:100},
+						{name : 'name',index : 'name',width:110},
 						{name : 'order_from_name',index : 'order_from_name',width:100},
-						{name : 'quantity',index : 'quantity',width:100,align:'right',sorttype:'number'},
-						{name : 'applicator_operator_name',index : 'applicator_operator_name',width:100},
+						{name : 'quantity',index : 'quantity',width:60,align:'right',sorttype:'number'},
+						{name : 'applicator_operator_name',index : 'applicator_operator_name',width:80},
 						{name : 'confirm_flg_name',index : 'confirm_flg_name',width:100,align:'center'},
 						{name : 'confirm_quantity',index : 'confirm_quantity',width:100,align:'right',sorttype:'number'},
 						{name : 'confirm_flg',index : 'confirm_flg',hidden:true},
@@ -1236,14 +1236,14 @@ function invoiceList(listdata){
 			shrinkToFit:true,
 			datatype : "local",
 			colNames : ['对象类别','品名','型号/规格','最近询价发送','object_type','device_type_id'],
-			colModel : [{name : 'object_type_name',index : 'object_type_name',width:100},
-						{name : 'device_type_name',index : 'device_type_name',width:100,formatter:function(value, options, rData){
+			colModel : [{name : 'object_type_name',index : 'object_type_name',width:60},
+						{name : 'device_type_name',index : 'device_type_name',width:110,formatter:function(value, options, rData){
 							if(!value){
 								return '-';
 							}
 							return value;
 						}},
-						{name : 'model_name',index : 'model_name',width:100},
+						{name : 'model_name',index : 'model_name',width:110},
 	                    {name : 'send_date',index : 'send_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 						{name : 'object_type',index : 'object_type',hidden:true},
 						{name : 'device_type_id',index : 'device_type_id',hidden:true}
@@ -2244,24 +2244,33 @@ function list(listdata){
 			shrinkToFit:true,
 			datatype : "local",
 			colNames : ['委托<br>单号','报价<br>单号','订单号','分类','型号/规格','系统编码','名称','受注方','数量','单价','金额',
-			            '日本<br>价格','差异','申请者','理由/必要性','申请<br>日期','委托发送<br>日期','询价发送<br>日期','确认接收<br>日期',
+			            '日本<br>价格','差异','申请者','理由/必要性','申请<br>日期','申请<br>确认','委托发送<br>日期','询价发送<br>日期','确认接收<br>日期',
 			            '发送OSH<br>日期','预计<br>纳期','收货<br>时间','确认<br>结果','验收<br>日期','验收人','预算月','发票号','发票<br>收到日期','order_key','object_type','device_type_id','applicator_id','confirm_flg','confirm_quantity','quotation_id','budget_description','hide_invoice_date'],
 			colModel : [{name : 'entrust_no',index : 'entrust_no',width:100,hidden:true},
 			            {name : 'quotation_no',index : 'quotation_no',width:100},
 			            {name : 'order_no',index : 'order_no',width:100},
-			            {name : 'object_type_name',index : 'object_type_name',width:100},
-			            {name : 'model_name',index : 'model_name',width:100},
+			            {name : 'object_type_name',index : 'object_type_name',width:60},
+			            {name : 'model_name',index : 'model_name',width:110},
 			            {name : 'system_code',index : 'system_code',width:100,hidden:true},
-			            {name : 'name',index : 'name',width:100,hidden:true},
+			            {name : 'name',index : 'name',width:110,hidden:true},
 			            {name : 'order_from_name',index : 'order_from_name',width:100,hidden:true},
-			            {name : 'quantity',index : 'quantity',width:100,align:'right',sorttype:'number'},
+			            {name : 'quantity',index : 'quantity',width:60,align:'right',sorttype:'number'},
 			            {name : 'order_price',index : 'order_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
 			            {name : 'total_order_price',index : 'total_order_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
 			            {name : 'origin_price',index : 'origin_price',width:100,align:'right',formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:2,defaultValue:'-'}},
 			            {name : 'differ_price',index : 'differ_price',width:100,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
-			            {name : 'applicator_operator_name',index : 'applicator_operator_name',width:100},
+			            {name : 'applicator_operator_name',index : 'applicator_operator_name',width:80},
 			            {name : 'nesssary_reason',index : 'nesssary_reason',width:100,hidden:true},
-			            {name : 'applicate_date',index : 'applicate_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
+			            {name : 'applicate_date',index : 'applicate_date',width:100,align:'center',sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d',defaultValue:'近期'}},
+			            {name : 'applicate_confirm',index : 'applicate_confirm',width:50,align:'center', hidden: ($("#role").val() != 'manager'),
+			            	formatter:function(value, options, rData){
+				            	if (rData.applicate_date) {
+				            		return 'OK';
+				            	} else {
+				            		return '';
+				            	}
+			            	}
+			            },
 			            {name : 'entrust_send_date',index : 'entrust_send_date',width:100,align:'center',hidden:true,sorttype:'date',formatter:'date',formatoptions:{srcformat:'y/m/d',newformat:'y-m-d'}},
 	                    {name : 'send_date',index : 'send_date',width:100,align:'center',hidden:true,sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 	                    {name : 'acquire_date',index : 'acquire_date',width:100,align:'center',hidden:true,sorttype:'date',formatter:'date',formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},

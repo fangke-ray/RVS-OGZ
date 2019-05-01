@@ -183,43 +183,6 @@ group by dm.section_id, dm.position_id, td.kind
 		;
 	</select>
 
-    <select id="getNeedRegularEICheck" resultType="CheckResultEntity" parameterType="CheckResultEntity">
-		<![CDATA[ 
-	SELECT 
-	    dcr.`manage_id`,
-	    dcr.`check_file_manage_id`,
-	    dcr.`item_seq`,
-	    `operator_id`,
-	    dcr.`check_confirm_time`,
-	    `digit`,
-	    `checked_status`
-	FROM
-	    `device_check_result` dcr
-	JOIN (
-	SELECT 
-	    `manage_id`,
-	    `check_file_manage_id`,
-	    `item_seq`,
-	    max(`check_confirm_time`) as `check_confirm_time`
-	FROM
-	    `device_check_result`
-	WHERE manage_id = #{manage_id}
-		AND check_file_manage_id = #{check_file_manage_id}
-		and `item_seq` >= 50
-		AND date(`check_confirm_time`) between #{check_confirm_time_start} and #{check_confirm_time_end}
-	group by 
-	    `manage_id`,
-	    `check_file_manage_id`,
-	    `item_seq`
-	) mcct
-	ON dcr.manage_id = mcct.manage_id
-	AND dcr.check_file_manage_id = mcct.check_file_manage_id
-	AND dcr.item_seq = mcct.item_seq
-	AND dcr.check_confirm_time = mcct.check_confirm_time
-	;
-	   ]]>
-	</select>
-
     <select id="searchElectricIronDeviceOnLineByManager" resultType="DevicesManageEntity" parameterType="CheckResultEntity">
 	   <![CDATA[
 SELECT dm.devices_manage_id,dt.name, dm.section_id, dm.position_id, pos.process_code,

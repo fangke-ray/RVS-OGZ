@@ -22,7 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/jquery.mtz.monthpicker.min.js"></script>
-<script type="text/javascript" src="js/equipment/device_jig_order.es5.js"></script>
+<script type="text/javascript" src="js/equipment/device_jig_order.es5.js?v=431"></script>
 
 <style type="text/css">
 .text-center {

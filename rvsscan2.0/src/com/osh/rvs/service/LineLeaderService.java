@@ -13,48 +13,42 @@ import org.apache.ibatis.session.SqlSession;
 import com.osh.rvs.bean.LineLeaderEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
-import com.osh.rvs.form.LineLeaderForm;
-import com.osh.rvs.mapper.AlarmMesssageMapper;
 import com.osh.rvs.mapper.AllPositionsMapper;
 import com.osh.rvs.mapper.LineLeaderMapper;
 
-import framework.huiqing.common.util.CodeListUtils;
-import framework.huiqing.common.util.copy.BeanUtil;
-import framework.huiqing.common.util.copy.CopyOptions;
-
 public class LineLeaderService {
 
-	/**
-	 * 取得当前课室+工程下处理中的全部维修对象信息
-	 * @param section_id
-	 * @param line_id
-	 * @param conn
-	 * @return
-	 */
-	public List<LineLeaderForm> getPerformanceList(String section_id, String line_id, String position_id, SqlSession conn) {
-		List<LineLeaderForm> ret = new ArrayList<LineLeaderForm>();
-
-		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
-		if ("".equals(position_id)) position_id = null;
-		List<LineLeaderEntity> listEntities = dao.getWorkingMaterials(section_id, line_id, position_id);
-
-		CopyOptions cos = new CopyOptions();
-		cos.excludeEmptyString();
-		cos.excludeNull();
-
-		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
-		for (LineLeaderEntity entity : listEntities) {
-			LineLeaderForm retForm = new LineLeaderForm();
-			BeanUtil.copyToForm(entity, retForm, cos);
-			if (entity.getOperate_result() == 3) {
-				String amLevel = amDao.getBreakLevelByMaterialId(entity.getMaterial_id(), entity.getPosition_id());
-				retForm.setSymbol(CodeListUtils.getValue("alarm_symbol", amLevel));
-			}
-			ret.add(retForm);
-		}
-		
-		return ret;
-	}
+//	/**
+//	 * 取得当前课室+工程下处理中的全部维修对象信息
+//	 * @param section_id
+//	 * @param line_id
+//	 * @param conn
+//	 * @return
+//	 */
+//	public List<LineLeaderForm> getPerformanceList(String section_id, String line_id, String position_id, SqlSession conn) {
+//		List<LineLeaderForm> ret = new ArrayList<LineLeaderForm>();
+//
+//		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
+//		if ("".equals(position_id)) position_id = null;
+//		List<LineLeaderEntity> listEntities = dao.getWorkingMaterials(section_id, line_id, position_id);
+//
+//		CopyOptions cos = new CopyOptions();
+//		cos.excludeEmptyString();
+//		cos.excludeNull();
+//
+//		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
+//		for (LineLeaderEntity entity : listEntities) {
+//			LineLeaderForm retForm = new LineLeaderForm();
+//			BeanUtil.copyToForm(entity, retForm, cos);
+//			if (entity.getOperate_result() == 3) {
+//				String amLevel = amDao.getBreakLevelByMaterialId(entity.getMaterial_id(), entity.getPosition_id());
+//				retForm.setSymbol(CodeListUtils.getValue("alarm_symbol", amLevel));
+//			}
+//			ret.add(retForm);
+//		}
+//		
+//		return ret;
+//	}
 
 	/**
 	 * 工位仕挂一览For图表
@@ -63,7 +57,7 @@ public class LineLeaderService {
 	 * @param conn
 	 * @param listResponse
 	 */
-	public List<Map<String, String>> getWorkingOfPositions(String section_id, String line_id, SqlSession conn) {
+	public List<Map<String, String>> getWorkingOfPositions(String section_id, String line_id, SqlSession conn) { // NO_UCD (use private)
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		return dao.getWorkingOfPositions(section_id, line_id);
 	}

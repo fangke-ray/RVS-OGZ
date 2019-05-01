@@ -193,7 +193,7 @@ public class RemainTimeJob implements Job {
 		job.countRemainTime(today, conn);
 	}
 
-	public static SqlSessionManager getTempWritableConn() {
+	private static SqlSessionManager getTempWritableConn() {
 		_log.info("new Connnection");
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 		return SqlSessionManager.newInstance(factory);

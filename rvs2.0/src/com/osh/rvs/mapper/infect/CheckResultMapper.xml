@@ -349,10 +349,11 @@
 			or (dm.position_id is null and dm.line_id = #{line_id}))
 		AND (dm.provide_date != current_date OR dm.provide_date is null)
 		AND (dci.seq_no is not null OR dt.specialized = 1)
+		AND dci.trigger_state = 1
 		]]>
 		<if test="specialized==null">
 			<![CDATA[
-			AND dt.specialized != 9
+			AND (dt.specialized IS NULL OR dt.specialized != 9)
 			]]>
 		</if>
 		<if test="specialized!=null">

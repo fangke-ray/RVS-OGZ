@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.arnx.jsonic.JSON;
@@ -12,21 +11,18 @@ import net.arnx.jsonic.JSON;
 import org.apache.catalina.websocket.MessageInbound;
 import org.apache.catalina.websocket.WsOutbound;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.OperatorEntity;
-import com.osh.rvs.entity.ProductionAssignEntity;
 import com.osh.rvs.mapper.push.OperatorMapper;
-import com.osh.rvs.mapper.push.ProductionAssignMapper;
 
 public class OperatorMessageInbound extends MessageInbound {
 	private String thisOperatorId = "";
 	private String thisRoleId = null;
 	private boolean alive = false;
-	private JSON json = new JSON();
+//	private JSON json = new JSON();
 
 	private Logger log = Logger.getLogger("TriggerServlet-OperatorMessage");
 
@@ -60,51 +56,8 @@ public class OperatorMessageInbound extends MessageInbound {
 		} else if (s.startsWith("pong:")) {
 			log.info(thisOperatorId + " get a message pong.");
 			alive = true;
-		} else if (s.startsWith("callLight:")) {
-			refreshLightWaiting();
-		} else if (s.startsWith("assignOperator:")) {
-			String jsonString = s.replaceAll("assignOperator:", "");
-			assignLightWaiting(jsonString);
 //		} else {
 //			boardcast(s);
-		}
-	}
-
-	private void assignLightWaiting(String jsonString) {
-		@SuppressWarnings("rawtypes")
-		Map requestMap = json.parse(jsonString, Map.class);
-		String material_id = (String) requestMap.get("material_id");
-		String position_id = (String) requestMap.get("position_id");
-		String assigned_operator_id = (String) requestMap.get("operator_id");
-
-		SqlSessionManager conn = RvsUtils.getTempWritableConn();
-		try {
-			conn.startManagedSession(false);
-			ProductionAssignMapper mapper = conn.getMapper(ProductionAssignMapper.class);
-
-			ProductionAssignEntity entity = new ProductionAssignEntity();
-			entity.setMaterial_id(material_id);
-			entity.setPosition_id(position_id);
-			entity.setAssigned_operator_id(assigned_operator_id);
-
-			// 线长指定
-			mapper.leaderAssign(entity);
-
-			conn.commit();
-
-			// 通知被指定者
-			if (BoundMaps.getMessageBoundMap().containsKey(assigned_operator_id)) {
-				((OperatorMessageInbound) BoundMaps.getMessageBoundMap().get(assigned_operator_id)).refreshLightWaiting();
-			}
-
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			conn.rollback();
-		} finally {
-			if (conn != null && conn.isManagedSessionStarted()) {
-				conn.close();
-			}
-			conn = null;
 		}
 	}
 
@@ -205,43 +158,5 @@ public class OperatorMessageInbound extends MessageInbound {
 		}
 
 		return alive;
-	}
-
-	public void refreshLightWaiting() {
-		SqlSession conn = RvsUtils.getTempConn();
-		ProductionAssignMapper mapper = conn.getMapper(ProductionAssignMapper.class);
-
-		List<ProductionAssignEntity> list = null;
-		// 取得本人相关小修理信息
-		try {
-			// 操作人员
-			if ("op".equals(thisRoleId)) {
-				list = mapper.getProductionAssignByOperator(thisOperatorId);
-			}
-			// 线长
-			else if ("le".equals(thisRoleId)) {
-				OperatorEntity entity = BoundMaps.getLeaderMap().get(thisOperatorId);
-				list = mapper.getProductionAssignByLine(entity.getSection_id(), entity.getLine_id());
-			}
-		} catch (Exception e) {
-			log.error("取得本人相关小修理信息 : " + e.getMessage(), e);
-		} finally {
-			conn.close();
-			conn = null;
-		}
-
-		if (list == null) return;
-
-		try {
-			Map<String, Object> retMap = new HashMap<String, Object>();
-			retMap.put("method", "light");
-			retMap.put("list", list);
-			// 该操作者需要更新信息
-			CharBuffer buffer = CharBuffer.wrap(json.format(retMap));
-			this.getWsOutbound().writeTextMessage(buffer);
-			log.info(thisOperatorId + " light updated.....");
-		} catch (IOException e) {
-			log.error("IOE : " + e.getMessage());
-		}
 	}
 }

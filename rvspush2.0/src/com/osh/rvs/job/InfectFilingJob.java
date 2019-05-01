@@ -35,7 +35,6 @@ import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.entity.CheckedFileStorageEntity;
 import com.osh.rvs.entity.PeriodsEntity;
 import com.osh.rvs.entity.PositionEntity;
-import com.osh.rvs.mapper.push.HolidayMapper;
 import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.mapper.statistics.InfectMapper;
 
@@ -96,139 +95,12 @@ public class InfectFilingJob implements Job {
 
 	}
 
-	public synchronized static PeriodsEntity getPeriodsOfDate(String todayString,
-			SqlSession conn){
-		if (periodsOfDate.containsKey(todayString)) {
-			return periodsOfDate.get(todayString);
-		}
-
-		HolidayMapper hMapper = conn.getMapper(HolidayMapper.class);
-		// 建立日的开始结束时间
-		PeriodsEntity old = null;
-		PeriodsEntity neo = new PeriodsEntity();
-		for (String key : periodsOfDate.keySet()) {
-			old = periodsOfDate.get(key);
-		}
-		synchronized (periodsOfDate) {
-			periodsOfDate.clear();
-
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			cal.set(Calendar.MILLISECOND, 0);
-			Date today = cal.getTime();
-
-			// 周开始终了
-			int week = cal.get(Calendar.DAY_OF_WEEK);
-			if (week == Calendar.SUNDAY) {
-				neo.setEndOfWeek(cal.getTime());
-
-				cal.add(Calendar.DATE, -6);
-				neo.setStartOfWeek(cal.getTime());
-			} else {
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-				neo.setStartOfWeek(cal.getTime());
-
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-				cal.add(Calendar.DATE, 1);
-				neo.setEndOfWeek(cal.getTime());
-			}
-
-			// 月开始终了
-			cal.setTime(today);
-			cal.set(Calendar.DATE, 1);
-			neo.setStartOfMonth(cal.getTime());
-
-			cal.add(Calendar.MONTH, 1);
-			cal.add(Calendar.DATE, -1);
-			neo.setEndOfMonth(cal.getTime());
-
-			// 半月开始终了
-			cal.setTime(today);
-			if (cal.get(Calendar.DATE) <= 15) {
-				neo.setStartOfHMonth(neo.getStartOfMonth());
-				cal.set(Calendar.DATE, 15);
-				neo.setEndOfHMonth(cal.getTime());
-			} else {
-				cal.set(Calendar.DATE, 16);
-				neo.setStartOfHMonth(cal.getTime());
-				neo.setEndOfHMonth(neo.getEndOfMonth());
-			}
-
-			// 半期开始终了
-			cal.setTime(today);
-			int nowMonth = cal.get(Calendar.MONTH);
-			if (nowMonth < Calendar.APRIL) {
-				cal.add(Calendar.YEAR, -1);
-				cal.set(Calendar.MONTH, Calendar.APRIL);
-				cal.set(Calendar.DATE, 1);
-				neo.setStartOfPeriod(cal.getTime());
-				cal.set(Calendar.MONTH, Calendar.OCTOBER);
-			} else if (nowMonth >= Calendar.OCTOBER) {
-				cal.set(Calendar.MONTH, Calendar.APRIL);
-				cal.set(Calendar.DATE, 1);
-				neo.setStartOfPeriod(cal.getTime());
-				cal.set(Calendar.MONTH, Calendar.OCTOBER);
-			} else {
-				cal.set(Calendar.MONTH, Calendar.APRIL);
-				cal.set(Calendar.DATE, 1);
-				neo.setStartOfPeriod(cal.getTime());
-			}
-
-			neo.setStartOfHbp(cal.getTime());
-			cal.add(Calendar.MONTH, 6);
-			cal.add(Calendar.DATE, -1);
-			neo.setEndOfHbp(cal.getTime());
-
-			cal.setTimeInMillis(neo.getStartOfPeriod().getTime());
-			cal.add(Calendar.MONTH, 12);
-			cal.add(Calendar.DATE, -1);
-			neo.setEndOfPeriod(cal.getTime());
-
-			Map<String, Object> cond = new HashMap<String, Object>();
-
-			// 周点检限期
-			if (old != null) {
-				// 如果上一天在同一个区域
-				if (neo.getStartOfWeek().equals(old.getStartOfWeek())) {
-					neo.setExpireOfWeek(old.getExpireOfWeek());
-				}
-				if (neo.getStartOfMonth().equals(old.getStartOfMonth())) {
-					neo.setExpireOfMonth(old.getExpireOfMonth());
-				}
-				if (neo.getStartOfHMonth().equals(old.getStartOfHMonth())) {
-					neo.setExpireOfHMonth(old.getExpireOfHMonth());
-				}
-				if (neo.getStartOfHbp().equals(old.getStartOfHbp())) {
-					neo.setExpireOfHbp(old.getExpireOfHbp());
-				}
-			}
-
-			if (neo.getExpireOfWeek() == null) {
-				Date expireDate = new Date(neo.getStartOfWeek().getTime() - 1);
-				// 往前1天开始算天数
-				cond.put("date", expireDate);
-				cond.put("interval", 2);
-				expireDate = hMapper.addWorkdays(cond);
-				if (expireDate.after(neo.getEndOfWeek()) ) {
-					// 一周两天都没有的情况
-					expireDate.setTime(neo.getStartOfWeek().getTime());
-				}
-				neo.setExpireOfWeek(expireDate);
-			}
-
-			periodsOfDate.put(todayString, neo);
-		}
-		return neo;
-	}
-
 	public static SqlSession getTempConn() {
 		_log.info("new Connnection");
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 		return factory.openSession(TransactionIsolationLevel.READ_COMMITTED);
 	}
-	public static SqlSessionManager getTempWritableConn() {
+	private static SqlSessionManager getTempWritableConn() {
 		_log.info("new Connnection");
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 		return SqlSessionManager.newInstance(factory);

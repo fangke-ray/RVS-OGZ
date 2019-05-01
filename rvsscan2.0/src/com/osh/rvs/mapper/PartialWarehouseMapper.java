@@ -90,13 +90,6 @@ public interface PartialWarehouseMapper {
 	public BigDecimal searchTodayCollectCaseStandardTime(@Param("operator_id") String operator_id);
 
 	/**
-	 * 零件出入库工时标准
-	 * 
-	 * @return
-	 */
-	public BigDecimal searchStandardTime(PartialWarehouseEntity entity);
-
-	/**
 	 * 统计作业时间(分钟)(isNow=1:当前正在做的总计用时，isNow=2:当日已经完成作业用时，isNow=3:当前正在作业用时)
 	 * 
 	 * @return

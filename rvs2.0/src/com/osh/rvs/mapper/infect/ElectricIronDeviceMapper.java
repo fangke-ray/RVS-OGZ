@@ -34,9 +34,4 @@ public interface ElectricIronDeviceMapper {
 
 	public List<DevicesManageEntity> searchElectricIronDeviceOnLineByOperator(
 			CheckResultEntity condEntity);
-
-	/**
-	 * 取得需要做的定期点检
-	 */
-	public List<CheckResultEntity> getNeedRegularEICheck(CheckResultEntity cond);
 }

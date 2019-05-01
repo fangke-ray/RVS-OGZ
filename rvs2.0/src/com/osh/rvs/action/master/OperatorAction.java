@@ -7,7 +7,6 @@
  */
 package com.osh.rvs.action.master;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.form.master.OperatorForm;
-import com.osh.rvs.form.master.PositionForm;
 import com.osh.rvs.service.LineService;
 import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.PositionService;
@@ -74,11 +72,6 @@ public class OperatorAction extends BaseAction {
 		// 取得下拉框信息
 		String rOptions = rservice.getOptions(conn);
 		req.setAttribute("rOptions", rOptions);
-
-		// 建立页面返回表单
-		List<PositionForm> lpf = new ArrayList<PositionForm>();
-		// 取得权限下拉框信息
-		List<String[]> pList = new ArrayList<String[]>();
 
 		// 取得类别下拉框信息
 		String rkOptions = CodeListUtils.getSelectOptions("role_rank_kind", null, "", false);

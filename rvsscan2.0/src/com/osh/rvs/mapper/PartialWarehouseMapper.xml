@@ -441,7 +441,7 @@
 	]]>
 	</select>
 
-	<select id="searchStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
+	<!-- select id="searchStandardTime" resultType="BigDecimal" parameterType="PartialWarehouseEntity">
 		SELECT
 		<if test="production_type == 20">
 			SUM(pwd.collation_quantity * pbs.collation)
@@ -519,7 +519,7 @@
 		AND
 			pbs.on_shelf > 0
 		</if>
-	</select>
+	</select-->
 
 	<select id="searchSpentMins" parameterType="PartialWarehouseEntity" resultType="Integer">
 	<![CDATA[
