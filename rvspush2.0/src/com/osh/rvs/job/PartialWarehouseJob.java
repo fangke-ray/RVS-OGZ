@@ -987,13 +987,13 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, 2);
-		today.set(Calendar.DATE, 31);
+		today.set(Calendar.MONTH, 3);
+		today.set(Calendar.DATE, 30);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
 
-		PathConsts.BASE_PATH = "D:\\rvsG";
+		PathConsts.BASE_PATH = "E:\\rvsG";
 		PathConsts.REPORT_TEMPLATE = "\\ReportTemplates";
 		PathConsts.PCS_TEMPLATE = "\\PcsTemplates";
 		PathConsts.PROPERTIES = "\\PROPERTIES";

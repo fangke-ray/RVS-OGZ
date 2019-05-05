@@ -541,11 +541,12 @@
 	</codelist>
 	
 	<codelist name="position_handle">
-		<value code="1">借用</value>
+		<value code="1">自由借用</value>
+		<value code="5">申请借用</value>
 		<value code="2">手工作业</value>
 		<value code="3">暂停工位</value>
-		<value code="4">有备品，无需更换</value>
-	</codelist>
+		<value code="4">使用消耗备品</value>
+	</codelist>	
 	
 	<codelist name="object_handle">
 		<value code="1">废弃</value>
@@ -813,10 +814,13 @@
 	</codelist>
 
 	<codelist name="device_jig_order_from">
-		<value code="1">OMSC</value>
+		<!--value code="1">OMSC</value>
 		<value code="2">OSZ</value>
 		<value code="3">德国</value>
-		<value code="4">日本</value>
+		<value code="4">日本</value-->
+		<value code="5">OSH</value>
+		<value code="6">总务G</value>
+		<value code="7">购买G</value>
 	</codelist>
 
 	<codelist name="device_jig_confirm_flg">
