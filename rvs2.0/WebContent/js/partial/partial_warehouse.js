@@ -134,7 +134,7 @@ function doStart() {
 function doEnd(){
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : null,

@@ -236,7 +236,7 @@ function updateList(partial_id){
 					var data = getUpdateData();
 					$.ajax({
 						beforeSend : ajaxRequestType,
-						async : true,
+						async : false,
 						url : servicePath + '?method=doUpdateQuantity',
 						cache : false,
 						data : data,

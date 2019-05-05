@@ -219,7 +219,7 @@ function doStart() {
 
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : 'fact_production_feature.do?method=doStart',
 		cache : false,
 		data : data,
@@ -282,7 +282,7 @@ function doEnd() {
 function doDelete(){
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : 'fact_production_feature.do?method=doDelete',
 		cache : false,
 		data : null,
@@ -311,7 +311,7 @@ function doDelete(){
 function execEnd(){
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : null,

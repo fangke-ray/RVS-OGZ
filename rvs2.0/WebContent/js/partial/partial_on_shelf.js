@@ -289,7 +289,7 @@ function choose(){
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : 'fact_production_feature.do?method=doStart',
 		cache : false,
 		data : data,
@@ -359,7 +359,7 @@ function getUpdateData(){
 function confirmEnd(data){
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : data,
@@ -386,7 +386,7 @@ function confirmEnd(data){
 function confirmBreak(data){
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doBreak',
 		cache : false,
 		data : data,

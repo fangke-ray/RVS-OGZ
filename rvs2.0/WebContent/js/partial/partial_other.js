@@ -89,7 +89,7 @@ function doStart(){
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : 'fact_production_feature.do?method=doStart',
 		cache : false,
 		data : data,
@@ -126,7 +126,7 @@ function doEnd(){
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : data,

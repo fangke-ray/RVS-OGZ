@@ -46,7 +46,7 @@ function startScanner () {
 
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doScan',
 		cache : false,
 		data : data,
@@ -79,7 +79,7 @@ function doEnd(){
 	
 	$.ajax({
 		beforeSend : ajaxRequestType,
-		async : true,
+		async : false,
 		url : servicePath + '?method=doFinish',
 		cache : false,
 		data : data,
