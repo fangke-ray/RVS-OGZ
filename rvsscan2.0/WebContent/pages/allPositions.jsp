@@ -145,9 +145,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 
 			<div class="line" style="height:100px;width:104px;left: 56px;top: 282px;" id="line_lm" beforeOf="line_peri" group="line_lm">
-				<div class="posi" for="posi_300_1" style="top: 10px; left: 10px;">300</div>
+				<div class="posi" for="posi_300_1" style="top: 24px; left: 50px;">300</div>
 
-				<div class="posi" for="posi_400_1" style="top: 64px; left: 10px;">400</div>
+				<div class="posi" for="posi_401_1" style="top: 64px; left: 10px;">401</div>
+				<div class="posi" for="posi_400_1" style="top: 64px; left: 50px;">400</div>
 
 				<div class="banner" for="line_lm">中小修</div>
 			</div>
@@ -356,11 +357,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 
 				<div class="scrollline" for="line_lm" style="position: relative;">
-					<div class="position gridX5 gridY1" for="posi_300_1">300<br>NS<br>全岗位</div>
-					<div class="position-f gridX5 gridFY1P" for="posi_300_1"></div>
 
-					<div class="position gridX5 gridY3" for="posi_400_1">400<br>总组粗细镜<br>全岗位</div>
-					<div class="position-f gridX5 gridFY3P" for="posi_400_1"></div>
+					<div class="position gridX4 gridY2" for="posi_401_1">401<br>零件签收</div>
+					<div class="position-f gridX4 gridFY2" for="posi_401_1"></div>
+
+					<div class="position gridX6 gridY1" for="posi_300_1">300<br>NS<br>全岗位</div>
+					<div class="position-f gridX6 gridFY1P" for="posi_300_1"></div>
+
+					<div class="position gridX6 gridY3" for="posi_400_1">400<br>总组粗细镜<br>全岗位</div>
+					<div class="position-f gridX6 gridFY3P" for="posi_400_1"></div>
 
 					<div class="banner" for="line_lm" style="font-size:18px;padding: 8px 10px;z-index:22;">中小修状况</div>
 				</div>
