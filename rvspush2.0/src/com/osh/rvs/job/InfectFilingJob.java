@@ -2,6 +2,7 @@ package com.osh.rvs.job;
 
 import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import net.arnx.jsonic.JSON;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -27,7 +29,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.entity.CheckedFileStorageEntity;
 import com.osh.rvs.entity.PeriodsEntity;
 import com.osh.rvs.entity.PositionEntity;
@@ -37,6 +41,7 @@ import com.osh.rvs.mapper.statistics.InfectMapper;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.CommonStringUtil;
+import framework.huiqing.common.util.copy.DateUtil;
 
 public class InfectFilingJob implements Job {
 
@@ -60,16 +65,20 @@ public class InfectFilingJob implements Job {
 		// 取得数据库连接
 		SqlSessionManager conn = getTempWritableConn();
 
+		Set<String> madeSet = new HashSet<String>();
+
 		try {
 			conn.startManagedSession(false);
-			makeOfMonth(today, conn);
+			makeOfMonth(today, madeSet, conn);
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL || month == Calendar.OCTOBER) {
-				makeOfPeriod(today, conn);
-				makeOfJig(today, conn);
+				makeOfPeriod(today, madeSet, conn);
+				makeOfJig(today, madeSet, conn);
 			}
 
 			conn.commit();
+
+			collect2ShareDir(today, madeSet);
 		} catch (Exception e) {
 			_log.error(e.getMessage(), e);
 			if (conn != null && conn.isManagedSessionStarted()) {
@@ -247,8 +256,13 @@ public class InfectFilingJob implements Job {
 //				f.setLastModified(today.getTimeInMillis());
 //			}
 //		}
+
+		PathConsts.BASE_PATH = "E:\\rvsG";
+		PathConsts.INFECTIONS = "\\Infections";
 		// 取得数据库连接
 		SqlSessionManager conn = getTempWritableConn();
+
+		Set<String> madeSet = new HashSet<String>();
 
 		InfectFilingJob job = new InfectFilingJob();
 		try {
@@ -256,10 +270,11 @@ public class InfectFilingJob implements Job {
 			// job.makeOfMonth(today, conn);
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
-			//	job.makeOfPeriod(today, conn);
-				job.makeOfJig(today, conn);
+				job.makeOfPeriod(today, madeSet, conn);
+				job.makeOfJig(today, madeSet, conn);
 			}
 			conn.commit();
+			job.collect2ShareDir(today, madeSet);
 		} catch (Exception e) {
 			_log.error(e.getMessage(), e);
 			if (conn != null && conn.isManagedSessionStarted()) {
@@ -274,7 +289,38 @@ public class InfectFilingJob implements Job {
 		}
 	}
 
-	private void makeOfPeriod(Calendar adjustDate, SqlSessionManager conn) {
+	private void collect2ShareDir(Calendar adjustDate, Set<String> madeSet) {
+		String descBaseDir = "E://RVS_BACKUP//INFECT//";
+		Calendar collectMonth = Calendar.getInstance();
+		collectMonth.setTime(adjustDate.getTime());
+		collectMonth.add(Calendar.MONTH, -1);
+		String bussinessYearString = RvsUtils.getBussinessYearString(collectMonth);
+		String packPathString = descBaseDir + bussinessYearString + DateUtil.toString(collectMonth.getTime(), "MM月");
+		File packPath = new File(packPathString);
+		if (!packPath.exists()) {
+			packPath.mkdirs();
+		}
+
+		for (String madeFile : madeSet) {
+			File srcFile = new File(PathConsts.BASE_PATH + PathConsts.INFECTIONS + "//" + bussinessYearString + "//" + madeFile + ".pdf");
+			if (srcFile.exists()) {
+				try {
+					FileUtils.copyFileToDirectory(srcFile, packPath);
+				} catch (IOException e) {
+					_log.error(e.getMessage(), e);
+				}
+			}
+		}
+
+		ZipUtility.zipper(packPathString, packPathString + ".zip", "GBK");
+		try {
+			FileUtils.deleteDirectory(packPath);
+		} catch (IOException e) {
+			_log.error(e.getMessage(), e);
+		}
+	}
+
+	private void makeOfPeriod(Calendar adjustDate, Set<String> madeSet, SqlSessionManager conn) {
 		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
 		// 期开始终了时间
 		Calendar periodStart = Calendar.getInstance();
@@ -322,6 +368,7 @@ public class InfectFilingJob implements Job {
 
 			try {
 				makeFileSingle(checked_file_storage);
+				madeSet.add(ret.get("check_manage_code") + "/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
 				continue;
@@ -381,7 +428,8 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setTemplate_file_name(fileNameOfPosition.get(iPosition));
 			for (String lDevice : lDevices) {
 				checked_file_storage.setDevices_manage_id("" + lDevice);
-				 ifMapper.recordFileData(checked_file_storage);
+				ifMapper.recordFileData(checked_file_storage);
+				madeSet.add(cutter[3] + "/" + storage_file_name);
 			}
 			try {
 				makeFileGroup(checked_file_storage, lDevices);
@@ -445,7 +493,8 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setTemplate_file_name(fileNameOfLine.get(iLine));
 			for (String lDevice : lDevices) {
 				checked_file_storage.setDevices_manage_id("" + lDevice);
-				 ifMapper.recordFileData(checked_file_storage);
+				ifMapper.recordFileData(checked_file_storage);
+				madeSet.add(cutter[3] + "/" + storage_file_name);
 			}
 			try {
 				makeFileGroup(checked_file_storage, lDevices);
@@ -457,7 +506,7 @@ public class InfectFilingJob implements Job {
 		}
 	}
 
-	private void makeOfMonth(Calendar adjustDate, SqlSessionManager conn) {
+	private void makeOfMonth(Calendar adjustDate, Set<String> madeSet, SqlSessionManager conn) {
 
 		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
 		// 月开始终了时间
@@ -508,6 +557,7 @@ public class InfectFilingJob implements Job {
 
 			try {
 				makeFileSingle(checked_file_storage);
+				madeSet.add(ret.get("check_manage_code") + "/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
 				continue;
@@ -585,6 +635,7 @@ public class InfectFilingJob implements Job {
 			}
 			try {
 				makeFileGroup(checked_file_storage, lDevices);
+				madeSet.add(cutter[3] + "/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
 				continue;
@@ -654,6 +705,7 @@ public class InfectFilingJob implements Job {
 			}
 			try {
 				makeFileGroup(checked_file_storage, lDevices);
+				madeSet.add(cutter[3] + "/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
 				continue;
@@ -663,7 +715,7 @@ public class InfectFilingJob implements Job {
 
 	}
 
-	private void makeOfJig(Calendar adjustDate, SqlSessionManager conn) {
+	private void makeOfJig(Calendar adjustDate, Set<String> madeSet, SqlSessionManager conn) {
 		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
 		// 期开始终了时间
 		Calendar periodStart = Calendar.getInstance();
@@ -739,6 +791,7 @@ public class InfectFilingJob implements Job {
 
 			try {
 				makeFileJig(checked_file_storage, current_p_and_o, jigList);
+				madeSet.add("QF0601-5/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
 				continue;
