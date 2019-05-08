@@ -54,9 +54,26 @@ public class PartialWarehouseJob implements Job {
 
 	private final String MIDDLE_LINE = "一";
 
+	/** E1：NS 工程出库 **/
 	private final Integer NS_STANDARD_TIME = 6;
+	/** E2：分解工程出库 **/
 	private final Integer DEC_STANDARD_TIME = 9;
-
+	
+	/** 每日工作时间（475分钟） **/
+	private final Integer WORK_TIME = 475;
+	/** 每日工作+加班时间（565分钟） **/
+	private final Integer WORK_OVER_TIME = 565;
+	/** 一分钟（60000毫秒）**/
+	private final Integer ONE_MINUTE_MILLISECOND = 60000;
+	/** 十分钟（600000毫秒）**/
+	private final Integer TEN_MINUTE_MILLISECOND = ONE_MINUTE_MILLISECOND * 10;
+	/** 四十五分钟（2700000毫秒） **/
+	private final Integer FORTY_FIVE_MINUTE_MILLISECOND = ONE_MINUTE_MILLISECOND * 45;
+	/** 一小时（3600000毫秒）**/
+	private final Integer ONE_HOUR_MILLISECOND = ONE_MINUTE_MILLISECOND * 60;
+	/** 4位小数精度 **/
+	private final Integer SCALE_FOUR = 4;
+	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		JobKey jobKey = context.getJobDetail().getKey();
@@ -78,10 +95,10 @@ public class PartialWarehouseJob implements Job {
 	}
 
 	private void partialWarehouseReport(Calendar monthStart, SqlSession conn) {
-		PartialWarehouseMapper partialWarehouseMapper = conn.getMapper(PartialWarehouseMapper.class);
+		PartialWarehouseMapper dao = conn.getMapper(PartialWarehouseMapper.class);
 		UserDefineCodesMapper userDefineCodesMapper = conn.getMapper(UserDefineCodesMapper.class);
 
-		List<PartialWarehouseEntity> listBeans = partialWarehouseMapper.searchMonthWorkRecord(DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
+		List<PartialWarehouseEntity> listBeans = dao.searchMonthWorkRecord(DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
 		int length = listBeans.size();
 
 		// 模板文件
@@ -122,23 +139,29 @@ public class PartialWarehouseJob implements Job {
 
 				// 计算公式
 				FormulaEvaluator formulaEvaluator = work.getCreationHelper().createFormulaEvaluator();
-
-				// 出入库明细
-				setDetailList(listBeans, userDefineMap.get("bdPartialReceptMoveCost"), detailSheet, styleMap, formulaEvaluator, partialWarehouseMapper);
-
+				
 				// 当月最后一天
 				int lastDay = monthStart.getActualMaximum(Calendar.DATE);
-
 				// 当天
 				int curDay = monthStart.get(Calendar.DATE);
-
+				
+				// 月底标记
+				boolean isMonthEnd = false;
 				// 月底
 				if(curDay == lastDay){
+					isMonthEnd = true;
+				}
+				
+				// 出入库明细
+				Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap = setDetailList(isMonthEnd,listBeans, userDefineMap.get("bdPartialReceptMoveCost"), detailSheet, styleMap, formulaEvaluator, dao);
+
+				// 月底
+				if(isMonthEnd){
 					// 高雁梅每日汇总
-					setDailyCollect(monthStart, "197",styleMap, userDefineMap, dailyCollectSheet, partialWarehouseMapper);
+					setDailyCollect(monthStart, "197",rateMap,styleMap, userDefineMap, dailyCollectSheet, dao);
 
 					// 叶昭杏每日汇总
-					setDailyCollect(monthStart, "198",styleMap, userDefineMap, dailyCollectSheet2, partialWarehouseMapper);
+					setDailyCollect(monthStart, "198",rateMap,styleMap, userDefineMap, dailyCollectSheet2, dao);
 				}else{
 					// 删除Sheet
 					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet));
@@ -176,17 +199,33 @@ public class PartialWarehouseJob implements Job {
 	 * @param listBeans
 	 * @param sheet
 	 */
-	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, PartialWarehouseMapper dao) {
+	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, PartialWarehouseMapper dao) {
 		Row row = null;
 		Row row2 = null;
 		Cell cell = null;
 		PartialWarehouseEntity partialWarehouseEntity = null;
 		List<PartialWarehouseEntity> dailyWorkRecordList = null;
 		
-		//仓管人员负荷率警报标志下线
+		// 出入库明细Sheet统计的当天负荷率和当天能率
+		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
+		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
+		
+		String jobNo = "";
+		if("197".equals(operatorId)){
+			jobNo = "00056";
+		}else if("198".equals(operatorId)){
+			jobNo = "30301";
+		}
+		
+		// 每个人每日合计负荷率
+		LinkedHashMap<String, Double> personalDailyRateMap = dailyLoadRateMap.get(jobNo);
+		// 每个人每日合计能率
+		LinkedHashMap<String, Double> personalDailyEnergyRateMap = dailyEnergyRateMap.get(jobNo);
+		
+		// 仓管人员负荷率警报标志下线
 		double lowLever = userDefineMap.get("strLowLever").divide(new BigDecimal(100)).doubleValue();
 		
-		//仓管人员能率警报标志下线
+		// 仓管人员能率警报标志下线
 		double efLowLever =  userDefineMap.get("efLowLever").divide(new BigDecimal(100)).doubleValue();
 
 		int colIndex = 2;
@@ -196,11 +235,11 @@ public class PartialWarehouseJob implements Job {
 
 		Map<Date, List<PartialWarehouseEntity>> map = new LinkedHashMap<Date, List<PartialWarehouseEntity>>();
 		
-		// 每天合计负荷率
-		Map<Date, Double> dailyLoadRateMap = new LinkedHashMap<Date, Double>();
+		// 每天未达成目标合计负荷率
+		Map<Date, Double> dailyUnLoadRateMap = new LinkedHashMap<Date, Double>();
 		
-		//每天合计能率
-		Map<Date,Double> dailyEnergyRateMap = new LinkedHashMap<Date,Double>();
+		//每天未达成目标合计能率
+		Map<Date,Double> dailyUnEnergyRateMap = new LinkedHashMap<Date,Double>();
 
 		for (int i = 0; i < list.size(); i++) {
 			partialWarehouseEntity = list.get(i);
@@ -352,7 +391,7 @@ public class PartialWarehouseJob implements Job {
 
 				// 能率
 				if (productionType != 99) {
-					double percent = standardTime.divide(new BigDecimal(spendTime), 4, RoundingMode.HALF_UP).doubleValue();
+					double percent = standardTime.divide(new BigDecimal(spendTime), SCALE_FOUR, RoundingMode.HALF_UP).doubleValue();
 					row2.getCell(colIndex).setCellValue(percent);
 				}
 
@@ -366,29 +405,29 @@ public class PartialWarehouseJob implements Job {
 			double percent = 0;
 
 			if (flg) {// 加班
-				workTime = new BigDecimal(565);
+				workTime = new BigDecimal(WORK_OVER_TIME);
 			} else {
-				workTime = new BigDecimal(475);
+				workTime = new BigDecimal(WORK_TIME);
 			}
 
 			monthWorkTime = monthWorkTime.add(workTime);
 
 			// 合计负荷率
-			percent = totalSpendTime.divide(workTime, 4, RoundingMode.HALF_UP).doubleValue();
+			percent = personalDailyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
 			sheet.getRow(18).getCell(colIndex).setCellValue(percent);
 			
 			//合计负荷率低于“仓管人员负荷率警报标志下线”
 			if(percent < lowLever){
-				dailyLoadRateMap.put(finishTime, percent);
+				dailyUnLoadRateMap.put(finishTime, percent);
 			}
 
 			// 合计能率
-			percent = totalStandardTime.divide(totalSpendTime, 4, RoundingMode.HALF_UP).doubleValue();
+			percent = personalDailyEnergyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
 			sheet.getRow(19).getCell(colIndex).setCellValue(percent);
 			
 			//合计能率低于“仓管人员能率警报标志下线”
 			if(percent < efLowLever){
-				dailyEnergyRateMap.put(finishTime, percent);
+				dailyUnEnergyRateMap.put(finishTime, percent);
 			}
 
 			//负荷率警报标志下线
@@ -431,10 +470,10 @@ public class PartialWarehouseJob implements Job {
 		cell.setCellValue(monthWorkTime.doubleValue());
 		
 		//（日次）负荷率未达成目标跟踪分析
-		dailyUnReachLowLever(sheet, styleMap, userDefineMap, dailyLoadRateMap);
+		dailyUnReachLowLever(sheet, styleMap, userDefineMap, dailyUnLoadRateMap);
 		
 		//（日次）能率未达成目标跟踪分析
-		dailyUnReachEFLowLever(sheet, styleMap, userDefineMap, dailyEnergyRateMap);
+		dailyUnReachEFLowLever(sheet, styleMap, userDefineMap, dailyUnEnergyRateMap);
 	}
 	
 	/**
@@ -584,6 +623,7 @@ public class PartialWarehouseJob implements Job {
 	/**
 	 * 出入库明细
 	 *
+	 * @param isMonthEnd 月底标记
 	 * @param listBeans 明细数据
 	 * @param moveCost 搬箱移动时间
 	 * @param sheet
@@ -591,15 +631,13 @@ public class PartialWarehouseJob implements Job {
 	 * @param formulaEvaluator 公式计算
 	 * @param partialWarehouseMapper
 	 */
-	private void setDetailList(List<PartialWarehouseEntity> listBeans, BigDecimal moveCost, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
+	private Map<String,Map<String, LinkedHashMap<String, Double>>> setDetailList(boolean isMonthEnd, List<PartialWarehouseEntity> listBeans, BigDecimal moveCost, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
 			PartialWarehouseMapper partialWarehouseMapper) {
 
 		Row row = null;
 		Cell cell = null;
 
 		BigDecimal standardTime = null;
-
-		Calendar cal = null;
 
 		// 单位
 		String unit = "";
@@ -611,10 +649,10 @@ public class PartialWarehouseJob implements Job {
 		String kindName = "";
 
 		// 当天负荷率
-		Map<String, Map<Integer, Integer>> loadRateMap = new LinkedHashMap<String, Map<Integer, Integer>>();
+		Map<String, Map<Integer, PartialWarehouseEntity>> loadRateMap = new LinkedHashMap<String, Map<Integer, PartialWarehouseEntity>>();
 
 		// 当天能率
-		Map<String, Map<Integer, Double>> energyRateMap = new LinkedHashMap<String, Map<Integer, Double>>();
+		Map<String, Map<Integer, PartialWarehouseEntity>> energyRateMap = new LinkedHashMap<String, Map<Integer, PartialWarehouseEntity>>();
 
 		for (int i = 0; i < listBeans.size(); i++) {
 			PartialWarehouseEntity entity = listBeans.get(i);
@@ -708,6 +746,7 @@ public class PartialWarehouseJob implements Job {
 				cell.setCellValue(MIDDLE_LINE);
 			}
 			cell.setCellStyle(styleMap.get("alignRightStyle"));
+			entity.setStanardtime(CopyByPoi.getStringCellValue((XSSFCell) cell));
 
 			// 能率
 			cell = row.createCell(++colIndex);
@@ -777,37 +816,23 @@ public class PartialWarehouseJob implements Job {
 			if ("00056".equals(jobNo) || "30301".equals(jobNo)) {
 				key = DateUtil.toString(finishTime, DateUtil.DATE_PATTERN) + "-" + jobNo;
 
-				// 当日下午5:30
-				cal = Calendar.getInstance();
-				cal.setTime(finishTime);
-				cal.set(Calendar.HOUR_OF_DAY, 17);
-				cal.set(Calendar.MINUTE, 30);
-				cal.set(Calendar.SECOND, 0);
-				cal.set(Calendar.MILLISECOND, 0);
-
-				long compare = finishTime.getTime() - cal.getTimeInMillis();
-				int time = 475;
-				if (compare > 0) {// 超过5:30，加上90分钟
-					time += 90;
-				}
-
 				if (!loadRateMap.containsKey(key)) {
-					Map<Integer, Integer> map = new LinkedHashMap<Integer, Integer>();
-					map.put(rowIndex, time);
+					Map<Integer, PartialWarehouseEntity> map = new LinkedHashMap<Integer, PartialWarehouseEntity>();
+					map.put(rowIndex, entity);
 					loadRateMap.put(key, map);
 				} else {
-					Map<Integer, Integer> map = loadRateMap.get(key);
-					map.put(rowIndex, time);
+					Map<Integer, PartialWarehouseEntity> map = loadRateMap.get(key);
+					map.put(rowIndex, entity);
 					loadRateMap.put(key, map);
 				}
 
 				if (!energyRateMap.containsKey(key)) {
-					Map<Integer, Double> map = new LinkedHashMap<Integer, Double>();
-					map.put(rowIndex, formulaEvaluator.evaluate(row.getCell(5)).getNumberValue());
+					Map<Integer, PartialWarehouseEntity> map = new LinkedHashMap<Integer, PartialWarehouseEntity>();
+					map.put(rowIndex,entity);
 					energyRateMap.put(key, map);
 				} else {
-					Map<Integer, Double> map = energyRateMap.get(key);
-					map.put(rowIndex, formulaEvaluator.evaluate(row.getCell(5)).getNumberValue());
+					Map<Integer, PartialWarehouseEntity> map = energyRateMap.get(key);
+					map.put(rowIndex, entity);
 					energyRateMap.put(key, map);
 				}
 			}
@@ -815,58 +840,90 @@ public class PartialWarehouseJob implements Job {
 		}
 
 		// 当天负荷率
-		this.setCurrentLoadRate(sheet, formulaEvaluator, loadRateMap);
-
+		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = this.setCurrentLoadRate(isMonthEnd,sheet, loadRateMap);
 		// 当天能率
-		this.setCurrentEnergyRate(sheet, formulaEvaluator, energyRateMap);
+		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = this.setCurrentEnergyRate(isMonthEnd,sheet,energyRateMap);
+		
+		Map<String,Map<String, LinkedHashMap<String, Double>>> respMap = new HashMap<String,Map<String, LinkedHashMap<String, Double>>>();
+		respMap.put("dailyLoadRate", dailyLoadRateMap);
+		respMap.put("dailyEnergyRate", dailyEnergyRateMap);
 
+		return respMap;
 	}
 
 	/**
 	 * 当天能率
+	 * @param isMonthEnd 
 	 *
 	 * @param sheet
-	 * @param formulaEvaluator
 	 * @param map
+	 * @return 
 	 */
-	private void setCurrentEnergyRate(Sheet sheet, FormulaEvaluator formulaEvaluator, Map<String, Map<Integer, Double>> map) {
+	private Map<String, LinkedHashMap<String, Double>> setCurrentEnergyRate(boolean isMonthEnd, Sheet sheet,Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
+		PartialWarehouseEntity entity  = null;
+		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
 		for (String key : map.keySet()) {
-			Map<Integer, Double> rowMap = map.get(key);
-
-			// 总进行时间（M）
-			BigDecimal totalSpendTime = new BigDecimal(0);
+			Map<Integer, PartialWarehouseEntity> rowMap = map.get(key);
 
 			// 总标准时间（M）
 			BigDecimal totalStandTime = new BigDecimal(0);
 
+			// 总计毫秒数
+			long longTime = 0;
 			for (Integer rowIndex : rowMap.keySet()) {
-				totalSpendTime = totalSpendTime.add(new BigDecimal(rowMap.get(rowIndex)));
+				entity = rowMap.get(rowIndex);
+				// 进行时间（毫秒）
+				longTime += entity.getFinish_time().getTime() - entity.getAction_time().getTime();
 			}
-
+			//总进行时间（M）（总计毫秒数转换成分钟，不满足一分钟当作一分钟计算）
+			BigDecimal totalSpendTime = (new BigDecimal(longTime)).divide(new BigDecimal(ONE_MINUTE_MILLISECOND), BigDecimal.ROUND_UP);
+			
+			longTime = 0;
 			for (Integer rowIndex : rowMap.keySet()) {
-				row = sheet.getRow(rowIndex);
-
+				entity = rowMap.get(rowIndex);
+				
 				// 标准时间（M）
-				String cellValue = CopyByPoi.getStringCellValue((XSSFCell) row.getCell(6));
-
+				String cellValue = entity.getStanardtime();
 				if (!CommonStringUtil.isEmpty(cellValue) && !MIDDLE_LINE.equals(cellValue)) {
 					totalStandTime = totalStandTime.add(new BigDecimal(cellValue));
 				} else if (MIDDLE_LINE.equals(cellValue)) {//O：其它, E3：其他维修出库  标准时间==实际时间
-					double spendTime = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
-					totalStandTime = totalStandTime.add(new BigDecimal(spendTime));
+					// 进行时间（毫秒）
+					longTime += entity.getFinish_time().getTime() - entity.getAction_time().getTime();
 				}
 			}
-
-			double value = totalStandTime.divide(totalSpendTime, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+			totalStandTime = totalStandTime.add((new BigDecimal(longTime)).divide(new BigDecimal(ONE_MINUTE_MILLISECOND), BigDecimal.ROUND_UP));
+			
+			double value = totalStandTime.divide(totalSpendTime,SCALE_FOUR, BigDecimal.ROUND_HALF_UP).doubleValue();
 
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
-
 				// 当天能率
 				row.getCell(12).setCellValue(value);
 			}
+			
+			if(isMonthEnd){
+				String arr[] = key.split("-");
+				// 工作日期
+				String day = arr[0];
+				// 工号
+				String jobNo = arr[1];
+				
+				//每天能率
+				//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
+				LinkedHashMap<String, Double> dailyRate = null;
+				if(respMap.containsKey(jobNo)){
+					dailyRate = respMap.get(jobNo);
+					dailyRate.put(day, value);
+				}else{
+					dailyRate = new LinkedHashMap<String, Double>();
+					dailyRate.put(day, value);
+				}
+				respMap.put(jobNo, dailyRate);
+			}
 		}
+		
+		return respMap;
 	}
 
 	/**
@@ -938,45 +995,484 @@ public class PartialWarehouseJob implements Job {
 
 	/**
 	 * 当天负荷率
-	 *
+	 * @param isMonthEnd 
 	 * @param sheet
-	 * @param formulaEvaluator
 	 * @param map
 	 */
-	private void setCurrentLoadRate(Sheet sheet, FormulaEvaluator formulaEvaluator, Map<String, Map<Integer, Integer>> map) {
+	private Map<String, LinkedHashMap<String, Double>> setCurrentLoadRate(boolean isMonthEnd, Sheet sheet, Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
-
+		Calendar halfPastFivePM = Calendar.getInstance();
+		
+		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
+		
 		for (String key : map.keySet()) {
-			Map<Integer, Integer> rowMap = map.get(key);
+			Map<Integer, PartialWarehouseEntity> rowMap = map.get(key);
+			
+			BigDecimal workTime = new BigDecimal(WORK_TIME);
+			
+			/** 判断是否加班 **/ 
+			for(Integer rowIndex : rowMap.keySet()){
+				PartialWarehouseEntity entity = rowMap.get(rowIndex);
+				// 结束时间
+				Date finishTime = entity.getFinish_time();
+				
+				// 当日下午5:30
+				halfPastFivePM.setTime(finishTime);
+				halfPastFivePM.set(Calendar.HOUR_OF_DAY, 17);
+				halfPastFivePM.set(Calendar.MINUTE, 30);
+				halfPastFivePM.set(Calendar.SECOND, 0);
+				halfPastFivePM.set(Calendar.MILLISECOND, 0);
 
-			BigDecimal workTime = new BigDecimal(475);
-
-			// 判断是否加班
-			if (rowMap.containsValue(565))
-				workTime = new BigDecimal(565);
-
-			//总进行时间（M）
-			BigDecimal totalSpendTime = new BigDecimal(0);
-
-			double value = 0;
-
-			for (Integer rowIndex : rowMap.keySet()) {
-				row = sheet.getRow(rowIndex);
-
-				// 进行时间（M）
-				value = formulaEvaluator.evaluate(row.getCell(5)).getNumberValue();
-				totalSpendTime = totalSpendTime.add(new BigDecimal(value));
+				// 结束时间与下午5:30比较
+				long compare = finishTime.getTime() - halfPastFivePM.getTimeInMillis();
+				if (compare > 0) {
+					// 超过5:30，加上90分钟
+					workTime = new BigDecimal(WORK_OVER_TIME);
+					break;
+				}
 			}
 
-			value = totalSpendTime.divide(workTime, BigDecimal.ROUND_HALF_UP).doubleValue();
+			// 总计毫秒数
+			long longTime = 0;
+			for (Integer rowIndex : rowMap.keySet()) {
+				PartialWarehouseEntity entity = rowMap.get(rowIndex);
+				
+				// 开始时间
+				Date actionTime = entity.getAction_time();
+				// 结束时间
+				Date finishTime = entity.getFinish_time();
+				
+				// 进行时间（毫秒）
+				longTime += finishTime.getTime() - actionTime.getTime();
+				
+				longTime -= subtractRestTime(actionTime, finishTime);
+			}
+			
+			//总进行时间（M）（总计毫秒数转换成分钟，不满足一分钟当作一分钟计算）
+			BigDecimal totalSpendTime = (new BigDecimal(longTime)).divide(new BigDecimal(ONE_MINUTE_MILLISECOND), BigDecimal.ROUND_UP);
+
+			double value = totalSpendTime.divide(workTime,SCALE_FOUR,BigDecimal.ROUND_HALF_UP).doubleValue();
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
 				// 当天负荷率
 				row.getCell(11).setCellValue(value);
 			}
+			
+			if(isMonthEnd){
+				String arr[] = key.split("-");
+				// 工作日期
+				String day = arr[0];
+				// 工号
+				String jobNo = arr[1];
+				
+				//每天负荷率
+				//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
+				LinkedHashMap<String, Double> dailyRate = null;
+				if(respMap.containsKey(jobNo)){
+					dailyRate = respMap.get(jobNo);
+					dailyRate.put(day, value);
+				}else{
+					dailyRate = new LinkedHashMap<String, Double>();
+					dailyRate.put(day, value);
+				}
+				respMap.put(jobNo, dailyRate);
+			}
 		}
+		return respMap;
 	}
 
+	/**
+	 * 移除休息时间
+	 * @param restPointMap
+	 * @param actionTime
+	 * @param finishTime
+	 * @return
+	 */
+	private Long subtractRestTime(Date actionTime,Date finishTime){
+		long restTime = 0;
+		
+		// 8:00:00:000
+		Calendar pointOneCal = Calendar.getInstance();
+		pointOneCal.setTime(actionTime);
+		pointOneCal.set(Calendar.HOUR_OF_DAY, 8);
+		pointOneCal.set(Calendar.MINUTE, 0);
+		pointOneCal.set(Calendar.SECOND, 0);
+		pointOneCal.set(Calendar.MILLISECOND, 0);
+		
+		// 10:00:00:000
+		Calendar pointTwoCal = Calendar.getInstance();
+		pointTwoCal.setTime(actionTime);
+		pointTwoCal.set(Calendar.HOUR_OF_DAY, 10);
+		pointTwoCal.set(Calendar.MINUTE, 0);
+		pointTwoCal.set(Calendar.SECOND, 0);
+		pointTwoCal.set(Calendar.MILLISECOND, 0);
+		
+		// 10:10:00:000
+		Calendar pointThreeCal = Calendar.getInstance();
+		pointThreeCal.setTime(actionTime);
+		pointThreeCal.set(Calendar.HOUR_OF_DAY, 10);
+		pointThreeCal.set(Calendar.MINUTE, 10);
+		pointThreeCal.set(Calendar.SECOND, 0);
+		pointThreeCal.set(Calendar.MILLISECOND, 0);
+		
+		// 12:00:00:000
+		Calendar pointFourCal = Calendar.getInstance();
+		pointFourCal.setTime(actionTime);
+		pointFourCal.set(Calendar.HOUR_OF_DAY, 12);
+		pointFourCal.set(Calendar.MINUTE, 0);
+		pointFourCal.set(Calendar.SECOND, 0);
+		pointFourCal.set(Calendar.MILLISECOND, 0);
+		
+		// 13:00:00:000
+		Calendar pointFiveCal = Calendar.getInstance();
+		pointFiveCal.setTime(actionTime);
+		pointFiveCal.set(Calendar.HOUR_OF_DAY, 13);
+		pointFiveCal.set(Calendar.MINUTE, 0);
+		pointFiveCal.set(Calendar.SECOND, 0);
+		pointFiveCal.set(Calendar.MILLISECOND, 0);
+		
+		// 15:00:00:000
+		Calendar pointSixCal = Calendar.getInstance();
+		pointSixCal.setTime(actionTime);
+		pointSixCal.set(Calendar.HOUR_OF_DAY, 15);
+		pointSixCal.set(Calendar.MINUTE, 0);
+		pointSixCal.set(Calendar.SECOND, 0);
+		pointSixCal.set(Calendar.MILLISECOND, 0);
+
+		// 15:10:00:000
+		Calendar pointSevenCal = Calendar.getInstance();
+		pointSevenCal.setTime(actionTime);
+		pointSevenCal.set(Calendar.HOUR_OF_DAY, 15);
+		pointSevenCal.set(Calendar.MINUTE, 10);
+		pointSevenCal.set(Calendar.SECOND, 0);
+		pointSevenCal.set(Calendar.MILLISECOND, 0);
+		
+		// 17:15:00:000
+		Calendar poinNineCal = Calendar.getInstance();
+		poinNineCal.setTime(actionTime);
+		poinNineCal.set(Calendar.HOUR_OF_DAY, 17);
+		poinNineCal.set(Calendar.MINUTE, 15);
+		poinNineCal.set(Calendar.SECOND, 0);
+		poinNineCal.set(Calendar.MILLISECOND, 0);
+		
+		// 18:00:00:000
+		Calendar poinTenCal = Calendar.getInstance();
+		poinTenCal.setTime(actionTime);
+		poinTenCal.set(Calendar.HOUR_OF_DAY, 18);
+		poinTenCal.set(Calendar.MINUTE, 00);
+		poinTenCal.set(Calendar.SECOND, 0);
+		poinTenCal.set(Calendar.MILLISECOND, 0);
+		
+		long eightOclock = pointOneCal.getTimeInMillis();
+		long tenOclock = pointTwoCal.getTimeInMillis();
+		long tenTenOclock = pointThreeCal.getTimeInMillis();
+		long twelveOclock = pointFourCal.getTimeInMillis();
+		long thirteenOclock = pointFiveCal.getTimeInMillis();
+		long fifteenOclock = pointSixCal.getTimeInMillis();
+		long fifteenTenOclock = pointSevenCal.getTimeInMillis();
+		long seventeenFifteenOclock = poinNineCal.getTimeInMillis();
+		long eighteenOclock = poinTenCal.getTimeInMillis();
+		
+		long start = actionTime.getTime();
+		long end = finishTime.getTime();
+		
+		/** 1、完成时间在00:00 - 8:00之间（包含8:00） **/
+		if (end <= eightOclock){
+			restTime = end - start;
+		} else if (end <= tenOclock){
+			/** 2、完成时间在8:00 - 10:00之间（包含10:00） **/
+			if(start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+			}
+		} else if (end <= tenTenOclock){
+			/** 3、完成时间在10:00 - 10:10之间（包含10:10） **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				
+				// 结束点到10:00的时间
+				restTime += end - tenOclock;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 结束点到10:00的时间
+				restTime = end - tenOclock;
+			} else if (start >= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				restTime = end - start;
+			}
+		} else if (end <= twelveOclock){
+			/** 4、完成时间在10:10 - 12:00之间（包含12:00） **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10分的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				restTime = tenTenOclock - start;
+			}
+		} else if (end <= thirteenOclock){
+			/** 5、完成时间在12:00 - 13:00之间（包含13:00） **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到12:00的时间
+				restTime += end - twelveOclock;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 结束点到12:00的时间
+				restTime += end - twelveOclock;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 结束点到12:00的时间
+				restTime += end - twelveOclock;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 结束点到12:00的时间
+				restTime = end - twelveOclock;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				restTime = end - start;
+			}
+		} else if (end <= fifteenOclock){
+			/** 6、完成时间在13:00 - 15:00之间（包含15:00） **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 12:00到13:00的时间
+				restTime = ONE_HOUR_MILLISECOND;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				// 开始点到13:00的时间
+				restTime = thirteenOclock - start;
+			}
+		} else if(end <= fifteenTenOclock){
+			/** 7、完成时间在15:00 - 15:10之间（包含15:10） **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 结束点到15:00时间
+				restTime += end - fifteenOclock;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 结束点到15:00时间
+				restTime += end - fifteenOclock;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 结束点到15:00时间
+				restTime += end - fifteenOclock;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 12:00到13:00的时间
+				restTime = ONE_HOUR_MILLISECOND;
+				// 结束点到15:00时间
+				restTime += end - fifteenOclock;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				// 开始点到13:00的时间
+				restTime = thirteenOclock - start;
+				// 结束点到15:00时间
+				restTime += end - fifteenOclock;
+			} else if (start <= fifteenOclock){// ⑥开始时间在13:00 - 15:00之间（包含15:00）
+				// 结束点到15:00时间
+				restTime = end - fifteenOclock;
+			} else if (start <= fifteenTenOclock){// ⑥开始时间在15:00 - 15:10之间（包含15:10）
+				restTime = end - start;
+			}
+		} else if (end <= seventeenFifteenOclock){
+			/** 8、完成时间在15:10-17:15之间 **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 12:00到13:00的时间
+				restTime = ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				// 开始点到13:00的时间
+				restTime = thirteenOclock - start;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+			} else if (start <= fifteenOclock){// ⑥开始时间在13:00 - 15:00之间（包含15:00）
+				// 15:00到15:10时间
+				restTime = TEN_MINUTE_MILLISECOND;
+			} else if (start <= fifteenTenOclock){// ⑦开始时间在15:00 - 15:10之间（包含15:10）
+				// 开始点到15:10的时间
+				restTime = fifteenTenOclock - start;
+			} 
+		} else if (end <= eighteenOclock){
+			/** 8、完成时间在17:15-18:00之间 **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 12:00到13:00的时间
+				restTime = ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间4
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				// 开始点到13:00的时间
+				restTime = thirteenOclock - start;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= fifteenOclock){// ⑥开始时间在13:00 - 15:00之间（包含15:00）
+				// 15:00到15:10时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= fifteenTenOclock){// ⑦开始时间在15:00 - 15:10之间（包含15:10）
+				// 开始点到15:10的时间
+				restTime = fifteenTenOclock - start;
+				// 结束点到17:15的时间
+				restTime += end - seventeenFifteenOclock;
+			} else if (start <= seventeenFifteenOclock){// ⑧开始时间在15:10 - 17:15之间（包含17:15）
+				// 结束点到17:15的时间
+				restTime = end - seventeenFifteenOclock;
+			} else if (start <= eighteenOclock){// ⑨开始时间在17:15 - 18:00之间（包含18:00）
+				restTime = end - start;
+			} 
+		} else {
+			/** 8、完成时间在18:00之后 **/
+			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
+				// 8:00之前的时间
+				restTime = eightOclock - start;
+				// 10:00到10:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
+				// 10:00到10:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
+				// 开始点到10:10的时间
+				restTime = tenTenOclock - start;
+				// 12:00到13:00的时间
+				restTime += ONE_HOUR_MILLISECOND;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
+				// 12:00到13:00的时间
+				restTime = ONE_HOUR_MILLISECOND;
+				// 15:00到15:10的时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
+				// 开始点到13:00的时间
+				restTime = thirteenOclock - start;
+				// 15:00到15:10时间
+				restTime += TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= fifteenOclock){// ⑥开始时间在13:00 - 15:00之间（包含15:00）
+				// 15:00到15:10的时间
+				restTime = TEN_MINUTE_MILLISECOND;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= fifteenTenOclock){// ⑦开始时间在15:00 - 15:10之间（包含15:10）
+				// 开始点到15:10的时间
+				restTime = fifteenTenOclock - start;
+				// 17:15到18:00的时间
+				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= seventeenFifteenOclock){// ⑧开始时间在15:10 - 17:15之间（包含17:15）
+				// 结束点到17:15的时间
+				restTime = FORTY_FIVE_MINUTE_MILLISECOND;
+			} else if (start <= eighteenOclock){// ⑨开始时间在17:15 - 18:00之间（包含18:00）
+				restTime = eighteenOclock - start;
+			} 
+		}
+
+		return restTime;
+	}
+	
 	/**
 	 * 测试进口
 	 *
@@ -993,7 +1489,7 @@ public class PartialWarehouseJob implements Job {
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
 
-		PathConsts.BASE_PATH = "E:\\rvsG";
+		PathConsts.BASE_PATH = "D:\\rvsG";
 		PathConsts.REPORT_TEMPLATE = "\\ReportTemplates";
 		PathConsts.PCS_TEMPLATE = "\\PcsTemplates";
 		PathConsts.PROPERTIES = "\\PROPERTIES";
