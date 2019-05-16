@@ -31,10 +31,11 @@
 					manage_id, 
 					sum(free_displace_flg = 1) as free,
 					sum(free_displace_flg = 0) as confirm,
-					sum(dm1.line_id = dm2.line_id AND free_displace_flg = 1) as inline
+					sum(coalesce(dm1.line_id = dm2.line_id, 0) AND free_displace_flg = 1) as inline
 				FROM device_backup_relation dbr
 				JOIN devices_manage dm1 ON dbr.manage_id = dm1.devices_manage_id
 				JOIN devices_manage dm2 ON dbr.backup_manage_id = dm2.devices_manage_id
+				AND dm2.status in (1, 4, 5) AND dm2.delete_flg = 0
 				GROUP BY manage_id
 			) br
 		ON dm.devices_manage_id = br.manage_id
@@ -103,11 +104,12 @@
 					manage_id, 
 					sum(free_displace_flg = 1) as free,
 					sum(free_displace_flg = 0) as confirm,
-					sum(dm1.line_id = dm2.line_id AND free_displace_flg = 1) as inline,
+					sum(coalesce(dm1.line_id = dm2.line_id, 0) AND free_displace_flg = 1) as inline,
 					group_concat(dm2ln.name, ':', dm2.manage_code, ':', dm2.status, ':', free_displace_flg order by (dm1.line_id = dm2.line_id) desc) as tecv
 				FROM device_backup_relation dbr
 				JOIN devices_manage dm1 ON dbr.manage_id = dm1.devices_manage_id
 				JOIN devices_manage dm2 ON dbr.backup_manage_id = dm2.devices_manage_id
+				AND dm2.status in (1, 4, 5) AND dm2.delete_flg = 0
 				LEFT JOIN line dm2ln ON dm2.line_id = dm2ln.line_id
 			GROUP BY manage_id
 			) br
