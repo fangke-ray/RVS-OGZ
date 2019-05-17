@@ -15,6 +15,8 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.equipment.DeviceSpareAdjustForm;
 import com.osh.rvs.form.equipment.DeviceSpareForm;
 import com.osh.rvs.service.BrandService;
@@ -78,6 +80,15 @@ public class DeviceSpareAction extends BaseAction {
 
 		// 设备工具备品总价
 		req.setAttribute("totalPrice", service.calculatePrice(conn));
+		
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		String privacy = "";
+		
+		// 设备管理员
+		if(user.getPrivacies().contains(RvsConsts.PRIVACY_TECHNOLOGY)){
+			privacy = "technology";
+		}
+		req.setAttribute("privacy", privacy);
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
