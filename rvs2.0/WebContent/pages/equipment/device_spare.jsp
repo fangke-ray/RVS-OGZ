@@ -33,7 +33,11 @@ order_no{
 
 <title>设备工具备品管理</title>
 </head>
-<body class="outer" style="overflow: auto;">
+<% 
+	String privacy = (String) request.getAttribute("privacy");
+	boolean isTechnology = ("technology").equals(privacy);
+%>
+<body class="outer" style="overflow: auto;" istechnology="<%= isTechnology%>">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 		<div id="basearea" class="dwidth-full" style="margin: auto;">
 			<jsp:include page="/header.do" flush="true">
@@ -135,12 +139,15 @@ order_no{
 				
 					<table id="list"></table>
 					<div id="listpager"></div>
+					
+<% if (isTechnology) { %>
 					<div class="ui-widget-header areabase"style="padding-top:4px;">
 					    <div id="executes" style="margin-left:4px;margin-top:4px;">
 							<input type="button" id="cancelbutton" class="ui-button" value="取消管理">
 							<input type="button" id="inventorybutton" class="ui-button" value="盘点">
 						</div>
 					</div>
+<%} %>	
 				</div>
 				
 				<div id="add" style="display: none;">

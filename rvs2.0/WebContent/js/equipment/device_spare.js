@@ -1,6 +1,11 @@
 var servicePath = "device_spare.do";
+var isTechnology = false;
 
 $(function(){
+	if($("body").attr("istechnology") == "true"){
+		isTechnology = true;
+	}
+	
 	$("input.ui-button").button();
 	
 	/*为每一个匹配的元素的特定事件绑定一个事件处理函数*/
@@ -345,6 +350,10 @@ function showAdd(){
 };
 
 function enableButton(){
+	if(!isTechnology){
+		return;
+	}
+
 	//得到选中行的ID	
 	var rowID = $("#list").jqGrid("getGridParam", "selrow");
 	if(rowID > 0){
@@ -355,6 +364,10 @@ function enableButton(){
 };
 
 function showEdit(){
+	if(!isTechnology){
+		return;
+	}
+
 	var rowID = $("#list").jqGrid("getGridParam", "selrow");// 得到选中行的ID	
 	var rowData = $("#list").getRowData(rowID);
 	
@@ -634,11 +647,13 @@ function list(listdata){
 			}
 		});
 		
-		$(".ui-jqgrid-hbox").before('<div class="ui-widget-content" style="padding:4px;">' +
-				'<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建备品管理">' +
-			'</div>');
+		if(isTechnology){
+			$(".ui-jqgrid-hbox").before('<div class="ui-widget-content" style="padding:4px;">' +
+					'<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="addbutton" value="新建备品管理">' +
+				'</div>');
 
-		$("#addbutton").button().click(showAdd);
+			$("#addbutton").button().click(showAdd);
+		}
 	}
 };
 
