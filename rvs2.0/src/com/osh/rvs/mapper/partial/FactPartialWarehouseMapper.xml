@@ -28,8 +28,6 @@
 			fpf.production_type = #{production_type}
 		AND
 			fpf.partial_warehouse_key = #{key}
-		AND
-			fpf.operator_id = #{operator_id}
 		GROUP BY
 			fpw.spec_kind
 	]]>
