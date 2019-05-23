@@ -348,8 +348,7 @@
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
 		AND (dm.provide_date != current_date OR dm.provide_date is null)
-		AND (dci.seq_no is not null OR dt.specialized = 1)
-		AND dci.trigger_state = 1
+		AND (dci.trigger_state = 1 OR (dt.specialized = 1 AND dcr.item_seq < 50))
 		]]>
 		<if test="specialized==null">
 			<![CDATA[
