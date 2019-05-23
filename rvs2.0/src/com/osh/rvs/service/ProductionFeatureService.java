@@ -288,6 +288,11 @@ public class ProductionFeatureService {
 					entity.setRework(neoRework);
 					pfDao.insertProductionFeature(entity);
 
+					if (isFact && ("99".equals(position_id) || "00000000099".equals(position_id))) {
+						MaterialPartialService mptlService = new MaterialPartialService();
+						mptlService.createMaterialPartialWithExistCheck(material_id, conn);
+					}
+
 					if (isFact) {
 						// 通知
 						triggerList.add("http://localhost:8080/rvspush/trigger/in/" + position_id + "/" 
@@ -617,10 +622,6 @@ public class ProductionFeatureService {
 //				// NS零件订购单已交付
 //			}
 			nPf.setPosition_id(nextPosition_id);
-			if (isFact && "00000000099".equals(nextPosition_id)) {
-				MaterialPartialService mptlService = new MaterialPartialService();
-				mptlService.createMaterialPartialWithExistCheck(material_id, conn);
-			}
 			fingerPosition(mEntity, fixed, nPf, conn, pfDao, paProxy, ret, triggerList, isFact);
 		}
 

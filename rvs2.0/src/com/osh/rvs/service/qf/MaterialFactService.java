@@ -45,6 +45,7 @@ import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ProcessAssignService;
 import com.osh.rvs.service.inline.PositionPanelService;
+import com.osh.rvs.service.partial.MaterialPartialService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
@@ -406,6 +407,10 @@ public class MaterialFactService {
 			}
 
 			for (ProductionFeatureEntity featureEntity : featureEntities) {
+				if ("99".equals(featureEntity.getPosition_id()) || "00000000099".equals(featureEntity.getPosition_id())) {
+					MaterialPartialService mptlService = new MaterialPartialService();
+					mptlService.createMaterialPartialWithExistCheck(materialId, conn);
+				}
 				featureMapper.insertProductionFeature(featureEntity);
 			}
 		}
