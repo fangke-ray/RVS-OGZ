@@ -43,27 +43,9 @@ public class DeviceBackupAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("DeviceBackupAction.init start");
 
-		DevicesTypeService dtService = new DevicesTypeService();
-
-		// 品名
-		String nReferChooser = dtService.getDevicesTypeReferChooser(conn);
-		req.setAttribute("nReferChooser", nReferChooser);
-
 		LineService lService = new LineService();
 		String lOptions = lService.getOptions(conn, "", "(全部)");
 		req.setAttribute("lOptions", lOptions);
-
-		// 管理等级
-		req.setAttribute("goManageLevel", CodeListUtils.getGridOptions("devices_manage_level"));
-
-		// 状态
-		req.setAttribute("goStatus",CodeListUtils.getGridOptions("devices_status"));
-
-		// 工位信息取得
-		PositionService positionService = new PositionService();
-		String pReferChooser = positionService.getOptions(conn);
-		// 工位信息设定
-		req.setAttribute("pReferChooser", pReferChooser);
 
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = user.getPrivacies();

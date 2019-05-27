@@ -40,6 +40,7 @@ import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
+import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CustomerService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -508,13 +509,8 @@ public class LineLeaderService {
 		sendation.setResolve_time(new Date());
 
 		// 留下本人备注
-		int me = dao.countAlarmMessageSendation(sendation);
-		if (me <= 0) {
-			// 没有发给处理者的信息时（代理线长），新建一条
-			dao.createAlarmMessageSendation(sendation);
-		} else {
-			dao.updateAlarmMessageSendation(sendation);
-		}
+		AlarmMesssageService amService = new AlarmMesssageService();
+		amService.replaceAlarmMessageSendation(sendation, conn);
 
 		// 取得本课室经理人员
 		OperatorMapper oDao = conn.getMapper(OperatorMapper.class);
@@ -528,7 +524,7 @@ public class LineLeaderService {
 			sendation = new AlarmMesssageSendationEntity();
 			sendation.setAlarm_messsage_id(alarm_messsage_id);
 			sendation.setSendation_id(manager.getOperator_id());
-			me = dao.countAlarmMessageSendation(sendation);
+			int me = dao.countAlarmMessageSendation(sendation);
 
 			if (me == 0) {
 				// 如果不存在则Insert

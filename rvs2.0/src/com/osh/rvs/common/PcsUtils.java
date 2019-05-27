@@ -1189,6 +1189,8 @@ public class PcsUtils {
 			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"G\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", "<label>" + modelName + "</label>");
 			// GC
 			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"G\" type=\"C\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", "<label>(机身号)</label>");
+			// GR
+			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"G\" type=\"R\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", "<label>(修理等级)</label>");
 
 			// 输入：I
 			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d\\d\" scope=\"\\w\" type=\"I\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
