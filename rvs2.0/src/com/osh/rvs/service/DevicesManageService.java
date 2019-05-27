@@ -40,7 +40,7 @@ import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class DevicesManageService {
-     PositionService positionService = new PositionService();
+     private PositionService positionService = new PositionService();
 	/**
 	 * 设备工具管理详细画面
 	 * 
@@ -491,7 +491,7 @@ public class DevicesManageService {
 	}
 	
 	// 获取被选择的多个设备
-	public List<DevicesManageEntity> getPostKeys(Map<String, String[]> parameters) {
+	private List<DevicesManageEntity> getPostKeys(Map<String, String[]> parameters) {
 
 		List<DevicesManageEntity> keyWithNewCodes = new AutofillArrayList<DevicesManageEntity>(DevicesManageEntity.class);
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
@@ -645,4 +645,30 @@ public class DevicesManageService {
 		}
 		return ret;
 	}
+
+	/**
+	 * 全部设备Option
+	 * @param conn
+	 * @return
+	 */
+	public String getOptions(SqlSession conn) {
+		List<String[]> lst = new ArrayList<String[]>();
+		
+		DevicesManageMapper dao = conn.getMapper(DevicesManageMapper.class);
+		List<DevicesManageEntity> list = dao.getAllManageCode();
+		
+		for (DevicesManageEntity entity : list) {
+			String[] line = new String[4];
+			line[0] = entity.getDevices_manage_id();
+			line[1] = entity.getManage_code();
+			line[2] = entity.getName();
+			line[3] = entity.getModel_name();
+			lst.add(line);
+		}
+		
+		String pReferChooser = CodeListUtils.getReferChooser(lst);
+		
+		return pReferChooser;
+	}
+
 }

@@ -532,4 +532,16 @@
 		jig_no = #{jig_no}
 	 ]]>
 	</select>
+
+    <select id="getAllManageCode" resultType="JigManageEntity">
+		select
+			tm.manage_code,
+			jig_name as jig_name,
+			tm.jig_manage_id,
+			tm.jig_no
+		from
+			jig_manage tm
+		WHERE tm.delete_flg=0 and status in (1,4)
+		ORDER BY tm.manage_code;
+    </select>
 </mapper>
