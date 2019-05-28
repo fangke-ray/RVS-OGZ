@@ -49,6 +49,4 @@ public interface AlarmMesssageMapper {
 
 	public List<String> getToolInfectByPosition(@Param("section_id") String section_id,
 			@Param("position_id") String position_id);
-	
-	public List<AlarmMesssageEntity> searchRateByOperatorId(@Param("operator_id") String operator_id);
 }

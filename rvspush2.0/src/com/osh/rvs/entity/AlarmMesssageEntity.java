@@ -32,8 +32,6 @@ public class AlarmMesssageEntity implements Serializable {
 	private String resolver_id;
 	private String resolver_name;
 	private Date resolve_time;
-	private String comment;
-	private String sendation_id;
 
 	// List<AlarmMesssageSendationEntity> sendation = new ArrayList
 
@@ -174,17 +172,5 @@ public class AlarmMesssageEntity implements Serializable {
 	}
 	public void setReciever_id(String reciever_id) {
 		this.reciever_id = reciever_id;
-	}
-	public String getComment() {
-		return comment;
-	}
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-	public String getSendation_id() {
-		return sendation_id;
-	}
-	public void setSendation_id(String sendation_id) {
-		this.sendation_id = sendation_id;
 	}
 }

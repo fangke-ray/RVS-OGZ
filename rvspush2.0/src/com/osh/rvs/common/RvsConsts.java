@@ -43,8 +43,6 @@ public class RvsConsts extends BaseConst {
 	public static final Integer WARNING_REASON_QAFORBID = 5; // 品保不通过
 	public static final Integer WARNING_REASON_BREAK_SOLO = 6; // 不良中断 - 独立工位
 	public static final Integer WARNING_REASON_INLINE_LATE = 7; // 投线延迟
-	public static final Integer WARNING_REASON_NOT_REACH_LOAD_RATE = 11; // 负荷率未达成
-	public static final Integer WARNING_REASON_NOT_REACH_ENERGY_RATE = 12; // 能率未达成
 	public static final String ROLE_MANAGER = "00000000009";
 	public static final String ROLE_SCHEDULER = "00000000004";
 	public static final String ROLE_LINELEADER = "00000000005";

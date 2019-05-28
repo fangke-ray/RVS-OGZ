@@ -1,7 +1,7 @@
 package com.osh.rvs.action.data;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,14 +92,7 @@ public class AlarmMessageAction extends BaseAction {
 		// 处理者信息设定
 		req.setAttribute("oReferChooser", oReferChooser);
 
-		Calendar today  =Calendar.getInstance();
-		int hour = today.get(Calendar.HOUR_OF_DAY); 
-		
-		if(hour < 10 ){
-			today.add(Calendar.DAY_OF_MONTH, -1);
-		}
-		
-		req.setAttribute("today", DateUtil.toString(today.getTime(), DateUtil.DATE_PATTERN));
+		req.setAttribute("today", DateUtil.toString(new Date(), DateUtil.DATE_PATTERN));
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

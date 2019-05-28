@@ -16,9 +16,7 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.form.data.AlarmMesssageForm;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
-import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 
 import framework.huiqing.action.BaseAction;
@@ -62,19 +60,9 @@ public class FactProductionFeatureAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		// 当前登录者
-		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
-		
-		//查询警报记录
-		AlarmMesssageService alarmMesssageService = new AlarmMesssageService();
-		List<AlarmMesssageForm> alarmList = alarmMesssageService.searchRateExistsFixed(user.getOperator_id(), conn);
-		callbackResponse.put("alarmList", alarmList);
-		
-		if(alarmList == null){
-			// 进行中的作业信息
-			FactProductionFeatureForm factProductionFeature = factProductionFeatureService.searchUnFinishProduction(req, conn);
-			callbackResponse.put("unfinish", factProductionFeature);
-		}
+		// 进行中的作业信息
+		FactProductionFeatureForm factProductionFeature = factProductionFeatureService.searchUnFinishProduction(req, conn);
+		callbackResponse.put("unfinish", factProductionFeature);
 
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);
