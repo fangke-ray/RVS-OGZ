@@ -38,7 +38,7 @@ public class DevicesTypeService {
 	private static Set<String> safetyGuideSet = null;
 
 	/**
-	 * 设备工具品名 详细
+	 * 设备工具品名 查询
 	 * 
 	 * @param toolsCheckEntity
 	 * @param conn
@@ -64,6 +64,27 @@ public class DevicesTypeService {
 		}
 
 		return devicesTypeForms;
+	}
+
+	/**
+	 * 设备工具品名 详细
+	 * 
+	 * @param id
+	 * @param conn
+	 * @return
+	 */
+	public DeviceTypeEntity getDeviceTypeById(String id, SqlSession conn) {
+
+		DevicesTypeMapper dao = conn.getMapper(DevicesTypeMapper.class);
+
+		DeviceTypeEntity devicesTypeEntity = new DeviceTypeEntity();
+		devicesTypeEntity.setDevice_type_id(id);
+		List<DeviceTypeEntity> devicesTypeEntities = dao.searchDeviceType(devicesTypeEntity);
+		if (devicesTypeEntities.size() > 0) {
+			return devicesTypeEntities.get(0);
+		}
+
+		return null;
 	}
 
 	/**
@@ -134,6 +155,9 @@ public class DevicesTypeService {
 		
 		DevicesTypeMapper dao = conn.getMapper(DevicesTypeMapper.class);
 		dao.updateDevicesType(devicesTypeEntity);
+
+		// 清除工位待点检品判断
+		CheckResultPageService.todayCheckedMap.clear();
 	}
 
 	/**

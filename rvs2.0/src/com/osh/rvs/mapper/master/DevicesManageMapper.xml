@@ -590,11 +590,16 @@
 		;
     </select>
 
-    <select id="getAllManageCode" resultType="String">
-    	SELECT DISTINCT manage_code
+    <select id="getAllManageCode" resultType="DevicesManageEntity">
+    	SELECT devices_manage_id, manage_code, dt.name, model_name
 		FROM
 			devices_manage dm
+		JOIN
+			device_type dt
+		ON
+			dm.device_type_id = dt.device_type_id
 		WHERE dm.delete_flg=0
+		AND status in (1, 4, 5)
 		ORDER BY manage_code
     </select>
 

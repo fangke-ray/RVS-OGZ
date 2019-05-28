@@ -90,6 +90,8 @@
 		<form-bean name="DeviceJigQuotationForm" type="com.osh.rvs.form.equipment.DeviceJigQuotationForm"></form-bean>
 		<form-bean name="DeviceJigOrderDetailForm" type="com.osh.rvs.form.equipment.DeviceJigOrderDetailForm"></form-bean>
 		<form-bean name="deviceBackupForm" type="com.osh.rvs.form.equipment.DeviceBackupForm"></form-bean>
+		<form-bean name="deviceJigRepairRecordForm" type="com.osh.rvs.form.equipment.DeviceJigRepairRecordForm"></form-bean>
+
 		<form-bean name="OperationStandardDocForm" type="com.osh.rvs.form.manage.OperationStandardDocForm"></form-bean>
 	</form-beans>
 
@@ -964,8 +966,20 @@
 				validate="false">
 				<forward name="init" path="/pages/equipment/device_backup.jsp"/>
 		</action>
-		
+
 		<!-- 设备工具替代管理 -->
+		<action path="/device_jig_repair_record"
+				type="com.osh.rvs.action.equipment.DeviceJigRepairRecordAction"
+				name="deviceJigRepairRecordForm"
+				scope="request"
+				parameter="method"
+				validate="false">
+				<forward name="init" path="/pages/equipment/device_jig_repair_record.jsp"/>
+				<forward name="detail" path="/widgets/equipment/device_jig_repair_record_detail.jsp"/>
+		</action>
+
+
+		<!-- 作业指导书管理 -->
 		<action path="/operation_standard_doc"
 				type="com.osh.rvs.action.manage.OperationStandardDocAction"
 				name="OperationStandardDocForm"

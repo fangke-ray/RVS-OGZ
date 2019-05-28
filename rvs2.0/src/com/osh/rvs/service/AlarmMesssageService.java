@@ -457,7 +457,7 @@ public class AlarmMesssageService {
 	 * @param conn
 	 * @throws Exception
 	 */
-	public void closebreak(HttpServletRequest req, SqlSession conn) throws Exception {
+	public void closebreak(HttpServletRequest req, SqlSessionManager conn) throws Exception {
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -486,14 +486,7 @@ public class AlarmMesssageService {
 		sendation.setSendation_id(user.getOperator_id());
 		sendation.setResolve_time(new Date());
 
-		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
-		int me = amDao.countAlarmMessageSendation(sendation);
-		if (me <= 0) {
-			// 没有发给处理者的信息时（代理线长），新建一条
-			amDao.createAlarmMessageSendation(sendation);
-		} else {
-			amDao.updateAlarmMessageSendation(sendation);
-		}
+		replaceAlarmMessageSendation(sendation, conn);
 	}
 
 	/**
@@ -581,14 +574,7 @@ public class AlarmMesssageService {
 			sendation.setSendation_id(user.getOperator_id());
 			sendation.setResolve_time(new Date());
 
-			AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
-			int me = amDao.countAlarmMessageSendation(sendation);
-			if (me <= 0) {
-				// 没有发给处理者的信息时（代理线长），新建一条
-				amDao.createAlarmMessageSendation(sendation);
-			} else {
-				amDao.updateAlarmMessageSendation(sendation);
-			}
+			replaceAlarmMessageSendation(sendation, conn);
 		}
 	}
 
@@ -785,14 +771,35 @@ public class AlarmMesssageService {
 			sendation.setSendation_id(user.getOperator_id());
 			sendation.setResolve_time(new Date());
 
-			AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
-			int me = amDao.countAlarmMessageSendation(sendation);
-			if (me <= 0) {
-				// 没有发给处理者的信息时（代理线长），新建一条
-				amDao.createAlarmMessageSendation(sendation);
-			} else {
-				amDao.updateAlarmMessageSendation(sendation);
+			replaceAlarmMessageSendation(sendation, conn);
+		}
+	}
+
+	public void replaceAlarmMessageSendation(AlarmMesssageSendationEntity sendation, SqlSessionManager conn) throws Exception {
+		replaceAlarmMessageSendation(sendation, conn, null);
+	}
+	public void replaceAlarmMessageSendation(AlarmMesssageSendationEntity sendation, SqlSessionManager conn
+			, List<String> triggerList) throws Exception {
+		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
+		int me = amDao.countAlarmMessageSendation(sendation);
+
+		if (me <= 0) {
+			// 没有发给处理者的信息时（如代理线长），新建一条
+			amDao.createAlarmMessageSendation(sendation);
+		} else {
+			amDao.updateAlarmMessageSendation(sendation);
+		}
+
+		if (triggerList != null) {
+			String noticeString = "http://localhost:8080/rvspush/trigger/postMessage/";
+			List<AlarmMesssageSendationEntity> sendations = amDao.getBreakAlarmMessageSendation(sendation.getAlarm_messsage_id());
+			for (AlarmMesssageSendationEntity sendto : sendations) {
+				noticeString += (sendto.getSendation_id() + "/");
 			}
+			for (int i = sendations.size(); i < 3; i++) {
+				noticeString += "0/";
+			}
+			triggerList.add(noticeString);
 		}
 	}
 

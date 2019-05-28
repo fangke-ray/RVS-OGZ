@@ -53,4 +53,5 @@ public interface JigManageMapper {
 	 */
 	public List<JigManageEntity> searchByJigNo(@Param("jig_no") String jig_no);
 
+	public List<JigManageEntity> getAllManageCode();
 }

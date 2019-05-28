@@ -227,14 +227,11 @@ public class CheckResultService {
 			old = periodsOfDate.get(key);
 		}
 		synchronized (periodsOfDate) {
-			periodsOfDate.clear();
+//			periodsOfDate.clear();
 
+			Date theDay = DateUtil.toDate(dayString, DateUtil.ISO_DATE_PATTERN);
 			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			cal.set(Calendar.MILLISECOND, 0);
-			Date today = cal.getTime();
+			cal.setTime(theDay);
 
 			// 周开始终了
 			int week = cal.get(Calendar.DAY_OF_WEEK);
@@ -253,7 +250,7 @@ public class CheckResultService {
 			}
 
 			// 月开始终了
-			cal.setTime(today);
+			cal.setTime(theDay);
 			cal.set(Calendar.DATE, 1);
 			neo.setStartOfMonth(cal.getTime());
 
@@ -262,7 +259,7 @@ public class CheckResultService {
 			neo.setEndOfMonth(cal.getTime());
 
 			// 半月开始终了
-			cal.setTime(today);
+			cal.setTime(theDay);
 			if (cal.get(Calendar.DATE) <= 15) {
 				neo.setStartOfHMonth(neo.getStartOfMonth());
 				cal.set(Calendar.DATE, 15);
@@ -274,7 +271,7 @@ public class CheckResultService {
 			}
 			
 			// 半期开始终了
-			cal.setTime(today);
+			cal.setTime(theDay);
 			int nowMonth = cal.get(Calendar.MONTH);
 			if (nowMonth < Calendar.APRIL) {
 				cal.add(Calendar.YEAR, -1);

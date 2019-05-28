@@ -879,7 +879,7 @@ function filed_list(listdata){
 	}else{
 		$("#list").jqGrid({
 			data:listdata,
-			height: 390,
+			height: 461,
 			width: 992,
 			rowheight: 23,
 			datatype: "local",

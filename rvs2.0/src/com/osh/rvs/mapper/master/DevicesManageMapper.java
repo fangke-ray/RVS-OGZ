@@ -46,7 +46,7 @@ public interface DevicesManageMapper {
 
    public List<DeviceTypeEntity> getDeviceTypeOfPosition(DevicesManageEntity dme);
 
-	public List<String> getAllManageCode();
+	public List<DevicesManageEntity> getAllManageCode();
 
 	public int insertDeviceManageRecord(DevicesManageEntity dme);
 

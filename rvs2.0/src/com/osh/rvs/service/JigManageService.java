@@ -461,4 +461,30 @@ public class JigManageService {
 		return ret;
 	}
 
+	/**
+	 * 全部设备Option
+	 * @param conn
+	 * @return
+	 */
+	public String getOptions(SqlSession conn) {
+		List<String[]> lst = new ArrayList<String[]>();
+		
+		JigManageMapper dao = conn.getMapper(JigManageMapper.class);
+		List<JigManageEntity> list = dao.getAllManageCode();
+		
+		for (JigManageEntity entity : list) {
+			String[] line = new String[4];
+			line[0] = entity.getJig_manage_id();
+			line[1] = entity.getManage_code();
+			line[2] = entity.getJig_no();
+			line[3] = entity.getJig_name();
+			lst.add(line);
+		}
+	
+		String pReferChooser = CodeListUtils.getReferChooser(lst);
+		
+		return pReferChooser;
+	}
+
+
 }
