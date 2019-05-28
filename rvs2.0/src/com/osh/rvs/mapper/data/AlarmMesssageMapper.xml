@@ -400,4 +400,19 @@ ORDER BY occur_time DESC;
 			AND red_flg = 1);
   		]]>
 	</select>
+	
+	<select id="searchRateByOperatorId" resultType="AlarmMesssageEntity" parameterType="String">
+	<![CDATA[
+	SELECT
+		alarm_messsage_id,
+		occur_time,
+    	reason
+    FROM
+		alarm_messsage
+    WHERE
+		reason IN(11,12)
+	AND
+		operator_id = #{operator_id}
+	]]> 
+	</select>
 </mapper>

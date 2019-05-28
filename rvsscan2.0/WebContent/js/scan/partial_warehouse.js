@@ -166,7 +166,7 @@ function setChart(resInfo){
 		}
 		
 		$("#resultarea .result:last-child").find(".item[for=" + operatorId + "] .per:last-child")
-		.removeClass("over low").text(rate).addClass(className);
+		.removeClass("over low").text(rate + '%').addClass(className);
 	});
 	
 	$(".y_columns").append($y_columns);

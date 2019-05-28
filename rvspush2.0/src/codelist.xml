@@ -119,6 +119,8 @@
 		<value code="4">等待区超量</value>
 		<value code="5">品保不通过</value>
 		<value code="6">中断(先端)</value>
+		<value code="11">负荷率未达成</value>
+		<value code="12">能率未达成</value>
 	</codelist>
 
 	<codelist name="pause_reason">

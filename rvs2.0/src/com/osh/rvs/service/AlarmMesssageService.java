@@ -425,6 +425,12 @@ public class AlarmMesssageService {
 					"，请知晓并及时处理！");
 		} else if (RvsConsts.WARNING_REASON_POSITION_OVERTIME.equals(amReason)) {
 			form.setComment("维修品在" + entity.getProcess_code() + "工位的实际作业时间已超出标准。请予以确认！");
+		} else if (RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE.equals(amReason)) {// 负荷率未达成
+			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
+			form.setComment(amsEntity.getComment());
+		} else if (RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE.equals(amReason)) {// 能率未达成
+			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
+			form.setComment(amsEntity.getComment());
 		}
 
 		form.setLevel(CodeListUtils.getValue("alarm_level", form.getLevel()));
@@ -844,4 +850,40 @@ public class AlarmMesssageService {
 
 		return amId;
 	}
+	
+	/**
+	 * 查询能率或者负荷率存在解决的记录
+	 * @param operatorId
+	 * @param conn
+	 * @return
+	 */
+	public List<AlarmMesssageForm> searchRateExistsFixed(String operatorId,SqlSession conn){
+		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
+		
+		List<AlarmMesssageForm> respForm = null;
+		List<AlarmMesssageEntity> list = dao.searchRateByOperatorId(operatorId);
+		
+		if(list.size() > 0){
+			respForm = new ArrayList<AlarmMesssageForm>();
+			
+			for(AlarmMesssageEntity entity : list){
+				boolean isFixed = dao.isFixed(entity.getAlarm_messsage_id());
+				
+				// 存在解决
+				if(isFixed){
+					respForm = null;
+					break;
+				} else {
+					AlarmMesssageForm form = new AlarmMesssageForm();
+					BeanUtil.copyToForm(entity, form, CopyOptions.COPYOPTIONS_NOEMPTY);
+					form.setMyComment(CodeListUtils.getValue("alarm_reason", form.getReason()));
+					
+					respForm.add(form);
+				}
+			}
+		}
+		
+		return respForm;
+	}
+	
 }

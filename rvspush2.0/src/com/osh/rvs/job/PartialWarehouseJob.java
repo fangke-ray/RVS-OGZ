@@ -3,7 +3,6 @@ package com.osh.rvs.job;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -17,8 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
@@ -39,8 +39,13 @@ import org.quartz.JobKey;
 
 import com.osh.rvs.common.CopyByPoi;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.entity.AlarmMesssageEntity;
+import com.osh.rvs.entity.AlarmMesssageSendationEntity;
 import com.osh.rvs.entity.PartialWarehouseEntity;
+import com.osh.rvs.mapper.push.AlarmMesssageMapper;
+import com.osh.rvs.mapper.push.CommonMapper;
 import com.osh.rvs.mapper.push.PartialWarehouseMapper;
 import com.osh.rvs.mapper.push.UserDefineCodesMapper;
 
@@ -61,14 +66,16 @@ public class PartialWarehouseJob implements Job {
 	
 	/** 每日工作时间（475分钟） **/
 	private final Integer WORK_TIME = 475;
-	/** 每日工作+加班时间（565分钟） **/
-	private final Integer WORK_OVER_TIME = 565;
+	/** 每日工作+加班1小时（535分钟） **/
+	private final Integer WORK_OVER_ONE_HOUR_TIME = 535;
+	/** 每日工作+加班2小时（595分钟） **/
+	private final Integer WORK_OVER_TWO_HOUR_TIME = 595;
 	/** 一分钟（60000毫秒）**/
 	private final Integer ONE_MINUTE_MILLISECOND = 60000;
 	/** 十分钟（600000毫秒）**/
 	private final Integer TEN_MINUTE_MILLISECOND = ONE_MINUTE_MILLISECOND * 10;
-	/** 四十五分钟（2700000毫秒） **/
-	private final Integer FORTY_FIVE_MINUTE_MILLISECOND = ONE_MINUTE_MILLISECOND * 45;
+	/** 十五分钟（900000毫秒） **/
+	private final Integer FIFTEEN_MINUTE_MILLISECOND = ONE_MINUTE_MILLISECOND * 15;
 	/** 一小时（3600000毫秒）**/
 	private final Integer ONE_HOUR_MILLISECOND = ONE_MINUTE_MILLISECOND * 60;
 	/** 4位小数精度 **/
@@ -84,17 +91,33 @@ public class PartialWarehouseJob implements Job {
 		_log.info("PartialWarehouseJob: " + jobKey + " executing at " + monthStart);
 
 		// 取得数据库连接
-		SqlSession conn = getTempConn();
+		SqlSessionManager conn = getTempWritableConn();
 
-		try {
+		try{
+			conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
+			
 			partialWarehouseReport(monthStart, conn);
-		} catch (Exception e) {
-			_log.error("partialWarehouseReport:" + e.getMessage());
+			
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.commit();
+				_log.info("Committed！");
+			}
+		}catch(Exception e) {
+			_log.error(e.getMessage(), e);
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.rollback();
+				_log.info("Rolled back！");
+			}
+		} finally {
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.close();
+			}
+			conn = null;
 		}
 
 	}
 
-	private void partialWarehouseReport(Calendar monthStart, SqlSession conn) {
+	private void partialWarehouseReport(Calendar monthStart, SqlSessionManager conn) throws Exception {
 		PartialWarehouseMapper dao = conn.getMapper(PartialWarehouseMapper.class);
 		UserDefineCodesMapper userDefineCodesMapper = conn.getMapper(UserDefineCodesMapper.class);
 
@@ -112,11 +135,8 @@ public class PartialWarehouseJob implements Job {
 
 		try {
 			if (length > 0) {
-				try {
-					FileUtils.copyFile(new File(path), new File(cachePath));
-				} catch (IOException e) {
-					_log.error(e.getMessage(), e);
-				}
+				
+				FileUtils.copyFile(new File(path), new File(cachePath));
 
 				// 读取文件
 				in = new FileInputStream(cachePath);
@@ -153,15 +173,15 @@ public class PartialWarehouseJob implements Job {
 				}
 				
 				// 出入库明细
-				Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap = setDetailList(isMonthEnd,listBeans, userDefineMap.get("bdPartialReceptMoveCost"), detailSheet, styleMap, formulaEvaluator, dao);
+				Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap = this.setDetailList(monthStart,listBeans, userDefineMap, detailSheet, styleMap, formulaEvaluator, conn);
 
 				// 月底
 				if(isMonthEnd){
 					// 高雁梅每日汇总
-					setDailyCollect(monthStart, "197",rateMap,styleMap, userDefineMap, dailyCollectSheet, dao);
+					setDailyCollect(monthStart, "197",rateMap,styleMap, userDefineMap, dailyCollectSheet, conn);
 
 					// 叶昭杏每日汇总
-					setDailyCollect(monthStart, "198",rateMap,styleMap, userDefineMap, dailyCollectSheet2, dao);
+					setDailyCollect(monthStart, "198",rateMap,styleMap, userDefineMap, dailyCollectSheet2, conn);
 				}else{
 					// 删除Sheet
 					work.removeSheetAt(work.getSheetIndex(dailyCollectSheet));
@@ -172,34 +192,138 @@ public class PartialWarehouseJob implements Job {
 
 				out = new FileOutputStream(cachePath);
 				work.write(out);
+				
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
 			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				in.close();
 			}
 			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				out.close();
 			}
 		}
 	}
 
 	/**
-	 * 每日汇总
-	 *
-	 * @param listBeans
-	 * @param sheet
+	 * 
+	 * @param monthStart
+	 * @param userDefineMap
+	 * @param rateMap
+	 * @param conn
 	 */
-	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, PartialWarehouseMapper dao) {
+	private void createAlarmMessage(Calendar monthStart,Map<String, BigDecimal> userDefineMap,Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,SqlSessionManager conn)throws Exception{
+		AlarmMesssageMapper alarmMesssageMapper = conn.getMapper(AlarmMesssageMapper.class);
+		CommonMapper commonMapper = conn.getMapper(CommonMapper.class);
+		
+		// 每人每天负荷率
+		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
+		// 每人每天能率
+		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
+		
+		String strCurrentDate = DateUtil.toString(monthStart.getTime(), DateUtil.DATE_PATTERN);
+		
+		for(String jobNo : dailyLoadRateMap.keySet()){
+			Map<String, Double> childMap = dailyLoadRateMap.get(jobNo);
+			
+			String operatorId = "";
+			if ("00056".equals(jobNo)) {
+				operatorId = "197";
+			} else if ("30301".equals(jobNo)) {
+				operatorId = "198";
+			}
+			
+			// 当天负荷率存在
+			if (childMap.containsKey(strCurrentDate)) {
+				// 当天负荷率
+				double loadRate = childMap.get(strCurrentDate).doubleValue() * 100;
+				// 当天负荷率低于负荷率警报标志下线
+				if (loadRate < userDefineMap.get("strLowLever").doubleValue()) {
+					// 创建记录
+					AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
+					amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+					amEntity.setSection_id("6");
+					amEntity.setLine_id("0");
+					amEntity.setPosition_id("0");
+					amEntity.setReason(RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE);
+					amEntity.setOperator_id(operatorId);
+					alarmMesssageMapper.createAlarmMessage(amEntity);
+					
+					String alarmmessageId = commonMapper.getLastInsertID();
+					
+					String [] sendationIDs = {"0","206",operatorId};
+					for(String sendationID : sendationIDs){
+						AlarmMesssageSendationEntity amsBean = new AlarmMesssageSendationEntity();
+						amsBean.setAlarm_messsage_id(alarmmessageId);
+						amsBean.setSendation_id(sendationID);
+						if(sendationID.equals("0")){
+							String comment = strCurrentDate + "负荷率为" + loadRate + "%";
+							amsBean.setComment(comment);		
+						}
+						alarmMesssageMapper.insertAlarmMessageSendation(amsBean);
+					}
+				}
+			}
+		}
+		
+		for(String jobNo : dailyEnergyRateMap.keySet()){
+			Map<String, Double> childMap = dailyEnergyRateMap.get(jobNo);
+			
+			String operatorId = "";
+			if ("00056".equals(jobNo)) {
+				operatorId = "197";
+			} else if ("30301".equals(jobNo)) {
+				operatorId = "198";
+			}
+			
+			// 当天能率存在
+			if (childMap.containsKey(strCurrentDate)) {
+				// 当天能率
+				double energyRate = childMap.get(strCurrentDate).doubleValue() * 100;
+				// 当天能率低于警报标志下线
+				if (energyRate < userDefineMap.get("efLowLever").doubleValue()) {
+					// 创建记录
+					AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
+					amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+					amEntity.setSection_id("6");
+					amEntity.setLine_id("0");
+					amEntity.setPosition_id("0");
+					amEntity.setReason(RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE);
+					amEntity.setOperator_id(operatorId);
+					alarmMesssageMapper.createAlarmMessage(amEntity);
+					
+					String alarmmessageId = commonMapper.getLastInsertID();
+					
+					String [] sendationIDs = {"0","206",operatorId};
+					for(String sendationID : sendationIDs){
+						AlarmMesssageSendationEntity amsBean = new AlarmMesssageSendationEntity();
+						amsBean.setAlarm_messsage_id(alarmmessageId);
+						amsBean.setSendation_id(sendationID);
+						if(sendationID.equals("0")){
+							String comment = strCurrentDate + "能率为" + energyRate + "%";
+							amsBean.setComment(comment);		
+						}
+						alarmMesssageMapper.insertAlarmMessageSendation(amsBean);
+					}
+				} 
+			}
+		}
+	}
+	
+	
+	/**
+	 * 每日汇总
+	 * @param monthStart
+	 * @param operatorId
+	 * @param rateMap
+	 * @param styleMap
+	 * @param userDefineMap
+	 * @param sheet
+	 * @param conn
+	 */
+	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, SqlSessionManager conn) {
+		PartialWarehouseMapper partialWarehouseMapper = conn.getMapper(PartialWarehouseMapper.class);
+		AlarmMesssageMapper alarmMesssageMapper = conn.getMapper(AlarmMesssageMapper.class);
+		
 		Row row = null;
 		Row row2 = null;
 		Cell cell = null;
@@ -231,7 +355,7 @@ public class PartialWarehouseJob implements Job {
 		int colIndex = 2;
 
 		// 每天每种作业类型用时
-		List<PartialWarehouseEntity> list = dao.countDailySpendTime(operatorId,DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
+		List<PartialWarehouseEntity> list = partialWarehouseMapper.countDailySpendTime(operatorId,DateUtil.toString(RvsUtils.getMonthStartDate(monthStart), DateUtil.DATE_PATTERN));
 
 		Map<Date, List<PartialWarehouseEntity>> map = new LinkedHashMap<Date, List<PartialWarehouseEntity>>();
 		
@@ -263,6 +387,8 @@ public class PartialWarehouseJob implements Job {
 
 			// 加班标记
 			boolean flg = false;
+			// 加班时段
+			Integer workTimePeriod = 0;
 
 			// 获取第一行
 			row = sheet.getRow(0);
@@ -295,11 +421,19 @@ public class PartialWarehouseJob implements Job {
 				// 加班标记
 				Integer overtimeFlg = partialWarehouseEntity.getOvertime_flg();
 
-				if (flg == false && overtimeFlg > 0) {
-					flg = true;
+				if (flg == false) {
+					// 超过6:30
+					if(overtimeFlg == 2){
+						workTimePeriod = 2;
+						flg = true;
+					}else if(overtimeFlg == 1){
+						// 5:30 - 6:30之间
+						workTimePeriod = 1;
+						flg = true;
+					}
 				}
 
-				dailyWorkRecordList = dao.searchDailyWorkRecord(operatorId,productionType.toString(), DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
+				dailyWorkRecordList = partialWarehouseMapper.searchDailyWorkRecord(operatorId,productionType.toString(), DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
 
 				switch (productionType) {
 				case 10://A：收货
@@ -311,7 +445,7 @@ public class PartialWarehouseJob implements Job {
 						String key = entity.getKey();
 						if (!CommonStringUtil.isEmpty(key)) {
 							// 收货标准工时
-							BigDecimal receptStandardTime = dao.countReceptStandardTime(key);
+							BigDecimal receptStandardTime = partialWarehouseMapper.countReceptStandardTime(key);
 							standardTime = standardTime.add(receptStandardTime);
 						}
 					}
@@ -322,11 +456,11 @@ public class PartialWarehouseJob implements Job {
 					row2 = sheet.getRow(4);
 
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
-						BigDecimal collationStandardTime = dao.countCollationStandardTime(entity.getFact_pf_key());
+						BigDecimal collationStandardTime = partialWarehouseMapper.countCollationStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
 						
 						// 拆盒
-						BigDecimal collectCase = dao.countCollectCaseStandardTime(entity.getFact_pf_key());
+						BigDecimal collectCase = partialWarehouseMapper.countCollectCaseStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collectCase);
 					}
 
@@ -336,7 +470,7 @@ public class PartialWarehouseJob implements Job {
 					row2 = sheet.getRow(6);
 
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
-						BigDecimal collationStandardTime = dao.countCollationStandardTime(entity.getFact_pf_key());
+						BigDecimal collationStandardTime = partialWarehouseMapper.countCollationStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
 					}
 
@@ -346,7 +480,7 @@ public class PartialWarehouseJob implements Job {
 					row2 = sheet.getRow(8);
 
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
-						BigDecimal collationStandardTime = dao.countUnPackStandardTime(entity.getFact_pf_key());
+						BigDecimal collationStandardTime = partialWarehouseMapper.countUnPackStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
 					}
 
@@ -356,7 +490,7 @@ public class PartialWarehouseJob implements Job {
 					row2 = sheet.getRow(10);
 
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
-						BigDecimal collationStandardTime = dao.countOnShelfStandardTime(entity.getFact_pf_key());
+						BigDecimal collationStandardTime = partialWarehouseMapper.countOnShelfStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
 					}
 					break;
@@ -404,8 +538,12 @@ public class PartialWarehouseJob implements Job {
 
 			double percent = 0;
 
-			if (flg) {// 加班
-				workTime = new BigDecimal(WORK_OVER_TIME);
+			// 加班6:30之后
+			if(workTimePeriod == 2){
+				workTime = new BigDecimal(WORK_OVER_TWO_HOUR_TIME);
+			} else if (workTimePeriod == 1) {
+				// 加班5:30 - 6:30之间
+				workTime = new BigDecimal(WORK_OVER_ONE_HOUR_TIME);
 			} else {
 				workTime = new BigDecimal(WORK_TIME);
 			}
@@ -456,7 +594,6 @@ public class PartialWarehouseJob implements Job {
 			colIndex++;
 		}
 
-
 		//隐藏列
 		for(int i = colIndex;i <= 32;i++){
 			// 设置列宽为零
@@ -470,20 +607,23 @@ public class PartialWarehouseJob implements Job {
 		cell.setCellValue(monthWorkTime.doubleValue());
 		
 		//（日次）负荷率未达成目标跟踪分析
-		dailyUnReachLowLever(sheet, styleMap, userDefineMap, dailyUnLoadRateMap);
+		dailyUnReachLowLever(monthStart,operatorId,sheet, styleMap, userDefineMap, dailyUnLoadRateMap,alarmMesssageMapper);
 		
 		//（日次）能率未达成目标跟踪分析
-		dailyUnReachEFLowLever(sheet, styleMap, userDefineMap, dailyUnEnergyRateMap);
+		dailyUnReachEFLowLever(monthStart,operatorId,sheet, styleMap, userDefineMap, dailyUnEnergyRateMap,alarmMesssageMapper);
 	}
 	
 	/**
 	 * （日次）负荷率未达成目标跟踪分析
+	 * @param monthStart 
+	 * @param operatorId 
 	 * @param sheet
 	 * @param styleMap 样式
 	 * @param userDefineMap 自定义参数
 	 * @param map 每日未达成目标数据集
+	 * @param alarmMesssageMapper 
 	 */
-	private void dailyUnReachLowLever(Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map){
+	private void dailyUnReachLowLever(Calendar monthStart, String operatorId, Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map, AlarmMesssageMapper alarmMesssageMapper){
 		Row row = null;
 		Cell cell = null;
 		
@@ -496,6 +636,40 @@ public class PartialWarehouseJob implements Job {
 			return;
 		}
 		
+		Calendar from = Calendar.getInstance();
+		from.setTime(monthStart.getTime());
+		from.set(Calendar.DAY_OF_MONTH, 1);
+		from.set(Calendar.HOUR_OF_DAY, 0);
+		from.set(Calendar.SECOND, 0);
+		from.set(Calendar.MINUTE, 0);
+		from.set(Calendar.MILLISECOND, 0);
+		
+		Calendar to = Calendar.getInstance();
+		to.setTime(monthStart.getTime());
+		to.set(Calendar.DAY_OF_MONTH, 1);
+		to.set(Calendar.HOUR_OF_DAY, 0);
+		to.set(Calendar.SECOND, 0);
+		to.set(Calendar.MINUTE, 0);
+		to.set(Calendar.MILLISECOND, 0);
+		to.add(Calendar.MONTH, 1);
+		
+		List<AlarmMesssageEntity> list = alarmMesssageMapper.searchAlarmMessageSend(RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE, operatorId, from.getTime(), to.getTime());
+		Map<String,Map<String,String>> messageMap = new HashMap<String,Map<String,String>>(16);
+		for(AlarmMesssageEntity entity : list){
+			String occurTime = DateUtil.toString(entity.getOccur_time(), DateUtil.DATE_PATTERN);
+			
+			Map<String,String> childMap  = null;
+			
+			if(messageMap.containsKey(occurTime)){
+				childMap = messageMap.get(occurTime);
+				childMap.put(entity.getSendation_id(), entity.getComment());
+			}else{
+				childMap = new HashMap<String,String>(16);
+				childMap.put(entity.getSendation_id(), entity.getComment());
+			}
+			messageMap.put(occurTime, childMap);
+		}
+		
 		sheet.getRow(109).getCell(0).setCellValue("目标："+ userDefineMap.get("strLowLever").doubleValue() + "%");
 		
 		//（日次）负荷率未达成目标跟踪分析开始行索引
@@ -504,18 +678,32 @@ public class PartialWarehouseJob implements Job {
 		int rowEndIndex = rowIndex + 30;
 		
 		//（日次）负荷率未达成目标跟踪分析
-		for(Date strDate :map.keySet()){
+		for(Date date :map.keySet()){
+			String strDate = DateUtil.toString(date, DateUtil.DATE_PATTERN);
+			
 			row = sheet.getRow(rowIndex);
 			
 			//发生日
 			cell = row.getCell(0);
-			cell.setCellValue(strDate);
+			cell.setCellValue(date);
 			cell.setCellStyle(styleMap.get("dayStyle"));
 			
 			//负荷率
 			cell = row.getCell(1);
-			cell.setCellValue(map.get(strDate));
+			cell.setCellValue(map.get(date));
 			cell.setCellStyle(styleMap.get("percentStyle"));
+			
+			if(messageMap.containsKey(strDate)){
+				//原因
+				cell = row.getCell(2);
+				cell.setCellValue(messageMap.get(strDate).get(padStartZero(operatorId, 11)));
+				cell.setCellStyle(styleMap.get("alignLeftStyle"));
+				
+				//对策
+				cell = row.getCell(7);
+				cell.setCellValue(messageMap.get(strDate).get("00000000206"));
+				cell.setCellStyle(styleMap.get("alignLeftStyle"));
+			}
 			rowIndex ++;
 		}
 		
@@ -528,12 +716,15 @@ public class PartialWarehouseJob implements Job {
 	
 	/**
 	 * （日次）能率未达成目标跟踪分析
+	 * @param monthStart 
+	 * @param operatorId 
 	 * @param sheet
 	 * @param styleMap 样式
 	 * @param userDefineMap 自定义参数
 	 * @param map 每日未达成目标数据集
+	 * @param alarmMesssageMapper 
 	 */
-	private void dailyUnReachEFLowLever(Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map){
+	private void dailyUnReachEFLowLever(Calendar monthStart, String operatorId, Sheet sheet, Map<String, CellStyle> styleMap,Map<String, BigDecimal> userDefineMap,Map<Date, Double> map, AlarmMesssageMapper alarmMesssageMapper){
 		Row row = null;
 		Cell cell = null;
 		
@@ -546,6 +737,40 @@ public class PartialWarehouseJob implements Job {
 			return;
 		}
 		
+		Calendar from = Calendar.getInstance();
+		from.setTime(monthStart.getTime());
+		from.set(Calendar.DAY_OF_MONTH, 1);
+		from.set(Calendar.HOUR_OF_DAY, 0);
+		from.set(Calendar.SECOND, 0);
+		from.set(Calendar.MINUTE, 0);
+		from.set(Calendar.MILLISECOND, 0);
+		
+		Calendar to = Calendar.getInstance();
+		to.setTime(monthStart.getTime());
+		to.set(Calendar.DAY_OF_MONTH, 1);
+		to.set(Calendar.HOUR_OF_DAY, 0);
+		to.set(Calendar.SECOND, 0);
+		to.set(Calendar.MINUTE, 0);
+		to.set(Calendar.MILLISECOND, 0);
+		to.add(Calendar.MONTH, 1);
+		
+		List<AlarmMesssageEntity> list = alarmMesssageMapper.searchAlarmMessageSend(RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE, operatorId, from.getTime(), to.getTime());
+		Map<String,Map<String,String>> messageMap = new HashMap<String,Map<String,String>>(16);
+		for(AlarmMesssageEntity entity : list){
+			String occurTime = DateUtil.toString(entity.getOccur_time(), DateUtil.DATE_PATTERN);
+			
+			Map<String,String> childMap  = null;
+			
+			if(messageMap.containsKey(occurTime)){
+				childMap = messageMap.get(occurTime);
+				childMap.put(entity.getSendation_id(), entity.getComment());
+			}else{
+				childMap = new HashMap<String,String>(16);
+				childMap.put(entity.getSendation_id(), entity.getComment());
+			}
+			messageMap.put(occurTime, childMap);
+		}
+		
 		sheet.getRow(151).getCell(0).setCellValue("目标："+ userDefineMap.get("efLowLever").doubleValue() + "%");
 		
 		//（日次）能率未达成目标跟踪分析开始行索引
@@ -554,18 +779,33 @@ public class PartialWarehouseJob implements Job {
 		int rowEndIndex = rowIndex + 30;
 
 		//（日次）能率未达成目标跟踪分析
-		for(Date strDate :map.keySet()){
+		for(Date date :map.keySet()){
+			String strDate = DateUtil.toString(date, DateUtil.DATE_PATTERN);
+			
 			row = sheet.getRow(rowIndex);
 			
 			//发生日
 			cell = row.getCell(0);
-			cell.setCellValue(strDate);
+			cell.setCellValue(date);
 			cell.setCellStyle(styleMap.get("dayStyle"));
 			
 			//能率
 			cell = row.getCell(1);
-			cell.setCellValue(map.get(strDate));
+			cell.setCellValue(map.get(date));
 			cell.setCellStyle(styleMap.get("percentStyle"));
+			
+			if(messageMap.containsKey(strDate)){
+				//原因
+				cell = row.getCell(2);
+				cell.setCellValue(messageMap.get(strDate).get(padStartZero(operatorId, 11)));
+				cell.setCellStyle(styleMap.get("alignLeftStyle"));
+				
+				//对策
+				cell = row.getCell(7);
+				cell.setCellValue(messageMap.get(strDate).get("00000000206"));
+				cell.setCellStyle(styleMap.get("alignLeftStyle"));
+			}
+			
 			rowIndex ++;
 		}
 		
@@ -623,17 +863,19 @@ public class PartialWarehouseJob implements Job {
 	/**
 	 * 出入库明细
 	 *
-	 * @param isMonthEnd 月底标记
+	 * @param monthStart
 	 * @param listBeans 明细数据
-	 * @param moveCost 搬箱移动时间
+	 * @param userDefineMap 搬箱移动时间
 	 * @param sheet
 	 * @param styleMap 样式
 	 * @param formulaEvaluator 公式计算
 	 * @param partialWarehouseMapper
+	 * @throws Exception 
 	 */
-	private Map<String,Map<String, LinkedHashMap<String, Double>>> setDetailList(boolean isMonthEnd, List<PartialWarehouseEntity> listBeans, BigDecimal moveCost, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
-			PartialWarehouseMapper partialWarehouseMapper) {
-
+	private Map<String,Map<String, LinkedHashMap<String, Double>>> setDetailList(Calendar monthStart,List<PartialWarehouseEntity> listBeans, Map<String, BigDecimal> userDefineMap, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
+			SqlSessionManager conn) throws Exception {
+		PartialWarehouseMapper partialWarehouseMapper = conn.getMapper(PartialWarehouseMapper.class);
+		
 		Row row = null;
 		Cell cell = null;
 
@@ -714,7 +956,7 @@ public class PartialWarehouseJob implements Job {
 			if (productionType == 10) {// A：收货
 				// 标准时间
 				standardTime = partialWarehouseMapper.countReceptStandardTime(key);
-				standardTime = standardTime.add(moveCost);
+				standardTime = standardTime.add(userDefineMap.get("bdPartialReceptMoveCost"));
 
 				cell.setCellValue(standardTime.doubleValue());
 			} else if (productionType == 11) {
@@ -840,26 +1082,27 @@ public class PartialWarehouseJob implements Job {
 		}
 
 		// 当天负荷率
-		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = this.setCurrentLoadRate(isMonthEnd,sheet, loadRateMap);
+		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = this.setCurrentLoadRate(sheet, loadRateMap);
 		// 当天能率
-		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = this.setCurrentEnergyRate(isMonthEnd,sheet,energyRateMap);
+		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = this.setCurrentEnergyRate(sheet,energyRateMap);
 		
 		Map<String,Map<String, LinkedHashMap<String, Double>>> respMap = new HashMap<String,Map<String, LinkedHashMap<String, Double>>>();
 		respMap.put("dailyLoadRate", dailyLoadRateMap);
 		respMap.put("dailyEnergyRate", dailyEnergyRateMap);
+		
+		this.createAlarmMessage(monthStart, userDefineMap, respMap, conn);
 
 		return respMap;
 	}
 
 	/**
 	 * 当天能率
-	 * @param isMonthEnd 
 	 *
 	 * @param sheet
 	 * @param map
 	 * @return 
 	 */
-	private Map<String, LinkedHashMap<String, Double>> setCurrentEnergyRate(boolean isMonthEnd, Sheet sheet,Map<String, Map<Integer, PartialWarehouseEntity>> map) {
+	private Map<String, LinkedHashMap<String, Double>> setCurrentEnergyRate(Sheet sheet,Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
 		PartialWarehouseEntity entity  = null;
 		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
@@ -902,25 +1145,23 @@ public class PartialWarehouseJob implements Job {
 				row.getCell(12).setCellValue(value);
 			}
 			
-			if(isMonthEnd){
-				String arr[] = key.split("-");
-				// 工作日期
-				String day = arr[0];
-				// 工号
-				String jobNo = arr[1];
-				
-				//每天能率
-				//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
-				LinkedHashMap<String, Double> dailyRate = null;
-				if(respMap.containsKey(jobNo)){
-					dailyRate = respMap.get(jobNo);
-					dailyRate.put(day, value);
-				}else{
-					dailyRate = new LinkedHashMap<String, Double>();
-					dailyRate.put(day, value);
-				}
-				respMap.put(jobNo, dailyRate);
+			String arr[] = key.split("-");
+			// 工作日期
+			String day = arr[0];
+			// 工号
+			String jobNo = arr[1];
+			
+			//每天能率
+			//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
+			LinkedHashMap<String, Double> dailyRate = null;
+			if(respMap.containsKey(jobNo)){
+				dailyRate = respMap.get(jobNo);
+				dailyRate.put(day, value);
+			}else{
+				dailyRate = new LinkedHashMap<String, Double>();
+				dailyRate.put(day, value);
 			}
+			respMap.put(jobNo, dailyRate);
 		}
 		
 		return respMap;
@@ -981,7 +1222,7 @@ public class PartialWarehouseJob implements Job {
 		/* 百分比格式化 */
 		CellStyle percentStyle = work.createCellStyle();
 		percentStyle.cloneStyleFrom(baseStyle);
-		percentStyle.setDataFormat(format.getFormat("0.00%"));
+		percentStyle.setDataFormat(format.getFormat("0.0%"));
 
 		styleMap.put("alignRightStyle", alignRightStyle);
 		styleMap.put("alignLeftStyle", alignLeftStyle);
@@ -995,20 +1236,27 @@ public class PartialWarehouseJob implements Job {
 
 	/**
 	 * 当天负荷率
-	 * @param isMonthEnd 
+	 * 
 	 * @param sheet
 	 * @param map
 	 */
-	private Map<String, LinkedHashMap<String, Double>> setCurrentLoadRate(boolean isMonthEnd, Sheet sheet, Map<String, Map<Integer, PartialWarehouseEntity>> map) {
+	private Map<String, LinkedHashMap<String, Double>> setCurrentLoadRate(Sheet sheet, Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
 		Calendar halfPastFivePM = Calendar.getInstance();
+		Calendar halfPastSixPm = Calendar.getInstance();
 		
 		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
+	
 		
 		for (String key : map.keySet()) {
 			Map<Integer, PartialWarehouseEntity> rowMap = map.get(key);
 			
 			BigDecimal workTime = new BigDecimal(WORK_TIME);
+			
+			// 5:30-6:30
+			int periodOne = 0;
+			// 6:30~
+			int periodTwo = 0;
 			
 			/** 判断是否加班 **/ 
 			for(Integer rowIndex : rowMap.keySet()){
@@ -1022,16 +1270,29 @@ public class PartialWarehouseJob implements Job {
 				halfPastFivePM.set(Calendar.MINUTE, 30);
 				halfPastFivePM.set(Calendar.SECOND, 0);
 				halfPastFivePM.set(Calendar.MILLISECOND, 0);
+				
+				// 当日下午6:30
+				halfPastSixPm.setTime(finishTime);
+				halfPastSixPm.set(Calendar.HOUR_OF_DAY, 18);
+				halfPastSixPm.set(Calendar.MINUTE, 30);
+				halfPastSixPm.set(Calendar.SECOND, 0);
+				halfPastSixPm.set(Calendar.MILLISECOND, 0);
 
-				// 结束时间与下午5:30比较
-				long compare = finishTime.getTime() - halfPastFivePM.getTimeInMillis();
-				if (compare > 0) {
-					// 超过5:30，加上90分钟
-					workTime = new BigDecimal(WORK_OVER_TIME);
-					break;
+				if (finishTime.getTime() > halfPastSixPm.getTimeInMillis()) {
+					periodTwo ++;
+				} else if(finishTime.getTime() > halfPastFivePM.getTimeInMillis()) {
+					periodOne ++;
 				}
 			}
-
+			
+			if (periodTwo > 0) {
+				// 超过6:30，加上120分钟
+				workTime = new BigDecimal(WORK_OVER_TWO_HOUR_TIME);
+			} else if (periodOne > 0) {
+				// 5:30-6:30之间，加上60分钟
+				workTime = new BigDecimal(WORK_OVER_ONE_HOUR_TIME);
+			}
+			
 			// 总计毫秒数
 			long longTime = 0;
 			for (Integer rowIndex : rowMap.keySet()) {
@@ -1058,25 +1319,23 @@ public class PartialWarehouseJob implements Job {
 				row.getCell(11).setCellValue(value);
 			}
 			
-			if(isMonthEnd){
-				String arr[] = key.split("-");
-				// 工作日期
-				String day = arr[0];
-				// 工号
-				String jobNo = arr[1];
-				
-				//每天负荷率
-				//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
-				LinkedHashMap<String, Double> dailyRate = null;
-				if(respMap.containsKey(jobNo)){
-					dailyRate = respMap.get(jobNo);
-					dailyRate.put(day, value);
-				}else{
-					dailyRate = new LinkedHashMap<String, Double>();
-					dailyRate.put(day, value);
-				}
-				respMap.put(jobNo, dailyRate);
+			String arr[] = key.split("-");
+			// 工作日期
+			String day = arr[0];
+			// 工号
+			String jobNo = arr[1];
+			
+			//每天负荷率
+			//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
+			LinkedHashMap<String, Double> dailyRate = null;
+			if(respMap.containsKey(jobNo)){
+				dailyRate = respMap.get(jobNo);
+				dailyRate.put(day, value);
+			}else{
+				dailyRate = new LinkedHashMap<String, Double>();
+				dailyRate.put(day, value);
 			}
+			respMap.put(jobNo, dailyRate);
 		}
 		return respMap;
 	}
@@ -1155,11 +1414,11 @@ public class PartialWarehouseJob implements Job {
 		poinNineCal.set(Calendar.SECOND, 0);
 		poinNineCal.set(Calendar.MILLISECOND, 0);
 		
-		// 18:00:00:000
+		// 17:30:00:000
 		Calendar poinTenCal = Calendar.getInstance();
 		poinTenCal.setTime(actionTime);
-		poinTenCal.set(Calendar.HOUR_OF_DAY, 18);
-		poinTenCal.set(Calendar.MINUTE, 00);
+		poinTenCal.set(Calendar.HOUR_OF_DAY, 17);
+		poinTenCal.set(Calendar.MINUTE, 30);
 		poinTenCal.set(Calendar.SECOND, 0);
 		poinTenCal.set(Calendar.MILLISECOND, 0);
 		
@@ -1171,7 +1430,7 @@ public class PartialWarehouseJob implements Job {
 		long fifteenOclock = pointSixCal.getTimeInMillis();
 		long fifteenTenOclock = pointSevenCal.getTimeInMillis();
 		long seventeenFifteenOclock = poinNineCal.getTimeInMillis();
-		long eighteenOclock = poinTenCal.getTimeInMillis();
+		long seventeenThirtyOclock = poinTenCal.getTimeInMillis();
 		
 		long start = actionTime.getTime();
 		long end = finishTime.getTime();
@@ -1346,8 +1605,8 @@ public class PartialWarehouseJob implements Job {
 				// 开始点到15:10的时间
 				restTime = fifteenTenOclock - start;
 			} 
-		} else if (end <= eighteenOclock){
-			/** 8、完成时间在17:15-18:00之间 **/
+		} else if (end <= seventeenThirtyOclock){
+			/** 8、完成时间在17:15-17:30之间 **/
 			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
 				// 8:00之前的时间
 				restTime = eightOclock - start;
@@ -1404,11 +1663,11 @@ public class PartialWarehouseJob implements Job {
 			} else if (start <= seventeenFifteenOclock){// ⑧开始时间在15:10 - 17:15之间（包含17:15）
 				// 结束点到17:15的时间
 				restTime = end - seventeenFifteenOclock;
-			} else if (start <= eighteenOclock){// ⑨开始时间在17:15 - 18:00之间（包含18:00）
+			} else if (start <= seventeenThirtyOclock){// ⑨开始时间在17:15 - 17:30之间（包含17:30）
 				restTime = end - start;
 			} 
 		} else {
-			/** 8、完成时间在18:00之后 **/
+			/** 8、完成时间在17:30之后 **/
 			if (start <= eightOclock){// ①开始时间在00:00 - 8:00之间（包含8:00）
 				// 8:00之前的时间
 				restTime = eightOclock - start;
@@ -1418,8 +1677,8 @@ public class PartialWarehouseJob implements Job {
 				restTime += ONE_HOUR_MILLISECOND;
 				// 15:00到15:10的时间
 				restTime += TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= tenOclock){// ②开始时间在8:00 - 10:00之间（包含10:00）
 				// 10:00到10:10的时间
 				restTime = TEN_MINUTE_MILLISECOND;
@@ -1427,8 +1686,8 @@ public class PartialWarehouseJob implements Job {
 				restTime += ONE_HOUR_MILLISECOND;
 				// 15:00到15:10时间
 				restTime += TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= tenTenOclock){// ③开始时间在10:00 - 10:10之间（包含10:10）
 				// 开始点到10:10的时间
 				restTime = tenTenOclock - start;
@@ -1436,41 +1695,69 @@ public class PartialWarehouseJob implements Job {
 				restTime += ONE_HOUR_MILLISECOND;
 				// 15:00到15:10时间
 				restTime += TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= twelveOclock){// ④开始时间在10:10 - 12:00之间（包含12:00）
 				// 12:00到13:00的时间
 				restTime = ONE_HOUR_MILLISECOND;
 				// 15:00到15:10的时间
 				restTime += TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= thirteenOclock){// ⑤开始时间在12:00 - 13:00之间（包含13:00）
 				// 开始点到13:00的时间
 				restTime = thirteenOclock - start;
 				// 15:00到15:10时间
 				restTime += TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= fifteenOclock){// ⑥开始时间在13:00 - 15:00之间（包含15:00）
 				// 15:00到15:10的时间
 				restTime = TEN_MINUTE_MILLISECOND;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= fifteenTenOclock){// ⑦开始时间在15:00 - 15:10之间（包含15:10）
 				// 开始点到15:10的时间
 				restTime = fifteenTenOclock - start;
-				// 17:15到18:00的时间
-				restTime += FORTY_FIVE_MINUTE_MILLISECOND;
+				// 17:15到17:30的时间
+				restTime += FIFTEEN_MINUTE_MILLISECOND;
 			} else if (start <= seventeenFifteenOclock){// ⑧开始时间在15:10 - 17:15之间（包含17:15）
-				// 结束点到17:15的时间
-				restTime = FORTY_FIVE_MINUTE_MILLISECOND;
-			} else if (start <= eighteenOclock){// ⑨开始时间在17:15 - 18:00之间（包含18:00）
-				restTime = eighteenOclock - start;
+				// 17:15到17:30的时间
+				restTime = FIFTEEN_MINUTE_MILLISECOND;
+			} else if (start <= seventeenThirtyOclock){// ⑨开始时间在17:15 - 17:30之间（包含17:30）
+				restTime = seventeenThirtyOclock - start;
 			} 
 		}
 
 		return restTime;
+	}
+	
+	/**
+	 * 前置补零
+	 * @param target 补零目标
+	 * @param targetLength 目标长度
+	 * @return
+	 */
+	private String padStartZero(String target,int targetLength){
+		if(target == null){
+			return null;
+		}
+		
+		int initLength = target.length();
+		
+		if(initLength >= targetLength){
+			return target;
+		}
+		
+		int diff = targetLength - initLength;
+		
+		String zero = "";
+		for(int i = 0;i < diff;i++){
+			zero += "0";
+		}
+		zero += target;
+		
+		return zero;
 	}
 	
 	/**
@@ -1483,11 +1770,11 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, 3);
-		today.set(Calendar.DATE, 30);
+		//today.set(Calendar.MONTH, 0);
+		today.set(Calendar.DATE, 31);
 
 		// 取得数据库连接
-		SqlSession conn = getTempConn();
+		SqlSessionManager conn = getTempWritableConn();
 
 		PathConsts.BASE_PATH = "D:\\rvsG";
 		PathConsts.REPORT_TEMPLATE = "\\ReportTemplates";
@@ -1499,14 +1786,35 @@ public class PartialWarehouseJob implements Job {
 
 		PathConsts.load();
 
-		PartialWarehouseJob job = new PartialWarehouseJob();
-		job.partialWarehouseReport(today, conn);
+		try{
+			conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
+			
+			PartialWarehouseJob job = new PartialWarehouseJob();
+			job.partialWarehouseReport(today, conn);
+			
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.commit();
+				_log.info("Committed！");
+			}
+		}catch(Exception e) {
+			_log.error(e.getMessage(), e);
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.rollback();
+				_log.info("Rolled back！");
+			}
+		} finally {
+			if (conn != null && conn.isManagedSessionStarted()) {
+				conn.close();
+			}
+			conn = null;
+		}
+		
 	}
 
-	private static SqlSession getTempConn() {
+	public static SqlSessionManager getTempWritableConn() {
 		_log.info("new Connnection");
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
-		return factory.openSession(TransactionIsolationLevel.READ_COMMITTED);
+		return SqlSessionManager.newInstance(factory);
 	}
 
 }

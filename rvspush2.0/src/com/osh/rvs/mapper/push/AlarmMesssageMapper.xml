@@ -56,6 +56,25 @@
 		);
 		]]>
 	</insert>
+	
+	<insert id="insertAlarmMessageSendation" parameterType="AlarmMesssageSendationEntity">
+	<![CDATA[ 
+	INSERT INTO ALARM_MESSSAGE_SENDATION 
+	(
+		alarm_messsage_id,
+		sendation_id,
+		comment,
+		resolve_time
+	)
+	VALUES
+	(
+		#{alarm_messsage_id},
+		#{sendation_id},
+		#{comment},
+		#{resolve_time}
+	)
+	]]>
+	</insert>
 
 	<!-- red_flg不是读取flg是解决flg ，读取/备注是resolveTime -->
 	<update id="updateAlarmMessageSendation" parameterType="AlarmMesssageSendationEntity">
@@ -337,5 +356,28 @@
 			group by occur_time ) occur
 		;
 		]]>
+	</select>
+	
+	<select id="searchAlarmMessageSend" parameterType="String" resultType="AlarmMesssageEntity">
+	<![CDATA[
+		SELECT
+			am.occur_time,
+			ams.sendation_id,
+		    ams.comment
+		FROM
+		    alarm_messsage_sendation ams
+		JOIN
+			alarm_messsage am
+		ON
+			ams.alarm_messsage_id = am.alarm_messsage_id
+		WHERE
+			am.reason = #{reason}
+		AND
+			am.operator_id = #{operator_id}
+		AND
+			am.occur_time >= #{occur_time_start}
+		AND
+			am.occur_time < #{occur_time_end}
+	]]>
 	</select>
 </mapper>

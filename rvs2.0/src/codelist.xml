@@ -164,6 +164,8 @@
 		<value code="7">投线延迟</value>
 		<!-- value code="8">零件签收异常</value -->
 		<value code="9">点检不合格</value>
+		<value code="11">负荷率未达成</value>
+		<value code="12">能率未达成</value>
 	</codelist>
 
 	<codelist name="pause_reason">

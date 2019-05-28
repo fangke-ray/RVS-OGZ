@@ -337,36 +337,45 @@ public class PartialWarehouseService {
 
 		// 总标准时间(分钟)
 		BigDecimal totalStandardTime = new BigDecimal(0);
-
+        // 总实际时间(分钟)
 		BigDecimal totalActualTime = new BigDecimal(0);
 
 		// A、收货标准工时(分钟)
-		BigDecimal standardTime = dao.searchTodayReceptStandardTime(operatorID);
-		if(standardTime == null) standardTime = BigDecimal.ZERO;
+		BigDecimal receptStandardTime = dao.searchTodayReceptStandardTime(operatorID);
+		if(receptStandardTime == null) receptStandardTime = BigDecimal.ZERO;
 
-		BigDecimal receptStandardTime = standardTime;
-
-		//收货次数
+		// 收货次数
 		Integer countRecept = dao.count(operatorID, "10");
 		if(countRecept == null) countRecept  = 0;
-		standardTime = new BigDecimal(move);
-		standardTime = standardTime.multiply(new BigDecimal(countRecept));
-
-		receptStandardTime = receptStandardTime.add(standardTime);
-
+		
+		// 收货次数 * 搬箱移动时间
+		BigDecimal moveTime = (new BigDecimal(move)).multiply(new BigDecimal(countRecept));
+		receptStandardTime = receptStandardTime.add(moveTime);
+		
 		totalStandardTime = totalStandardTime.add(receptStandardTime);
 
 		// A、收货实际用时
 		connd.setProduction_type(10);
 		Integer actualTime = dao.searchSpentMins(connd);
-		if (actualTime != null) {
-			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
-			entity.setAccept_percent(calculatePercent(receptStandardTime, new BigDecimal(actualTime)));
+		if(actualTime == null) actualTime = 0;
+		
+		// A、收货实际用时(补充)
+		connd.setProduction_type(11);
+		Integer supplyActualTime = dao.searchSpentMins(connd);
+		if(supplyActualTime == null) supplyActualTime = 0;
+		
+		// 11 A:收货 标准工时=实际时间
+		receptStandardTime = receptStandardTime.add(new BigDecimal(supplyActualTime));
+		totalStandardTime = totalStandardTime.add(new BigDecimal(supplyActualTime));
+		
+		if ((actualTime + supplyActualTime) > 0) {
+			totalActualTime = totalActualTime.add(new BigDecimal(actualTime+ supplyActualTime));
+			entity.setAccept_percent(calculatePercent(receptStandardTime, new BigDecimal(actualTime + supplyActualTime)));
 		}
 
 		// B1、核对+上架标准工时(分钟)
 		connd.setProduction_type(20);
-		standardTime = dao.searchTodayCollectAndOnShelfStandardTime(operatorID);
+		BigDecimal standardTime = dao.searchTodayCollectAndOnShelfStandardTime(operatorID);
 		if (standardTime != null) {
 			// 拆盒标准工时(分钟)
 			BigDecimal collectCaseStandardTime = dao.searchTodayCollectCaseStandardTime(operatorID);
@@ -466,7 +475,7 @@ public class PartialWarehouseService {
 		}
 
 		if (totalActualTime != null && totalStandardTime != null && totalActualTime.doubleValue() != 0) {
-			entity.setTotal_percent(totalStandardTime.divide(totalActualTime, 3, RoundingMode.HALF_UP).multiply(new BigDecimal(100)));
+			entity.setTotal_percent(totalStandardTime.divide(totalActualTime, 3, RoundingMode.UP).multiply(new BigDecimal(100)));
 		}
 
 		return entity;
@@ -481,7 +490,7 @@ public class PartialWarehouseService {
 	 * @return
 	 */
 	private Integer calculatePercent(BigDecimal standardTime, BigDecimal spentMins) {
-		BigDecimal result = standardTime.divide(spentMins, 2, RoundingMode.UP);
+		BigDecimal result = standardTime.divide(spentMins, 4, RoundingMode.UP);
 
 		// 乘以100
 		result = result.multiply(new BigDecimal(100));
