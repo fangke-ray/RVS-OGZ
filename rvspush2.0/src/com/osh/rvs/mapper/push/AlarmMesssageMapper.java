@@ -13,6 +13,8 @@ public interface AlarmMesssageMapper {
 	public void createAlarmMessage(AlarmMesssageEntity entity) throws Exception;
 
 	public void createAlarmMessageSendation(AlarmMesssageSendationEntity sendation) throws Exception;
+	
+	public void insertAlarmMessageSendation(AlarmMesssageSendationEntity sendation)throws Exception;
 
 	public AlarmMesssageEntity getBreakAlarmMessage(@Param("material_id") String material_id, @Param("position_id") String position_id);
 	public AlarmMesssageEntity getBreakAlarmMessageByKey(@Param("alarm_messsage_id") String alarm_messsage_id);
@@ -41,4 +43,6 @@ public interface AlarmMesssageMapper {
 	public boolean isFixed(String alarm_messsage_id);
 
 	public int countAlarmMessageIntimeArea(@Param("reason") Integer warningReason, @Param("occur_time_start") Date occur_time_start, @Param("occur_time_end") Date occur_time_end);
+	
+	public List<AlarmMesssageEntity> searchAlarmMessageSend(@Param("reason") Integer reason,@Param("operator_id") String operator_id,@Param("occur_time_start") Date occur_time_start, @Param("occur_time_end") Date occur_time_end);
 }

@@ -72,24 +72,60 @@ function jsinit_complete (xhrobj, textStatus) {
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
-			// 现品作业信息
-			let factProductionFeature = resInfo.unfinish;
-			if (factProductionFeature) {
-				// 作业内容
-				let production_type = factProductionFeature.production_type;
-				if(production_type == 11){
-					warningConfirm("",function(){
-						window.location.href = "./partial_warehouse.do?method=init";
-					},function(){
-						window.location.href = "./panel.do?method=init";
-					}, "入库单补充中", "返回零件入库单管理", "退出返回首页");
-				}else{
-					// 处理没结束
-					step(production_type);
+			let alarmList = resInfo.alarmList;
+			
+			if(alarmList){
+				warningMessage = "";
+				alarmList.forEach(function(item,index){
+					let myComment = item.myComment;
+					let occur_time = item.occur_time.substring(0,10);
+					warningMessage += occur_time + " " + myComment + "<br>";
+				});
+				
+				var this_dialog = $("#error_pop");
+				if (this_dialog.length === 0) {
+					$("body.outer").append("<div id='error_pop'/>");
+					this_dialog = $("#error_pop");
 				}
+				
+				this_dialog.html(warningMessage);
+				
+				this_dialog.dialog({
+					dialogClass : 'ui-error-dialog',
+					title : "提示信息",
+					width : 300,
+					height : 'auto',
+					resizable : false,
+					modal : true,
+					buttons : {
+						"警告信息处理":function(){
+							window.location.href = "./alarmMessage.do?method=init";
+						}
+					},
+					close : function() {
+						window.location.href = "./panel.do?method=init";
+					}
+				});
 			} else {
-				// 默认收货
-				$("#receptbutton").trigger("click");
+				// 现品作业信息
+				let factProductionFeature = resInfo.unfinish;
+				if (factProductionFeature) {
+					// 作业内容
+					let production_type = factProductionFeature.production_type;
+					if(production_type == 11){
+						warningConfirm("",function(){
+							window.location.href = "./partial_warehouse.do?method=init";
+						},function(){
+							window.location.href = "./panel.do?method=init";
+						}, "入库单补充中", "返回零件入库单管理", "返回首页");
+					}else{
+						// 处理没结束
+						step(production_type);
+					}
+				} else {
+					// 默认收货
+					$("#receptbutton").trigger("click");
+				}
 			}
 		}
 	} catch (e) {

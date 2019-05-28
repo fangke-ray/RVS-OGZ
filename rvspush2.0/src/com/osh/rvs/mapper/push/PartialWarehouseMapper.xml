@@ -276,7 +276,11 @@
 		        ELSE production_type
 		   END AS production_types,
 		   CEIL(SUM(TIMESTAMPDIFF(SECOND,action_time,finish_time)) / 60) AS spendTime,
-		   SUM(TIME(finish_time) > '17:30:00') AS overtime_flg
+		   CASE
+		   		WHEN SUM(TIME(finish_time) > '18:30:00') > 0 THEN 2
+           		WHEN SUM(TIME(finish_time) > '17:30:00') > 0 THEN 1
+           		ELSE 0
+           END AS overtime_flg
 		FROM
 		    fact_production_feature
 		WHERE
