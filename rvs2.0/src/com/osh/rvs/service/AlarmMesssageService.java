@@ -428,9 +428,11 @@ public class AlarmMesssageService {
 		} else if (RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE.equals(amReason)) {// 负荷率未达成
 			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
 			form.setComment(amsEntity.getComment());
+			form.setOperator_name(null);
 		} else if (RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE.equals(amReason)) {// 能率未达成
 			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
 			form.setComment(amsEntity.getComment());
+			form.setOperator_name(null);
 		}
 
 		form.setLevel(CodeListUtils.getValue("alarm_level", form.getLevel()));
@@ -868,25 +870,17 @@ public class AlarmMesssageService {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 		
 		List<AlarmMesssageForm> respForm = null;
-		List<AlarmMesssageEntity> list = dao.searchRateByOperatorId(operatorId);
+		List<AlarmMesssageEntity> list = dao.searchUnreadRateByOperatorId(operatorId);
 		
-		if(list.size() > 0){
+		if(list != null && list.size() > 0){
 			respForm = new ArrayList<AlarmMesssageForm>();
 			
 			for(AlarmMesssageEntity entity : list){
-				boolean isFixed = dao.isFixed(entity.getAlarm_messsage_id());
+				AlarmMesssageForm form = new AlarmMesssageForm();
+				BeanUtil.copyToForm(entity, form, CopyOptions.COPYOPTIONS_NOEMPTY);
+				form.setMyComment(CodeListUtils.getValue("alarm_reason", form.getReason()));
 				
-				// 存在解决
-				if(isFixed){
-					respForm = null;
-					break;
-				} else {
-					AlarmMesssageForm form = new AlarmMesssageForm();
-					BeanUtil.copyToForm(entity, form, CopyOptions.COPYOPTIONS_NOEMPTY);
-					form.setMyComment(CodeListUtils.getValue("alarm_reason", form.getReason()));
-					
-					respForm.add(form);
-				}
+				respForm.add(form);
 			}
 		}
 		

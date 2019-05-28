@@ -166,7 +166,7 @@ var nogoodJs = function(){
 								$("#nogoodcommentbtn").show();
 								$("#nogoodoperatebtn").show();
 							}
-							var otherCommentHtml = (resInfo.alarm.operator_name == null ? "" : resInfo.alarm.operator_name + ":") + resInfo.alarm.comment;
+							var otherCommentHtml = (resInfo.alarm.operator_name == null ? "" : (resInfo.alarm.operator_name + ":")) + resInfo.alarm.comment;
 							
 							if (resInfo.alarm.sendations) {
 								for (var i = 0; i < resInfo.alarm.sendations.length ; i++) {

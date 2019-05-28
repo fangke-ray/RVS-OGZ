@@ -401,18 +401,26 @@ ORDER BY occur_time DESC;
   		]]>
 	</select>
 	
-	<select id="searchRateByOperatorId" resultType="AlarmMesssageEntity" parameterType="String">
+	<select id="searchUnreadRateByOperatorId" resultType="AlarmMesssageEntity" parameterType="String">
 	<![CDATA[
 	SELECT
-		alarm_messsage_id,
-		occur_time,
-    	reason
-    FROM
-		alarm_messsage
-    WHERE
-		reason IN(11,12)
+		am.occur_time,
+	    am.reason,
+	    SUM(ams.red_flg = 1) AS count_red
+	FROM 
+		alarm_messsage am
+	LEFT JOIN
+		alarm_messsage_sendation ams
+	ON
+		am.alarm_messsage_id = ams.alarm_messsage_id
+	WHERE
+		am.reason IN(11,12)
 	AND
-		operator_id = #{operator_id}
+		am.operator_id = #{operator_id}
+	GROUP BY
+		am.alarm_messsage_id
+	HAVING 
+		count_red = 0
 	]]> 
 	</select>
 </mapper>

@@ -173,7 +173,7 @@ public class PartialWarehouseJob implements Job {
 				}
 				
 				// 出入库明细
-				Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap = this.setDetailList(monthStart,listBeans, userDefineMap, detailSheet, styleMap, formulaEvaluator, conn);
+				Map<String,Map<String, LinkedHashMap<String, String>>> rateMap = this.setDetailList(monthStart,listBeans, userDefineMap, detailSheet, styleMap, formulaEvaluator, conn);
 
 				// 月底
 				if(isMonthEnd){
@@ -211,36 +211,39 @@ public class PartialWarehouseJob implements Job {
 	 * @param rateMap
 	 * @param conn
 	 */
-	private void createAlarmMessage(Calendar monthStart,Map<String, BigDecimal> userDefineMap,Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,SqlSessionManager conn)throws Exception{
+	private void createAlarmMessage(Calendar monthStart,Map<String, BigDecimal> userDefineMap,Map<String,Map<String, LinkedHashMap<String, String>>> rateMap,SqlSessionManager conn)throws Exception{
 		AlarmMesssageMapper alarmMesssageMapper = conn.getMapper(AlarmMesssageMapper.class);
 		CommonMapper commonMapper = conn.getMapper(CommonMapper.class);
 		
 		// 每人每天负荷率
-		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
+		Map<String, LinkedHashMap<String, String>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
 		// 每人每天能率
-		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
+		Map<String, LinkedHashMap<String, String>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
 		
 		String strCurrentDate = DateUtil.toString(monthStart.getTime(), DateUtil.DATE_PATTERN);
 		
 		for(String jobNo : dailyLoadRateMap.keySet()){
-			Map<String, Double> childMap = dailyLoadRateMap.get(jobNo);
+			Map<String, String> childMap = dailyLoadRateMap.get(jobNo);
 			
 			String operatorId = "";
+			String operatorName = "";
 			if ("00056".equals(jobNo)) {
 				operatorId = "197";
+				operatorName = "高雁梅";
 			} else if ("30301".equals(jobNo)) {
 				operatorId = "198";
+				operatorName = "叶昭杏";
 			}
 			
 			// 当天负荷率存在
 			if (childMap.containsKey(strCurrentDate)) {
 				// 当天负荷率
-				double loadRate = childMap.get(strCurrentDate).doubleValue() * 100;
+				BigDecimal loadRate = new BigDecimal(childMap.get(strCurrentDate)).multiply(new BigDecimal(100));
 				// 当天负荷率低于负荷率警报标志下线
-				if (loadRate < userDefineMap.get("strLowLever").doubleValue()) {
+				if (loadRate.compareTo(userDefineMap.get("strLowLever")) < 0 ) {
 					// 创建记录
 					AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
-					amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+					amEntity.setLevel(RvsConsts.WARNING_LEVEL_ERROR);
 					amEntity.setSection_id("6");
 					amEntity.setLine_id("0");
 					amEntity.setPosition_id("0");
@@ -256,7 +259,7 @@ public class PartialWarehouseJob implements Job {
 						amsBean.setAlarm_messsage_id(alarmmessageId);
 						amsBean.setSendation_id(sendationID);
 						if(sendationID.equals("0")){
-							String comment = strCurrentDate + "负荷率为" + loadRate + "%";
+							String comment = operatorName + strCurrentDate + "负荷率为" + loadRate.setScale(2).toPlainString() + "%";
 							amsBean.setComment(comment);		
 						}
 						alarmMesssageMapper.insertAlarmMessageSendation(amsBean);
@@ -266,24 +269,27 @@ public class PartialWarehouseJob implements Job {
 		}
 		
 		for(String jobNo : dailyEnergyRateMap.keySet()){
-			Map<String, Double> childMap = dailyEnergyRateMap.get(jobNo);
+			Map<String, String> childMap = dailyEnergyRateMap.get(jobNo);
 			
 			String operatorId = "";
+			String operatorName = "";
 			if ("00056".equals(jobNo)) {
 				operatorId = "197";
+				operatorName = "高雁梅";
 			} else if ("30301".equals(jobNo)) {
 				operatorId = "198";
+				operatorName = "叶昭杏";
 			}
 			
 			// 当天能率存在
 			if (childMap.containsKey(strCurrentDate)) {
 				// 当天能率
-				double energyRate = childMap.get(strCurrentDate).doubleValue() * 100;
+				BigDecimal energyRate = new BigDecimal(childMap.get(strCurrentDate)).multiply(new BigDecimal(100));
 				// 当天能率低于警报标志下线
-				if (energyRate < userDefineMap.get("efLowLever").doubleValue()) {
+				if (energyRate.compareTo(userDefineMap.get("efLowLever")) < 0) {
 					// 创建记录
 					AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
-					amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+					amEntity.setLevel(RvsConsts.WARNING_LEVEL_ERROR);
 					amEntity.setSection_id("6");
 					amEntity.setLine_id("0");
 					amEntity.setPosition_id("0");
@@ -299,7 +305,7 @@ public class PartialWarehouseJob implements Job {
 						amsBean.setAlarm_messsage_id(alarmmessageId);
 						amsBean.setSendation_id(sendationID);
 						if(sendationID.equals("0")){
-							String comment = strCurrentDate + "能率为" + energyRate + "%";
+							String comment = operatorName + strCurrentDate + "能率为" + energyRate.setScale(2).toPlainString() + "%";
 							amsBean.setComment(comment);		
 						}
 						alarmMesssageMapper.insertAlarmMessageSendation(amsBean);
@@ -320,7 +326,7 @@ public class PartialWarehouseJob implements Job {
 	 * @param sheet
 	 * @param conn
 	 */
-	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String,Map<String, LinkedHashMap<String, Double>>> rateMap,Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, SqlSessionManager conn) {
+	private void setDailyCollect(Calendar monthStart,String operatorId, Map<String,Map<String, LinkedHashMap<String, String>>> rateMap,Map<String, CellStyle> styleMap, Map<String, BigDecimal> userDefineMap, Sheet sheet, SqlSessionManager conn) {
 		PartialWarehouseMapper partialWarehouseMapper = conn.getMapper(PartialWarehouseMapper.class);
 		AlarmMesssageMapper alarmMesssageMapper = conn.getMapper(AlarmMesssageMapper.class);
 		
@@ -331,8 +337,8 @@ public class PartialWarehouseJob implements Job {
 		List<PartialWarehouseEntity> dailyWorkRecordList = null;
 		
 		// 出入库明细Sheet统计的当天负荷率和当天能率
-		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
-		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
+		Map<String, LinkedHashMap<String, String>> dailyLoadRateMap = rateMap.get("dailyLoadRate");
+		Map<String, LinkedHashMap<String, String>> dailyEnergyRateMap = rateMap.get("dailyEnergyRate");
 		
 		String jobNo = "";
 		if("197".equals(operatorId)){
@@ -342,9 +348,9 @@ public class PartialWarehouseJob implements Job {
 		}
 		
 		// 每个人每日合计负荷率
-		LinkedHashMap<String, Double> personalDailyRateMap = dailyLoadRateMap.get(jobNo);
+		LinkedHashMap<String, String> personalDailyRateMap = dailyLoadRateMap.get(jobNo);
 		// 每个人每日合计能率
-		LinkedHashMap<String, Double> personalDailyEnergyRateMap = dailyEnergyRateMap.get(jobNo);
+		LinkedHashMap<String, String> personalDailyEnergyRateMap = dailyEnergyRateMap.get(jobNo);
 		
 		// 仓管人员负荷率警报标志下线
 		double lowLever = userDefineMap.get("strLowLever").divide(new BigDecimal(100)).doubleValue();
@@ -551,7 +557,7 @@ public class PartialWarehouseJob implements Job {
 			monthWorkTime = monthWorkTime.add(workTime);
 
 			// 合计负荷率
-			percent = personalDailyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
+			percent = Double.parseDouble(personalDailyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN)));
 			sheet.getRow(18).getCell(colIndex).setCellValue(percent);
 			
 			//合计负荷率低于“仓管人员负荷率警报标志下线”
@@ -560,7 +566,7 @@ public class PartialWarehouseJob implements Job {
 			}
 
 			// 合计能率
-			percent = personalDailyEnergyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN));
+			percent = Double.parseDouble(personalDailyEnergyRateMap.get(DateUtil.toString(finishTime, DateUtil.DATE_PATTERN)));
 			sheet.getRow(19).getCell(colIndex).setCellValue(percent);
 			
 			//合计能率低于“仓管人员能率警报标志下线”
@@ -872,7 +878,7 @@ public class PartialWarehouseJob implements Job {
 	 * @param partialWarehouseMapper
 	 * @throws Exception 
 	 */
-	private Map<String,Map<String, LinkedHashMap<String, Double>>> setDetailList(Calendar monthStart,List<PartialWarehouseEntity> listBeans, Map<String, BigDecimal> userDefineMap, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
+	private Map<String,Map<String, LinkedHashMap<String, String>>> setDetailList(Calendar monthStart,List<PartialWarehouseEntity> listBeans, Map<String, BigDecimal> userDefineMap, Sheet sheet, Map<String, CellStyle> styleMap, FormulaEvaluator formulaEvaluator,
 			SqlSessionManager conn) throws Exception {
 		PartialWarehouseMapper partialWarehouseMapper = conn.getMapper(PartialWarehouseMapper.class);
 		
@@ -1082,11 +1088,11 @@ public class PartialWarehouseJob implements Job {
 		}
 
 		// 当天负荷率
-		Map<String, LinkedHashMap<String, Double>> dailyLoadRateMap = this.setCurrentLoadRate(sheet, loadRateMap);
+		Map<String, LinkedHashMap<String, String>> dailyLoadRateMap = this.setCurrentLoadRate(sheet, loadRateMap);
 		// 当天能率
-		Map<String, LinkedHashMap<String, Double>> dailyEnergyRateMap = this.setCurrentEnergyRate(sheet,energyRateMap);
+		Map<String, LinkedHashMap<String, String>> dailyEnergyRateMap = this.setCurrentEnergyRate(sheet,energyRateMap);
 		
-		Map<String,Map<String, LinkedHashMap<String, Double>>> respMap = new HashMap<String,Map<String, LinkedHashMap<String, Double>>>();
+		Map<String,Map<String, LinkedHashMap<String, String>>> respMap = new HashMap<String,Map<String, LinkedHashMap<String, String>>>();
 		respMap.put("dailyLoadRate", dailyLoadRateMap);
 		respMap.put("dailyEnergyRate", dailyEnergyRateMap);
 		
@@ -1102,10 +1108,10 @@ public class PartialWarehouseJob implements Job {
 	 * @param map
 	 * @return 
 	 */
-	private Map<String, LinkedHashMap<String, Double>> setCurrentEnergyRate(Sheet sheet,Map<String, Map<Integer, PartialWarehouseEntity>> map) {
+	private Map<String, LinkedHashMap<String, String>> setCurrentEnergyRate(Sheet sheet,Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
 		PartialWarehouseEntity entity  = null;
-		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
+		Map<String, LinkedHashMap<String, String>> respMap = new HashMap<String,LinkedHashMap<String, String>>(16);
 		for (String key : map.keySet()) {
 			Map<Integer, PartialWarehouseEntity> rowMap = map.get(key);
 
@@ -1137,7 +1143,7 @@ public class PartialWarehouseJob implements Job {
 			}
 			totalStandTime = totalStandTime.add((new BigDecimal(longTime)).divide(new BigDecimal(ONE_MINUTE_MILLISECOND), BigDecimal.ROUND_UP));
 			
-			double value = totalStandTime.divide(totalSpendTime,SCALE_FOUR, BigDecimal.ROUND_HALF_UP).doubleValue();
+			String value = totalStandTime.divide(totalSpendTime,SCALE_FOUR, BigDecimal.ROUND_HALF_UP).toPlainString();
 
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
@@ -1153,12 +1159,12 @@ public class PartialWarehouseJob implements Job {
 			
 			//每天能率
 			//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
-			LinkedHashMap<String, Double> dailyRate = null;
+			LinkedHashMap<String, String> dailyRate = null;
 			if(respMap.containsKey(jobNo)){
 				dailyRate = respMap.get(jobNo);
 				dailyRate.put(day, value);
 			}else{
-				dailyRate = new LinkedHashMap<String, Double>();
+				dailyRate = new LinkedHashMap<String, String>();
 				dailyRate.put(day, value);
 			}
 			respMap.put(jobNo, dailyRate);
@@ -1240,12 +1246,12 @@ public class PartialWarehouseJob implements Job {
 	 * @param sheet
 	 * @param map
 	 */
-	private Map<String, LinkedHashMap<String, Double>> setCurrentLoadRate(Sheet sheet, Map<String, Map<Integer, PartialWarehouseEntity>> map) {
+	private Map<String, LinkedHashMap<String, String>> setCurrentLoadRate(Sheet sheet, Map<String, Map<Integer, PartialWarehouseEntity>> map) {
 		Row row = null;
 		Calendar halfPastFivePM = Calendar.getInstance();
 		Calendar halfPastSixPm = Calendar.getInstance();
 		
-		Map<String, LinkedHashMap<String, Double>> respMap = new HashMap<String,LinkedHashMap<String, Double>>(16);
+		Map<String, LinkedHashMap<String, String>> respMap = new HashMap<String,LinkedHashMap<String, String>>(16);
 	
 		
 		for (String key : map.keySet()) {
@@ -1312,7 +1318,7 @@ public class PartialWarehouseJob implements Job {
 			//总进行时间（M）（总计毫秒数转换成分钟，不满足一分钟当作一分钟计算）
 			BigDecimal totalSpendTime = (new BigDecimal(longTime)).divide(new BigDecimal(ONE_MINUTE_MILLISECOND), BigDecimal.ROUND_UP);
 
-			double value = totalSpendTime.divide(workTime,SCALE_FOUR,BigDecimal.ROUND_HALF_UP).doubleValue();
+			String value = totalSpendTime.divide(workTime,SCALE_FOUR,BigDecimal.ROUND_HALF_UP).toPlainString();
 			for (Integer rowIndex : rowMap.keySet()) {
 				row = sheet.getRow(rowIndex);
 				// 当天负荷率
@@ -1327,12 +1333,12 @@ public class PartialWarehouseJob implements Job {
 			
 			//每天负荷率
 			//例如：{30301={2019/04/01=0.9958, 2019/04/02=1.0063}}
-			LinkedHashMap<String, Double> dailyRate = null;
+			LinkedHashMap<String, String> dailyRate = null;
 			if(respMap.containsKey(jobNo)){
 				dailyRate = respMap.get(jobNo);
 				dailyRate.put(day, value);
 			}else{
-				dailyRate = new LinkedHashMap<String, Double>();
+				dailyRate = new LinkedHashMap<String, String>();
 				dailyRate.put(day, value);
 			}
 			respMap.put(jobNo, dailyRate);
@@ -1770,8 +1776,8 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		//today.set(Calendar.MONTH, 0);
-		today.set(Calendar.DATE, 31);
+		today.set(Calendar.MONTH, 2);
+		today.set(Calendar.DATE, 2);
 
 		// 取得数据库连接
 		SqlSessionManager conn = getTempWritableConn();
