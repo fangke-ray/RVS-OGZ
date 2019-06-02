@@ -139,13 +139,6 @@ $(function(){
 	// 订购品加入管理
 	$("#addorderbutton").click(getOrderList);
 
-	$("#add_spare_filterbutton").click(filterSpareList);
-	$("#add_spare_clearbutton").click(function(){
-		$("#add_spare_dialog").find("#add_spare_device_type_name").val("")
-			.end().find("#add_spare_model_name").val("");
-		filterSpareList();
-	});
-
 	$("#add_order_filterbutton").click(filterOrderList);
 	$("#add_order_clearbutton").click(function(){
 		$("#add_order_dialog").find("#add_order_device_type_name").val("")
@@ -737,7 +730,7 @@ var replace_handleComplete = function(xhrobj, textStatus) {
             treatBackMessages("#editarea", resInfo.errors);
         } else {
         	infoPop("替换新品已经完成。", null, "替换新品");
-			$("#replace_confrim").dialog("close");
+		$("#replace_confrim").dialog("close");
        
             // 重新查询
             findit();
@@ -1170,7 +1163,7 @@ var insert_handleComplete = function(xhrobj, textStatus) {
             showList();
         }
     } catch (e) {
-        alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+        console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
                 + e.lineNumber + " fileName: " + e.fileName);
     };
 }
@@ -1462,107 +1455,10 @@ var getSpareList = function(){
 				localSpareList = resInfo.spareList;
 				$("#add_spare_device_type_name").val("");
 				$("#add_spare_model_name").val("");
-				showSparelist(localSpareList);
+				if (typeof(showSparelist) === "function") showSparelist(localSpareList);
 			}
 		}
 	});
-}
-
-var showSparelist = function(listdata){
-	if ($("#gbox_sp_list").length > 0) {
-		$("#sp_list").jqGrid().clearGridData();// 清除
-		$("#sp_list").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [ {current : false} ]);// 刷新列表
-	} else {
-		$("#sp_list").jqGrid({
-			data : listdata,// 数据
-			height :201,// rowheight*rowNum+1
-			width : 640,
-			rowheight : 10,
-			shrinkToFit:true,
-			datatype : "local",
-			colNames : ['品名','型号','品牌','单价','Min<BR>Limit','Max<BR>Limit','当前<BR>有效库存','管理备注','device_type_id','brand_id'],
-			colModel : [{name : 'device_type_name',index : 'device_type_name',width:100},
-						{name : 'model_name',index : 'model_name',width:100},
-						{name : 'brand_name',index : 'brand_name',width:100, formatter : function(value, options, rData) {
-		                    if(rData.brand_name){
-	                            return "<a href='javascript:showBrandDetail(\""+ rData.brand_id +"\")'>" + rData.brand_name + "</a>";
-		                    }else{
-		                        return "";
-		                    }                           
-		                }},
-						{name : 'price',index : 'price',width:50,align:'right',sorttype:'currency',formatter:'currency',formatoptions:{thousandsSeparator:',',defaultValue: '',decimalPlaces:0}},
-						{name : 'safety_lever',index : 'safety_lever',width:50,align:'right',sorttype:'number'},
-						{name : 'benchmark',index : 'benchmark',width:50,align:'right',sorttype:'number'},
-						{name : 'available_inventory',index : 'available_inventory',width:50,align:'right',sorttype:'number'},
-						{name : 'comment',index : 'comment',width:100},
-						{name : 'device_type_id',index : 'device_type_id',hidden:true},
-						{name : 'brand_id',index : 'brand_id',hidden:true}
-            ],
-			rowNum : 20,
-			toppager : false,
-			pager : "#sp_listpager",
-			viewrecords : true,
-			caption : "",
-			multiselect : false,
-			gridview : true,
-			pagerpos : 'right',
-			pgbuttons : true, // 翻页按钮
-			rownumbers : true,
-			pginput : false,					
-			recordpos : 'left',
-			hidegrid : false,
-			deselectAfterSort : false,
-			viewsortcols : [ true, 'vertical', true ]
-		});
-	};
-	var $add_spare_dialog = $("#add_spare_dialog");
-	$add_spare_dialog.dialog({
-		position : 'center',
-		title : "选择备品品名型号",
-		width : 660,
-		height : 'auto',
-		resizable : false,
-		modal : true,
-		buttons : {
-			"选择":function() {
-				var selRow = $("#sp_list").jqGrid("getGridParam", "selrow");
-				if(selRow) {
-					var rowData=$("#sp_list").getRowData(selRow);
-					if (rowData.available_inventory <= 0) {
-						errorPop("选择的品名型号的备品现有数量不足。");
-					} else {
-						showAdd("spare", rowData);
-						$add_spare_dialog.dialog('close');
-					}
-				}
-			},
-			"关闭":function(){
-				$add_spare_dialog.dialog('close');
-			}
-		}
-	});
-}
-
-var filterSpareList = function(){
-	var spare_device_type_name = $("#add_spare_device_type_name").val();
-	var spare_model_name = $("#add_spare_model_name").val();
-	if (!spare_device_type_name && !spare_model_name) {
-		showSparelist(localSpareList);
-		return;
-	}
-
-	var filtedList = [];
-	for (var iSl in localSpareList) {
-		var localSpare = localSpareList[iSl];
-		if (spare_device_type_name && localSpare["device_type_name"].indexOf(spare_device_type_name) < 0) {
-			continue;
-		}
-		if (spare_model_name && localSpare["model_name"].indexOf(spare_model_name) < 0) {
-			continue;
-		}
-		filtedList.push(localSpare);
-	}
-	showSparelist(filtedList);
 }
 
 var localOrderList = [];

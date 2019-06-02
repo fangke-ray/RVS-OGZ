@@ -937,29 +937,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 	<%@include file="../../widgets/infect/brand-detail.jsp"%>
 
-<!-- 备品计入管理 -->
-<div id="add_spare_dialog" style="display:none;">
-	<table class="condform" style="border:1px solid #aaaaaa;margin-left:2px;">
-		<tbody>	
-		    <tr>
-				<td class="ui-state-default td-title">品名</td>
-				<td>
-					<input type="text" id="add_spare_device_type_name" name="device_type_name" alt="品名" class="ui-widget-content">
-				</td>
-				<td class="ui-state-default td-title">型号</td>
-				<td>
-					<input type="text" id="add_spare_model_name" name="model_name" alt="型号"  class="ui-widget-content">
-				</td>
-				<td class="ui-state-default td-title" style="text-align:center;">
-					<input type="button" class="ui-button" id="add_spare_filterbutton" value="过滤"/>
-					<input type="button" class="ui-button" id="add_spare_clearbutton" value="清除"/>
-				</td>
-			</tr>
-		</tbody>
-	</table>	
-	<table id="sp_list"></table>
-	<div id="sp_listpager"></div>
-</div>
+	<%@include file="../../widgets/equipment/add_spare_dialog.jsp"%>
 
 <!-- 订购品加入管理 -->
 <div id="add_order_dialog" style="display:none;">

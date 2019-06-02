@@ -1,6 +1,8 @@
 package com.osh.rvs.form.equipment;
 
-import org.apache.struts.action.ActionForm;
+import java.io.Serializable;
+
+import com.osh.rvs.form.UploadForm;
 
 
 /**
@@ -12,7 +14,7 @@ import org.apache.struts.action.ActionForm;
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
 
-public class DeviceJigRepairRecordForm extends ActionForm {
+public class DeviceJigRepairRecordForm extends UploadForm implements Serializable {
 
 	/**
 	 * serialVersionUID
@@ -78,7 +80,7 @@ public class DeviceJigRepairRecordForm extends ActionForm {
 	private String manage_code;
 	@BeanField(title = "管理ID", name = "manage_id", type = FieldType.String, length = 11)
 	private String manage_id;// 管理ID
-	@BeanField(title = "设备/治工具名", name = "object_name", type = FieldType.String)
+	@BeanField(title = "设备/治工具名", name = "object_name", type = FieldType.String, notNull = true)
 	private String object_name;
 	@BeanField(title = "停线时间", name = "line_break", type = FieldType.UInteger)
 	private String line_break;

@@ -3,6 +3,7 @@ package com.osh.rvs.service.equipment;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,8 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.equipment.DeviceJigRepairRecordEntity;
+import com.osh.rvs.bean.equipment.DeviceSpareAdjustEntity;
+import com.osh.rvs.bean.equipment.DeviceSpareEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.JigManageEntity;
 import com.osh.rvs.common.PathConsts;
@@ -22,13 +25,17 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.equipment.DeviceJigRepairRecordForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.equipment.DeviceJigRepairRecordMapper;
+import com.osh.rvs.mapper.equipment.DeviceSpareAdjustMapper;
+import com.osh.rvs.mapper.equipment.DeviceSpareMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.JigManageMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CommonStringUtil;
+import framework.huiqing.common.util.FileUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 public class DeviceJigRepairService {
@@ -235,24 +242,14 @@ public class DeviceJigRepairService {
 	 * @param conn
 	 */
 	public void confirm(ActionForm form, LoginData user, SqlSessionManager conn) {
-		DeviceJigRepairRecordEntity insertEntity = new DeviceJigRepairRecordEntity();
+		DeviceJigRepairRecordEntity confirmEntity = new DeviceJigRepairRecordEntity();
 
-		BeanUtil.copyToBean(form, insertEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		BeanUtil.copyToBean(form, confirmEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		confirmEntity.setConfirmer_id(user.getOperator_id());
 
 		DeviceJigRepairRecordMapper mapper = conn.getMapper(DeviceJigRepairRecordMapper.class);
 
-		insertEntity.setSubmit_time(new Date());
-
-		mapper.insertRecord(insertEntity);
-
-		CommonMapper cMapper = conn.getMapper(CommonMapper.class);
-
-		String key = cMapper.getLastInsertID();
-
-		insertEntity.setDevice_jig_repair_record_key(key);
-		insertEntity.setSubmitter_id(user.getOperator_id());
-
-		mapper.insertSubmit(insertEntity);
+		mapper.updateConfirm(confirmEntity);
 	}
 
 	/**
@@ -326,6 +323,63 @@ public class DeviceJigRepairService {
 		return mapper.getConsumableByKey(key);
 	}
 
+	/**
+	 * 编辑数据检查和整理
+	 * @param form
+	 * @param conn
+	 * @param errors
+	 */
+	public void checkRepairFinish(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
+		DeviceJigRepairRecordForm djrrForm = (DeviceJigRepairRecordForm) form;
+		boolean bFinish = (djrrForm.getRepair_complete_time() != null);
+		if (bFinish) {
+			djrrForm.setRepair_complete_time(DateUtil.toString(new Date(), DateUtil.DATE_TIME_PATTERN));
+		}
+
+		if (CommonStringUtil.isEmpty(djrrForm.getDevice_type_name())) {
+			djrrForm.setDevice_type_id("00000000000");
+			djrrForm.setModel_name("");
+			djrrForm.setPrice(null);
+			djrrForm.setQuantity(null);
+		} else {
+
+			// 使用备品
+			if (bFinish && djrrForm.getDevice_type_id() != null && !"00000000000".equals(djrrForm.getDevice_type_id())) {
+				int useQuantity = 0;
+				if (!CommonStringUtil.isEmpty(djrrForm.getQuantity())) {
+					useQuantity = Integer.parseInt(djrrForm.getQuantity(), 10);
+				}
+
+				if (useQuantity == 0) {
+					MsgInfo error = new MsgInfo();
+					error.setComponentid("quantity");
+					error.setErrcode("validator.invalidParam.invalidMoreThanZero");
+					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", 
+							"备件使用数量"));
+					errors.add(error);
+				} else {
+					DeviceSpareMapper dsMapper = conn.getMapper(DeviceSpareMapper.class);
+					DeviceSpareEntity dsCond = new DeviceSpareEntity();
+					dsCond.setDevice_type_id(djrrForm.getDevice_type_id());
+					dsCond.setModel_name(djrrForm.getModel_name());
+					dsCond.setDevice_spare_type(2);
+					DeviceSpareEntity dsResult = dsMapper.getDeviceSpare(dsCond);
+
+					if (dsResult == null || dsResult.getAvailable_inventory() < useQuantity) {
+						MsgInfo error = new MsgInfo();
+						error.setComponentid("quantity");
+						error.setErrcode("info.equipment.lessThanSpareStorage");
+						error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.equipment.lessThanSpareStorage", 
+								dsResult.getDevice_type_name(), dsResult.getModel_name(), dsResult.getAvailable_inventory()));
+						errors.add(error);
+					} else {
+						djrrForm.setLine_break("" + (dsResult.getAvailable_inventory() - useQuantity)); // 借用记录备件更新数量
+					}
+				}
+			}
+		}
+	}
+
 	public void repairEdit(ActionForm form, LoginData user,
 			SqlSessionManager conn) {
 
@@ -334,19 +388,16 @@ public class DeviceJigRepairService {
 
 		DeviceJigRepairRecordMapper mapper = conn.getMapper(DeviceJigRepairRecordMapper.class);
 
-		if (editEntity.getRepair_complete_time() != null) {
-			editEntity.setRepair_complete_time(new Date());
-		}
-
 		mapper.updateRecord(editEntity);
 
+		// 插入维修者
 		String existMaintainer = editEntity.getMaintainer_id();
 		boolean insMaintainer = false;
 		if (CommonStringUtil.isEmpty(existMaintainer)) {
 			insMaintainer = true;
 		} else {
 			insMaintainer = true;
-			String[] arrMaintainer = existMaintainer.split("//");
+			String[] arrMaintainer = existMaintainer.split("/");
 			for (String maintainer : arrMaintainer) {
 				if (maintainer.equals(user.getOperator_id())) {
 					insMaintainer = false;
@@ -359,6 +410,59 @@ public class DeviceJigRepairService {
 			editEntity.setMaintainer_id(user.getOperator_id());
 			mapper.insertMaintainer(editEntity);
 		}
+
+		// 插入消耗品
+		mapper.deleteConsumable(editEntity);
+		mapper.insertConsumable(editEntity);
+
+		// 备件出库
+		boolean bFinish = (editEntity.getRepair_complete_time() != null);
+		String deviceType = editEntity.getDevice_type_id();
+		if (bFinish && deviceType != null && !"00000000000".equals(deviceType)) {
+			DeviceSpareMapper dsMapper = conn.getMapper(DeviceSpareMapper.class);
+			DeviceSpareAdjustMapper dsaMapper = conn.getMapper(DeviceSpareAdjustMapper.class);
+
+			DeviceSpareEntity dsCond = new DeviceSpareEntity();
+			dsCond.setDevice_type_id(editEntity.getDevice_type_id());
+			dsCond.setModel_name(editEntity.getModel_name());
+			dsCond.setDevice_spare_type(2);
+			dsCond.setAvailable_inventory(editEntity.getLine_break()); // 借用记录备件更新数量
+
+			dsMapper.updateAvailableInventory(dsCond);
+
+			DeviceSpareAdjustEntity deviceSpareAdjustEntity = new DeviceSpareAdjustEntity();
+			deviceSpareAdjustEntity.setDevice_type_id(editEntity.getDevice_type_id());
+			deviceSpareAdjustEntity.setModel_name(editEntity.getModel_name());
+			deviceSpareAdjustEntity.setDevice_spare_type(2);
+			deviceSpareAdjustEntity.setAdjust_time(new Date());
+			// 理由(入库)
+			deviceSpareAdjustEntity.setReason_type(26);
+			deviceSpareAdjustEntity.setAdjust_inventory(-editEntity.getQuantity());
+			deviceSpareAdjustEntity.setOperator_id(user.getOperator_id());
+			// 备注来源
+			deviceSpareAdjustEntity.setComment("维修<repair_no key='" + editEntity.getDevice_jig_repair_record_key() + "'>" + editEntity.getObject_name() + "</repair_no>时使用。");
+			
+			// ②新建设备工具备品调整记录
+			dsaMapper.insert(deviceSpareAdjustEntity);
+		}
 	}
 
+	public void copyPhoto(String device_jig_repair_record_key, String photo_file_name) {
+		// 把图片拷贝到目标文件夹下
+		String today = DateUtil.toString(new Date(), "yyyyMM");
+		String tempFilePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + today + "\\" + photo_file_name;
+		String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\dj_repair\\" + device_jig_repair_record_key;
+		File confFile = new File(tempFilePath);
+		if (confFile.exists()) {
+			FileUtils.copyFile(tempFilePath, targetPath, true);
+		}
+	}
+
+	public void delPhoto(String device_jig_repair_record_key) {
+		String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "\\dj_repair\\" + device_jig_repair_record_key;
+		File confFile = new File(targetPath);
+		if (confFile.exists()) {
+			confFile.delete();
+		}
+	}
 }

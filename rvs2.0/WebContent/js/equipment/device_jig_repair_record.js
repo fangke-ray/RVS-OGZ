@@ -71,6 +71,8 @@ $(function(){
 		$("#list").jqGrid('setGridWidth', gridWidth);
 	});
 
+	$("#list").on("click", "img", showPhoto);
+
 	$("#searchbutton").click(function(){
 		$("#search_submit_time_start").data("post", $("#search_submit_time_start").val());
 		$("#search_submit_time_end").data("post", $("#search_submit_time_end").val());
@@ -133,9 +135,12 @@ function reset(){
 	$("#searchform input[type='text']").data("post", "").val("");
 	$("#searchform input[type='hidden']").data("post", "").val("");
 	$("#searchform select").data("post", "").val("").trigger("change");
+
+	$("#device_jig_repair_photo").dialog("close");
 };
 
 function findit(){
+	$("#device_jig_repair_photo").dialog("close");
 
 	var data ={
 		"submit_time_start":$("#search_submit_time_start").data("post"),
@@ -249,7 +254,7 @@ var showlist = function(listdata){
 				{name:'latent_trouble',index:'latent_trouble',width:110,hidden:true},
 				{name:'photo_flg',index:'photo_flg',width:40,align:'center',formatter:function(value, i, rowdata){
 					if (value) {
-						return '<img src="/photos/dj_repair/' + rowdata.device_jig_repair_record_key + '" />'
+						return '<img src="http://' + document.location.hostname + '/photos/dj_repair/' + rowdata.device_jig_repair_record_key + '" />'
 					} else {
 						return '无';
 					}
@@ -394,7 +399,7 @@ var doSubmit = function(){
 	if (postData.object_type == 1) {
 		postData["manage_id"] = $("#submit_manage_id_dev").val();
 	} else if (postData.object_type == 2) {
-		postData["manage_id"] = $("#submit_manage_id_dev").val();
+		postData["manage_id"] = $("#submit_manage_id_jig").val();
 	}
 
 	$.ajax({
@@ -449,4 +454,27 @@ var confirm = function(){
 			}
 		}
 	})
+}
+
+var showPhoto = function() {
+	var imageSrc = this.src;
+	if (!imageSrc) return;
+
+	var $dialogDjrPhoto = $("#device_jig_repair_photo");
+	if ($dialogDjrPhoto.length == 0) {
+		$("body").append("<div id='device_jig_repair_photo'/>");
+		$dialogDjrPhoto = $("#device_jig_repair_photo");
+	}
+
+	$dialogDjrPhoto.html("<img src='" + imageSrc + "' style='max-height: 600px;'>");
+
+	$dialogDjrPhoto.dialog({
+		dialogClass : 'ui-info-dialog',
+		title : "故障照片",
+		width : 'auto',
+		height : 'auto',
+		resizable : false
+	});
+
+	return false;
 }

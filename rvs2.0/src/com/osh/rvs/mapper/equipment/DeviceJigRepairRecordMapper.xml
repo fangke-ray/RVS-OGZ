@@ -304,23 +304,13 @@
 		]]> 
 	</select>
 
-	<update id="updateConsumable" parameterType="DeviceJigRepairRecordEntity">
-		UPDATE `device_jig_repair_consumable`
-		SET
-		    `device_type_name` = #{device_type_name},
-		    `price` = #{price},
-		    `quantity` = #{quantity},
-		    `outsourcing_price` = #{outsourcing_price}
-		WHERE `device_jig_repair_record_key` = #{device_jig_repair_record_key}
-		AND `device_type_id` = #{device_type_id}
-		AND `model_name` = #{model_name};
-	</update>
-
 	<delete id="deleteConsumable" parameterType="DeviceJigRepairRecordEntity">
 		DELETE FROM `device_jig_repair_consumable`
 		WHERE `device_jig_repair_record_key` = #{device_jig_repair_record_key}
-		AND `device_type_id` = #{device_type_id}
-		AND `model_name` = #{model_name};
+<!--
+AND `device_type_id` = #{device_type_id}
+AND `model_name` = #{model_name};
+-->
 	</delete>
 
 	<insert id="insertMaintainer" parameterType="DeviceJigRepairRecordEntity">
@@ -332,6 +322,25 @@
 		(
 		#{device_jig_repair_record_key},
 		#{maintainer_id});
+	</insert>
+
+	<insert id="insertConsumable" parameterType="DeviceJigRepairRecordEntity">
+		REPLACE INTO `device_jig_repair_consumable`
+		(`device_jig_repair_record_key`,
+		`device_type_id`,
+		`device_type_name`,
+		`model_name`,
+		`price`,
+		`quantity`,
+		`outsourcing_price`)
+		VALUES
+		(#{device_jig_repair_record_key},
+		#{device_type_id},
+		#{device_type_name},
+		#{model_name},
+		#{price},
+		#{quantity},
+		#{outsourcing_price});
 	</insert>
 
 </mapper>

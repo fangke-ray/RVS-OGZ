@@ -22,8 +22,10 @@
 		      
 		       <a target="_parent" href="peripheral_infect_device.do">周边设备点检关系</a><br>
 <% } %>
-			   <a target="_parent" href="device_jig_order.do">设备工具订购申请</a><br>
+			   <a target="_parent" href="device_backup.do">设备工具替代管理</a><br>
 			   <a target="_parent" href="device_spare.do">设备工具备品管理</a><br>
+			   <a target="_parent" href="device_jig_order.do">设备工具订购申请</a><br>
+			   <a target="_parent" href="device_jig_repair_record.do">设备工具维修记录</a><br>
 		    </div>
 </div>
 

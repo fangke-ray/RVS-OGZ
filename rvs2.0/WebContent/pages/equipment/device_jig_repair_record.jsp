@@ -12,6 +12,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
+<style>
+#list img {
+	width : 30px;
+	height : 30px;
+	cursor : pointer;
+}
+</style>
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.validate.min.js"></script>
@@ -29,9 +36,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <body class="outer" style="overflow: auto;">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 		<div id="basearea" class="dwidth-full" style="margin: auto;">
-			<jsp:include page="/header.do" flush="true">
-				<jsp:param name="part" value="1"/>
-			</jsp:include>
+		<jsp:include page="/header.do" flush="true">
+			<jsp:param name="part" value="1"/>
+			<jsp:param name="sub" value="t"/>
+		</jsp:include>
 		</div>
 		
 		<div class="ui-widget-panel ui-corner-all width-full" style="align: center; padding-top: 16px;" id="body-3">
@@ -200,6 +208,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="clear areaencloser"></div>
 		</div>
 	</div>
+
+	<%@include file="../../widgets/equipment/add_spare_dialog.jsp"%>
 
 	<div id="dev_managecode_referchooser" class="referchooser ui-widget-content" tabindex="-1" style="z-index:1050">
 		 <table>

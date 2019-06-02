@@ -21,7 +21,7 @@ public interface DeviceJigRepairRecordMapper {
 
 	public List<DeviceJigRepairRecordEntity> getConsumableByKey(String check_unqualified_record_key);
 
-	public int updateConsumable(DeviceJigRepairRecordEntity entity);
+	public int insertConsumable(DeviceJigRepairRecordEntity entity);
 
 	public int deleteConsumable(DeviceJigRepairRecordEntity entity);
 

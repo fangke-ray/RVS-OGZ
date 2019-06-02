@@ -20,6 +20,7 @@ import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.JigManageService;
 import com.osh.rvs.service.LineService;
+import com.osh.rvs.service.UploadService;
 import com.osh.rvs.service.equipment.DeviceJigRepairService;
 
 import framework.huiqing.action.BaseAction;
@@ -183,6 +184,16 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		log.info("DeviceJigRepairRecordAction.checkForSubmit end");
 	}
 
+	/**
+	 * 报修
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
 	public void doSubmit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("DeviceJigRepairRecordAction.doSubmit start");
 
@@ -208,6 +219,16 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		log.info("DeviceJigRepairRecordAction.doSubmit end");
 	}
 
+	/**
+	 * 验收
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
 	public void doConfirm(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("DeviceJigRepairRecordAction.doConfirm start");
 
@@ -262,6 +283,16 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		log.info("DeviceJigRepairRecordAction.showDetail end");
 	}
 
+	/**
+	 * 维修编辑
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
 	public void doRepair(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("DeviceJigRepairRecordAction.doRepair start");
 
@@ -275,6 +306,9 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		DeviceJigRepairService service = new DeviceJigRepairService();
 
 		if (errors.size() == 0) {
+			service.checkRepairFinish(form, conn, errors);
+		}
+		if (errors.size() == 0) {
 			service.repairEdit(form, user, conn);
 		}
 
@@ -284,4 +318,66 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		log.info("DeviceJigRepairRecordAction.doRepair end");
 	}
 
+	/**
+	 * 上传照片
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void sourceImage(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+		log.info("ToolsManageAction.sourceImage start");
+
+		// Ajax回馈对象
+		Map<String, Object> jsonResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		UploadService fservice = new UploadService();
+		String tempFilePath = fservice.getFile2Local(form, errors);
+
+		DeviceJigRepairService service = new DeviceJigRepairService();
+
+		String photo_file_name = tempFilePath.substring(tempFilePath.lastIndexOf("\\") + 1);
+		service.copyPhoto(req.getParameter("device_jig_repair_record_key"), photo_file_name);
+
+		// 检查发生错误时报告错误信息
+		jsonResponse.put("errors", errors);
+		// 返回Json格式响应信息
+		returnJsonResponse(res, jsonResponse);
+
+		log.info("ToolsManageAction.sourceImage end");
+	}
+
+	/**
+	 * 删除照片
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void delImage(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+		log.info("ToolsManageAction.delImage start");
+
+		// Ajax回馈对象
+		Map<String, Object> jsonResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		DeviceJigRepairService service = new DeviceJigRepairService();
+
+		service.delPhoto(req.getParameter("device_jig_repair_record_key"));
+
+		// 检查发生错误时报告错误信息
+		jsonResponse.put("errors", errors);
+		// 返回Json格式响应信息
+		returnJsonResponse(res, jsonResponse);
+
+		log.info("ToolsManageAction.delImage end");
+	}
+	
 }

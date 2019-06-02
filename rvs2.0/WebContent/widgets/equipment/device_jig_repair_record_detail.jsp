@@ -7,6 +7,10 @@
 #djr_costs table tbody tr td:nth-child(n+3){
 	text-align: right;
 }
+#djr_costs table input[type="number"]{
+	text-align: right;
+	width:10em;
+}
 #djr_photo {
 	max-width:320px;
 	max-height:276px;
@@ -102,6 +106,7 @@
 						<td class="ui-state-default td-title" colspan="2">
 							故障相关照片
 							<input type="button" class="ui-button" id="djr_uploadphotobutton" value="上传" style="padding:0 0.2em;">
+							<input type="file" name="file" id="djr_update_photo" style="display:none;">
 							<input type="button" class="ui-button" id="djr_delphotobutton" value="删除" style="padding:0 0.2em;">
 						</td>
 					</tr>
