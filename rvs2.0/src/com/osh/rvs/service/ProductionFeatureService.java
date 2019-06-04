@@ -288,7 +288,8 @@ public class ProductionFeatureService {
 					entity.setRework(neoRework);
 					pfDao.insertProductionFeature(entity);
 
-					if (isFact && ("99".equals(position_id) || "00000000099".equals(position_id))) {
+					if (isFact && ("99".equals(position_id) || "00000000099".equals(position_id)
+							|| "27".equals(position_id) || "00000000027".equals(position_id))) {
 						MaterialPartialService mptlService = new MaterialPartialService();
 						mptlService.createMaterialPartialWithExistCheck(material_id, conn);
 					}
@@ -460,7 +461,7 @@ public class ProductionFeatureService {
 				}
 			} else
 			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || 
-					"00000000026".equals(position_id) || "00000000093".equals(position_id)
+					"00000000093".equals(position_id)
 					|| "00000000097".equals(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
 				if (isFact) {
@@ -500,7 +501,7 @@ public class ProductionFeatureService {
 					// 检查本工程是否都完成
 					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
 					if (paMapper.getWorkedLine(material_id, "00000000060")) {
-						mpService.finishMaterialProcess(material_id, "00000000050", triggerList, conn);
+						mpService.finishMaterialProcess(material_id, "00000000060", triggerList, conn);
 					}
 				}
 			} else
