@@ -462,7 +462,7 @@ public class PartialWarehouseJob implements Job {
 					row2 = sheet.getRow(4);
 
 					for (PartialWarehouseEntity entity : dailyWorkRecordList) {
-						BigDecimal collationStandardTime = partialWarehouseMapper.countCollationStandardTime(entity.getFact_pf_key());
+						BigDecimal collationStandardTime = partialWarehouseMapper.countCollationAndOnShelfStandardTime(entity.getFact_pf_key());
 						standardTime = standardTime.add(collationStandardTime);
 						
 						// 拆盒
@@ -1776,8 +1776,8 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, 2);
-		today.set(Calendar.DATE, 2);
+		today.set(Calendar.MONTH, 4);
+		today.set(Calendar.DATE, 31);
 
 		// 取得数据库连接
 		SqlSessionManager conn = getTempWritableConn();
