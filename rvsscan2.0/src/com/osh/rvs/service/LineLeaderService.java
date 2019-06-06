@@ -65,6 +65,9 @@ public class LineLeaderService {
 		getChartContent(section_id, line_id, responseMap, null, conn);
 	}
 	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn) {
+		getChartContent(section_id, line_id, responseMap, null, conn,true);
+	}
+	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn,boolean delLast) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
 
@@ -256,7 +259,9 @@ public class LineLeaderService {
 			}
 		}
 
-		overlines.remove(overlines.size() - 1);
+		if(delLast){
+			overlines.remove(overlines.size() - 1);
+		}
 
 		// 分解工程取得分解库位信息
 		if ("00000000012".equals(line_id)) {
@@ -375,7 +380,7 @@ public class LineLeaderService {
 			if ("00000000012".equals(line_id)) {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.分解工程"));
-				responseMap.put("plan_complete", dao.getProduceActualOfDecByBoard(section_id));
+				responseMap.put("plan_complete", dao.getProduceActualOfLine(section_id,line_id));
 			} else if ("00000000013".equals(line_id)) {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));

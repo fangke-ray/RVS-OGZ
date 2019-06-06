@@ -32,7 +32,7 @@ public interface LineLeaderMapper {
 
 //	public Integer getPlanPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id);
 
-	public Integer getProduceActualOfDecByBoard(@Param("section_id") String section_id);
+	public Integer getProduceActualOfLine(@Param("section_id") String section_id,@Param("line_id") String line_id);
 	public Integer getProduceActualOfNsByBoard(@Param("section_id") String section_id);
 
 	public Integer getComninedCount(@Param("section_id") String section_id, @Param("process_code_set") Set<String> processCodeSet);

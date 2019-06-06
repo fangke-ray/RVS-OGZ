@@ -463,7 +463,7 @@
 		;
 	</select>
 
-	<select id="getProduceActualOfDecByBoard" resultType="int">
+	<select id="getProduceActualOfLine" resultType="int">
 		<![CDATA[
 		SELECT 
 			COUNT(1) 
@@ -472,7 +472,7 @@
 		join 
 			material_process
 		on 
-			material.material_id=material_process.material_id and material_process.line_id = 12
+			material.material_id=material_process.material_id and material_process.line_id = #{line_id}
 		WHERE 
 			material.break_back_flg = 0 
 			AND material.fix_type = 1

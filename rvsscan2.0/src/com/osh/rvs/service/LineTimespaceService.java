@@ -335,10 +335,10 @@ public class LineTimespaceService {
 		return retMap;
 	}
 
-	public Object getOperatorFeatures(String line_id, SqlSession conn) {
+	public Object getOperatorFeatures(String [] line_ids, SqlSession conn) {
 		LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
 
-		List<Map<String, Object>> operatorFeatures = mapper.getOperatorFeatures(line_id);
+		List<Map<String, Object>> operatorFeatures = mapper.getOperatorFeatures(line_ids);
 		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
 
 		String currentJobNo = null;

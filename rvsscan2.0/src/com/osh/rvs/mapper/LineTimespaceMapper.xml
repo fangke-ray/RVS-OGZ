@@ -194,7 +194,14 @@ timestampdiff(minute, current_date, coalesce(cnt.finish_time, current_timestamp)
 		ON cnt.operator_id = o.operator_id
 		LEFT JOIN `position` p
 		ON cnt.position_id = p.position_id
-		WHERE o.line_id = #{line_id}
+		WHERE o.line_id IN 
+		]]>
+		<foreach collection="line_ids" open="(" close=")" separator="," item="line_id">
+		<![CDATA[
+		    #{line_id}
+		]]>
+		</foreach>
+		<![CDATA[
 		ORDER BY o.WORK_COUNT_FLG = 4, o.WORK_COUNT_FLG = 0, cnt.operator_id, cnt.action_time, cnt.finish_time;
 		]]>
 	</select>

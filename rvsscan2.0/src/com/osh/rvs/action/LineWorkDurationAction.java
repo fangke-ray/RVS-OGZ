@@ -49,15 +49,17 @@ public class LineWorkDurationAction extends BaseAction {
 
 		String line_id = req.getParameter("line_id");
 
-		String lineName = "总组";
-		req.setAttribute("line_id", "00000000014");
+		String lineName = "单元拉";
+		req.setAttribute("line_id", "00000000050,00000000054,00000000060,00000000061");
 		if ("12".equals(line_id)) {
 			lineName = "分解";
 			req.setAttribute("line_id", "00000000012");
-		}
-		if ("13".equals(line_id)) {
+		} else if ("13".equals(line_id)) {
 			lineName = "NS ";
 			req.setAttribute("line_id", "00000000013");
+		} else if ("14".equals(line_id)){
+			lineName = "总组";
+			req.setAttribute("line_id", "00000000014");
 		}
 		req.setAttribute("line_name", lineName);
 		req.setAttribute("standard_column", service.getStandardColumn(null));
@@ -83,14 +85,12 @@ public class LineWorkDurationAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		String line_id = req.getParameter("line_id");
-		if (line_id == null) {
-			line_id = "00000000014";
-		}
+		String [] arrLineIds = line_id.split(",");
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
 
-		listResponse.put("productionFeatures", service.getOperatorFeatures(line_id, conn));
+		listResponse.put("productionFeatures", service.getOperatorFeatures(arrLineIds, conn));
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

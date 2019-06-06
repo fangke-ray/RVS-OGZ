@@ -15,7 +15,7 @@ public interface LineTimespaceMapper {
 	public BigDecimal getWorkingStandingRate(@Param("material_id")String material_id, @Param("line_id")String line_id
 			, @Param("drying_time")String drying_time);
 
-	public List<Map<String, Object>> getOperatorFeatures(@Param("line_id") String line_id);
+	public List<Map<String, Object>> getOperatorFeatures(@Param("line_ids") String[] line_ids);
 
 	public boolean checkNoDrying(@Param("material_id")String material_id, @Param("line_id") String line_id);
 

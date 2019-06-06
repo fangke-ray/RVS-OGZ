@@ -92,7 +92,9 @@ public class LineSituationPeripheralAction extends BaseAction {
 
 		// 取得操作者作业
 		LineTimespaceService ltService = new LineTimespaceService();
-		callback.put("productionFeatures", ltService.getOperatorFeatures("00000000070", conn));
+		
+		String arrLineIds[] = {"00000000070"};
+		callback.put("productionFeatures", ltService.getOperatorFeatures(arrLineIds, conn));
 
 		// 检查发生错误时报告错误信息
 		callback.put("errors", new ArrayList<MsgInfo>());

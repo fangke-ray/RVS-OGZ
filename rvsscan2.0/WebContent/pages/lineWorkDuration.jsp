@@ -24,6 +24,7 @@ ${standard_column.css}
 	justify-content : space-between;
 	flex:10;
 	padding-left: 1em;
+	height:100%;
 }
 
 #axis_base .operator_flex .y_column{
@@ -45,7 +46,7 @@ ${standard_column.css}
 }
 /* Unknown */
 #axis_base .operator_flex .production_feature[d_type="0"] { 
-	background-color : #333399;
+	background-color : #aaa;
 	width : 30%;
 	box-shadow : none;
 	margin-left : 33%;

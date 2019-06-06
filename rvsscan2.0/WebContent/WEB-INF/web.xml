@@ -17,7 +17,7 @@
 	  <init-param>
 	    <description>文件系统根目录</description>
 	    <param-name>BASE_PATH</param-name>
-	    <param-value>E:\rvs</param-value>
+	    <param-value>D:\rvsG</param-value>
 	    <!--param-value>C:\Work\rvsG</param-value-->
 	  </init-param>
 	  <init-param>
