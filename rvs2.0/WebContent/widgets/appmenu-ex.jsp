@@ -162,23 +162,25 @@ var getPositionWork = function(position_id, px){
 <div class="dwidth-left">
 <h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-accordion-icons" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>展示一览</h3>
 	<div class="ui-accordion-content ui-helper-reset ui-widget-content">
-        <a target="_parent" href="show.do#globalProgress">全工程</a><br>
-        <a target="_parent" href="show.do#acceptFact">受理报价展示</a><br>
-        <a target="_parent" href="show.do#wipProgress">WIP库位</a><br>
-        <a title="分解工程线长界面" target="_parent" href="show.do#lineSituationD1">分解</a>
-        <a title="NS工程线长界面" target="_parent" href="show.do#lineSituationS1">NS</a>
-        <a title="总组工程线长界面" target="_parent" href="show.do#lineSituationP1">总组</a>在线展示<br>
-        <a title="" target="_parent" href="show.do#lineSituationPeripheral">周边维修在线展示</a><br>
-        <a title="" target="_parent" href="show.do#allPositions">全工位状况展示</a><br>
-        <a title="" target="_parent" href="show.do#lineTimeSpace-line_id-12">分解</a>
-        <a title="" target="_parent" href="show.do#lineTimeSpace-line_id-13">NS</a>
-        <a title="" target="_parent" href="show.do#lineTimeSpace">总组</a>进度管理板<br>
-        <a title="" target="_parent" href="show.do#lineWorkDuration-line_id-12">分解</a>
-        <a title="" target="_parent" href="show.do#lineWorkDuration-line_id-13">NS</a>
-        <a title="" target="_parent" href="show.do#lineWorkDuration">总组</a>人员工时图<br>
-        <a title="" target="_parent" href="show.do#service_repair_manage">保内返品分析展示</a><br>
-        <a title="" target="_parent" href="show.do#finalCheck">最终检查展示</a><br>
-        <a title="" target="_parent" href="show.do#partialWarehouse">仓管人员工时图</a><br>
+		<a target="_parent" href="show.do#globalProgress">全工程</a><br>
+		<a target="_parent" href="show.do#acceptFact">受理报价展示</a><br>
+		<a target="_parent" href="show.do#wipProgress">WIP库位</a><br>
+		<a title="分解工程线长界面" target="_parent" href="show.do#lineSituationD1">分解</a>
+		<a title="NS工程线长界面" target="_parent" href="show.do#lineSituationS1">NS</a>
+		<a title="总组工程线长界面" target="_parent" href="show.do#lineSituationP1">总组</a>在线展示<br>
+		<a title="" target="_parent" href="show.do#lineSituationPeripheral">周边维修</a>
+		<a title="" target="_parent" href="show.do#lineSituationCell">单元拉</a>在线展示<br>
+		<a title="" target="_parent" href="show.do#allPositions">全工位状况展示</a><br>
+		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-12">分解</a>
+		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-13">NS</a>
+		<a title="" target="_parent" href="show.do#lineTimeSpace">总组</a>进度管理板<br>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-12">分解</a>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-13">NS</a>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-14">总组</a>
+		<a title="" target="_parent" href="show.do#lineWorkDuration">单元拉</a>人员工时图<br>
+		<a title="" target="_parent" href="show.do#service_repair_manage">保内返品分析展示</a><br>
+		<a title="" target="_parent" href="show.do#finalCheck">最终检查展示</a><br>
+		<a title="" target="_parent" href="show.do#partialWarehouse">仓管人员工时图</a><br>
 	</div>
 </div>
 <% } %>

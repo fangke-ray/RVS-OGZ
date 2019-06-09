@@ -134,10 +134,13 @@
 			<forward name="ns" path="/pages/nsLineSituation.jsp" />
 			<forward name="period" path="/pages/periodLineSituation.jsp" />
 		</action>
-
 		<action path="/lineSituationPeripheral" type="com.osh.rvs.action.LineSituationPeripheralAction" parameter="method" validate="false">
 			<forward name="init" path="/pages/peripheralLineSituation.jsp" />
 			<forward name="success" path="/pages/peripheralLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationCell" type="com.osh.rvs.action.LineSituationCellAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituationCell.jsp" />
+			<forward name="success" path="/pages/lineSituationCell.jsp" />
 		</action>
 
 		<action path="/allPositions" type="com.osh.rvs.action.AllPositionsAction" parameter="method" validate="false">

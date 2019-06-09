@@ -35,6 +35,7 @@ body{
 	writing-mode:vertical-lr;
 	height: 182px;
 	text-align: center;
+	border : 1.5px solid #060b51;
 }
 .cell .ui-widget-header{
 	width:148px;
@@ -101,7 +102,7 @@ body{
 				<div class="dwidth-half" style="float:left;margin-left:14px;font-weight: bolder;width:50%;height:600px;overflow: hidden;">
 					<div id="num_area">
 						<div class="cell" for="00000000054">
-							<div class="title">中小修</div>
+							<div class="title ui-state-default">中小修</div>
 							<div style="float:left">
 								<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 									<span class="areatitle">今日计划台数</span>
@@ -123,7 +124,7 @@ body{
 							<div class="clear"></div>
 						</div>
 						<div class="cell" for="00000000050">
-							<div class="title">外科镜维修</div>
+							<div class="title ui-state-default">外科镜维修</div>
 							<div style="float:left">
 								<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 									<span class="areatitle">今日计划台数</span>
@@ -145,7 +146,7 @@ body{
 							<div class="clear"></div>
 						</div>
 						<div class="cell" for="00000000060">
-							<div class="title">纤维镜分解</div>
+							<div class="title ui-state-default">纤维镜分解</div>
 							<div style="float:left">
 								<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 									<span class="areatitle">今日计划台数</span>
@@ -167,7 +168,7 @@ body{
 							<div class="clear"></div>
 						</div>
 						<div class="cell" for="00000000061">
-							<div class="title">纤维镜总组</div>
+							<div class="title ui-state-default">纤维镜总组</div>
 							<div style="float:left">
 								<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 									<span class="areatitle">今日计划台数</span>
