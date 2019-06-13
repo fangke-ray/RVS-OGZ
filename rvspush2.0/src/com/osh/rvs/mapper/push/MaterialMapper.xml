@@ -545,8 +545,12 @@ VALUES
 			select
 			    pf9.finish_time as accept_finish_time,
 				op9.job_no as accept_job_no,
-			    mo.name AS model_name,
+				CASE
+					WHEN Ma.model_id = 0 THEN Ma.scheduled_manager_comment
+					ELSE mo.name
+				END AS model_name,
 			    ma.serial_no,
+			    ma.break_back_flg,
 			    pf10.finish_time as disinfect_finish_time,
 				op10.job_no as disinfect_job_no,
 				pf10.pcs_inputs
@@ -571,7 +575,7 @@ VALUES
 			ON 
 			    op10.operator_id = pf10.operator_id 
 			WHERE
-			    ma.break_back_flg IN (0 , 2) AND DATE(pf10.finish_time) = #{finish_time} 
+			    ma.break_back_flg IN (0 , 2 , 3 , 4) AND DATE(pf10.finish_time) = #{finish_time} 
 			ORDER BY 
 				pf10.finish_time
 		]]>

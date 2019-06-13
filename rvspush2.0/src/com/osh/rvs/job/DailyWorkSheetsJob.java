@@ -307,6 +307,8 @@ public class DailyWorkSheetsJob implements Job {
 				for(int i = 0;i < length; i++){
 					MaterialEntity entity = listBeans.get(i);
 					
+					Integer breakBackFlg = entity.getBreak_back_flg();
+					
 					int iRow = i/17 * 12 + 6 + i;
 					HSSFRow  row = sheet.getRow(iRow);
 					
@@ -349,6 +351,13 @@ public class DailyWorkSheetsJob implements Job {
 					
 					operator_name = PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + entity.getDisinfect_job_no();
 					insertImage(work,sheet,12,iRow,operator_name);//担当
+					
+					//备注
+					if (breakBackFlg == 3) {
+						row.getCell(13).setCellValue("备品");
+					} else if(breakBackFlg == 4) {
+						row.getCell(13).setCellValue("RC品");
+					}
 				}
 				
 				out = new FileOutputStream(cachePath);
