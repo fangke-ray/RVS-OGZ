@@ -66,6 +66,9 @@ public interface PositionPanelMapper {
 	public List<WaitingEntity> getWaitingMaterial(@Param("line_id") String line_id,
 			@Param("section_id") String section_id, @Param("position_id") String position_id,
 			@Param("operator_id") String operator_id, @Param("level") String level);
+	
+	/**等待消毒灭菌的备品或RC品**/
+	public List<WaitingEntity> getSpareOrRcWaitingMaterial(@Param("section_id") String section_id, @Param("position_id") String position_id);
 
 	public List<ProductionFeatureEntity> getWaiting(@Param("material_id") String material_id,
 			@Param("section_id") String section_id, @Param("position_id") String position_id,

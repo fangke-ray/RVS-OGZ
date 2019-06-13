@@ -131,4 +131,5 @@ public interface ProductionFeatureMapper {
 	 */
 	public List<ProductionFeatureEntity> getMaterialPositionWorkTime(@Param("materialIds") String [] materialIds);
 
+	public void updateFinishTime(ProductionFeatureEntity entity);
 }

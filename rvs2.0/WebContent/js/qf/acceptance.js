@@ -237,21 +237,19 @@ var showInput=function(rid, manual) {
 			$("#edit_selectable").val(rowData.selectable);
 			$("#edit_area").val(rowData.area);
 			$("#edit_bound_out_ocm").val(rowData.bound_out_ocm);
-		}
-
-		$("#ins_material").validate({
-			rules : {
-				sorcno : {
-					required : true
-				},
-				serialno : {
-					required : true
-				},
-				modelname : {
-					required : true
+		} else {
+			$("#edit_break_back_flg").closest("tr").show();
+			$("#edit_break_back_flg").change(function(){
+				var value = this.value;
+				//[备品]或者[RC品]
+				if (value == 3 || value == 4){
+					$("#edit_modelname").next().show();
+				} else {
+				//其他
+					$("#edit_modelname").next().hide();
 				}
-			}
-		});
+			})
+		}
 
 		$("#edit_ocm_deliver_date,#edit_osh_deliver_date").datepicker({
 			showButtonPanel : true,
@@ -274,12 +272,32 @@ var showInput=function(rid, manual) {
 			minHeight : 200,
 			buttons : {
 				"确定":function(){
+					$("#ins_material").validate({
+						rules : {
+							sorcno : {
+								required : true
+							},
+							serialno : {
+								required : true
+							}
+						}
+					});
+					
+					var $input = $("#edit_modelname").next();
+					// 型号手动输入标记
+					var inputFlg = false;
+					
+					if ($input.is(":visible") && $input.val().trim() != "") {
+						inputFlg = true;
+						$("#inp_modelname").rules("remove");
+					} else {
+						$("#inp_modelname").rules("add",{required:true});
+					}
+					
 					if ($("#ins_material").valid()) {
 						var data = {
 							"material_id":$("#material_id").val(),
 							"sorc_no":$("#edit_sorcno").val(),
-							"model_id":$("#edit_modelname").val(),
-							"model_name":$("#inp_modelname").val(),
 							"serial_no":$("#edit_serialno").val(),
 							"ocm":$("#edit_ocm").val(),
 							"ocm_rank":$("#edit_ocm_rank").val(),
@@ -292,9 +310,19 @@ var showInput=function(rid, manual) {
 							"fix_type":$("#edit_fix_type").val(),
 							"selectable":$("#edit_selectable").val(),
 							"area":$("#edit_area").val(),
-							"bound_out_ocm":$("#edit_bound_out_ocm").val()
+							"bound_out_ocm":$("#edit_bound_out_ocm").val(),
+							"break_back_flg":$("#edit_break_back_flg").val()
 						}
-	
+						
+						if (inputFlg) {
+							data["model_id"] = "00000000000";
+							data["model_name"] = $input.val().trim();
+							data["scheduled_manager_comment"] = $input.val().trim();
+						} else {
+							data["model_id"] = $("#edit_modelname").val();
+							data["model_name"] = $("#inp_modelname").val();
+						}
+						
 						$.ajax({
 							beforeSend : ajaxRequestType,
 							async : false,
@@ -327,10 +355,16 @@ var printTicket=function() {
 	var rowids = $("#imp_list").jqGrid("getGridParam", "selarrrow");
 	curpagenum = $("#imp_list").jqGrid('getGridParam', 'page');   //当前页码
 	var selectedRows = new Array();
+	
+	var index = 0;
 	for (var i in rowids) {
 		var rowdata = $("#imp_list").getRowData(rowids[i]);
-		data["materials.material_id[" + i + "]"] = rowdata["material_id"];
-		selectedRows.push(rowdata["material_id"]);
+		// 维修品
+		if(rowdata.break_back_flg == 0){
+			data["materials.material_id[" + index + "]"] = rowdata["material_id"];
+			selectedRows.push(rowdata["material_id"]);
+			index++;
+		}
 	}
 
 	// Ajax提交
@@ -398,7 +432,22 @@ var enablebuttons = function() {
 var enablebuttons2 = function() {
 	var rowids = $("#imp_list").jqGrid("getGridParam", "selarrrow");
 	if (rowids.length >= 1) {
-		$("#printbutton").enable();
+		var flag = false;
+		for (var i in rowids) {
+			var data = $("#imp_list").getRowData(rowids[i]);
+			// 勾选的记录中存在维修品，则打印现品票按钮可以使用
+			if(data.break_back_flg == 0){
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag) {
+			$("#printbutton").enable();
+		} else {
+			$("#printbutton").disable();
+		}
+		
 		$("#returnbutton").enable();
 		$("#returnbutton input").enable();
 	} else {
@@ -412,9 +461,18 @@ var enablebuttons2 = function() {
 		var notaccepted = true;
 		for (var i in rowids) {
 			var data = $("#imp_list").getRowData(rowids[i]);
-			if (data["sterilized"] != "0" || data["doreception_time"].trim() == "") {
-				flag = false;
-				break;
+			
+			var break_back_flg = data.break_back_flg;
+			if (break_back_flg == 3 || break_back_flg == 4) {//备品或RC品
+				if(data["doreception_time"].trim() == ""){
+					flag = false;
+					break;
+				}
+			} else {
+				if (data["sterilized"] != "0" || data["doreception_time"].trim() == "") {
+					flag = false;
+					break;
+				}
 			}
 		}
 		for (var i in rowids) {
@@ -459,7 +517,7 @@ function acceptted_list(){
 			datatype: "local",
 			colNames:['受理对象ID','导入时间','受理时间', '修理单号', '型号 ID', '型号' , '机身号','RC ID','RC','同意日', 
 			'等级ID', '等级','受理人员ID','受理人员', '备注', '直送', '返修标记', '流水类型','消毒灭菌ID', '选择式报价'
-			,'ocm_rank','customer_name','vip','scheduled_expedited','ocm_deliver_date','osh_deliver_date','area','返送地区'],
+			,'ocm_rank','customer_name','vip','scheduled_expedited','ocm_deliver_date','osh_deliver_date','area','返送地区','break_back_flg'],
 			colModel:[
 				{name:'material_id',index:'material_id', hidden:true},
 				{name:'reception_time',index:'reception_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}},
@@ -475,7 +533,14 @@ function acceptted_list(){
 				{name:'levelName',index:'levelName', width:35, align:'center'},
 				{name:'operator_id',index:'operator_id', hidden:true},
 				{name:'operator_name',index:'operator_name', width:50, hidden:true},
-				{name:'remark',index:'remark', width:105},
+				{name:'remark',index:'remark', width:105,formatter:function(value, options, rData){
+					if(rData.break_back_flg == 3){
+						value += "备品";
+					} else if(rData.break_back_flg == 4){
+						value += "RC品";
+					}
+					return value;
+				}},
 				{name:'direct_flg',index:'direct_flg', hidden:true},
 				{name:'service_repair_flg',index:'service_repair_flg', hidden:true},
 				{name:'fix_type',index:'fix_type', hidden:true},
@@ -494,7 +559,8 @@ function acceptted_list(){
 					formatter: "select", editoptions:{value:$("#g_bound_out_ocm").val()},
 					width : 35,
 					align : 'center'
-				}
+				},
+				{name:'break_back_flg',index:'break_back_flg', hidden:true}
 			],
 			rowNum: 50,
 			toppager: false,
@@ -520,7 +586,7 @@ function acceptted_list(){
 				var length = dataIds.length;
 				for (var i = 0; i < length; i++) {
 					var rowdata = jthis.jqGrid('getRowData', dataIds[i]);
-					if (rowdata["sterilized"] != "0") {
+					if (rowdata["break_back_flg"] == "0" && rowdata["sterilized"] != "0") {
 						jthis.find("tr#" + dataIds[i] + " td").addClass("waitTicket");
 					}
 				}
@@ -776,6 +842,8 @@ var insert_handleComplete = function(xhrobj, manual) {
 				$("#edit_selectable").val("").trigger("change");
 				$("#edit_area").val("").trigger("change");
 				$("#edit_bound_out_ocm").val("").trigger("change");
+				$("#edit_break_back_flg").val("0").trigger("change");
+				$("#edit_modelname").next().val("");
 			}
 
 			loadImpListData();
@@ -869,9 +937,22 @@ var doReturn = function(return_ocm){
 					"return_ocm":return_ocm
 				};
 				var rowids = $("#imp_list").jqGrid("getGridParam", "selarrrow");
+				
+				var flg = false;
 				for (var i in rowids) {
 					var rowdata = $("#imp_list").getRowData(rowids[i]);
 					data["materials.material_id[" + i + "]"] = rowdata["material_id"];
+					
+					var break_back_flg = rowdata.break_back_flg;
+					if (return_ocm == "OSH" && (break_back_flg == 3 || break_back_flg == 4)) {
+						flg = true;
+						break;
+					}
+				}
+				
+				if (flg) {
+					errorPop("备品或RC品不能进行此操作。");
+					return;
 				}
 
 				$.ajax({

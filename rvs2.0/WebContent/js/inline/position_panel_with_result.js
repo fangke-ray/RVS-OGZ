@@ -84,9 +84,15 @@ var remapworking = function(workingPfs) {
 		var waiting = workingPfs[iworking];
 		waiting_html += '<div class="waiting tube" id="w_' + waiting.material_id + '">' +
 							'<div class="tube-liquid' + expeditedColor(waiting.expedited)  + '">' +
-								(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no +
-							'</div>' + '<div class="dm_select"></div>' +
-						'</div>'
+								(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + (waiting.category_name || '') + ' | ' + waiting.model_name + ' | ' + waiting.serial_no;
+		if (waiting.break_back_flg == 3) {
+			waiting_html +=	'<div class="material_flags"><div class="rc">备</div></div>';
+		}else if(waiting.break_back_flg == 4) {
+			waiting_html +=	'<div class="material_flags"><div class="rc">RC</div></div>';
+		}	
+								
+		waiting_html +=	'</div>' + '<div class="dm_select"></div>';
+		waiting_html +=	'</div>';
 	}
 	var $waiting_html = $(waiting_html);
 
@@ -101,7 +107,7 @@ var remapworking = function(workingPfs) {
 
 }
 
-var treatStart = function(resInfo) {
+var treatStart = function(resInfo,material_id) {
 	$("#scanner_inputer").attr("value", "");
 	$("#position_status").text("处理中");
 	$("#position_status").css("color", "#58b848");
@@ -119,8 +125,8 @@ var treatStart = function(resInfo) {
 	leagal_overline = resInfo.leagal_overline;
 
 	// 暂时的
-	if (resInfo.mform) {
-		$("#w_" + resInfo.mform.material_id).hide("drop", {direction: 'right'}, function() {
+	if (material_id) {
+		$("#w_" + material_id).hide("drop", {direction: 'right'}, function() {
 			var jthis = $(this);
 			var jGroup = jthis.prevAll(".w_group");
 			jthis.remove();
@@ -239,17 +245,35 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			var waiting_html = "";
 			for (var iwaiting = 0; iwaiting < resInfo.waitings.length; iwaiting++) {
 				var waiting = resInfo.waitings[iwaiting];
+				var block_status = waiting.block_status;
+				
 				if (reason != waiting.waitingat) {
 					reason = waiting.waitingat;
 					waiting_html += '<div class="ui-state-default w_group" style="width: 420px; margin-top: 12px; margin-bottom: 8px; padding: 2px;">'+ reason +':</div>'
 				}
 				waiting_html += '<div class="waiting tube" id="w_' + waiting.material_id + '">' +
 									'<div class="tube-liquid' + expeditedColor(waiting.expedited)  + '">' +
-										(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no +
-									'</div>' +
-								'</div>';
+										(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no;
+					if (block_status == 3) {
+						waiting_html +=	'<div class="material_flags"><div class="rc">备</div></div>';
+					}else if(block_status == 4) {
+						waiting_html +=	'<div class="material_flags"><div class="rc">RC</div></div>';
+					}				
+										
+					waiting_html +=	'</div>';
+					if (block_status == 3 || block_status == 4) {
+						waiting_html += '<div class="click_start"><input type="button" value="》开始"></div>';
+					}
+				waiting_html +=	'</div>';
 			}
 			var $waiting_html = $(waiting_html);
+			
+			$waiting_html.find("input:button").button().click(function(){
+				var $tube = $(this).parent().parent();
+				var material_id = $tube.attr("id").replace("w_","");
+				doStart(material_id);
+			});
+			
 			$waiting_html.filter(".w_group").each(function(){
 				var $w_group = $(this);
 				$w_group.text($w_group.text() + " " + $w_group.nextUntil(".w_group").length + " 台");
@@ -399,7 +423,7 @@ var makeReport = function() {
 	});	
 }
 
-var doStart_ajaxSuccess = function(xhrobj, textStatus){
+var doStart_ajaxSuccess = function(xhrobj, textStatus,material_id){
 	var resInfo = null;
 	try {
 		// 以Object形式读取JSON
@@ -409,7 +433,7 @@ var doStart_ajaxSuccess = function(xhrobj, textStatus){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
-			treatStart(resInfo);
+			treatStart(resInfo,material_id);
 		}
 	} catch (e) {
 		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
@@ -417,9 +441,12 @@ var doStart_ajaxSuccess = function(xhrobj, textStatus){
 	};
 };
 
-var doStart=function(){
-	var data = {
-		material_id : $("#scanner_inputer").val()
+var doStart=function(materialId){
+	var data = {};
+	if (materialId) {
+		data["material_id"] = materialId;
+	}else{
+		data["material_id"] = $("#scanner_inputer").val();
 	}
 
 	$("#scanner_inputer").attr("value", "");
@@ -435,7 +462,9 @@ var doStart=function(){
 		dataType : "json",
 		success : ajaxSuccessCheck,
 		error : ajaxError,
-		complete : doStart_ajaxSuccess
+		complete : function(xhrobj, textStatus){
+			doStart_ajaxSuccess(xhrobj, textStatus,data.material_id);
+		}
 	});
 };
 

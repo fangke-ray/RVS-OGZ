@@ -164,4 +164,7 @@ public interface MaterialMapper {
 	 */
 	public void updateScheduledDate(MaterialEntity entity);
 	
+	/***更新完成时间*/
+	public void updateOutLineTime(@Param("material_id") String material_id);
+	
 }

@@ -165,7 +165,8 @@
 			coalesce(`m`.direct_flg, 0) as direct_flg,
 			m.level in (9,91,92,93,96,97,98) as light_fix,
 			m.level,
-			CASE 
+			CASE
+			WHEN break_back_flg > 0 THEN break_back_flg
 			WHEN
 				EXISTS (select 1 from `for_solution_area` 
 					where material_id = m.material_id and (position_id = pf.position_id or position_id is null) and solved_time IS NULL
@@ -223,6 +224,42 @@
 	<![CDATA[
 		ORDER BY shelf_name is not null, expedited desc, m.scheduled_date, ip.seq;
 	]]>
+	</select>
+	
+	<select id="getSpareOrRcWaitingMaterial" resultType="WaitingEntity" parameterType="String">
+	<![CDATA[
+	SELECT 
+	    `m`.material_id,
+	    `m`.omr_notifi_no AS sorc_no,
+	    '00000000000' AS model_id,
+	    `m`.scheduled_manager_comment AS model_name,
+	    '' AS category_name,
+	    `m`.serial_no,
+	    0 AS expedited,
+	    `pf`.operate_result AS waitingat,
+	    0 AS pause_reason,
+	    0 AS today,
+	    0 AS reworked,
+	    0 AS direct_flg,
+	    0 AS light_fix,
+	    m.level,
+	    `m`.break_back_flg AS block_status,
+	    NULL AS shelf_name
+	FROM
+	    production_feature pf
+	JOIN
+	    material m ON `pf`.material_id = `m`.material_id
+	WHERE
+	    `pf`.position_id = #{position_id}
+	AND 
+		`pf`.section_id = #{section_id}
+	AND 
+		`m`.model_id = '00000000000'
+	AND 
+		`pf`.action_time IS NULL
+	AND 
+		`pf`.finish_time IS NULL
+	]]> 
 	</select>
 
 	<select id="getTodayBreak" resultType="map" parameterType="String">

@@ -18,7 +18,15 @@
 	<codelist name="material_service_repair">
 		<value code="1">保内返修</value>
 		<value code="2">QIS</value>
+		<!-- <value code="3">备品</value> -->
+	</codelist>
+	
+	<codelist name="material_break_back">
+		<value code="0">维修品</value>
+		<value code="1">转送给OSH</value>
+		<value code="2">未修理返还</value>
 		<value code="3">备品</value>
+		<value code="4">RC品</value>
 	</codelist>
 	
 	<codelist name="material_direct">

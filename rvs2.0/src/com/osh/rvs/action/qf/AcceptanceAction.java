@@ -233,6 +233,15 @@ public class AcceptanceAction extends BaseAction {
 			entity.setOperate_result(0);
 			entity.setRework(0);
 			featureService.insert(entity, conn);
+			
+			// 更新受理（121）工位完成时间
+			entity = new ProductionFeatureEntity();
+			entity.setMaterial_id(split[i]);
+			entity.setPosition_id(RvsConsts.POSITION_ACCEPTANCE);
+			entity.setPace(0);
+			entity.setSection_id("00000000001");
+			entity.setRework(0);
+			featureService.updateFinishTime(entity, conn);
 		}
 
 		// 发送完毕后，受理时间覆盖导入时间
@@ -269,6 +278,15 @@ public class AcceptanceAction extends BaseAction {
 			entity.setOperate_result(0);
 			entity.setRework(0);
 			featureService.insert(entity, conn);
+			
+			// 更新受理（121）工位完成时间
+			entity = new ProductionFeatureEntity();
+			entity.setMaterial_id(split[i]);
+			entity.setPosition_id(RvsConsts.POSITION_ACCEPTANCE);
+			entity.setPace(0);
+			entity.setSection_id("00000000001");
+			entity.setRework(0);
+			featureService.updateFinishTime(entity, conn);
 		}
 
 		// 发送完毕后，受理时间覆盖导入时间

@@ -374,16 +374,33 @@ public class ProductionFeatureService {
 	}
 	public List<String> fingerNextPosition(String material_id, ProductionFeatureEntity workingPf, SqlSessionManager conn, List<String> triggerList, boolean isFact) throws Exception {
 		MaterialProcessService mpService = new MaterialProcessService();
+		
+		String position_id = workingPf.getPosition_id();
+		
 		// 发动工位
 		List<String> nextPositions = new ArrayList<String>();
 
 		MaterialMapper mDao = conn.getMapper(MaterialMapper.class);
 		MaterialEntity mEntity = mDao.getMaterialNamedEntityByKey(material_id);
-
+		
+		// 备品/RC品灭菌消毒完成
+		if ("00000000010".equals(position_id) || "00000000011".equals(position_id)) {
+			if(mEntity == null){
+				mDao.updateOutLineTime(material_id);
+				return null;
+			}else{
+				Integer break_back_flg = mEntity.getBreak_back_flg();
+				
+				if (break_back_flg == 3 || break_back_flg == 4) {
+					mDao.updateOutLineTime(material_id);
+					return null;
+				}
+			}
+		}
+		
 		Integer level = mEntity.getLevel();
 		boolean isLightFix = false;
-
-		String position_id = workingPf.getPosition_id();
+		
 		String pat_id = mEntity.getPat_id(); // 维修流程主键
 
 		ProcessAssignProxy paProxy = new ProcessAssignProxy(material_id, pat_id, mEntity.getSection_id(), isLightFix, conn);
@@ -915,6 +932,11 @@ public class ProductionFeatureService {
 			SqlSessionManager conn) {
 		ProductionAssignMapper mapper = conn.getMapper(ProductionAssignMapper.class);
 		mapper.remove(material_id, position_id);
+	}
+	
+	public void updateFinishTime(ProductionFeatureEntity workingPf,SqlSessionManager conn){
+		ProductionFeatureMapper mapper = conn.getMapper(ProductionFeatureMapper.class);
+		mapper.updateFinishTime(workingPf);
 	}
 
 }

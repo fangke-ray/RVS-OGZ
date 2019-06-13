@@ -152,6 +152,13 @@ public class PositionPanelService {
 		List<WaitingEntity> ret = dao.getWaitingMaterial(user.getLine_id(), user.getSection_id(),
 				user.getPosition_id(), user.getOperator_id(), user.getPx());
 
+		String process_code = user.getProcess_code();
+		
+		if(process_code.equals("121") || process_code.equals("131")){
+			List<WaitingEntity> ls = dao.getSpareOrRcWaitingMaterial(user.getSection_id(), user.getPosition_id());
+			ret.addAll(ls);
+		}
+		
 		return ret;
 	}
 
@@ -444,6 +451,11 @@ public class PositionPanelService {
 
 		List<WaitingEntity> ret = dao.getWaitingMaterial(ar_line_id, section_id, position_id, operator_id, level);
 
+		if(process_code.equals("121") || process_code.equals("131")){
+			List<WaitingEntity> ls = dao.getSpareOrRcWaitingMaterial(section_id, position_id);
+			ret.addAll(ls);
+		}
+		
 		PutinBalanceBound putinBalanceBound = null;
 		BigDecimal furthestBalance = null, closestBalance = null; // 最遠采樣，最近采樣值 
 		String furthestBalanceWaiting = null, closestBalanceWaiting = null; // 最遠采樣，最近采樣維修品 ID
@@ -916,6 +928,13 @@ public class PositionPanelService {
 				}
 				// 取得维修对象表示信息
 				MaterialEntity mForm = mDao.getMaterialNamedEntityByKey(workingPf.getMaterial_id());
+				
+				if(mForm == null){
+					mForm = new MaterialEntity();
+					mForm = mDao.getMaterialEntityByKey(workingPf.getMaterial_id());
+					mForm.setModel_name(mForm.getScheduled_manager_comment());
+				}
+				
 				mForms.add(mForm);
 			}
 

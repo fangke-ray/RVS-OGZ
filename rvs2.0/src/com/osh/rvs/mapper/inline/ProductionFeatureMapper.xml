@@ -61,7 +61,10 @@
 		<![CDATA[ 
 			SELECT
 				a.material_id, a.reception_time, a.omr_notifi_no as sorc_no, a.model_id,
-				(select name from model where model_id = a.model_id) as model_name,
+				CASE
+					WHEN a.model_id = 0 THEN a.scheduled_manager_comment
+			        ELSE model.name
+				END AS model_name,
 				a.serial_no,a.ocm,a.agreed_date,a.level,b.operator_id,
 				o.name as operator_name, a.ocm_rank, 
 				c.name as customer_name, 
@@ -69,8 +72,11 @@
 				a.ocm_deliver_date,a.osh_deliver_date,
 				a.direct_flg,a.service_repair_flg,a.fix_type,a.selectable,
 				not a.ticket_flg as sterilized, b.finish_time, a.area, a.bound_out_ocm ,
-				a.scheduled_expedited
+				a.scheduled_expedited,
+				a.break_back_flg
 			FROM material a
+			LEFT JOIN model
+				ON a.model_id = model.model_id
 			LEFT JOIN production_feature b
 				ON a.material_id = b.material_id
 				AND b.position_id = 9
@@ -78,7 +84,7 @@
 				ON o.operator_id = b.operator_id
 			LEFT JOIN customer c
 				ON a.customer_id = c.customer_id
-			WHERE a.break_back_flg = 0
+			WHERE a.break_back_flg IN (0,3,4)
 and a.inline_time is null -- [SpeedUp]
 			and not exists (
 				select material_id from production_feature p1
@@ -644,5 +650,25 @@ and a.inline_time is null -- [SpeedUp]
 	GROUP BY
 		pf.material_id,pf.position_id
 	</select>
+	
+	<update id="updateFinishTime" parameterType="ProductionFeatureEntity">
+	<![CDATA[
+	UPDATE 
+		production_feature
+	SET
+		finish_time = CURRENT_TIMESTAMP,
+		use_seconds = TIMESTAMPDIFF(SECOND, action_time,CURRENT_TIMESTAMP)
+	WHERE 
+		MATERIAL_ID = #{material_id}
+	AND 
+		POSITION_ID = #{position_id}
+	AND 
+		SECTION_ID = #{section_id}
+	AND 
+		PACE = #{pace}
+	AND 
+		REWORK = #{rework}
+	]]>
+	</update>
 
 </mapper>

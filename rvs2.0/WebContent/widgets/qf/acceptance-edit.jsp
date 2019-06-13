@@ -18,6 +18,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		$("#set_normal").attr("checked",false);
 		$("#set_normal + label").removeClass("ui-state-active");
 	});
+	
+	$("#edit_break_back_flg option").each(function(){
+		var value = $(this).attr("value");
+		if(value != 0 && value != 3 && value != 4){
+			$(this).remove();
+		}
+	});
+	
+	$("#edit_break_back_flg").select2Buttons().val("0").trigger("change");
 
 //	$("#is_direct").button();
 //	$("#reason_type_set").buttonset();
@@ -41,6 +50,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<td class="td-content" colspan="3">
 					<input type="text" class="ui-widget-content" readonly="readonly" id="inp_modelname" name="modelname" alt="型号" style="width:14em;">
 					<input type="hidden" id="edit_modelname">
+					<input type="text" class="ui-widget-content" style="display: none;width:14em;" placeholder="手动输入型号">
 				</td>
 				</tr>
 				<tr>
@@ -66,19 +76,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</td>
 				<td class="ui-state-default td-title">OCM 配送日</td>
 				<td class="td-content">
-					<input type="text" id="edit_ocm_deliver_date" readonly></input>
+					<input type="text" class="ui-widget-content" id="edit_ocm_deliver_date" readonly></input>
 				</td>
 				</tr>
 				<tr>
 				<td class="ui-state-default td-title">OSH 配送日</td>
 				<td class="td-content">
-					<input type="text" id="edit_osh_deliver_date" readonly></input>
+					<input type="text" class="ui-widget-content" id="edit_osh_deliver_date" readonly></input>
 				</td>
 				</tr>
 				<tr>
 				<td class="ui-state-default td-title">客户同意日</td>
 				<td class="td-content" colspan="3">
-					<input type="text" id="edit_agreed_date" readonly></input>
+					<input type="text" class="ui-widget-content" id="edit_agreed_date" readonly></input>
 				</td>
 				</tr>
 				<tr>
@@ -92,38 +102,43 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 				<td class="ui-state-default td-title">顾客名</td>
 				<td class="td-content" colspan="3">
-					<input type="text" id="edit_customer_name" maxlength="100" style="width:40em;"></input>
+					<input type="text" class="ui-widget-content" id="edit_customer_name" maxlength="100" style="width:40em;"></input>
 				</td>
 				</tr>
 				<tr>
-				<td rowspan="4" class="ui-state-default td-title">备注</td>
-				<td class="td-content" colspan="3">
-					<select id="edit_direct" class="ui-widget-content">
-						<%=CodeListUtils.getSelectOptions("material_direct", null, "(普通)", false) %>
-					</select>
-				</td>
-				</tr>
-				<tr>
-				<td class="td-content" colspan="3">
+					<td rowspan="2" class="ui-state-default td-title">备注</td>
+					<td class="td-content" colspan="2">
+						<select id="edit_direct" class="ui-widget-content">
+							<%=CodeListUtils.getSelectOptions("material_direct", null, "(普通)", false) %>
+						</select>
+						
+					</td>
+					<td class="td-content">
 					<select id="edit_service_repair" class="ui-widget-content">
-						<%=CodeListUtils.getSelectOptions("material_service_repair", null, "", false) %>
-					</select>
-				</td>
+							<%=CodeListUtils.getSelectOptions("material_service_repair", null, "", false) %>
+						</select>
+					</td>
 				</tr>
 				<tr>
-				<td class="td-content" colspan="3">
-					<select id="edit_fix_type" class="ui-widget-content">
-						<%=CodeListUtils.getSelectOptions("material_fix_type", null, null, false) %>
-					</select>
-				</td>
+					<td class="td-content" colspan="2">
+						<select id="edit_fix_type" class="ui-widget-content">
+							<%=CodeListUtils.getSelectOptions("material_fix_type", null, null, false) %>
+						</select>
+					</td>
+					<td class="td-content">
+						<select id="edit_selectable" class="ui-widget-content">
+							<option value="0">(普通)</option>
+							<option value="1">选择式报价</option>
+						</select>
+					</td>
 				</tr>
-				<tr>
-				<td class="td-content" colspan="3">
-					<select id="edit_selectable" class="ui-widget-content">
-						<option value="0">(普通)</option>
-						<option value="1">选择式报价</option>
-					</select>
-				</td>
+				<tr style="display: none;">
+					<td class="ui-state-default td-title">受理品</td>
+					<td class="td-content" colspan="3">
+						<select id="edit_break_back_flg">
+							<%=CodeListUtils.getSelectOptions("material_break_back", null, null, false) %>
+						</select>
+					</td>
 				</tr>
 				<tr>
 				<td class="ui-state-default td-title">销售大区</td>

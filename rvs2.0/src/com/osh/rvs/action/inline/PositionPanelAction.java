@@ -1023,7 +1023,7 @@ public class PositionPanelAction extends BaseAction {
 		ProductionFeatureEntity waitingPf = service.checkMaterialId(material_id, user, errors, conn);
 
 		if (errors.size() == 0) {
-			service.getProccessingData(listResponse, material_id, waitingPf, user, false, conn);
+			//service.getProccessingData(listResponse, material_id, waitingPf, user, false, conn);
 
 			// 作业信息状态改为，批量作业中
 			ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
@@ -1032,7 +1032,7 @@ public class PositionPanelAction extends BaseAction {
 
 			// 如果等待中信息是暂停中，则结束掉暂停记录(有可能已经被结束)
 			// 只要开始做，就结束掉本人所有的暂停信息。
-			bfService.finishPauseFeature(material_id, user.getSection_id(), user.getPosition_id(), user.getOperator_id(), conn);
+			//bfService.finishPauseFeature(material_id, user.getSection_id(), user.getPosition_id(), user.getOperator_id(), conn);
 
 			// 取得现在处理中的批量
 			service.searchWorkingBatch(listResponse, user, conn);

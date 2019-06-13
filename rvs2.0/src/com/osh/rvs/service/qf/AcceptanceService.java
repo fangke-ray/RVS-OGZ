@@ -92,7 +92,7 @@ public class AcceptanceService {
 		entity.setRework(0);
 
 		// 标准作业时间
-		Integer use_seconds = Integer.valueOf(RvsUtils.getZeroOverLine("_default", null, loginData, "111")) * 60;
+		Integer use_seconds = 0;
 		entity.setUse_seconds(use_seconds);
 		pfService.insertAcceptance(entity, conn);
 

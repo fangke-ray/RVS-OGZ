@@ -953,5 +953,13 @@
 			where material_id = #{material_id}
 		]]>
 	</update>
+	
+	<update id="updateOutLineTime" parameterType="String">
+	<![CDATA[ 
+		UPDATE Material SET
+		outline_time = CURRENT_TIMESTAMP
+		where material_id = #{material_id}
+	]]>
+	</update>
 
 </mapper>

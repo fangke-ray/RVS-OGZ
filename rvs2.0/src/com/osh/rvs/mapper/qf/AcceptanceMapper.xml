@@ -25,7 +25,9 @@
 				reception_time,
 				selectable,
 				area,
-				bound_out_ocm
+				bound_out_ocm,
+				break_back_flg,
+				scheduled_manager_comment
 		) VALUES (
 			#{sorc_no}, 
 			#{model_id}, 
@@ -44,7 +46,9 @@
 			Now(),
 			#{selectable}, 
 			#{area},
-			#{bound_out_ocm}
+			#{bound_out_ocm},
+			#{break_back_flg},
+			#{scheduled_manager_comment}
 		);
 		]]>
 	</insert>
