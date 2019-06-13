@@ -64,12 +64,12 @@ public class PartialWarehouseJob implements Job {
 	/** E2：分解工程出库 **/
 	private final Integer DEC_STANDARD_TIME = 9;
 	
-	/** 每日工作时间（475分钟） **/
-	private final Integer WORK_TIME = 475;
-	/** 每日工作+加班1小时（535分钟） **/
-	private final Integer WORK_OVER_ONE_HOUR_TIME = 535;
-	/** 每日工作+加班2小时（595分钟） **/
-	private final Integer WORK_OVER_TWO_HOUR_TIME = 595;
+	/** 每日工作时间（460分钟） **/
+	private final Integer WORK_TIME = 460;
+	/** 每日工作+加班1小时（520分钟） **/
+	private final Integer WORK_OVER_ONE_HOUR_TIME = 520;
+	/** 每日工作+加班2小时（580分钟） **/
+	private final Integer WORK_OVER_TWO_HOUR_TIME = 580;
 	/** 一分钟（60000毫秒）**/
 	private final Integer ONE_MINUTE_MILLISECOND = 60000;
 	/** 十分钟（600000毫秒）**/
