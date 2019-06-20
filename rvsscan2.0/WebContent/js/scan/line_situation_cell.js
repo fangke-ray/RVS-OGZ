@@ -68,7 +68,10 @@ $(function(){
 			complete : jsinit_ajaxSuccess
 		});
 	}
-	
+
+	var plan_value = [0, 0, 0, 0];
+	var plan_complete_value = [0, 0, 0, 0];
+
 	function jsinit_ajaxSuccess (xhrobj, textStatus) {
 		var resInfo = null;
 		try {
@@ -83,31 +86,29 @@ $(function(){
 				
 				linePlanList.forEach(function(item,index){
 					var line_id = item.line_id;
-					var plan_value = 0;
-					var plan_complete_value = 0;
 					
 					var $cell = $(".cell[for=" + line_id + "]");
 					$cell.find(".plan-num").flipCounter(
 				   	"startAnimation",
 				    {
-				        number: plan_value,
+				        number: plan_value[index],
 				        end_number: item.plan,
 				        duration: 1000
 				    });
-					plan_value = item.plan;
+					plan_value[index] = item.plan;
 					
 					$cell.find(".output-num").flipCounter(
 				   	"startAnimation",
 				    {
-				        number: plan_complete_value,
+				        number: plan_complete_value[index],
 				        end_number: item.plan_complete,
 				        duration: 1000
 				    });
-					plan_complete_value = item.plan_complete;
+					plan_complete_value[index] = item.plan_complete;
 					
 					var com_rate = 0;
-					if (plan_value > 0) {
-			        	com_rate = Math.floor(plan_complete_value / plan_value * 100);
+					if (plan_value[index] > 0) {
+			        	com_rate = Math.floor(plan_complete_value[index] / plan_value[index] * 100);
 			        }
 					$cell.find('.donut-arrow').trigger('updatePercentage', com_rate);
 					$cell.find(".rate").text(com_rate.toFixed(0) + "%");

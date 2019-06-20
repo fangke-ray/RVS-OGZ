@@ -29,3 +29,4 @@ rvspush2.0/WebContent/war.bat
 rvs2.0/src/DevicesImport.java
 rvs2.0/src/framework/huiqing/action/BaseAction.java
 rvs2.0/src/LoadDevices.java
+rvsscan2.0/WebContent/WEB-INF/web.xml

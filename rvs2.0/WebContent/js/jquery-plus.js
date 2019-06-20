@@ -583,7 +583,7 @@ var setReferChooser = function(target, jthis, jfather, callback) {
 			uiDialogTodo = $(".ui-dialog:visible");
 			var zIndex = 1000;
 			if (uiDialogTodo.length > 0) {
-				zIndex = parseInt(uiDialogTodo.css("zIndex")) + 1
+				zIndex = parseInt(uiDialogTodo.last().css("zIndex")) + 1
 			}
 
 			jthis.css({"top" : shower.offset().top + shower.height() - 5, "left" : shower.offset().left,

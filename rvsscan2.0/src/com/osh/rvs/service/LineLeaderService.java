@@ -65,9 +65,9 @@ public class LineLeaderService {
 		getChartContent(section_id, line_id, responseMap, null, conn);
 	}
 	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn) {
-		getChartContent(section_id, line_id, responseMap, null, conn,true);
+		getChartContent(section_id, line_id, responseMap, isPeriod, conn,true);
 	}
-	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn,boolean delLast) {
+	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn, boolean delLast) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
 

@@ -475,7 +475,6 @@
 			material.material_id=material_process.material_id and material_process.line_id = #{line_id}
 		WHERE 
 			material.break_back_flg = 0 
-			AND material.fix_type = 1
 			AND material.section_id = #{section_id}
 			AND material_process.finish_date = CURRENT_DATE
 		]]>

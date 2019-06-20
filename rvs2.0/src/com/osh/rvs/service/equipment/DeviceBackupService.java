@@ -94,13 +94,17 @@ public class DeviceBackupService {
 			if (devicesManageEntity.getDevices_manage_id().equals(cond.getManage_id())) {
 				continue;
 			}
+			if (devicesManageEntity.getBorrowed() == 1) { // 正在借用中
+				devicesManageEntity = dmMapper.getByKey(devicesManageEntity.getDevices_manage_id());
+			}
 			boolean isSameLine = false;
 			if (cond.getLine_name() == null && devicesManageEntity.getLine_name() == null) {
 				isSameLine = true;
 			} else if (cond.getLine_name() != null) {
 				isSameLine = cond.getLine_name().equals(devicesManageEntity.getLine_name());
 			}
-			if (devicesManageEntity.getModel_name().equals(cond.getModel_name())) {
+			String optModelName = CommonStringUtil.nullToAlter(devicesManageEntity.getModel_name(), "");
+			if (optModelName.equals(cond.getModel_name())) {
 				if (isSameLine) {
 					lSameModel.add(devicesManageEntity);
 				} else {

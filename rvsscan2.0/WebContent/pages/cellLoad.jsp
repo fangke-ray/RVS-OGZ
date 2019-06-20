@@ -92,6 +92,7 @@ $('*').disableSelection();
 			$(this).find("#axis_base").css({"width":"932px"});
 		});
 
+		refresh();
 		setInterval(refresh,18000);
 	});
 	var irefresh = 0;
