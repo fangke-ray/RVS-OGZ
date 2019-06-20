@@ -682,7 +682,7 @@ var showAdd = function() {
 		rules:{		
 	       code:{
 	    	   required:true,
-	    	   maxlength:8
+	    	   maxlength:9
 	       },
 	       name:{
 	       	// Deleted by Gonglm 2/11 Start

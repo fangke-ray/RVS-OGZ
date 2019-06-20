@@ -234,7 +234,7 @@ public class AcceptanceAction extends BaseAction {
 			entity.setRework(0);
 			featureService.insert(entity, conn);
 			
-			// 更新受理（121）工位完成时间
+			// 更新受理（111）工位完成时间
 			entity = new ProductionFeatureEntity();
 			entity.setMaterial_id(split[i]);
 			entity.setPosition_id(RvsConsts.POSITION_ACCEPTANCE);
@@ -279,7 +279,7 @@ public class AcceptanceAction extends BaseAction {
 			entity.setRework(0);
 			featureService.insert(entity, conn);
 			
-			// 更新受理（121）工位完成时间
+			// 更新受理（111）工位完成时间
 			entity = new ProductionFeatureEntity();
 			entity.setMaterial_id(split[i]);
 			entity.setPosition_id(RvsConsts.POSITION_ACCEPTANCE);

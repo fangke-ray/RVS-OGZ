@@ -238,7 +238,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <!--修改力矩设备结束-->
 
 
-<div id="confirmmessage"></div>
 <div class="clear"></div>
 <!--双击一栏画面结束-->
 

@@ -429,8 +429,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			  	 <table class="subform">${nReferChooser}</table>
 			</div>
 			
-			<div id="confirmmessage"></div>
-			
 		</div>
 	</div>
 

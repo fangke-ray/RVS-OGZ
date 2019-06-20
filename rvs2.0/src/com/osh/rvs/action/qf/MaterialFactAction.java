@@ -87,7 +87,7 @@ public class MaterialFactAction extends BaseAction {
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = user.getPrivacies();
 
-		if ((privacies.contains(RvsConsts.PRIVACY_LINE))&&
+		if ((privacies.contains(RvsConsts.PRIVACY_LINE)) && user.getLine_id() != null &&
 				user.getLine_id().equals("00000000011")) {
 			req.setAttribute("editor", "true");
 		} else {

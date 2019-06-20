@@ -528,7 +528,7 @@ reception_time
 ;
 	</select>
 	<insert id="createInlinePlan" parameterType="MaterialEntity">
-INSERT INTO `rvsdb`.`inline_plan`
+INSERT INTO `inline_plan`
 (`material_id`,
 `wip_location`,
 `section_id`,

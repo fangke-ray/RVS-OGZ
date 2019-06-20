@@ -199,7 +199,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div id="list_pager"></div>			
 			</div>
 	
-			<div id="confirmmessage"></div>
 		</div>
 		<div class="clear areaencloser"></div>
 		<!-- 一览结束 -->

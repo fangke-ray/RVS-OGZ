@@ -18,10 +18,8 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.equipment.DeviceBackupForm;
-import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.LineService;
-import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.equipment.DeviceBackupService;
 
 import framework.huiqing.action.BaseAction;
@@ -46,6 +44,12 @@ public class DeviceBackupAction extends BaseAction {
 		LineService lService = new LineService();
 		String lOptions = lService.getOptions(conn, "", "(全部)");
 		req.setAttribute("lOptions", lOptions);
+
+		// 管理等级
+		req.setAttribute("goManageLevel", CodeListUtils.getGridOptions("devices_manage_level"));
+
+		// 状态
+		req.setAttribute("goStatus",CodeListUtils.getGridOptions("devices_status"));
 
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = user.getPrivacies();

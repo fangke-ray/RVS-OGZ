@@ -255,7 +255,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 			<!--修改电烙铁工具结束-->
 
-			<div id="confirmmessage"></div>
 			<div class="clear"></div>
 		</div>
 		

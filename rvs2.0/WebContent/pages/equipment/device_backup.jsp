@@ -92,9 +92,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 						<span class="areatitle">设备代替一览表</span>
-						<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
-							<span class="ui-icon ui-icon-circle-triangle-n"></span>
-						</a>
 					</div>
 					<style>
 						#list td[aria-describedby="list_evaluation"],

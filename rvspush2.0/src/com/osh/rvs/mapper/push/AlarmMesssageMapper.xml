@@ -349,7 +349,7 @@
 		SELECT count(1) FROM (
 			SELECT
 			occur_time
-			FROM `rvsdb`.`alarm_messsage`
+			FROM `alarm_messsage`
 			where reason = #{reason}
 			and occur_time >= #{occur_time_start}
 			and occur_time < #{occur_time_end}

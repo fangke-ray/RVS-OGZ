@@ -716,9 +716,9 @@ var replace = function(){
 		}
 	});
 	
-	setReferChooser($("#hidden_replace_tools_name"),$("#replace_name_referchooser"));
-    setReferChooser($("#hidden_replace_position_id"),$("#replace_position_referchooser"));
-    setReferChooser($("#hidden_replace_manager_operator_id"),$("#replace_operator_name_referchooser"));
+	setReferChooser($("#hidden_replace_name"),$("#name_referchooser"));
+	setReferChooser($("#hidden_replace_position_id"),$("#position_name_referchooser"));
+	setReferChooser($("#hidden_replace_manager_operator_id"),$("#operator_name_referchooser"));
 }
 var replace_handleComplete = function(xhrobj, textStatus) {
     var resInfo = null;
