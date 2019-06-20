@@ -105,7 +105,8 @@
 				use_seconds / 60 as minutes ,
 				(select name from model where model_id = am.model_id) as model_name,
 				am.omr_notifi_no as sorc_no,
-				am.`level`,
+				CASE WHEN break_back_flg in (3,4) THEN 100 + break_back_flg
+				ELSE am.`level` END as level,
 				null as reason,
 				'' as comments,
 				a.operate_result,
@@ -116,6 +117,7 @@
 			ON a.material_id = am.material_id
 			WHERE a.action_time >= #{start_date}
 			AND a.position_id <> 24 -- 先端预制特别显示
+			AND am.model_id > 0
 			union ALL
 			SELECT
 				date_format(b.pause_start_time, '%Y-%m-%d') as action_date,
@@ -199,6 +201,28 @@
 				partial.partial_id = glue.partial_id
 			WHERE
 				gmpp.mixing_action_time >= #{start_date}
+			union ALL
+			SELECT
+				date_format(nom.action_time, '%Y-%m-%d') as action_date,
+				nom.operator_id,
+				nom.position_id,
+				nom.section_id,
+				date_format(nom.action_time, '%H:%i') as action_time,
+				date_format(nom.finish_time, '%H:%i') as finish_time,
+				use_seconds / 60 as minutes ,
+				nomam.scheduled_manager_comment as model_name,
+				nomam.omr_notifi_no as sorc_no,
+				100 + nomam.break_back_flg as `level`,
+				null as reason,
+				'' as comments,
+				nom.operate_result,
+				nom.pace,
+				1 as d_type
+			FROM production_feature nom
+			JOIN material nomam
+			ON nom.material_id = nomam.material_id
+			WHERE nom.action_time >= #{start_date}
+			AND nomam.model_id = 0
 			) cnt
 		JOIN `v_operator_named` o
 		ON cnt.operator_id = o.operator_id

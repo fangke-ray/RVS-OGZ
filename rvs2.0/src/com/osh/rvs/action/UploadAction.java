@@ -246,17 +246,15 @@ public class UploadAction extends BaseAction {
 
 		try {
 			if (nameParam.equals("inline")) {
-				filepath += "内镜投线记录表-";
+				filepath += "维修品投线记录表-";
 			} else if (nameParam.equals("accept")) {
-				filepath += "QR-B31002-59 内镜受理记录表-";
-			} else if (nameParam.equals("sterilize")) {
-				filepath += "QR-B31002-62 内镜EOG灭菌记录表-";
-			} else if (nameParam.equals("disinfect")) {
-				filepath += "QR-B31002-60 内镜清洗消毒记录表-";
+				filepath += "MS0101-8受理记录表-";
 			} else if (nameParam.equals("schedule")) {
 				filepath += "计划报告书-";
 			} else if (nameParam.equals("shipping")) {
-				filepath += "QR-B31002-63 内镜出货记录表-";
+				filepath += "MS0101-16出货记录表-";
+			} else if (nameParam.equals("shipping1")) {
+				filepath += "出荷地区明细表-";
 			}
 			fileOutput = new FileOutputStream(filepath + uploadDate + ".xls");
 			fileOutput.write(file.getFileData());

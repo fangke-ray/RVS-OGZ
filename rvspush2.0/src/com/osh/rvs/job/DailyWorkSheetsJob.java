@@ -204,7 +204,7 @@ public class DailyWorkSheetsJob implements Job {
 		//模板文件
 		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "MS0101-8内镜受理记录表.xls";
 		//生成文件的文件名称
-		String cacheFilename = "MS0101-8内镜受理记录表-" + DateUtil.toString(today.getTime(), "yyyy-MM-dd") + ".xls";
+		String cacheFilename = "MS0101-8受理记录表-" + DateUtil.toString(today.getTime(), "yyyy-MM-dd") + ".xls";
 		String cachePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\accept\\"+ DateUtil.toString(today.getTime(), "yyyyMM") + "\\" + cacheFilename;
 		
 		MaterialService service = new MaterialService();
@@ -388,7 +388,7 @@ public class DailyWorkSheetsJob implements Job {
 
 	public void inline(Calendar calendar,SqlSession conn) {
 		String path = PathConsts.BASE_PATH+PathConsts.REPORT_TEMPLATE+"\\"+"内镜投线记录表.xls";
-		String cachePath = PathConsts.BASE_PATH+PathConsts.REPORT+"\\inline\\"+DateUtil.toString(calendar.getTime(), "yyyyMM")+"\\"+"内镜投线记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
+		String cachePath = PathConsts.BASE_PATH+PathConsts.REPORT+"\\inline\\"+DateUtil.toString(calendar.getTime(), "yyyyMM")+"\\"+"维修品投线记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
 		
 		SimpleDateFormat agreeDateFormat=new SimpleDateFormat("MM-dd ");
 		
@@ -547,7 +547,7 @@ public class DailyWorkSheetsJob implements Job {
 		
 		int length = listBeans.size();
 		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "MS0101-16内镜出货记录表.xls";
-		String cacheFilename = "MS0101-16内镜出货记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
+		String cacheFilename = "MS0101-16出货记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
 		String cachePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\shipping\\"+ DateUtil.toString(calendar.getTime(), "yyyyMM") + "\\" + cacheFilename;
 		
 		InputStream in = null;

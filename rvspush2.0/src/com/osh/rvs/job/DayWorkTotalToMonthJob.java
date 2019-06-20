@@ -1059,6 +1059,13 @@ public class DayWorkTotalToMonthJob implements Job {
 		if (isEmpty(string)) {
 			return null;
 		}
+		if ("103".equals(string)) {
+			return "备";
+		}
+		if ("104".equals(string)) {
+			return "RC";
+		}
+
 		if (rankMap.containsKey(string)) { 
 			return rankMap.get(string);
 		}
