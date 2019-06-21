@@ -113,6 +113,11 @@ public interface DeviceJigOrderDetailMapper {
 	 */
 	public void updateTicket(DeviceJigOrderDetailEntity entity);
 
+	
+	
+	public List<DeviceJigOrderDetailEntity> searchInvoiceReferChooser();
+	public List<DeviceJigOrderDetailEntity> searchOrderReferChooser();
+	
 	/**
 	 * 导出询价明细
 	 * @param entity
@@ -121,4 +126,6 @@ public interface DeviceJigOrderDetailMapper {
 	public List<DeviceJigOrderDetailEntity> searchDetailUnQuotation(DeviceJigOrderDetailEntity entity);
 	
 	public List<DeviceJigOrderDetailEntity> searchOrderUnComfirm(DeviceJigOrderDetailEntity entity);
+
+
 }

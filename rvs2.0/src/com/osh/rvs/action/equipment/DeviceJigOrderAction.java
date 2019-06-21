@@ -1066,7 +1066,9 @@ public class DeviceJigOrderAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 		
-		String oReferChooser = deviceJigOrderService.getOptions(conn);
+		String flg = req.getParameter("flg");
+		
+		String oReferChooser = deviceJigOrderService.getOptions(flg,conn);
 		listResponse.put("oReferChooser", oReferChooser);
 		
 		listResponse.put("errors", errors);

@@ -618,6 +618,44 @@
 	]]>
 	</update>
 	
+	<select id="searchInvoiceReferChooser" resultType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT 
+	    ord.order_key,
+	    ord.order_no,
+	    MIN(dtl.applicate_date) AS applicate_date
+	FROM
+	    device_jig_order_detail dtl
+	JOIN
+	    device_jig_order ord ON dtl.order_key = ord.order_key
+	WHERE
+	    quotation_id IS NULL
+	AND 
+		applicate_date IS NOT NULL
+	GROUP BY 
+		ord.order_key
+	]]>
+	</select>
+	
+	<select id="searchOrderReferChooser" resultType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT 
+	    ord.order_key,
+	    ord.order_no,
+	    MIN(dtl.applicate_date) AS applicate_date
+	FROM
+	    device_jig_order_detail dtl
+	JOIN
+	    device_jig_order ord ON dtl.order_key = ord.order_key
+	WHERE
+	    confirm_flg IS NULL
+	AND 
+		applicate_date IS NOT NULL
+	GROUP BY 
+		ord.order_key
+	]]>
+	</select>
+	
 	<select id="searchDetailUnQuotation" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
 	<![CDATA[
 	SELECT 
@@ -634,8 +672,6 @@
 	ON
 		operator.operator_id = device_jig_order_detail.applicator_id
 	WHERE
-		device_jig_order_detail.quotation_id IS NULL
-	AND
 		device_jig_order_detail.order_key = #{order_key}
 	AND
 		device_jig_order_detail.order_from = #{order_from}
@@ -656,8 +692,6 @@
 	ON
 		device_jig_invoice.invoice_id = device_jig_order_detail.order_invoice_id
 	WHERE
-		device_jig_order_detail.confirm_flg IS NULL
-	AND
 		device_jig_order_detail.order_key = #{order_key}
 	AND
 		device_jig_order_detail.order_from = #{order_from}

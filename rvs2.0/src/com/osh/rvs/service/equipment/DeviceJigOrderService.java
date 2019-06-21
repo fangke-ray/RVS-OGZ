@@ -19,6 +19,7 @@ import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 /**
@@ -174,16 +175,23 @@ public class DeviceJigOrderService {
 	 * @param conn
 	 * @return
 	 */
-	public String getOptions(SqlSession conn) {
-		DeviceJigOrderMapper dao = conn.getMapper(DeviceJigOrderMapper.class);
+	public String getOptions(String flg,SqlSession conn) {
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+		List<DeviceJigOrderDetailEntity> list = new ArrayList<DeviceJigOrderDetailEntity>();
+		
+		//询价单，订购列表
+		if("1".equals(flg)){
+			list = dao.searchInvoiceReferChooser();
+		} else if("2".equals(flg)){//订单,订购列表
+			list = dao.searchOrderReferChooser();
+		}
 		
 		List<String[]> mList = new ArrayList<String[]>();
-		List<DeviceJigOrderEntity> list = dao.searchAll();
-		
-		for (DeviceJigOrderEntity model: list) {
-			String[] mline = new String[2];
+		for (DeviceJigOrderDetailEntity model: list) {
+			String[] mline = new String[3];
 			mline[0] = model.getOrder_key();
 			mline[1] = model.getOrder_no();
+			mline[2] = DateUtil.toString(model.getApplicate_date(), DateUtil.DATE_PATTERN);
 			mList.add(mline);
 		}
 
