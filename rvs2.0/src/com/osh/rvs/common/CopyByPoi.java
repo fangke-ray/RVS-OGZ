@@ -7,6 +7,8 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
 public class CopyByPoi {
@@ -58,6 +60,22 @@ public class CopyByPoi {
 			copyCell(tmpCell, newCell, copyValueFlag);
 		}
 	}
+	
+	/**
+	 * 行复制功能
+	 *
+	 * @param fromRow
+	 * @param toRow
+	 */
+	public static void copyRow(Row fromRow, Row toRow, boolean copyValueFlag) {
+		toRow.setHeight(fromRow.getHeight());
+
+		for (Iterator<Cell> cellIt = fromRow.cellIterator(); cellIt.hasNext();) {
+			Cell tmpCell = cellIt.next();
+			Cell newCell = toRow.createCell(tmpCell.getColumnIndex());
+			copyCell(tmpCell, newCell, copyValueFlag);
+		}
+	}
 
 	/**
 	 * 复制单元格
@@ -98,6 +116,46 @@ public class CopyByPoi {
 			} else if (srcCellType == HSSFCell.CELL_TYPE_FORMULA) {
 				distCell.setCellFormula(srcCell.getCellFormula());
 			} else { // nothing29
+			}
+		}
+	}
+	
+	
+	/**
+	 * 复制单元格
+	 *
+	 * @param srcCell
+	 * @param distCell
+	 * @param copyValueFlag
+	 *            true则连同cell的内容一起复制
+	 */
+	public static void copyCell(Cell srcCell, Cell distCell, boolean copyValueFlag) {
+		// 样式
+		distCell.setCellStyle(srcCell.getCellStyle());
+		// 评论
+		if (srcCell.getCellComment() != null) {
+			distCell.setCellComment(srcCell.getCellComment());
+		}
+		// 不同数据类型处理
+		int srcCellType = srcCell.getCellType();
+		distCell.setCellType(srcCellType);
+		if (copyValueFlag) {
+			if (srcCellType == Cell.CELL_TYPE_NUMERIC) {
+				if (DateUtil.isCellDateFormatted(srcCell)) {
+					distCell.setCellValue(srcCell.getDateCellValue());
+				} else {
+					distCell.setCellValue(srcCell.getNumericCellValue());
+				}
+			} else if (srcCellType == Cell.CELL_TYPE_STRING) {
+				distCell.setCellValue(srcCell.getRichStringCellValue());
+			} else if (srcCellType == Cell.CELL_TYPE_BLANK) {
+			} else if (srcCellType == Cell.CELL_TYPE_BOOLEAN) {
+				distCell.setCellValue(srcCell.getBooleanCellValue());
+			} else if (srcCellType == Cell.CELL_TYPE_ERROR) {
+				distCell.setCellErrorValue(srcCell.getErrorCellValue());
+			} else if (srcCellType == Cell.CELL_TYPE_FORMULA) {
+				distCell.setCellFormula(srcCell.getCellFormula());
+			} else {
 			}
 		}
 	}

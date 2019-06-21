@@ -1,9 +1,16 @@
 package com.osh.rvs.service.equipment;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,18 +18,30 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
 import org.apache.http.nio.client.HttpAsyncClient;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFShape;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFSimpleShape;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.struts.action.ActionForm;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTShape;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.equipment.DeviceJigOrderDetailEntity;
 import com.osh.rvs.bean.equipment.DeviceSpareAdjustEntity;
 import com.osh.rvs.bean.equipment.DeviceSpareEntity;
+import com.osh.rvs.common.CopyByPoi;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.equipment.DeviceJigOrderDetailForm;
 import com.osh.rvs.mapper.equipment.DeviceJigOrderDetailMapper;
@@ -34,6 +53,7 @@ import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -608,5 +628,549 @@ public class DeviceJigOrderDetailService {
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		dao.updateTicket(entity);
+	}
+	
+	public String downloadGInvoice(ActionForm form,SqlSession conn) throws Exception{
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+		
+		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "总务G本地询价模板.xlsx";;
+		String cacheName = "总务G本地询模板" + new Date().getTime() + ".xlsx";
+		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(new Date(), "yyyyMM") + "\\" +cacheName; 
+		
+		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		
+		List<DeviceJigOrderDetailEntity> list = dao.searchDetailUnQuotation(entity);
+		int length = list.size();
+		
+		InputStream in = null;
+		OutputStream out = null;
+		
+		try{
+			if(length > 0){
+				try {
+					FileUtils.copyFile(new File(path), new File(cachePath));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				in = new FileInputStream(cachePath);//读取文件 
+				XSSFWorkbook work = new XSSFWorkbook(in);//创建xls文件
+				XSSFSheet sheet = work.getSheetAt(0);//取得第一个Sheet
+				
+				XSSFRow row = null;
+				
+				if(length > 1){
+					/** 拷贝行**/
+					// 需要拷贝的行数
+					int copyRows = length - 1;
+					
+					//当前sheet合并单元格总数
+					int sheetMergerCount =  sheet.getNumMergedRegions();
+					
+					XSSFRow fromRow = null;
+					XSSFRow toRow = null;
+					CellRangeAddress cellRangeAddress = null;
+					int dex = 0;
+					int firstRow = 0;
+					int lastRow = 0;
+					int firstCol = 0;
+					int lastCol = 0;
+					
+					//被复制行索引
+					int [] srcRowIndex = {5,6};
+					
+					//生成行
+					for(int j = 1;j <= copyRows; j++){
+						int lastRowNum = sheet.getLastRowNum() + 1;//最后一行索引+1
+						
+						//复制普通单元格
+						for(int index = 0;index < srcRowIndex.length; index++){
+							dex = lastRowNum + index ;
+							fromRow = sheet.getRow(srcRowIndex[index]);
+							toRow = sheet.createRow(dex);
+							CopyByPoi.copyRow(fromRow, toRow,true);
+						}
+						
+						//复制合并单元格
+						for (int i = 0; i < sheetMergerCount; i++) {  
+							cellRangeAddress = sheet.getMergedRegion(i);
+							
+							firstRow = cellRangeAddress.getFirstRow();
+							if(firstRow == 5){
+								lastRow = cellRangeAddress.getLastRow();
+								firstCol = cellRangeAddress.getFirstColumn();
+								lastCol = cellRangeAddress.getLastColumn();
+								
+								cellRangeAddress = new CellRangeAddress(firstRow + (j*2), lastRow + (j*2), firstCol, lastCol);
+								sheet.addMergedRegion(cellRangeAddress);
+							}
+						}
+					}
+				}
+				
+				/**往Excel填充数据**/
+				// 开始行索引
+				int rowIndex = 5;
+				for(int i = 0;i < length; i++){
+					entity = list.get(i);
+					row = sheet.getRow(rowIndex);
+					
+					//编号
+					row.getCell(0).setCellValue(i+1);
+					
+					//日期
+					row.getCell(1).setCellValue(entity.getApplicate_date());
+					
+					//申请者
+					row.getCell(3).setCellValue(entity.getApplicator_operator_name());
+					
+					//物品品名
+					row.getCell(4).setCellValue(entity.getName());
+					
+					//品牌/型号/规格
+					row.getCell(5).setCellValue(entity.getModel_name());
+					
+					//数量
+					row.getCell(6).setCellValue(entity.getQuantity());
+					
+					//理由
+					row.getCell(9).setCellValue(entity.getNesssary_reason());
+					
+					rowIndex +=2;
+				}
+				
+				out = new FileOutputStream(cachePath);
+				work.write(out);
+			}
+		} catch(Exception e){
+			throw e;
+		} finally{
+			if(in!=null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if(out!=null){
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return cacheName;
+	}
+
+	public String downloadOSHInvoice(ActionForm form, SqlSession conn) throws Exception{
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+		
+		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "OSH购买询价模板.xlsx";;
+		String cacheName = "OSH购买询价" + new Date().getTime() + ".xlsx";
+		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(new Date(), "yyyyMM") + "\\" +cacheName; 
+		
+		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		
+		List<DeviceJigOrderDetailEntity> list = dao.searchDetailUnQuotation(entity);
+		int length = list.size();
+		
+		InputStream in = null;
+		OutputStream out = null;
+		
+		try{
+			if(length > 0){
+				try {
+					FileUtils.copyFile(new File(path), new File(cachePath));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				in = new FileInputStream(cachePath);//读取文件 
+				XSSFWorkbook work = new XSSFWorkbook(in);//创建xls文件
+				XSSFSheet sheet = work.getSheetAt(0);//取得第一个Sheet
+
+				//分页
+				sheet.setRowBreak(sheet.getLastRowNum());
+				
+				XSSFRow row = null;
+				
+				//日期
+				sheet.getRow(14).getCell(1).setCellValue("日　期："+DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+				
+				//每页显示数量
+				int pageTotal = 33;
+				
+				List<Integer> rowIndexList = new LinkedList<Integer>();
+				for(int i = 21; i <=53;i++){
+					rowIndexList.add(i);
+				}
+				
+				int differNum= length - pageTotal;
+				
+				if(differNum > 0){
+					//需要复制的页数(不包含第一页)
+					int pageNum = differNum % pageTotal == 0 ? differNum / pageTotal : differNum / pageTotal + 1;
+					
+					//每页间隔
+					int margin = 0;
+					
+					//当前sheet合并单元格总数
+					int sheetMergerCount =  sheet.getNumMergedRegions();
+					
+					//图形
+					XSSFDrawing drawing = sheet.createDrawingPatriarch();
+					List<XSSFShape> shapeList = drawing.getShapes();
+					int shapeNums = shapeList.size();
+					
+					XSSFRow fromRow = null;
+					XSSFRow toRow = null;
+					CellRangeAddress cellRangeAddress = null;
+					XSSFShape shape = null;
+					XSSFClientAnchor anchor = null;
+					XSSFSimpleShape simpleShape = null;
+					
+					int startRowNum = 0;
+					int endRowNum = 0;
+					int dex = 0;
+					int firstRow = 0;
+					int lastRow = 0;
+					int firstCol = 0;
+					int lastCol = 0;
+					
+					for(int j = 0;j < pageNum; j++){
+						int lastRowNum = sheet.getLastRowNum() + 1;//最后一行索引+1
+
+						//复制普通单元格
+						for(int index = 0;index <= 59; index++){
+							dex = lastRowNum + index + margin;
+							fromRow = sheet.getRow(index);
+							toRow = sheet.createRow(dex);
+							CopyByPoi.copyRow(fromRow, toRow, true);
+							
+							if(index >= 21 && index <= 53){
+								// 总额
+								toRow.getCell(6).setCellFormula("E" + (dex + 1) + "*F" + (dex + 1));
+								rowIndexList.add(dex);
+							}
+							
+							if(index == 21){
+								startRowNum = dex + 1;
+							}
+							if(index == 53){
+								endRowNum = dex + 1;
+							}
+							if(index == 54){
+								// 合计
+								toRow.getCell(6).setCellFormula("SUM(G" + startRowNum + ":G" + endRowNum + ")");
+							}
+						}
+						
+						//复制合并单元格
+						for (int i = 0; i < sheetMergerCount; i++) {
+							cellRangeAddress = sheet.getMergedRegion(i);
+							firstRow = cellRangeAddress.getFirstRow() + lastRowNum + margin;
+							lastRow = cellRangeAddress.getLastRow() + lastRowNum + margin;
+							firstCol = cellRangeAddress.getFirstColumn();
+							lastCol = cellRangeAddress.getLastColumn();
+							
+							cellRangeAddress = new CellRangeAddress(firstRow, lastRow, firstCol, lastCol);
+							sheet.addMergedRegion(cellRangeAddress);
+						}
+						
+						//复制图行
+						for (int i = 0; i < shapeNums; i++) {
+							shape = shapeList.get(i);
+							anchor = (XSSFClientAnchor)shape.getAnchor();
+							int anchorType = anchor.getAnchorType();
+							
+							if (shape instanceof XSSFSimpleShape){//简单图形
+								simpleShape = (XSSFSimpleShape)shape;
+								CTShape cTShape = simpleShape.getCTShape();
+								
+								int dx1 = simpleShape.getAnchor().getDx1();
+								int dy1 = simpleShape.getAnchor().getDy1();
+								int dx2 = simpleShape.getAnchor().getDx2();
+								int dy2 = simpleShape.getAnchor().getDy2();
+								int row1 = anchor.getRow1();
+								short col1 = anchor.getCol1();
+								int row2 = anchor.getRow2();
+								short col2 = anchor.getCol2();
+								anchor = new XSSFClientAnchor(dx1, dy1, dx2, dy2, col1, row1+lastRowNum+margin, col2, row2+lastRowNum+margin);
+								anchor.setAnchorType(anchorType);
+								
+								simpleShape = drawing.createSimpleShape(anchor);
+								simpleShape.getCTShape().setSpPr(cTShape.getSpPr());
+								simpleShape.getCTShape().setNvSpPr(cTShape.getNvSpPr());
+								// 文本
+								if(cTShape.getTxBody() != null){
+									simpleShape.getCTShape().setTxBody(cTShape.getTxBody());
+								}
+							}
+						}
+						//分页
+						sheet.setRowBreak(sheet.getLastRowNum());
+					}
+				}
+
+				/**往Excel填充数据**/
+				for(int i = 0;i < length; i++){
+					entity = list.get(i);
+					row = sheet.getRow(rowIndexList.get(i));
+					
+					//No
+					row.getCell(1).setCellValue(i+1);
+					
+					//品名
+					row.getCell(2).setCellValue(entity.getName());
+					
+					//型号
+					row.getCell(3).setCellValue(entity.getModel_name());
+					
+					//数量
+					row.getCell(4).setCellValue(entity.getQuantity());
+				}
+				
+				//重新设置打印区域
+				work.setPrintArea(0, 1, 7, 0, sheet.getLastRowNum());
+				
+				// 自动计算公式
+				work.setForceFormulaRecalculation(true);
+				
+				out = new FileOutputStream(cachePath);
+				work.write(out);
+			}
+		} catch(Exception e){
+			throw e;
+		} finally{
+			if(in!=null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if(out!=null){
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return cacheName;
+	}
+
+	public String downloadOSHOrder(ActionForm form, SqlSession conn) throws Exception {
+		DeviceJigOrderDetailMapper dao = conn.getMapper(DeviceJigOrderDetailMapper.class);
+
+		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "OSH订购单模板.xlsx";;
+		String cacheName = "OSH订购单" + new Date().getTime() + ".xlsx";
+		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(new Date(), "yyyyMM") + "\\" +cacheName; 
+		
+		DeviceJigOrderDetailEntity entity = new DeviceJigOrderDetailEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		entity.setOrder_from(5);
+		
+		List<DeviceJigOrderDetailEntity> list = dao.searchOrderUnComfirm(entity);
+		int length = list.size();
+		
+		InputStream in = null;
+		OutputStream out = null;
+		
+		try{
+			if(length > 0){
+				try {
+					FileUtils.copyFile(new File(path), new File(cachePath));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				in = new FileInputStream(cachePath);//读取文件 
+				XSSFWorkbook work = new XSSFWorkbook(in);//创建xls文件
+				XSSFSheet sheet = work.getSheetAt(0);//取得第一个Sheet
+				
+				//分页
+				sheet.setRowBreak(sheet.getLastRowNum());
+				
+				XSSFRow row = null;
+				
+				//订货单No．
+				sheet.getRow(0).getCell(7).setCellValue(entity.getOrder_no());
+				
+				//日期
+				sheet.getRow(12).getCell(1).setCellValue("日　期：" + DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+				
+				//每页显示数量
+				int pageTotal = 20;
+				
+				//数据填充行索引集合
+				List<Integer> rowIndexList = new LinkedList<Integer>();
+				for(int i = 21; i <= 40;i++){
+					rowIndexList.add(i);
+				}
+				
+				int differNum = length - pageTotal;
+				
+				if(differNum > 0){
+					//需要复制的页数(不包含第一页)
+					int pageNum = differNum % pageTotal == 0 ? differNum / pageTotal : differNum / pageTotal + 1;
+					
+					//每页间隔
+					int margin = 0;
+					
+					//当前sheet合并单元格总数
+					int sheetMergerCount =  sheet.getNumMergedRegions();
+					
+					//当前sheet图形总数
+					XSSFDrawing drawing = sheet.createDrawingPatriarch();
+					List<XSSFShape> shapeList = drawing.getShapes();
+					int shapeNums = shapeList.size();
+					
+					XSSFRow fromRow = null;
+					XSSFRow toRow = null;
+					CellRangeAddress cellRangeAddress = null;
+					XSSFShape shape = null;
+					XSSFClientAnchor anchor = null;
+					XSSFSimpleShape simpleShape = null;
+					int startRowNum = 0;
+					int endRowNum = 0;
+					int dex = 0;
+					int firstRow = 0;
+					int lastRow = 0;
+					int firstCol = 0;
+					int lastCol = 0;
+					
+					for(int j = 0;j < pageNum; j++){
+						int lastRowNum = sheet.getLastRowNum() + 1;//最后一行索引+1
+						
+						//复制普通单元格
+						for(int index = 0;index <= 46; index++){
+							dex = lastRowNum + index + margin;
+							fromRow = sheet.getRow(index);
+							toRow = sheet.createRow(dex);
+							CopyByPoi.copyRow(fromRow, toRow, true);
+							
+							if(index >= 21 && index <= 40){
+								// 总额
+								toRow.getCell(6).setCellFormula("E" + (dex + 1) + "*F" + (dex + 1));
+								rowIndexList.add(dex);
+							}
+							
+							if(index == 21){
+								startRowNum = dex + 1;
+							}
+							if(index == 40){
+								endRowNum = dex + 1;
+							}
+							if(index == 41){
+								// 合计
+								toRow.getCell(6).setCellFormula("SUM(G" + startRowNum + ":G" + endRowNum + ")");
+							}
+						}
+						
+						//复制合并单元格
+						for (int i = 0; i < sheetMergerCount; i++) {
+							cellRangeAddress = sheet.getMergedRegion(i);
+							firstRow = cellRangeAddress.getFirstRow() + lastRowNum + margin;
+							lastRow = cellRangeAddress.getLastRow() + +lastRowNum + margin;
+							firstCol = cellRangeAddress.getFirstColumn();
+							lastCol = cellRangeAddress.getLastColumn();
+
+							cellRangeAddress = new CellRangeAddress(firstRow, lastRow, firstCol, lastCol);
+							sheet.addMergedRegion(cellRangeAddress);
+						}
+						
+						//复制图行
+						for (int i = 0; i < shapeNums; i++) {
+							shape = shapeList.get(i);
+							anchor = (XSSFClientAnchor)shape.getAnchor();
+							int anchorType = anchor.getAnchorType();
+							
+							if (shape instanceof XSSFSimpleShape){ //简单图形
+								simpleShape = (XSSFSimpleShape)shape;
+								CTShape cTShape = simpleShape.getCTShape();
+								
+								int dx1 = simpleShape.getAnchor().getDx1();
+								int dy1 = simpleShape.getAnchor().getDy1();
+								int dx2 = simpleShape.getAnchor().getDx2();
+								int dy2 = simpleShape.getAnchor().getDy2();
+								int row1 = anchor.getRow1() + lastRowNum + margin;
+								short col1 = anchor.getCol1();
+								int row2 = anchor.getRow2() + lastRowNum + margin;
+								short col2 = anchor.getCol2();
+								anchor = new XSSFClientAnchor(dx1, dy1, dx2, dy2, col1, row1, col2, row2);
+								anchor.setAnchorType(anchorType);
+								
+								simpleShape = drawing.createSimpleShape(anchor);
+								simpleShape.getCTShape().setSpPr(cTShape.getSpPr());
+								simpleShape.getCTShape().setNvSpPr(cTShape.getNvSpPr());
+								// 文本
+								if(cTShape.getTxBody() != null){
+									simpleShape.getCTShape().setTxBody(cTShape.getTxBody());
+								}
+							}
+						}
+						//分页
+						sheet.setRowBreak(sheet.getLastRowNum());
+					}
+				}
+				
+				/**往Excel填充数据**/
+				for(int i = 0;i < length; i++){
+					entity = list.get(i);
+					row = sheet.getRow(rowIndexList.get(i));
+					
+					//No
+					row.getCell(1).setCellValue(i+1);
+					
+					//品名
+					row.getCell(2).setCellValue(entity.getName());
+					
+					//型号
+					row.getCell(3).setCellValue(entity.getModel_name());
+					
+					//数量
+					row.getCell(4).setCellValue(entity.getQuantity());
+					
+					//单价
+					if(entity.getOrder_price() != null){
+						row.getCell(5).setCellValue(entity.getOrder_price().doubleValue());
+					}
+				}
+				
+				//重新设置打印区域
+				work.setPrintArea(0, 1, 7, 0, sheet.getLastRowNum());
+				
+				// 自动计算公式
+				work.setForceFormulaRecalculation(true);
+				
+				out = new FileOutputStream(cachePath);
+				work.write(out);
+			}
+		}catch(Exception e){
+			throw e;
+		} finally{
+			if(in!=null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if(out!=null){
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return cacheName;
 	}
 }

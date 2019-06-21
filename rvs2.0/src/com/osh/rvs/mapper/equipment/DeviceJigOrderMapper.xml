@@ -47,4 +47,10 @@
 		SELECT MAX(order_no) FROM device_jig_order WHERE order_no LIKE 'L%'
 	]]>
 	</select>
+	
+	<select id="searchAll" resultType="DeviceJigOrderEntity">
+	<![CDATA[
+		SELECT order_key,order_no FROM device_jig_order
+	]]>
+	</select>
 </mapper>

@@ -46,4 +46,11 @@ public interface DeviceJigOrderMapper {
 	 * @return
 	 */
 	public String getMaxTempOrderNo();
+
+	/**
+	 * 查询所有订单
+	 * 
+	 * @return
+	 */
+	public List<DeviceJigOrderEntity> searchAll();
 }

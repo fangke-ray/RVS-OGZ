@@ -113,4 +113,12 @@ public interface DeviceJigOrderDetailMapper {
 	 */
 	public void updateTicket(DeviceJigOrderDetailEntity entity);
 
+	/**
+	 * 导出询价明细
+	 * @param entity
+	 * @return
+	 */
+	public List<DeviceJigOrderDetailEntity> searchDetailUnQuotation(DeviceJigOrderDetailEntity entity);
+	
+	public List<DeviceJigOrderDetailEntity> searchOrderUnComfirm(DeviceJigOrderDetailEntity entity);
 }

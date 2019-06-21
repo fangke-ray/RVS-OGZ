@@ -795,17 +795,46 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
-
-		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
-		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
-
-		if (errors.size() == 0) {
-			LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
-			DeviceJigOrderDetailForm deviceJigOrderDetailForm = (DeviceJigOrderDetailForm) form;
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+		
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		List<DeviceJigOrderDetailForm> list = new AutofillArrayList<DeviceJigOrderDetailForm>(DeviceJigOrderDetailForm.class);
+		Map<String, String[]> parameters = req.getParameterMap();
+		
+		// 整理提交数据
+		for (String parameterKey : parameters.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String entity = m.group(1);
+				if ("device_jig_order_detail".equals(entity)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+					String[] value = parameters.get(parameterKey);
+					if ("order_key".equals(column)) {
+						list.get(icounts).setOrder_key(value[0]);
+					} else if ("object_type".equals(column)) {
+						list.get(icounts).setObject_type(value[0]);
+					} else if ("device_type_id".equals(column)) {
+						list.get(icounts).setDevice_type_id(value[0]);
+					} else if ("model_name".equals(column)) {
+						list.get(icounts).setModel_name(value[0]);
+					} else if ("applicator_id".equals(column)) {
+						list.get(icounts).setApplicator_id(value[0]);
+					}
+				}
+			}
+		}
+		
+		// 登录者
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+		// 系统当前日期
+		String inlineReceptDate = DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN);
+		
+		for(DeviceJigOrderDetailForm deviceJigOrderDetailForm :list){
 			// 验收人
 			deviceJigOrderDetailForm.setInline_receptor_id(user.getOperator_id());
 			// 验收日期
-			deviceJigOrderDetailForm.setInline_recept_date(DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN));
+			deviceJigOrderDetailForm.setInline_recept_date(inlineReceptDate);
 
 			deviceJigOrderDetailService.updateInlineRecept(deviceJigOrderDetailForm, conn);
 		}
@@ -833,25 +862,69 @@ public class DeviceJigOrderAction extends BaseAction {
 
 		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
-		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		List<DeviceJigOrderDetailForm> list = new AutofillArrayList<DeviceJigOrderDetailForm>(DeviceJigOrderDetailForm.class);
+		Map<String, String[]> parameters = req.getParameterMap();
 
-		if (errors.size() == 0) {
-			DeviceJigOrderDetailForm deviceJigOrderDetailForm = (DeviceJigOrderDetailForm) form;
+		// 整理提交数据
+		for (String parameterKey : parameters.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String entity = m.group(1);
+				if ("device_jig_order_detail".equals(entity)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+					String[] value = parameters.get(parameterKey);
+					if ("order_key".equals(column)) {
+						list.get(icounts).setOrder_key(value[0]);
+					} else if ("object_type".equals(column)) {
+						list.get(icounts).setObject_type(value[0]);
+					} else if ("device_type_id".equals(column)) {
+						list.get(icounts).setDevice_type_id(value[0]);
+					} else if ("model_name".equals(column)) {
+						list.get(icounts).setModel_name(value[0]);
+					} else if ("applicator_id".equals(column)) {
+						list.get(icounts).setApplicator_id(value[0]);
+					} else if("budget_month".equals(column)) {
+						list.get(icounts).setBudget_month(value[0]);
+					}else if("budget_description".equals(column)) {
+						list.get(icounts).setBudget_description(value[0]);
+					}
+				}
+			}
+		}
+		
+		p = Pattern.compile("\\d{6}");
+		
+		for(int i = 0; i < list.size(); i++){
+			DeviceJigOrderDetailForm deviceJigOrderDetailForm = list.get(i);
+			Validators v = BeanUtil.createBeanValidators(deviceJigOrderDetailForm, BeanUtil.CHECK_TYPE_PASSEMPTY);
+			List<MsgInfo> errs = v.validate();
+			
+			for (int j = 0; j < errs.size(); j++) {
+				errs.get(j).setLineno("第" + (i + 1) + "行");
+			}
+			errors.addAll(errs);
+			
 			// 预算月
 			String budgetMonth = deviceJigOrderDetailForm.getBudget_month();
-			Pattern p = Pattern.compile("\\d{6}");
-			Matcher matcher = p.matcher(budgetMonth);
-			if (!matcher.matches()) {
-				MsgInfo error = new MsgInfo();
-				error.setErrcode("validator.invalidParam.invalidDateValue");
-				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidDateValue", "预算月", "yyyyMM"));
-				errors.add(error);
+			if(!CommonStringUtil.isEmpty(budgetMonth)){
+				Matcher matcher = p.matcher(budgetMonth);
+				if (!matcher.matches()) {
+					MsgInfo error = new MsgInfo();
+					error.setLineno("第" + (i + 1) + "行");
+					error.setErrcode("validator.invalidParam.invalidDateValue");
+					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidDateValue", "预算月", "yyyyMM"));
+					errors.add(error);
+				}
 			}
-
-			if (errors.size() == 0) {
-				deviceJigOrderDetailService.updateBudget(deviceJigOrderDetailForm, conn);
+		}
+		
+		if (errors.size() == 0) {
+			for(int i = 0; i < list.size(); i++){
+				deviceJigOrderDetailService.updateBudget(list.get(i), conn);
 			}
 		}
 
@@ -928,7 +1001,45 @@ public class DeviceJigOrderAction extends BaseAction {
 		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
 		
 		if(errors.size() == 0){
-			deviceJigOrderDetailService.updateTicket(form, conn);
+			DeviceJigOrderDetailForm pageForm = (DeviceJigOrderDetailForm)form;
+			
+			Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+			List<DeviceJigOrderDetailForm> list = new AutofillArrayList<DeviceJigOrderDetailForm>(DeviceJigOrderDetailForm.class);
+			Map<String, String[]> parameters = req.getParameterMap();
+			
+			// 整理提交数据
+			for (String parameterKey : parameters.keySet()) {
+				Matcher m = p.matcher(parameterKey);
+				if (m.find()) {
+					String entity = m.group(1);
+					if ("device_jig_order_detail".equals(entity)) {
+						String column = m.group(2);
+						int icounts = Integer.parseInt(m.group(3));
+						String[] value = parameters.get(parameterKey);
+						if ("order_key".equals(column)) {
+							list.get(icounts).setOrder_key(value[0]);
+						} else if ("object_type".equals(column)) {
+							list.get(icounts).setObject_type(value[0]);
+						} else if ("device_type_id".equals(column)) {
+							list.get(icounts).setDevice_type_id(value[0]);
+						} else if ("model_name".equals(column)) {
+							list.get(icounts).setModel_name(value[0]);
+						} else if ("applicator_id".equals(column)) {
+							list.get(icounts).setApplicator_id(value[0]);
+						}
+					}
+				}
+			}
+			
+			for(int i = 0; i < list.size(); i++){
+				DeviceJigOrderDetailForm updateFom = list.get(i);
+				// 发票号
+				updateFom.setInvoice_no(pageForm.getInvoice_no());
+				// 发票收到日期
+				updateFom.setInvoice_date(pageForm.getInvoice_date());
+				
+				deviceJigOrderDetailService.updateTicket(updateFom, conn);
+			}
 		}
 		
 		listResponse.put("errors", errors);
@@ -939,4 +1050,115 @@ public class DeviceJigOrderAction extends BaseAction {
 		log.info("DeviceJigOrderAction.doUpdateTicket end");
 	}
 	
+	/**
+	 * 取得订单号参照列表
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void getOrderNoOptions(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
+		log.info("DeviceJigOrderAction.getOrderNoOptions start");
+		
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+		
+		String oReferChooser = deviceJigOrderService.getOptions(conn);
+		listResponse.put("oReferChooser", oReferChooser);
+		
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		
+		log.info("DeviceJigOrderAction.getOrderNoOptions end");
+	}
+	
+	/**
+	 * 导出询价单
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void exportInvoice(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
+		log.info("DeviceJigOrderAction.exportInvoice start");
+		
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+
+		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
+		v.add("order_key", v.required("订单号"));
+		v.add("order_from", v.required("受注方"));
+		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
+		
+		if(errors.size() == 0){
+			DeviceJigOrderDetailForm pageForm = (DeviceJigOrderDetailForm) form;
+			String orderFrom = pageForm.getOrder_from();
+			String orderNo = pageForm.getOrder_no();
+			
+			String filePath = "";
+			String fileName = "";
+			if("5".equals(orderFrom)){
+				fileName ="OSH购买询价-" + orderNo + ".xlsx";
+				filePath = deviceJigOrderDetailService.downloadOSHInvoice(form, conn);
+			}else if("6".equals(orderFrom)){
+				fileName ="外部交易采购申请表-" + orderNo  + ".xlsx";
+				filePath = deviceJigOrderDetailService.downloadGInvoice(form, conn);
+			}
+			
+			listResponse.put("filePath", filePath);
+			listResponse.put("fileName", fileName);
+		}
+	
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		
+		log.info("DeviceJigOrderAction.exportInvoice end");
+	}
+	
+	/**
+	 * 导出订单
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void exportOrder(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception{
+		log.info("DeviceJigOrderAction.exportOrder start");
+		
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		
+		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
+		v.add("order_key", v.required("订单号"));
+		List<MsgInfo> errors = v != null ? v.validate() : new ArrayList<MsgInfo>();
+		
+		if(errors.size() == 0){
+			DeviceJigOrderDetailForm pageForm = (DeviceJigOrderDetailForm) form;
+			String orderNo = pageForm.getOrder_no();
+			
+			String fileName ="OSH设备工具订购申请表-" + orderNo  + ".xlsx";
+			String filePath = deviceJigOrderDetailService.downloadOSHOrder(form, conn);
+			
+			listResponse.put("filePath", filePath);
+			listResponse.put("fileName", fileName);
+		}
+
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		
+		log.info("DeviceJigOrderAction.exportOrder end");
+	}
 }

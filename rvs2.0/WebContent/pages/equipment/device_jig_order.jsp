@@ -94,6 +94,51 @@ td.text-right{
 	padding-left:0;
 }
 
+#ticket_dialog table{
+	border-collapse: collapse;
+}
+
+#ticket_dialog table td{
+	border-color: #aaa;
+}
+
+#ticket_dialog table tbody tr{
+	height: 24px;
+	line-height: 24px;
+}
+
+#ticket_dialog input[type='text']{
+	width:90px;
+}
+
+#ticket_dialog table tr > td:nth-child(1){
+	width: 60px;
+	text-align: center;
+	font-weight: normal;
+}
+
+#budget_dialog table{
+	border-collapse: collapse;
+}
+
+#budget_dialog table td{
+	border-color: #aaa;
+}
+
+#budget_dialog table tr > td:nth-child(1){
+	width: 60px;
+	text-align: center;
+	font-weight: normal;
+}
+
+#budget_dialog table tr > td:nth-child(5),#budget_dialog table tr > td:nth-child(8){
+	width: 100px;
+}
+
+#budget_dialog input.budget_month{
+	width: 60px;
+}
+
 </style>
 
 <title>设备工具订购申请</title>
@@ -190,8 +235,10 @@ td.text-right{
 										<td class="td-content">
 											<input type="text" class="ui-widget-content" id="search_invoice_no">
 										</td>
-										<td class="ui-state-default td-title"></td>
-										<td class="td-content"></td>
+										<td class="ui-state-default td-title">受注方</td>
+										<td class="td-content">
+											<select id="search_order_from">${sOrderFrom }</select>
+										</td>
 										<td class="ui-state-default td-title"></td>
 										<td class="td-content"></td>
 									</tr>
@@ -237,6 +284,8 @@ td.text-right{
 								<input type="button" id="ticketregisterbutton" class="ui-button" value="发票登记">
 <%} %>							
 								<input type="button" id="inlinereceptbutton" class="ui-button" value="验收">
+								<input type="button" id="exportinvoicebutton" class="ui-button" value="导出询价单">
+								<input type="button" id="exportorderbutton" class="ui-button" value="导出订单">
 							</div>
 						</div>
 <%} %>
@@ -527,91 +576,79 @@ td.text-right{
 		
 		<div id="budget_dialog" style="display: none;">
 			<div class="ui-widget-content">
-				<table class="condform" style="width:99.6%;">
-					<tr>
-						<td class="ui-state-default td-title">型号/规格</td>
-						<td class="td-content">
-							<label id="budget_label_model_name"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">系统编码</td>
-						<td class="td-content">
-							<label id="budget_label_system_code"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">名称</td>
-						<td class="td-content">
-							<label id="budget_label_name"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">数量</td>
-						<td class="td-content">
-							<label id="budget_label_quantity"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">理由/必要性</td>
-						<td class="td-content">
-							<label id="budget_label_nesssary_reason"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">申请日期</td>
-						<td class="td-content">
-							<label id="budget_label_applicate_date"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">总价</td>
-						<td class="td-content">
-							<label id="budget_label_total_order_price"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">订单号</td>
-						<td class="td-content">
-							<label id="budget_label_order_no"></label>
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">预算月</td>
-						<td class="td-content">
-							<input type="text" class="ui-widget-content" id="budget_update_budget_month" readonly>
-							<input type="button" class="ui-button" value="ｘ" id="budget_update_budget_month_clearer" style="padding:0;">
-						</td>
-					</tr>
-					<tr>
-						<td class="ui-state-default td-title">预算说明</td>
-						<td class="td-content">
-							<textarea class="ui-widget-content" cols="35" style="resize: none;" id="budget_update_budget_description"></textarea>
-						</td>
-					</tr>
+				<table class="condform">
+					<thead>
+						<tr class="text-center">
+							<td class="ui-state-default td-title"></td>
+							<td class="ui-state-default td-title">型号/规格</td>
+							<td class="ui-state-default td-title">系统编码</td>
+							<td class="ui-state-default td-title">名称</td>
+							<td class="ui-state-default td-title">数量</td>
+							<td class="ui-state-default td-title">理由/必要性</td>
+							<td class="ui-state-default td-title">申请日期</td>
+							<td class="ui-state-default td-title">总价</td>
+							<td class="ui-state-default td-title">订单号</td>
+							<td class="ui-state-default td-title">预算月</td>
+							<td class="ui-state-default td-title">预算说明</td>
+						</tr>
+					</thead>
+					<tbody></tbody>
 				</table>
 			</div>
 		</div>
 		
 		<div id="ticket_dialog" style="display: none;">
 			<div class="ui-widget-content">
-				<table class="condform" style="width:99.6%;">
+				<table class="condform">
+					<thead>
+						<tr class="text-center">
+							<td class="ui-state-default td-title"></td>
+							<td class="ui-state-default td-title">对象类别</td>
+							<td class="ui-state-default td-title">型号/规格</td>
+							<td class="ui-state-default td-title">系统编码</td>
+							<td class="ui-state-default td-title">名称</td>
+							<td class="ui-state-default td-title">申请者</td>
+							<td class="ui-state-default td-title">上次<br>发票号</td>
+							<td class="ui-state-default td-title">上次<br>发票收到日期</td>
+							<td class="ui-state-default td-title">发票号</td>
+							<td class="ui-state-default td-title">发票收到日期</td>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		
+		<div id="export_invoice_dialog" style="display: none;">
+			<div class="ui-widget-content">
+				<table class="condform">
 					<tr>
-						<td class="ui-state-default td-title">发票号</td>
+						<td class="ui-state-default td-title">订单号</td>
 						<td class="td-content">
-							<input type="text" class="ui-widget-content" id="ticket_invoice_no">
+							<input type="text" id="export_invoice_order_no" readonly="readonly" class="ui-widget-content">
+							<input type="hidden" id="export_invoice_order_key">
 						</td>
 					</tr>
 					<tr>
-						<td class="ui-state-default td-title">发票收到日期</td>
+						<td class="ui-state-default td-title">受注方</td>
 						<td class="td-content">
-							<input type="text" class="ui-widget-content" id="ticket_invoice_date" readonly="readonly">
+							<select id="export_invoice_order_from">${sOrderFrom }</select>
 						</td>
 					</tr>
 				</table>
 			</div>
 		</div>
 		
+		<div class="referchooser ui-widget-content" id="export_invoice_order_no_referchooser" tabindex="-1">
+			<table width="100px">
+				<tr>
+					<td></td>
+					<td width="50%">过滤字:<input type="text"/></td>
+					<td width="50%" align="right"><input type="button" class="ui-button" style="float:right;" value="清空"/></td>
+				</tr>
+			</table>
+			<table  class="subform"></table>
+		</div>
 		
 		<div class="referchooser ui-widget-content" id="operator_id_referchooser" tabindex="-1">
 			<table width="200px">

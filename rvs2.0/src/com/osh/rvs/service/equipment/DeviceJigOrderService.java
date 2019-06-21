@@ -16,6 +16,7 @@ import com.osh.rvs.mapper.equipment.DeviceJigOrderDetailMapper;
 import com.osh.rvs.mapper.equipment.DeviceJigOrderMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.message.ApplicationMessage;
@@ -165,5 +166,29 @@ public class DeviceJigOrderService {
 		// 控制其他工程
 		RvsUtils.sendTrigger(triggerList);
 
+	}
+	
+	
+	/**
+	 * 取得全部订单号(参照列表)
+	 * @param conn
+	 * @return
+	 */
+	public String getOptions(SqlSession conn) {
+		DeviceJigOrderMapper dao = conn.getMapper(DeviceJigOrderMapper.class);
+		
+		List<String[]> mList = new ArrayList<String[]>();
+		List<DeviceJigOrderEntity> list = dao.searchAll();
+		
+		for (DeviceJigOrderEntity model: list) {
+			String[] mline = new String[2];
+			mline[0] = model.getOrder_key();
+			mline[1] = model.getOrder_no();
+			mList.add(mline);
+		}
+
+		String mReferChooser = CodeListUtils.getReferChooser(mList);
+		
+		return mReferChooser;
 	}
 }

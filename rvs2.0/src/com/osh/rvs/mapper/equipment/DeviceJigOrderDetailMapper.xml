@@ -143,6 +143,11 @@
 		AND device_jig_order_detail.invoice_no LIKE CONCAT('%',#{invoice_no},'%')
 	]]>
 	</if>
+	<if test="order_from!=null and order_from!=''">
+	<![CDATA[
+		AND device_jig_order_detail.order_from = #{order_from}
+	]]>
+	</if>
 	</where>
 	</select>
 	
@@ -612,5 +617,51 @@
 		applicator_id = #{applicator_id}
 	]]>
 	</update>
+	
+	<select id="searchDetailUnQuotation" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT 
+		device_jig_order_detail.applicate_date,
+	    operator.name AS applicator_operator_name,
+	    device_jig_order_detail.name,
+	    device_jig_order_detail.model_name,
+	    device_jig_order_detail.quantity,
+	    device_jig_order_detail.nesssary_reason
+	FROM
+	    device_jig_order_detail
+	JOIN
+		operator
+	ON
+		operator.operator_id = device_jig_order_detail.applicator_id
+	WHERE
+		device_jig_order_detail.quotation_id IS NULL
+	AND
+		device_jig_order_detail.order_key = #{order_key}
+	AND
+		device_jig_order_detail.order_from = #{order_from}
+	]]>
+	</select>
+	
+	<select id="searchOrderUnComfirm" resultType="DeviceJigOrderDetailEntity" parameterType="DeviceJigOrderDetailEntity">
+	<![CDATA[
+	SELECT 
+	    device_jig_order_detail.name,
+	    device_jig_order_detail.model_name,
+	    device_jig_order_detail.quantity,
+	    device_jig_invoice.order_price
+	FROM
+	    device_jig_order_detail
+	LEFT JOIN
+		device_jig_invoice
+	ON
+		device_jig_invoice.invoice_id = device_jig_order_detail.order_invoice_id
+	WHERE
+		device_jig_order_detail.confirm_flg IS NULL
+	AND
+		device_jig_order_detail.order_key = #{order_key}
+	AND
+		device_jig_order_detail.order_from = #{order_from}
+	]]>
+	</select>
 
 </mapper>

@@ -13,16 +13,19 @@ $(function () {
 	});
 	// 申请者
 	setReferChooser($("#search_applicator_id"), $("#operator_id_referchooser"));
+	
+	setReferChooser($("#export_invoice_order_key"), $("#export_invoice_order_no_referchooser"));
 	// 询价,验收
 	$("#order_invoice_flg,#inline_recept_flg,#colchooser").buttonset();
 	// 日期
-	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date,#recept_update_reorder_invoice_date,#add_spare_invoice_date,#ticket_invoice_date").datepicker({
+	$("#search_send_date_start,#search_send_date_end,#search_scheduled_date_start,#search_scheduled_date_end,#search_recept_date_start,#search_recept_date_end,#recept_update_reorder_scheduled_date,#recept_update_reorder_invoice_date,#add_spare_invoice_date").datepicker({
 		showButtonPanel : true,
 		dateFormat : "yy/mm/dd",
 		currentText : "今天"
 	});
 
-	$("#add_device_spare_type").select2Buttons();
+	$("#export_invoice_order_from option[value='7']").remove();
+	$("#add_device_spare_type,#search_order_from,#export_invoice_order_from").select2Buttons();
 	
 	// 清除
 	$("#resetbutton").click(reset);
@@ -114,21 +117,11 @@ $(function () {
 	$("#budgetbutton").disable().click(budget);
 	// 发票登记
 	$("#ticketregisterbutton").disable().click(invoiceRegister);
+	//导出询价单
+	$("#exportinvoicebutton").click(exportInvoice);
+	//导出订单
+	$("#exportorderbutton").click(exportOrder);
 	
-	var today = new Date();
-
-	$("#budget_update_budget_month").monthpicker({
-		pattern: "yyyymm",
-		startYear: 2018,
-		finalYear: today.getFullYear(),
-		selectedMonth: today.getMonth() + 1,
-		monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-	});
-
-	$("#budget_update_budget_month_clearer").click(function(evt) {
-		$("#budget_update_budget_month").val("");
-	});
-
 	findit();
 });
 function reset () {
@@ -136,6 +129,7 @@ function reset () {
 	$("#searchform input[type='hidden']").val("");
 	$("#search_order_invoice_all").attr("checked", true).trigger("change");
 	$("#search_inline_recept_yes").attr("checked", true).trigger("change");
+	$("#searchform select").val("").trigger("change");
 };
 function findit () {
 	let data = {
@@ -151,7 +145,8 @@ function findit () {
 		"recept_date_start" : $("#search_recept_date_start").val(),// 收货开始时间
 		"recept_date_end" : $("#search_recept_date_end").val(),// 收货结束时间
 		"inline_recept_flg" : $("#inline_recept_flg input:checked").val(),// 验收
-		"invoice_no" : $("#search_invoice_no").val()//发票号
+		"invoice_no" : $("#search_invoice_no").val(),//发票号
+		"order_from" : $("#search_order_from").val()// 受注方
 	};
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -178,31 +173,242 @@ function findit () {
 		}
 	});
 };
+//导出询价单
+function exportInvoice (){
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=getOrderNoOptions',
+		cache : false,
+		data : null,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj, textStatus) {
+			let resInfo = null;
+			try {
+				// 以Object形式读取JSON
+				eval('resInfo =' + xhrobj.responseText);
+				if (resInfo.errors.length > 0) {
+					// 共通出错信息框
+					treatBackMessages(null, resInfo.errors);
+				} else {
+					$("#export_invoice_order_no,#export_invoice_order_key").val("");
+					$("#export_invoice_order_from").val("").trigger("change").closest("tr").show();
+					
+					$("#export_invoice_order_no_referchooser table.subform").html(resInfo.oReferChooser);
+					$("#export_invoice_dialog").dialog({
+						title : "导出询价单",
+						width : 350,
+						height : 'auto',
+						resizable : false,
+						modal : true,
+						buttons : {
+							"确定" : function(){
+								let data = {
+									"order_no" : $("#export_invoice_order_no").val(),
+									"order_key" : $("#export_invoice_order_key").val(),
+									"order_from" : $("#export_invoice_order_from").val()
+									
+								}
+								$.ajax({
+									beforeSend : ajaxRequestType,
+									async : true,
+									url : servicePath + '?method=exportInvoice',
+									cache : false,
+									data : data,
+									type : "post",
+									dataType : "json",
+									success : ajaxSuccessCheck,
+									error : ajaxError,
+									complete : function(xhrobj,textStatus) {
+										let resInfo = null;
+										try {
+											// 以Object形式读取JSON
+											eval('resInfo =' + xhrobj.responseText);
+											if (resInfo.errors.length > 0) {
+												// 共通出错信息框
+												treatBackMessages(null, resInfo.errors);
+											} else if (resInfo.filePath){
+												if ($("iframe").length > 0) {
+													$("iframe").attr("src", "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=" + resInfo.fileName);
+												} else {
+													let iframe = document.createElement("iframe");
+										            iframe.src = "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=" + resInfo.fileName;
+										            iframe.style.display = "none";
+										            document.body.appendChild(iframe);
+												}
+												$("#export_invoice_dialog").dialog('close');
+												infoPop("下载完成。");
+											}else {
+												errorPop("下载失败！");
+											}
+										}catch(e){}
+									}
+								});
+							},
+							"关闭" : function(){$(this).dialog('close');}
+						}
+					});
+				}
+			}catch(e){}
+		}
+	});
+};
+//导出订单
+function exportOrder(){
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=getOrderNoOptions',
+		cache : false,
+		data : null,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj, textStatus) {
+			let resInfo = null;
+			try {
+				eval('resInfo =' + xhrobj.responseText);
+				if (resInfo.errors.length > 0) {
+					// 共通出错信息框
+					treatBackMessages(null, resInfo.errors);
+				} else {
+					$("#export_invoice_order_no,#export_invoice_order_key").val("");
+					$("#export_invoice_order_from").closest("tr").hide();
+					
+					$("#export_invoice_order_no_referchooser table.subform").html(resInfo.oReferChooser);
+					$("#export_invoice_dialog").dialog({
+						title : "导出订单",
+						width : 350,
+						height : 'auto',
+						resizable : false,
+						modal : true,
+						buttons : {
+							"确定" : function(){
+								let data = {
+									"order_no" : $("#export_invoice_order_no").val(),
+									"order_key" : $("#export_invoice_order_key").val()
+								}
+								
+								$.ajax({
+									beforeSend : ajaxRequestType,
+									async : true,
+									url : servicePath + '?method=exportOrder',
+									cache : false,
+									data : data,
+									type : "post",
+									dataType : "json",
+									success : ajaxSuccessCheck,
+									error : ajaxError,
+									complete : function(xhrobj,textStatus) {
+										let resInfo = null;
+										try {
+											// 以Object形式读取JSON
+											eval('resInfo =' + xhrobj.responseText);
+											if (resInfo.errors.length > 0) {
+												// 共通出错信息框
+												treatBackMessages(null, resInfo.errors);
+											} else if (resInfo.filePath){
+												if ($("iframe").length > 0) {
+													$("iframe").attr("src", "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=" + resInfo.fileName);
+												} else {
+													let iframe = document.createElement("iframe");
+										            iframe.src = "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=" + resInfo.fileName;
+										            iframe.style.display = "none";
+										            document.body.appendChild(iframe);
+												}
+												$("#export_invoice_dialog").dialog('close');
+												infoPop("下载完成。");
+											}else {
+												errorPop("下载失败！");
+											}
+										}catch(e){}
+									}
+								});
+							},
+							"关闭" : function(){$(this).dialog('close');}
+						}
+					});
+				}
+			}catch(e){}
+		}
+	});
+};
 //发票登记
 function invoiceRegister(){
-	let rowId = $("#list").jqGrid("getGridParam","selrow");
-    let	rowData = $("#list").getRowData(rowId);
-    
-    $("#ticket_invoice_no").val(rowData.invoice_no.trim());
-    $("#ticket_invoice_date").val(rowData.hide_invoice_date.trim());
-    
+	let $grid = $("#list");
+	let rowIds = $grid.jqGrid('getGridParam','selarrrow');
+	let rowspan = rowIds.length;
+	let content = "";
+	let ii= 0;
+	for(let rowId of rowIds){
+		ii++;
+		let	rowData = $grid.getRowData(rowId);
+		let invoice_no = rowData.invoice_no.trim();
+		let invoice_date = rowData.hide_invoice_date.trim();
+		
+		if (ii == 1) {
+			content +=`<tr order_key="${rowData.order_key}" object_type="${rowData.object_type}" device_type_id="${rowData.device_type_id}" model_name="${rowData.model_name}" applicator_id="${rowData.applicator_id}">
+						<td class="ui-state-default">${ii}</td>
+						<td class="td-content">${rowData.object_type_name}</td>
+						<td class="td-content">${rowData.model_name}</td>
+						<td class="td-content">${rowData.system_code}</td>
+						<td class="td-content">${rowData.name}</td>
+						<td class="td-content">${rowData.applicator_operator_name}</td>
+						<td class="td-content">${invoice_no}</td>
+						<td class="td-content text-center">${invoice_date}</td>
+						<td class="td-content" rowspan="${rowspan}">
+							<input type="text" class="ui-widget-content invoice_no">
+						</td>
+						<td class="td-content" rowspan="${rowspan}">
+							<input type="text" class="ui-widget-content invoice_date">
+						</td>
+				   </tr>`;
+		} else {
+			content +=`<tr order_key="${rowData.order_key}" object_type="${rowData.object_type}" device_type_id="${rowData.device_type_id}" model_name="${rowData.model_name}" applicator_id="${rowData.applicator_id}">
+						<td class="ui-state-default">${ii}</td>
+						<td class="td-content">${rowData.object_type_name}</td>
+						<td class="td-content">${rowData.model_name}</td>
+						<td class="td-content">${rowData.system_code}</td>
+						<td class="td-content">${rowData.name}</td>
+						<td class="td-content">${rowData.applicator_operator_name}</td>
+						<td class="td-content">${invoice_no}</td>
+						<td class="td-content text-center">${invoice_date}</td>
+				   </tr>`;
+		}
+	}
+	
+	$("#ticket_dialog tbody").html(content);
+	$("#ticket_dialog tbody").find("input.invoice_date").datepicker({
+		showButtonPanel : true,
+		dateFormat : "yy/mm/dd",
+		currentText : "今天"
+	});
+	
     let $dialog = $("#ticket_dialog").dialog({
 		title : "发票登记",
-		width : 350,
+		width : 850,
 		height : 'auto',
 		resizable : false,
 		modal : true,
 		buttons : {
 			"确定" : function(){
-				let postData = {
-					"order_key" : rowData.order_key,// 订购单KEY
-					"object_type" : rowData.object_type,// 对象类别
-					"device_type_id" : rowData.device_type_id,//设备ID
-					"model_name" : rowData.model_name,// 型号/规格
-					"applicator_id" : rowData.applicator_id,// 申请人
-					"invoice_no" : $("#ticket_invoice_no").val().trim(),
-					"invoice_date" : $("#ticket_invoice_date").val().trim()
-				}
+				let postData = {};
+				
+				$("#ticket_dialog tbody tr").each((index,tr) =>{
+					let $tr = $(tr);
+					postData["device_jig_order_detail.order_key[" + index + "]"] = $tr.attr("order_key");
+					postData["device_jig_order_detail.object_type[" + index + "]"] = $tr.attr("object_type");
+					postData["device_jig_order_detail.device_type_id[" + index + "]"] = $tr.attr("device_type_id");
+					postData["device_jig_order_detail.model_name[" + index + "]"] = $tr.attr("model_name");
+					postData["device_jig_order_detail.applicator_id[" + index + "]"] = $tr.attr("applicator_id");
+				});
+				
+				postData["invoice_no"] = $("#ticket_dialog input.invoice_no").val().trim();
+				postData["invoice_date"] = $("#ticket_dialog input.invoice_date").val().trim();
 				
 				$.ajax({
 					beforeSend : ajaxRequestType,
@@ -236,22 +442,33 @@ function invoiceRegister(){
 };
 //验收
 function inlineRecept(){
-	let rowId = $("#list").jqGrid("getGridParam","selrow");
-    let	rowData = $("#list").getRowData(rowId);
-    
-    let postData = {
-		"order_key" : rowData.order_key,// 订购单KEY
-		"object_type" : rowData.object_type,// 对象类别
-		"device_type_id" : rowData.device_type_id,//设备ID
-		"model_name" : rowData.model_name,// 型号/规格
-		"applicator_id" : rowData.applicator_id// 申请人
-	};
-    
 	let loginID = $("#loginID").val().trim();
 	
-	//如果applicator_id不是登录者
-	if(rowData.applicator_id != loginID){
-		let warningMessage = `这是${rowData.applicator_operator_name}申请的，是否由您来验收。`;
+	let $grid = $("#list");
+	let rowIds = $grid.jqGrid('getGridParam','selarrrow');
+	
+	let warningMessage = "";
+	let postData = {};
+	let ii = 0;
+	for(let rowId of rowIds){
+		let	rowData = $grid.getRowData(rowId);
+		//如果applicator_id不是登录者
+		if(rowData.applicator_id != loginID){
+			warningMessage += `订单号：【${rowData.order_no}】，对象类别：【${rowData.object_type_name}】，
+							   型号/规格：【${rowData.model_name}】，名称：【${rowData.name}】，
+							   是【${rowData.applicator_operator_name}】申请的；<br>`;
+		}
+
+		postData["device_jig_order_detail.order_key[" + ii + "]"] = rowData.order_key;
+		postData["device_jig_order_detail.object_type[" + ii + "]"] = rowData.object_type;
+		postData["device_jig_order_detail.device_type_id[" + ii + "]"] = rowData.device_type_id;
+		postData["device_jig_order_detail.model_name[" + ii + "]"] = rowData.model_name;
+		postData["device_jig_order_detail.applicator_id[" + ii + "]"] = rowData.applicator_id;
+		ii++;
+	}
+
+	if(warningMessage){
+		warningMessage += "是否由您来验收。";
 		warningConfirm(warningMessage,function(){
 			doUpdateRecept(postData);
 		},function(){});
@@ -287,47 +504,67 @@ function inlineRecept(){
 	}
 };
 function budget(){
-	let rowId = $("#list").jqGrid("getGridParam","selrow");
-    let	rowData = $("#list").getRowData(rowId);
-    
-    //型号/规格
-    $("#budget_label_model_name").text(rowData.model_name);
-    //系统编码
-    $("#budget_label_system_code").text(rowData.system_code);
-    //名称
-    $("#budget_label_name").text(rowData.name);
-    //数量
-    $("#budget_label_quantity").text(rowData.quantity);
-    //理由/必要性
-    $("#budget_label_nesssary_reason").text(rowData.nesssary_reason);
-    //申请日期
-    $("#budget_label_applicate_date").text(rowData.applicate_date);
-    //总价
-    $("#budget_label_total_order_price").text(rowData.total_order_price);
-    //订单号
-    $("#budget_label_order_no").text(rowData.order_no);
-    //预算月
-    $("#budget_update_budget_month").val(rowData.budget_month);
-    //预算说明
-    $("#budget_update_budget_description").val(rowData.budget_description);
-    
+	let $grid = $("#list");
+	let rowIds = $grid.jqGrid('getGridParam','selarrrow');
+	let content = "";
+	let ii= 0;
+	for(let rowId of rowIds){
+		ii++;
+		let	rowData = $grid.getRowData(rowId);
+		content +=`<tr order_key="${rowData.order_key}" object_type="${rowData.object_type}" device_type_id="${rowData.device_type_id}" model_name="${rowData.model_name}" applicator_id="${rowData.applicator_id}">
+						<td class="ui-state-default">${ii}</td>
+						<td class="td-content">${rowData.model_name}</td>
+						<td class="td-content">${rowData.system_code}</td>
+						<td class="td-content">${rowData.name}</td>
+						<td class="td-content text-right">${rowData.quantity}</td>
+						<td class="td-content">${rowData.nesssary_reason}</td>
+						<td class="td-content text-center">${rowData.applicate_date}</td>
+						<td class="td-content text-right">${rowData.total_order_price}</td>
+						<td class="td-content">${rowData.order_no}</td>
+						<td class="td-content">
+							<input type="text" class="ui-widget-content budget_month" readonly value="${rowData.budget_month}">
+							<input type="button" class="ui-button clear" value="ｘ" style="padding:0;">
+						</td>
+						<td class="td-content">
+							<textarea class="ui-widget-content" cols="35" style="resize: none;">${rowData.budget_description}</textarea>
+						</td>
+				   </tr>`;
+	}
+	$("#budget_dialog tbody").html(content);
+	
+	let today = new Date();
+	$("#budget_dialog tbody").find("input.budget_month").monthpicker({
+		pattern: "yyyymm",
+		startYear: 2018,
+		finalYear: today.getFullYear(),
+		selectedMonth: today.getMonth() + 1,
+		monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+	});
+	
+	$("#budget_dialog tbody").find("input.clear").button().click(function(){
+		$(this).prev().val("");
+	});
+	
 	let $dialog = $("#budget_dialog").dialog({
 		title : "预算",
-		width : 350,
+		width : 1100,
 		height : 'auto',
 		resizable : false,
 		modal : true,
 		buttons : {
 			"确定" : function(){
-				let postData = {
-					"order_key" : rowData.order_key,// 订购单KEY
-					"object_type" : rowData.object_type,// 对象类别
-					"device_type_id" : rowData.device_type_id,//设备ID
-					"model_name" : rowData.model_name,// 型号/规格
-					"applicator_id" : rowData.applicator_id,// 申请人
-					"budget_month" : $("#budget_update_budget_month").val(),
-					"budget_description" : $("#budget_update_budget_description").val()
-				}
+				let postData = {};
+				
+				$("#budget_dialog tbody tr").each((index,tr)=>{
+					let $tr = $(tr);
+					postData["device_jig_order_detail.order_key[" + index + "]"] = $tr.attr("order_key");
+					postData["device_jig_order_detail.object_type[" + index + "]"] = $tr.attr("object_type");
+					postData["device_jig_order_detail.device_type_id[" + index + "]"] = $tr.attr("device_type_id");
+					postData["device_jig_order_detail.model_name[" + index + "]"] = $tr.attr("model_name");
+					postData["device_jig_order_detail.applicator_id[" + index + "]"] = $tr.attr("applicator_id");
+					postData["device_jig_order_detail.budget_month[" + index + "]"] = $tr.find("input.budget_month").val().trim();
+					postData["device_jig_order_detail.budget_description[" + index + "]"] = $tr.find("textarea").val().trim();
+				});
 				
 				$.ajax({
 					beforeSend : ajaxRequestType,
@@ -2300,7 +2537,7 @@ function list(listdata){
 			pager : "#listpager",
 			viewrecords : true,
 			caption : "",
-			multiselect : false,
+			multiselect : true,
 			gridview : true,
 			pagerpos : 'right',
 			pgbuttons : true, // 翻页按钮
@@ -2309,42 +2546,8 @@ function list(listdata){
 			recordpos : 'left',
 			hidegrid : false,
 			deselectAfterSort : false,
-			onSelectRow : function(rowId){
-				let rowData = $("#list").jqGrid('getRowData', rowId);
-				// 确认结果
-				let confirm_flg = rowData.confirm_flg.trim();
-				// 确认数量
-				let confirm_quantity = rowData.confirm_quantity.trim();
-				if(!confirm_quantity){
-					confirm_quantity = 0;
-				}else{
-					confirm_quantity *=1;
-				}
-				// 验收日期
-				let inline_recept_date  = rowData.inline_recept_date.trim();
-				
-				let quotation_id = rowData.quotation_id.trim();
-				
-				//如果confirm_flg是OK并且confirm_quantity大于0。而且inline_recept_date为空，则验收按钮可以使用
-				if(confirm_flg == 1 && confirm_quantity > 0 && !inline_recept_date){
-					$("#inlinereceptbutton").enable();
-				}else{
-					$("#inlinereceptbutton").disable();
-				}
-				
-				//一览中选中的行只要`quotation_id`字段有值预算按钮就可以操作
-				if(quotation_id){
-					$("#budgetbutton").enable();
-				}else{
-					$("#budgetbutton").disable();
-				}
-				
-				if(confirm_flg == 1){
-					$("#ticketregisterbutton").enable();
-				}else{
-					$("#ticketregisterbutton").disable();
-				}
-			},
+			onSelectRow : enableButtons,
+			onSelectAll : enableButtons,
 			ondblClickRow : function(rid, iRow, iCol, e){},
 			viewsortcols : [ true, 'vertical', true ],
 			gridComplete : function() {
@@ -2446,5 +2649,56 @@ function list(listdata){
 			}
 		});
 	}
-	$("#inlinereceptbutton,#budgetbutton").disable();
+};
+
+function enableButtons(){
+	let $listGrid =  $('#list');
+	// 选择的行号数组
+	let rowIds = $listGrid.jqGrid('getGridParam','selarrrow');
+	// 行数据数组
+	let arrRowData = [];
+	
+	for(let rowid of rowIds){
+		let rowData = $listGrid.jqGrid('getRowData', rowid);
+		arrRowData.push(rowData);
+	}
+	
+	let flg = arrRowData.every(item =>{
+		// 确认结果
+		let confirm_flg = item.confirm_flg.trim();
+		// 确认数量
+		let confirm_quantity = item.confirm_quantity.trim();
+		if(!confirm_quantity){
+			confirm_quantity = 0;
+		}else{
+			confirm_quantity *=1;
+		}
+		// 验收日期
+		let inline_recept_date  = item.inline_recept_date.trim();
+		
+		return (confirm_flg == 1 && confirm_quantity > 0 && !inline_recept_date);
+	});
+	
+	//如果confirm_flg是OK并且confirm_quantity大于0。而且inline_recept_date为空，则验收按钮可以使用
+	if(arrRowData.length > 0 && flg){
+		$("#inlinereceptbutton").enable();
+	}else{
+		$("#inlinereceptbutton").disable();
+	}
+	
+	// 判断选择的数据是否都存在报价,预算按钮可以使用
+	let hasQuotation = arrRowData.every(item => item.quotation_id.trim().length != 0);
+	if(arrRowData.length > 0 && hasQuotation){
+		$("#budgetbutton").enable();
+	}else{
+		$("#budgetbutton").disable();
+	}
+	
+	// 判断选择的数据确认结果都为OK,发票登记按钮可以使用
+	let isOK = arrRowData.every(item => item.confirm_flg.trim() == 1);
+	if(arrRowData.length > 0 && isOK){
+		$("#ticketregisterbutton").enable();
+	}else{
+		$("#ticketregisterbutton").disable();
+	}
 };
