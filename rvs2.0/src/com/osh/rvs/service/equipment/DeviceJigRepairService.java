@@ -162,15 +162,34 @@ public class DeviceJigRepairService {
 		}
 	}
 
+	/**
+	 * 管理编号Check + 提出权限Check
+	 * 
+	 * @param user
+	 * @param form
+	 * @param errors
+	 * @param conn
+	 */
 	public void checkSubmitPrivacy(LoginData user, ActionForm form,
 			List<MsgInfo> errors, SqlSession conn) {
+
+		DeviceJigRepairRecordForm djrrForm = (DeviceJigRepairRecordForm) form;
+		String objectType = djrrForm.getObject_type();
+		String manageId = djrrForm.getManage_id();
+		if (("1".equals(objectType) || "2".equals(objectType)) && CommonStringUtil.isEmpty(manageId)) {
+			MsgInfo msgInfo = new MsgInfo();
+			msgInfo.setComponentid("manage_id");
+			msgInfo.setErrcode("validator.required");
+			msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "管理编号"));
+			errors.add(msgInfo);
+			return;
+		}
+
 		List<Integer> privacies = user.getPrivacies();
 		if (privacies.contains(RvsConsts.PRIVACY_TECHNOLOGY)
 			|| privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
 			return;
 		}
-
-		DeviceJigRepairRecordForm djrrForm = (DeviceJigRepairRecordForm) form;
 
 		if (!djrrForm.getLine_id().equals(user.getLine_id())) {
 			MsgInfo msgInfo = new MsgInfo();
@@ -180,8 +199,6 @@ public class DeviceJigRepairService {
 			errors.add(msgInfo);
 		}
 
-		String objectType = djrrForm.getObject_type();
-		String manageId = djrrForm.getManage_id();
 		if ("1".equals(objectType)) {
 			DevicesManageMapper mapper = conn.getMapper(DevicesManageMapper.class);
 
@@ -384,7 +401,7 @@ public class DeviceJigRepairService {
 			SqlSessionManager conn) {
 
 		DeviceJigRepairRecordEntity editEntity = new DeviceJigRepairRecordEntity();
-		BeanUtil.copyToBean(form, editEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		BeanUtil.copyToBean(form, editEntity, null);
 
 		DeviceJigRepairRecordMapper mapper = conn.getMapper(DeviceJigRepairRecordMapper.class);
 

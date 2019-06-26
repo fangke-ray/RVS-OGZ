@@ -186,7 +186,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<input type="hidden" id="submit_manage_id_dev" name="manage_id">
 									<input id="submit_manage_code_jig" type="text" class="ui-widget-content" readonly>
 									<input type="hidden" id="submit_manage_id_jig" name="manage_id">
-									<input id="submit_manage_code_free" type="text" class="ui-widget-content">
+									<label id="submit_manage_code_free">－</label>
 								</td>
 						   </tr>
 						   <tr>

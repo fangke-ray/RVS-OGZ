@@ -117,7 +117,7 @@ $(function(){
 		} else {
 			$("#submit_manage_code_dev").hide();
 			$("#submit_manage_code_jig").hide();
-			$("#submit_manage_code_free").val("").show();
+			$("#submit_manage_code_free").show();
 		}
 	});
 
@@ -370,7 +370,7 @@ var showSubmit = function(){
 				$("#submit_object_type").val("9").trigger("change");
 
 				$("#submit_manage_code_dev, #submit_manage_id_dev, #submit_manage_code_jig, #submit_manage_id_jig").val("").hide();
-				$("#submit_manage_code_free").val("").show();
+				$("#submit_manage_code_free").show();
 				$("#submit_object_name, #submit_phenomenon").val("");
 
 				$("#submitarea").dialog({
@@ -398,8 +398,16 @@ var doSubmit = function(){
 	}
 	if (postData.object_type == 1) {
 		postData["manage_id"] = $("#submit_manage_id_dev").val();
+		if (!postData["manage_id"]) {
+			errorPop("请选择设备•一般工具的管理编号。如果不存在管理编号，请使用“其他(无管理编号)”的类型提交。");
+			return;
+		}
 	} else if (postData.object_type == 2) {
 		postData["manage_id"] = $("#submit_manage_id_jig").val();
+		if (!postData["manage_id"]) {
+			errorPop("请选择专用工具的管理编号。如果不存在管理编号，请使用“其他(无管理编号)”的类型提交。");
+			return;
+		}
 	}
 
 	$.ajax({
