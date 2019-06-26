@@ -166,9 +166,7 @@ var makeBreakDialog = function(jBreakDialog) {
 	var submitBreak = function(){
 		b_request.wip_location = wip_location;
 
-		if (hasPcs) {
-			pcsO.valuePcs(b_request, true);
-		}
+		hasPcs && pcsO.valuePcs(b_request, true);
 
 		// Ajax提交
 		$.ajax({
@@ -464,9 +462,12 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			if(resInfo.workstauts == 1 || resInfo.workstauts == 4) {
 				getMaterialInfo(resInfo);
 				treatStart(resInfo);
+
+				hasPcs && pcsO.loadCache();
 			} else if (resInfo.workstauts == 2 || resInfo.workstauts == 5) {
 				getMaterialInfo(resInfo);
 				treatPause(resInfo);
+				hasPcs && pcsO.loadCache();
 			}
 
 			// autocomplete
@@ -598,14 +599,12 @@ var getPeripharalInfo = function(resInfo) {
 	}
 
 	if (resInfo.workstauts == 4 || resInfo.workstauts == 5) {
-		if (hasPcs) {
-			pcsO.clear();
-		};
+		hasPcs && pcsO.clear();
 	} else {
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses);
-		};
+			pcsO.generate(resInfo.pcses, true);
+		}
 	};
 }
 var doStart_ajaxSuccess=function(xhrobj){
@@ -635,6 +634,8 @@ var doStart=function(){
 	}
 
 	$("#scanner_inputer").attr("value", "");
+
+	hasPcs && pcsO.clearCache();
 
 	// Ajax提交
 	$.ajax({
@@ -698,6 +699,8 @@ var doFinish_ajaxSuccess=function(xhrobj){
 				//$("#pauseo_edit").hide;
 				$("#break_dialog").dialog("close");
 			}
+
+			hasPcs && pcsO.clearCache();
 		}
 	} catch (e) {
 		alert("name: " + e.name + " message: " + e.message + " lineNumber: "

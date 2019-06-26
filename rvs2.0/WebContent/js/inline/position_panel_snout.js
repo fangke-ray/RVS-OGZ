@@ -292,7 +292,7 @@ var treatPause = function(resInfo) {
 	
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses);
+			pcsO.generate(resInfo.pcses, true);
 		}
 	}
 
@@ -350,7 +350,7 @@ var treatStart = function(resInfo) {
 
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses);
+		pcsO.generate(resInfo.pcses, true);
 	}
 	$("#scanner_inputer").focus();
 }
@@ -438,13 +438,20 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 
 			if (resInfo.workstauts == 1) {
 				treatStart(resInfo);
+				if (hasPcs) {
+					pcsO.loadCache();
+				}
 			} else if (resInfo.workstauts == 2) {
 				treatPause(resInfo);
+				if (hasPcs) {
+					pcsO.loadCache();
+				}
 			} else {
 				$("#input_model_id").disable();
 				$("#input_snout_no").disable();
 				$("#startbutton").disable();
 			}
+
 		}
 //	} catch (e) {
 //		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
@@ -616,6 +623,11 @@ var doStart=function(evt, chosedData){
 		model_name : toLabelValue($("#input_model_id")),
 		serial_no : $("#input_snout_no").val()
 	}
+
+	if (hasPcs) {
+		pcsO.clearCache();
+	}
+
 	// Ajax提交
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -674,6 +686,10 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				$("#scanner_inputer").val("").focus().enable();
 				$("#input_model_id").disable();
 				$("#input_snout_no").disable();
+
+				if (hasPcs) {
+					pcsO.clearCache();
+				}
 			}
 		}
 	} catch (e) {

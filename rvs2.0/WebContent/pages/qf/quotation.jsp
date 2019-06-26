@@ -36,7 +36,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery.flowchart.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/qf/quotation.js?version=103"></script>
+<script type="text/javascript" src="js/qf/quotation.js?version=446"></script>
 
 <title>报价</title>
 </head>
@@ -209,7 +209,7 @@ Boolean peripheral = (Boolean) request.getAttribute("peripheral");
 if (peripheral!=null && peripheral) {
 %>
 <%@include file="/widgets/position_panel/device_infect.jsp"%>
-<script type="text/javascript" src="js/common/pcs_editor.js"></script>
+<script type="text/javascript" src="js/common/pcs_editor.js?v=446"></script>
 <div id="manualdetailarea" style="margin-bottom: 16px;">
 	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
 		<span class="areatitle">工程检查票</span>

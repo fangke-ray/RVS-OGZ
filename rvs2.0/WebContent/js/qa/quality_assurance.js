@@ -98,6 +98,9 @@ var doFinish = function(type) {
 				$("#scanner_container").show();
 				$("#devicearea").hide();
 				$("#pcsarea").hide();
+
+				hasPcs && pcsO.clearCache();
+
 				doInit();
 			}
 		});
@@ -126,6 +129,9 @@ var doForbid = function(type) {
 				success : ajaxSuccessCheck,
 				error : ajaxError,
 				complete : function() {
+
+					hasPcs && pcsO.clearCache();
+
 					$("#scanner_inputer").attr("value", "");
 					$("#material_details").hide();
 					$("#scanner_container").show();
@@ -302,6 +308,8 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			// 存在进行中作业的时候
 			if(resInfo.workstauts != 0) {
 				treatStart(resInfo);
+
+				hasPcs && pcsO.loadCache();
 			} else {
 				$("#uld_listarea").addClass("waitForStart");
 				allowScan = true;
@@ -365,9 +373,7 @@ $(function() {
 		$("#devicearea div").removeClass("dwidth-full").addClass("dwidth-middleright");
 		$("#devicearea").next().removeClass("areaencloser");
 	}
-	if (hasPcs) {
-		pcsO.init($("#pcsarea"), true);
-	}
+	hasPcs && pcsO.init($("#pcsarea"), true);
 
 	doInit();
 });
@@ -499,7 +505,7 @@ var treatStart = function(resInfo) {
 
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses, $("#passbutton").length > 0);
+		pcsO.generate(resInfo.pcses, true, $("#passbutton").length > 0);
 	}
 
 	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
@@ -510,9 +516,7 @@ var treatStart = function(resInfo) {
 			$("#device_details table tbody").find(".manageCode").trigger("change");
 			$("#pcsarea").hide();
 			$("#finishcheckbutton").enable();
-			if (hasPcs) {
-				pcsO.clear();
-			};
+			hasPcs && pcsO.clear();
 		} else {
 			$("#device_details table tbody").find(".manageCode").disable();
 			$("#device_details table tbody").find("input[type=button]").disable();
@@ -599,6 +603,8 @@ var doStart=function(material_id){
 	}
 
 	$("#scanner_inputer").attr("value", "");
+
+	hasPcs && pcsO.clearCache();
 
 	// Ajax提交
 	$.ajax({
@@ -777,9 +783,7 @@ var makeStepDialog = function(jBreakDialog) {
 						comments : $("#edit_comments").val()
 					}
 					
-					if (hasPcs) {
-						pcsO.valuePcs(data, true);
-					}
+					hasPcs && pcsO.valuePcs(data, true);
 					
 					if (parseInt($("#break_reason").val()) > 70 && $("#pcs_contents input").length > 0) {
 						if ($('div#errstring').length == 0) {
@@ -810,6 +814,9 @@ var makeStepDialog = function(jBreakDialog) {
 											$("#scanner_container").show();
 											$("#devicearea").hide();
 											$("#pcsarea").hide();
+
+											hasPcs && pcsO.clearCache();
+
 											doInit();
 											jBreakDialog.dialog("close");
 										}

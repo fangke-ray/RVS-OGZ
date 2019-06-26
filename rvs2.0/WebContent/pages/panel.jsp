@@ -168,7 +168,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.3.435</p>
+								<p id="nee">2.4.446</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
 								<p>2019年5月24日</p>
@@ -178,6 +178,28 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/6/26 2.4.446 更新</p>
+								<p>设备・专用工具管理：设备工具订购申请导出询价单，导出订单功能</p>
+								<p>在线作业：工程检查票客户端保存</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/6/17 2.4.440 更新</p>
+								<p>受理报价：备品和RC品受理消毒灭菌。</p>
+								<p>展示：单元拉展示。</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/4/27 2.3.435 更新</p>
+								<p>设备・专用工具管理：设备工具维修记录一览表上线</p>
+								<p>物料作业：零件出入库工时未达成警报</p>
+								<p>物料作业：零件出入库工时月报表显示未达成</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>19/4/17 2.3.417 更新</p>

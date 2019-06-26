@@ -3,6 +3,8 @@ var pcsO = {
 	$container : null,
 	$pcs_pages : null,
 	$pcs_contents : null,
+	filling : false,
+	forPosition : false,
 	/** 工程检查票赋值 */
 	valuePcs : function(data, isBreak) {
 		if (isBreak == undefined) isBreak = false;
@@ -65,7 +67,41 @@ var pcsO = {
 	
 		return false;
 	},
-	generate : function(pcses, isLeader) {
+	fill : function(str_inputs, str_comments) {
+		pcsO.filling = true;
+
+		var pcs_values = $.parseJSON(str_inputs);
+		var pcs_comments = $.parseJSONDecode(str_comments);
+
+		if(pcs_values) {
+			for (var pcs_key in pcs_values) {
+				var item_type = pcs_key.charAt(1);
+				switch(item_type) {
+					case "I" : 
+						this.$pcs_contents.find("input[name="+ pcs_key + "]").val(pcs_values[pcs_key] || "").trigger("input");
+						break;
+					case "N" :
+						this.$pcs_contents.find("input[name="+ pcs_key + "][value="+ (pcs_values[pcs_key] || "") +"]").attr("checked", true).trigger("change");
+						break;
+					case "M" :
+						pcsO._emShow(this.$pcs_contents.find("input[name="+ pcs_key + "]").nextUntil(".i_switchM").last().next(), pcs_values[pcs_key]);
+						break;
+					case "R" :
+						this.$pcs_contents.find("input[name="+ pcs_key + "][value="+ (pcs_values[pcs_key] || "") +"]").attr("checked", true);
+						break;
+				}
+			}
+		}
+		if(pcs_comments) {
+			for (var pcs_key in pcs_comments) {
+				this.$pcs_contents.find("textarea[name="+ pcs_key + "]").val(pcs_comments[pcs_key] || "");
+			}
+		}
+
+		pcsO.filling = false;
+	},
+	generate : function(pcses, forPosition, isLeader) {
+		pcsO.forPosition = forPosition;
 		var tabs = "";
 		var tabscount = 0;
 		var contents = "";
@@ -140,6 +176,11 @@ var pcsO = {
 		this.$pcs_contents.find(".i_frequent").bind("keypress", function(){
 			$(this).attr("changed", true);
 		});
+
+		// 随时前台保存
+		if (forPosition) {
+			this.$pcs_contents.find("input,textarea").change(pcsO.saveCache);
+		}
 	},
 	_checkEMs : function($EMs){
 		if (!$EMs.length) {
@@ -170,7 +211,21 @@ var pcsO = {
 		if (thisval == 1) nextval = -1;
 		$switchM.attr("checkval", nextval);
 
+		$switchM.parent().find("input:radio").removeAttr("checked");
 		var $checkTarget = $switchM.parent().find("input:radio[value=" + nextval + "]");
+		$checkTarget.attr("checked", true);
+		$checkTarget.trigger("click");
+		$switchM.val($checkTarget.next().text());
+
+		if (pcsO.forPosition) {
+			pcsO.saveCache();
+		}
+	},
+	_emShow : function($switchM, val) {
+		$switchM.attr("checkval", val);
+
+		$switchM.parent().find("input:radio").removeAttr("checked");
+		var $checkTarget = $switchM.parent().find("input:radio[value=" + val + "]");
 		$checkTarget.attr("checked", true);
 		$checkTarget.trigger("click");
 		$switchM.val($checkTarget.next().text());
@@ -188,5 +243,82 @@ var pcsO = {
 	clear : function(){
 		this.$pcs_pages.html("");
 		this.$pcs_contents.html("");
+	},
+	saveCache : function(){
+		if (pcsO.filling) return;
+
+		if (window.pako == undefined) {
+			loadJs(
+				"js/pako.min.js",
+				pcsO.saveCache
+			);
+		} else {
+			var curData = {};
+			pcsO.valuePcs(curData, true);
+			if (!curData.pcs_inputs || curData.pcs_inputs === "{}") {
+				document.cookie = "pcs_inputs=;expires=Mon, 26 May 2014 00:00:00 GMT";
+			} else {
+				var pako_input = encodeURIComponent(curData.pcs_inputs);
+				if (pako_input.length > 512) {
+					pako_input = "pako:" + encodeURIComponent(pako.deflateRaw(pako_input, {to: "string"}));
+				}
+				document.cookie = "pcs_inputs=" + pako_input;
+			}
+			if (!curData.pcs_comments || curData.pcs_comments === "{}") {
+				document.cookie = "pcs_comments=;expires=Mon, 26 May 2014 00:00:00 GMT";
+			} else {
+				var pako_comment = encodeURIComponent(curData.pcs_comments);
+				
+				if (pako_comment.length > 512) {
+					pako_comment = "pako:" + encodeURIComponent(pako.deflateRaw(pako_comment, {to: "string"}));
+				}
+				document.cookie = "pcs_comments=" + pako_comment;
+			}
+		}
+	},
+	loadCache : function(){
+		if (window.pako == undefined) {
+			loadJs(
+				"js/pako.min.js",
+				pcsO.loadCache
+			);
+		} else {
+			var cookie_inputs = document.cookie.match(/(^| )pcs_inputs=([^;]*)(;|$)/);
+			if (cookie_inputs != null && cookie_inputs.length > 2) {
+				var cookie_input = cookie_inputs[2];
+				if (cookie_input.length > 5 && cookie_input.substring(0, 5) === "pako:") {
+					cookie_input = decodeURIComponent(
+						pako.inflateRaw(decodeURIComponent(cookie_input.substring(5)), {to: "string"}));
+				} else {
+					cookie_input = decodeURIComponent(cookie_input);
+				}
+				console.log(cookie_input);
+			}
+
+			var cookie_comments = document.cookie.match(/(^| )pcs_comments=([^;]*)(;|$)/);
+			if (cookie_comments != null && cookie_comments.length > 2) {
+				var cookie_comment = cookie_comments[2];
+				if (cookie_comment.length > 5 && cookie_comment.substring(0, 5) === "pako:") {
+					cookie_comment = decodeURIComponent(
+						pako.inflateRaw(decodeURIComponent(cookie_comment.substring(5)), {to: "string"}));
+				} else {
+					cookie_comment = decodeURIComponent(cookie_comment);
+				}
+				console.log(cookie_comment);
+			}
+
+			pcsO.fill(cookie_input, cookie_comment);
+		}
+	},
+	clearCache : function(){
+		if (!document.cookie) return;
+		var cookie_inputs = document.cookie.match(/(^| )pcs_inputs=([^;]*)(;|$)/);
+		if (cookie_inputs != null && cookie_inputs.length > 2) {
+			document.cookie = "pcs_inputs=;expires=Mon, 26 May 2014 00:00:00 GMT";
+		}
+		var pcs_comments = document.cookie.match(/(^| )pcs_comments=([^;]*)(;|$)/);
+		if (pcs_comments != null && pcs_comments.length > 2) {
+			document.cookie = "pcs_comments=;expires=Mon, 26 May 2014 00:00:00 GMT";
+		}
 	}
 }

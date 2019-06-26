@@ -44,9 +44,7 @@ var makeBreakDialog = function(jBreakDialog) {
 						comments : $("#edit_comments").val()
 					}
 
-					if (hasPcs) {
-						pcsO.valuePcs(data, true);
-					}
+					hasPcs && pcsO.valuePcs(data, true);
 
 					if (parseInt($("#break_reason").val()) > 70 && $("#pcs_contents input").length > 0) {
 						if ($('div#errstring').length == 0) {
@@ -316,7 +314,8 @@ var douse_complete = function(xhrobj) {
 	treatUsesnout(xhrobj);
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses);
+		pcsO.generate(resInfo.pcses, true);
+		pcsO.loadCache();
 	}
 }
 
@@ -511,7 +510,7 @@ var treatPause = function(resInfo) {
 		if (resInfo.workstauts != 5) {
 			// 工程检查票
 			if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-				pcsO.generate(resInfo.pcses);
+				pcsO.generate(resInfo.pcses, true);
 			}
 		}
 
@@ -621,13 +620,11 @@ var treatStart = function(resInfo) {
 
 	if (resInfo.workstauts == 4) {
 		$("#finishbutton").disable();
-		if (hasPcs) {
-			pcsO.clear();
-		};
+		hasPcs && pcsO.clear();
 	} else {
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses);
+			pcsO.generate(resInfo.pcses, true);
 		};
 
 		if ($("#usesnoutarea").length > 0) getUsesnout(resInfo.mform.material_id);
@@ -771,8 +768,10 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 
 			if (resInfo.workstauts == 1 || resInfo.workstauts == 4) {
 				treatStart(resInfo);
+				hasPcs && pcsO.loadCache();
 			} else if (resInfo.workstauts == 2 || resInfo.workstauts == 5) {
 				treatPause(resInfo);
+				hasPcs && pcsO.loadCache();
 			} else if (resInfo.workstauts == 3) {
 				showPartialRecept(resInfo);
 			} else {
@@ -960,9 +959,7 @@ $(function() {
 	$("#position_status").text("准备中")
 		.css({"background-color": "#0080FF","color": "white"});
 
-	if (hasPcs) {
-		pcsO.init($("#manualdetailarea"), false);
-	}
+	hasPcs && pcsO.init($("#manualdetailarea"), false);
 
 	doInit();
 
@@ -1345,6 +1342,8 @@ var doStartForward=function(data){
 		}
 	}
 
+	hasPcs && pcsO.clearCache();
+
 	// Ajax提交
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -1423,6 +1422,8 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 					$("#comments_sidebar .comments_area").val("");
 					$("#comments_sidebar").hide();
 				}
+
+				hasPcs && pcsO.clearCache();
 			}
 		}
 	} catch (e) {

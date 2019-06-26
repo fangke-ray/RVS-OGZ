@@ -724,3 +724,30 @@ $(".ui-widget-overlay").on("click", function(){}); // alert (1);
 	}; // end defaults
 
 })(jQuery);
+
+(function($) {
+	$.parseJSONDecode = function(str) {
+		if (!str) return null;
+		var decodedStr = str.replace(/\r/g, "\\r")
+				.replace(/\n/g, "\\n")
+				.replace(/\t/g, "\\t");
+		var obj = $.parseJSON(decodedStr);
+
+		encodeObj(obj);
+
+		return obj;
+	};
+	function encodeObj(obj) {
+		for (var key in obj) {
+			var item = obj[key];
+			if (typeof(item) === "object") {
+				encodeObj(item);
+			} else {
+				item = "" + item;
+				var decodedItem = item.replace(/\\r/g, "\r")
+						.replace(/\\n/g, "\n")
+						.replace(/\\t/g, "\t");
+			}
+		}
+	}
+})(jQuery);

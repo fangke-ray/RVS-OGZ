@@ -102,8 +102,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
-<script type="text/javascript" src="js/common/pcs_editor.js"></script>
-<script type="text/javascript" src="js/inline/position_panel.js?version=418"></script>
+<script type="text/javascript" src="js/common/pcs_editor.js?v=446"></script>
+<script type="text/javascript" src="js/inline/position_panel.js?version=446"></script>
 <script type="text/javascript" src="js/common/material_detail_ctrl.js"></script>
 
 <title>1课NS部-先端分解再生</title>
