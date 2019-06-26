@@ -227,7 +227,7 @@ var showlist = function(listdata){
 				{name:'price',index:'price',width:50,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
 				{name:'total_price',index:'total_price',width:60,align:'right',hidden:true,formatter:'currency',sorttype:'currency',formatoptions:{thousandsSeparator:',',decimalPlaces:0,defaultValue:'-'}},
 
-				{name:'confirmer_name',index:'model_name',width:45, formatter:function(value, i, rowdata){
+				{name:'confirmer_name',index:'confirmer_name',width:45, formatter:function(value, i, rowdata){
 					if (value) {
 						return value;
 					} else {
@@ -325,8 +325,9 @@ var enableButtons = function(rowid){
 	}
 	$("#repairbutton").enable();
 	var rowdata = $("#list").getRowData(rowid);
-	if (rowdata["repair_complete_time"]
-		&& !rowdata["confirmer_name"]) {
+
+	if ((rowdata["repair_complete_time"] && rowdata["repair_complete_time"].trim())
+		&& !rowdata["confirm_status"]) {
 		$("#confirmbutton").enable();
 	}
 }
