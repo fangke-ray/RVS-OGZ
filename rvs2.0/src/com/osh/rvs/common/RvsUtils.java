@@ -46,7 +46,11 @@ public class RvsUtils {
 	private static Set<String> SNOUT_SAVETIME_341_MODELS = null;
 	private static Set<String> CCD_LINE_MODELS = null;
 	private static Set<String> CCD_MODELS = null;
-	
+
+	private static Map<String, String> USE_ACCESSORIES_MODELS = null;
+	private static Map<String, List<String>> ACCESSORIES_MODEL_ACCESSORIES = null;
+	private static Map<String, String> ACCESSORIES_MODELS = null;
+
 	/**
 	 * 取得N个工作日前/后的日期
 	 * 
@@ -1115,10 +1119,75 @@ public class RvsUtils {
 		}
 	}
 
+	private static void initAccessoriesModels(SqlSession conn) {
+		String sAccModels = PathConsts.POSITION_SETTINGS.getProperty("accessories.models");
+		USE_ACCESSORIES_MODELS = new LinkedHashMap<String, String>();
+		ACCESSORIES_MODEL_ACCESSORIES = new LinkedHashMap<String, List<String>>();
+		ACCESSORIES_MODELS = new LinkedHashMap<String, String>();
+
+		if (sAccModels != null) {
+			String[] model_names = sAccModels.split(",");
+			ModelMapper mdlDao = conn.getMapper(ModelMapper.class);
+			for (String model_name : model_names) {
+				String model_id = mdlDao.getModelByName(RvsUtils.regfy(model_name));
+				if (model_id != null) {
+					USE_ACCESSORIES_MODELS.put(model_id, model_name);
+
+					String accessories = PathConsts.POSITION_SETTINGS.getProperty("accessories.model." + model_name);
+					if (accessories != null && accessories.length() > 0) {
+						String[] accessory_model_names = accessories.split(",");
+
+						ACCESSORIES_MODEL_ACCESSORIES.put(model_id, new ArrayList<String>());
+						for (String accessory_model_name : accessory_model_names) {
+							if (ACCESSORIES_MODELS.containsValue(accessory_model_name)) {
+								for (Map.Entry<String, String> m_e : ACCESSORIES_MODELS.entrySet())  {
+									if (m_e.getValue().equals(accessory_model_name)) {
+										ACCESSORIES_MODEL_ACCESSORIES.get(model_id).add(m_e.getKey());
+										break;
+									}
+								}
+							} else {
+								String accessory_model_id = mdlDao.getModelByName(RvsUtils.regfy(accessory_model_name));
+								if (accessory_model_id != null) {
+									ACCESSORIES_MODELS.put(accessory_model_id, accessory_model_name);
+									ACCESSORIES_MODEL_ACCESSORIES.get(model_id).add(accessory_model_id);
+								}
+							}
+						}
+					}
+				} else {
+					logger.error("不正确的型号设定：" + model_name);
+				}
+			}
+		}
+	}
+
+	public static Map<String, String> getAccessoriesModels(SqlSession conn) {
+		if (ACCESSORIES_MODELS == null) {
+			initAccessoriesModels(conn);
+		}
+		return ACCESSORIES_MODELS;
+	}
+
+	public static Map<String, List<String>> getAccessoriesModelAccessories(SqlSession conn) {
+		if (ACCESSORIES_MODEL_ACCESSORIES == null) {
+			initAccessoriesModels(conn);
+		}
+		return ACCESSORIES_MODEL_ACCESSORIES;
+	}
+
+	public static Map<String, String> getUseAccessoriesModels(SqlSession conn) {
+		if (USE_ACCESSORIES_MODELS == null) {
+			initAccessoriesModels(conn);
+		}
+		return USE_ACCESSORIES_MODELS;
+	}
+
 	public static void initAll(SqlSession conn) {
 		overLineCache.clear();
 
 		initSnoutModels(conn);
+		initAccessoriesModels(conn);
 		initCcdModels(conn);
 	}
 }

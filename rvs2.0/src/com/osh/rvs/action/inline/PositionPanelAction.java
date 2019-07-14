@@ -158,6 +158,17 @@ public class PositionPanelAction extends BaseAction {
 				actionForward = mapping.findForward("simple");
 			} else if ("snout".equals(special_forward)) {
 				actionForward = mapping.findForward("snout");
+
+				if ("301".equals(process_code)) {
+					// 先端预制，取得可制作的型号
+					req.setAttribute("module_name", "先端预制");
+					req.setAttribute("object_name", "先端头");
+				} else {
+					// 设备附件，取得可制作的型号
+					req.setAttribute("module_name", "周边设备附件修理");
+					req.setAttribute("object_name", "设备附件");
+				}
+
 			} else if (special_forward.indexOf("use_snout") >= 0) {
 				special_forward = special_forward.replaceAll(".*decom\\[(.*)\\].*", "$1");
 				String skipPosition = ReverseResolution.getPositionByProcessCode(special_forward, conn);
