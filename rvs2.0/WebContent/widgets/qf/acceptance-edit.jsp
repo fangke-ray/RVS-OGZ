@@ -56,7 +56,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 				<td class="ui-state-default td-title">机身号</td>
 				<td class="td-content" colspan="3">
-					<input type="text" class="ui-widget-content" id="edit_serialno" name="serialno" alt="机身号" maxlength="12"></input>
+					<input type="text" class="ui-widget-content" id="edit_serialno" name="serialno" alt="机身号" maxlength="20"></input>
 				</td>
 				</tr>
 				<tr>

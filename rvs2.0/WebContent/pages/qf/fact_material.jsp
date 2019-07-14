@@ -98,7 +98,7 @@ width: 1248px;
 						<input type="hidden" name="modelname" id="search_modelname">
 					</td>
 					<td class="ui-state-default td-title">机身号</td>
-					<td class="td-content"><input type="text" id="search_serial_no" maxlength="12" class="ui-widget-content"></td>
+					<td class="td-content"><input type="text" id="search_serial_no" class="ui-widget-content"></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title" rowspan="3">等级</td>

@@ -59,13 +59,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								</tr>
 								<tr>
 									<td class="ui-state-default td-title">机身号</td>
-									<td class="td-content"><input type="text" id="search_serial_no" maxlength="12" class="ui-widget-content"></td>
+									<td class="td-content"><input type="text" id="search_serial_no" class="ui-widget-content"></td>
 								</tr>
 								<tr>
 									<td class="ui-state-default td-title">纳期</td>
 									<td class="td-content">
-										<input type="text" id="search_scheduled_date_start" maxlength="50" class="ui-widget-content" readonly="readonly">起<br/>
-										<input type="text" id="search_scheduled_date_end" maxlength="50" class="ui-widget-content" readonly="readonly">止</td>
+										<input type="text" id="search_scheduled_date_start" class="ui-widget-content" readonly="readonly">起<br/>
+										<input type="text" id="search_scheduled_date_end" class="ui-widget-content" readonly="readonly">止</td>
 									<td class="ui-state-default td-title">课室</td>
 									<td class="td-content">
 										<select name="section" id="search_section" class="ui-widget-content">

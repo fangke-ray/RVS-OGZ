@@ -31,7 +31,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<input type="hidden" name="modelname" id="search_modelname">
 						</td>
 						<td class="ui-state-default td-title">机身号</td>
-						<td class="td-content"><input type="text" id="search_serialno" maxlength="12" class="ui-widget-content"></td>
+						<td class="td-content"><input type="text" id="search_serialno" maxlength="20" class="ui-widget-content"></td>
 						<td class="ui-state-default td-title">维修课室</td>
 						<td class="td-content">
 							<select name="section_id" id="search_section_id" class="ui-widget-content">${sOptions}</select>

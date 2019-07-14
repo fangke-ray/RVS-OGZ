@@ -22,7 +22,7 @@ public class MaterialForm extends ActionForm {
 	private String esas_no;
 	@BeanField(title = "维修对象型号", name = "model_id", type = FieldType.String, length = 11, notNull = true)
 	private String model_id;
-	@BeanField(title = "机身号", name = "serial_no", type = FieldType.String, length = 12, notNull = true)
+	@BeanField(title = "机身号", name = "serial_no", type = FieldType.String, length = 20, notNull = true)
 	private String serial_no;
 	@BeanField(title = "委托处", name = "ocm", type = FieldType.Integer, length = 2, notNull = true)
 	private String ocm;

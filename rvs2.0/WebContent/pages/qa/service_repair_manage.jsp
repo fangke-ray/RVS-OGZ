@@ -67,9 +67,9 @@ width: 1248px;
 				<tbody>
 					<tr>
 						<td class="ui-state-default td-title">型号</td>
-						<td class="td-content"><input type="text" id="search_model_name" maxlength="14" class="ui-widget-content"></td>
+						<td class="td-content"><input type="text" id="search_model_name" class="ui-widget-content"></td>
 						<td class="ui-state-default td-title">机身号</td>
-						<td class="td-content"><input type="text" id="search_serial_no" maxlength="12" class="ui-widget-content"></td> 
+						<td class="td-content"><input type="text" id="search_serial_no" class="ui-widget-content"></td> 
 						<td class="ui-state-default td-title">修理单号</td>
 						<td class="td-content"><input type="text" id="search_sorc_no" maxlength="15" class="ui-widget-content"></td>
 					</tr>
