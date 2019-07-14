@@ -683,7 +683,8 @@ public class PcsRequestService {
 						"\\excel\\" + targetPath + entity.getOrg_file_name() + ".xls";
 				String oldTargetFileHtml = PathConsts.BASE_PATH + PathConsts.PCS_TEMPLATE + 
 						"\\xml\\" + targetPath + entity.getOrg_file_name() + ".html";
-				new File(oldTargetFileXls).delete();
+				boolean removed = new File(oldTargetFileXls).delete();
+				if (removed == false) _logger.warn("没有删除文件权限");
 				new File(oldTargetFileHtml).delete();
 			}
 

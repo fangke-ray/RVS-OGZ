@@ -201,12 +201,12 @@
 			</if>
 			<if test="arrival_delay!= null and arrival_delay == 1">
 				<![CDATA[
-				and c.scheduled_date <= max(b.arrival_plan_date)
+				and max(c.scheduled_date) <= max(b.arrival_plan_date)
 				]]>
 			</if>
 			<if test="arrival_delay!= null and arrival_delay == 0">
 				<![CDATA[
-				and (c.scheduled_date > max(b.arrival_plan_date) or max(b.arrival_plan_date) IS NULL)
+				and (max(c.scheduled_date) > max(b.arrival_plan_date) or max(b.arrival_plan_date) IS NULL)
 				]]>
 			</if>
 		</if>

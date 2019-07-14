@@ -26,7 +26,7 @@ import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialCollationService;
 import com.osh.rvs.service.partial.PartialOnShelfService;
 import com.osh.rvs.service.partial.PartialUnpackService;
-import com.osh.rvs.service.partial.PartialWarehouseDnSerice;
+import com.osh.rvs.service.partial.PartialWarehouseDnService;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
@@ -53,7 +53,7 @@ public class PartialOnShelfAction extends BaseAction {
 
 	private final PartialOnShelfService partialOnShelfService = new PartialOnShelfService();
 
-	private final PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
+	private final PartialWarehouseDnService partialWarehouseDnSerice = new PartialWarehouseDnService();
 
 	/**
 	 * 页面初始化

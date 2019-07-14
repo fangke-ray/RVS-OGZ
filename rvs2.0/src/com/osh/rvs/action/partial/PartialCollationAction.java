@@ -29,7 +29,7 @@ import com.osh.rvs.service.PartialService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialCollationService;
 import com.osh.rvs.service.partial.PartialWarehouseDetailService;
-import com.osh.rvs.service.partial.PartialWarehouseDnSerice;
+import com.osh.rvs.service.partial.PartialWarehouseDnService;
 import com.osh.rvs.service.partial.PartialWarehouseService;
 
 import framework.huiqing.action.BaseAction;
@@ -61,7 +61,7 @@ public class PartialCollationAction extends BaseAction {
 	private final PartialCollationService partialCollationService = new PartialCollationService();
 
 	// 零件入库DN编号
-	private final PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
+	private final PartialWarehouseDnService partialWarehouseDnSerice = new PartialWarehouseDnService();
 
 	/**
 	 * 页面初始化

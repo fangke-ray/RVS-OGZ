@@ -185,7 +185,7 @@ public class PartialReceptService {
 	 * @param errors
 	 */
 	public void readFile(List<String> tempFileNames, HttpServletRequest req, SqlSessionManager conn, List<MsgInfo> errors, boolean supply, int supplySeq) throws Exception {
-		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
+		PartialWarehouseDnService partialWarehouseDnSerice = new PartialWarehouseDnService();
 		PartialMapper partialDao = conn.getMapper(PartialMapper.class);
 
 		HttpSession session = req.getSession();

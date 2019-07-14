@@ -68,6 +68,10 @@ public class AcceptanceService {
 			insertBean.setScheduled_date(dSchedulePlan);
 		}
 
+		if (insertBean.getBreak_back_flg() == null) {
+			insertBean.setBreak_back_flg(0);
+		}
+
 		AcceptanceMapper dao = conn.getMapper(AcceptanceMapper.class);
 		dao.insertMaterial(insertBean);
 	}

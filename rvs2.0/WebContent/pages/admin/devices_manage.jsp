@@ -96,13 +96,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</td>					
 					</tr>
 					<tr>						
-						<td class="ui-state-default td-title" rowspan="2">分发课室</td>
-						<td class="td-content" rowspan="2">
+						<td class="ui-state-default td-title">分发课室</td>
+						<td class="td-content" colspan="3">
 							<select id="search_section_id">${sectionOptions}</select>
-						</td>
-						<td class="ui-state-default td-title" rowspan="2">责任工程</td>
-						<td class="td-content" rowspan="2">
-							<select id="search_line_id">${lineOptions}</select>
 						</td>
 					    <td class="ui-state-default td-title">管理员</td>
 						<td class="td-content">
@@ -110,7 +106,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<input type="hidden" id="hidden_search_manager_operator_id">
 						</td>	
 					</tr>
-					<tr>						
+					<tr>
+						<td class="ui-state-default td-title">责任工程</td>
+						<td class="td-content" colspan="3">
+							<select id="search_line_id">${lineOptions}</select>
+						</td>
 						<td class="ui-state-default td-title">责任工位</td>
 						<td class="td-content">
 							<input type="text" id="search_position_id" readonly="readonly"  class="ui-widget-content">

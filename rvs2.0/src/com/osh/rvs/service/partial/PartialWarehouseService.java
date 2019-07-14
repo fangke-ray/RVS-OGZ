@@ -339,7 +339,7 @@ public class PartialWarehouseService {
 		String key = factProductionFeatureForm.getPartial_warehouse_key();
 
 		PartialWarehouseService partialWarehouseService = new PartialWarehouseService();
-		PartialWarehouseDnSerice partialWarehouseDnSerice = new PartialWarehouseDnSerice();
+		PartialWarehouseDnService partialWarehouseDnSerice = new PartialWarehouseDnService();
 		PartialWarehouseDetailService partialWarehouseDetailService = new PartialWarehouseDetailService();
 		UploadService uService = new UploadService();
 
