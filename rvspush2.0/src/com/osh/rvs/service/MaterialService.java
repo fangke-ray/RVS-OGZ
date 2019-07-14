@@ -83,92 +83,22 @@ public class MaterialService {
 			conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
 
 			MaterialMapper dao = conn.getMapper(MaterialMapper.class);
-			List<MaterialEntity> ret = dao.getMaterialInlineLater();
+			List<MaterialEntity> ret = dao.getMaterialInlineLater(null);
+			List<MaterialEntity> retEndoeye = dao.getMaterialInlineLater(6);
+			List<MaterialEntity> retPeri = dao.getMaterialInlineLater(7);
 
 			Set<String> leaderTriggerSet = new HashSet<String>();
 
 			if (ret.size() > 0) {
-				AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
+				sendInlineLateMail(ret, "00000000011", leaderTriggerSet, sGotime, conn);
+			}
 
-				String mailContents = "";
+			if (ret.size() > 0) {
+				sendInlineLateMail(retEndoeye, "00000000050", leaderTriggerSet, sGotime, conn);
+			}
 
-				// QL
-				OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
-				OperatorEntity cond = new OperatorEntity();
-				cond.setRole_id(RvsConsts.ROLE_LINELEADER);
-				cond.setLine_id("00000000011");
-
-				List<OperatorEntity> lOp = oMapper.searchOperator(cond);
-
-				for (MaterialEntity entity : ret) {
-					String material_id = entity.getMaterial_id();
-					AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
-					amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
-					amEntity.setMaterial_id(material_id);
-					amEntity.setSection_id("00000000001"); // 物料
-					amEntity.setLine_id("00000000011");
-
-					amEntity.setReason(RvsConsts.WARNING_REASON_INLINE_LATE);
-
-					amDao.createAlarmMessage(amEntity);
-
-					CommonMapper cDao = conn.getMapper(CommonMapper.class);
-					String alarmmessage_id = cDao.getLastInsertID();
-
-					AlarmMesssageSendationEntity amsBean = new AlarmMesssageSendationEntity();
-
-					for (OperatorEntity op : lOp) {
-						amsBean.setAlarm_messsage_id(alarmmessage_id);
-						amsBean.setSendation_id(op.getOperator_id());
-						amDao.createAlarmMessageSendation(amsBean);
-
-						leaderTriggerSet.add(op.getOperator_id());
-					}
-
-					mailContents += entity.getSorc_no() + "(" + entity.getModel_name() + ")"
-							+ CodeListUtils.getValue("material_level_all", "" + entity.getLevel())
-							+ "等级 同意日："
-							+ DateUtil.toString(entity.getAgreed_date(), DateUtil.ISO_DATE_PATTERN)
-							+ RvsConsts.LINE_FEED_CODE;
-				}
-
-//				// 判断是否半日内报警超过2次，超过则不发邮件
-//				Calendar endTime = Calendar.getInstance();
-//				if (startTime.get(Calendar.AM_PM) == Calendar.AM) {
-//					startTime.set(Calendar.HOUR_OF_DAY, 0);
-//					startTime.set(Calendar.MINUTE, 0);
-//					startTime.set(Calendar.SECOND, 0);
-//					startTime.set(Calendar.MILLISECOND, 0);
-//					endTime.set(Calendar.HOUR_OF_DAY, 12);
-//					endTime.set(Calendar.MINUTE, 0);
-//					endTime.set(Calendar.SECOND, 0);
-//					endTime.set(Calendar.MILLISECOND, 0);
-//				} else {
-//					startTime.set(Calendar.HOUR_OF_DAY, 12);
-//					startTime.set(Calendar.MINUTE, 0);
-//					startTime.set(Calendar.SECOND, 0);
-//					startTime.set(Calendar.MILLISECOND, 0);
-//					endTime.add(Calendar.DATE, 1);
-//					endTime.set(Calendar.HOUR_OF_DAY, 0);
-//					endTime.set(Calendar.MINUTE, 0);
-//					endTime.set(Calendar.SECOND, 0);
-//					endTime.set(Calendar.MILLISECOND, 0);
-//				}
-//
-//				int countHalfDay = amDao.countAlarmMessageIntimeArea(RvsConsts.WARNING_REASON_INLINE_LATE,
-//						startTime.getTime(), endTime.getTime());
-//
-//				_log.info("countHalfDay=" + countHalfDay);
-//				if (countHalfDay <= 2) {
-					Collection<InternetAddress> toIas = RvsUtils.getMailIas("inline.plan.to", conn);
-					Collection<InternetAddress> ccIas = RvsUtils.getMailIas("inline.plan.cc", conn);
-
-					// 发信
-					String subject = PathConsts.MAIL_CONFIG.getProperty("inline.plan.title") + toYMD(sGotime);
-					mailContents = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "inline.plan.content", mailContents);
-
-					MailUtils.sendMail(toIas, ccIas, subject, mailContents);
-//				}
+			if (ret.size() > 0) {
+				sendInlineLateMail(retPeri, "00000000070", leaderTriggerSet, sGotime, conn);
 			}
 
 			if (conn != null && conn.isManagedSessionStarted()) {
@@ -197,6 +127,72 @@ public class MaterialService {
 			conn = null;
 		}
 
+	}
+
+	private void sendInlineLateMail(List<MaterialEntity> ret, String line_id, Set<String> leaderTriggerSet, 
+			String sGotime, SqlSessionManager conn) throws Exception {
+
+		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
+
+		String mailContents = "";
+
+		// QL
+		OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
+		OperatorEntity cond = new OperatorEntity();
+		cond.setRole_id(RvsConsts.ROLE_LINELEADER);
+		cond.setLine_id(line_id);
+
+		List<OperatorEntity> lOp = oMapper.searchOperator(cond);
+
+		for (MaterialEntity entity : ret) {
+			String material_id = entity.getMaterial_id();
+			AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
+			amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+			amEntity.setMaterial_id(material_id);
+			amEntity.setSection_id("00000000001"); // 物料
+			amEntity.setLine_id("00000000011");
+
+			amEntity.setReason(RvsConsts.WARNING_REASON_INLINE_LATE);
+
+			amDao.createAlarmMessage(amEntity);
+
+			CommonMapper cDao = conn.getMapper(CommonMapper.class);
+			String alarmmessage_id = cDao.getLastInsertID();
+
+			AlarmMesssageSendationEntity amsBean = new AlarmMesssageSendationEntity();
+
+			for (OperatorEntity op : lOp) {
+				amsBean.setAlarm_messsage_id(alarmmessage_id);
+				amsBean.setSendation_id(op.getOperator_id());
+				amDao.createAlarmMessageSendation(amsBean);
+
+				leaderTriggerSet.add(op.getOperator_id());
+			}
+
+			mailContents += entity.getSorc_no() + "(" + entity.getModel_name() + ")"
+					+ CodeListUtils.getValue("material_level_all", "" + entity.getLevel())
+					+ "等级 同意日："
+					+ DateUtil.toString(entity.getAgreed_date(), DateUtil.ISO_DATE_PATTERN)
+					+ RvsConsts.LINE_FEED_CODE;
+		}
+
+		Collection<InternetAddress> toIas = RvsUtils.getMailIas("inline.plan.to", conn);
+		if ("00000000050".equals(line_id)) {
+			toIas = RvsUtils.getMailIas("inline.plan.endoeye.to", conn);
+		} else if ("00000000070".equals(line_id)) {
+			toIas = RvsUtils.getMailIas("inline.plan.peripheral.to", conn);
+		}
+		Collection<InternetAddress> ccIas = RvsUtils.getMailIas("inline.plan.cc", conn);
+
+		// 发信
+		String subject = PathConsts.MAIL_CONFIG.getProperty("inline.plan.title") + toYMD(sGotime);
+		if ("00000000070".equals(line_id)) {
+			toIas = RvsUtils.getMailIas("inline.plan.peripheral.to", conn);
+		} else {
+			mailContents = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "inline.plan.peripheral.content", mailContents);
+		}
+
+		MailUtils.sendMail(toIas, ccIas, subject, mailContents);
 	}
 
 	private String toYMD(String sGotime) {

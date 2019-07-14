@@ -108,7 +108,7 @@
 	]]>
 	</select>
 
-	<select id="getMaterialInlineLater" resultType="MaterialEntity">
+	<select id="getMaterialInlineLater" resultType="MaterialEntity" parameterType="int">
 	<![CDATA[
 		select `m`.`material_id`,`m`.omr_notifi_no as sorc_no,`m`.`model_id`,
 		`m`.`serial_no`,`m`.`ocm`,`m`.`level`,`m`.`reception_time`,
@@ -118,7 +118,7 @@
 		`m`.`scheduled_expedited`,`m`.`scheduled_manager_comment`,
 		`m`.`outline_time`,`m`.`break_back_flg`,`m`.`pat_id`,
 		`mdl`.`name` as model_name, `ctg`.`category_id`, `ctg`.`name` as category_name
-		FROM MATERIAL `m` JOIN `MODEL` mdl
+		FROM MATERIAL `m` JOIN `V_MODEL` mdl
 			ON `m`.`model_id` = `mdl`.`model_id`
 		JOIN `CATEGORY` ctg
 			ON `mdl`.`category_id` = `ctg`.`category_id`
@@ -129,8 +129,12 @@
 		AND `m`.`break_back_flg` = 0
 		AND `m`.`inline_time` IS NULL
 		AND unrepair_flg = 0
+	]]>
+	<if test="kind == null">
+	<![CDATA[
+		AND mdl.kind not in (6, 7)
 		AND (
-			(`m`.level not in (1,2,3) AND 
+			(`m`.level not in (1,2,3,5,56,57,58,59) AND 
 				(`agreed_date` < time_lever.o 
 					or (`agreed_date` = time_lever.o AND hour(current_timestamp) > 12)
 				)
@@ -140,8 +144,21 @@
 			OR
 			(`m`.level in (2,3) AND `agreed_date` <= time_lever.d)
 		)
-		;
 	]]>
+	</if>
+	<if test="kind == 6">
+	<![CDATA[
+		AND mdl.kind = 6
+		AND `agreed_date` <= time_lever.t
+	]]>
+	</if>
+	<if test="kind == 7">
+	<![CDATA[
+		AND mdl.kind = 7
+		AND `agreed_date` <= time_lever.t
+	]]>
+	;
+	</if>
 	</select>
 
 	<select id="countWipAgreed" resultType="int">

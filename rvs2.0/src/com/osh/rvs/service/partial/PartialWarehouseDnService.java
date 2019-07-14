@@ -20,7 +20,7 @@ import framework.huiqing.common.util.copy.CopyOptions;
  * @author liuxb
  *
  */
-public class PartialWarehouseDnSerice {
+public class PartialWarehouseDnService {
 
 	/**
 	 * 根据入库单KEY查询零件入库DN编号
