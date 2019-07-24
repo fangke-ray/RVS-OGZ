@@ -209,7 +209,7 @@ public class CheckResultPageService {
 	 * @param isLeader
 	 * @throws Exception
 	 */
-	public void getTorsionDevices(List<UsageCheckForm> ucList,
+	private void getTorsionDevices(List<UsageCheckForm> ucList,
 			String section_id, String operator_id, String position_id,
 			List<PositionEntity> positionList,
 			CheckResultEntity condEntity, PeriodsEntity periodsEntity,
@@ -397,7 +397,7 @@ public class CheckResultPageService {
 	 * @param isLeader
 	 * @throws Exception
 	 */
-	public void getElectricIronDevices(List<UsageCheckForm> ucList,
+	private void getElectricIronDevices(List<UsageCheckForm> ucList,
 			String section_id, String operator_id, 
 			String position_id, List<PositionEntity> positionList,
 			CheckResultEntity condEntity, PeriodsEntity periodsEntity,
@@ -647,8 +647,12 @@ public class CheckResultPageService {
 				String confirm_proceed = null;
 
 				CheckResultEntity condConfirm = new CheckResultEntity();
-				
-				condConfirm.setSection_id("00000000001"); // TODO
+
+				if (position.getSection_id() == null) {
+					condConfirm.setSection_id(section_id);
+				} else {
+					condConfirm.setSection_id(position.getSection_id());
+				}
 				condConfirm.setPosition_id(position.getPosition_id());
 				condConfirm.setOperator_id(position.getResponsible_operator_id());  // TODO
 
@@ -691,7 +695,7 @@ public class CheckResultPageService {
 	 * @param isLeader
 	 * @throws Exception
 	 */
-	public void getDevices(List<UsageCheckForm> ucList, String section_id,
+	private void getDevices(List<UsageCheckForm> ucList, String section_id,
 			String operator_id, String current_position_id, List<PositionEntity> positionList, String line_id,
 			CheckResultEntity condEntity, PeriodsEntity periodsEntity, SqlSession conn, 
 			CheckResultMapper crMapper, int isLeader) throws Exception {
@@ -737,6 +741,13 @@ public class CheckResultPageService {
 		for (CheckFileManageEntity checkFile : checkFileList) {
 			String manage_code = checkFile.getManage_code();
 			String check_file_manage_id = checkFile.getCheck_file_manage_id();
+
+			if (checkFile.getManage_level() != null && checkFile.getManage_level() == 2) { // 保管中
+				if (isLeader == 1 && 
+						condEntity.getChecked_status() == null && condEntity.getConfirm_proceed() != null) { // 线长含确认
+					continue;
+				}
+			}
 
 			if (diffKeys.contains(manage_code + "_" + check_file_manage_id)) {
 				continue;
@@ -1209,8 +1220,8 @@ public class CheckResultPageService {
 		return null;
 	}
 
-	private String getStatusD(String status, boolean isLeader, int current, String manage_id, String item_seq) {
-		String matchKey = "d_" + manage_id + "_"+item_seq+"_" + current;
+	private String getStatusD(String status, boolean isLeader, int current, String manage_id, String item_seq, String cf_manage_id) {
+		String matchKey = "d_" + manage_id + "_"+item_seq+"_" + current + "_" + cf_manage_id;
 
 		if (status == null || "0".equals(status)) {
 
@@ -1588,13 +1599,8 @@ public class CheckResultPageService {
 			sendation.setSendation_id(loginData.getOperator_id());
 			sendation.setResolve_time(new Date());
 
-			int me = amDao.countAlarmMessageSendation(sendation);
-			if (me <= 0) {
-				// 没有发给处理者的信息时（代理线长），新建一条
-				amDao.createAlarmMessageSendation(sendation);
-			} else {
-				amDao.updateAlarmMessageSendation(sendation);
-			}
+			AlarmMesssageService amService = new AlarmMesssageService();
+			amService.replaceAlarmMessageSendation(sendation, conn);
 		}
 	}
 
@@ -1605,11 +1611,12 @@ public class CheckResultPageService {
 	 * @param operator_id
 	 * @param isLeader
 	 * @param adjustDate
+	 * @param readOnly
 	 * @param conn
 	 * @return
 	 */
 	public String getDeviceCheckSheet(String manage_id, String check_file_manage_id, String operator_id,
-			boolean isLeader, Date adjustDate, SqlSession conn) {
+			boolean isLeader, Date adjustDate, boolean readOnly, SqlSession conn) {
 		String retContent = "";
 
 		BufferedReader input = null;
@@ -1648,94 +1655,35 @@ public class CheckResultPageService {
 
 			String content = buffer.toString();
 
+			// 要返回的页面内容
+			retContent = content;
+
 			// 工程
-			if (content.indexOf("<line/>") >= 0 || content.indexOf("<position/>") >= 0) {
+			if (retContent.indexOf("<line/>") >= 0 || retContent.indexOf("<position/>") >= 0) {
 				String sLine = "";
 				SectionMapper sMapper = conn.getMapper(SectionMapper.class);
 				SectionEntity sEntity = sMapper.getSectionByID(dmEntity.getSection_id());
 				if (sEntity != null) {
 					sLine += sEntity.getName() + "<br/>";
 				}
-				if (content.indexOf("<line/>") >= 0) {
+				if (retContent.indexOf("<line/>") >= 0) {
 					LineMapper lMapper = conn.getMapper(LineMapper.class);
 					LineEntity lEntity = lMapper.getLineByID(dmEntity.getLine_id());
 					if (lEntity != null) {
 						sLine += lEntity.getName();
 					}
-					content = content.replaceAll("<line/>" , sLine);
+					retContent = retContent.replaceAll("<line/>" , sLine);
 				}
-				if (content.indexOf("<position/>") >= 0) {
+				if (retContent.indexOf("<position/>") >= 0) {
 					PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 					// 工位
 					PositionEntity pEntity = pMapper.getPositionByID(dmEntity.getPosition_id());
 					if (pEntity != null) {
 						sLine += pEntity.getProcess_code() + " ";
 					}
-					content = content.replaceAll("<position/>" , sLine);
+					retContent = retContent.replaceAll("<position/>" , sLine);
 				}
 			}
-
-			// 替换共通数据
-			content = content.replaceAll("<manageNo/>", dmEntity.getManage_code() 
-					+ "<dtag manage_code='"+dmEntity.getManage_code()+"' manage_id='"+dmEntity.getDevices_manage_id()+"'"
-							+ " model_name='"+ dmEntity.getModel_name() +"'"
-							+ " device_name='"+ dmEntity.getName() +"'>");
-			content = content.replaceAll("<manageNo replacable/>", dmEntity.getManage_code() 
-					+ "<br/><input type='button' value='替换新品' class='ui-button manage_replace'/><dtag manage_code='"+dmEntity.getManage_code()+"' manage_id='"+dmEntity.getDevices_manage_id()+"'"
-							+ " model_name='"+ dmEntity.getModel_name() +"'"
-							+ " device_name='"+ dmEntity.getName() +"'>");
-			content = content.replaceAll("<model/>", dmEntity.getModel_name());
-			content = content.replaceAll("<period type='full'/>", bperiod);
-			content = content.replaceAll("<period type='num'/>", bperiod.replaceAll("P", ""));
-
-			if (content.indexOf("<useStart/>") >= 0) {
-				Calendar calUse = Calendar.getInstance();
-				Calendar calThreeMonthBefore = Calendar.getInstance();
-				calThreeMonthBefore.setTimeInMillis(adjustCal.getTimeInMillis());
-				calThreeMonthBefore.add(Calendar.MONTH, 3);
-//				calThreeMonthBefore.add(Calendar.DATE, -1);
-
-				if (dmEntity.getImport_date()!=null) {
-					calUse.setTime(dmEntity.getImport_date());
-				}
-				content = content.replaceAll("<useStart/>", DateUtil.toString(dmEntity.getImport_date(), "yyyy年 M月 d日"));
-
-				int posUseEnd = content.indexOf("<useEnd");
-				if (content.indexOf("<useEnd") >= 0) {
-					int period = 3;
-					// 有效区间
-					for (int i = 0; i < content.length(); i++) {
-						if (content.charAt(posUseEnd + i) == '>') {
-							String useEndTag = content.substring(posUseEnd, posUseEnd + i + 1);
-							String sPeriod = useEndTag.replaceAll("<useEnd period='(\\d+)'/>", "$1");
-							period = Integer.parseInt(sPeriod);
-							break;
-						}
-					}
-
-					calUse.add(Calendar.MONTH, period);
-					calUse.add(Calendar.DATE, -1);
-
-					String useEndTag = "";
-					if (calUse.before(adjustCal)) {
-						useEndTag = "<span class='useEnd' expire='1'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
-					} else if (calUse.before(calThreeMonthBefore)) {
-						useEndTag = "<span class='useEnd' expire='0'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
-					} else {
-						useEndTag = "<span class='useEnd' expire='-1'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
-					}
-					// 比较
-					content = content.replaceAll("<useEnd/>", useEndTag);
-					content = content.replaceAll("<useEnd period='\\d+'/>", useEndTag);
-				}
-			}
-
-			if (dmEntity.getName() != null) {
-				content = content.replaceAll("<name/>", dmEntity.getName());
-			}
-
-			// 要返回的页面内容
-			retContent = content;
 
 			// 确定表单的归档类型
 			int fileAxisType = 0; 
@@ -1780,118 +1728,27 @@ public class CheckResultPageService {
 			retContent = retContent.replaceAll("<date type='month'/>", DateUtil.toString(monCal.getTime(), "M"));
 
 			// 全归档期间的开始终了时间
-			Date startPDate = new Date();
-			Date endPDate = new Date();
+//			Date startPDate = new Date();
+//			Date endPDate = new Date();
 
-			// 取得点检项目
-			List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
+			retContent = retContent.replaceAll("<period type='full'/>", bperiod);
+			retContent = retContent.replaceAll("<period type='num'/>", bperiod.replaceAll("P", ""));
 
-			// 填写项目附加数据
-			Map<String, String> limitOfSeq = new HashMap<String, String>();
+			retContent = retContent.replaceAll("<page type='current'/>", "１");
+			retContent = retContent.replaceAll("<page type='max'/>", "１");
+
+			Integer linage = cfmEntity.getLinage();
 
 			// 各周期下的员工签章与日期 周期 -> 坐标 -> 值
 			Map<Integer, Map<Integer, Date>> cycleTypeTime = new HashMap<Integer, Map<Integer, Date>>();
 			Map<Integer, Map<Integer, String>> cycleTypeJobNo = new HashMap<Integer, Map<Integer, String>>();
 
-			for (DeviceCheckItemEntity item : dCsis) {
-				// 判断型号
-				if (!isEmpty(item.getSpecified_model_name())) {
-					if (isEmpty(dmEntity.getModel_name())) {
-						continue;
-					}
-					if (item.getSpecified_model_name().indexOf(dmEntity.getModel_name()) < 0) {
-						continue;
-					}
-				}
-
-				int itemAxisType = item.getCycle_type();
-				int axis = getAxis(adjustCal, itemAxisType, cfmEntity.getCycle_type());
-
-				// 每行每个单元格取值
-				for (int iAxis=0;iAxis<=axis;iAxis++) {
-
-					Date[] dates = getDayOfAxis(monCal, iAxis, itemAxisType, cfmEntity.getCycle_type());
-					if (iAxis==0) startPDate = dates[0]; 
-					endPDate = dates[1];
-
-					CheckResultEntity cre = new CheckResultEntity();
-					cre.setCheck_confirm_time_start(dates[0]);
-					cre.setCheck_confirm_time_end(dates[1]);
-					cre.setManage_id(manage_id);
-					cre.setCheck_file_manage_id(check_file_manage_id);
-					cre.setItem_seq(item.getItem_seq());
-
-					// 已点检或之前范围
-					List<CheckResultEntity> listCre = crMapper.getDeviceCheckInPeriod(cre);
-
-					if (!cycleTypeTime.containsKey(itemAxisType)) {
-						cycleTypeTime.put(itemAxisType, new HashMap<Integer, Date>());
-					}
-					if (!cycleTypeJobNo.containsKey(itemAxisType)) {
-						cycleTypeJobNo.put(itemAxisType, new HashMap<Integer, String>());
-					}
-
-					Map<Integer, Date> axisTime = cycleTypeTime.get(itemAxisType);
-					Map<Integer, String> axisJobNo = cycleTypeJobNo.get(itemAxisType);
-
-					if (axisTime.get(iAxis) == null) {
-						axisTime.put(iAxis, new Date(0));
-					}
-
-					// 取得已点检单元格信息
-					if (listCre != null && listCre.size() > 0) {
-						for (CheckResultEntity rCre : listCre) {
-							String itemSeq = rCre.getItem_seq();
-							boolean current = (iAxis==axis);
-							int shift = (iAxis+1);
-
-							if (rCre.getChecked_status() == 0) {
-								// 未点检并且有限制
-								if (iAxis==axis) {
-									retContent = setTodayUncheck(iAxis, item, itemAxisType, retContent, dmEntity, limitOfSeq, true);
-								} else {
-									// 剩余未点检数据划掉
-									retContent = retContent.replaceAll("<point type='\\w+' item_seq='" + item.getItem_seq() + "' cycle_type='"
-										+ itemAxisType + "' ([^>]*)?shift='" + (iAxis + 1) + "'/>", "/");
-								}
-							} else {
-
-								retContent = retContent.replaceAll("<point type='check' item_seq='"+itemSeq+"' cycle_type='\\d+' (model_relative='[^']*' )?tab='\\d+' shift='"+shift+"'/>"
-										, getStatusD(""+rCre.getChecked_status(), isLeader, (current ? 0 : -1), manage_id, itemSeq));
-								String limits = "";
-								Pattern pInputData = Pattern.compile("<point type='number' item_seq='("+itemSeq+")' cycle_type='\\d+' "
-										+ "(model_relative='[^']*' )?(upper_limit='\\-?[\\d\\.]+' )?(lower_limit='\\-?[\\d\\.]+' )?"
-										+ "(refer_upper_from='[^']*' )?(refer_lower_from='[^']*' )?tab='\\d+' shift='"+ shift +"'/>");
-								Matcher mInputData = pInputData.matcher(retContent);
-								if (mInputData.find()) {
-									if (!limitOfSeq.containsKey(itemSeq)) {
-										getOfSeq(limitOfSeq, itemSeq, mInputData);
-									}
-									limits = limitOfSeq.get(itemSeq);
-									retContent = retContent.replaceAll(mInputData.group()
-											, getStatusDV(""+rCre.getChecked_status(), (rCre.getDigit()== null? "" : getNoScale(rCre.getDigit().toPlainString())), isLeader, itemSeq, (current ? 0 : -1), manage_id, limits));
-								}
-								if (axisJobNo.get(iAxis) == null) {
-									axisJobNo.put(iAxis, rCre.getJob_no());
-								}
-								// 得到点检最终完成时间
-								Date dCheckConfirmTime = rCre.getCheck_confirm_time();
-								if (dCheckConfirmTime.after(axisTime.get(iAxis))) {
-									axisTime.put(iAxis, dCheckConfirmTime);
-								}
-							}
-						}
-					}
-
-					// 当前范围未点检/且不限制
-					if (iAxis==axis) {
-						retContent = setTodayUncheck(iAxis, item, itemAxisType, retContent, dmEntity, limitOfSeq, false);
-					} else {
-						// 剩余未点检数据划掉
-						retContent = retContent.replaceAll("<point type='\\w+' item_seq='" + item.getItem_seq() + "' cycle_type='"
-							+ itemAxisType + "' ([^>]*)?shift='" + (iAxis + 1) + "'/>", "/");
-					}
-				}
+			if (linage != null && linage != 1) {
+			} else {
+				retContent = setNormalDeviceSingle(dmEntity, retContent, manage_id,
+						check_file_manage_id, isLeader, readOnly, crMapper,
+						cfmMapper, cfmEntity, cycleTypeTime, cycleTypeJobNo,
+						monCal, adjustCal);
 			}
 
 			// 点检者名字
@@ -1938,21 +1795,22 @@ public class CheckResultPageService {
 				}
 			}
 
+			// 线长确认
 			if (signCycle != null) {
 				CheckResultEntity cre = new CheckResultEntity();
-				cre.setCheck_confirm_time_start(startPDate);
-				cre.setCheck_confirm_time_end(endPDate);
+				cre.setCheck_confirm_time_start(monCal.getTime());
+				cre.setCheck_confirm_time_end(adjustDate);
 				cre.setCheck_file_manage_id(check_file_manage_id);
 				cre.setManage_id(manage_id);
 
-				retContent = setLeaderCheck(cre, crMapper, monCal, adjustCal, signCycle, cfmEntity.getCycle_type(), retContent, bperiod, isLeader);
+				retContent = setLeaderCheck(cre, crMapper, monCal, adjustCal, signCycle, cfmEntity.getCycle_type(), retContent, bperiod, isLeader && !readOnly);
 			}
 
 			// 取得参照信息<refer
 			if (retContent.indexOf("<refer type='input'") >= 0 || retContent.indexOf("<refer type='choose'") >= 0) {
 				CheckResultEntity cre = new CheckResultEntity();
-				cre.setCheck_confirm_time_start(startPDate);
-				cre.setCheck_confirm_time_end(endPDate);
+				cre.setCheck_confirm_time_start(monCal.getTime());
+				cre.setCheck_confirm_time_end(adjustDate);
 				cre.setCheck_file_manage_id(check_file_manage_id);
 				cre.setManage_id(manage_id);
 
@@ -1987,7 +1845,7 @@ public class CheckResultPageService {
 			// 备注
 			CheckResultEntity commentCondition = new CheckResultEntity();
 			commentCondition.setCheck_confirm_time_start(monCal.getTime());
-			commentCondition.setCheck_confirm_time_end(endPDate);
+			commentCondition.setCheck_confirm_time_end(adjustDate);
 			Set<String> manageIds = new HashSet<String>();
 			manageIds.add(manage_id);
 			commentCondition.setManage_ids(manageIds);
@@ -2004,7 +1862,7 @@ public class CheckResultPageService {
 			// 
 
 			// 清除多余
-			// retContent = retContent.replaceAll("#[^#]*#", "");
+			retContent = retContent.replaceAll("#[^#]*#", "");
 
 		} catch (IOException ioException) {
 			_logger.error(ioException.getMessage(), ioException);
@@ -2018,6 +1876,184 @@ public class CheckResultPageService {
 		return retContent;
 	}
 
+	private String setNormalDeviceSingle(DevicesManageEntity dmEntity, String retContent,
+			String manage_id, String check_file_manage_id, 
+			boolean isLeader, boolean readOnly,
+			CheckResultMapper crMapper, CheckFileManageMapper cfmMapper, 
+			CheckFileManageEntity cfmEntity, 
+			Map<Integer, Map<Integer, Date>> cycleTypeTime,
+			Map<Integer, Map<Integer, String>> cycleTypeJobNo,
+			Calendar monCal, Calendar adjustCal) {
+
+		// 替换共通数据
+		String dtagHtml = "<dtag manage_code='"+dmEntity.getManage_code()+"' manage_id='"+dmEntity.getDevices_manage_id()+"'"
+				+ " model_name='"+ dmEntity.getModel_name() +"'"
+				+ " device_name='"+ dmEntity.getName() +"'>";
+		if (retContent.indexOf("<manage") < 0) {
+			retContent += dtagHtml;
+		} else {
+			retContent = retContent.replaceAll("<manageNo/>", dmEntity.getManage_code() 
+					+ dtagHtml);
+			retContent = retContent.replaceAll("<manageNo replacable/>", dmEntity.getManage_code() 
+					+ "<br/><input type='button' value='替换新品' class='ui-button manage_replace'/>"
+					+ dtagHtml);
+		}
+
+		if (retContent.indexOf("<useStart/>") >= 0) {
+			Calendar calUse = Calendar.getInstance();
+			Calendar calThreeMonthBefore = Calendar.getInstance();
+			calThreeMonthBefore.setTimeInMillis(adjustCal.getTimeInMillis());
+			calThreeMonthBefore.add(Calendar.MONTH, 3);
+//			calThreeMonthBefore.add(Calendar.DATE, -1);
+
+			if (dmEntity.getImport_date()!=null) {
+				calUse.setTime(dmEntity.getImport_date());
+			}
+			retContent = retContent.replaceAll("<useStart/>", DateUtil.toString(dmEntity.getImport_date(), "yyyy年 M月 d日"));
+
+			int posUseEnd = retContent.indexOf("<useEnd");
+			if (retContent.indexOf("<useEnd") >= 0) {
+				int period = 3;
+				// 有效区间
+				for (int i = 0; i < retContent.length(); i++) {
+					if (retContent.charAt(posUseEnd + i) == '>') {
+						String useEndTag = retContent.substring(posUseEnd, posUseEnd + i + 1);
+						String sPeriod = useEndTag.replaceAll("<useEnd period='(\\d+)'/>", "$1");
+						period = Integer.parseInt(sPeriod);
+						break;
+					}
+				}
+
+				calUse.add(Calendar.MONTH, period);
+				calUse.add(Calendar.DATE, -1);
+
+				String useEndTag = "";
+				if (calUse.before(adjustCal)) {
+					useEndTag = "<span class='useEnd' expire='1'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
+				} else if (calUse.before(calThreeMonthBefore)) {
+					useEndTag = "<span class='useEnd' expire='0'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
+				} else {
+					useEndTag = "<span class='useEnd' expire='-1'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
+				}
+				// 比较
+				retContent = retContent.replaceAll("<useEnd/>", useEndTag);
+				retContent = retContent.replaceAll("<useEnd period='\\d+'/>", useEndTag);
+			}
+		}
+
+		if (dmEntity.getName() != null) {
+			retContent = retContent.replaceAll("<name/>", dmEntity.getName());
+		}
+
+		// 取得点检项目
+		List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
+
+		// 填写项目附加数据
+		Map<String, String> limitOfSeq = new HashMap<String, String>();
+
+		for (DeviceCheckItemEntity item : dCsis) {
+			// 判断型号
+			if (!isEmpty(item.getSpecified_model_name())) {
+				if (isEmpty(dmEntity.getModel_name())) {
+					continue;
+				}
+				if (item.getSpecified_model_name().indexOf(dmEntity.getModel_name()) < 0) {
+					continue;
+				}
+			}
+
+			int itemAxisType = item.getCycle_type();
+			int axis = getAxis(adjustCal, itemAxisType, cfmEntity.getCycle_type());
+
+			// 每行每个单元格取值
+			for (int iAxis=0;iAxis<=axis;iAxis++) {
+
+				Date[] dates = getDayOfAxis(monCal, iAxis, itemAxisType, cfmEntity.getCycle_type());
+//				if (iAxis==0) startPDate = dates[0]; 
+//				endPDate = dates[1];
+
+				CheckResultEntity cre = new CheckResultEntity();
+				cre.setCheck_confirm_time_start(dates[0]);
+				cre.setCheck_confirm_time_end(dates[1]);
+				cre.setManage_id(manage_id);
+				cre.setCheck_file_manage_id(check_file_manage_id);
+				cre.setItem_seq(item.getItem_seq());
+
+				// 已点检或之前范围
+				List<CheckResultEntity> listCre = crMapper.getDeviceCheckInPeriod(cre);
+
+				if (!cycleTypeTime.containsKey(itemAxisType)) {
+					cycleTypeTime.put(itemAxisType, new HashMap<Integer, Date>());
+				}
+				if (!cycleTypeJobNo.containsKey(itemAxisType)) {
+					cycleTypeJobNo.put(itemAxisType, new HashMap<Integer, String>());
+				}
+
+				Map<Integer, Date> axisTime = cycleTypeTime.get(itemAxisType);
+				Map<Integer, String> axisJobNo = cycleTypeJobNo.get(itemAxisType);
+
+				if (axisTime.get(iAxis) == null) {
+					axisTime.put(iAxis, new Date(0));
+				}
+
+				// 取得已点检单元格信息
+				boolean current = (iAxis==axis) && !readOnly;
+				if (listCre != null && listCre.size() > 0) {
+					for (CheckResultEntity rCre : listCre) {
+						String itemSeq = rCre.getItem_seq();
+						int shift = (iAxis+1);
+
+						if (rCre.getChecked_status() == 0) {
+							// 未点检并且有限制
+							if (current) {
+								retContent = setTodayUncheck(iAxis, item, itemAxisType, retContent, dmEntity, limitOfSeq, true);
+							} else {
+								// 剩余未点检数据划掉
+								retContent = retContent.replaceAll("<point type='\\w+' item_seq='" + item.getItem_seq() + "' cycle_type='"
+									+ itemAxisType + "' ([^>]*)?shift='" + (iAxis + 1) + "'/>", "/");
+							}
+						} else {
+
+							retContent = retContent.replaceAll("<point type='check' item_seq='"+itemSeq+"' cycle_type='\\d+' (model_relative='[^']*' )?tab='\\d+' shift='"+shift+"'/>"
+									, getStatusD(""+rCre.getChecked_status(), isLeader, (current ? 0 : -1), manage_id, itemSeq, check_file_manage_id));
+							String limits = "";
+							Pattern pInputData = Pattern.compile("<point type='number' item_seq='("+itemSeq+")' cycle_type='\\d+' "
+									+ "(model_relative='[^']*' )?(upper_limit='\\-?[\\d\\.]+' )?(lower_limit='\\-?[\\d\\.]+' )?"
+									+ "(refer_upper_from='[^']*' )?(refer_lower_from='[^']*' )?tab='\\d+' shift='"+ shift +"'/>");
+							Matcher mInputData = pInputData.matcher(retContent);
+							if (mInputData.find()) {
+								if (!limitOfSeq.containsKey(itemSeq)) {
+									getOfSeq(limitOfSeq, itemSeq, mInputData);
+								}
+								limits = limitOfSeq.get(itemSeq);
+								retContent = retContent.replaceAll(mInputData.group()
+										, getStatusDV(""+rCre.getChecked_status(), (rCre.getDigit()== null? "" : getNoScale(rCre.getDigit().toPlainString())), isLeader, itemSeq, (current ? 0 : -1), manage_id, limits));
+							}
+							if (axisJobNo.get(iAxis) == null) {
+								axisJobNo.put(iAxis, rCre.getJob_no());
+							}
+							// 得到点检最终完成时间
+							Date dCheckConfirmTime = rCre.getCheck_confirm_time();
+							if (dCheckConfirmTime.after(axisTime.get(iAxis))) {
+								axisTime.put(iAxis, dCheckConfirmTime);
+							}
+						}
+					}
+				}
+
+				// 当前范围未点检/且不限制
+				if (current) {
+					retContent = setTodayUncheck(iAxis, item, itemAxisType, retContent, dmEntity, limitOfSeq, false);
+				} else {
+					// 剩余未点检数据划掉
+					retContent = retContent.replaceAll("<point type='\\w+' item_seq='" + item.getItem_seq() + "' cycle_type='"
+						+ itemAxisType + "' ([^>]*)?shift='" + (iAxis + 1) + "'/>", "/");
+				}
+			}
+		}
+
+		return retContent;
+	}
 	/**
 	 * 
 	 * @param cre 查询条件
@@ -2854,7 +2890,7 @@ public class CheckResultPageService {
 	}
 
 	// 当日工位已判断点检记录
-	public static Map<String, String> todayCheckedMap = new HashMap<String, String>();
+	static Map<String, String> todayCheckedMap = new HashMap<String, String>();
 
 	/**
 	 * 工位检测未点检设备/治具
