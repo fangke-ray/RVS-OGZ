@@ -144,12 +144,24 @@ public class PartialUnpackService {
 			for (FactPartialWarehouseForm factPartialWarehouseForm : list) {
 				FactPartialWarehouseEntity entity = new FactPartialWarehouseEntity();
 				BeanUtil.copyToBean(factPartialWarehouseForm, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-
-				if (entity.getQuantity() < 0) {
+				
+				// 分装总数
+				Integer total = Integer.valueOf(factPartialWarehouseForm.getTotal_split_quantity());
+				// 上次分装数量
+				Integer splitQuantity = Integer.valueOf(factPartialWarehouseForm.getSplit_quantity());
+				// 本次分装数量
+				Integer quantity = entity.getQuantity();
+				
+				if (quantity < 0) {
 					MsgInfo error = new MsgInfo();
 					error.setLineno(CodeListUtils.getValue("partial_spec_kind", factPartialWarehouseForm.getSpec_kind()));
 					error.setErrcode("validator.invalidParam.invalidMoreThanOrEqualToZero");
 					error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanOrEqualToZero", "本次分装数量"));
+					errors.add(error);
+				} else if (total < (splitQuantity + quantity)) {
+					MsgInfo error = new MsgInfo();
+					error.setLineno(CodeListUtils.getValue("partial_spec_kind", factPartialWarehouseForm.getSpec_kind()));
+					error.setErrmsg("上次分装数量与本次分装数量之和大于分装总数！");
 					errors.add(error);
 				}
 			}
