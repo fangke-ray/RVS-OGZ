@@ -142,7 +142,7 @@
 			    `device_check_result`
 			WHERE manage_id = #{manage_id}
 				AND check_file_manage_id = #{check_file_manage_id}
-				AND `check_confirm_time` between #{check_confirm_time_start} and #{check_confirm_time_end}
+				AND `check_confirm_time` between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
 			group by 
 			    `manage_id`,
 			    `check_file_manage_id`,
@@ -480,6 +480,7 @@
 		        	check_file_manage_id = #{check_file_manage_id}
 		        and
 		            check_confirm_time between #{check_confirm_time_start} and DATE_ADD(#{check_confirm_time_end}, INTERVAL 1 DAY)
+		        group by manage_id, item_seq
 		        ) dcras
 		ON dcr.manage_id = dcras.manage_id
 		AND dcr.item_seq = dcras.item_seq

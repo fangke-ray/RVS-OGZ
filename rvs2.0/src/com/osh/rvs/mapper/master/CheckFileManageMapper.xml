@@ -19,6 +19,7 @@
 				cfm.filing_means,
 				cfm.specified_model_name,
 				cfm.confirm_cycle,
+				cfm.linage,
 				dt.name,
 				op.name AS update_name
 			FROM
@@ -66,6 +67,15 @@
 					AND cfm.filing_means=#{filing_means}
 				]]>
 			</if>
+			<if test="devices_manage_id!=null and devices_manage_id!=''">
+				AND EXISTS (select 1 from devices_manage dm JOIN device_type dmdt on dm.device_type_id = dmdt.device_type_id
+					where devices_manage_id = #{devices_manage_id} 
+					AND (dm.device_type_id = dt.device_type_id 
+						OR (specialized = 1 AND cfm.check_file_manage_id BETWEEN 100 AND 102) -- [TODO file specialized]
+						OR (specialized = 2 AND cfm.check_file_manage_id BETWEEN 105 AND 112)) 
+					AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name LIKE concat('%', dm.model_name, '%'))
+				)
+			</if>
 		</where>
 		ORDER BY
 			  cfm.updated_time DESC
@@ -80,6 +90,7 @@ SELECT `check_file_manage_id`,
     `cycle_type`,
     `specified_model_name`,
 	`confirm_cycle`,
+	`linage`,
     `delete_flg`,
     `updated_by`,
     `updated_time`
@@ -107,7 +118,8 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 					specified_model_name,
 					updated_by,
 					updated_time,
-					filing_means)
+					filing_means,
+					linage)
 			VALUES(
 				   #{check_manage_code},
 				   #{sheet_file_name},
@@ -117,7 +129,8 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 				   #{specified_model_name},
 				   #{updated_by},
 				   current_timestamp(),
-				   #{filing_means})
+				   #{filing_means},
+				   #{linage})
 		]]>
 	</insert>
 	
@@ -148,7 +161,8 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 				specified_model_name=#{specified_model_name},
 				updated_by=#{updated_by},
 				updated_time=current_timestamp(),
-				filing_means=#{filing_means}
+				filing_means=#{filing_means},
+				linage=#{linage}
 		]]>	
 		<if test="sheet_file_name!=null and sheet_file_name!=''">
 			<![CDATA[
@@ -207,7 +221,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 	   <![CDATA[
 	select dm.devices_manage_id ,dt.name, dm.manage_code, dm.model_name, check_file_manage_id
 		, cfm.check_manage_code, cfm.sheet_file_name, cfm.access_place, cfm.cycle_type, cfm.filing_means, cfm.confirm_cycle 
-		, pos.position_id, pos.process_code
+		, pos.position_id, pos.process_code, manage_level
 	from devices_manage dm
 	join device_type dt
 		on dm.device_type_id = dt.device_type_id
@@ -218,14 +232,10 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 	left join position pos
 		on dm.position_id = pos.position_id
 	where manage_level <= 2 
+		and ((`status` = 1 and cfm.access_place != 9) or (`status` = 5 and cfm.access_place = 9))
 	   ]]>
 		<if test="operator_id!=null and operator_id!=''">
-			and `status` = 1 and cfm.access_place != 9
 			and manager_operator_id = #{operator_id}
-			and manage_level = 1 
-		</if>
-		<if test="operator_id==null or operator_id==''">
-			and ((`status` = 1 and cfm.access_place != 9) or (`status` = 5 and cfm.access_place = 9))
 		</if>
 		<if test="sheet_manage_no!=null and sheet_manage_no!=''">
 			and cfm.sheet_file_name like concat('%', #{sheet_manage_no}, '%') 

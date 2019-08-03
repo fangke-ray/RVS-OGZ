@@ -63,6 +63,9 @@ public class CheckFileManageForm extends UploadForm implements Serializable {
 	@BeanField(title = "特定机型", name = "specified_model_name", type = FieldType.String, length = 100)
 	private String specified_model_name;// 特定机型
 
+	@BeanField(title = "单页记录数", name = "linage", type = FieldType.UInteger, length = 2)
+	private String linage;
+
 	public String getCheck_file_manage_id() {
 		return check_file_manage_id;
 	}
@@ -165,6 +168,14 @@ public class CheckFileManageForm extends UploadForm implements Serializable {
 
 	public void setSpecified_model_name(String specified_model_name) {
 		this.specified_model_name = specified_model_name;
+	}
+
+	public String getLinage() {
+		return linage;
+	}
+
+	public void setLinage(String linage) {
+		this.linage = linage;
 	}
 
 }

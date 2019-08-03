@@ -45,7 +45,7 @@ on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
 on cfm.filing_means = 2 and cycle_type in (7,6)
 			and cim.check_file_manage_id = cfm.check_file_manage_id
-order by section_id, position_id, check_file_manage_id
+order by section_id, position_id, check_file_manage_id, dm.manage_code
 ;
 		]]>
 	</select>
@@ -68,7 +68,7 @@ on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
 on cfm.filing_means = 3 and cycle_type in (7,6)
 			and cim.check_file_manage_id = cfm.check_file_manage_id
-order by section_id, line_id, check_file_manage_id
+order by section_id, line_id, check_file_manage_id, dm.manage_code
 ;
 		]]>
 	</select>
@@ -128,7 +128,7 @@ on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
 on cfm.filing_means = 2 and cycle_type = 8
 			and cim.check_file_manage_id = cfm.check_file_manage_id
-order by section_id, position_id, check_file_manage_id
+order by section_id, position_id, check_file_manage_id, dm.manage_code
 ;
 		]]>
 	</select>
@@ -151,7 +151,7 @@ on dm.devices_manage_id = cim.manage_id
 join check_file_manage cfm
 on cfm.filing_means = 3 and cycle_type = 8
 			and cim.check_file_manage_id = cfm.check_file_manage_id
-order by section_id, line_id, check_file_manage_id
+order by section_id, line_id, check_file_manage_id, dm.manage_code
 ;
 		]]>
 	</select>
@@ -177,4 +177,9 @@ order by jm.position_id, jm.section_id, jm.responsible_operator_id, jm.manage_co
 ;
 		]]>
 	</select>
+
+	<delete id="removeCheckStatusWait">
+		DELETE FROM rvsgdb.device_check_result where checked_status = 0;
+	</delete>
+		
 </mapper>

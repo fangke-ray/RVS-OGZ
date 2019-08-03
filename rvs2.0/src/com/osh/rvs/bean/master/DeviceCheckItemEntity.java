@@ -37,6 +37,8 @@ public class DeviceCheckItemEntity implements Serializable {
 	private String specified_model_name;
 
 	private Integer tab = 0;
+	private Integer gap = null;
+
 	public String getCheck_file_manage_id() {
 		return check_file_manage_id;
 	}
@@ -112,6 +114,7 @@ public class DeviceCheckItemEntity implements Serializable {
 	public String toXmlTag() {
 		return "<point type='"+ (data_type == 1 ? "check" : "number") 
 				+"' item_seq='"+ item_seq +"' cycle_type='"+ cycle_type 
+				+ (gap == null ? "" : "' line='0' gap='" + gap) // line must be just after cycle_type, for regex
 				+ (model_relative == null ? "" : "' model_relative='" + model_relative)
 				+ (data_relative == null ? "" : "' data_relative='ref_" + data_relative)
 				+ (upper_limit == null ? "" : "' upper_limit='" + upper_limit)
@@ -124,6 +127,7 @@ public class DeviceCheckItemEntity implements Serializable {
 	public String toXmlButtonTag() {
 		return "<confirm type='"+ (data_type == 1 ? "responser" : "leader") 
 				+ "' cycle_type='"+ cycle_type 
+				+ (gap == null ? "" : "' line='0' gap='" + gap) // line must be just after cycle_type, for regex
 				+"' tab='"+ tab 
 				+ (model_relative == null ? "" : "' model_relative='" + model_relative)
 				+ "' shift='1'" + (file_cycle_type != null && file_cycle_type == -1 ? " st='vert'" : " st='hori'") 
@@ -132,7 +136,9 @@ public class DeviceCheckItemEntity implements Serializable {
 	public String toXmlDateTag() {
 		return "<cdate type='"+ (trigger_state == 1 ? "responser" : "leader") 
 				+ "' data_type='"+ data_type 
+				+ (item_seq == null ? "" : "' item_seq='" + item_seq)
 				+"' cycle_type='"+ cycle_type 
+				+ (gap == null ? "" : "' line='0' gap='" + gap)
 				+"' tab='"+ tab
 				+ (model_relative == null ? "" : "' model_relative='" + model_relative)
 				+ "' shift='1'" +"/>";
@@ -154,6 +160,12 @@ public class DeviceCheckItemEntity implements Serializable {
 	}
 	public void setSpecified_model_name(String specified_model_name) {
 		this.specified_model_name = specified_model_name;
+	}
+	public Integer getGap() {
+		return gap;
+	}
+	public void setGap(Integer gap) {
+		this.gap = gap;
 	}
 
 }

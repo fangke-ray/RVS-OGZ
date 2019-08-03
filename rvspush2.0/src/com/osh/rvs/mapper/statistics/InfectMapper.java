@@ -76,4 +76,6 @@ public interface InfectMapper {
 	public List<Map<String, Object>> getJig(
 			@Param("periodStart") Date periodStart,
 			@Param("periodEnd") Date periodEnd);
+
+	public void removeCheckStatusWait();
 }

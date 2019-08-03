@@ -171,6 +171,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										<select id="add_filing_means" name="filing_means" alt="归档方式">${goCheck_file_filing_means }</select>
 									</td>
 								</tr>
+								<tr>
+									<td class="ui-state-default td-title">单页记录数</td>
+									<td class="td-content">
+										<input type="number" id="add_linage" name="linage" class="ui-widget-content">
+									</td>
+								</tr>
 							</table>
 							<div style="height:44px">
 								<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="confirmbutton" value="确认" role="button" aria-disabled="false" style="float:left;left:4px;">
@@ -234,6 +240,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="ui-state-default td-title">归档方式</td>
 									<td class="td-content">
 										<select id="update_filing_means" name="filing_means" alt="归档方式">${updateCheck_file_filing_means }</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="ui-state-default td-title">单页记录数</td>
+									<td class="td-content">
+										<input type="number" id="update_linage" name="linage" class="ui-widget-content">
 									</td>
 								</tr>
 								<tr>

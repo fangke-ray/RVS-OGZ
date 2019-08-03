@@ -432,7 +432,9 @@ var showInfectSheet =function(infectDetailData, isLeader){
 								if (object_type == 2) {
 									$ttr.each(function(idx,ele){
 										var $me = $(ele);
-										nov += "<tr manage_id='"+ $me.attr("manage_id") +"'><td>"+$me.find("td:eq(1)").text()+"</td><td>"+$me.find("td:eq(3)").text()+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+										var $papa = $me.parent();
+										var tag = $me.find("input")[0].name;
+										nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(0)").text()+"</td><td>力矩工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 									});
 								} else if (object_type == 1) {
 									if (infectDetailData.check_file_manage_id == "00000000105"
@@ -463,6 +465,10 @@ var showInfectSheet =function(infectDetailData, isLeader){
 											}
 											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+ $manage_code.text() +"</td><td>电烙铁工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 										});
+										for (var idx in manageIdSet) {
+											var $dtag_1 = $dtag.filter("[manage_id=" + idx + "]");
+											nov += "<tr manage_id='"+ $dtag_1.attr("manage_id") +"'><td>"+$dtag_1.attr("manage_code")+"</td><td>"+$dtag_1.attr("device_name")+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+										}
 									} else {
 										var $dtag = $check_sheet.find("dtag");
 										nov += "<tr manage_id='"+ $dtag.attr("manage_id") +"'><td>"+$dtag.attr("manage_code")+"</td><td>"+$dtag.attr("device_name")+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
@@ -595,6 +601,10 @@ var showInfectSheet =function(infectDetailData, isLeader){
 										postDataR.position_id = infectDetailData.position_id;
 										if ($("#upper_check").length>0 && $("#upper_check").attr("checked")) {
 											postDataR.upper_check = infectDetailData.manage_id || 1;
+											var $dtag = $check_sheet.find("dtag");
+											if ($dtag.length > 1) {
+												postDataR.upper_check = $dtag.map(function(){return $(this).attr("manage_id");}).get().join(";");
+											}
 											if (infectDetailData.check_file_manage_id == "00000000105"
 												|| infectDetailData.check_file_manage_id == "00000000106"
 												|| infectDetailData.check_file_manage_id == "00000000107"

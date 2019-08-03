@@ -191,7 +191,13 @@ public class CheckFileManageService {
 			xls = null;
 
 			ReadInfect ri = new ReadInfect();
-			ri.convert(fileNameXml, fileNameXml.replaceAll("\\.xml$", ".html"), checkFileManageForm.getCheck_file_manage_id(), conn, errors);
+			String sLinage = checkFileManageForm.getLinage();
+			Integer iLingae = null;
+			try {
+				iLingae = Integer.parseInt(sLinage, 10);
+			} catch(NumberFormatException e) {
+			}
+			ri.convert(fileNameXml, fileNameXml.replaceAll("\\.xml$", ".html"), checkFileManageForm.getCheck_file_manage_id(), conn, iLingae, errors);
 
 			return fileNameWithoutExt;
 		}else{

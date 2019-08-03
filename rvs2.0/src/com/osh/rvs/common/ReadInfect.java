@@ -62,10 +62,11 @@ public class ReadInfect {
 //				};
 //		String[] ids = {"6", "1", "5", "4", "2"};
 
-		File p = new File("F:\\0121\\xml\\");
+		File p = new File("E:\\rvsG\\DeviceInfection\\pos_multi\\test\\");
 		List<String> fnames = new ArrayList<String>(); 
 		List<String> lnas = new ArrayList<String>(); 
 		for (File file : p.listFiles()) {
+			if (file.isDirectory()) continue;
 			String name = (file.getName());
 			fnames.add(name);
 			lnas.add(name.substring(0, 10));
@@ -81,12 +82,12 @@ public class ReadInfect {
 			for (int i=0; i< nas.length;i++) {
 				String na = nas[i];
 				System.out.println("=======================" + na + "========================");
-				String fromfile = "F:\\0121\\xml\\"+fnames.get(i)+"";
+				String fromfile = "E:\\rvsG\\DeviceInfection\\pos_multi\\test\\xml\\"+fnames.get(i)+"";
 				//				String fromfile = "H:\\3\\"+na+".xml";
 				// H:\3
 
-				String tofile = "F:\\0121\\xml\\"+na+".html";
-				instance.convert(fromfile, tofile, "" + (i+104), conn, new ArrayList<MsgInfo>()); // ids[i]
+				String tofile = "E:\\rvsG\\DeviceInfection\\pos_multi\\test\\xml\\"+na+".html";
+				instance.convert(fromfile, tofile, "" + (i+204), conn, 3, new ArrayList<MsgInfo>()); // ids[i]
 			}
 
 //			instance.convert("E:\\rvsG\\DeviceInfection\\xml\\MS0301-2.xml", 
@@ -108,12 +109,14 @@ public class ReadInfect {
 		}
 	}
 
-	public void convert(String fromfile, String tofile, String check_file_manage_id, SqlSessionManager conn, List<MsgInfo> errors) {
+	public void convert(String fromfile, String tofile, String check_file_manage_id, SqlSessionManager conn, Integer linage, List<MsgInfo> errors) {
 		// Defines a factory API
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 		String tablecontents = "";
 		Map<String,String> referItems = new HashMap<String,String>();
+		float countWidth = 0; // 每日点检时默认大宽度
+
 		try {
 			// DocumentBuilderFactoryからDocumentBuilderインスタンスを取得
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -212,6 +215,7 @@ public class ReadInfect {
 				for (int k=0;k<ispan;k++,columnswidthcount++) {
 					columnswidth[columnswidthcount] = width;
 					if (width > 0) {
+						countWidth += width;
 						columnswidthnotsetted[columnswidthcount] = true;
 					}
 				}
@@ -223,6 +227,9 @@ public class ReadInfect {
 			CheckFileManageMapper mapper = conn.getMapper(CheckFileManageMapper.class);
 			// 先删除项目
 			mapper.deleteDevicesCheckItem(check_file_manage_id);
+
+			// 合并归档时，复数行复制内容对象
+			List<ShiftData> gapObjects = new ArrayList<ShiftData>();
 
 			for (int irow =0;irow<rows.getLength();irow++) { // 行的循环
 				String trcontents = "";
@@ -248,7 +255,7 @@ public class ReadInfect {
 				//System.out.println("row:>>"+irow+">>cells"+rowcells.getLength());
 
 				List<ShiftData> shifts = new ArrayList<ShiftData>();
-				for (int irowcell = 0; irowcell<rowcells.getLength(); irowcell++, irowcellExact++) {  // 单元格的循环
+				for (int irowcell = 0; irowcell<rowcells.getLength(); irowcell++, irowcellExact++) {  // 一行中单元格的循环
 					Element rowcell = (Element)rowcells.item(irowcell);
 
 					if (irowcellExact >= sheetcols) break;
@@ -306,9 +313,48 @@ public class ReadInfect {
 					String cellText = getTextData(rowcell);
 
 					// 解析标识符
-					cellText = transTagInfect(cellText, referItems, check_file_manage_id, mapper, errors);
+					cellText = transTagInfect(cellText, referItems, check_file_manage_id, linage, gapObjects, mapper, errors);
 
 					// 需要换行的保存
+					// 跳行要求
+					if (linage != null && cellText.indexOf(" gap='") >= 0) {
+						ShiftData gap = new ShiftData();
+						gap.content = cellText;
+						gap.rowShift = new ShiftData();
+						gap.rowShift.tab = Integer.parseInt(cellText.replaceAll(".*gap='(\\d+)'.*", "$1"));
+						if (cellText.indexOf("shift='1'") >= 0) { // 有横向
+							gap.seq = cellText.replaceAll(".*seq='(\\d+)'.*", "$1");
+							gap.tab = Integer.parseInt(cellText.replaceAll(".*tab='(\\d+)'.*", "$1"));
+							Integer cycle_type = Integer.parseInt(cellText.replaceAll(".*cycle_type='(\\d+)'.*", "$1"));
+							int shiftCount = 0;
+							switch (cycle_type) {
+							case 1: shiftCount = 31;countWidth = 0;break;
+							case 2: shiftCount = 5;break;
+							case 3: shiftCount = 12;break;
+							case 4: shiftCount = 2;break;
+							}
+							if (gap.tab != 0) {
+								gap.cols = new Integer[shiftCount];
+								for (int iSft=0;iSft<shiftCount;iSft++) {
+									gap.cols[iSft] = irowcellExact + gap.tab * iSft; // shift.tab * (iSft + 1)
+								}
+							} else {
+								gap.cols = new Integer[1];
+								gap.cols[0] = irowcellExact;
+							}
+						} else {
+							gap.cols = new Integer[1];
+							gap.cols[0] = irowcellExact;
+						}
+
+						gap.rowShift.cols = new Integer[linage];
+						for (int iSft=0;iSft<linage;iSft++) {
+							gap.rowShift.cols[iSft] = irow + gap.rowShift.tab * iSft; // shift.tab * (iSft + 1)
+						}
+
+						gapObjects.add(gap);
+
+					} else
 					if (cellText.indexOf("shift='1'") >= 0) {
 						ShiftData shift = new ShiftData();
 						shift.content = cellText;
@@ -317,7 +363,7 @@ public class ReadInfect {
 						Integer cycle_type = Integer.parseInt(cellText.replaceAll(".*cycle_type='(\\d+)'.*", "$1"));
 						int shiftCount = 0;
 						switch (cycle_type) {
-						case 1: shiftCount = 31;break;
+						case 1: shiftCount = 31;countWidth = 0;break;
 						case 2: shiftCount = 5;break;
 						case 3: shiftCount = 12;break;
 						case 4: shiftCount = 2;break;
@@ -345,6 +391,29 @@ public class ReadInfect {
 									Integer col = shift.cols[iFl];
 									if (col == irowcellExact) {
 										cellText = shift.content.replaceAll("shift='1'", "shift='"+(1+iFl)+"'");
+										break;
+									}
+								}
+							}
+							for (ShiftData gap : gapObjects) {
+								for (int iRw = 0; iRw < gap.rowShift.cols.length ; iRw++) {
+									Integer spRow = gap.rowShift.cols[iRw];
+									if (spRow == irow) {
+										if (gap.cols.length > 1) { // 有行展开
+											for (int iFl = 0; iFl < gap.cols.length ; iFl++) {
+												Integer col = gap.cols[iFl];
+												if (col == irowcellExact) {
+													cellText = gap.content.replaceAll("shift='1'", "shift='"+(1+iFl)+"'");
+													break;
+												}
+											}
+											cellText = cellText.replaceAll("line='0'", "line='"+(iRw)+"'");
+										} else {
+											if (gap.cols[0] == irowcellExact) {
+												cellText = gap.content.replaceAll("line='0'", "line='"+(iRw)+"'");
+											}
+										}
+
 										break;
 									}
 								}
@@ -386,6 +455,29 @@ public class ReadInfect {
 									Integer col = shift.cols[iFl];
 									if (col == irowcellExact) {
 										cellText = shift.content.replaceAll("shift='1'", "shift='"+(1+iFl)+"'");
+										break;
+									}
+								}
+							}
+							for (ShiftData gap : gapObjects) {
+								for (int iRw = 0; iRw < gap.rowShift.cols.length ; iRw++) {
+									Integer spRow = gap.rowShift.cols[iRw];
+									if (spRow == irow) {
+										if (gap.cols.length > 1) { // 有行展开
+											for (int iFl = 0; iFl < gap.cols.length ; iFl++) {
+												Integer col = gap.cols[iFl];
+												if (col == irowcellExact) {
+													cellText = gap.content.replaceAll("shift='1'", "shift='"+(1+iFl)+"'");
+													break;
+												}
+											}
+											cellText = cellText.replaceAll("line='0'", "line='"+(iRw)+"'");
+										} else {
+											if (gap.cols[0] == irowcellExact) {
+												cellText = gap.content.replaceAll("line='0'", "line='"+(iRw)+"'");
+											}
+										}
+
 										break;
 									}
 								}
@@ -447,6 +539,12 @@ public class ReadInfect {
 			output.write("<style>td{font-size:12px;}.HC{text-align:center}.HL{text-align:left}.HR{text-align:right}");
 			output.write(".VT{valign:top}.VC{valign:middle}.VB{valign:bottom}");
 			output.write(".WT{white-space:normal; word-break:break-all; overflow:hidden;}.IT{width:1em;}.IT span{width:1em;letter-spacing: 1em;}");
+			// 页面宽度
+			if (countWidth > 0 && countWidth <= 1100) {
+				output.write(".tcs_sheet table {min-width: 1100px;}");
+			} else if (countWidth > 1100 && countWidth < 1280) {
+				output.write(".tcs_sheet table {min-width: " + countWidth + "px;}");
+			}
 
 			String styleHtml = "";
 			for (String stylekey : styleclasses.keySet()) {
@@ -490,18 +588,35 @@ public class ReadInfect {
 	}
 
 	// 解析标识符
-	private static String transTagInfect(String cellText, Map<String, String> referItems, String check_file_manage_id, CheckFileManageMapper mapper, List<MsgInfo> errors) {
+	private static String transTagInfect(String cellText, Map<String, String> referItems, String check_file_manage_id, 
+			Integer linage, List<ShiftData> gapObjects, CheckFileManageMapper mapper, List<MsgInfo> errors) {
 
 		if ("".equals(cellText) || cellText.indexOf("#") < 0) return cellText;
 		// 管理编号
 		cellText = cellText.replaceAll("#G\\[MANAGENO#" , "<manageNo/>");
 		cellText = cellText.replaceAll("#G\\[MANAGENO\\[R#" , "<manageNo replacable/>");
-		cellText = cellText.replaceAll("#G\\[MANAGENO\\[U.*#" , "<manageNo/>");
-		cellText = cellText.replaceAll("#G\\[NO\\[U.*#" , "<nodo/>");
+
+		if (linage != null && cellText.matches("^[^#]*#G\\[MANAGENO\\[U(.*)#[^#]*$")) {
+
+			cellText = cellText.replaceAll("#G\\[MANAGENO\\[U(.*)#" , "<manageNo gap='$1' line='0'/>");
+
+			return cellText;
+		}
+
+		if (linage != null && cellText.matches("^[^#]*#G\\[NO\\[U(.*)#[^#]*$")) {
+			cellText = cellText.replaceAll("#G\\[NO\\[U(.*)#" , "<nodo gap='$1' line='0'/>");
+
+			return cellText;
+		}
 
 		// 型号
 		cellText = cellText.replaceAll("#G\\[MODEL#" , "<model/>");
-		cellText = cellText.replaceAll("#G\\[MODEL\\[U.*#" , "<model/>");
+		if (linage != null && cellText.matches("^[^#]*#G\\[MODEL\\[U(.*)#[^#]*$")) {
+			cellText = cellText.replaceAll("#G\\[MODEL\\[U(.*)#" , "<model gap='$1' line='0'/>");
+
+			return cellText;
+		}
+
 		// 半期
 		cellText = cellText.replaceAll("#G\\[PERIOD#" , "<period type='full'/>");
 		// 半期（没有P）
@@ -516,9 +631,26 @@ public class ReadInfect {
 		cellText = cellText.replaceAll("#G\\[POSITION#" , "<position/>");
 		// 名称
 		cellText = cellText.replaceAll("#G\\[NAME#" , "<name/>");
-		cellText = cellText.replaceAll("#G\\[NAME\\[U.*#" , "<name/>");
+		if (linage != null && cellText.matches("^[^#]*#G\\[NAME\\[U(.*)#[^#]*$")) {
+			cellText = cellText.replaceAll("#G\\[NAME\\[U(.*)#" , "<name gap='$1' line='0'/>");
+
+			return cellText;
+		}
+
 		// 责任者
 		cellText = cellText.replaceAll("#G\\[RESPONCOR#" , "<responcor/>");
+
+		// 页数
+		if (linage != null && cellText.indexOf("#G[PAGE") > 0) {
+			cellText = cellText.replaceAll("#G\\[PAGE#" , "<page type='current'/>");
+			cellText = cellText.replaceAll("#G\\[PAGE\\[M#" , "<page type='max'/>");
+
+			return cellText;
+		} else {
+			cellText = cellText.replaceAll("#G\\[PAGE#" , "１");
+			cellText = cellText.replaceAll("#G\\[PAGE\\[M#" , "１");
+		}
+		
 
 		// cellText = cellText.replaceAll("#.*#" , "");
 
@@ -532,6 +664,7 @@ public class ReadInfect {
 		//日	点检人	竖版	间隔		
 		Pattern pCheckData = Pattern.compile("#D.*#");
 		Matcher mCheckData = pCheckData.matcher(cellText);
+
 		if (mCheckData.find()) {
 			String matchTag = mCheckData.group();
 			String matchText = matchTag.replaceAll("#", "");
@@ -542,7 +675,9 @@ public class ReadInfect {
 				itemEntity.setTab(1); // 默认单元格中的跳动
 				itemEntity.setData_type(1); // 默认点检方式
 
+				Integer ul = null;
 				for (String tag : tags) {
+
 					if (tag.startsWith("D")) {
 						// 取得周期信息
 						String cycle = tag.substring(1, 2);
@@ -645,7 +780,9 @@ public class ReadInfect {
 					} else if (tag.startsWith("T")) {
 						// 单元格中的跳动
 						itemEntity.setTab(Integer.parseInt(tag.substring(1)));
-					} else if (tag.startsWith("U")) { // 换行页面不处理
+					} else if (tag.startsWith("U")) {
+						if(linage != null) ul = Integer.parseInt(tag.substring(1)); // 换行页面也处理
+						itemEntity.setGap(ul);
 					} else {
 						throw new Exception("不合法的标签：" + cellText);
 					}
@@ -744,7 +881,9 @@ public class ReadInfect {
 						itemEntity.setData_type(2);
 					} else if (tag.startsWith("V")) {
 						itemEntity.setFile_cycle_type(-1);
-					} else if (tag.startsWith("U")) { // 换行页面不处理
+					} else if (tag.startsWith("U")) {
+						if(linage != null) // 换行页面也处理
+							itemEntity.setGap(Integer.parseInt(tag.substring(1)));
 					} else if (tag.startsWith("M")) {
 						itemEntity.setModel_relative(getReferData(referItems, tag.substring(1)));
 					} else {
@@ -813,6 +952,8 @@ public class ReadInfect {
 						itemEntity.setTrigger_state(2);
 					} else if (tag.startsWith("V")) {
 					} else if (tag.startsWith("U")) { // 换行页面不处理
+						if(linage != null) // 换行页面也处理
+							itemEntity.setGap(Integer.parseInt(tag.substring(1)));
 					} else if (tag.startsWith("M")) {
 						itemEntity.setModel_relative(getReferData(referItems, tag.substring(1)));
 					} else {
@@ -852,6 +993,11 @@ public class ReadInfect {
 							period = tag.substring(8);
 						}
 						cellText = cellText.replaceAll("<useEnd/>", "<useEnd period='" + period + "'/>");
+					} else if (tag.startsWith("U")) {
+						if(linage != null) {
+							int ul = Integer.parseInt(tag.substring(1)); // 换行页面也处理
+							cellText = cellText.replaceAll("/>", " gap='" + ul + "' line='0'/>");
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -1046,12 +1192,19 @@ public class ReadInfect {
 		private String seq = "";
 		private Integer tab = 0;
 		private Integer[] cols = {};
+		private ShiftData rowShift = null;
 		public ShiftData clone(){
 			ShiftData ret = new ShiftData();
 			ret.content = this.content;
 			ret.seq = this.seq;
 			ret.tab = new Integer(this.tab);
 			ret.cols = new Integer[this.cols.length];
+			for (int iv = 0 ; iv < this.cols.length ; iv++) {
+				ret.cols[iv] = new Integer(this.cols[iv]);
+			}
+			if (this.rowShift != null) {
+				ret.rowShift = this.rowShift.clone();
+			};
 			return ret;
 		}
 	}

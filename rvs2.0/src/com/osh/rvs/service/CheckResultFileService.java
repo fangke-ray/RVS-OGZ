@@ -103,415 +103,452 @@ public class CheckResultFileService {
 		String check_file_manage_id = cfsEntity.getCheck_file_manage_id();
 		CheckFileManageEntity cfmEntity = cfmMapper.getByKey(check_file_manage_id);
 
+		// 页数统计
+		Integer linage = cfmEntity.getLinage();
+		int pageCnt = 1;
+		if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())
+				 || "2".equals(cfsEntity.getSpecialized())) {
+		} else if (linage != null && linage != 1) {
+			pageCnt = (sEncodedDeviceList.size() + linage - 1) / linage;
+		}
+
+		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+
 		// 复制模板到临时文件
-		String cacheFilename =  cfsEntity.getStorage_file_name() + today.getTime() + ext;
-		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + cacheFilename;
-		FileUtils.copyFile(new File(srcPath), new File(cachePath));
-		// SAMPLE D:\rvs\Infections\147P\QR-B31002-10A\QR-B31002-10A_报价物料课 受理报价_147P12月.xls
+		String cacheFilename =  cfsEntity.getStorage_file_name() + today.getTime();
+		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + cacheFilename + ext;
 		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
 				RvsUtils.getBussinessYearString(adjustCal) + "\\" +
 				cfmEntity.getCheck_manage_code();
 		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
 
-		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+		for (int iPage = 0; iPage < pageCnt; iPage++) {
 
-		XlsUtil cacheXls = null;
-		try {
-			cacheXls = new XlsUtil(cachePath, false);
-			cacheXls.SelectActiveSheet();
+			if (iPage > 0) 
+				cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + cacheFilename + "_" + iPage + ext;
+			FileUtils.copyFile(new File(srcPath), new File(cachePath));
 
-			// 取得页面缩放
-			int pageZoom = cacheXls.getPageZoom();
-
-			// 取得本期
-			String bperiod = RvsUtils.getBussinessYearString(adjustCal);
-
-			// 工程
-			String line_id = cfsEntity.getLine_id();
-			String sLineName = "";
-
-			if (!isEmpty(line_id)) {
-				LineMapper lMapper = conn.getMapper(LineMapper.class);
-				LineEntity lEntity = lMapper.getLineByID(line_id);
-				if (lEntity != null) {
-					sLineName += lEntity.getName();
+			List<String> pageEncodedDeviceList = null;
+			if (pageCnt == 1) {
+				pageEncodedDeviceList = sEncodedDeviceList;
+			} else {
+				int iItem = iPage * linage;
+				for (; ; iItem++) {
+					if (iItem == sEncodedDeviceList.size()) break;
+					if (iItem == (iPage + 1) * linage) break;
 				}
-				cacheXls.Replace("#G[LINE#", sLineName);
+				pageEncodedDeviceList = sEncodedDeviceList.subList(iPage * linage, iItem);
 			}
-			// 工位
-			String position_id = cfsEntity.getPosition_id();
-			if (!isEmpty(position_id)) {
-				PositionMapper pMapper = conn.getMapper(PositionMapper.class);
-				// 工位
-				PositionEntity pEntity = pMapper.getPositionByID(cfsEntity.getPosition_id());
-				if (pEntity != null) {
-					sLineName += pEntity.getProcess_code() + " ";
+
+			XlsUtil cacheXls = null;
+			try {
+				cacheXls = new XlsUtil(cachePath, false);
+				cacheXls.SelectActiveSheet();
+
+				// 取得页面缩放
+				int pageZoom = cacheXls.getPageZoom();
+
+				// 取得本期
+				String bperiod = RvsUtils.getBussinessYearString(adjustCal);
+
+				// 工程
+				String line_id = cfsEntity.getLine_id();
+				String sLineName = "";
+
+				if (!isEmpty(line_id)) {
+					LineMapper lMapper = conn.getMapper(LineMapper.class);
+					LineEntity lEntity = lMapper.getLineByID(line_id);
+					if (lEntity != null) {
+						sLineName += lEntity.getName();
+					}
+					cacheXls.Replace("#G[LINE#", sLineName);
 				}
-				Dispatch positionCell = cacheXls.Locate("#G[POSITION#");
-				if (positionCell != null) {
-					String FoundValue = Dispatch.get(positionCell, "Value").toString();
-					if (FoundValue.equals("#G[POSITION#")) {
-						cacheXls.SetValue(positionCell, sLineName);
-					} else {
-						cacheXls.Replace("#G[POSITION#", sLineName.replaceAll("\\\n", " "));
+				// 工位
+				String position_id = cfsEntity.getPosition_id();
+				if (!isEmpty(position_id)) {
+					PositionMapper pMapper = conn.getMapper(PositionMapper.class);
+					// 工位
+					PositionEntity pEntity = pMapper.getPositionByID(cfsEntity.getPosition_id());
+					if (pEntity != null) {
+						sLineName += pEntity.getProcess_code() + " ";
+					}
+					Dispatch positionCell = cacheXls.Locate("#G[POSITION#");
+					if (positionCell != null) {
+						String FoundValue = Dispatch.get(positionCell, "Value").toString();
+						if (FoundValue.equals("#G[POSITION#")) {
+							cacheXls.SetValue(positionCell, sLineName);
+						} else {
+							cacheXls.Replace("#G[POSITION#", sLineName.replaceAll("\\\n", " "));
+						}
+					}
+					if(isEmpty(line_id) && pEntity != null && cacheXls.Hit("#G[LINE#")) {
+						cacheXls.Replace("#G[LINE#", pEntity.getLine_name());
 					}
 				}
-				if(isEmpty(line_id) && pEntity != null && cacheXls.Hit("#G[LINE#")) {
-					cacheXls.Replace("#G[LINE#", pEntity.getLine_name());
+
+				// 替换共通数据
+				cacheXls.Replace("#G[PERIOD#", bperiod);
+				cacheXls.Replace("#G[PERIODC#", bperiod.replaceAll("P", ""));
+				cacheXls.Replace("#G[YEAR#", DateUtil.toString(cfsEntity.getFiling_date(), "yyyy"));
+				cacheXls.Replace("#G[MONTH#", DateUtil.toString(cfsEntity.getFiling_date(), "M"));
+
+				// 页数
+				cacheXls.Replace("#G[PAGE#", "" + (char)('１' + iPage));
+				cacheXls.Replace("#G[PAGE[M#", "" + (char)('１' + (pageCnt - 1)));
+
+				// 文档章
+				//#J
+				Dispatch cell = cacheXls.Locate("#J");
+				while (cell != null) {
+					String stamp = Dispatch.get(cell, "Value").toString();
+					String jobNo = stamp.replaceAll("#J\\[(.*)#", "$1");
+					cacheXls.SetValue(cell, "");
+					cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell);
+					cell = cacheXls.Locate("#J");
 				}
-			}
 
-			// 替换共通数据
-			cacheXls.Replace("#G[PERIOD#", bperiod);
-			cacheXls.Replace("#G[PERIODC#", bperiod.replaceAll("P", ""));
-			cacheXls.Replace("#G[YEAR#", DateUtil.toString(cfsEntity.getFiling_date(), "yyyy"));
-			cacheXls.Replace("#G[MONTH#", DateUtil.toString(cfsEntity.getFiling_date(), "M"));
+				// 确定表单的归档类型
+				int fileAxisType = 0;
+				fileAxisType = cfmEntity.getCycle_type();
 
-			// 文档章
-			//#J
-			Dispatch cell = cacheXls.Locate("#J");
-			while (cell != null) {
-				String stamp = Dispatch.get(cell, "Value").toString();
-				String jobNo = stamp.replaceAll("#J\\[(.*)#", "$1");
-				cacheXls.SetValue(cell, "");
-				cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell);
-				cell = cacheXls.Locate("#J");
-			}
-
-			// 确定表单的归档类型
-			int fileAxisType = 0;
-			fileAxisType = cfmEntity.getCycle_type();
-
-			// 计算范围用日历
-			Calendar monCal = Calendar.getInstance();
-			if (CheckFileManageEntity.ACCESS_PLACE_DAILY == cfmEntity.getAccess_place()) {
-				monCal.setTimeInMillis(adjustCal.getTimeInMillis());
-				monCal.set(Calendar.DATE, 1);
-			} else {
-				if (TYPE_FILED_YEAR == fileAxisType) {
-					// 去期间头
-					monCal = getStartOfPeriod(adjustCal);
-				} else {
-					// 去月首
+				// 计算范围用日历
+				Calendar monCal = Calendar.getInstance();
+				if (CheckFileManageEntity.ACCESS_PLACE_DAILY == cfmEntity.getAccess_place()) {
 					monCal.setTimeInMillis(adjustCal.getTimeInMillis());
 					monCal.set(Calendar.DATE, 1);
-					if (TYPE_FILED_WEEK_OF_MONTH == fileAxisType) {
-						int week = monCal.get(Calendar.DAY_OF_WEEK);
-						if (week == Calendar.SUNDAY) {
-							monCal.add(Calendar.DATE, 1);
-						} else if (week == Calendar.MONDAY) {
-						} else {
-							monCal.add(Calendar.DATE, 9 - week);
+				} else {
+					if (TYPE_FILED_YEAR == fileAxisType) {
+						// 去期间头
+						monCal = getStartOfPeriod(adjustCal);
+					} else {
+						// 去月首
+						monCal.setTimeInMillis(adjustCal.getTimeInMillis());
+						monCal.set(Calendar.DATE, 1);
+						if (TYPE_FILED_WEEK_OF_MONTH == fileAxisType) {
+							int week = monCal.get(Calendar.DAY_OF_WEEK);
+							if (week == Calendar.SUNDAY) {
+								monCal.add(Calendar.DATE, 1);
+							} else if (week == Calendar.MONDAY) {
+							} else {
+								monCal.add(Calendar.DATE, 9 - week);
+							}
 						}
 					}
 				}
-			}
 
-			// 取得输入项定位
-			Map<String, CheckPosBean> checkPosData = new HashMap<String, CheckPosBean>();
-			List<CheckPosBean> checkPosDate = new ArrayList<CheckPosBean>();
-			List<CheckPosBean> checkPosName = new ArrayList<CheckPosBean>();
-			CheckPosBean checkPosNo = new CheckPosBean();
-			CheckPosBean checkPosManageNo = new CheckPosBean();
-			CheckPosBean checkPosModel = new CheckPosBean();
-			CheckPosBean checkDeviceName = new CheckPosBean();
+				// 取得输入项定位
+				Map<String, CheckPosBean> checkPosData = new HashMap<String, CheckPosBean>();
+				List<CheckPosBean> checkPosDate = new ArrayList<CheckPosBean>();
+				List<CheckPosBean> checkPosName = new ArrayList<CheckPosBean>();
+				CheckPosBean checkPosNo = new CheckPosBean();
+				CheckPosBean checkPosManageNo = new CheckPosBean();
+				CheckPosBean checkPosModel = new CheckPosBean();
+				CheckPosBean checkDeviceName = new CheckPosBean();
 
-			CheckPosBean checkUseStart = new CheckPosBean();
-			CheckPosBean checkUseEnd = new CheckPosBean();
+				CheckPosBean checkUseStart = new CheckPosBean();
+				CheckPosBean checkUseEnd = new CheckPosBean();
 
-			cell = cacheXls.Locate("#D");
-			String FoundValue = null;
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-			}
-			while (FoundValue != null) {
 				cell = cacheXls.Locate("#D");
-				if (cell == null) {
-					FoundValue = null;
-				} else {
+				String FoundValue = null;
+				if (cell != null) {
 					FoundValue = Dispatch.get(cell, "Value").toString();
-					CheckPosBean cpBean = new CheckPosBean();
-					cpBean.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-					cpBean.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-					cpBean.content = FoundValue.replaceAll("#[^#]*#", "#tag#");
+				}
+				while (FoundValue != null) {
+					cell = cacheXls.Locate("#D");
+					if (cell == null) {
+						FoundValue = null;
+					} else {
+						FoundValue = Dispatch.get(cell, "Value").toString();
+						CheckPosBean cpBean = new CheckPosBean();
+						cpBean.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+						cpBean.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+						cpBean.content = FoundValue.replaceAll("#[^#]*#", "#tag#");
+						String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+						String[] tags = tagText.split("\\[");
+						String seq = null;
+						for (String tag : tags) {
+							if (tag.startsWith("S")) {
+								// 取得序列信息
+								seq = tag.substring(1, 3);
+							}
+							else if (tag.startsWith("T")) {
+								// 单元格中的跳动
+								cpBean.shiftX = Integer.parseInt(tag.substring(1));
+							}
+							else if (tag.startsWith("U")) {
+								// 单元格中的跳动
+								cpBean.shiftY = Integer.parseInt(tag.substring(1));
+							}
+						}
+						checkPosData.put(seq, cpBean);
+
+						cacheXls.SetValue(cell, "");
+					}
+				}
+
+				// #G[NO
+				cell = cacheXls.Locate("#G[NO");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkPosNo.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkPosNo.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
 					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
 					String[] tags = tagText.split("\\[");
-					String seq = null;
 					for (String tag : tags) {
-						if (tag.startsWith("S")) {
-							// 取得序列信息
-							seq = tag.substring(1, 3);
-						}
-						else if (tag.startsWith("T")) {
+						if (tag.startsWith("U")) {
 							// 单元格中的跳动
-							cpBean.shiftX = Integer.parseInt(tag.substring(1));
+							checkPosNo.shiftY = Integer.parseInt(tag.substring(1));
 						}
-						else if (tag.startsWith("U")) {
+					}
+				}
+
+				// #G[MANAGENO
+				cell = cacheXls.Locate("#G[MANAGENO");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkPosManageNo.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkPosManageNo.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					for (String tag : tags) {
+						if (tag.startsWith("U")) {
 							// 单元格中的跳动
-							cpBean.shiftY = Integer.parseInt(tag.substring(1));
+							checkPosManageNo.shiftY = Integer.parseInt(tag.substring(1));
 						}
 					}
-					checkPosData.put(seq, cpBean);
-
-					cacheXls.SetValue(cell, "");
 				}
-			}
 
-			// #G[NO
-			cell = cacheXls.Locate("#G[NO");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkPosNo.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkPosNo.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U")) {
-						// 单元格中的跳动
-						checkPosNo.shiftY = Integer.parseInt(tag.substring(1));
+				// #G[MODEL[U1#	#G[USESTART[U1#	#G[USELIMIT[U1#
+				cell = cacheXls.Locate("#G[MODEL");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkPosModel.content = FoundValue;
+					checkPosModel.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkPosModel.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					for (String tag : tags) {
+						if (tag.startsWith("U")) {
+							// 单元格中的跳动
+							checkPosModel.shiftY = Integer.parseInt(tag.substring(1));
+						}
 					}
 				}
-			}
 
-			// #G[MANAGENO
-			cell = cacheXls.Locate("#G[MANAGENO");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkPosManageNo.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkPosManageNo.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U")) {
-						// 单元格中的跳动
-						checkPosManageNo.shiftY = Integer.parseInt(tag.substring(1));
+				// #G[NAME
+				cell = cacheXls.Locate("#G[NAME");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkDeviceName.content = FoundValue;
+					checkDeviceName.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkDeviceName.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					for (String tag : tags) {
+						if (tag.startsWith("U")) {
+							// 单元格中的跳动
+							checkDeviceName.shiftY = Integer.parseInt(tag.substring(1));
+						}
 					}
 				}
-			}
 
-			// #G[MODEL[U1#	#G[USESTART[U1#	#G[USELIMIT[U1#
-			cell = cacheXls.Locate("#G[MODEL");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkPosModel.content = FoundValue;
-				checkPosModel.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkPosModel.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U")) {
-						// 单元格中的跳动
-						checkPosModel.shiftY = Integer.parseInt(tag.substring(1));
+				cell = cacheXls.Locate("#G[USESTART");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkUseStart.content = FoundValue;
+					checkUseStart.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkUseStart.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					for (String tag : tags) {
+						if (tag.startsWith("U") && !tag.startsWith("USE")) {
+							// 单元格中的跳动
+							checkUseStart.shiftY = Integer.parseInt(tag.substring(1));
+						}
 					}
 				}
-			}
 
-			// #G[NAME
-			cell = cacheXls.Locate("#G[NAME");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkDeviceName.content = FoundValue;
-				checkDeviceName.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkDeviceName.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U")) {
-						// 单元格中的跳动
-						checkDeviceName.shiftY = Integer.parseInt(tag.substring(1));
+				cell = cacheXls.Locate("#G[USELIMIT");
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					checkUseEnd.content = FoundValue;
+					checkUseEnd.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					checkUseEnd.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					for (String tag : tags) {
+						if (tag.startsWith("U") && !tag.startsWith("USE")) {
+							// 单元格中的跳动
+							checkUseEnd.shiftY = Integer.parseInt(tag.substring(1));
+						} else if (tag.startsWith("P")) {
+							checkUseEnd.shiftX = Integer.parseInt(tag.substring(1));
+						}
 					}
 				}
-			}
 
-			cell = cacheXls.Locate("#G[USESTART");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkUseStart.content = FoundValue;
-				checkUseStart.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkUseStart.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U") && !tag.startsWith("USE")) {
-						// 单元格中的跳动
-						checkUseStart.shiftY = Integer.parseInt(tag.substring(1));
-					}
+				// 特殊格式生成
+				if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())) {
+					// 电烙铁工具
+					setDeviceElectricIron(cacheXls, sEncodedDeviceList, fileAxisType,
+							cfmEntity, crMapper, monCal, conn);
+				} else if ("2".equals(cfsEntity.getSpecialized())) {
+					// 力矩工具
+					setDeviceTrosion(cacheXls, sEncodedDeviceList, fileAxisType,
+							cfmEntity, crMapper, monCal, check_file_manage_id, conn);
 				}
-			}
 
-			cell = cacheXls.Locate("#G[USELIMIT");
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				checkUseEnd.content = FoundValue;
-				checkUseEnd.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				checkUseEnd.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				for (String tag : tags) {
-					if (tag.startsWith("U") && !tag.startsWith("USE")) {
-						// 单元格中的跳动
-						checkUseEnd.shiftY = Integer.parseInt(tag.substring(1));
-					} else if (tag.startsWith("P")) {
-						checkUseEnd.shiftX = Integer.parseInt(tag.substring(1));
-					}
-				}
-			}
-
-			// 特殊格式生成
-			if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())) {
-				// 电烙铁工具
-				setDeviceElectricIron(cacheXls, sEncodedDeviceList, fileAxisType,
-						cfmEntity, crMapper, monCal, conn);
-			} else if ("2".equals(cfsEntity.getSpecialized())) {
-				// 力矩工具
-				setDeviceTrosion(cacheXls, sEncodedDeviceList, fileAxisType,
-						cfmEntity, crMapper, monCal, check_file_manage_id, conn);
-			}
-
-			// 日期定位
-			cell = cacheXls.Locate("#T");
-			while (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				CheckPosBean aCheckPosDate = new CheckPosBean();
-				aCheckPosDate.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				aCheckPosDate.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				aCheckPosDate.shiftY = 0;
-				for (int i=1 ; i< tags.length; i++) {
-					String tag = tags[i];
-					if (tag.startsWith("T")) {
-						// 单元格中的跳动
-						aCheckPosDate.shiftX = Integer.parseInt(tag.substring(1));
-					} else if (tag.startsWith("U")) {
-						aCheckPosDate.shiftY = Integer.parseInt(tag.substring(1));
-					} else if (tag.startsWith("I")) {
-						aCheckPosDate.signType = 1;
-					} else if (tag.startsWith("L")) {
-						aCheckPosDate.signType = 2;
-					}
-				}
-				if (tags[0].length() > 1) {
-					char sCycleType = tags[0].charAt(1);
-					switch (sCycleType) {
-					case 'D' : aCheckPosDate.cycleType = 1; break; // 日
-					case 'W' : aCheckPosDate.cycleType = 2; break; // 周
-					case 'M' : aCheckPosDate.cycleType = 3; break; // 月
-					case 'P' : aCheckPosDate.cycleType = 4; break; // 半期
-					case 'Y' : aCheckPosDate.cycleType = 5; break; // 全年
-					}
-				}
-				aCheckPosDate.content = tagText.substring(2, 3);
-				checkPosDate.add(aCheckPosDate);
-				cacheXls.SetValue(cell, "");
+				// 日期定位
 				cell = cacheXls.Locate("#T");
-			}
-
-			// 签名定位
-			cell = cacheXls.Locate("#N");
-			while (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-				CheckPosBean aCheckPosName = new CheckPosBean();
-				aCheckPosName.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
-				aCheckPosName.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
-				String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
-				String[] tags = tagText.split("\\[");
-				aCheckPosName.shiftY = 0;
-				for (String tag : tags) {
-					if (tag.startsWith("T")) {
-						// 单元格中的跳动
-						aCheckPosName.shiftX = Integer.parseInt(tag.substring(1));
-					} else if (tag.startsWith("U")) {
-						aCheckPosName.shiftY = Integer.parseInt(tag.substring(1));
-					} else if (tag.startsWith("V")) {
-						aCheckPosName.content = "V";
-					} else if (tag.startsWith("I")) {
-						aCheckPosName.signType = 1;
-					} else if (tag.startsWith("L")) {
-						aCheckPosName.signType = 2;
-					} else if (tag.startsWith("N") && tag.length() > 1) {
-						char sCycleType = tag.charAt(1);
-						switch (sCycleType) {
-						case 'D' : aCheckPosName.cycleType = 1; break; // 日
-						case 'W' : aCheckPosName.cycleType = 2; break; // 周
-						case 'M' : aCheckPosName.cycleType = 3; break; // 月
-						case 'P' : aCheckPosName.cycleType = 4; break; // 半期
-						case 'Y' : aCheckPosName.cycleType = 5; break; // 全年
+				while (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					CheckPosBean aCheckPosDate = new CheckPosBean();
+					aCheckPosDate.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					aCheckPosDate.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					aCheckPosDate.shiftY = 0;
+					for (int i=1 ; i< tags.length; i++) {
+						String tag = tags[i];
+						if (tag.startsWith("T")) {
+							// 单元格中的跳动
+							aCheckPosDate.shiftX = Integer.parseInt(tag.substring(1));
+						} else if (tag.startsWith("U")) {
+							aCheckPosDate.shiftY = Integer.parseInt(tag.substring(1));
+						} else if (tag.startsWith("I")) {
+							aCheckPosDate.signType = 1;
+						} else if (tag.startsWith("L")) {
+							aCheckPosDate.signType = 2;
 						}
 					}
+					if (tags[0].length() > 1) {
+						char sCycleType = tags[0].charAt(1);
+						switch (sCycleType) {
+						case 'D' : aCheckPosDate.cycleType = 1; break; // 日
+						case 'W' : aCheckPosDate.cycleType = 2; break; // 周
+						case 'M' : aCheckPosDate.cycleType = 3; break; // 月
+						case 'P' : aCheckPosDate.cycleType = 4; break; // 半期
+						case 'Y' : aCheckPosDate.cycleType = 5; break; // 全年
+						}
+					}
+					aCheckPosDate.content = tagText.substring(2, 3);
+					checkPosDate.add(aCheckPosDate);
+					cacheXls.SetValue(cell, "");
+					cell = cacheXls.Locate("#T");
 				}
-				checkPosName.add(aCheckPosName);
-				cacheXls.SetValue(cell, "");
+
+				// 签名定位
 				cell = cacheXls.Locate("#N");
-			}
-
-			// 一般格式生成
-			if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())) {
-			} else if ("2".equals(cfsEntity.getSpecialized())) {
-			} else {
-				// 普通设备工具
-
-				// 取得点检项目
-				List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
-				setDeviceNormal(cacheXls, sEncodedDeviceList, checkPosData, checkPosNo, checkPosManageNo, checkPosModel,
-						checkDeviceName, checkUseStart, checkUseEnd, checkPosDate, checkPosName, fileAxisType,
-						cfmEntity, dCsis, pageZoom, crMapper, monCal, conn);
-			}
-
-			setLeaderCheck(cacheXls, sEncodedDeviceList, checkPosDate, checkPosName,
-					cfmEntity, pageZoom, crMapper, monCal, conn);
-
-			// #P QR-B31002-12A_B038_147P12月
-			// 取得参照信息<refer
-			cell = cacheXls.Locate("#P");
-			FoundValue = null;
-
-			// 取得设备的温度设置
-			String lowerLimit = "70";
-			String upperLimit = "75";
-			if (cell != null) {
-				FoundValue = Dispatch.get(cell, "Value").toString();
-
-				DryingOvenDeviceMapper dodMapper = conn.getMapper(DryingOvenDeviceMapper.class);
-				DryingOvenDeviceEntity dodCnd = new DryingOvenDeviceEntity();
-				dodCnd.setDevice_manage_id(sEncodedDeviceList.get(0));
-				List<DryingOvenDeviceEntity> dodRet = dodMapper.search(dodCnd);
-				if (dodRet.size() > 0) {
-					String settingTemperature = "" + dodRet.get(0).getSetting_temperature();
-					lowerLimit = CodeListUtils.getValue("drying_oven_lower_limit", settingTemperature);
-					upperLimit = CodeListUtils.getValue("drying_oven_upper_limit", settingTemperature);
+				while (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					CheckPosBean aCheckPosName = new CheckPosBean();
+					aCheckPosName.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					aCheckPosName.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					String[] tags = tagText.split("\\[");
+					aCheckPosName.shiftY = 0;
+					for (String tag : tags) {
+						if (tag.startsWith("T")) {
+							// 单元格中的跳动
+							aCheckPosName.shiftX = Integer.parseInt(tag.substring(1));
+						} else if (tag.startsWith("U")) {
+							aCheckPosName.shiftY = Integer.parseInt(tag.substring(1));
+						} else if (tag.startsWith("V")) {
+							aCheckPosName.content = "V";
+						} else if (tag.startsWith("I")) {
+							aCheckPosName.signType = 1;
+						} else if (tag.startsWith("L")) {
+							aCheckPosName.signType = 2;
+						} else if (tag.startsWith("N") && tag.length() > 1) {
+							char sCycleType = tag.charAt(1);
+							switch (sCycleType) {
+							case 'D' : aCheckPosName.cycleType = 1; break; // 日
+							case 'W' : aCheckPosName.cycleType = 2; break; // 周
+							case 'M' : aCheckPosName.cycleType = 3; break; // 月
+							case 'P' : aCheckPosName.cycleType = 4; break; // 半期
+							case 'Y' : aCheckPosName.cycleType = 5; break; // 全年
+							}
+						}
+					}
+					checkPosName.add(aCheckPosName);
+					cacheXls.SetValue(cell, "");
+					cell = cacheXls.Locate("#N");
 				}
-			}
-			while (FoundValue != null) {
-				if (FoundValue.indexOf("L" + lowerLimit) >= 0 && FoundValue.indexOf("U" + upperLimit) >= 0) {
-					FoundValue = FoundValue.replaceAll("#P\\[C[^#]*#", "■"); // √
-					cacheXls.SetValue(cell, FoundValue);
+
+				// 一般格式生成
+				if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())) {
+				} else if ("2".equals(cfsEntity.getSpecialized())) {
 				} else {
-					FoundValue = FoundValue.replaceAll("#P\\[C[^#]*#", "□");
-					cacheXls.SetValue(cell, FoundValue);
+					// 普通设备工具
+
+					// 取得点检项目
+					List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
+					setDeviceNormal(cacheXls, pageEncodedDeviceList, checkPosData, checkPosNo, checkPosManageNo, checkPosModel,
+							checkDeviceName, checkUseStart, checkUseEnd, checkPosDate, checkPosName, fileAxisType,
+							cfmEntity, dCsis, pageZoom, crMapper, monCal, (linage != null ? iPage * linage : 0), conn);
 				}
 
-				FoundValue = null;
+				setLeaderCheck(cacheXls, pageEncodedDeviceList, checkPosDate, checkPosName,
+						cfmEntity, pageZoom, crMapper, monCal, conn);
+
+				// #P QR-B31002-12A_B038_147P12月
+				// 取得参照信息<refer
 				cell = cacheXls.Locate("#P");
-				if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
-			}
+				FoundValue = null;
 
-//			cacheXls.Replace(source, target);
-//			"#[^#]*#"
-			File fTargetPath = new File(targetPath);
-			if (!fTargetPath.exists()) {
-				fTargetPath.mkdirs();
-			}
-			cacheXls.SaveAsPdf(targetFile); // SaveAsPdf
-			cacheXls.Release();
+				// 取得设备的温度设置
+				String lowerLimit = "70";
+				String upperLimit = "75";
+				if (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
 
-		} catch (Exception e) {
-			_logger.error(e.getMessage(), e);
-			if (cacheXls != null) {
-				cacheXls.CloseExcel(false);
+					DryingOvenDeviceMapper dodMapper = conn.getMapper(DryingOvenDeviceMapper.class);
+					DryingOvenDeviceEntity dodCnd = new DryingOvenDeviceEntity();
+					dodCnd.setDevice_manage_id(pageEncodedDeviceList.get(0));
+					List<DryingOvenDeviceEntity> dodRet = dodMapper.search(dodCnd);
+					if (dodRet.size() > 0) {
+						String settingTemperature = "" + dodRet.get(0).getSetting_temperature();
+						lowerLimit = CodeListUtils.getValue("drying_oven_lower_limit", settingTemperature);
+						upperLimit = CodeListUtils.getValue("drying_oven_upper_limit", settingTemperature);
+					}
+				}
+				while (FoundValue != null) {
+					if (FoundValue.indexOf("L" + lowerLimit) >= 0 && FoundValue.indexOf("U" + upperLimit) >= 0) {
+						FoundValue = FoundValue.replaceAll("#P\\[C[^#]*#", "■"); // √
+						cacheXls.SetValue(cell, FoundValue);
+					} else {
+						FoundValue = FoundValue.replaceAll("#P\\[C[^#]*#", "□");
+						cacheXls.SetValue(cell, FoundValue);
+					}
+
+					FoundValue = null;
+					cell = cacheXls.Locate("#P");
+					if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
+				}
+
+//				cacheXls.Replace(source, target);
+//				"#[^#]*#"
+				File fTargetPath = new File(targetPath);
+				if (!fTargetPath.exists()) {
+					fTargetPath.mkdirs();
+				}
+				if (iPage > 0) {
+					String targetPageFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + "_" + iPage + ".pdf";
+					cacheXls.SaveAsPdf(targetPageFile); // SaveAsPdf
+					cacheXls.Release();
+					joinPdf(targetFile, targetPageFile);
+				} else {
+					cacheXls.SaveAsPdf(targetFile); // SaveAsPdf
+					cacheXls.Release();
+				}
+
+			} catch (Exception e) {
+				_logger.error(e.getMessage(), e);
+				if (cacheXls != null) {
+					cacheXls.CloseExcel(false);
+				}
+			} finally {
+				cacheXls = null;
 			}
-		} finally {
-			cacheXls = null;
 		}
 
 		// 查询备注
@@ -1040,7 +1077,7 @@ public class CheckResultFileService {
 			CheckPosBean checkDeviceName, CheckPosBean checkUseStart, CheckPosBean checkUseEnd,
 			List<CheckPosBean> checkPosDate, List<CheckPosBean> checkPosName, int fileAxisType,
 			CheckFileManageEntity cfmEntity, List<DeviceCheckItemEntity> dCsis, int pageZoom,
-			CheckResultMapper crMapper, Calendar monCal,
+			CheckResultMapper crMapper, Calendar monCal, int startNo,
 			SqlSession conn) {
 		DevicesManageMapper dmMapper = conn.getMapper(DevicesManageMapper.class);
 
@@ -1061,7 +1098,7 @@ public class CheckResultFileService {
 				cellName = XlsUtil.getExcelColCode(checkNo.startX - 1)
 						+ (checkNo.startY + checkNo.shiftY * iDev);
 				cell = cacheXls.getRange(cellName);
-				cacheXls.SetValue(cell, "" + (iDev + 1));
+				cacheXls.SetValue(cell, "" + (startNo + iDev + 1));
 			}
 
 			// 设备管理编号

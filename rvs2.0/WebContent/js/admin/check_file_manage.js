@@ -23,6 +23,9 @@ $(function(){
 	$("#add_access_place").change(function(){if(this.value == 2){$("#add_cycle_type").enable()}else{$("#add_cycle_type").val(7).trigger("change").disable()}});
 	$("#update_access_place").change(function(){if(this.value == 2){$("#update_cycle_type").enable()}else{$("#update_cycle_type").val(7).trigger("change").disable()}});
 
+	$("#add_filing_means").change(function(){if(this.value == 2 || this.value == 3){$("#add_linage").closest("tr").show()}else{$("#add_linage").closest("tr").hide()}});
+	$("#update_filing_means").change(function(){if(this.value == 2 || this.value == 3){$("#update_linage").closest("tr").show()}else{$("#update_linage").closest("tr").hide()}});
+
     //检索
     $("#searchbutton").click(function(){
         $("#search_check_manage_code").data("post",$("#search_check_manage_code").val());//点检表管理号
@@ -109,7 +112,7 @@ var check_file_manage_list=function(listdata){
             width: 992,
             rowheight: 23,
             datatype: "local",
-            colNames:['','点检表管理ID','点检表管理号','点检表文件','类型','归档周期','归档方式','使用设备工具品名','特定机型','最后更新人','最后更新时间',''],
+            colNames:['','点检表管理ID','点检表管理号','点检表文件','类型','归档周期','归档方式','linage','使用设备工具品名','特定机型','最后更新人','最后更新时间',''],
             colModel:[
                   {name:'myac',fixed:true,width:40,sortable:false,resize:false,formatter:'actions',formatoptions:{keys:true, editbutton:false}},
                   {name:'check_file_manage_id',index:'check_file_manage_id',hidden:true},
@@ -130,6 +133,7 @@ var check_file_manage_list=function(listdata){
                           value:$("#sCheck_file_filing_means").val()
                       }
                   },
+                  {name:'linage',index:'linage',width:70,hidden:true},
                   {name:'name',index:'name',width:130},
                   {name:'specified_model_name',index:'specified_model_name',width:150},
                   {name:'update_name',index:'update_name',width:70,hidden:true},
@@ -167,36 +171,27 @@ var check_file_manage_list=function(listdata){
 //删除
 var showDelete=function(rid){
     var rowData = $("#check_file_manage_list").getRowData(rid);
-    $("#confirmmessage").text("删除不能恢复。确认要删除["+rowData.check_manage_code+"]的记录吗？");
-    
-     $("#confirmmessage").dialog({
-        resizable:false,
-        modal:true,
-        title:"删除确认",
-        buttons:{
-            "确认" : function() {
-                $(this).dialog("close");
-                var data={
-                    "check_file_manage_id":rowData.check_file_manage_id
-                }
-                 $.ajax({
-			        beforeSend : ajaxRequestType,
-			        async : true,
-			        url : servicePath + '?method=doDelete',
-			        cache : false,
-			        data : data,
-			        type : "post",
-			        dataType : "json",
-			        success : ajaxSuccessCheck,
-			        error : ajaxError,
-			        complete : delete_handleComplete
-			    });
-            },
-            "取消" : function() {
-                $(this).dialog("close");
+
+	warningConfirm("删除不能恢复。确认要删除["+rowData.check_manage_code+"]的记录吗？", 
+		function() {
+            var data={
+                "check_file_manage_id":rowData.check_file_manage_id
             }
-        }
-     });
+             $.ajax({
+		        beforeSend : ajaxRequestType,
+		        async : true,
+		        url : servicePath + '?method=doDelete',
+		        cache : false,
+		        data : data,
+		        type : "post",
+		        dataType : "json",
+		        success : ajaxSuccessCheck,
+		        error : ajaxError,
+		        complete : delete_handleComplete
+		    });
+        },null,
+		"删除确认"
+	);
 };
 
 //删除完成函数
@@ -210,20 +205,7 @@ var delete_handleComplete=function(xhrobj, textStatus){
             treatBackMessages("", resInfo.errors);
         } else {
              findit();
-			 $("#confirmmessage").text("删除已经完成。");
-			 $("#confirmmessage").dialog({
-				width : 320,
-				height :'auto',
-				resizable :false,
-				show : "blind",
-				modal : true,
-				title : "删除",
-				buttons : {
-				    "关闭": function() {
-				          $(this).dialog("close");
-				     }
-				}
-			});
+			infoPop("删除已经完成。", null, "删除");
         }
     } catch (e) {
         alert("name: " + e.name + " message: " + e.message + " lineNumber: "+ e.lineNumber + " fileName: " + e.fileName);
@@ -242,6 +224,7 @@ var showAdd=function(){
     $("#add_access_place").val("").trigger("change");
     $("#add_cycle_type").val("").trigger("change");
     $("#add_filing_means").val("").trigger("change");
+    $("#add_linage").val("");
     $("#add_specified_model_name").val("");
     
     $("#add_form").validate({
@@ -277,6 +260,9 @@ var showAdd=function(){
             "filing_means":$("#add_filing_means").val(),
             "specified_model_name":$("#add_specified_model_name").val()
         };
+        if (data["filing_means"] == 2 || data["filing_means"] == 3) {
+        	data["linage"] = $("#add_linage").val();
+        }
            
         if($("#add_form").valid()){
             $.ajaxFileUpload({
@@ -305,8 +291,7 @@ var showAdd=function(){
              });
         }
     });
-    
-   
+
     //取消
     $("#cancelbutton").unbind("click")
     $("#cancelbutton").bind("click",function(){
@@ -338,6 +323,7 @@ var showUpdate=function(){
     }
    
     $("#update_filing_means").val(rowData.filing_means).trigger("change");//归档方式
+    $("#update_linage").val(rowData.linage);
     $("#label_updated_by_name").text(rowData.update_name);//最后更新人
     $("#label_updated_time").text(rowData.updated_time);
     $("#update_specified_model_name").val(rowData.specified_model_name);//特定机型
@@ -369,7 +355,10 @@ var showUpdate=function(){
             "filing_means":$("#update_filing_means").val(),
             "specified_model_name":$("#update_specified_model_name").val()
         };
-       
+        if (data["filing_means"] == 2 || data["filing_means"] == 3) {
+        	data["linage"] = $("#update_linage").val();
+        }
+
         if($("#update_form").valid()){
            $.ajaxFileUpload({
                 url : servicePath + '?method=doUpdate', // 需要链接到服务器地址

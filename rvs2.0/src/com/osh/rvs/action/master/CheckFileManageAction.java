@@ -161,10 +161,16 @@ public class CheckFileManageAction extends BaseAction {
 		v.add("devices_type_id",  new RequiredValidator("使用设备工具品名"));
 		v.add("access_place", new RequiredValidator("类型"));
 		v.add("filing_means",new RequiredValidator("归档方式"));
-		// 错误信息集合
-		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
 		
 		CheckFileManageForm checkFileManageForm=(CheckFileManageForm)form;
+
+		if (checkFileManageForm.getFiling_means() != null && !"1".equals(checkFileManageForm.getFiling_means())) {
+			v.add("linage",new RequiredValidator("单页记录数"));
+		}
+
+		// 错误信息集合
+		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
+
 		FormFile file = checkFileManageForm.getFile();
 		if (file == null || CommonStringUtil.isEmpty(file.getFileName())) {//点检表文件不存在
 			MsgInfo error = new MsgInfo();
@@ -235,12 +241,29 @@ public class CheckFileManageAction extends BaseAction {
 		v.add("devices_type_id",  new RequiredValidator("使用设备工具品名"));
 		v.add("access_place", new RequiredValidator("类型"));
 		v.add("filing_means",new RequiredValidator("归档方式"));
-	
+
+		CheckFileManageForm checkFileManageForm=(CheckFileManageForm)form;
+
+		if (checkFileManageForm.getFiling_means() != null && !"1".equals(checkFileManageForm.getFiling_means())) {
+			v.add("linage",new RequiredValidator("单页记录数"));
+		}
+
 		// 错误信息集合
 		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
 
+		if (errors.size() == 0 && checkFileManageForm.getFiling_means() != null && !"1".equals(checkFileManageForm.getFiling_means())) {
+			int linage = Integer.parseInt(checkFileManageForm.getLinage());
+			if (linage <= 1) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("linage");
+				error.setErrcode("validator.invalidParam.invalidMoreThanZero");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidMoreThanZero", "单页记录数"));
+				errors.add(error);
+			}
+		}
+
 		CheckFileManageService service=new CheckFileManageService();
-		CheckFileManageForm checkFileManageForm=(CheckFileManageForm)form;
+
 		String access_place=checkFileManageForm.getAccess_place();//类型
 		if("2".equals(access_place)){//定期
 			if(CommonStringUtil.isEmpty(checkFileManageForm.getCycle_type())){//归档周期为空

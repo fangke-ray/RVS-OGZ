@@ -168,16 +168,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.4.446</p>
+								<p id="nee">2.4.451</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2019年5月24日</p>
+								<p>2019年8月1日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/8/1 2.4.451 更新</p>
+								<p>设备・专用工具管理：同工位点检表单批量进行点检</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>19/6/26 2.4.446 更新</p>

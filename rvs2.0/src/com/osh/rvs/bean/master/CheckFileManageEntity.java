@@ -54,6 +54,10 @@ public class CheckFileManageEntity implements Serializable {
 	private String specified_model_name;//特定机型
 	private Integer confirm_cycle; //线长确认周期
 
+	private Integer manage_level;
+
+	private Integer linage;
+
 	public String getCheck_file_manage_id() {
 		return check_file_manage_id;
 	}
@@ -204,6 +208,22 @@ public class CheckFileManageEntity implements Serializable {
 
 	public void setConfirm_cycle(Integer confirm_cycle) {
 		this.confirm_cycle = confirm_cycle;
+	}
+
+	public Integer getManage_level() {
+		return manage_level;
+	}
+
+	public void setManage_level(Integer manage_level) {
+		this.manage_level = manage_level;
+	}
+
+	public Integer getLinage() {
+		return linage;
+	}
+
+	public void setLinage(Integer linage) {
+		this.linage = linage;
 	}
 
 	
