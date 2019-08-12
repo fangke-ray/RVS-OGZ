@@ -1647,6 +1647,9 @@ public class CheckResultPageService {
 		Integer linage = cfmEntity.getLinage();
 		int pageCnt = 1;
 		List<DevicesManageEntity> dmEntities = new ArrayList<DevicesManageEntity>();
+
+		Set<String> manageIds = new HashSet<String>();
+
 		if (linage != null && linage != 1) {
 			DevicesManageEntity condEntity = new DevicesManageEntity();
 			condEntity.setSection_id(dmEntity.getSection_id());
@@ -1655,11 +1658,15 @@ public class CheckResultPageService {
 			condEntity.setManage_level(1);
 			condEntity.setStatus("1");
 			dmEntities = dmMapper.searchDeviceManage(condEntity);
+			DevicesManageEntity selfDm = null;
 			for (DevicesManageEntity dm : dmEntities) {
+				manageIds.add(dm.getDevices_manage_id());
 				if (dm.getDevices_manage_id().equals(dmEntity.getDevices_manage_id())) {
-					dmEntities.remove(dm);
-					break;
+					selfDm = dm;
 				}
+			}
+			if (selfDm != null) {
+				dmEntities.remove(selfDm);
 			}
 			dmEntities.add(0, dmEntity);
 			pageCnt = (dmEntities.size() + linage - 1) / linage;
@@ -1686,6 +1693,57 @@ public class CheckResultPageService {
 			} catch (IOException e) {
 			}
 			input = null;
+		}
+
+		// 确定表单的归档类型
+		int fileAxisType = 0; 
+		fileAxisType = cfmEntity.getCycle_type();
+
+		// 计算范围用日历
+		Calendar monCal = Calendar.getInstance();
+		if (CheckFileManageEntity.ACCESS_PLACE_DAILY == cfmEntity.getAccess_place()) {
+			monCal.setTimeInMillis(adjustCal.getTimeInMillis());
+			monCal.set(Calendar.DATE, 1);
+		} else {
+			if (TYPE_FILED_YEAR == fileAxisType) {
+				// 去期间头
+				monCal = getStartOfPeriod(adjustCal);
+			} else {
+				// 去月首
+				monCal.setTimeInMillis(adjustCal.getTimeInMillis());
+				monCal.set(Calendar.DATE, 1);
+
+				if (TYPE_FILED_WEEK_OF_MONTH == fileAxisType) {
+					int week = monCal.get(Calendar.DAY_OF_WEEK);
+					if (week == Calendar.SUNDAY) {
+						monCal.add(Calendar.DATE, 1);
+					} else if (week == Calendar.MONDAY) {
+					} else {
+						monCal.add(Calendar.DATE, 9 - week);
+					}
+					if (today.before(monCal.getTime())) {
+						monCal.add(Calendar.MONTH, -1);
+						week = monCal.get(Calendar.DAY_OF_WEEK);
+						if (week == Calendar.SUNDAY) {
+							monCal.add(Calendar.DATE, 1);
+						} else if (week == Calendar.MONDAY) {
+						} else {
+							monCal.add(Calendar.DATE, 9 - week);
+						}
+					}
+				}
+			}
+		}
+
+		List<String> commentExists = null;
+
+		CheckResultEntity commentCondition = new CheckResultEntity();
+		commentCondition.setCheck_confirm_time_start(monCal.getTime());
+		commentCondition.setCheck_confirm_time_end(adjustDate);
+
+		if (manageIds.size() > 1) {
+			commentCondition.setManage_ids(manageIds);
+			commentExists = getCommentsExists(1, commentCondition, crMapper);
 		}
 
 		for (int iPage = 0; iPage < pageCnt; iPage++) {
@@ -1720,45 +1778,6 @@ public class CheckResultPageService {
 				}
 			}
 
-			// 确定表单的归档类型
-			int fileAxisType = 0; 
-			fileAxisType = cfmEntity.getCycle_type();
-
-			// 计算范围用日历
-			Calendar monCal = Calendar.getInstance();
-			if (CheckFileManageEntity.ACCESS_PLACE_DAILY == cfmEntity.getAccess_place()) {
-				monCal.setTimeInMillis(adjustCal.getTimeInMillis());
-				monCal.set(Calendar.DATE, 1);
-			} else {
-				if (TYPE_FILED_YEAR == fileAxisType) {
-					// 去期间头
-					monCal = getStartOfPeriod(adjustCal);
-				} else {
-					// 去月首
-					monCal.setTimeInMillis(adjustCal.getTimeInMillis());
-					monCal.set(Calendar.DATE, 1);
-
-					if (TYPE_FILED_WEEK_OF_MONTH == fileAxisType) {
-						int week = monCal.get(Calendar.DAY_OF_WEEK);
-						if (week == Calendar.SUNDAY) {
-							monCal.add(Calendar.DATE, 1);
-						} else if (week == Calendar.MONDAY) {
-						} else {
-							monCal.add(Calendar.DATE, 9 - week);
-						}
-						if (today.before(monCal.getTime())) {
-							monCal.add(Calendar.MONTH, -1);
-							week = monCal.get(Calendar.DAY_OF_WEEK);
-							if (week == Calendar.SUNDAY) {
-								monCal.add(Calendar.DATE, 1);
-							} else if (week == Calendar.MONDAY) {
-							} else {
-								monCal.add(Calendar.DATE, 9 - week);
-							}
-						}
-					}
-				}
-			}
 			retContent = retContent.replaceAll("<date type='year'/>", DateUtil.toString(monCal.getTime(), "yyyy"));
 			retContent = retContent.replaceAll("<date type='month'/>", DateUtil.toString(monCal.getTime(), "M"));
 
@@ -1784,13 +1803,13 @@ public class CheckResultPageService {
 					retContent = setNormalDeviceSingle(dmEntities.get(iItem), retContent, dmEntities.get(iItem).getDevices_manage_id(),
 							check_file_manage_id, isLeader, readOnly, crMapper,
 							cfmMapper, cfmEntity, cycleTypeTime, cycleTypeJobNo,
-							monCal, adjustCal, iItem % linage, iItem);
+							monCal, adjustCal, iItem % linage, iItem, commentExists);
 				}
 			} else {
 				retContent = setNormalDeviceSingle(dmEntity, retContent, manage_id,
 						check_file_manage_id, isLeader, readOnly, crMapper,
 						cfmMapper, cfmEntity, cycleTypeTime, cycleTypeJobNo,
-						monCal, adjustCal, null, null);
+						monCal, adjustCal, null, null, commentExists);
 			}
 
 			// 点检者名字
@@ -1885,15 +1904,17 @@ public class CheckResultPageService {
 			}
 
 			// 备注
-			CheckResultEntity commentCondition = new CheckResultEntity();
-			commentCondition.setCheck_confirm_time_start(monCal.getTime());
-			commentCondition.setCheck_confirm_time_end(adjustDate);
-			Set<String> manageIds = new HashSet<String>();
-			manageIds.add(manage_id);
-			commentCondition.setManage_ids(manageIds);
-			List<String> commentExists = getCommentsExists(1, commentCondition, crMapper);
-			if (commentExists.size() > 0) {
-				retContent += "<comment exists/>";
+			if (manageIds.size() <= 1) {
+				commentCondition = new CheckResultEntity();
+				commentCondition.setCheck_confirm_time_start(monCal.getTime());
+				commentCondition.setCheck_confirm_time_end(adjustDate);
+				manageIds = new HashSet<String>();
+				manageIds.add(manage_id);
+				commentCondition.setManage_ids(manageIds);
+				commentExists = getCommentsExists(1, commentCondition, crMapper);
+				if (commentExists.size() > 0) {
+					retContent += "<comment exists/>";
+				}
 			}
 
 //			if (mSignData.find()) {
@@ -1919,7 +1940,8 @@ public class CheckResultPageService {
 			CheckFileManageEntity cfmEntity, 
 			Map<Integer, Map<Integer, Date>> cycleTypeTime,
 			Map<Integer, Map<Integer, String>> cycleTypeJobNo,
-			Calendar monCal, Calendar adjustCal, Integer pIndex, Integer allIndex) {
+			Calendar monCal, Calendar adjustCal, Integer pIndex, Integer allIndex, 
+			List<String> commentExists) {
 
 //		Map<Integer, Map<Integer, Date>> cycleTypeTimeSingle = null;
 //		Map<Integer, Map<Integer, String>> cycleTypeJobNoSingle = null;
@@ -1943,6 +1965,11 @@ public class CheckResultPageService {
 			retContent += dtagHtml;
 		} else {
 			if (pIndex != null) {
+				// 备注
+				if (commentExists != null) {
+					dtagHtml += "<input type='radio' class='t_comment' name='comment_target' id='comment_"+manage_id+"' value='"+manage_id+"'/>" +  
+							"<label for='comment_"+manage_id+"'" + (commentExists.contains(manage_id) ? " exists" : "") + ">备注</label>";
+				}
 				retContent = retContent.replaceAll("<manageNo [^>]* line='" + pIndex + "'/>", dmEntity.getManage_code() + dtagHtml);
 			}
 			retContent = retContent.replaceAll("<manageNo/>", dmEntity.getManage_code() 
