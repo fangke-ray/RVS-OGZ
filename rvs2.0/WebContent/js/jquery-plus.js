@@ -703,6 +703,9 @@ $(".ui-widget-overlay").on("click", function(){}); // alert (1);
 	function resize(textinput, opts) {
 
 		textvalue = textinput.value;
+		if (textvalue == "wqd") {
+			textinput.value = "∞"; return;
+		}
 //		alert(textvalue);
 		var fullobjs = textvalue.match(/[^\x00-\xff]/g); // fullwide chars
 		var esize = textvalue.length + (fullobjs ? fullobjs.length : 0);

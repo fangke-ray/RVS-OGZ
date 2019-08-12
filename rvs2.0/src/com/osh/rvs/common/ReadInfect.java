@@ -931,6 +931,7 @@ public class ReadInfect {
 						case "W" : itemEntity.setCycle_type(2); break;
 						case "M" : itemEntity.setCycle_type(3); break;
 						case "P" : itemEntity.setCycle_type(4); break;
+						case "Y" : itemEntity.setCycle_type(5); break;
 						default : throw new Exception("不合法的标签：" + cellText);
 						}
 						String format = tag.substring(2);

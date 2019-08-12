@@ -57,12 +57,12 @@
 		    check_file_manage cfm_d ON dm.device_type_id = cfm_d.device_type_id 
 				and cfm_d.delete_flg != 1
 				AND ((dm.status = 1 AND cfm_d.access_place = 1) OR (dm.status = 5 AND cfm_d.access_place = 9))
-				AND (cfm_d.specified_model_name IS NULL OR cfm_d.specified_model_name LIKE concat('%', dm.model_name, '%'))
+				AND (cfm_d.specified_model_name IS NULL OR cfm_d.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 		        left join
 		    check_file_manage cfm_r ON dm.device_type_id = cfm_r.device_type_id AND cfm_r.access_place = 2
 				AND (dm.status = 1)
 				and cfm_r.delete_flg != 1
-				AND (cfm_r.specified_model_name IS NULL OR cfm_r.specified_model_name LIKE concat('%', dm.model_name, '%'))
+				AND (cfm_r.specified_model_name IS NULL OR cfm_r.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 
 				left join brand b ON dm.brand_id = b.brand_id
 		]]>

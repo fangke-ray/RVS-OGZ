@@ -425,7 +425,7 @@
 		join devices_manage dm
 		on dm.device_type_id = cfm.device_type_id
 		and (cfm.specified_model_name is null
-		OR cfm.specified_model_name LIKE CONCAT('%', dm.model_name, '%'))
+		OR cfm.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 		where dm.section_id = #{section_id}
 		and (dm.position_id = #{position_id}
 			or (dm.position_id is null and dm.line_id = #{line_id}))
@@ -724,7 +724,7 @@
 			    check_file_manage cjm ON cjm.device_type_id = dm.device_type_id
 					and dcr.checked_status > 0
 			        and (cjm.specified_model_name is null
-			        OR cjm.specified_model_name LIKE CONCAT('%', dm.model_name, '%'))
+			        OR cjm.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 			        and cjm.access_place = 9
 			        and cjm.delete_flg = 0
 			WHERE

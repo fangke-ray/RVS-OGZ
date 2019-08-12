@@ -2031,7 +2031,11 @@ public class CheckResultPageService {
 				if (isEmpty(dmEntity.getModel_name())) {
 					continue;
 				}
-				if (item.getSpecified_model_name().indexOf(dmEntity.getModel_name()) < 0) {
+				if (item.getSpecified_model_name().indexOf(dmEntity.getModel_name()) >= 0) {
+					if (!item.getSpecified_model_name()
+							.matches("^([^;]+;)*" + dmEntity.getModel_name() + "(;[^;]+)*$"))
+						continue;
+				} else {
 					continue;
 				}
 			}

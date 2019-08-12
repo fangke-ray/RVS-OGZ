@@ -73,7 +73,7 @@
 					AND (dm.device_type_id = dt.device_type_id 
 						OR (specialized = 1 AND cfm.check_file_manage_id BETWEEN 100 AND 102) -- [TODO file specialized]
 						OR (specialized = 2 AND cfm.check_file_manage_id BETWEEN 105 AND 112)) 
-					AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name LIKE concat('%', dm.model_name, '%'))
+					AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 				)
 			</if>
 		</where>
@@ -187,7 +187,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 	join check_file_manage cfm
 		on dt.device_type_id = cfm.device_type_id
 		AND dm.delete_flg = 0 AND cfm.delete_flg = 0
-		AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name LIKE concat('%', dm.model_name, '%'))
+		AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 	left join position pos
 		on dm.position_id = pos.position_id
 	where manage_level = 1 and `status` = 1
@@ -228,7 +228,7 @@ WHERE `check_file_manage_id` = #{check_file_manage_id};
 	join check_file_manage cfm
 		on dm.device_type_id = cfm.device_type_id
 		and dm.delete_flg = 0 and cfm.delete_flg = 0
-		AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name LIKE concat('%', dm.model_name, '%'))
+		AND (cfm.specified_model_name IS NULL OR cfm.specified_model_name regexp CONCAT('(^|;)', dm.model_name, '($|;)'))
 	left join position pos
 		on dm.position_id = pos.position_id
 	where manage_level <= 2 
