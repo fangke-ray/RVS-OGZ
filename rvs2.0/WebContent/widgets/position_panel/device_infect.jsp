@@ -93,7 +93,7 @@ table.condform .diGrp td[rowspan] {
 			var normal = (peripheralData.group >=0) + (peripheralData.group > 0);
 			tbodyContent += '<tr' + getTrDisp(countGroup, peripheralData.group) + '>'
 				+ (normal ? '<td class="td-content" style="width:auto;"' 
-					+ ((normal > 1) ? ' rowspan="' + peripheralData.group + '"' : '') + '>' + peripheralData.seq + '</td>' : '')
+					+ ((normal > 1) ? ' rowspan="' + peripheralData.group + '"' : '') + '>' + (peripheralData.seq || '备品') + '</td>' : '')
 				+'<td class="td-content">' + peripheralData.device_type_name + '</td>'
 				+'<td class="td-content">' + peripheralData.model_name + '</td>'
 				+'<td class="td-content"><label class="check_manage_code">' + peripheralData.check_manage_code + '</label></td>'
@@ -123,7 +123,7 @@ table.condform .diGrp td[rowspan] {
 
 			var cfm_id = $tr.find(".check_file_manage_id").val();
 			var device_type_id = $tr.find(".device_type_id").val();
-			if (selected_value != "") {
+			if (selected_value) {
 				$tbodyContent.find(".manageCode[seq=" + this.getAttribute("seq") + "]").not(this).val("").trigger("change");
 				var temp = selected_value.split(",");
 				if (temp[1] == "1") {

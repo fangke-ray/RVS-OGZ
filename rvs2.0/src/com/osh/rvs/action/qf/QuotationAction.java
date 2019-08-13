@@ -208,7 +208,7 @@ public class QuotationAction extends BaseAction {
 					List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 
 					// 取得周边设备检查使用设备工具 
-					boolean infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+					boolean infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, true, conn);
 
 					if (resultEntities != null && resultEntities.size() > 0) {
 						callbackResponse.put("peripheralData", resultEntities);
@@ -241,7 +241,7 @@ public class QuotationAction extends BaseAction {
 						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 
 						// 取得周边设备检查使用设备工具 
-						boolean infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+						boolean infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, true, conn);
 
 						if (resultEntities != null && resultEntities.size() > 0) {
 							callbackResponse.put("peripheralData", resultEntities);
@@ -337,7 +337,7 @@ public class QuotationAction extends BaseAction {
 
 				List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 				// 取得周边设备检查使用设备工具 
-				boolean infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+				boolean infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, true, conn);
 
 				// 取得周边设备检查使用设备工具 
 				if (resultEntities != null && resultEntities.size() > 0) {

@@ -1437,7 +1437,7 @@ public class PositionPanelService {
 	 * @throws Exception 
 	 */
 	public boolean getPeripheralData(String material_id, ProductionFeatureEntity pfEntity,
-			List<PeripheralInfectDeviceEntity> retEntity, SqlSession conn) {
+			List<PeripheralInfectDeviceEntity> retEntity, boolean matchedDevice, SqlSession conn) {
 		PeripheralInfectDeviceMapper dao = conn.getMapper(PeripheralInfectDeviceMapper.class);
 
 		// 当前工位点检是否完成
@@ -1456,6 +1456,14 @@ public class PositionPanelService {
 		int seqTag = -1, seqCursor = -1, seqCount = 0;
 		for (int i = 0; i < resultEntities.size(); i++) {
 			PeripheralInfectDeviceEntity result = resultEntities.get(i);
+
+			// 只有检查故障项对照时，才需要备品
+			if (!matchedDevice && result.getSeq() == 0) {
+				continue;
+			}
+
+			retEntity.add(result);
+
 			// 根据每一项的品名及型号，取得manageCodeList
 			DevicesManageEntity devicesManageEntity = new DevicesManageEntity();
 			devicesManageEntity.setDevice_type_id(result.getDevice_type_id());
@@ -1510,8 +1518,6 @@ public class PositionPanelService {
 				resultEntities.get(seqCursor + j).setGroup(-1);
 			}
 		}
-
-		retEntity.addAll(resultEntities);
 
 		return infectFinishFlag;
 	}

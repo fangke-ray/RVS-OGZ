@@ -321,7 +321,7 @@ public class PositionPanelAction extends BaseAction {
 
 						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 						// 取得周边设备检查使用设备工具 
-						infectFinishFlag = service.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+						infectFinishFlag = service.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, false, conn);
 
 						if (resultEntities != null && resultEntities.size() > 0) {
 							listResponse.put("peripheralData", resultEntities);
@@ -368,7 +368,7 @@ public class PositionPanelAction extends BaseAction {
 
 						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 						// 取得周边设备检查使用设备工具 
-						infectFinishFlag = service.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+						infectFinishFlag = service.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, false, conn);
 
 						if (resultEntities != null && resultEntities.size() > 0) {
 							listResponse.put("peripheralData", resultEntities);
@@ -509,7 +509,7 @@ public class PositionPanelAction extends BaseAction {
 			if ("peripheral".equals(special_forward)) {
 				List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 				// 取得周边设备检查使用设备工具 
-				infectFinishFlag = service.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+				infectFinishFlag = service.getPeripheralData(material_id, waitingPf, resultEntities, false, conn);
 
 				if (resultEntities != null && resultEntities.size() > 0) {
 					listResponse.put("peripheralData", resultEntities);

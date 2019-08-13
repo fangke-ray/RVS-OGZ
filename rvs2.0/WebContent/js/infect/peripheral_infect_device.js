@@ -1,6 +1,7 @@
 
 var servicePath="peripheral_infect_device.do";
 var strSeqTr = '<tr><td><select alt="组序号" name="seq" class="add_seq"><select></td><td class="td-content"><input type="text" alt="设备类别" name="device_type_name" class="add_device_type_name" class="ui-widget-content" style="width:215px;"/><input class="hidden_add_device_type_name" name="device_type_name" type="hidden"></td><td class="td-content"><input type="text" alt="型号" name="model_name" class="add_model_name" class="ui-widget-content" style="width:215px;"/></td></tr>';
+var seqOptions = "<option value='00'>备品</option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>";
 
 $(function(){
 	$("input.ui-button").button();
@@ -154,7 +155,7 @@ var getSeqTr = function(bean){
 			var en = bean[i];
 			var $tr = $(strSeqTr);
 			$tr.append("<td><input type='button' class='seqdel' value='×'></td>");
-			$tr.find("select").html("<option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>")
+			$tr.find("select").html(seqOptions)
 				.change(sortSeq)
 				.find("option").filter(function(){
 					return parseInt($(this).val(), 10) == en.seq;
@@ -171,7 +172,7 @@ var getSeqTr = function(bean){
 	} else {
 		$tr = $(strSeqTr);
 		$tr.append("<td><input type='button' class='seqadd' value='＋'></td>");
-		$tr.find("select").html("<option></option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>");
+		$tr.find("select").html("<option></option>" + seqOptions);
 		setReferChooser($tr.find(".hidden_add_device_type_name"),$("#add_device_type_referchooser"));
 		$tr.addClass("addseqTr");
 		$tr.find(".seqadd").click(function(){

@@ -218,7 +218,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 						// 取得周边设备检查使用设备工具 
-						infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, conn);
+						infectFinishFlag = ppService.getPeripheralData(workingPf.getMaterial_id(), workingPf, resultEntities, false, conn);
 
 						if (resultEntities != null && resultEntities.size() > 0) {
 							callbackResponse.put("peripheralData", resultEntities);
@@ -260,7 +260,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 							List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 							// 取得周边设备检查使用设备工具 
-							infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, conn);
+							infectFinishFlag = ppService.getPeripheralData(pauseingPf.getMaterial_id(), pauseingPf, resultEntities, false, conn);
 
 							if (resultEntities != null && resultEntities.size() > 0) {
 								callbackResponse.put("peripheralData", resultEntities);
@@ -392,7 +392,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 					List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 					// 取得周边设备检查使用设备工具 
-					infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, conn);
+					infectFinishFlag = ppService.getPeripheralData(material_id, waitingPf, resultEntities, false, conn);
 
 					if (resultEntities != null && resultEntities.size() > 0) {
 						listResponse.put("peripheralData", resultEntities);
