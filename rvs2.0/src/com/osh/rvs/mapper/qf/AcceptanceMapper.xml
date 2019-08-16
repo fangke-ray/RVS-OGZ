@@ -91,7 +91,7 @@
 
 	<select id="checkModelSerialNo" resultType="String" parameterType="MaterialEntity">
 		<![CDATA[ 
-			SELECT material_id from Material where model_id = #{model_id} and serial_no = #{serial_no} AND break_back_flg = 0 AND outline_time IS NULL;
+			SELECT material_id from Material where model_id = #{model_id} and serial_no = #{serial_no} AND outline_time IS NULL;
 		]]>
 	</select>
 
