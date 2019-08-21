@@ -274,9 +274,6 @@ var showInput=function(rid, manual) {
 				"确定":function(){
 					$("#ins_material").validate({
 						rules : {
-							sorcno : {
-								required : true
-							},
 							serialno : {
 								required : true
 							}

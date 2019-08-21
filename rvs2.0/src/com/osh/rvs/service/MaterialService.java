@@ -385,7 +385,7 @@ public class MaterialService {
 			}  else if (existId3 != null) {
 				MsgInfo info = new MsgInfo();
 				info.setErrcode("dbaccess.columnNotUnique");
-				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_id() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
 				errors.add(info);
 			}
 		} else { //更新时判断ID不相等
@@ -400,7 +400,7 @@ public class MaterialService {
 			} else if (existId3 != null && !id.equals(existId3)) {
 				MsgInfo info = new MsgInfo();
 				info.setErrcode("dbaccess.columnNotUnique");
-				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_id() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
 				errors.add(info);
 			}
 		}
