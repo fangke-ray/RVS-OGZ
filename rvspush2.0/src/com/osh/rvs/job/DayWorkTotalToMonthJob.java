@@ -897,7 +897,7 @@ public class DayWorkTotalToMonthJob implements Job {
 
 		// 直接时间（M）
 		BigDecimal bdMinutes = (BigDecimal) operatorProcess.get("minutes");
-		if ("111".equals(process_code) || "121".equals(process_code) || "131".equals(process_code) || "711".equals(process_code) || "301".equals(process_code)
+		if ("111".equals(process_code) || "121".equals(process_code) || "131".equals(process_code) || "711".equals(process_code) // || "301".equals(process_code)
 				|| (("251".equals(process_code) || "252".equals(process_code) || "321".equals(process_code) 
 						|| "400".equals(process_code)) && bdMinutes != null && bdMinutes.setScale(0, RoundingMode.HALF_EVEN).equals(BigDecimal.ZERO))) {
 			// TODO xianzai

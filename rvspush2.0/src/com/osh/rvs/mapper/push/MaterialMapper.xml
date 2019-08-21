@@ -592,7 +592,7 @@ VALUES
 			ON 
 			    op10.operator_id = pf10.operator_id 
 			WHERE
-			    ma.break_back_flg IN (0 , 2 , 3 , 4) AND DATE(pf10.finish_time) = #{finish_time} 
+			    ma.break_back_flg IN (0 , 2) AND DATE(pf10.finish_time) = #{finish_time} -- [ , 3 , 4 ] 
 			ORDER BY 
 				pf10.finish_time
 		]]>

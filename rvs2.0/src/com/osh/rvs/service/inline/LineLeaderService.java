@@ -79,6 +79,11 @@ public class LineLeaderService {
 					&& entity.getOperate_result() == 2) {
 				continue;
 			}
+			// LG 玻璃已更换完成品，不要显示在NS仕挂里
+			if ("303".equals(entity.getProcess_code())
+					&& entity.getOperate_result() == 2) {
+				continue;
+			}
 			LineLeaderForm retForm = new LineLeaderForm();
 			BeanUtil.copyToForm(entity, retForm, cos);
 			if (entity.getOperate_result() == 3) {

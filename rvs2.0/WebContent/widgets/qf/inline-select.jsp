@@ -91,7 +91,7 @@ function showedit_handleComplete(xhrobj, textStatus) {
 				</td>
 			</tr>
 			<tr style="min-height:120px;">
-				<td class="td-content" colspan="7">
+				<td class="td-content" colspan="7" style="width:1000px;">
 					<div id="pa_main" class="chartarea">
 					</div>
 				</td>

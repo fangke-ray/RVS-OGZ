@@ -302,57 +302,46 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 					// 通过Validate,切到修改确认画面
 					$("#editbutton").disable();
 
-					$("#confirmmessage").text("确认要修改记录吗？");
-				 	$("#confirmmessage").dialog({
-						resizable : false,
-						modal : true,
-						title : "修改确认",
-						close: function() {
-							$("#editbutton").enable();
-						},
-						buttons : {
-							"确认" : function() {
-								var data = {
-									"id" : $("#label_edit_id").text(),
-									"name" : $("#input_name").val(),
-									"job_no" : $("#input_job_no").val(),
-									"work_count_flg" : $("#input_account_type").val(),
-									"section_id" : $("#input_section_id").val(),
-									"role_id" : $("#input_role_id").val(),
-									"line_id" : $("#input_line_id").val(),
-									"position_id" : $("#grid_edit_main_position tr.ui-state-active").find(".referId").html(),
-									"email" : $("#input_email").val()
-								}
-
-								$("#grid_edit_positions tr.ui-state-active").each(function(i,item){
-									data["abilities[" + i + "]"] = $(item).find(".referId").html();
-								});
-
-								var upd_temp_roles = $("#input_roles_id").val();
-								for (var irole in upd_temp_roles) {
-									data["temp_role[" + irole + "]"] = upd_temp_roles[irole];
-								}
-
-								$(this).dialog("close");
-								// Ajax提交
-								$.ajax({
-									beforeSend : ajaxRequestType,
-									async : true,
-									url : servicePath + '?method=doupdate',
-									cache : false,
-									data : data,
-									type : "post",
-									dataType : "json",
-									success : ajaxSuccessCheck,
-									error : ajaxError,
-									complete : update_handleComplete
-								});
-							},
-							"取消" : function() {
-								$(this).dialog("close");
+					warningConfirm("确认要修改记录吗？",
+						function() {
+							var data = {
+								"id" : $("#label_edit_id").text(),
+								"name" : $("#input_name").val(),
+								"job_no" : $("#input_job_no").val(),
+								"work_count_flg" : $("#input_account_type").val(),
+								"section_id" : $("#input_section_id").val(),
+								"role_id" : $("#input_role_id").val(),
+								"line_id" : $("#input_line_id").val(),
+								"position_id" : $("#grid_edit_main_position tr.ui-state-active").find(".referId").html(),
+								"email" : $("#input_email").val()
 							}
-						}
-					});
+
+							$("#grid_edit_positions tr.ui-state-active").each(function(i,item){
+								data["abilities[" + i + "]"] = $(item).find(".referId").html();
+							});
+
+							var upd_temp_roles = $("#input_roles_id").val();
+							for (var irole in upd_temp_roles) {
+								data["temp_role[" + irole + "]"] = upd_temp_roles[irole];
+							}
+
+							// Ajax提交
+							$.ajax({
+								beforeSend : ajaxRequestType,
+								async : true,
+								url : servicePath + '?method=doupdate',
+								cache : false,
+								data : data,
+								type : "post",
+								dataType : "json",
+								success : ajaxSuccessCheck,
+								error : ajaxError,
+								complete : update_handleComplete
+							});
+						}, function() {
+							$("#editbutton").enable();
+						}, "修改确认"
+					);
 				};
 			});
 		}

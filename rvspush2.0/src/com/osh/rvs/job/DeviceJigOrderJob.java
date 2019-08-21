@@ -427,9 +427,27 @@ public class DeviceJigOrderJob implements Job {
 				// 建立推送信息接收人
 				postMessageMapper.createPostMessageSendation(postMessageEntity);
 			}
+
+			Collection<InternetAddress> toIas = RvsUtils.getMailIas("device_jig_order_confirm.to", conn);
+			Collection<InternetAddress> ccIas = RvsUtils.getMailIas("device_jig_order_confirm.cc", conn);
+
+			// 发信
+			String subject = PathConsts.MAIL_CONFIG.getProperty("device_jig_order_confirm.title");
+			String mailContents = content +"\r\n请到RVS设备工具订购画面去确认。";
+			MailUtils.sendMail(toIas, ccIas, subject, mailContents);
 			
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
+				
+				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+				
+				//通知设备管理员
+				for (OperatorEntity op : receiverList) {
+					MessageInbound mInbound = bMap.get(op.getOperator_id()); 
+					if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
+						((OperatorMessageInbound)mInbound).newMessage();
+				}
+				
 				log.info("Committed！");
 			}
 		} catch (Exception e) {

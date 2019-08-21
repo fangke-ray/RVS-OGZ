@@ -34,6 +34,9 @@ span.areacount {
 td.low {
 	color:#FF4F4F;
 }
+#sikake_in {
+	font-size:12px;
+}
 </style>
 
 <title>${section_name} ${line_name}</title>
@@ -201,7 +204,7 @@ border-radius: 14px;display:none;">0%</div>
 			<span class="areatitle">${section_name} ${line_name}当前仕挂台数</span>
 		</div>
 		<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
-			<span style="font-size:16px;"><label id="sikake"></label> 台</span>
+			<span style="font-size:16px;"><label id="sikake"></label> 台<label id="sikake_in"></label></span>
 		</div>
 		<div class="clear areaencloser dwidth-half"></div>
 	</div>

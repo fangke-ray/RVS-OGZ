@@ -840,14 +840,31 @@ public class MaterialAction extends BaseAction {
 		res.setContentType(contentType);
 		File file = new File(filePath);
 		InputStream is = new BufferedInputStream(new FileInputStream(file));
-		byte[] buffer = new byte[is.available()];
-		is.read(buffer);
-		is.close();
-		
-		OutputStream os = new BufferedOutputStream(res.getOutputStream());
-		os.write(buffer);
-		os.flush();
-		os.close();
+		int avail = is.available();
+		byte[] buffer = null;
+		if (avail <= 268435456) { // 268435456 = 256 m
+			buffer = new byte[avail];
+			is.read(buffer);
+			is.close();
+
+			OutputStream os = new BufferedOutputStream(res.getOutputStream());
+			os.write(buffer);
+			os.flush();
+			os.close();
+
+		} else {
+
+		    buffer = new byte[40960];
+		    int n = 0;
+			OutputStream os = new BufferedOutputStream(res.getOutputStream());
+		    while (-1 != (n = is.read(buffer))) {
+				os.write(buffer, 0, n);
+		    }
+			is.close();
+
+			os.flush();
+			os.close();
+		}
 
 		log.info("MaterialAction.output end");
 		return null;
@@ -943,7 +960,7 @@ public class MaterialAction extends BaseAction {
 			String section_id = user.getSection_id();
 
 			PositionPanelService ppService = new PositionPanelService();
-			ppService.notifyPosition(section_id, position_id, material_id, false);
+			ppService.notifyPosition(section_id, position_id, material_id);
 		}
 
 		// 返回Json格式响应信息

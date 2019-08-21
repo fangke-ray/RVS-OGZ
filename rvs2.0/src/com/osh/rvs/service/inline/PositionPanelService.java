@@ -687,8 +687,13 @@ public class PositionPanelService {
 				showLines[3] = "总组工程";
 			} else if ("00000000054".equals(sline_id)) {
 				showLines = new String[2];
-				showLines[0] = "总组工程";
-				showLines[1] = "NS 工程";
+				if ("500".equals(pf.getProcess_code())) {
+					showLines[0] = "总组工程";
+					showLines[1] = "分解工程";
+				} else {
+					showLines[0] = "总组工程";
+					showLines[1] = "NS 工程";
+				}
 			} else if ("00000000060".equals(sline_id)) {
 				showLines = new String[1];
 				showLines[0] = "分解工程";
@@ -703,6 +708,7 @@ public class PositionPanelService {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, conn);
 
 			if ("NS 工程".equals(showLine)) filterSolo(fileTempl, material_id, conn);
+			if ("总组工程".equals(showLine)) MaterialService.filterLight(fileTempl, material_id, mform.getLevel(), conn);
 
 			Map<String, String> fileHtml = PcsUtils.toHtml(fileTempl, material_id, mform.getSorc_no(),
 					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), pf.getProcess_code(), isLeader ? sline_id : null, conn);
@@ -738,6 +744,7 @@ public class PositionPanelService {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, conn);
 
 			if ("NS 工程".equals(showLine)) filterSolo(fileTempl, material_id, conn);
+			if ("总组工程".equals(showLine)) MaterialService.filterLight(fileTempl, material_id, mform.getLevel(), conn);
 
 			Map<String, String> fileHtml = PcsUtils.toHtml(fileTempl, material_id, mform.getSorc_no(),
 					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), "619", null, conn);
@@ -787,7 +794,7 @@ public class PositionPanelService {
 			}
 		}
 		
-		// 如果有先端预制工程检查票
+		// 如果有CCD盖玻璃工程检查票
 		if (ccds.size() > 0) {
 			// 检查是否做过302工位
 			if (!dao.checkPositionDid(material_id, "00000000025", null, null)) {
@@ -1222,7 +1229,7 @@ public class PositionPanelService {
 		return retComments;
 	}
 
-	public void notifyPosition(String section_id, String position_id, String material_id, boolean isLight) {
+	public void notifyPosition(String section_id, String position_id, String material_id) {
 		// 通知
 		try {
 			HttpAsyncClient httpclient = new DefaultHttpAsyncClient();
@@ -1230,7 +1237,7 @@ public class PositionPanelService {
 			try {  
 				String inUrl = "http://localhost:8080/rvspush/trigger/in/" + position_id + "/" + section_id;
 				if (material_id != null) {
-					inUrl += "/" + material_id + "/" + (isLight ? "1" : "0");
+					inUrl += "/" + material_id + "/0";
 				}
 	            HttpGet request = new HttpGet(inUrl);
 	            _log.info("finger:"+request.getURI());

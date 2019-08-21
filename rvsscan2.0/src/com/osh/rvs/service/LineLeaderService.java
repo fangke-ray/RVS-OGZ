@@ -369,7 +369,7 @@ public class LineLeaderService {
 	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		// 工程仕挂总数
-		responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id));
+		responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null));
 
 		if ("00000000014".equals(line_id)) {
 			// 取得今日计划件数
@@ -385,6 +385,7 @@ public class LineLeaderService {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));
 				responseMap.put("plan_complete", dao.getProduceActualOfNsByBoard(section_id));
+				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL"));
 			} else if ("00000000070".equals(line_id)) {
 				String sPlan = "0";
 				Object oPlan =PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.周边维修工程");

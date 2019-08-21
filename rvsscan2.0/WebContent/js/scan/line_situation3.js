@@ -44,6 +44,10 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 
 			$("#sikake").text(resInfo.sikake); // TODO real sikake
 
+			if (resInfo.sikake_in || resInfo.sikake_in == 0) {
+				$("#sikake_in").text("（其中CCD盖玻璃更换与LG玻璃更换 " + resInfo.sikake_in + " 台)");
+			}
+
 			if (chart2 == null) {
 			chart2 = new Highcharts.Chart({
 				colors : ['#92D050', '#7faad4'],

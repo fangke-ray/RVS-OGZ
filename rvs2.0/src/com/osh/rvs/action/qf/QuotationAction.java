@@ -154,7 +154,8 @@ public class QuotationAction extends BaseAction {
 			// 设定OCM文字
 			callbackResponse.put("oOptions", CodeListUtils.getGridOptions("material_ocm"));
 			// 设定等级文字
-			if ("peripheral".equals(special_forward)) {
+			boolean isPeripheral = (special_forward != null && special_forward.indexOf("peripheral") >= 0);
+			if (isPeripheral) {
 				callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level_peripheral"));
 			} else {
 				callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level_endoscope"));
@@ -204,7 +205,7 @@ public class QuotationAction extends BaseAction {
 				// 取得作业信息
 				qService.getProccessingData(callbackResponse, workingPf.getMaterial_id(), user, conn);
 
-				if ("peripheral".equals(special_forward)) {
+				if (isPeripheral) {
 					List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 
 					// 取得周边设备检查使用设备工具 
@@ -237,7 +238,7 @@ public class QuotationAction extends BaseAction {
 					// 取得作业信息
 					qService.getProccessingData(callbackResponse, pauseingPf.getMaterial_id(), user, conn);
 
-					if ("peripheral".equals(special_forward)) {
+					if (isPeripheral) {
 						List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 
 						// 取得周边设备检查使用设备工具 
@@ -333,7 +334,8 @@ public class QuotationAction extends BaseAction {
 			// 判断是否有特殊页面效果
 			String special_forward = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
 
-			if ("peripheral".equals(special_forward)) {
+			boolean isPeripheral = (special_forward != null && special_forward.indexOf("peripheral") >= 0);
+			if (isPeripheral) {
 
 				List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 				// 取得周边设备检查使用设备工具 
@@ -645,7 +647,7 @@ public class QuotationAction extends BaseAction {
 			List<PeripheralInfectDeviceEntity> resultEntities = new ArrayList<PeripheralInfectDeviceEntity>();
 
 			// 取得周边设备检查使用设备工具 
-			boolean infectFinishFlag = ppService.getPeripheralData(material_id, workwaitingPf, resultEntities, conn);
+			boolean infectFinishFlag = ppService.getPeripheralData(material_id, workwaitingPf, resultEntities, true, conn);
 
 			if (!infectFinishFlag) {
 				callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);

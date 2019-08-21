@@ -17,7 +17,7 @@ public interface LineLeaderMapper {
 	public List<LineLeaderEntity> getWorkingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("position_id") String position_id);
 
 	// 取得工程内全部件数
-	public long getWorkingMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id);
+	public long getWorkingMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("cell") String cell);
 
 	// 当日计划件数
 	public long getTodayCompleteMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("kind") String kind);

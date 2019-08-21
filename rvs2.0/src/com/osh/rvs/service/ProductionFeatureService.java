@@ -230,9 +230,20 @@ public class ProductionFeatureService {
 
 		} else {
 			// 判断发动的工程是否有完成
+			boolean passed = false;
+			if (mEntity.getLevel() == 1) {
+				for (int j = 0; j < ProcessAssignService.S1PASSES.length; j++) {
+					if (ProcessAssignService.S1PASSES[j] == Integer.parseInt(position_id)) {
+						passed = true; break;
+					}
+				}
+			}
+			if (!passed) {
+				passed = paProxy.checkWorked(position_id);
+			}
 
 			// 有完成，并且其先决也已完成，则由这个工位继续触发
-			if (paProxy.checkWorked(position_id)) {
+			if (passed) {
 				// 取得先决
 				List<String> prevPositions = new ArrayList<String>();
 
@@ -551,9 +562,10 @@ public class ProductionFeatureService {
 					}
 				}
 			} else
-			if ("00000000088".equals(position_id) || "00000000089".equals(position_id) || "00000000099".equals(position_id)) {
+			if ("00000000088".equals(position_id) || "00000000089".equals(position_id) 
+					|| "00000000099".equals(position_id) || "00000000100".equals(position_id)) {
 				if (isFact) {
-					// 检查本工程是否都完成 // 300 400 TODO
+					// 检查本工程是否都完成 // 300 400 500 TODO
 					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
 					if (paMapper.getWorkedLine(material_id, "00000000054")) {
 						mpService.finishMaterialProcess(material_id, "00000000054", triggerList, conn);

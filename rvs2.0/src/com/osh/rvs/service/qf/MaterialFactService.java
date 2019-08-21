@@ -44,6 +44,7 @@ import com.osh.rvs.mapper.qf.MaterialFactMapper;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ProcessAssignService;
+import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.partial.MaterialPartialService;
 
@@ -396,22 +397,23 @@ public class MaterialFactService {
 				if (firstPositionIds.size() > 0) {
 					for (String firstPositionId : firstPositionIds) {
 						addFeatureEntity(featureEntities, materialId, firstPositionId, entity.getSection_id());
-						pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId, false);
+						pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId);
 					}
 				} else {
 					String firstPositionId = "00000000016";
 					addFeatureEntity(featureEntities, materialId, firstPositionId, entity.getSection_id());
-					pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId, false);
+					pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId);
 				}
 
 			}
 
+			ProductionFeatureService pfService = new ProductionFeatureService();
 			for (ProductionFeatureEntity featureEntity : featureEntities) {
 				if ("99".equals(featureEntity.getPosition_id()) || "00000000099".equals(featureEntity.getPosition_id())) {
 					MaterialPartialService mptlService = new MaterialPartialService();
 					mptlService.createMaterialPartialWithExistCheck(materialId, conn);
 				}
-				featureMapper.insertProductionFeature(featureEntity);
+				pfService.fingerSpecifyPosition(materialId, false, featureEntity, new ArrayList<String>(), conn);
 			}
 		}
 	}

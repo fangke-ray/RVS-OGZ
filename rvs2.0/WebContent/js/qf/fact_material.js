@@ -469,7 +469,7 @@ function process_dialog($process_dialog, rowdata) {
 	}
 	$process_dialog.dialog({
 		title : "投线设置",
-		width : 720,
+		width : 900,
 		show: "blind",
 		height : 620,// 'auto' ,
 		resizable : false,

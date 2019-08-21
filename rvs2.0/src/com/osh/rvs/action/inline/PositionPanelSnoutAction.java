@@ -59,7 +59,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	private static final String SNOUT_MODEL_EXCLUDED = "0";
 	private static final String SNOUT_MODEL_INCLUDED = "1";
 	private static final String SNOUT_MODEL_INCLUDED_AND_REWORKED = "2";
-	private static String WORK_STATUS_FORBIDDEN = "-1";
+	private static final String WORK_STATUS_FORBIDDEN = "-1";
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -215,8 +215,13 @@ public class PositionPanelSnoutAction extends BaseAction {
 			callbackResponse.put("waitings", sservice.getWaitingMaterial(section_id, user.getPosition_id(),
 					user.getOperator_id(), process_code, conn));
 
-			// 先端预制，取得可制作的型号
-			callbackResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getSnoutModels(conn), "", "(未选择)", false));
+			if ("301".equals(process_code)) {
+				// 先端预制，取得可制作的型号
+				callbackResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getSnoutModels(conn), "", "(未选择)", false));
+			} else {
+				// 设备附件，取得可制作的型号
+				callbackResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getAccessoriesModels(conn), "", "(未选择)", false));
+			}
 
 			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 			SoloProductionFeatureEntity pfBean = new SoloProductionFeatureEntity();

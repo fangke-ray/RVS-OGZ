@@ -779,7 +779,7 @@
 		<value code="2">电气</value>
 		<value code="3">温度</value>
 		<value code="4">压力</value>
-		<value code="5">噪声	</value>
+		<value code="5">噪声</value>
 		<value code="6">振动</value>
 		<value code="7">辐射</value>
 		<value code="8">物质</value>

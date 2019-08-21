@@ -527,7 +527,8 @@ public class MaterialService {
 					null, getHistory != null, mform.getMaterial_id(),   
 					conn);
 
-			if ("NS 工程".equals(showLine)) filterSolo(fileTempl, material_id, conn);
+			if ("NS 工程".equals(showLine)) filterSolo(fileTempl, material_id, mform.getLevel(), conn);
+			if ("总组工程".equals(showLine)) filterLight(fileTempl, material_id, mform.getLevel(), conn);
 
 			Map<String, String> fileHtml = PcsUtils.toHtml(fileTempl, material_id, mform.getSorc_no(),
 					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), "xyz", (i == ext && isLeader ? sline_id : null), conn);
@@ -574,13 +575,14 @@ public class MaterialService {
 		
 	}
 
-	public void filterSolo(Map<String, String> fileTempl, String material_id, SqlSession conn) {
+	public void filterSolo(Map<String, String> fileTempl, String material_id, String level, SqlSession conn) {
 
 		if (fileTempl == null) return;
 
 		ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
 
-		if (!dao.checkLineDid(material_id, "00000000013")) {
+		if (level != null && level.charAt(0) == '9') {
+		} else if (!dao.checkLineDid(material_id, "00000000013")) {
 			fileTempl.clear();
 			return;
 		}
@@ -642,6 +644,18 @@ public class MaterialService {
 				for (String ccdl : ccdls) {
 					fileTempl.remove(ccdl);
 				}
+			}
+		}
+	}
+
+	public static void filterLight(Map<String, String> fileTempl, String material_id, String level, SqlSession conn) {
+		if (level != null && level.charAt(0) == '9') {
+			return;
+		}
+		for (String key : fileTempl.keySet()) {
+			if (key.contains("A 橡皮")) {
+				fileTempl.remove(key);
+				break;
 			}
 		}
 	}
@@ -897,8 +911,9 @@ public class MaterialService {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, conn);
 
 			if ("NS 工程".equals(showLine)) {
-				filterSolo(fileTempl, material_id, conn);
+				filterSolo(fileTempl, material_id, mform.getLevel(), conn);
 			}
+			if ("总组工程".equals(showLine)) filterLight(fileTempl, material_id, mform.getLevel(), conn);
 
 			Map<String, String> fileHtml = PcsUtils.toHtml4Fix(fileTempl, material_id, mform.getSorc_no(),
 					mform.getModel_name(), mform.getSerial_no(), conn);

@@ -1,12 +1,7 @@
 package com.osh.rvs.service.qa;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +12,6 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.common.PcsUtils;
-import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.MaterialService;
@@ -42,6 +36,7 @@ public class QualityAssuranceService {
 
 		return materialForm;
 	}
+
 	private static Logger _log = Logger.getLogger(QualityAssuranceService.class);
 
 	/**
@@ -67,7 +62,8 @@ public class QualityAssuranceService {
 			Map<String, String> fileTempl = PcsUtils.getXlsContents(showLine, mform.getModel_name(), null, mform.getMaterial_id(), getHistory, conn);
 
 			if ("NS 工程".equals(showLine))
-				mService.filterSolo(fileTempl, mform.getMaterial_id(), conn);
+				mService.filterSolo(fileTempl, mform.getMaterial_id(), mform.getLevel() ,conn);
+			if ("总组工程".equals(showLine)) MaterialService.filterLight(fileTempl, mform.getMaterial_id(), mform.getLevel(), conn);
 
 			String retEmpty = PcsUtils.toPdf(fileTempl, mform.getMaterial_id(), mform.getSorc_no(), mform.getModel_name(),
 					mform.getSerial_no(), mform.getLevel(), null, folderPath, conn);
@@ -134,60 +130,5 @@ public class QualityAssuranceService {
 		listResponse.put("waitings", waitingsForms);
 		listResponse.put("finished", finishedForm);
 
-	}
-
-	/**
-	 * 返回品保展示月份
-	 * 
-	 * @param selectedMonth
-	 * @return
-	 */
-	public Map<String, Object> getYearMonthByDate(Calendar selectedMonth) {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		int year = selectedMonth.get(Calendar.YEAR);
-
-		ret.put("yOptions", "<option value=''/><option value='" + (year - 1) + "'>" + (year - 1)
-				+ "</option><option value='" + year + "'>" + year + "</option>");
-
-		List<String> years = new ArrayList<String>();
-		List<String> months = new ArrayList<String>();
-		RvsUtils.getMonthAxisInNatualYear(selectedMonth.getTime(), true, true, years, months);
-
-		String mOptions = "<option value=''/>";
-		for (String month : months) {
-			mOptions += "<option value='" + month + "'>" + month + "月</option>";
-		}
-		ret.put("mOptions", mOptions);
-
-		int sMonth = (selectedMonth.get(Calendar.MONTH) + 1);
-		ret.put("sMonth", year + "年" + sMonth + "月（"
-						+ RvsUtils.getBussinessHalfYearString(selectedMonth) + "）");
-		ret.put("yearMonthValue", year + (sMonth >= 10 ? ""+sMonth : "0"+sMonth) );
-
-		return ret;
-	}
-
-    SimpleDateFormat objSimpleDateFormat = new SimpleDateFormat("M月");
-
-    SimpleDateFormat dfYm = new SimpleDateFormat("yyyyMM");
-
-	/**
-	 * 触发SAP修理完成接口
-	 * @param material_id
-	 */
-	public void notifiSapShipping(String material_id) {
-
-		// SAP同步
-		String urlString = "http://localhost:8080/rvsIf/shipping/" + material_id;
-		try {
-			URL url = new URL(urlString);
-			url.getQuery();
-			URLConnection urlconn = url.openConnection();
-			urlconn.setReadTimeout(1); // 不等返回
-			urlconn.connect();
-			urlconn.getContentType(); // 这个就能触发
-		} catch (Exception e) {
-			_log.error("Failed", e);
-		}
 	}
 }

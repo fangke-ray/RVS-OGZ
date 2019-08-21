@@ -13,12 +13,20 @@ font-size:15px;
 }
 #storages > .cage,
 #storages > .cage-first,
-#endoeyeWIP > .cage{
+#endoeyeWIP > .cage,
+#not_endoeyeWIP > .cage{
 transform: scaleY(.9);
 transform-origin: top;
 }
 #storages {
 	height:610px;
+}
+#not_endoeyeWIP{
+right: 248px;
+position: absolute;
+top: 228px;
+transform: scaleX(.9);
+transform-origin: right;
 }
 #endoeyeWIP {
 right: 16px;
@@ -588,7 +596,7 @@ transform-origin: right;
 			</table>
 		</div>
 
-<div id="endoeyeWIP">
+<div id="not_endoeyeWIP">
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架９</div>
 			<table class="condform wip-table" style="width: 120px;">
@@ -713,6 +721,8 @@ transform-origin: right;
 			</table>
 		</div>
 
+</div>
+<div id="endoeyeWIP">
 		<div class="cage">
 			<div class="ui-widget-header" style="width: 120px; text-align: center;">货架11</div>
 			<table class="condform wip-table" style="width: 120px;">

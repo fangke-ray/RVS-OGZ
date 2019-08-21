@@ -146,7 +146,14 @@
 			JOIN `production_feature` pf
 				ON `m`.material_id = `pf`.material_id
 				AND operate_result not in (5, 8)
-				AND pf.position_id not in (25, 60)
+				AND pf.finish_time is null
+		]]>
+		<if test="cell!= null and cell!= '' ">
+		<![CDATA[
+			AND pf.position_id in (25, 60)
+		]]>
+		</if>
+		<![CDATA[
 			JOIN
 				`position` p
 				ON pf.position_id = p.position_id
