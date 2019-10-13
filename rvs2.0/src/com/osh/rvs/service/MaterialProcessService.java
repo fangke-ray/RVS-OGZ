@@ -206,19 +206,26 @@ public class MaterialProcessService {
 			MaterialProcessEntity insertBean = new MaterialProcessEntity();
 			insertBean.setMaterial_id(material_id);
 			insertBean.setLine_id(lineId);
-			if (inAdvances.get(lineId) == 0) {
-				insertBean.setSchedule_date(scheduleTimes[IDX_COM_FINISH]);
-				if (level == 1) {
-					insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S1]);
-				} else {
-					insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S3]);
-				}
+
+			if (scheduleTimes == null) {
+				Date today = new Date();
+				insertBean.setSchedule_date(today);
+				insertBean.setSchedule_assign_date(today);
 			} else {
-				insertBean.setSchedule_date(scheduleTimes[IDX_DEC_FINISH]);
-				if (level == 1) {
-					insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S1]);
+				if (inAdvances.get(lineId) == 0) {
+					insertBean.setSchedule_date(scheduleTimes[IDX_COM_FINISH]);
+					if (level == 1) {
+						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S1]);
+					} else {
+						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S3]);
+					}
 				} else {
-					insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S3]);
+					insertBean.setSchedule_date(scheduleTimes[IDX_DEC_FINISH]);
+					if (level == 1) {
+						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S1]);
+					} else {
+						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S3]);
+					}
 				}
 			}
 			insertMaterialProcess(insertBean, conn);

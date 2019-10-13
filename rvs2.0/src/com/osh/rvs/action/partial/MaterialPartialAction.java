@@ -54,11 +54,11 @@ public class MaterialPartialAction extends BaseAction {
 		log.info("MaterialAction.init start");
 		
 		//维修对象型号
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 		
 		//在线工程
-		String lOptions = lineService.getInlineOptions(conn);
+		String lOptions = lineService.getInlineOptions(RvsConsts.DEPART_REPAIR, conn);
 		req.setAttribute("lOptions", lOptions);
 		
 		String goMaterialLevel = CodeListUtils.getGridOptions("material_level");

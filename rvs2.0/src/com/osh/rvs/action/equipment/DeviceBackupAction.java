@@ -42,7 +42,7 @@ public class DeviceBackupAction extends BaseAction {
 		log.info("DeviceBackupAction.init start");
 
 		LineService lService = new LineService();
-		String lOptions = lService.getOptions(conn, "", "(全部)");
+		String lOptions = lService.getAllOptions(conn, "", "(全部)");
 		req.setAttribute("lOptions", lOptions);
 
 		// 管理等级

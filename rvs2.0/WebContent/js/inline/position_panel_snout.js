@@ -252,8 +252,8 @@ var endPause = function() {
 
 var treatPause = function(resInfo) {
 
-	$("#storagearea").hide();
-	$("#manualarea").hide();
+	$("#storagearea").parent().hide();
+	// $("#manualarea").hide();
 	$("#material_details").show();
 	$("#position_status").text("暂停中");
 	$("#position_status").css("color", "#0080FF");
@@ -301,8 +301,8 @@ var treatPause = function(resInfo) {
 
 var treatStart = function(resInfo) {
 
-	$("#storagearea").hide();
-	$("#manualarea").hide();
+	$("#storagearea").parent().hide();
+	// $("#manualarea").hide();
 	$("#material_details").show();
 	$("#position_status").text("处理中");
 	$("#position_status").css("color", "#58b848");
@@ -323,7 +323,7 @@ var treatStart = function(resInfo) {
 	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
 	leagal_overline = resInfo.leagal_overline;
 
-	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
+	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins || 0));
 	var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
 	if (frate > 99) {
 		frate = 99;
@@ -355,6 +355,36 @@ var treatStart = function(resInfo) {
 	$("#scanner_inputer").focus();
 }
 
+var setWaiting = function(waitings){
+	// 建立等待区一览
+	var reason = "";
+	var waiting_html = "";
+	for (var iwaiting = 0; iwaiting < waitings.length; iwaiting++) {
+		var waiting = waitings[iwaiting];
+		if (reason != waiting.waitingat) {
+			reason = waiting.waitingat;
+			waiting_html += '<div class="ui-state-default w_group" style="width: 420px; margin-top: 12px; margin-bottom: 8px; padding: 2px;">'+ reason +':</div>'
+		}
+		waiting_html += '<div class="waiting tube" model_id="' + waiting.model_id + '" model_name="' + waiting.model_name + '" serial_no="' + waiting.serial_no + '">' +
+							'<div class="tube-liquid' + expeditedColor(waiting.expedited)  + '">' +
+								(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.model_name + ' | ' + waiting.serial_no +
+							'</div>' +
+						 '<div class="click_start"><input type="button" value="》开始"></div>' +
+						'</div>'
+	}
+	var $waiting_html = $(waiting_html);
+	$waiting_html.find("input:button").button().click(function(){
+		var $tube = $(this).parent().parent();
+		var chosedData = {
+			model_id : $tube.attr("model_id"),
+			model_name : $tube.attr("model_name"),
+			serial_no : $tube.attr("serial_no")
+		}
+		doStart(null, chosedData);
+	});
+	$("#waitings").html($waiting_html);	
+}
+
 var doInit_ajaxSuccess = function(xhrobj, textStatus){
 	//return;
 	var resInfo = null;
@@ -373,32 +403,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			}
 
 			// 建立等待区一览
-			var reason = "";
-			var waiting_html = "";
-			for (var iwaiting = 0; iwaiting < resInfo.waitings.length; iwaiting++) {
-				var waiting = resInfo.waitings[iwaiting];
-				if (reason != waiting.waitingat) {
-					reason = waiting.waitingat;
-					waiting_html += '<div class="ui-state-default w_group" style="width: 420px; margin-top: 12px; margin-bottom: 8px; padding: 2px;">'+ reason +':</div>'
-				}
-				waiting_html += '<div class="waiting tube" model_id="' + waiting.model_id + '" model_name="' + waiting.model_name + '" serial_no="' + waiting.serial_no + '">' +
-									'<div class="tube-liquid' + expeditedColor(waiting.expedited)  + '">' +
-										(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.model_name + ' | ' + waiting.serial_no +
-									'</div>' +
-								 '<div class="click_start"><input type="button" value="》开始"></div>' +
-								'</div>'
-			}
-			var $waiting_html = $(waiting_html);
-			$waiting_html.find("input:button").button().click(function(){
-				var $tube = $(this).parent().parent();
-				var chosedData = {
-					model_id : $tube.attr("model_id"),
-					model_name : $tube.attr("model_name"),
-					serial_no : $tube.attr("serial_no")
-				}
-				doStart(null, chosedData);
-			});
-			$("#waitings").html($waiting_html);
+			setWaiting(resInfo.waitings);
 
 			// 计算当前用时
 			var p_operator_cost = $("#p_operator_cost").text();
@@ -426,6 +431,11 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 
 			// 暂停理由
 			$("#input_model_id").html(resInfo.modelOptions).select2Buttons();
+
+			if (typeof(showSerialNos) === "function") {
+				showSerialNos(resInfo.serialNos);
+			}
+
 			pauseOptions = resInfo.pauseOptions;
 			breakOptions = resInfo.breakOptions;
 			stepOptions = resInfo.stepOptions;
@@ -446,6 +456,10 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				if (hasPcs) {
 					pcsO.loadCache();
 				}
+			} else if($("#scanner_inputer").length == 0) {
+				$("#input_model_id").enable();
+				$("#input_snout_no").enable();
+				$("#startbutton").enable();
 			} else {
 				$("#input_model_id").disable();
 				$("#input_snout_no").disable();
@@ -550,6 +564,26 @@ $(function() {
 	if (this.value.length >= 11) {
 		doSetOrigin();
 	}
+	});
+
+	$("#serial_getter").click(function(){
+		// Ajax提交
+		$.ajax({
+			beforeSend : ajaxRequestType,
+			async : true,
+			url : servicePath + '?method=getSerial',
+			cache : false,
+			data : {},
+			type : "post",
+			dataType : "json",
+			success : ajaxSuccessCheck,
+			error : ajaxError,
+			complete : function(xhrobj) {
+				
+				var resInfo = $.parseJSON(xhrobj.responseText);
+				$("#input_snout_no").val(resInfo.serial_no);
+			}
+		});
 	});
 
 });
@@ -658,13 +692,16 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				treatPause(resInfo);
 			} else {
 				$("#scanner_inputer").attr("value", "");
-				$("#storagearea").show();
-				$("#manualarea").show();
+				$("#storagearea").parent().show();
+				// $("#manualarea").show();
 				$("#material_details").hide();
 				$("#position_status").text("准备中");
 				$("#position_status").css("color", "#0080FF");
 				$("#manualdetailarea").hide();
-	
+
+				// 建立等待区一览
+				setWaiting(resInfo.waitings);
+
 				$("#material_details td:eq(7)").text("");
 				$("#dtl_process_time label").text("");
 				$("#p_rate").html("");
@@ -684,8 +721,15 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 					);
 				}
 				$("#scanner_inputer").val("").focus().enable();
-				$("#input_model_id").disable();
-				$("#input_snout_no").disable();
+				if($("#scanner_inputer").length == 0) {
+					$("#input_model_id").enable();
+					$("#input_snout_no").enable();
+					$("#startbutton").enable();
+				} else {
+					$("#input_model_id").disable();
+					$("#input_snout_no").disable();
+					$("#startbutton").disable();
+				}
 
 				if (hasPcs) {
 					pcsO.clearCache();

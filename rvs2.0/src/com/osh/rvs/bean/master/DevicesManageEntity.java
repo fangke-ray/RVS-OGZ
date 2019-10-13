@@ -102,6 +102,9 @@ public class DevicesManageEntity implements Serializable {
 	private String old_position_id;
 	private Integer event;
 
+	// 可替换状况
+	private Integer free_displace_flg;
+
 	public String getDaily_sheet_manage_no() {
 		return daily_sheet_manage_no;
 	}
@@ -353,5 +356,11 @@ public class DevicesManageEntity implements Serializable {
 	}
 	public void setEvent(Integer event) {
 		this.event = event;
+	}
+	public Integer getFree_displace_flg() {
+		return free_displace_flg;
+	}
+	public void setFree_displace_flg(Integer free_displace_flg) {
+		this.free_displace_flg = free_displace_flg;
 	}
 }

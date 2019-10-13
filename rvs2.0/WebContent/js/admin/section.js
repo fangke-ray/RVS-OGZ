@@ -41,22 +41,26 @@ $(function() {
 		$("#cond_id").data("post", $("#cond_id").val());
 		$("#cond_name").data("post", $("#cond_name").val());
 		$("#cond_inline_flg_set").data("post", $("#cond_inline_flg_set input:checked").val());
+		$("#cond_department_set").data("post", $("#cond_department_set input:checked").val());
 		// 查询
 		findit();
 	});
 
 	// 清空检索条件
 	$("#resetbutton").click(function() {
-		$("#cond_id").data("post", "");
-		$("#cond_name").data("post", "");
-		$("#cond_inline_flg_set").data("post", "");
+		$("#cond_id").val("").data("post", "");
+		$("#cond_name").val("").data("post", "");
+		$("#cond_inline_flg_set").data("post", "")
+			.find("input:radio:eq(0)").attr("checked", true).trigger("change");
+		$("#cond_department_set").data("post", "")
+			.find("input:radio").removeAttr("checked").trigger("change");
 	});
 
 	// 编辑权限
 	$("#editarea .subform tr:not(:first)").click(function(){
 		$(this).toggleClass("ui-state-active");
 	});
-	$("#cond_inline_flg_set,#input_inline_flg_set").buttonset();
+	$("#cond_inline_flg_set,#input_inline_flg_set,#cond_department_set,#input_department_set").buttonset();
 	findit();
 });
 
@@ -208,6 +212,7 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#label_edit_id").text(resInfo.sectionForm.id);
 			$("#input_name").val(resInfo.sectionForm.name);
 			$("#input_inline_flg_set input[value='"+ resInfo.sectionForm.inline_flg +"']").attr("checked", true).trigger("change");
+			$("#input_department_set input[value='"+ resInfo.sectionForm.department +"']").attr("checked", true).trigger("change");
 			$("#label_edit_updated_by").text(resInfo.sectionForm.updated_by);
 			$("#label_edit_updated_time").text(resInfo.sectionForm.updated_time);
 
@@ -217,7 +222,7 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 
 			grid_detail_positions.find("tr").removeClass("ui-state-active");
 			for (var iposition in positions) {
-				grid_detail_positions.find("tr:has(.referId:contains('0"+positions[iposition]+"'))")
+				grid_detail_positions.find("tr:has(.referId:contains('"+fillZero(positions[iposition], 11)+"'))")
 					.addClass("ui-state-active");
 			}
 
@@ -250,6 +255,7 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 								var data = {
 									"id" : $("#label_edit_id").text(),
 									"inline_flg" : $("#input_inline_flg_set input:checked").val(),
+									"department" : $("#input_department_set input:checked").val(),
 									"name" : $("#input_name").val()
 								}
 								$("#editarea .subform tr.ui-state-active").each(function(i,item){
@@ -293,6 +299,7 @@ var findit = function() {
 	var data = {
 		"id" : $("#cond_id").data("post"),
 		"name" : $("#cond_name").data("post"),
+		"department" : $("#cond_department_set").data("post"),
 		"inline_flg" : $("#cond_inline_flg_set").data("post")
 	}
 
@@ -343,6 +350,7 @@ var showAdd = function() {
 
 	// 权限全部清空
 	$("#grid_edit_positions tr").removeClass("ui-state-active");
+	$("#input_department_set input[value='1']").attr("checked", true).trigger("change");
 
 	// 前台Validate设定
 	$("#editform").validate({
@@ -361,7 +369,8 @@ var showAdd = function() {
 			$("#editbutton").disable();
 		// 新建画面输入项提交给后台
 		var data = {
-				"inline_flg" : $("#input_inline_flg_set input:checked").val(),
+			"inline_flg" : $("#input_inline_flg_set input:checked").val(),
+			"department" : $("#input_department_set input:checked").val(),
 			"name" : $("#input_name").val()
 		}
 

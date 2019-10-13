@@ -11,6 +11,7 @@ var keepSearchData;
 var findit = function(data) {
 	if (!data) { //新查询
 		keepSearchData = {
+			"fix_type": $("#h_fix_type").val(),
 			"category_id" : $("#search_category_id").val() && $("#search_category_id").val().toString(),
 			"model_id":$("#search_modelname").val(),
 			"serial_no":$("#search_serialno").val(),
@@ -130,7 +131,11 @@ $(function() {
 	$("#searchbutton").click(function() {
 		findit();
 	});
-	
+
+	if ($("#h_fix_type").val()) {
+		modelname = "产品";
+	}
+
 	$("#resetbutton").click(function() {
 		reset();
 	}); 
@@ -169,8 +174,7 @@ $(function() {
 	initGrid();
 	
 	findit();
-	
-	
+
 	$("#worktimecount").click(function(){
 		$.ajax({
 			beforeSend : ajaxRequestType,
@@ -207,6 +211,66 @@ $(function() {
 });
 
 function initGrid() {
+	var colNames = ['维修对象ID','修理单号','型号','等级', '机身号', 'RC', '维修课室' , '当前位置', 'NS<br>当前位置', '受理日期','同意日期',
+				'纳期','总组出货<br>安排','总组出货','零件订购日','入库预定日','延误','返还'];
+	var colModel = [
+		{name:'material_id',index:'material_id', hidden:true, key: true},
+		{name:'sorc_no',index:'sorc_no', width:85},
+		{name:'model_name',index:'model_name', width:105},
+		{name:'level',index:'level', width:20, align:'center', formatter:'select', editoptions:{value:lOptions}},
+		{name:'serial_no',index:'serial_no', width:50},
+		{name:'ocmName',index:'ocmName', width:55},
+		{name:'section_name',index:'section_name', width:45},
+		{name:'processing_position',index:'processing_position', width:55, align:'center'},
+		{name:'processing_position2',index:'processing_position2', width:55, align:'center'},
+		{name:'reception_time',index:'reception_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+		{name:'agreed_date',index:'agreed_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+		{name:'scheduled_date',index:'scheduled_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+		{name:'scheduled_date_end',index:'scheduled_date_end', width:45, align:'center', formatter:function(a,b,row) {
+			if ("9999-12-31" == a) {
+				return "另行通知";
+			}
+			
+			if (a) {
+				var d = new Date(a);
+				return mdTextOfDate(d);
+			}
+			
+			return "";
+		}},
+		{name:'outline_time',index:'outline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+		{name:'partial_order_date',index:'partial_order_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+		{name:'arrival_plan_date',index:'arrival_plan_date', width:45, align:'center', 
+			formatter:function(a,b,row) {
+			if ("9999-12-31" == a || "9999/12/31" == a) {
+				return "未定";
+			}
+			
+			if (a) {
+				var d = new Date(a);
+				return mdTextOfDate(d);
+			}
+			
+			return "";
+		}},
+		{name:'is_late',index:'is_late', width:20},
+		{name:'break_back_flg',index:'break_back_flg', hidden:true}
+	];
+
+	if (modelname === "产品") {
+		colNames = ['material_id','型号', '序列号', '课室' , '当前位置', '生产投线', '组装完成','break_back_flg'];
+		colModel = [
+			{name:'material_id',index:'material_id', hidden:true, key: true},
+			{name:'model_name',index:'model_name', width:105},
+			{name:'serial_no',index:'serial_no', width:50},
+			{name:'section_name',index:'section_name', width:45},
+			{name:'processing_position',index:'processing_position', width:55, align:'center'},
+			{name:'inline_time',index:'inline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+			{name:'outline_time',index:'outline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+			{name:'break_back_flg',index:'break_back_flg', hidden:true}
+		];
+	}
+
 	$("#list").jqGrid({
 		toppager : true,
 		data : [],
@@ -214,51 +278,8 @@ function initGrid() {
 		width : 992,
 		rowheight : 23,
 		datatype : "local",
-		colNames : ['维修对象ID','修理单号','型号','等级', '机身号', 'RC', '维修课室' , '当前位置', 'NS<br>当前位置', '受理日期','同意日期',
-				'纳期','总组出货<br>安排','总组出货','零件订购日','入库预定日','延误','返还'],
-		colModel : [
-			{name:'material_id',index:'material_id', hidden:true, key: true},
-			{name:'sorc_no',index:'sorc_no', width:85},
-			{name:'model_name',index:'model_name', width:105},
-			{name:'level',index:'level', width:20, align:'center', formatter:'select', editoptions:{value:lOptions}},
-			{name:'serial_no',index:'serial_no', width:50},
-			{name:'ocmName',index:'ocmName', width:55},
-			{name:'section_name',index:'section_name', width:45},
-			{name:'processing_position',index:'processing_position', width:55, align:'center'},
-			{name:'processing_position2',index:'processing_position2', width:55, align:'center'},
-			{name:'reception_time',index:'reception_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
-			{name:'agreed_date',index:'agreed_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
-			{name:'scheduled_date',index:'scheduled_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
-			{name:'scheduled_date_end',index:'scheduled_date_end', width:45, align:'center', formatter:function(a,b,row) {
-				if ("9999-12-31" == a) {
-					return "另行通知";
-				}
-				
-				if (a) {
-					var d = new Date(a);
-					return mdTextOfDate(d);
-				}
-				
-				return "";
-			}},
-			{name:'outline_time',index:'outline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
-			{name:'partial_order_date',index:'partial_order_date', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
-			{name:'arrival_plan_date',index:'arrival_plan_date', width:45, align:'center', 
-				formatter:function(a,b,row) {
-				if ("9999-12-31" == a || "9999/12/31" == a) {
-					return "未定";
-				}
-				
-				if (a) {
-					var d = new Date(a);
-					return mdTextOfDate(d);
-				}
-				
-				return "";
-			}},
-			{name:'is_late',index:'is_late', width:20},
-			{name:'break_back_flg',index:'break_back_flg', hidden:true}
-		],
+		colNames : colNames,
+		colModel : colModel,
 		rowNum : 50,
 		pager : "#listpager",
 		viewrecords : true,

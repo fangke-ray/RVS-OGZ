@@ -27,28 +27,49 @@ public class CategoryService {
 
 	/**
 	 * 取得机种选择项标签集
+	 * @param integer 
 	 * @param conn 数据库连接
 	 * @return String 机种选择项标签集
 	 */
-	public String getOptions(SqlSession conn) {
+	public String getOptions(Integer department, SqlSession conn) {
+		if (department == null) {
+			return this.getAllOptions(conn);
+		} else if (department == RvsConsts.DEPART_REPAIR) {
+			return this.getRepairOptions(conn);
+		} else {
+			return this.getManufactureOptions(conn);
+		}
+	}
+
+	public String getAllOptions(SqlSession conn) {
 		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
 		List<CategoryEntity> l = dao.getAllCategory();
 		// 内镜组
 		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
 		// 周边组
 		Map<String, String> codeMapPeripheral = new TreeMap<String, String>();
+		// 制造品
+		Map<String, String> codeMapManu = new TreeMap<String, String>();
 		for (CategoryEntity bean : l) {
 			if (bean.getKind() != 7) {
 				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			} else if (bean.getKind() == 11) {
+				codeMapManu.put(bean.getCategory_id(), bean.getName());
 			} else {
 				codeMapPeripheral.put(bean.getCategory_id(), bean.getName());
 			}
 		}
 		return "<optgroup label=\"\"><option value=\"\"></option></optgroup>" 
 			+ "<optgroup label=\"内视镜\">" + CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false) + "</optgroup>"
-			+ "<optgroup label=\"周边设备\">" + CodeListUtils.getSelectOptions(codeMapPeripheral, null, null, false) + "</optgroup>";
+			+ "<optgroup label=\"周边设备\">" + CodeListUtils.getSelectOptions(codeMapPeripheral, null, null, false) + "</optgroup>"
+			+ "<optgroup label=\"制造\">" + CodeListUtils.getSelectOptions(codeMapManu, null, null, false) + "</optgroup>";
 	}
 
+	/**
+	 * 取得内窥镜选择项标签集
+	 * @param conn 数据库连接
+	 * @return String 机种选择项标签集
+	 */
 	public String getEndoscopeOptions(SqlSession conn) {
 		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
 		List<CategoryEntity> l = dao.getAllCategory();
@@ -61,7 +82,50 @@ public class CategoryService {
 			} 
 		}
 		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false);
-	
+	}
+
+	/**
+	 * 取得机种选择项标签集
+	 * @param conn 数据库连接
+	 * @return String 机种选择项标签集
+	 */
+	public String getRepairOptions(SqlSession conn) {
+		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
+		List<CategoryEntity> l = dao.getAllCategory();
+		// 内镜组
+		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
+		// 周边组
+		Map<String, String> codeMapPeripheral = new TreeMap<String, String>();
+		for (CategoryEntity bean : l) {
+			if (bean.getKind() == 11) {
+			} else if (bean.getKind() != 7) {
+				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			} else {
+				codeMapPeripheral.put(bean.getCategory_id(), bean.getName());
+			}
+		}
+		return "<optgroup label=\"\"><option value=\"\"></option></optgroup>" 
+			+ "<optgroup label=\"内视镜\">" + CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false) + "</optgroup>"
+			+ "<optgroup label=\"周边设备\">" + CodeListUtils.getSelectOptions(codeMapPeripheral, null, null, false) + "</optgroup>";
+	}
+
+	/**
+	 * 取得显微镜制造选择项标签集
+	 * @param conn 数据库连接
+	 * @return String 机种选择项标签集
+	 */
+	public String getManufactureOptions(SqlSession conn) {
+		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
+		List<CategoryEntity> l = dao.getAllCategory();
+		
+		//内镜组
+		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
+		for (CategoryEntity bean : l) {
+			if (bean.getKind() == 11) {
+				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			} 
+		}
+		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false);
 	}
 
 	/**

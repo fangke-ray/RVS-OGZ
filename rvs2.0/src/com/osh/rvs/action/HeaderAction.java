@@ -84,6 +84,7 @@ public class HeaderAction extends BaseAction {
 		req.setAttribute("needMessageBox", retNeedMessageBox);
 		req.setAttribute("retPartialLink", retPartialLink);
 		req.setAttribute("retSub", sSub);
+		req.setAttribute("department", user.getDepartment());
 
 		String retPosition = "";
 		if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
@@ -97,14 +98,6 @@ public class HeaderAction extends BaseAction {
 
 		req.setAttribute("userPosition", retPosition);
 
-		// 修理进度信息
-		String role_id = user.getRole_id();
-		if (RvsConsts.ROLE_LINELEADER.equals(role_id)) {
-			req.setAttribute("message_type", "le");
-		} else
-		if (RvsConsts.ROLE_OPERATOR.equals(role_id)) {
-			req.setAttribute("message_type", "op");
-		}
 
 		// 假期列表
 		req.setAttribute("today_holiday", HolidayService.checkTodayHoliday(conn));

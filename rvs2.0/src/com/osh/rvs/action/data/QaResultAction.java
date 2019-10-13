@@ -14,7 +14,9 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.QaResultEntity;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.QaResultForm;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.ModelService;
@@ -40,20 +42,22 @@ public class QaResultAction extends BaseAction {
 			SqlSession conn) throws Exception {
 		log.info("QaResultAction.init start");
 
+		LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		Calendar cal = Calendar.getInstance();
 		request.setAttribute("today",
 				DateUtil.toString(cal.getTime(), DateUtil.DATE_PATTERN));// 品保通过默认开始日期
 
 		CategoryService categoryService = new CategoryService();
-		String cOptions = categoryService.getOptions(conn);
+		String cOptions = categoryService.getOptions(user.getDepartment(), conn);
 		request.setAttribute("cOptions", cOptions);// 维修对象机种集合
 
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getOptions(user.getDepartment(), conn);
 		request.setAttribute("mReferChooser", mReferChooser);// 维修对象型号集合
 
 		SectionService sectionService = new SectionService();
-		String sOptions = sectionService.getOptions(conn, "(全部)");
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "(全部)");
 		request.setAttribute("sOptions", sOptions);// 维修科室集合
 
 		

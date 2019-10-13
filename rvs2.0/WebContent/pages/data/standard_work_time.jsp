@@ -56,8 +56,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<input type="text" id="model_text"class="ui-widget-content" readonly="readonly">
 								<input type="hidden" name="model_name" id="reference_model_id">
 							</td>													
-							<td class="ui-state-default td-title">等级</td>
-							 	<td class="td-content"><select id="reference_rank_id" class="ui-widget-content">${sMaterial_level_inline}</select>
+							<td class="ui-state-default td-title">${empty sMaterial_level_inline ? "" : "等级"}</td>
+							 	<td class="td-content">${empty sMaterial_level_inline ? '' : '<select id="reference_rank_id" class="ui-widget-content">'}${sMaterial_level_inline}</select>
 					</td>						
 					   </tr>
 					</tbody>

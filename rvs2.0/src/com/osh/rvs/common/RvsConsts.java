@@ -95,5 +95,14 @@ public class RvsConsts extends BaseConst {
 	public static final int TICKET_RECEPTOR = 1;
 	public static final int TICKET_QUTOTAOR = 2;
 	public static final int TICKET_ADDENDA = 0;
-	public static final String VERSION = "2.4.451";
+	public static final String VERSION = "2.5.500";
+	public static final Integer DEPART_REPAIR = 1;
+	public static final Integer DEPART_MANUFACT = 2;
+
+	public static final Integer PROCESS_TYPE_FIX_LINE = 1; // 翻修流水线
+	public static final Integer PROCESS_TYPE_FIX_CELL = 2; // 翻修非流水线
+	public static final Integer PROCESS_TYPE_WASH_INFECT = 3; // 清洗消毒
+	public static final Integer PROCESS_TYPE_MANUFACT_LINE = 6; // 显微镜生产流水线
+	public static final Integer PROCESS_TYPE_ARM_LINE = 7; // 显微镜ARM流水线
+	public static final Integer PROCESS_TYPE_ALL = 999; // 所有
 }

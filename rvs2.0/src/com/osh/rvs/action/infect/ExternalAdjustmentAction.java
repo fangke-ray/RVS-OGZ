@@ -73,7 +73,7 @@ public class ExternalAdjustmentAction extends BaseAction implements Serializable
 		
 		LineService lineService = new LineService();
 		// 责任工程
-		String lineOptions = lineService.getOptions(conn);
+		String lineOptions = lineService.getAllOptions(conn);
 		request.setAttribute("lineOptions", lineOptions);
 		
 		//有效期

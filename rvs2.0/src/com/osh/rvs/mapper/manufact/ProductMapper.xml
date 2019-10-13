@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.manufact.ProductMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<!-- PROCESS_TYPE_MANUFACT_LINE = 6 -->
+	<select id="getLastProductSerialNo" resultType="String" parameterType="String">
+	<![CDATA[ 
+		SELECT serial_no 
+		FROM material ma
+		JOIN v_model mdl
+			ON ma.model_id = mdl.MODEL_ID
+		WHERE 
+			fix_type = 6
+		AND
+			break_back_flg = 0
+		AND
+			inline_time IS NOT NULL
+		AND
+			outline_time IS NULL
+		AND
+			serial_no LIKE CONCAT(#{prefix}, '%')
+		ORDER by serial_no DESC
+		LIMIT 1
+	]]>
+	</select>
+
+	<select id="getProductsBySerials" resultType="MaterialEntity" parameterType="list">
+	<![CDATA[ 
+		SELECT ma.material_id, ma.serial_no, ma.model_id, mdl.name as model_name, inline_time, outline_time, ticket_flg
+		FROM material ma
+		JOIN v_model mdl
+			ON ma.model_id = mdl.MODEL_ID
+		WHERE 
+			fix_type in (6, 7)
+		AND
+		serial_no in
+		]]>
+		<foreach item="serial_no" collection="list" open="(" separator="," close=")">
+			#{serial_no}
+		</foreach> 
+		<![CDATA[
+		AND (outline_time IS NULL OR outline_time > date_add(current_date, interval -1 year))
+		ORDER by serial_no asc
+	]]>
+	</select>
+
+	<select id="getWaitingStartOfSection" resultType="WaitingEntity" parameterType="list">
+	<![CDATA[ 
+		SELECT 
+			ma.material_id, ma.serial_no, ma.model_id, mdl.NAME as model_name, mdl.category_name, 0 as expedited, 0 as waitingat
+		FROM material ma
+		JOIN v_model mdl
+			ON ma.model_id = mdl.MODEL_ID
+		WHERE 
+			fix_type = 6
+		AND
+			ticket_flg = 1
+		AND
+			inline_time IS NULL
+		AND
+			section_id = #{section_id}
+		ORDER by serial_no asc
+	]]>
+	</select>
+
+</mapper>

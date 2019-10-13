@@ -143,7 +143,7 @@ public class PanelAction extends BaseAction {
 		if (new_position_id != null && new_position_id.equals(org_position_id)
 				&& new_px.equals(org_px)) {
 
-			callResponse.put("position_link", getLink(new_position_id, mapping, conn));
+			callResponse.put("position_link", getLink(new_position_id, user.getDepartment(), mapping, conn));
 
 			// 检查发生错误时报告错误信息
 			callResponse.put("errors", errors);
@@ -262,7 +262,7 @@ public class PanelAction extends BaseAction {
 						}
 					}
 
-				callResponse.put("position_link", getLink(new_position_id, mapping, conn));
+				callResponse.put("position_link", getLink(new_position_id, user.getDepartment(), mapping, conn));
 			}
 
 			if (new_section_id != null) {
@@ -298,7 +298,7 @@ public class PanelAction extends BaseAction {
 		log.info("PanelAction.changeposition end");
 	}
 
-	private String getLink(String new_position_id, ActionMapping mapping, SqlSession conn) {
+	private String getLink(String new_position_id, Integer department, ActionMapping mapping, SqlSession conn) {
 		String specialPage = PositionService.getPositionSpecialPage(new_position_id, conn); // TODO
 		String forwardStr = null;
 		if (specialPage != null) {
@@ -312,6 +312,10 @@ public class PanelAction extends BaseAction {
 		}
 
 		// 分流
+		if (department != null && department == RvsConsts.DEPART_MANUFACT) {
+			return "position_panel_man.do";
+		}
+
 		int rand = new Double(1.0d + Math.random() * 4).intValue();
 		return "position_panel" + rand + ".do";
 	}

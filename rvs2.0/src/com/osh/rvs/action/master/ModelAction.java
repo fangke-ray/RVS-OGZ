@@ -58,7 +58,7 @@ public class ModelAction extends BaseAction {
 
 		CategoryService cservice = new CategoryService();
 		// 取得下拉框信息
-		String cOptions = cservice.getOptions(conn);
+		String cOptions = cservice.getAllOptions(conn);
 
 		//等级
 		req.setAttribute("goMaterial_level", CodeListUtils.getGridOptions("material_level"));

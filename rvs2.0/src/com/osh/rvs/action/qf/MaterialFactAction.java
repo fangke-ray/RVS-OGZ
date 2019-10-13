@@ -71,7 +71,7 @@ public class MaterialFactAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("MaterialFactAction.init start");
 		
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 	
 		// 获得维修课室选项

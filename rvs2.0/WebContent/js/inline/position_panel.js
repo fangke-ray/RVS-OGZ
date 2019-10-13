@@ -344,7 +344,7 @@ var dounuse = function(serial_no) {
 }
 
 var douse = function(serial_no) {
-	var data = {serial_no : serial_no};
+	var data = {serial_no : serial_no, process_code : "301"};
 	// 检查是否第一个
 	if (!(serial_no == $("#snouts tr.firstMatchSnout .referId").text())) {
 		warningConfirm("您选择的不是该型号最早完成的先端组件，继续吗？"
@@ -918,9 +918,9 @@ var getLineMinutes = function(line_minutes){
 var getLevel = function(level) {
 	if (level) {
 		var levelText = "S" + level; // TODO
-		if (level == 9 || level == 91 || level == 92 || level == 93 ) levelText = "D";
+		if (level == 9 || level == 91 || level == 92 || level == 93 || level == 99) levelText = "D";
 		if (level == 96 || level == 97 || level == 98 ) levelText = "M";
-		if (level == 56 || level == 57 || level == 58 ) levelText = "E";
+		if (level == 56 || level == 57 || level == 58 || level == 59) levelText = "E";
 		return "<span class='level level_" + levelText + "'>" + levelText + "</span>";
 	}
 	return "";

@@ -50,8 +50,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<input type="radio" name="inline_flg" alt="是否在线维修课室" id="cond_inline_flg_yes" value="1" class="ui-widget-content">
 						<label for="cond_inline_flg_yes" radio>是</label>
 					</td>
-					<td class="ui-state-default td-title"></td>
-					<td class="td-content"></td>
+					<td class="ui-state-default td-title">所属部门</td>
+					<td class="td-content" id="cond_department_set">
+						<input type="radio" name="department" value="1" id="search_department_endoscope" checked><label for="search_department_endoscope">内视镜修理部</label>
+						<input type="radio" name="department" value="2" id="search_department_microscope"><label for="search_department_microscope">显微镜制造部</label>
+					</td>
 				</tr>
 			</table>
 			<div style="height:44px">
@@ -87,6 +90,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="ui-state-default td-title">课室名称</td>
 					<td class="td-content">
 						<input type="text" name="name" id="input_name" maxlength="20" class="ui-widget-content">
+					</td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">所属部门</td>
+					<td class="td-content" id="input_department_set">
+						<input type="radio" name="department" value="1" id="input_department_endoscope" checked><label radio for="input_department_endoscope">内视镜修理部</label>
+						<input type="radio" name="department" value="2" id="input_department_microscope"><label radio for="input_department_microscope">显微镜制造部</label>
 					</td>
 				</tr>
 				<tr>

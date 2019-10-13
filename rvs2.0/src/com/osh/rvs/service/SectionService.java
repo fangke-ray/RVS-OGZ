@@ -28,19 +28,30 @@ public class SectionService {
 
 	/**
 	 * 取得课室选择项标签集
+	 * @param department 
 	 * @param conn 数据库连接
 	 * @return String 课室选择项标签集
 	 */
 	public String getOptions(SqlSession conn, String empty) {
-		return getOptions(conn, empty, "");
+		return getOptions(RvsConsts.DEPART_REPAIR, conn, empty);
 	}
-	public String getOptions(SqlSession conn, String empty, String defaultValue) {
-		  Map<String, String> codeMap = new TreeMap<String, String>();
-		  List<SectionEntity> l = getSectionInline(conn);
-		  for (SectionEntity bean : l) {
-			  codeMap.put(bean.getSection_id(), bean.getName());
-		  }
-		  return CodeListUtils.getSelectOptions(codeMap, defaultValue, empty, false);
+	public String getOptions(Integer department, SqlSession conn, String empty) {
+		return getOptions(department, conn, empty, "");
+	}
+	public String getOptions(Integer department, SqlSession conn, String empty, String defaultValue) {
+		Map<String, String> codeMap = new TreeMap<String, String>();
+		List<SectionEntity> l = getSectionInline(conn);
+		for (SectionEntity bean : l) {
+			if (department != null) {
+				if (department == RvsConsts.DEPART_REPAIR) {
+					if (!RvsConsts.DEPART_REPAIR.equals(bean.getDepartment())) continue;
+				} else {
+					if (RvsConsts.DEPART_REPAIR.equals(bean.getDepartment())) continue;
+				}
+			}
+			codeMap.put(bean.getSection_id(), bean.getName());
+		}
+  return CodeListUtils.getSelectOptions(codeMap, defaultValue, empty, false);
 	}
 	public List<SectionEntity> getSectionInline(SqlSession conn) {
 	  SectionMapper dao = conn.getMapper(SectionMapper.class);

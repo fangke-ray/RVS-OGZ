@@ -63,12 +63,12 @@ public class QualityTipAction extends BaseAction {
 
 		// 取得维修对象机种
 		CategoryService categoryService = new CategoryService();
-		req.setAttribute("cOptions", categoryService.getOptions(conn));
+		req.setAttribute("cOptions", categoryService.getAllOptions(conn));
 		req.setAttribute("cReferChooser", categoryService.getReferChooser(conn));
 
 		// 取得维修对象型号
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getAllOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 
 		// 取得工位名称

@@ -82,6 +82,9 @@
 			<if test="category_id!= null and category_id!= '' ">
 				AND CATEGORY_ID = #{category_id}
 			</if>
+			<if test="kind!= null and kind!= '' ">
+				AND KIND = #{kind}
+			</if>
 			<if test="feature1!= null and feature1!= '' ">
 				AND FEATURE1 = #{feature1}
 			</if>
@@ -228,8 +231,12 @@
 		p.position_id, p.process_code, p.`name`
 		from
 			position p
+		join 
+		  v_model vma
+		on vma.MODEL_ID =#{model_id}
 		where 
-			p.line_id in (00000000011, 00000000015, 00000000017)
+			(p.line_id in (00000000011, 00000000015, 00000000017) and vma.kind < 10)
+			or (p.line_id in (00000000102, 00000000103) and vma.kind > 10)
 			or p.position_id in (
 		select 
 			p.position_id

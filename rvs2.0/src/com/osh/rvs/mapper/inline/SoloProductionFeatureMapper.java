@@ -65,7 +65,8 @@ public interface SoloProductionFeatureMapper {
 
 	public MaterialEntity checkSnoutOrigin(@Param("material_id") String material_id, @Param("manage_serial_no") String serial_no);
 
-	public List<MaterialEntity> getSnoutOriginOnMonth(String month);
+	public List<MaterialEntity> getSnoutOriginOnMonth(@Param("month") String month, @Param("kind") String kind);
+	public List<MaterialEntity> getCoalitionProcessOnMonth(@Param("month") String month, @Param("kind") String kind, @Param("position_id") String postion_id);
 
 	public void registSnoutOrigin(@Param("material_id") String material_id, @Param("manage_serial_no") String serial_no);
 	public void removeSnoutOrigin(@Param("manage_serial_no") String serial_no);

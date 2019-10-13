@@ -63,7 +63,7 @@ public class PcsTemplateAction extends BaseAction {
 
 		actionForward = mapping.findForward(FW_INIT);	
 		ModelService service = new ModelService();
-		String mReferChooser = service.getOptions(conn);
+		String mReferChooser = service.getAllOptions(conn);
 		/*型号*/
 		req.setAttribute("mReferChooser", mReferChooser);	
 

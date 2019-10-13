@@ -15,6 +15,7 @@ public class LineEntity implements Serializable {
 	private Boolean inline_flg = false;
 	/** 删除类别 */
 	private boolean delete_flg = false;
+	private Integer department;
 	/** 最后更新人 */
 	private String updated_by;
 	/** 最后更新时间 */
@@ -127,5 +128,13 @@ public class LineEntity implements Serializable {
 
 	public void setIn_advance(Integer in_advance) {
 		this.in_advance = in_advance;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 }

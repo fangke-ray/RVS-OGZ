@@ -22,6 +22,9 @@ public class SectionForm extends ActionForm {
 	/** 是否计划管理对象 */
 	@BeanField(title = "是否在线维修课室", name = "inline_flg", type = FieldType.Bool, scale=BooleanConverter.PATTERN_NUM)
 	private String inline_flg;
+	/** 部门 */
+	@BeanField(title = "部门", name = "department", type = FieldType.Integer, notNull = true)
+	private String department;
 	/** 最后更新人 */
 	@BeanField(title = "更新者", name = "updated_by")
 	private String updated_by;
@@ -118,6 +121,14 @@ public class SectionForm extends ActionForm {
 	 */
 	public void setPositions(List<String> positions) {
 		this.positions = positions;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
 	}
 
 }

@@ -65,7 +65,7 @@ public class OperatorAction extends BaseAction {
 
 		LineService lservice = new LineService();
 		// 取得下拉框信息
-		String lOptions = lservice.getOptions(conn);
+		String lOptions = lservice.getAllOptions(conn);
 		req.setAttribute("lOptions", lOptions);
 
 		RoleService rservice = new RoleService();

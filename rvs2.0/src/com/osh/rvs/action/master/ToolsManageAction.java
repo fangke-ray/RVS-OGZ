@@ -74,7 +74,7 @@ public class ToolsManageAction extends BaseAction {
 		req.setAttribute("sectionOptions", sectionOptions);
 
 		// 责任工程
-		String lineOptions = lineService.getOptions(conn);
+		String lineOptions = lineService.getAllOptions(conn);
 		req.setAttribute("lineOptions", lineOptions);
 
 		// 状态(有不选)

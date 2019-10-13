@@ -67,6 +67,9 @@ $(function(){
 		        model_id : $("#reference_model_id").val(),
 		        level:$("#reference_rank_id").val()
 		        };
+		    if ($("#reference_rank_id").length == 0) {
+		    	data.level = 1;
+		    }
 			$.ajax({
 				beforeSend : ajaxRequestType,
 				async : true,

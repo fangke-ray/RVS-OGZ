@@ -44,19 +44,18 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.PostMessageEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
-import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PcsFixOrderEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.ReportUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.data.MonthFilesDownloadForm;
-import com.osh.rvs.form.master.LineForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.data.PostMessageMapper;
@@ -64,7 +63,6 @@ import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.MaterialCommentMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.manage.PcsFixOrderMapper;
-import com.osh.rvs.mapper.master.LineMapper;
 import com.osh.rvs.mapper.master.ModelMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.AcceptanceMapper;
@@ -88,32 +86,6 @@ public class MaterialService {
 	private static Logger logger = Logger.getLogger("ProcessCheckSheet");
 
 	/**
-	 * 检索工位当日成果
-	 * @param form 提交表单
-	 * @param conn 数据库连接
-	 * @param errors 错误内容列表
-	 * @return List<LineForm> 查询结果表单
-	 */
-	public List<LineForm> search(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
-
-		// 表单复制到数据对象
-		LineEntity conditionBean = new LineEntity();
-		BeanUtil.copyToBean(form, conditionBean, null);
-
-		// 从数据库中查询记录
-		LineMapper dao = conn.getMapper(LineMapper.class);
-		List<LineEntity> lResultBean = dao.searchLine(conditionBean);
-
-		// 建立页面返回表单
-		List<LineForm> lResultForm = new ArrayList<LineForm>();
-
-		// 数据对象复制到表单
-		BeanUtil.copyToFormList(lResultBean, lResultForm, null, LineForm.class);
-
-		return lResultForm;
-	}
-
-	/**
 	 * 维修对象条件查询
 	 * @param form
 	 * @param completed
@@ -128,6 +100,9 @@ public class MaterialService {
 		conditionBean.setFind_history(completed);
 		List<MaterialEntity> lResultBean = new ArrayList<MaterialEntity>();
 		MaterialMapper dao = conn.getMapper(MaterialMapper.class);
+
+		Integer processType = conditionBean.getFix_type();
+
 //		if (!"".equals(conditionBean.getScheduled_date_start()) || !"".equals(conditionBean.getScheduled_date_end())) {
 //			List<String> materialIds = dao.searchMaterialIds(conditionBean);
 //			List<String> processIds = dao.searchMaterialProcessIds(conditionBean);
@@ -136,7 +111,14 @@ public class MaterialService {
 //				lResultBean = dao.getMaterialDetail(materialIds);
 //			}
 //		} else {
+		if (processType == null) {
 			lResultBean = dao.searchMaterial(conditionBean);
+		} else if (processType == RvsConsts.PROCESS_TYPE_MANUFACT_LINE) {
+			lResultBean = dao.searchProduction(conditionBean);
+		} else if (processType == RvsConsts.PROCESS_TYPE_ALL) {
+			lResultBean = dao.searchMaterial(conditionBean);
+			lResultBean.addAll(dao.searchProduction(conditionBean));
+		}
 //		}
 
 		List<MaterialForm> lResultForm = new ArrayList<MaterialForm>();
@@ -325,6 +307,25 @@ public class MaterialService {
 	}
 
 	/**
+	 * 新建产品
+	 * @param section_id 
+	 * @param form 产品信息
+	 * @param conn
+	 * @return 
+	 */
+	public String insertProduct(MaterialEntity insertBean, String section_id, SqlSession conn) {
+		String model_id = ReverseResolution.getModelByName(insertBean.getModel_name(), conn);
+		insertBean.setModel_id(model_id);
+		insertBean.setSection_id(section_id);
+
+		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
+		mMapper.insertMaterial(insertBean);
+
+		CommonMapper cMapper = conn.getMapper(CommonMapper.class);
+		return cMapper.getLastInsertID();
+	}
+
+	/**
 	 * 检查修理单号是否重复
 	 * @param form
 	 * @param conn
@@ -428,6 +429,40 @@ public class MaterialService {
 					// TODO 全
 					if ("material_id".equals(column)) {
 						rets.add(value[0]);
+					}
+				}
+			}
+		}
+		return rets;
+	}
+
+	/***
+	 * 取得提交维修对象ID(复数)
+	 * @param parameterMap
+	 * @return
+	 */
+	public List<MaterialEntity> getModelSerials(Map<String, String[]> parameterMap) {
+		List<MaterialEntity> rets = new AutofillArrayList<MaterialEntity>(MaterialEntity.class);
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String entity = m.group(1);
+				if ("materials".equals(entity)) {
+					String column = m.group(2);
+					Integer no = Integer.parseInt(m.group(3), 10);
+
+					String[] value = parameterMap.get(parameterKey);
+
+					// TODO 全
+					if ("material_id".equals(column)) {
+						rets.get(no).setMaterial_id(value[0]);
+					} else if ("serial_no".equals(column)) {
+						rets.get(no).setSerial_no(value[0]);
+					} else if ("model_name".equals(column)) {
+						rets.get(no).setModel_name(value[0]);
 					}
 				}
 			}

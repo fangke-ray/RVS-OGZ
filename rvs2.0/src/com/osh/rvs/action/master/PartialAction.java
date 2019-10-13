@@ -61,7 +61,7 @@ public class PartialAction extends BaseAction {
 		BeanUtil.copyToBean(partialForm, partialEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);// 维修对象型号集合
 
 		// 规格种别

@@ -166,5 +166,14 @@ public interface MaterialMapper {
 	
 	/***更新完成时间*/
 	public void updateOutLineTime(@Param("material_id") String material_id);
+
+	/**
+	 * 查询生产品
+	 * @param conditionBean
+	 * @return
+	 */
+	public List<MaterialEntity> searchProduction(MaterialEntity conditionBean);
+
+	public void setNewProductModel(String model_id);
 	
 }

@@ -333,6 +333,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 			</div>
 
+<%
+Boolean peripheral = (Boolean) request.getAttribute("peripheral");
+if (peripheral!=null && peripheral) {
+%>
+<%@include file="/widgets/position_panel/device_infect.jsp"%>
+<%
+}
+%>
+
 			<div id="manualdetailarea" style="margin-bottom: 16px;">
 				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
 					<span class="areatitle">工程检查票</span>

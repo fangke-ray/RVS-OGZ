@@ -1,5 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <codelist-config>
+	<codelist name="category_kind_repair">
+		<value code="1">粗镜</value>
+		<value code="2">电子细镜</value>
+		<value code="3">纤维镜</value>
+		<value code="4">混合细镜</value>
+		<value code="5">超声镜</value>
+		<value code="6">硬性镜</value>
+		<value code="7">周边设备</value>
+	</codelist>
+
+	<codelist name="category_kind_manufactor">
+		<value code="11">显微镜</value>
+	</codelist>
+
 	<codelist name="category_kind">
 		<value code="1">粗镜</value>
 		<value code="2">电子细镜</value>
@@ -8,6 +22,7 @@
 		<value code="5">超声镜</value>
 		<value code="6">硬性镜</value>
 		<value code="7">周边设备</value>
+		<value code="11">显微镜</value>
 	</codelist>
 
 	<codelist name="material_fix_type">
@@ -843,6 +858,11 @@
 		<value code="2">配件老化</value>
 		<value code="3">操作不当</value>
 		<value code="4">安装不当</value>
+	</codelist>
+
+	<codelist name="department">
+		<value code="1">内视镜修理部</value>
+		<value code="2">显微镜制造部</value>
 	</codelist>
 
 </codelist-config>

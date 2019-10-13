@@ -62,7 +62,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 		log.info("BeforeLineLeaderAction.init start");
 
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.getSession().setAttribute("mReferChooser", mReferChooser);
 
 		req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level", "", ""));

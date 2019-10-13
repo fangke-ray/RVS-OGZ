@@ -13,6 +13,7 @@
 		
 		<where>
 				a.break_back_flg = 0
+				AND a.fix_type in (1,2)
 				AND (a.outline_time >= current_date OR a.outline_time IS Null)
 			<if test="sorc_no!= null and sorc_no!='' ">
 				and omr_notifi_no like CONCAT('%', #{sorc_no}, '%')
@@ -260,6 +261,7 @@
 				ON a.material_id = mp.material_id
 			WHERE
 				b.line_id IS NOT NULL 
+				AND a.fix_type in (1,2)
 			and
 				b.SCHEDULED_ASSIGN_DATE = curdate()
 			]]>

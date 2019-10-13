@@ -26,6 +26,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.Barcode;
 import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -364,5 +365,96 @@ public class DownloadService {
 				cb.stroke();
 			}
 		}
+	}
+
+
+	/**
+	 * 打印序列码小票
+	 * 60mm x 40mm
+	 * @param
+	 */
+	public String printSerialTickets(List<MaterialEntity> mBeans, SqlSession conn) throws Exception {
+		Rectangle rect = new Rectangle(180, 108); // 120
+		Document document = new Document(rect, 6, 6, 0, 0);
+
+		Date today = new Date();
+		String folder = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM");
+		File fFolder = new File(folder);
+		if (!fFolder.exists()) {
+			fFolder.mkdirs();
+		}
+		String filename = UUID.randomUUID().toString() + ".pdf";
+
+		try {
+			PdfWriter pdfWriter = PdfWriter.getInstance(document,
+					new FileOutputStream(folder + "\\" + filename));
+			document.open();
+			BaseFont bfStencil = BaseFont.createFont(PathConsts.BASE_PATH + "\\BOOKOSB.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+
+			Font boldFont = new Font(bfStencil, 30, Font.BOLD);
+
+			for (int i = 0; i < mBeans.size() - 1; i++) {
+				MaterialEntity mBean = mBeans.get(i);
+				addSerialPage(pdfWriter, document, mBean, boldFont, conn);
+				document.newPage();
+			}
+			MaterialEntity mBean = mBeans.get(mBeans.size() - 1);
+			addSerialPage(pdfWriter, document, mBean, boldFont, conn);
+
+		} catch (DocumentException de) {
+			log.error(de.getMessage(), de);
+			return null;
+		} catch (IOException ioe) {
+			log.error(ioe.getMessage(), ioe);
+			return null;
+		} finally {
+			document.close();
+			document = null;
+		}
+
+		return filename;
+	}
+
+	private void addSerialPage(PdfWriter pdfWriter, Document document,
+			MaterialEntity mBean, Font boldFont, SqlSession conn) throws DocumentException {
+		PdfPTable mainTable = new PdfPTable(1);
+		mainTable.setHorizontalAlignment(Element.ALIGN_CENTER);
+		mainTable.setTotalWidth(176);
+		mainTable.setLockedWidth(true);
+		mainTable.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
+		
+		PdfPCell cell = new PdfPCell(new Paragraph(new Paragraph(mBean.getSerial_no(), boldFont)));
+		cell.setFixedHeight(60);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setPadding(0.0f);
+		cell.setPaddingBottom(10f);
+		cell.setBorderWidth(0);
+		cell.setBackgroundColor(BaseColor.WHITE);
+		mainTable.addCell(cell);
+
+		PdfContentByte cd = pdfWriter.getDirectContent();
+		Barcode128 code128 = new Barcode128();
+		code128.setCodeType(Barcode128.CODE128_RAW);
+		code128.setCode(mBean.getSerial_no());
+		Image image128 = code128.createImageWithBarcode(cd, null, null);
+		PdfPCell barcodeCell = new PdfPCell(image128);
+		barcodeCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		barcodeCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		barcodeCell.setPaddingTop(1.8f);
+		barcodeCell.setBorder(PdfPCell.NO_BORDER);
+		mainTable.addCell(barcodeCell);
+
+//		cell = new PdfPCell(new Paragraph(new Paragraph(mBean.getModel_name(), boldFont)));
+//		cell.setFixedHeight(30);
+//		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+//		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+//		cell.setPadding(0.0f);
+//		cell.setPaddingBottom(10f);
+//		//cell.setBorderWidth(0);
+//		cell.setBackgroundColor(BaseColor.WHITE);
+//		mainTable.addCell(cell);
+
+		document.add(mainTable);
 	}
 }

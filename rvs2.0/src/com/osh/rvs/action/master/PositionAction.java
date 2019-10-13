@@ -55,7 +55,7 @@ public class PositionAction extends BaseAction {
 
 		LineService lservice = new LineService();
 		// 取得下拉框信息
-		String lOptions = lservice.getOptions(conn);
+		String lOptions = lservice.getAllOptions(conn);
 		req.setAttribute("lOptions", lOptions);
 
 		// 迁移到页面

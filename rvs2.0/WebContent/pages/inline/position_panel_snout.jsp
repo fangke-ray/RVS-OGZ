@@ -173,7 +173,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 				<div class="clear areaencloser"></div>
 			</div>
-
+<%
+	Boolean forSerial = (Boolean) request.getAttribute("serial");
+	if (forSerial == null) forSerial = false;
+%>
 			<div class="dwidth-full">
 				<div id="storagearea" style="float: left;">
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
@@ -191,11 +194,26 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</div>
 
 					<div class="ui-widget-content dwidth-half" id="scanner_container" style="min-height: 247px;">
+						<%
+						if (!forSerial) {
+						%>
 						<div class="ui-state-default td-title">扫描${object_name}来源</div>
 						<input type="text" id="scanner_inputer" title="扫描前请点入此处" class="dwidth-half"></input>
+						<%
+						}
+						%>
 						<div class="ui-state-default td-title">选择型号</div>
 						<div style="height:88px; padding: 4px;"><select id="input_model_id" readonly></select></div>
-						<div class="ui-state-default td-title">输入${object_name}序列号</div>
+						<div class="ui-state-default td-title">
+							输入${object_name}序列号
+						<%
+						if (forSerial) {
+						%>
+						<input type="button" id="serial_getter" value="自动顺番" class="ui-button"></input>
+						<%
+						}
+						%>
+						</div>
 						<input type="text" id="input_snout_no" title="输入${object_name}序列号" class="dwidth-half"></input>
 						<div style="height: 44px">
 							<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="startbutton" value="开始" role="button" aria-disabled="false" style="float: right; right: 2px;">
@@ -214,7 +232,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<table class="condform">
 					<tbody>
 						<tr>
-							<td class="ui-state-default td-title">${object_name}来源</td>
+							<td class="ui-state-default td-title">
+<%
+	if (!forSerial) {
+%>
+								${object_name}来源
+<%
+	}
+%>
+							</td>
 							<td class="td-content-text"></td>
 							<td class="ui-state-default td-title">型号</td>
 							<td class="td-content-text"></td>
@@ -230,7 +256,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="td-content-text" id="dtl_process_time"><div class="roll_cell"><div class="roll_seconds">0 1 2 3 4 5 6 7 8 9</div></div><div class="roll_cell"><div class="roll_tenseconds">0 1 2 3 4 5 6</div></div><label style="float:right;"></label></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">完成度</td>
+							<td class="ui-state-default td-title">预计完成度</td>
 							<td colspan="5" class="td-content-text">
 								<div class="waiting tube" id="p_rate" style="height: 20px; margin: auto;"></div>
 							</td>
@@ -265,6 +291,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 			</div>
 
+<%
+	if (!forSerial) {
+%>
 			<div id="manualdetailarea" style="margin-bottom: 16px;">
 				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
 					<span class="areatitle">工程检查票</span>
@@ -277,7 +306,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 				<div class="ui-state-default ui-corner-bottom areaencloser dwidth-full"></div>
 			</div>
-
+	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
+<%
+	} else {
+%>
+	<%@include file="../../widgets/position_panel/product_serials.jsp"%>
+<%
+	}
+%>
 		</div>
 	</div>
 	<div id="break_dialog"></div>
@@ -293,6 +329,5 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 	</div>
 	<input type="hidden" id="hidden_workstauts" value=""/>
-	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
 </body>
 </html>

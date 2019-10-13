@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -59,6 +60,19 @@ public class ModelService {
 		BeanUtil.copyToFormList(lResultBean, lResultForm, null, ModelForm.class);
 
 		return lResultForm;
+	}
+
+	public String searchToSelectOptions(ModelEntity coditionBean, SqlSession conn) {
+		// 从数据库中查询记录
+		ModelMapper dao = conn.getMapper(ModelMapper.class);
+
+		Map<String, String> treemap = new TreeMap<String, String>();
+		List<ModelEntity> l = dao.searchModel(coditionBean);
+		for (ModelEntity mEntity : l) {
+			treemap.put(mEntity.getModel_id(), mEntity.getName());
+		}
+
+		return CodeListUtils.getSelectOptions(treemap, "", "(未选择)", false);
 	}
 
 	/**
@@ -232,12 +246,13 @@ public class ModelService {
 		
 		return mRet;
 	}
+
 	/**
 	 * 取得全部型号
 	 * @param conn
 	 * @return
 	 */
-	public List<ModelForm> getAllModel(SqlSession conn) {
+	private List<ModelForm> getAllModel(SqlSession conn) {
 		
 		ModelMapper dao = conn.getMapper(ModelMapper.class);
 
@@ -249,13 +264,23 @@ public class ModelService {
 
 		return lResultForm;
 	}
-	
+
+	public String getOptions(Integer department, SqlSession conn) {
+		if (department == null) {
+			return this.getAllOptions(conn);
+		} else if (department == RvsConsts.DEPART_REPAIR) {
+			return this.getRepairOptions(conn);
+		} else {
+			return this.getManufactureOptions(conn);
+		}
+	}
+
 	/**
 	 * 取得全部型号(参照列表)
 	 * @param conn
 	 * @return
 	 */
-	public String getOptions(SqlSession conn) {
+	public String getAllOptions(SqlSession conn) {
 		List<String[]> mList = new ArrayList<String[]>();
 		List<ModelForm> allModel = this.getAllModel(conn);
 		
@@ -271,7 +296,52 @@ public class ModelService {
 		
 		return mReferChooser;
 	}
-	
+
+	/**
+	 * 取得全部维修型号(参照列表)
+	 * @param conn
+	 * @return
+	 */
+	public String getRepairOptions(SqlSession conn) {
+		List<String[]> mList = new ArrayList<String[]>();
+		List<ModelForm> allModel = this.getAllModel(conn);
+		
+		for (ModelForm model: allModel) {
+			if ("11".equals(model.getKind())) continue;
+			String[] mline = new String[3];
+			mline[0] = model.getId();
+			mline[1] = model.getName();
+			mline[2] = model.getCategory_name();
+			mList.add(mline);
+		}
+
+		String mReferChooser = CodeListUtils.getReferChooser(mList);
+		
+		return mReferChooser;
+	}
+
+	/**
+	 * 取得全部生产型号(参照列表)
+	 * @param conn
+	 * @return
+	 */
+	public String getManufactureOptions(SqlSession conn) {
+		List<String[]> mList = new ArrayList<String[]>();
+		List<ModelForm> allModel = this.getAllModel(conn);
+		
+		for (ModelForm model: allModel) {
+			if (!"11".equals(model.getKind())) continue;
+			String[] mline = new String[3];
+			mline[0] = model.getId();
+			mline[1] = model.getName();
+			mline[2] = model.getCategory_name();
+			mList.add(mline);
+		}
+
+		String mReferChooser = CodeListUtils.getReferChooser(mList);
+		
+		return mReferChooser;
+	}
 	
 	/**
 	 * 维修对象型号受理维修等级设定/废止一览

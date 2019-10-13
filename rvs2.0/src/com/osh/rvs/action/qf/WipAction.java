@@ -59,7 +59,7 @@ public class WipAction extends BaseAction {
 
 		log.info("WipAction.init start");
 
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.getSession().setAttribute("mReferChooser", mReferChooser);
 
 		// level取得

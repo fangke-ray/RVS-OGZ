@@ -53,11 +53,13 @@ public class FilingAction extends BaseAction {
 
 		log.info("FilingAction.init start");
 
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 
 		CategoryService categoryService = new CategoryService();
-		String cOptions = categoryService.getOptions(conn);
+		String cOptions = categoryService.getOptions(user.getDepartment(), conn);
 		req.setAttribute("cOptions", cOptions);
 
 		// level取得
@@ -65,11 +67,11 @@ public class FilingAction extends BaseAction {
 		req.setAttribute("sLevel", CodeListUtils.getGridOptions("material_level"));
 
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getOptions(user.getDepartment(), conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 		
 		SectionService sectionService = new SectionService();
-		String sOptions = sectionService.getOptions(conn, "(全部)");
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "(全部)");
 		req.setAttribute("sOptions", sOptions);
 
 		// 一周前
@@ -78,7 +80,6 @@ public class FilingAction extends BaseAction {
 		req.setAttribute("scheduled_date_start", DateUtil.toString(cal.getTime(), DateUtil.DATE_PATTERN));
 
 		// 取得登录用户权限
-		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = user.getPrivacies();
 
 		if (privacies.contains(RvsConsts.PRIVACY_ADMIN)) {

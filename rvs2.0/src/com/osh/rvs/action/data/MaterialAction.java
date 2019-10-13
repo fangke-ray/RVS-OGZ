@@ -51,6 +51,7 @@ import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.partial.MaterialPartialService;
+import com.osh.rvs.service.product.ProductService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -70,7 +71,7 @@ import framework.huiqing.common.util.validator.Validators;
  */
 public class MaterialAction extends BaseAction {
 	private Logger log = Logger.getLogger(getClass());
-	
+
 	private CategoryService categoryService = new CategoryService();
 	private ModelService modelService = new ModelService();
 	private SectionService sectionService = new SectionService();
@@ -93,42 +94,54 @@ public class MaterialAction extends BaseAction {
 
 		log.info("MaterialAction.init start");
 
-		String cOptions = categoryService.getOptions(conn);
-		req.setAttribute("cOptions", cOptions);
-		
-		String mReferChooser = modelService.getOptions(conn);
-		req.setAttribute("mReferChooser", mReferChooser);
-		
-		// OCM取得
-		req.setAttribute("oOptions", CodeListUtils.getSelectOptions("material_ocm", null, ""));
-
-		// level取得
-		req.setAttribute("lOptions",CodeListUtils.getSelectOptions("material_level", null, "", false));
-		req.setAttribute("lGos",CodeListUtils.getGridOptions("material_level"));
-
-		String sOptions = sectionService.getOptions(conn, "(全部)");
-		req.setAttribute("sOptions", sOptions);
-		Date cal = new Date();
-		req.setAttribute("today_date", DateUtil.toString(cal, DateUtil.DATE_PATTERN));
-		req.setAttribute("past_4_date", DateUtil.toString(RvsUtils.switchWorkDate(cal, -4, conn), DateUtil.DATE_PATTERN));
-
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
-		
+
+		String cOptions = categoryService.getOptions(user.getDepartment(), conn);
+
+		req.setAttribute("cOptions", cOptions);
+
+		String mReferChooser = modelService.getOptions(user.getDepartment(), conn);
+
+		req.setAttribute("mReferChooser", mReferChooser);
+
+		boolean onlyManufactor = (user.getDepartment() != null && user.getDepartment() == 2);
+
+		if (!onlyManufactor) {
+			// OCM取得
+			req.setAttribute("oOptions", CodeListUtils.getSelectOptions("material_ocm", null, ""));
+
+			// level取得
+			req.setAttribute("lOptions",CodeListUtils.getSelectOptions("material_level", null, "", false));
+			req.setAttribute("lGos",CodeListUtils.getGridOptions("material_level"));
+
+			Date cal = new Date();
+			req.setAttribute("today_date", DateUtil.toString(cal, DateUtil.DATE_PATTERN));
+			req.setAttribute("past_4_date", DateUtil.toString(RvsUtils.switchWorkDate(cal, -4, conn), DateUtil.DATE_PATTERN));
+
+		}
+
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "(全部)");
+		req.setAttribute("sOptions", sOptions);
+
 		String privacy="";
 		//进度操作+计划员+经理以上人员+系统管理员
 		if (user.getPrivacies().contains(RvsConsts.PRIVACY_PROCESSING)
-				|| user.getPrivacies().contains(RvsConsts.PRIVACY_SCHEDULE) 
+				|| user.getPrivacies().contains(RvsConsts.PRIVACY_SCHEDULE)
 				|| user.getPrivacies().contains(RvsConsts.PRIVACY_ADMIN)) {
 			privacy = "isPrivacy";
 		}
 		req.setAttribute("privacy", privacy);
-		
+
 		// 迁移到页面
-		actionForward = mapping.findForward(FW_INIT);
+		if (onlyManufactor) {
+			actionForward = mapping.findForward("init-man");
+		} else {
+			actionForward = mapping.findForward(FW_INIT);
+		}
 
 		log.info("MaterialAction.init end");
 	}
-	
+
 	/**
 	 * 维修对象条件查询
 	 * @param mapping
@@ -142,7 +155,7 @@ public class MaterialAction extends BaseAction {
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialAction.search start");
-		// Ajax回馈对象	
+		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		// 检索条件表单合法性检查
@@ -157,13 +170,13 @@ public class MaterialAction extends BaseAction {
 		}
 
 		if (errors.size() == 0) {
-			//检查用户权限, 如果有110,放开Break_back_flg=0的操作
-//			List<Integer> privacies = getPrivacies(req.getSession());
-//			boolean contains = privacies.contains(RvsConsts.PRIVACY_OVEREDIT);
-//			if (contains) {
-//				((MaterialForm)form).setBreak_back_flg("999");//mybatis中判断Break_back_flg不为null,故赋任意值
-//			}
-			
+			//检查用户权限, 如果是系统管理员
+			List<Integer> privacies = getPrivacies(req.getSession());
+			boolean contains = privacies.contains(RvsConsts.PRIVACY_OVEREDIT);
+			if (contains) {
+				((MaterialForm)form).setFix_type("999");
+			}
+
 			// 执行检索
 			List<MaterialForm> lResultForm = materialService.searchMaterial(form, completed, conn, errors);
 
@@ -184,7 +197,7 @@ public class MaterialAction extends BaseAction {
 
 		log.info("MaterialAction.search end");
 	}
-	
+
 	/**
 	 * 维修对象详细
 	 * @param mapping
@@ -195,23 +208,23 @@ public class MaterialAction extends BaseAction {
 	 */
 	public void getDetial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) {
 		log.info("MaterialAction.getDetial start");
-		// Ajax响应对象	
+		// Ajax响应对象
 		Map<String, Object> detailResponse = new HashMap<String, Object>();
-		
+
 		String id = req.getParameter("id");
 		String occur_times = req.getParameter("occur_times");
 		MaterialForm materialForm = new MaterialForm();
 //		MaterialPartialForm partialForm = new MaterialPartialForm();
 		MaterialProcessForm processForm = new MaterialProcessForm();
 		List<String> occutTimes = new ArrayList<String>();
-		
+
 		List<MaterialPartialForm> materialPartialFormList = new ArrayList<MaterialPartialForm>();
 		int caseId = 0;
 		HttpSession session = req.getSession();
 		if (id != null && !"".equals(id)) {
-			
+
 			materialForm = materialService.loadMaterialDetail(conn, id);
-			
+
 			String location = materialForm.getWip_location();
 			if (location != null && !"".equals(location)) { //location不为空，设置当前状态WIP
 				materialForm.setStatus("WIP");
@@ -243,7 +256,7 @@ public class MaterialAction extends BaseAction {
 			if (occur_times != null) {
 				iOccur_times = Integer.parseInt(occur_times);
 			}
-			
+
 			//根据维修对象ID查询维修对象所有订购单
 			materialPartialFormList = materialPartialService.searchMaterialPartailById(id,conn);
 
@@ -252,23 +265,23 @@ public class MaterialAction extends BaseAction {
 			// occutTimes = materialPartialService.getOccurTimes(conn, id);
 			caseId = chooseCase(session, materialPartialFormList.size() != 0 , processForm != null);
 		}
-		
+
 		detailResponse.put("materialForm", materialForm);
 //		detailResponse.put("partialForm", partialForm);
 		detailResponse.put("processForm", processForm);
 		detailResponse.put("timesOptions", occutTimes);
 		detailResponse.put("caseId", caseId);
 		detailResponse.put("materialPartialFormList", materialPartialFormList);
-		
-		
+
+
 		session.setAttribute("caseId", Integer.valueOf(caseId).toString());
 //		String sOptions = sectionService.getOptions(conn, null);
 //		session.setAttribute("sOptions", sOptions);
 //		String mReferChooser = modelService.getOptions(conn);
 //		session.setAttribute("mReferChooser", mReferChooser);
-		
+
 		returnJsonResponse(res, detailResponse);
-		
+
 		log.info("MaterialAction.getDetial end");
 	}
 
@@ -282,9 +295,9 @@ public class MaterialAction extends BaseAction {
 	 */
 	public void getPcsDetail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) {
 		log.info("MaterialAction.getPcsDetail start");
-		// Ajax回馈对象	
+		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
-		
+
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -297,13 +310,13 @@ public class MaterialAction extends BaseAction {
 		listResponse.put("mform", mform);
 
 		String sLine_id = user.getLine_id();
-		
+
 		//String role = user.getRole_id();
 
 		// 经理以上/计划全览工程
 		List<Integer> privacies = user.getPrivacies();
 
-		if (!privacies.contains(RvsConsts.PRIVACY_LINE) 
+		if (!privacies.contains(RvsConsts.PRIVACY_LINE)
 				&& !privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 			sLine_id = "00000000015";
 		} if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
@@ -342,7 +355,7 @@ public class MaterialAction extends BaseAction {
 	@Privacies(permit={1, 0})
 	public void getPcsDetailFixer(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) {
 		log.info("MaterialAction.getPcsDetailFixer start");
-		// Ajax回馈对象	
+		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		// 取得用户信息
@@ -375,7 +388,7 @@ public class MaterialAction extends BaseAction {
 		listResponse.put("errors", new ArrayList<MsgInfo>());
 
 		returnJsonResponse(res, listResponse);
-		
+
 		log.info("MaterialAction.getPcsDetailFixer end");
 	}
 
@@ -386,12 +399,12 @@ public class MaterialAction extends BaseAction {
 	 * @param req
 	 * @param res
 	 * @param conn
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void doUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("MaterialAction.doUpdate start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		
+
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ALL);
 		String caseId = (String) req.getSession().getAttribute("caseId");
 		List<String> triggerList = new ArrayList<String>();
@@ -486,29 +499,29 @@ public class MaterialAction extends BaseAction {
 		callbackResponse.put("errors", errors);
 		// 返回Json格式回馈信息
 		returnJsonResponse(res, callbackResponse);
-		
+
 		log.info("MaterialAction.doUpdate end");
 	}
 
 	public void doInsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) {
 		log.info("MaterialAction.doInsert start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		
+
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ALL);
 		List<MsgInfo> errors = v != null ? v.validate(): new ArrayList<MsgInfo>();
-		
+
 		if (errors.size() == 0) {
 			materialService.insert(form, conn);
 		}
-		
+
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
 		// 返回Json格式回馈信息
 		returnJsonResponse(res, callbackResponse);
-		
+
 		log.info("MaterialAction.doInsert end");
 	}
-	
+
 	/**
 	 * 等级/课室/工艺 变更时，确认是否存在进行中的工位
 	 * @param oldForm
@@ -544,10 +557,10 @@ public class MaterialAction extends BaseAction {
 
 		return 0;
 	}
-	
+
 	private int chooseCase(HttpSession session, boolean partial, boolean process) {
 		List<Integer> privacies = getPrivacies(session);
-		
+
 		if (privacies.contains(RvsConsts.PRIVACY_OVEREDIT) && privacies.contains(1)) {
 			return 4; //汇总操作，系统管理员
 		} else if (privacies.contains(RvsConsts.PRIVACY_SCHEDULE) && process) {
@@ -560,11 +573,11 @@ public class MaterialAction extends BaseAction {
 			return 0; //详细状态
 		}
 	}
-	
+
 	private List<Integer> getPrivacies(HttpSession session) {
 		LoginData loginData = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		List<Integer> privacies = loginData.getPrivacies();
-		
+
 		return privacies;
 	}
 
@@ -577,11 +590,11 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	public void printTicket(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{ 
+	public void printTicket(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("MaterialAction.printTicket start");
 		// Ajax响应对象
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
-		
+
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 
 		// 取得所选维修对象信息
@@ -607,7 +620,7 @@ public class MaterialAction extends BaseAction {
 		callbackResponse.put("errors", infoes);
 		// 返回Json格式回馈信息
 		returnJsonResponse(res, callbackResponse);
-		
+
 		log.info("MaterialAction.printTicket end");
 	}
 
@@ -700,7 +713,7 @@ public class MaterialAction extends BaseAction {
 //		Integer level = mEntity.getLevel();
 //		boolean isLightFix = (level != null) &&
 //				(level == 9 || level== 91 || level == 92 || level == 93);
-				
+
 		// 取得流程-全在线
 		List<ProcessAssignEntity> seqlist = pamDao.getProcessAssignByTemplateID(pat_id);
 		List<ProcessAssignForm> palist = new ArrayList<ProcessAssignForm>();
@@ -768,7 +781,7 @@ public class MaterialAction extends BaseAction {
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 		MaterialService materialService = new MaterialService();
-		
+
 		@SuppressWarnings("unchecked")
 		List<MaterialForm> lResultForm = (ArrayList<MaterialForm>) session.getAttribute(RvsConsts.SEARCH_RESULT);
 		Date today = new Date();
@@ -784,7 +797,7 @@ public class MaterialAction extends BaseAction {
 
 		log.info("MaterialAction.export end");
 	}
-	
+
 	/**
 	 * 月档案详细一览
 	 * @param mapping ActionMapping
@@ -796,20 +809,20 @@ public class MaterialAction extends BaseAction {
 	 */
 	public void searchMonthFiles(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn) throws Exception{
 		log.info("MaterialAction.searchMonthFiles start");
-		
+
 		Map<String, Object> listResponse = new HashMap<String, Object>();
-		
-		
+
+
 		List<MonthFilesDownloadForm> filesList = materialService.getMonthFiles();
-		
+
 		listResponse.put("filesList", filesList);
-		
+
 		//返回Json格式响应信息
 		returnJsonResponse(response, listResponse);
-		
+
 		log.info("MaterialAction.searchMonthFiles end");
 	}
-	
+
 	/**
      * 月档案点击下载
      * @param mapping ActionMapping
@@ -817,7 +830,7 @@ public class MaterialAction extends BaseAction {
      * @param req 页面请求
      * @param res 页面响应
      * @param conn 数据库会话
-     * @return 
+     * @return
      * @throws Exception
      */
 	public ActionForward output(ActionMapping mapping, ActionForm form, HttpServletRequest req,
@@ -832,11 +845,11 @@ public class MaterialAction extends BaseAction {
 		}else{
 			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
 		}
-		
+
 		String filePath = "";
 		filePath = PathConsts.BASE_PATH + PathConsts.PCS+"\\_monthly\\"+fileName;
 
-		 res.setHeader( "Content-Disposition", "attachment;filename=" + new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );  
+		 res.setHeader( "Content-Disposition", "attachment;filename=" + new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );
 		res.setContentType(contentType);
 		File file = new File(filePath);
 		InputStream is = new BufferedInputStream(new FileInputStream(file));
@@ -980,9 +993,9 @@ public class MaterialAction extends BaseAction {
 	 */
 	@Privacies(permit={1, 0})
 	public void doreccd(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
-		
+
 		log.info("MAterialAction.doreccd start");
-		
+
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 		List<String> triggerList = new ArrayList<String>();
 
@@ -1024,7 +1037,7 @@ public class MaterialAction extends BaseAction {
 
 		log.info("MAterialAction.doreccd end");
 	}
-	
+
 	/**
 	 * 工时统计
 	 * @param mapping
@@ -1040,14 +1053,14 @@ public class MaterialAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
-		
+
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
 
 		MaterialService materialService = new MaterialService();
 		String fileName ="工时统计.xls";
 		String filePath = materialService.worktimeExport(req,conn,errors);
-		
+
 		listResponse.put("fileName", fileName);
 		listResponse.put("filePath", filePath);
 
@@ -1055,5 +1068,115 @@ public class MaterialAction extends BaseAction {
 		returnJsonResponse(res, listResponse);
 
 		log.info("MaterialAction.worktimeExport end");
+	}
+
+	/**
+	 * 小票打印
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
+	 * @throws Exception
+	 */
+	@Privacies(permit={100})
+	public void doPrintProductTickets(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{ 
+		log.info("MaterialAction.printProductionTicket start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 取得所选维修对象信息
+		MaterialService mService = new MaterialService();
+		List<MaterialEntity> mBeans = mService.getModelSerials(req.getParameterMap());
+
+		if (mBeans.size() > 0) {
+			List<String> ids = new ArrayList<String>();
+			String id = null;
+
+			LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+			for (MaterialEntity mBean : mBeans) {
+				id = mBean.getMaterial_id();
+				if (id == null) {
+					mBean.setFix_type(RvsConsts.PROCESS_TYPE_MANUFACT_LINE);
+					id = mService.insertProduct(mBean, user.getSection_id(), conn);
+					if (mBeans.size() == 1) {
+						callbackResponse.put("id", id);
+					}
+				}
+
+				ids.add(id);
+			}
+
+			DownloadService dService = new DownloadService();
+			String filename = dService.printSerialTickets(mBeans, conn);
+			callbackResponse.put("tempFile", filename);
+
+			// 更新维修对象小票打印标记
+			MaterialMapper mdao = conn.getMapper(MaterialMapper.class);
+			mdao.updateMaterialTicket(ids);
+
+		} else {
+			MsgInfo msgInfo = new MsgInfo();
+			msgInfo.setErrcode("info.product.noAccessObject");
+			msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.noAccessObject"));
+			errors.add(msgInfo);
+		}
+
+		// 检查发生错误时报告错误信息
+		callbackResponse.put("errors", errors);
+		// 返回Json格式回馈信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("MaterialAction.printProductionTicket end");
+	}
+
+
+	/**
+	 * 没开始的产品型号改动
+	 * 
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
+	 * @throws Exception
+	 */
+	@Privacies(permit={100})
+	public void doSetNewProductModel(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{ 
+		log.info("MaterialAction.doSetNewProductModel start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		ProductService mService = new ProductService();
+
+		mService.setNewProductModel(req.getParameter("model_id"), conn);
+
+		// 检查发生错误时报告错误信息
+		callbackResponse.put("errors", errors);
+		// 返回Json格式回馈信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("MaterialAction.doSetNewProductModel end");
+	}
+
+	public void refreshSerialNos(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{ 
+		log.info("MaterialAction.refreshSerialNos start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		ProductService pService = new ProductService();
+
+		callbackResponse.put("serialNos", pService.getSerialNos(5, 15, conn));
+
+		// 检查发生错误时报告错误信息
+		callbackResponse.put("errors", errors);
+		// 返回Json格式回馈信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("MaterialAction.refreshSerialNos end");
 	}
 }

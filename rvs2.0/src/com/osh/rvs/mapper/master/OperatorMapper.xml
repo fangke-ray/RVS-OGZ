@@ -161,6 +161,7 @@
 			ROLE_ID,
 			POSITION_ID,
 			SECTION_NAME,
+			department,
 			PROCESS_CODE,
 			LINE_NAME,
 			ROLE_NAME,

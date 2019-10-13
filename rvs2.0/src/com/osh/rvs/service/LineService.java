@@ -34,10 +34,25 @@ public class LineService {
 	 * @param conn 数据库连接
 	 * @return String 工程选择项标签集
 	 */
-	public String getOptions(SqlSession conn) {
-		return getOptions(conn, "(不选)", "");
+	public String getOptions(Integer department, SqlSession conn) {
+		return getOptions(department, conn, "(不选)", "");
 	}
-	public String getOptions(SqlSession conn, String empty, String defaultValue) {
+	public String getOptions(Integer department, SqlSession conn, String empty, String defaultValue) {
+		LineMapper dao = conn.getMapper(LineMapper.class);
+		LineEntity flg = new LineEntity();
+		flg.setDepartment(department);
+		List<LineEntity> l = dao.searchLine(flg);
+		Map<String, String> codeMap = new TreeMap<String, String>();
+		for (LineEntity bean : l) {
+			codeMap.put(bean.getLine_id(), bean.getName());
+		}
+		return CodeListUtils.getSelectOptions(codeMap, defaultValue, empty, false);
+	}
+
+	public String getAllOptions(SqlSession conn) {
+		return getAllOptions(conn, "(不选)", "");
+	}
+	public String getAllOptions(SqlSession conn, String empty, String defaultValue) {
 		LineMapper dao = conn.getMapper(LineMapper.class);
 		LineEntity flg = new LineEntity();
 		List<LineEntity> l = dao.searchLine(flg);
@@ -53,10 +68,11 @@ public class LineService {
 	 * @param conn 数据库连接
 	 * @return String 工程选择项标签集
 	 */
-	public String getInlineOptions(SqlSession conn) {
+	public String getInlineOptions(Integer department, SqlSession conn) {
 		LineMapper dao = conn.getMapper(LineMapper.class);
 		LineEntity condi = new LineEntity();
 		condi.setInline_flg(true);
+		condi.setDepartment(department);
 		List<LineEntity> l = dao.searchLine(condi);
 		Map<String, String> codeMap = new TreeMap<String, String>();
 		for (LineEntity bean : l) {

@@ -67,7 +67,7 @@ public class ScheduleProcessingAction extends BaseAction {
 		log.info("ScheduleProcessingAction.init start");
 
 		// 机种信息取得
-		String cOptions = categoryService.getOptions(conn);
+		String cOptions = categoryService.getRepairOptions(conn);
 		// 机种信息设定
 		req.setAttribute("cOptions", cOptions);
 		

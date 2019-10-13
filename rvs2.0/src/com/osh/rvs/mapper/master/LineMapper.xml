@@ -54,6 +54,10 @@
 			<if test="inline_flg!=null and inline_flg!='' ">
 				AND INLINE_FLG = #{inline_flg}
 			</if>
+			<if test="department!= null and department!= '' ">
+				AND EXISTS (select p.process_code from position p join position_of_section p_s on p.position_id = p_s.position_id join section s on p_s.section_id = s.section_id
+where p.delete_flg = 0 and p.line_id = V_LINE.line_id and s.department = #{department})
+			</if>
 		</where> 
 		<![CDATA[ 
 		ORDER BY 

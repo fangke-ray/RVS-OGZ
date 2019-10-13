@@ -189,7 +189,7 @@
 				a.level,
 				a.section_id,
 				a.scheduled_date,
-				(select name from section where section_id = a.section_id) as section_name,
+				sec.name as section_name,
 				(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id <>13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
 				(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id = 13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position2,
 				mpr.scheduled_assign_date as scheduled_date_end,
@@ -202,9 +202,10 @@
 				a.break_back_flg
 			 from Material a left join material_process mpr on mpr.material_id = a.material_id and mpr.line_id in (select line_id from line where in_advance = 0)
 			 left join material_partial mpt on mpt.material_id = a.material_id
+			JOIN section sec ON a.section_id = sec.section_id
 		]]>
 		<where>
-				a.break_back_flg IN(0,1,2)
+				a.break_back_flg IN(0,1,2) AND department = 1
 			<if test="model_id!= null and model_id!= ''">
 				and a.model_id = #{model_id}
 			</if>
@@ -216,7 +217,6 @@
 					and a.model_id in (select model_id from model where category_id in (${category_id}))					
 				</if>
 			</if>
-				
 			<if test="serial_no!=null and serial_no!='' ">
 				 and a.serial_no = #{serial_no}
 			</if>
@@ -370,6 +370,110 @@
 			
 		</where>
 		group by a.material_id;
+	</select>
+
+	<select id="searchProduction" resultType="MaterialEntity" parameterType="MaterialEntity">
+		<![CDATA[ 
+			SELECT 
+				a.material_id,
+				omr_notifi_no as sorc_no,
+				a.model_id,
+				mdl.name as model_name,
+				a.serial_no,
+				a.section_id,
+				sec.name as section_name,
+				(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
+				mpr.finish_date as outline_time,
+				a.reception_time,
+				a.break_back_flg
+			 from Material a left join material_process mpr on mpr.material_id = a.material_id and mpr.line_id in (select line_id from line where in_advance = 0)
+			JOIN section sec ON a.section_id = sec.section_id
+			JOIN model mdl ON a.model_id = mdl.model_id
+		]]>
+		<where>
+				a.break_back_flg IN(0,1,2) AND department = 2
+			<if test="model_id!= null and model_id!= ''">
+				and a.model_id = #{model_id}
+			</if>
+			<if test="model_id!= null and model_id!= ''">
+				<if test="category_id !=null and category_id != ''">
+					and mdl.category_id in (${category_id}))					
+				</if>
+			</if>
+				
+			<if test="serial_no!=null and serial_no!='' ">
+				 and a.serial_no = #{serial_no}
+			</if>
+			<if test="sorc_no!= null and sorc_no!='' ">
+				and omr_notifi_no LIKE CONCAT('%', #{sorc_no}, '%')
+			</if>
+			<if test="section_id!= null and section_id!= ''">
+				and a.section_id = #{section_id}
+			</if>
+
+			<if test="inline_time_start!= null and inline_time_start!= '' ">
+				<![CDATA[
+				and a.inline_time >= #{inline_time_start}
+				]]>
+			</if>
+			<if test="inline_time_end!= null and inline_time_end!= '' ">
+				<![CDATA[
+				and a.inline_time < date_add(#{inline_time_end}, interval 1 day)
+				]]>
+			</if>
+
+			<if test="find_history!= null and find_history== 1">
+				<![CDATA[
+				and (a.outline_time IS NULL OR NOT a.outline_time < current_date)
+				]]>
+			</if>
+			<if test="find_history!= null and find_history== 2">
+				<![CDATA[
+				and a.outline_time IS NOT NULL -- TODO history
+				]]>
+			</if>
+			<if test="finish_time_start!= null and finish_time_start!= '' ">
+				<![CDATA[
+				and mpr.finish_date >= #{finish_time_start}
+				]]>
+			</if>
+			<if test="finish_time_end!= null and finish_time_end!= '' ">
+				<![CDATA[
+				and mpr.finish_date <= #{finish_time_end}
+				]]>
+			</if>
+			<if test="ocm_shipping_date_start!= null and ocm_shipping_date_start!= '' ">
+				<![CDATA[
+				and a.ocm_shipping_date >= #{ocm_shipping_date_start}
+				]]>
+			</if>
+			<if test="ocm_shipping_date_end!= null and ocm_shipping_date_end!= '' ">
+				<![CDATA[
+				and a.ocm_shipping_date <= #{ocm_shipping_date_end}
+				]]>
+			</if>
+			<if test="complete_date_start!= null or complete_date_end!= null">
+				<![CDATA[
+				and EXISTS (
+					SELECT 1 FROM material_process
+					WHERE material_id = a.material_id AND line_id in (select line_id from line where in_advance = 0)
+				]]>
+				<if test="complete_date_start!= null and complete_date_start!= '' ">
+					<![CDATA[
+					and scheduled_assign_date >= #{complete_date_start}
+					]]>
+				</if>
+				<if test="complete_date_end!= null and complete_date_end!= '' ">
+					<![CDATA[
+					and scheduled_assign_date <= #{complete_date_end}
+					]]>
+				</if>
+				<![CDATA[
+				)
+				]]>
+			</if>
+		</where>
+		;
 	</select>
 
 	<select id="searchMaterialFiling" resultType="MaterialEntity" parameterType="MaterialEntity">
@@ -956,6 +1060,16 @@
 		outline_time = CURRENT_TIMESTAMP
 		where material_id = #{material_id}
 	]]>
+	</update>
+
+	<update id="setNewProductModel" parameterType="String">
+		<![CDATA[
+			Update Material SET
+			model_id = #{model_id}
+			WHERE inline_time IS null
+			AND break_back_flg = 0
+			AND fix_type = 6;
+		]]>
 	</update>
 
 </mapper>

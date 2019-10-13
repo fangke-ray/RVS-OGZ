@@ -64,7 +64,7 @@ public class AcceptanceAction extends BaseAction {
 
 		log.info("AcceptanceAction.init start");
 		
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getRepairOptions(conn);
 		req.getSession().setAttribute("mReferChooser", mReferChooser);
 
 		// 配送区域信息

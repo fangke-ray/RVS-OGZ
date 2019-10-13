@@ -429,17 +429,24 @@ public class SoloSnoutService {
 	/**
 	 * 取得当月生成先端头
 	 * @param snoutsByMonth 生成先端头一览，返回用
+	 * @@param kind 取得的机种（粗镜，周边，显微镜）
 	 * @param conn 数据库会话
 	 * @return 提供的先端头序列号
 	 */
-	public String loadSnoutsByMonth(List<MaterialEntity> snoutsByMonth,
+	public String loadSnoutsByMonth(List<MaterialEntity> snoutsByMonth, String kind,
 			SqlSession conn) {
 		SoloProductionFeatureMapper mapper = conn.getMapper(SoloProductionFeatureMapper.class);
 
 		// 本月 e.g. ：1605
 		String month = DateUtil.toString(new Date(), "yyMM");
 		// 取得当月先端头（依照先端来源列表）
-		List<MaterialEntity> snoutsByMonthInner = mapper.getSnoutOriginOnMonth(month);
+		List<MaterialEntity> snoutsByMonthInner = null;
+		if ("11".equals(kind)) {
+			snoutsByMonthInner = mapper.getCoalitionProcessOnMonth(month, kind, "00000000101");
+		} else {
+			snoutsByMonthInner = mapper.getSnoutOriginOnMonth(month, kind);
+		}
+
 		snoutsByMonth.addAll(snoutsByMonthInner);
 
 		if (snoutsByMonthInner.size() == 0) {

@@ -9,6 +9,7 @@
 		<![CDATA[ 
 		SELECT SECTION_ID,
 			NAME,
+			department,
 			INLINE_FLG,
 			UPDATED_BY,
 			UPDATED_TIME
@@ -22,6 +23,7 @@
 		<![CDATA[ 
 		SELECT SECTION_ID,
 			NAME,
+			department,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM SECTION
@@ -35,6 +37,7 @@
 		<![CDATA[ 
 		SELECT SECTION_ID,
 			NAME,
+			department,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM SECTION
@@ -48,6 +51,7 @@
 		<![CDATA[ 
 		SELECT SECTION_ID,
 			NAME,
+			department,
 			INLINE_FLG,
 			UPDATED_BY,
 			UPDATED_TIME
@@ -61,6 +65,9 @@
 			<if test="name!=null and name!='' ">
 				AND NAME LIKE CONCAT('%', #{name}, '%')
 			</if>
+			<if test="department!=null and department!='' ">
+				AND department = #{department}
+			</if>
 			<if test="inline_flg!=null and inline_flg!='' ">
 				AND INLINE_FLG = #{inline_flg}
 			</if>
@@ -73,15 +80,16 @@
 	<insert id="insertSection" parameterType="SectionEntity">
 		<![CDATA[ 
 		INSERT INTO SECTION 
-			(NAME, UPDATED_BY, INLINE_FLG, UPDATED_TIME) 
+			(NAME, department, UPDATED_BY, INLINE_FLG, UPDATED_TIME) 
 		VALUES 
-			(#{name}, #{updated_by}, #{inline_flg}, current_timestamp);
+			(#{name}, #{department}, #{updated_by}, #{inline_flg}, current_timestamp);
 		]]>
 	</insert>
 
 	<update id="updateSection" parameterType="SectionEntity">
 		<![CDATA[ 
 		UPDATE SECTION SET NAME = #{name},
+			department = #{department},
 			UPDATED_BY = #{updated_by},
 			INLINE_FLG = #{inline_flg},
 			UPDATED_TIME = current_timestamp

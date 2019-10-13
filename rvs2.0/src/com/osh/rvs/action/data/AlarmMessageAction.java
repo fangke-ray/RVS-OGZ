@@ -67,23 +67,25 @@ public class AlarmMessageAction extends BaseAction {
 
 		log.info("AlarmMessageAction.init start");
 
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		req.setAttribute("lvlOptions", CodeListUtils.getSelectOptions("alarm_level", null, ""));
 		req.setAttribute("rOptions", CodeListUtils.getSelectOptions("alarm_reason", null, ""));
 
 		SectionService sectionService = new SectionService();
 		// 课室信息取得
-		String sOptions = sectionService.getOptions(conn, "");
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "");
 		// 课室信息设定
 		req.setAttribute("sOptions", sOptions);
 		
 		LineService lineService = new LineService();
 		// 工程信息取得
-		String lOptions = lineService.getOptions(conn);
+		String lOptions = lineService.getOptions(user.getDepartment(), conn);
 		// 工程信息设定
 		req.setAttribute("lOptions", lOptions);
 		
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getOptions(user.getDepartment(), conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 
 		OperatorService operatorService = new OperatorService();

@@ -60,7 +60,7 @@ public class DevicesDistributeAction extends BaseAction {
 		
 		LineService lineService = new LineService();
 		// 责任工程
-		String lineOptions = lineService.getOptions(conn);
+		String lineOptions = lineService.getAllOptions(conn);
 		request.setAttribute("lineOptions", lineOptions);
 		
 		DevicesManageService service = new DevicesManageService();

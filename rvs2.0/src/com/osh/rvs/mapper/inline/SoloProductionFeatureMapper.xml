@@ -560,14 +560,33 @@ on so.material_id = ma.material_id
 
 	<select id="getSnoutOriginOnMonth" resultType="MaterialEntity">
 		<![CDATA[ 
-select so.material_id, ma.omr_notifi_no, ma.model_id, mdl.name as model_name, so.manage_serial_no as serial_no 
-from snout_origin so
-join material ma
-on so.material_id = ma.material_id
-join model mdl
-on ma.model_id = mdl.model_id
-where so.manage_serial_no like concat(#{month}, '%')
-order by so.manage_serial_no
+		select so.material_id, ma.omr_notifi_no, ma.model_id, mdl.name as model_name, so.manage_serial_no as serial_no 
+		from snout_origin so
+		join material ma
+		on so.material_id = ma.material_id
+		join v_model mdl
+		on ma.model_id = mdl.model_id
+		where so.manage_serial_no like concat(#{month}, '%')
+		and kind = #{kind}
+		order by so.manage_serial_no
+;
+		]]>
+	</select>
+
+	<select id="getCoalitionProcessOnMonth" resultType="MaterialEntity">
+		<![CDATA[ 
+		select so.material_id, ma.omr_notifi_no, ma.model_id, mdl.name as model_name, spf.serial_no
+		from solo_production_feature spf use index(serial_no)
+		join v_model mdl
+		on spf.model_id = mdl.model_id
+		left join snout_origin so
+		on so.manage_serial_no = spf.serial_no
+		left join material ma
+		on so.material_id = ma.material_id
+		where position_id = #{position_id}
+		and spf.serial_no like concat(#{month}, '%')
+		and kind = #{kind}
+		order by spf.serial_no
 ;
 		]]>
 	</select>

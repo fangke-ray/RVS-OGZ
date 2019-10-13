@@ -17,6 +17,7 @@
 				a.break_back_flg = 0 
 				AND (a.outline_time IS NULL OR a.outline_time >= current_date) 
 				AND a.agreed_date IS NOT NULL 
+				AND a.fix_type in (1,2)
 			<if test="sorc_no!= null and sorc_no!='' ">
 				and omr_notifi_no like CONCAT('%', #{sorc_no}, '%')
 			</if>
@@ -388,6 +389,7 @@
 					material_remain_time mrt
 					ON a.material_id = mrt.material_id
 				WHERE b.line_id IS NOT NULL
+				AND a.fix_type in (1,2)
 		]]>
 		<if test="line_id != null and line_id != ''">			
 			and b.line_id = #{line_id}

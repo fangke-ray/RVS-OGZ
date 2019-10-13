@@ -61,16 +61,19 @@ public class AppMenuAction extends BaseAction {
 
 		log.info("AppMenuAction.init start" + req.getParameter("ex"));
 
-		if (req.getParameter("ex") != null) {
-			// 迁移到页面
-			actionForward = mapping.findForward(FW_INIT + "-ex");
-		} else {
-			// 迁移到页面
-			actionForward = mapping.findForward(FW_INIT);
-		}
-
 		// 取得登录用户权限
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+		String forward = FW_INIT;
+		if (user.getDepartment() != null && user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
+			forward = "manufact";
+		}
+		if (req.getParameter("ex") != null) {
+			// 迁移到页面
+			forward += "-ex";
+		}
+		actionForward = mapping.findForward(forward);
+
 		List<Integer> privacies = user.getPrivacies();
 		// String now_position_id = user.getPosition_id();
 		@SuppressWarnings("unused")
@@ -162,11 +165,13 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("inlinePosition", false);
 		menuLinks.put("decomposeline", false);
 		menuLinks.put("deposeStorage", false);
+		boolean bRepairLine = false;
 
 		String inlinePosition = "";
 
 		// 分解
 		if (LINE_DECOM.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("decomposeline", true);
 				menuLinks.put("在线作业", true);
@@ -181,6 +186,7 @@ public class AppMenuAction extends BaseAction {
 
 		// ＮＳ
 		if (LINE_NS.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("nsline", true);
 				menuLinks.put("在线作业", true);
@@ -196,6 +202,7 @@ public class AppMenuAction extends BaseAction {
 
 		// 总组
 		if (LINE_COM.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("composeline", true);
 				menuLinks.put("在线作业", true);
@@ -213,6 +220,7 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("spline", false);
 		// 外科硬镜修理工程
 		if (LINE_SURGI.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("spline", true);
 				menuLinks.put("在线作业", true);
@@ -226,6 +234,7 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("lmline", false);
 		// 中小修修理工程
 		if (LINE_LIGHTMED.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("lmline", true);
 				menuLinks.put("在线作业", true);
@@ -239,6 +248,7 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("febdecomline", false);
 		// 纤维镜分解工程
 		if (LINE_FEB_DECOM.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("febdecomline", true);
 				menuLinks.put("在线作业", true);
@@ -252,6 +262,7 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("febcomline", false);
 		// 纤维镜总组工程
 		if (LINE_FEB_COM.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("febcomline", true);
 				menuLinks.put("在线作业", true);
@@ -265,6 +276,7 @@ public class AppMenuAction extends BaseAction {
 		menuLinks.put("periline", false);
 		// 周边设备修理工程
 		if (LINE_PERI.equals(user.getLine_id())) {
+			bRepairLine = true;
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("periline", true);
 				menuLinks.put("在线作业", true);
@@ -275,8 +287,21 @@ public class AppMenuAction extends BaseAction {
 			}
 		}
 
+		// 生产工程
+		menuLinks.put("manufactline", false);
+		if (!bRepairLine && user.getLine_name().indexOf("组装") >= 0) {
+			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
+				menuLinks.put("manufactline", true);
+				menuLinks.put("在线作业", true);
+			}
+			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+				links = getLinksByPositions(userPositions, user.getLine_id(), section_id);
+				inlinePosition += links;
+			}
+		}
+
 		// 辅助工作
-		if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+		if (bRepairLine && privacies.contains(RvsConsts.PRIVACY_POSITION)) {
 			menuLinks.put("support", true);
 			menuLinks.put("在线作业", true);
 		} else {

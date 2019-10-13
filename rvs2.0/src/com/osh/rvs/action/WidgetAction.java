@@ -311,7 +311,7 @@ public class WidgetAction extends BaseAction {
 					req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level_endoscope", null, null, false));
 				}
 				SectionService sService = new SectionService();
-				req.setAttribute("sOptions", sService.getOptions(conn, null));
+				req.setAttribute("sOptions", sService.getOptions(user.getDepartment(), conn, null));
 				ProcessAssignService paService = new ProcessAssignService();
 				String patOptions = paService.getOptions(null, conn);
 				req.setAttribute("patOptions", patOptions);

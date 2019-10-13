@@ -15,6 +15,8 @@ public class SectionEntity implements Serializable {
 	private Boolean inline_flg = false;
 	/** 删除类别 */
 	private boolean delete_flg = false;
+	/** 部门 */
+	private Integer department = 1;
 	/** 最后更新人 */
 	private String updated_by;
 	/** 最后更新时间 */
@@ -118,5 +120,13 @@ public class SectionEntity implements Serializable {
 
 	public void setInline_flg(Boolean inline_flg) {
 		this.inline_flg = inline_flg;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 }

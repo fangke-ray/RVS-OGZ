@@ -609,8 +609,11 @@ var setChart = function(resInfo) {
 
 	} else {
 		chart2.xAxis[0].setCategories(resInfo.categories, false);
-		// chart2.series[0].setData(resInfo.light_fix_counts, false);
-		chart2.series[0].setData(resInfo.counts, false);
+		if (lm_tag) {
+			chart2.series[0].setData(resInfo.light_fix_counts, false);
+		} else {
+			chart2.series[0].setData(resInfo.counts, false);
+		}
 		chart2.series[1].setData(resInfo.overlines);
 	}
 

@@ -58,11 +58,13 @@ public class OperatorProductionAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorProductionAction.init start");
-		
-		String lOptions = lineService.getOptions(conn);
+
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+		String lOptions = lineService.getOptions(user.getDepartment(), conn);
 		req.setAttribute("lOptions", lOptions);
 		
-		String sOptions = sectionService.getOptions(conn, "(全部)");
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "(全部)");
 		req.setAttribute("sOptions", sOptions);
 		
 		// 迁移到页面

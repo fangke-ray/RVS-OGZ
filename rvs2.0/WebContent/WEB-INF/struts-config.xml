@@ -215,6 +215,8 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
+			<forward name="exit" path="/panel.do" />
 		</action>
 		<action path="/position_panel1" type="com.osh.rvs.action.inline.prototype.PositionPanel1Action" parameter="method" validate="false">
 			<forward name="init" path="/pages/inline/position_panel.jsp" />
@@ -225,6 +227,8 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
+			<forward name="exit" path="/panel.do" />
 		</action>
 		<action path="/position_panel2" type="com.osh.rvs.action.inline.prototype.PositionPanel2Action" parameter="method" validate="false">
 			<forward name="init" path="/pages/inline/position_panel.jsp" />
@@ -235,6 +239,8 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
+			<forward name="exit" path="/panel.do" />
 		</action>
 		<action path="/position_panel3" type="com.osh.rvs.action.inline.prototype.PositionPanel3Action" parameter="method" validate="false">
 			<forward name="init" path="/pages/inline/position_panel.jsp" />
@@ -245,6 +251,7 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
 			<forward name="exit" path="/panel.do" />
 		</action>
 		<action path="/position_panel4" type="com.osh.rvs.action.inline.prototype.PositionPanel4Action" parameter="method" validate="false">
@@ -256,6 +263,7 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
 			<forward name="exit" path="/panel.do" />
 		</action>
 		<action path="/position_panel5" type="com.osh.rvs.action.inline.prototype.PositionPanel5Action" parameter="method" validate="false">
@@ -267,6 +275,20 @@
 			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
 			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
 			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
+			<forward name="exit" path="/panel.do" />
+		</action>
+
+		<action path="/position_panel_man" type="com.osh.rvs.action.inline.prototype.PositionPanelManufactAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/inline/position_panel.jsp" />
+			<forward name="result" path="/pages/inline/position_panel_with_result.jsp" />
+			<forward name="snout" path="/pages/inline/position_panel_snout.jsp" />
+			<forward name="simple" path="/pages/inline/position_panel_simple.jsp" />
+			<forward name="precieve" path="/pages/inline/position_panel_precieve.jsp" />
+			<forward name="usesnout" path="/pages/inline/position_panel_usesnout.jsp" />
+			<forward name="decom" path="/pages/inline/position_panel_decom.jsp" />
+			<forward name="success" path="/pages/inline/position_panel.jsp" />
+			<forward name="product" path="/pages/inline/position_panel_product.jsp" />
 			<forward name="exit" path="/panel.do" />
 		</action>
 
@@ -279,6 +301,7 @@
 		<!-- data 维修对象 -->
 		<action path="/material" type="com.osh.rvs.action.data.MaterialAction" parameter="method" validate="false" name="materialForm" scope="request">
 			<forward name="init" path="/pages/data/list_materials-page.jsp" />
+			<forward name="init-man" path="/pages/data/list_products-page.jsp" />
 			<forward name="success" path="/pages/data/list_materials-page.jsp" />
 		</action>
  		
@@ -419,10 +442,12 @@
 			<forward name="init" path="/widgets/appmenu.jsp" />
 			<forward name="partial" path="/widgets/partialmenu.jsp" />
 			<forward name="tools" path="/widgets/toolsmenu.jsp" />
+			<forward name="manufact" path="/widgets/manufactmenu.jsp" />
 			<forward name="success" path="/widgets/appmenu.jsp" />
 			<forward name="init-ex" path="/widgets/appmenu-ex.jsp" />
 			<forward name="partial-ex" path="/widgets/partialmenu-ex.jsp" />
 			<forward name="tools-ex" path="/widgets/toolsmenu-ex.jsp" />
+			<forward name="manufact-ex" path="/widgets/manufactmenu-ex.jsp" />
 		</action>
 
 		<action path="/panel" type="com.osh.rvs.action.PanelAction" parameter="method" validate="false">

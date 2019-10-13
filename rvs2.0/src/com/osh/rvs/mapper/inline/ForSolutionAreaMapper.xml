@@ -72,6 +72,7 @@ FROM `for_solution_area`
 			NOT (reason = 2 
 				AND date(`happen_time`) = date(coalesce(solved_time, current_timestamp))
 				AND f_diffworktime(`happen_time`, coalesce(solved_time, current_timestamp)) < 0.06)
+			AND ma.fix_type in (1,2)
 		]]>
 			<if test="material_id!= null and material_id!='' ">
 				and ma.material_id = #{material_id}

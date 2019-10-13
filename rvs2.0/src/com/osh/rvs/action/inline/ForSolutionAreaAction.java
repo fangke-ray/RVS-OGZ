@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.inline.ForSolutionAreaForm;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.LineService;
@@ -57,13 +58,13 @@ public class ForSolutionAreaAction extends BaseAction {
 		log.info("ForSolutionAreaAction.init start");
 
 		// 机种信息取得
-		String cOptions = categoryService.getOptions(conn);
+		String cOptions = categoryService.getRepairOptions(conn);
 		// 机种信息设定
 		req.setAttribute("cOptions", cOptions);
 
 		// 工位信息管理处理生成
 		LineService lineService = new LineService();
-		String lOptions = lineService.getInlineOptions(conn);
+		String lOptions = lineService.getInlineOptions(RvsConsts.DEPART_REPAIR, conn);
 		req.setAttribute("lOptions", lOptions);
 
 		SectionService sectionService = new SectionService();

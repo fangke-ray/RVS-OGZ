@@ -72,7 +72,7 @@ public class PcsRequestAction extends BaseAction {
 
 		// 型号列表
 		ModelService modelService = new ModelService();
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getAllOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 
 		req.setAttribute("hMLevelEo", CodeListUtils.getGridOptions("material_level"));

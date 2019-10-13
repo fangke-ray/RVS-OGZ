@@ -57,7 +57,7 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		req.setAttribute("nReferChooser", nReferChooser);
 
 		LineService lService = new LineService();
-		String lOptions = lService.getOptions(conn, "", "(全部)");
+		String lOptions = lService.getAllOptions(conn, "", "(全部)");
 		req.setAttribute("lOptions", lOptions);
 
 		// 原因分类

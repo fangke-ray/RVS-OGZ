@@ -102,6 +102,7 @@
 		<typeAlias alias="DeviceJigRepairRecordEntity" type="com.osh.rvs.bean.equipment.DeviceJigRepairRecordEntity"/>
 
 		<typeAlias alias="OperationStandardDocEntity" type="com.osh.rvs.bean.manage.OperationStandardDocEntity"/>
+
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -217,5 +218,7 @@
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigRepairRecordMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manage/OperationStandardDocMapper.xml"/>
+
+		<mapper resource="com/osh/rvs/mapper/manufact/ProductMapper.xml"/>
 	</mappers>
 </configuration> 

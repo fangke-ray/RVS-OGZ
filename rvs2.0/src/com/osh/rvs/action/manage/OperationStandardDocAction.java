@@ -61,15 +61,15 @@ public class OperationStandardDocAction extends BaseAction {
 		log.info("OperationStandardDocAction.init start");
 
 		// 机种
-		String categoryOptions = categoryService.getOptions(conn);
+		String categoryOptions = categoryService.getAllOptions(conn);
 		req.setAttribute("categoryOptions", categoryOptions);
 
 		// 工程
-		String lineOptions = lineService.getOptions(conn);
+		String lineOptions = lineService.getAllOptions(conn);
 		req.setAttribute("lineOptions", lineOptions);
 
 		// 型号
-		String mReferChooser = modelService.getOptions(conn);
+		String mReferChooser = modelService.getAllOptions(conn);
 		req.setAttribute("mReferChooser", mReferChooser);
 
 		// 工位代码

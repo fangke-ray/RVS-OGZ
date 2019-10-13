@@ -3,15 +3,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
+
+import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.PositionEntity;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.StandardWorkTimeService;
+
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
@@ -34,15 +40,20 @@ public class StandardWorkTimeAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("StandardWorkTimeAction.init start");		
-		
+
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		actionForward = mapping.findForward(FW_INIT);	
 		ModelService service = new ModelService();
-		String mReferChooser = service.getOptions(conn);
+		Integer department = user.getDepartment();
+		String mReferChooser = service.getOptions(department, conn);
 		/*型号*/
 		req.setAttribute("mReferChooser", mReferChooser);	
-		
-		/*等级*/
-		req.setAttribute("sMaterial_level_inline", CodeListUtils.getSelectOptions("material_level_inline",null,""));
+
+		if (department == null || department == RvsConsts.DEPART_REPAIR) {
+			/*等级*/
+			req.setAttribute("sMaterial_level_inline", CodeListUtils.getSelectOptions("material_level_inline",null,""));
+		}
 
 		log.info("StandardWorkTimeAction.init end");
 	}

@@ -29,6 +29,7 @@ public class LoginData extends BaseUserBean {
 	private List<LineEntity> lines = new ArrayList<LineEntity>();
 	private String last_link;
 	private String working_role_id;
+	private Integer department;
 
 	// 流水线修理方式 全部=0 A线=1 B线=2
 	private String px = "0";
@@ -126,5 +127,11 @@ public class LoginData extends BaseUserBean {
 	}
 	public void setPx(String px) {
 		this.px = px;
+	}
+	public Integer getDepartment() {
+		return department;
+	}
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 }
