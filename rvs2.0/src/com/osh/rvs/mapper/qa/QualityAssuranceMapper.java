@@ -20,4 +20,8 @@ public interface QualityAssuranceMapper {
 
 	public List<MaterialEntity> getFinishedFiling();
 
+	public List<MaterialEntity> getManufatorWaitings(String position_id);
+
+	public List<MaterialEntity> getManufatorFinished(String position_id);
+
 }

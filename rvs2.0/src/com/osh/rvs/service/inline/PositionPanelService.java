@@ -158,7 +158,7 @@ public class PositionPanelService {
 			List<WaitingEntity> ls = dao.getSpareOrRcWaitingMaterial(user.getSection_id(), user.getPosition_id());
 			ret.addAll(ls);
 		}
-		
+
 		return ret;
 	}
 
@@ -666,6 +666,15 @@ public class PositionPanelService {
 		} else if (mform.getLevel()==null || RvsUtils.isPeripheral(mform.getLevel())) { // 没等级还要检查票的就只有周边
 			showLines = new String[1];
 			showLines[0] = "检查卡";
+		} else if ("0".equals(mform.getLevel())) { // 制品
+			if ("00000000076".equals(sline_id)) {
+				showLines = new String[2];
+				showLines[0] = "出荷检查表";
+				showLines[1] = "检查工程";
+			} else {
+				showLines = new String[1];
+				showLines[0] = "检查工程";
+			}
 		} else {
 			if ("00000000012".equals(sline_id)) {
 				showLines = new String[1];
@@ -733,12 +742,21 @@ public class PositionPanelService {
 
 		List<Map<String, String>> pcses = new ArrayList<Map<String, String>>();
 
-		String[] showLines = new String[5];
-		showLines[0] = "检查卡";
-		showLines[1] = "最终检验";
-		showLines[2] = "分解工程";
-		showLines[3] = "NS 工程";
-		showLines[4] = "总组工程";
+		String[] showLines = {};
+
+		if (pf.getPosition_id().equals("00000000108")) { // TODO
+			showLines = new String[2];
+			showLines[0] = "出荷检查表";
+			showLines[1] = "检查工程";
+		} else {
+			showLines = new String[6];
+			showLines[0] = "检查卡";
+			showLines[1] = "最终检验";
+			showLines[2] = "外科硬镜修理工程";
+			showLines[3] = "分解工程";
+			showLines[4] = "NS 工程";
+			showLines[5] = "总组工程";
+		}
 
 		for (String showLine : showLines) {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, conn);
@@ -970,6 +988,22 @@ public class PositionPanelService {
 				MsgInfo info = new MsgInfo();
 				info.setComponentid("material_id");
 				info.setErrmsg("本工程内还有作业未完成，请等待全部完成后再结束本工位。"); // TODO temp
+				infoes.add(info);
+			}
+		}
+	}
+
+	public void checkAccessary(ProductionFeatureEntity workingPf, List<MsgInfo> infoes, SqlSession conn) {
+		String processCode = workingPf.getProcess_code();
+		if ("002".equals(processCode)) {
+			SoloProductionFeatureMapper spfMapper = conn.getMapper(SoloProductionFeatureMapper.class);
+			List<ProductionFeatureEntity> used_snouts = spfMapper.findUsedSnoutsByMaterial(workingPf.getMaterial_id(), "00000000101");
+
+			if (used_snouts.size() == 0) {
+				MsgInfo info = new MsgInfo();
+				info.setComponentid("material_id");
+				info.setErrcode("info.product.withoutAccessory");
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.withoutAccessory"));
 				infoes.add(info);
 			}
 		}

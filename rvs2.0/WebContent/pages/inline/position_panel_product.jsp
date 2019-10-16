@@ -222,6 +222,42 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="clear areaencloser"></div>
 			</div>
 
+<%
+	Boolean use_snout = (Boolean) request.getAttribute("use_snout");
+	if (use_snout) {
+%>
+			<div id="usesnoutarea" style="margin-bottom: 16px;display:none;">
+				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
+					<span class="areatitle">使用完成部组</span>
+				</div>
+				<div class="ui-widget-content dwidth-full" id="select_snout">
+					<table class="condform" id="snoutpane">
+						<tbody>
+							<tr>
+								<td class="ui-state-default td-title">当前组装型号</td>
+								<td class="td-content-text"></td>
+								<td class="ui-state-default td-title">可使用部组</td>
+								<td class="td-content-text"><input type="text" readonly></input><input type="hidden" name="privacy" id="input_snout"></input></td>
+								<td class="ui-state-default td-title">已使用部组</td>
+								<td class="td-content-text"><label type="text" id="used_snouts" /></td>
+							</tr>
+						</tbody>
+					</table>
+					<div style="height: 44px">
+						<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="unusesnoutbutton" value="取消使用部组" role="button" aria-disabled="false" style="float: right; right: 2px;">
+					</div>
+				</div>
+				<div class="ui-state-default ui-corner-bottom areaencloser dwidth-full"></div>
+				<div class="referchooser ui-widget-content" tabindex="-1" style="z-index:80;">
+					<table class="subform" id="snouts">
+					<thead><th class="ui-state-default" style="padding: 0 0.5em;">部组序列号</th></thead>
+					<tbody></tbody></table>
+				</div>
+			</div>
+<%
+	}
+%>
+
 			<div id="manualdetailarea" style="margin-bottom: 16px;">
 				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
 					<span class="areatitle">工程检查票</span>

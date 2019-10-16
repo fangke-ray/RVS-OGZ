@@ -441,6 +441,8 @@ public class ProductionFeatureService {
 			}
 		} else if (RvsConsts.POSITION_QA.equals(position_id) || RvsConsts.POSITION_PERI_QA.equals(position_id)) { // 品保
 			nextPositions.add("00000000047");
+		} else if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { // 品保
+			nextPositions.add(RvsConsts.POSITION_PRODUCT_SHIPPING);
 		} else if ("00000000015".equals(position_id)) { // 图像检查
 			if (mEntity.getBreak_back_flg() != null && mEntity.getBreak_back_flg() == 2) { // 未修理返还
 				nextPositions.add("00000000047"); // 出货
@@ -547,6 +549,11 @@ public class ProductionFeatureService {
 					mpService.finishMaterialProcess(material_id, "00000000070", triggerList, conn);
 				}
 			} else
+			if (!isLightFix && "00000000107".equals(position_id)) { // MF1Over TODO
+				if (isFact) {
+					mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
+				}
+			} else
 			if (!isLightFix && ("00000000031".equals(position_id) || "00000000085".equals(position_id))) { 
 				if (isFact) {
 					// 检查本工程是否都完成 // NSOver TODO
@@ -610,6 +617,7 @@ public class ProductionFeatureService {
 			 getNext(paProxy, material_id, pat_id, position_id, mEntity.getLevel(), nextPositions);
 			 if (nextPositions.size() == 1 && RvsConsts.POSITION_QA.equals(nextPositions.get(0))) fixed = true;
 			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PERI_QA.equals(nextPositions.get(0))) fixed = true;
+			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PRODUCT_QA.equals(nextPositions.get(0))) fixed = true;
 			 else fixed = false;
 
 //			if (isLightFix && isFact) {
@@ -709,6 +717,8 @@ public class ProductionFeatureService {
 				if (paProxy.getFinishedByLine(line_id)) {
 					if (level == 56 || level == 57 || level == 58 || level == 59) {
 						nextPositions.add(RvsConsts.POSITION_PERI_QA);
+					} else if (level == 0) {
+						nextPositions.add(RvsConsts.POSITION_PRODUCT_QA);
 					} else {
 						// 并且是主流程时，611工位
 						nextPositions.add(RvsConsts.POSITION_QA);

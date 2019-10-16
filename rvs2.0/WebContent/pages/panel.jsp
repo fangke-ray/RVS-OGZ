@@ -89,10 +89,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	}
 	} else {
 %>
+<%
+		if (user.getDepartment() == 1) {
+%>
 									<input type="radio" name="section" value="00000000001" id="section_0000000001" <% if ("00000000001".equals(section_id)) { %>checked<% } %>><label for="section_0000000001"><span>修理生产G</span></label>
 									<input type="radio" name="section" value="00000000006" id="section_0000000006" <% if ("00000000006".equals(section_id)) { %>checked<% } %>><label for="section_0000000006"><span>修理支援G</span></label>
 									<input type="radio" name="section" value="00000000007" id="section_0000000007" <% if ("00000000007".equals(section_id)) { %>checked<% } %>><label for="section_0000000007"><span>品保课</span></label>
 <%
+		} else if (user.getDepartment() == 2) {
+%>
+									<input type="radio" name="section" value="00000000009" id="section_0000000009" <% if ("00000000009".equals(section_id)) { %>checked<% } %>><label for="section_0000000009"><span>组立T</span></label>
+									<input type="radio" name="section" value="00000000010" id="section_0000000010" <% if ("00000000010".equals(section_id)) { %>checked<% } %>><label for="section_0000000010"><span>品质技术T</span></label>
+<%
+		}
 	}
 %>
 								</span>
@@ -110,6 +119,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 %>
 							<div class="ui-widget-content">
 								<span id="lines">
+<%
+		if (user.getDepartment() == 1) {
+%>
 									<input type="radio" name="line" value="00000000011" id="line_00000000011" <% if ("00000000011".equals(line_id)) { %>checked<% } %>><label for="line_00000000011"><span>受理报价</span></label>
 									<input type="radio" name="line" value="00000000012" id="line_00000000012" <% if ("00000000012".equals(line_id)) { %>checked<% } %>><label for="line_00000000012"><span>分解</span></label>
 									<input type="radio" name="line" value="00000000013" id="line_00000000013" <% if ("00000000013".equals(line_id)) { %>checked<% } %>><label for="line_00000000013"><span>ＮＳ</span></label>
@@ -120,6 +132,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<input type="radio" name="line" value="00000000070" id="line_00000000070" <% if ("00000000070".equals(line_id)) { %>checked<% } %>><label for="line_00000000070"><span>周边设备修理</span></label>
 									<input type="radio" name="line" value="00000000054" id="line_00000000054" <% if ("00000000054".equals(line_id)) { %>checked<% } %>><label for="line_00000000054"><span>中小修</span></label>
 									<input type="radio" name="line" value="00000000015" id="line_00000000015" <% if ("00000000015".equals(line_id)) { %>checked<% } %>><label for="line_00000000015"><span>品保</span></label>
+<%
+		} else if (user.getDepartment() == 2) {
+%>
+									<input type="radio" name="line" value="00000000101" id="line_00000000101" <% if ("00000000101".equals(line_id)) { %>checked<% } %>><label for="line_00000000101"><span>组装</span></label>
+									<input type="radio" name="line" value="00000000102" id="line_00000000102" <% if ("00000000102".equals(line_id)) { %>checked<% } %>><label for="line_00000000102"><span>检查</span></label>
+									<input type="radio" name="line" value="00000000076" id="line_00000000076" <% if ("00000000076".equals(line_id)) { %>checked<% } %>><label for="line_00000000076"><span>最终检查</span></label>
+									<input type="radio" name="line" value="00000000103" id="line_00000000103" <% if ("00000000103".equals(line_id)) { %>checked<% } %>><label for="line_00000000103"><span>包装</span></label>
+<%
+		}
+%>
 								</span>
 							</div>
 						</div>

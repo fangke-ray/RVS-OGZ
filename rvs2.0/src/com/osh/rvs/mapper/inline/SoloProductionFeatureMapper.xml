@@ -95,7 +95,7 @@
 			  and spf.finish_time = pf.finish_time
 			  and spf.position_id = pf.position_id
 			  and spf.used = 1
-			where pf.material_id = #{material_id} and pf.operate_result = 2 and pf.position_id = 24;
+			where pf.material_id = #{material_id} and pf.operate_result = 2 and pf.position_id = #{position_id};
 		]]>
 	</select>
 
@@ -178,12 +178,12 @@
 		]]>
 	</update>
 
-	<update id="use" parameterType="String">
+	<update id="use" parameterType="ProductionFeatureEntity">
 		<![CDATA[ 
 		UPDATE SOLO_PRODUCTION_FEATURE
 		SET used = 1
 		WHERE serial_no = #{serial_no}
-		AND position_id = 24;
+		AND position_id = #{position_id};
 		]]>
 	</update>
 
@@ -192,7 +192,7 @@
 		UPDATE SOLO_PRODUCTION_FEATURE
 		SET used = 0
 		WHERE serial_no = #{serial_no}
-		AND position_id = 24;
+		AND position_id = #{position_id};
 		]]>
 	</update>
 
@@ -227,7 +227,7 @@
 			CASE WHEN spr.operate_result = 2 THEN #{use_seconds} ELSE null END
  		FROM SOLO_PRODUCTION_FEATURE spr
  		WHERE serial_no = #{serial_no}
- 		AND position_id = 24
+ 		AND position_id = #{position_id}
  		;
 		]]>
 	</insert>
@@ -237,7 +237,7 @@
 		DELETE FROM PRODUCTION_FEATURE
  		WHERE material_id = #{material_id}
  		AND rework = #{rework}
- 		AND position_id = 24
+ 		AND position_id = #{position_id}
  		;
 		]]>
 	</delete>
@@ -371,6 +371,7 @@ FROM
     operator opt1 ON spf.operator_id = opt1.operator_id
 		]]>
 		<where>
+			spf.position_id = 25
 			<if test="model_id!= null and model_id!= ''">
 				and spf.model_id = #{model_id}
 			</if>
@@ -447,6 +448,28 @@ LEFT JOIN
 		<![CDATA[ 
 ORDER BY spfo.finish_time DESC; 
 		]]>
+	</select>
+
+	<select id="searchTodayAccessaries" resultType="SnoutEntity">
+	select 
+	serial_no,
+	model_name,
+	op.name as operator_name,
+	finish_time,
+	case 
+	when used = 1 then 
+	(select serial_no from material where material_id in
+	(select material_id from production_feature where position_id = 101 and action_time = spf.action_time and finish_time = spf.finish_time))
+	else NULL
+	end as sorc_no
+	from solo_production_feature spf
+	join operator op
+	on spf.operator_id = op.operator_id
+	where spf.position_id = 101 
+	and operate_result = 2
+	and (action_time > current_date or used = 0)
+	order by finish_time
+	;
 	</select>
 
 	<delete id="deleteSnouts" parameterType="String">

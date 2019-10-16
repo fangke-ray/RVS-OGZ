@@ -87,7 +87,8 @@ public class ReadPcs {
 					NodeList alignment = ((Element)style).getElementsByTagName("Alignment");
 					NodeList borders = ((Element)style).getElementsByTagName("Borders");
 					NodeList numberFormat = ((Element)style).getElementsByTagName("NumberFormat");
-					styleidmap.put(styleid, getAlignmentCss(alignment) + getBorderCss(borders) + getNumberFormatCss(numberFormat));
+					NodeList font = ((Element)style).getElementsByTagName("Font");
+					styleidmap.put(styleid, getAlignmentCss(alignment) + getBorderCss(borders) + getNumberFormatCss(numberFormat) + getStrikeThrough(font));
 				}
 			}
 
@@ -503,7 +504,7 @@ public class ReadPcs {
 
 			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
 			output.write("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-			output.write("<style>td{font-size:12px;}.HC{text-align:center}.HL{text-align:left}.HR{text-align:right}");
+			output.write("<style>td{font-size:12px;}.HC{text-align:center}.HL{text-align:left}.HR{text-align:right}.StTh{text-decoration:line-through;}");
 			output.write(".VT{valign:top}.VC{valign:middle}.VB{valign:bottom}");
 			output.write(".WT{white-space:normal; word-break:break-all; overflow:hidden;}.IT{width:1em;}.IT span{width:1em;letter-spacing: 1em;}");
 
@@ -535,7 +536,7 @@ public class ReadPcs {
 
 	// 解析标识符
 	private static String transTag(String cellText) {
-		cellText = cellText.replaceAll("@#([ELG])([IRMNDCST])(\\d{3})(\\d{2})(\\d{2})"
+		cellText = cellText.replaceAll("@#([ELG])([IRMNDCSTP])(\\d{3})(\\d{2})(\\d{2})"
 				, "<pcinput pcid=\"$0\" scope=\"$1\" type=\"$2\" position=\"$3\" name=\"$4\" sub=\"$5\"/>");
 		return cellText;
 	}
@@ -597,6 +598,20 @@ public class ReadPcs {
 			Node ssFormat = attributes.getNamedItem("ss:Format");
 			if (ssFormat != null && "0_);\\(0\\)".equals(ssFormat.getNodeValue())) {
 				return " NBk";
+			} else {
+				return "";
+			}
+		} else {
+			return "";
+		}
+	}
+
+	private static String getStrikeThrough(NodeList font) {
+		if (font != null && font.getLength() > 0) {
+			NamedNodeMap attributes = font.item(0).getAttributes();
+			Node ssStrikeThrough = attributes.getNamedItem("ss:StrikeThrough");
+			if (ssStrikeThrough != null) {
+				return " StTh";
 			} else {
 				return "";
 			}

@@ -196,7 +196,7 @@ public class DayWorkTotalToMonthJob implements Job {
 						" where qa_check_time >= '" + st + "' " +
 						" and qa_check_time < '"+ en +"' " +
 						" and break_back_flg = 0" +
-						" and (fix_type = 1 or kind = 06)" 
+						" and fix_type in (1, 2)" 
 						+ " order by outline_time ";
 				ResultSet q = sm.executeQuery(msqlText);
 
@@ -247,6 +247,10 @@ public class DayWorkTotalToMonthJob implements Job {
 						System.out.println("没 " + fileStart);
 					}
 				}
+
+				
+				// TODO packMAnuf
+				// subPath = "MANU-" + result.getOutline_time().substring(1, 3) + result.getSerial_no() + "________";
 
 				_log.info(msqlText);
 				ZipUtility.zipper(destDir.getAbsolutePath(), PathConsts.BASE_PATH + PathConsts.PCS + "\\_monthly\\" 

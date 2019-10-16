@@ -14,9 +14,11 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
+import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.PositionPanelMapper;
+import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.manufact.ProductMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
 import com.osh.rvs.service.MaterialProcessService;
@@ -43,7 +45,7 @@ public class ProductService {
 	 * @return
 	 */
 	public List<MaterialEntity> getSerialNos(int sizeBefore, int sizeAfter, SqlSession conn) {
-		String tMonth = DateUtil.toString(new Date(), "MM");
+		String tMonth = DateUtil.toString(new Date(), "yMM").substring(3, 6);
 		ProductMapper pMapper = conn.getMapper(ProductMapper.class);
 		String lastProductSerialNo = pMapper.getLastProductSerialNo(tMonth);
 
@@ -57,9 +59,9 @@ public class ProductService {
 				serialNoList.add(tMonth + CommonStringUtil.fillChar((i+1) + "", '0', 4, true));
 			}
 		} else {
-			String numericPart = lastProductSerialNo.replaceAll("^^\\d(\\d)*$", "$1");
+			String numericPart = lastProductSerialNo.substring(3); // .replaceAll("^^\\d(\\d*)$", "$1");
 			int numericPartSerial = Integer.parseInt(numericPart);
-			int numericPartLength = numericPart.length();
+			int numericPartLength = 4; // numericPart.length();
 			String nonNumericPart = lastProductSerialNo
 					.substring(0, lastProductSerialNo.length() - numericPartLength);
 			int beforeSerial = numericPartSerial;
@@ -134,7 +136,7 @@ public class ProductService {
 			msgInfo.setErrmsg(message1);
 			errors.add(msgInfo);
 		}
-		String message2 = new JustlengthValidator("扫描序列号码", 6).validate(parameters, "serial_no");
+		String message2 = new JustlengthValidator("扫描序列号码", 7).validate(parameters, "serial_no");
 		if (message2 != null) {
 			MsgInfo msgInfo = new MsgInfo();
 			msgInfo.setComponentid("material_id");
@@ -180,6 +182,9 @@ public class ProductService {
 						newEntity.setProcess_code(user.getProcess_code());
 						newEntity.setOperate_result(0);
 						newEntity.setPosition_id(user.getPosition_id());
+						newEntity.setSection_id(user.getSection_id());
+						newEntity.setPace(0);
+						newEntity.setRework(0);
 
 						setInline(waiting.getMaterial_id(), user.getSection_id(), "00000000228", conn);
 
@@ -313,6 +318,27 @@ public class ProductService {
 		}
 		
 		return ret;
+	}
+
+	public String getRefers(String model_id, SqlSession conn) {
+		String refer =  "";
+		// 寻找型号可使用的先端头一览
+		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+		List<SoloProductionFeatureEntity> snouts = dao.getSnoutsByModel(model_id);
+
+		for (int i = 0 ; i < snouts.size(); i++) {
+			SoloProductionFeatureEntity line = snouts.get(i);
+			if (i == 0 && model_id.equals(line.getModel_id())) {
+				refer += "<tr class='firstMatchSnout'>"; // background-color:lightgreen;
+			} else {
+				refer += "<tr>";
+			}
+			refer += "<td class='referId' style='display:none'>" + line.getSerial_no() + "</td>";
+			refer += "<td><nobr>" + CommonStringUtil.decodeHtmlText(line.getSerial_no()) + "</nobr></td>";
+			refer += "</tr>";
+		}
+
+		return refer;
 	}
 
 }

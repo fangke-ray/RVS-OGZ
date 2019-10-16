@@ -50,6 +50,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div id="executearea">
 			<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
 				<span class="areatitle">出货处理</span>
+				<input type="hidden" id="department" value="${userdata.department}">
 			</div>
 			<div class="ui-widget-content dwidth-middleright">
 				<div class="ui-widget-content" id="scanner_container">

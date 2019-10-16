@@ -16,7 +16,7 @@
 			JOIN model mdl ON `m`.model_id = `mdl`.model_id
 			JOIN production_feature pf
 			  ON `m`.material_id = `pf`.material_id
-			  AND `pf`.position_id = 47
+			  AND `pf`.position_id = #{shipping_position_id}
 			  AND `pf`.operate_result = 0
 			  AND `pf`.action_time is null
 			LEFT JOIN material_process mp
@@ -36,7 +36,7 @@
 			JOIN model mdl ON `m`.model_id = `mdl`.model_id
 			JOIN production_feature pf
 			  ON `m`.material_id = `pf`.material_id
-			  AND `pf`.position_id = 47
+			  AND `pf`.position_id = #{shipping_position_id}
 			  AND `pf`.operate_result = 2
 			  AND `pf`.finish_time > current_date
 			ORDER BY quotation_time DESC

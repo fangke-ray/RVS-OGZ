@@ -44,6 +44,7 @@ import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
 import com.osh.rvs.service.inline.PositionPanelService;
+import com.osh.rvs.service.product.ProductService;
 import com.osh.rvs.service.qa.QualityAssuranceService;
 
 import framework.huiqing.action.BaseAction;
@@ -117,7 +118,7 @@ public class QualityAssuranceAction extends BaseAction {
 		}
 		String privacy = "";
 		boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
-		if(isLeader && "00000000015".equals(user.getLine_id())){
+		if(isLeader && ("00000000015".equals(user.getLine_id()) || "00000000076".equals(user.getLine_id()))){
 			privacy = "lineLeader";
 		}
 		
@@ -144,17 +145,17 @@ public class QualityAssuranceAction extends BaseAction {
 		log.info("QualityAssuranceAction.jsinit start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
 		String qs_position_id = req.getParameter("position_id");
-		service.listRefresh(callbackResponse, qs_position_id, conn);
+		service.listRefresh(callbackResponse, qs_position_id, user.getDepartment(), conn);
 
 		// 设定OCM文字
 		callbackResponse.put("oOptions", CodeListUtils.getGridOptions("material_ocm"));
 		// 设定等级文字
 		callbackResponse.put("lOptions", CodeListUtils.getGridOptions("material_level"));
-
-		// 取得用户信息
-		HttpSession session = req.getSession();
-		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 		// 判断是否线长
 		boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
@@ -167,7 +168,9 @@ public class QualityAssuranceAction extends BaseAction {
 		PositionService pservice = new PositionService();
 		user.setProcess_code(pservice.getPositionEntityByKey(qs_position_id, conn).getProcess_code());
 
-		user.setLine_id("00000000015");
+		if (RvsConsts.DEPART_REPAIR.equals(user.getDepartment())) {
+			user.setLine_id("00000000015");
+		}
 
 		// 设定待点检信息
 		CheckResultPageService crService = new CheckResultPageService();
@@ -228,12 +231,12 @@ public class QualityAssuranceAction extends BaseAction {
 						callbackResponse.put("workstauts", WORK_STATUS_PERIPHERAL_WORKING);
 					} else {
 						callbackResponse.put("workstauts", WORK_STATUS_WORKING);
-						// 取得工程检查票
-						getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
+//						// 取得工程检查票
+//						getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
 					}
 				}
 				// 取得工程检查票
-				getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
+				getPf(workingPf, qa_checked, isLeader, user.getDepartment(), callbackResponse, conn);
 			} else {
 				// 暂停中的话
 				// 判断是否有在进行中的维修对象
@@ -271,7 +274,7 @@ public class QualityAssuranceAction extends BaseAction {
 						} else {
 							callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
 							// 取得工程检查票
-							getPf(pauseingPf, qa_checked, isLeader, callbackResponse, conn);
+							getPf(pauseingPf, qa_checked, isLeader, user.getDepartment(), callbackResponse, conn);
 						}
 
 					}
@@ -294,8 +297,7 @@ public class QualityAssuranceAction extends BaseAction {
 			
 			String stepOptions = "";
 			// 设定正常中断选项
-			String steps = PathConsts.POSITION_SETTINGS.getProperty("steps."
-					+ process_code);
+			String steps = PathConsts.POSITION_SETTINGS.getProperty("steps." + process_code);
 			if (steps != null) {
 				String[] steparray = steps.split(",");
 				for (String step : steparray) {
@@ -336,8 +338,6 @@ public class QualityAssuranceAction extends BaseAction {
 
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		String material_id = req.getParameter("material_id");
-
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
@@ -350,7 +350,22 @@ public class QualityAssuranceAction extends BaseAction {
 		// user.setLine_id("00000000015");
 
 		// 判断维修对象在等待区，并返回这一条作业信息
-		ProductionFeatureEntity waitingPf = ppService.checkMaterialId(material_id, user, errors, conn);
+		ProductionFeatureEntity waitingPf = null;
+		String material_id = null;
+		if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
+			String serial_no = req.getParameter("material_id");
+			ProductService pService = new ProductService();
+			waitingPf = pService.checkSerialNo(serial_no, user, errors, conn);
+			if(waitingPf == null) {
+				
+			} else {
+				material_id = waitingPf.getMaterial_id();
+			}
+		} else {
+			material_id = req.getParameter("material_id");
+			// 判断维修对象在等待区，并返回这一条作业信息
+			waitingPf = ppService.checkMaterialId(material_id, user, errors, conn);
+		}
 
 		if (errors.size() == 0) {
 			boolean qa_checked = service.getProccessingData(listResponse, material_id, waitingPf, user, conn);
@@ -414,7 +429,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 			// 取得工程检查票
 			waitingPf.setProcess_code(process_code);
-			getPf(waitingPf, qa_checked, isLeader, listResponse, conn);
+			getPf(waitingPf, qa_checked, isLeader, user.getDepartment(), listResponse, conn);
 		}
 
 		user.setSection_id(section_id); // TODO
@@ -487,7 +502,7 @@ public class QualityAssuranceAction extends BaseAction {
 			workingPf.setProcess_code(process_code);
 			// 取得工程检查票
 			boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
-			getPf(workingPf, true, isLeader, listResponse, conn);
+			getPf(workingPf, true, isLeader, user.getDepartment(), listResponse, conn);
 		}
 
 		// listRefresh(listResponse, conn);
@@ -576,7 +591,7 @@ public class QualityAssuranceAction extends BaseAction {
 //			service.notifiSapShipping(workingPf.getMaterial_id());
 		}
 
-		service.listRefresh(listResponse, workingPf.getPosition_id(), conn);
+		service.listRefresh(listResponse, workingPf.getPosition_id(), user.getDepartment(), conn);
 
 		// 流水线生成工程检查票
 		if (errors.size() == 0) {
@@ -688,7 +703,7 @@ public class QualityAssuranceAction extends BaseAction {
 	
 				// 通知
 				AlarmMesssageService amService = new AlarmMesssageService();
-				amService.createDefectsAlarmMessage(workingPf, conn);
+				amService.createDefectsAlarmMessage(workingPf, user.getLine_id(), conn);
 
 			} else if ("2".equals(material.getFix_type())) {
 				workingPf.setOperate_result(0);
@@ -971,9 +986,10 @@ public class QualityAssuranceAction extends BaseAction {
 
 	/**
 	 * 取得工程检查票(按完成检查票确认与权限)
+	 * @param department 
 	 */
 	private void getPf(ProductionFeatureEntity pf, boolean qaChecked,
-			boolean isLeader, Map<String, Object> response, SqlSession conn) {
+			boolean isLeader, Integer department, Map<String, Object> response, SqlSession conn) {
 //		MaterialForm mform = (MaterialForm) response.get("mform");
 
 //		if ("1".equals(mform.getFix_type())) {
@@ -981,8 +997,12 @@ public class QualityAssuranceAction extends BaseAction {
 				// 取得工程检查票
 				PositionPanelService.getPcsesFinish(response, pf, conn);
 			} else {
+				String line_id = "00000000015";
+				if (RvsConsts.DEPART_MANUFACT.equals(department)) {
+					line_id = "00000000076";
+				}
 				// 取得工程检查票
-				PositionPanelService.getPcses(response, pf, "00000000015", (qaChecked && isLeader), conn);
+				PositionPanelService.getPcses(response, pf, line_id, (qaChecked && isLeader), conn);
 			}
 //		}
 	}

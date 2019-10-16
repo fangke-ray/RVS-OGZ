@@ -289,9 +289,22 @@ public class AppMenuAction extends BaseAction {
 
 		// 生产工程
 		menuLinks.put("manufactline", false);
-		if (!bRepairLine && user.getLine_name().indexOf("组装") >= 0) {
+		if (!bRepairLine && user.getLine_name() != null 
+				&& (user.getLine_name().indexOf("组装") == 0
+				|| user.getLine_name().indexOf("检查") == 0)) {
 			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("manufactline", true);
+				menuLinks.put("在线作业", true);
+			}
+			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+				links = getLinksByPositions(userPositions, user.getLine_id(), section_id);
+				inlinePosition += links;
+			}
+		}
+		if (!bRepairLine && user.getLine_name() != null 
+				&& (user.getLine_name().equals("最终检查")
+				|| user.getLine_name().indexOf("包装") == 0)) {
+			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {

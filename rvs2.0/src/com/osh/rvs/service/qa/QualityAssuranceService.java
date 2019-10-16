@@ -12,6 +12,7 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.MaterialService;
@@ -19,6 +20,7 @@ import com.osh.rvs.service.MaterialService;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 
 public class QualityAssuranceService {
 	/**
@@ -48,13 +50,21 @@ public class QualityAssuranceService {
 	 * @throws IOException
 	 */
 	public void makePdf(MaterialForm mform, String folderPath, boolean getHistory, SqlSession conn) throws IOException {
-		String[] showLines = new String[6];
-		showLines[0] = "检查卡";
-		showLines[1] = "最终检验";
-		showLines[2] = "分解工程";
-		showLines[3] = "NS 工程";
-		showLines[4] = "总组工程";
-		showLines[5] = "外科硬镜修理工程";
+		String[] showLines = {};
+
+		if ("0".equals(mform.getLevel())) {
+			showLines = new String[2];
+			showLines[0] = "出荷检查表";
+			showLines[1] = "检查工程";
+		} else {
+			showLines = new String[6];
+			showLines[0] = "检查卡";
+			showLines[1] = "最终检验";
+			showLines[2] = "外科硬镜修理工程";
+			showLines[3] = "分解工程";
+			showLines[4] = "NS 工程";
+			showLines[5] = "总组工程";
+		}
 
 		MaterialService mService = new MaterialService();
 
@@ -95,34 +105,50 @@ public class QualityAssuranceService {
 
 	/**
 	 * 品保结果一览更新
+	 * @param department 
 	 * 
 	 * @param material_id
 	 * @param conn
 	 * @return
 	 */
-	public void listRefresh(Map<String, Object> listResponse, String position_id, SqlSession conn) {
+	public void listRefresh(Map<String, Object> listResponse, String position_id, Integer department, SqlSession conn) {
 		QualityAssuranceMapper qDao = conn.getMapper(QualityAssuranceMapper.class);
-		// 取得待品保处理对象一览 611
-		List<MaterialEntity> waitings = qDao.getWaitings(position_id);
-
-		// 取得今日已完成处理对象一览
-		List<MaterialEntity> finished = qDao.getFinished(position_id);
-
 		List<MaterialForm> waitingsForms = new ArrayList<MaterialForm>();
 		List<MaterialForm> finishedForm = new ArrayList<MaterialForm>();
 
-		for (MaterialEntity waiting : waitings) {
-			MaterialForm waitingsForm = new MaterialForm();
-			BeanUtil.copyToForm(waiting, waitingsForm, CopyOptions.COPYOPTIONS_NOEMPTY);
-			String comment = "";
-			if (waiting.getDirect_flg() != null && waiting.getDirect_flg()==1) {
-				comment += "直送";
+		// 取得待品保处理对象一览 611
+		List<MaterialEntity> waitings = null;
+		
+
+		// 取得今日已完成处理对象一览
+		List<MaterialEntity> finished = null;
+		
+
+		if (department.equals(RvsConsts.DEPART_MANUFACT)) {
+			waitings = qDao.getManufatorWaitings(position_id);
+			finished = qDao.getManufatorFinished(position_id);
+
+			CopyOptions cos = new CopyOptions();
+			cos.excludeNull();
+			cos.dateConverter(DateUtil.ISO_DATE_TIME_PATTERN, "inline_time", "finish_time");
+			BeanUtil.copyToFormList(waitings, waitingsForms, cos, MaterialForm.class);
+		} else {
+			waitings = qDao.getWaitings(position_id);
+			finished = qDao.getFinished(position_id);
+
+			for (MaterialEntity waiting : waitings) {
+				MaterialForm waitingsForm = new MaterialForm();
+				BeanUtil.copyToForm(waiting, waitingsForm, CopyOptions.COPYOPTIONS_NOEMPTY);
+				String comment = "";
+				if (waiting.getDirect_flg() != null && waiting.getDirect_flg()==1) {
+					comment += "直送";
+				}
+				if (waiting.getService_repair_flg() != null) {
+					comment += CodeListUtils.getValue("material_service_repair", ""+waiting.getService_repair_flg());
+				}
+				waitingsForm.setStatus(comment);
+				waitingsForms.add(waitingsForm);
 			}
-			if (waiting.getService_repair_flg() != null) {
-				comment += CodeListUtils.getValue("material_service_repair", ""+waiting.getService_repair_flg());
-			}
-			waitingsForm.setStatus(comment);
-			waitingsForms.add(waitingsForm);
 		}
 
 		BeanUtil.copyToFormList(finished, finishedForm, CopyOptions.COPYOPTIONS_NOEMPTY, MaterialForm.class);

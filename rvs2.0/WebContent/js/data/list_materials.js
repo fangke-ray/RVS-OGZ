@@ -285,9 +285,11 @@ function initGrid() {
 		viewrecords : true,
 		caption : modelname + "一览",
 		ondblClickRow : function(rid, iRow, iCol, e) {
-			var data = $("#list").getRowData(rid);
-			var material_id = data["material_id"];
-			showDetail(material_id, true);
+			if (modelname !== "产品") {
+				var data = $("#list").getRowData(rid);
+				var material_id = data["material_id"];
+				showDetail(material_id, true);
+			}
 		},
 		// multiselect : true, 
 		gridview : true, // Speed up

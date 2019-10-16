@@ -26,7 +26,6 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.Barcode;
 import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -374,7 +373,8 @@ public class DownloadService {
 	 * @param
 	 */
 	public String printSerialTickets(List<MaterialEntity> mBeans, SqlSession conn) throws Exception {
-		Rectangle rect = new Rectangle(180, 108); // 120
+		// Rectangle rect = new Rectangle(180, 108); // 120
+		Rectangle rect = new Rectangle(216, 128); // 120
 		Document document = new Document(rect, 6, 6, 0, 0);
 
 		Date today = new Date();
@@ -391,7 +391,7 @@ public class DownloadService {
 			document.open();
 			BaseFont bfStencil = BaseFont.createFont(PathConsts.BASE_PATH + "\\BOOKOSB.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-			Font boldFont = new Font(bfStencil, 30, Font.BOLD);
+			Font boldFont = new Font(bfStencil, 42, Font.BOLD);
 
 			for (int i = 0; i < mBeans.size() - 1; i++) {
 				MaterialEntity mBean = mBeans.get(i);
@@ -419,29 +419,34 @@ public class DownloadService {
 			MaterialEntity mBean, Font boldFont, SqlSession conn) throws DocumentException {
 		PdfPTable mainTable = new PdfPTable(1);
 		mainTable.setHorizontalAlignment(Element.ALIGN_CENTER);
-		mainTable.setTotalWidth(176);
+//		mainTable.setTotalWidth(176);
+		mainTable.setTotalWidth(212);
 		mainTable.setLockedWidth(true);
-		mainTable.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
+		mainTable.getDefaultCell().setBorderWidth(1);
+//		mainTable.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
 		
 		PdfPCell cell = new PdfPCell(new Paragraph(new Paragraph(mBean.getSerial_no(), boldFont)));
-		cell.setFixedHeight(60);
+//		cell.setFixedHeight(60);
+		cell.setFixedHeight(70);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setPadding(0.0f);
-		cell.setPaddingBottom(10f);
+//		cell.setPaddingBottom(10f);
 		cell.setBorderWidth(0);
 		cell.setBackgroundColor(BaseColor.WHITE);
 		mainTable.addCell(cell);
 
 		PdfContentByte cd = pdfWriter.getDirectContent();
 		Barcode128 code128 = new Barcode128();
-		code128.setCodeType(Barcode128.CODE128_RAW);
+		code128.setCodeType(Barcode128.CODE128);
 		code128.setCode(mBean.getSerial_no());
-		Image image128 = code128.createImageWithBarcode(cd, null, null);
+		code128.setBarHeight(30f); 
+		code128.setX(1.4f);
+		Image image128 = code128.createImageWithBarcode(cd, null, BaseColor.WHITE);
 		PdfPCell barcodeCell = new PdfPCell(image128);
 		barcodeCell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		barcodeCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		barcodeCell.setPaddingTop(1.8f);
+		barcodeCell.setPaddingTop(3.6f);
 		barcodeCell.setBorder(PdfPCell.NO_BORDER);
 		mainTable.addCell(barcodeCell);
 

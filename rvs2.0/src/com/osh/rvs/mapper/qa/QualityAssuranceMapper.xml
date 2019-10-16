@@ -158,4 +158,49 @@
 		]]>
 	</select>
 
+<!-- ['开始日期', '开始时间', '总组完成时间', 'QC完成时间', '型号 ID', '型号' , '机身号']; -->
+	<select id="getManufatorWaitings" resultType="MaterialEntity">
+		<![CDATA[
+			SELECT `m`.material_id,
+			  date(inline_time) as agreed_date, inline_time,
+			  (select finish_time from production_feature
+			   where position_id = 106 and operate_result = 2 and material_id = `m`.material_id) as finish_time,
+			  (select finish_time from production_feature
+			   where position_id = 107 and operate_result = 2 and material_id = `m`.material_id) as outline_time,
+			  `m`.model_id, `mdl`.name as model_name, `m`.serial_no, `pf`.operate_result,
+			  m.qa_check_time
+			FROM material m
+			JOIN model mdl ON `m`.model_id = `mdl`.model_id
+			JOIN production_feature pf
+			  ON `m`.material_id = `pf`.material_id
+			  AND `pf`.position_id = #{position_id}
+			  AND `pf`.action_time is null
+			  AND  pf.finish_time is null
+			LEFT JOIN material_process mp
+				ON mp.material_id = m.material_id
+				AND mp.line_id in (select line_id from line where in_advance = 0)
+			ORDER BY operate_result DESC, reception_time
+		]]>
+	</select>
+
+	<select id="getManufatorFinished" resultType="MaterialEntity">
+		<![CDATA[
+			SELECT `m`.material_id,
+			  (select finish_time from production_feature 
+			where position_id = 106 and operate_result = 2 and material_id = `m`.material_id) as finish_time,
+			pf.finish_time as quotation_time, confirmer.name as operator_name,
+			  `m`.model_id, `mdl`.name as model_name, `m`.serial_no, `pf`.operate_result,
+			  m.qa_check_time
+			FROM material m
+			JOIN model mdl ON `m`.model_id = `mdl`.model_id
+			JOIN production_feature pf
+			  ON `m`.material_id = `pf`.material_id
+			  AND `pf`.position_id = #{position_id}
+			  AND `pf`.operate_result = 2
+			  AND `pf`.finish_time > current_date
+			JOIN operator confirmer
+			ON confirmer.operator_id = pf.operator_id
+			ORDER BY quotation_time DESC;
+		]]>
+	</select>
 </mapper>

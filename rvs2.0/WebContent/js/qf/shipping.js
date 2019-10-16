@@ -13,6 +13,152 @@ function expeditedText(scheduled_expedited) {
 	return "";
 }
 
+var repairActionName = "出货";
+var productActionName = "包装";
+var repairListName = "维修品";
+var productListName = "制品";
+
+var colNamesRepairL = ['受理时间','同意时间','完成日期','返还','修理单号', '型号 ID', '型号' , '机身号','返送地区', '等级', '加急'];
+var colModelRepairL = [{
+						name : 'reception_time',
+						index : 'reception_time',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
+					}, {
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 65,
+						align : 'center', 
+						sorttype: 'date',
+						formatter: function(value,r,rData){
+							if(!value){
+								return '';
+							}		
+								if(rData.break_back_flg==2){
+									return mdTextOfDate(new Date(value))+' 未修理返还';
+								}	
+								return mdTextOfDate(new Date(value))+' 修理完成';
+						}
+					},{
+						name : 'break_back_flg',
+						index : 'break_back_flg',
+						width : 65,
+						align : 'center',
+						hidden : true		
+					},
+				{name:'sorc_no',index:'sorc_no', width:105},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'},
+				{
+					name : 'ocm',
+					index : 'ocm',
+					width : 65, formatter: 'select', editoptions:{value: ocmOptions}
+				}, {
+					name : 'level',
+					index : 'level',
+					width : 35,
+					align : 'center', formatter: 'select', editoptions:{value: lOptions}
+				}, {
+					name : 'scheduled_expedited',
+					index : 'scheduled_expedited',
+					width : 35,
+					align : 'center', formatter: 'select', editoptions:{value: "0:;1:加急;2:直送快速"}
+				}
+			];
+var colNamesProductL = ['开始日期', '开始时间', '总组完成时间', 'QA完成时间', '型号 ID', '型号' , '机身号'];
+var colModelProductL = [{
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'reception_time',
+						index : 'reception_time',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
+					}, {
+						name : 'outline_time',
+						index : 'outline_time',
+						width : 65,
+						align : 'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 65,
+						align : 'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
+					},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'}
+			];
+var colNamesRepairF = ['受理时间','同意时间','修理完成时间','出货时间', '修理单号', '型号 ID', '型号' , '机身号', '返送地区', '等级'];
+var colModelRepairF = [
+				{
+						name : 'reception_time',
+						index : 'reception_time',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
+					}, {
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 65,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					},
+				{name:'quotation_time',index:'quotation_time', width:65, align:'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
+				},
+				{name:'sorc_no',index:'sorc_no', width:105},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'},
+				{
+					name : 'ocm',
+					index : 'ocm',
+					width : 65, formatter: 'select', editoptions:{value: ocmOptions}
+				}, {
+					name : 'level',
+					index : 'level',
+					width : 35,
+					align : 'center', formatter: 'select', editoptions:{value: lOptions}
+				}
+			]
+var colNamesProductF = ['修理完成时间','出货时间', '型号 ID', '型号' , '机身号', '检查责任者'];
+var colModelProductF = [
+				{
+					name : 'finish_time',
+					index : 'finish_time',
+					width : 65,
+					align : 'center', 
+					sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+				},
+				{name:'quotation_time',index:'quotation_time', width:65, align:'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
+				},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'},
+				{name:'confirmer',index:'confirmer', width:50, align:'center'}
+			]
 var doFinish = function(type) {	
 	$("#uploadform").validate({
 		rules : {											
@@ -89,7 +235,18 @@ var doShippingInit=function(){
 	});
 };
 
+var g_depa = 0;
+var scanner_length = 11;
+
 $(function() {
+	g_depa = $("#department").val();
+	if (g_depa == 2) {
+		document.title = productActionName;
+		$("#executearea .areatitle").text(productActionName + "处理");
+		$("#shipbutton").val(productActionName);
+		scanner_length = 7;
+	}
+
 	$("input.ui-button").button();
 	$("a.areacloser").hover(
 		function (){$(this).addClass("ui-state-hover");},
@@ -101,12 +258,12 @@ $(function() {
 
 	// 输入框触发，配合浏览器
 	$("#scanner_inputer").keypress(function(){
-	if (this.value.length === 11) {
+	if (this.value.length === scanner_length) {
 		doStart();
 	}
 	});
 	$("#scanner_inputer").keyup(function(){
-	if (this.value.length >= 11) {
+	if (this.value.length >= scanner_length) {
 		doStart();
 	}
 	});	
@@ -143,7 +300,7 @@ function search_handleComplete(Xhrobj, textStatus) {
 };
 
 function load_list(listdata){
-	if ($("#gbox_uld_list").length > 0 || listdata.length === 0) {
+	if ($("#gbox_uld_list").length > 0) {
 		$("#uld_list").jqGrid().clearGridData();
 		$("#uld_list").jqGrid('setGridParam',{data:listdata}).trigger("reloadGrid", [{current:false}]);
 	} else {
@@ -154,66 +311,13 @@ function load_list(listdata){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['受理时间','同意时间','完成日期','返还','修理单号', '型号 ID', '型号' , '机身号','返送地区', '等级', '加急'],
-			colModel:[{
-						name : 'reception_time',
-						index : 'reception_time',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
-					}, {
-						name : 'agreed_date',
-						index : 'agreed_date',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					}, {
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 65,
-						align : 'center', 
-						sorttype: 'date',
-						formatter: function(value,r,rData){
-							if(!value){
-								return '';
-							}		
-								if(rData.break_back_flg==2){
-									return mdTextOfDate(new Date(value))+' 未修理返还';
-								}	
-								return mdTextOfDate(new Date(value))+' 修理完成';
-						}
-					},{
-						name : 'break_back_flg',
-						index : 'break_back_flg',
-						width : 65,
-						align : 'center',
-						hidden : true		
-					},
-				{name:'sorc_no',index:'sorc_no', width:105},
-				{name:'model_id',index:'model_id', hidden:true},
-				{name:'model_name',index:'model_id', width:125},
-				{name:'serial_no',index:'serial_no', width:50, align:'center'},
-				{
-					name : 'ocm',
-					index : 'ocm',
-					width : 65, formatter: 'select', editoptions:{value: ocmOptions}
-				}, {
-					name : 'level',
-					index : 'level',
-					width : 35,
-					align : 'center', formatter: 'select', editoptions:{value: lOptions}
-				}, {
-					name : 'scheduled_expedited',
-					index : 'scheduled_expedited',
-					width : 35,
-					align : 'center', formatter: 'select', editoptions:{value: "0:;1:加急;2:直送快速"}
-				}
-			],
+			colNames: (g_depa == 1 ? colNamesRepairL : colNamesProductL),
+			colModel: (g_depa == 1 ? colModelRepairL : colModelProductL),
 			rowNum: 20,
 			toppager: false,
 			pager: "#uld_listpager",
 			viewrecords: true,
-			caption: "待出货维修品一览",
+			caption: "待" + (g_depa == 1 ? repairActionName : productActionName) + (g_depa == 1 ? repairListName : productListName) + "一览",
 			gridview: true, // Speed up
 			pagerpos: 'right',
 			pgbuttons: true,
@@ -247,51 +351,14 @@ function acceptted_list(quotation_listdata){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['受理时间','同意时间','修理完成时间','出货时间', '修理单号', '型号 ID', '型号' , '机身号', '返送地区', '等级'],
-			colModel:[
-				{
-						name : 'reception_time',
-						index : 'reception_time',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
-					}, {
-						name : 'agreed_date',
-						index : 'agreed_date',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					}, {
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 65,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					},
-				{name:'quotation_time',index:'quotation_time', width:65, align:'center',
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
-				},
-				{name:'sorc_no',index:'sorc_no', width:105},
-				{name:'model_id',index:'model_id', hidden:true},
-				{name:'model_name',index:'model_id', width:125},
-				{name:'serial_no',index:'serial_no', width:50, align:'center'},
-				{
-					name : 'ocm',
-					index : 'ocm',
-					width : 65, formatter: 'select', editoptions:{value: ocmOptions}
-				}, {
-					name : 'level',
-					index : 'level',
-					width : 35,
-					align : 'center', formatter: 'select', editoptions:{value: lOptions}
-				}
-			],
+			colNames: (g_depa == 1 ? colNamesRepairF : colNamesProductF),
+			colModel: (g_depa == 1 ? colModelRepairF : colModelProductF),
 			rowNum: 20,
 			toppager: false,
 			pager: "#exd_listpager",
 			viewrecords: true,
 			hidegrid : false,
-			caption: "今日出货完成一览",
+			caption: "今日" + (g_depa == 1 ? repairActionName : productActionName) + "完成一览",
 			gridview: true, // Speed up
 			pagerpos: 'right',
 			pgbuttons: true,

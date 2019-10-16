@@ -365,6 +365,7 @@
 		<!-- data 工程检查票 -->
 		<action path="/materialPcs" type="com.osh.rvs.action.data.MaterialAction" parameter="method" validate="false" name="materialForm" scope="request">
 			<forward name="init" path="/pages/data/list_pcses-page.jsp" />
+			<forward name="init-man" path="/pages/data/list_products_pcses-page.jsp" />
 			<forward name="success" path="/pages/data/list_pcses-page.jsp" />
 		</action>
 

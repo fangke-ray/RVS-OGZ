@@ -174,7 +174,7 @@ public class MaterialAction extends BaseAction {
 			List<Integer> privacies = getPrivacies(req.getSession());
 			boolean contains = privacies.contains(RvsConsts.PRIVACY_OVEREDIT);
 			if (contains) {
-				((MaterialForm)form).setFix_type("999");
+				// ((MaterialForm)form).setFix_type("999"); not TODO
 			}
 
 			// 执行检索
@@ -321,6 +321,10 @@ public class MaterialAction extends BaseAction {
 			sLine_id = "00000000015";
 		} if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
 			sLine_id = "00000000015";
+		}
+
+		if ("00000000015".equals(sLine_id) && RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+			sLine_id = "00000000076";
 		}
 
 		boolean isLeader = (privacies.contains(RvsConsts.PRIVACY_LINE)); //  && !privacies.contains(RvsConsts.PRIVACY_PROCESSING)

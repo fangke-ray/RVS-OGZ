@@ -183,6 +183,8 @@ public class PcsUtils {
 		case "最终检验" : return "15";
 		case "检查卡" : return "19";
 		case "外科硬镜修理工程" : return "20";
+		case "检查工程" : return "50";
+		case "出荷检查表" : return "51";
 		}
 		return "99";
 	}
@@ -481,6 +483,8 @@ public class PcsUtils {
 							process_code = "5\\d{2}";
 						} else if("00000000054".equals(line_id)) {
 							process_code = "(3|4)\\d{2}";
+						} else if("00000000101".equals(line_id)) {
+							process_code = "0\\d{2}";
 						}
 
 						Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
@@ -560,6 +564,17 @@ public class PcsUtils {
 														"<label>"+NOCARE+"</label>");
 												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED").replaceAll("LN", "LD") + ")\\d\\d\" scope=\"\\w\" type=\"D\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
+											}
+											break;
+										}
+										case 'P': {
+											// 通过：P
+											if ("1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" status='PASS'></switcher>");
+											} else if ("-1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" status='FAil'></switcher>");
 											}
 											break;
 										}
@@ -683,6 +698,17 @@ public class PcsUtils {
 											// 返工：X
 											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.substring(0, 5).replaceAll("EX", "EN") + ")\\d\\d\\d\\d\" scope=\"\\w\" type=\"N\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label style=\"color:red;\">发生返工</label>");
+											break;
+										}
+										case 'P': {
+											// 通过：P
+											if ("1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" status='PASS'></switcher>");
+											} else if ("-1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" status='FAil'></switcher>");
+											}
 											break;
 										}
 										case 'T': {
@@ -819,6 +845,17 @@ public class PcsUtils {
 													"<label style=\"color:red;\">发生返工</label>");
 											break;
 										}
+										case 'P': {
+											// 通过：P
+											if ("1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" other status='PASS'></switcher>");
+											} else if ("-1".equals(sInput)) {
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+														"<switcher name=\"$1\" other status='FAil'></switcher>");
+											}
+											break;
+										}
 										case 'T': {
 											// 综合合格判定：T
 											if ("1".equals(sInput)) {
@@ -909,6 +946,8 @@ public class PcsUtils {
 								"<input type=\"hidden\" value=\"#date#\"></input>");
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"T\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 								"<section class=\"i_total\">-</section><input type=\"hidden\" name=\"$1\" value=\"\" class=\"i_total_hidden\">");
+						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"P\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+								"<switcher name=\"$1\">");
 					}
 
 					// 线长空格
@@ -1867,6 +1906,8 @@ public class PcsUtils {
 						} else if("00000000054".equals(line_id)) {
 							process_code = "3??";
 							process_code2 = "4??";
+						} else if("00000000101".equals(line_id)) {
+							process_code = "0??";
 						}
 
 						// 判断有本工号的标签
@@ -1956,6 +1997,15 @@ public class PcsUtils {
 													xls.SetNumberFormatLocal(dateCell, "m-d;@");
 													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
 												}
+											}
+											break;
+										}
+										case 'P': {
+											// 通过：P
+											if ("1".equals(sInput)) {
+												xls.Replace("@#"+pcid+"??", "PASS");
+											} else if ("-1".equals(sInput)) {
+												xls.Replace("@#"+pcid+"??", "FAil");
 											}
 											break;
 										}
@@ -2117,6 +2167,15 @@ public class PcsUtils {
 									}
 									break;
 								}
+								case 'P': {
+									// 通过：P
+									if ("1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", "PASS");
+									} else if ("-1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", "FAil");
+									}
+									break;
+								}
 								}
 							}
 	
@@ -2249,6 +2308,7 @@ public class PcsUtils {
 			xls.Replace("@#LI???????", "　　　");
 			xls.Replace("@#LR???????", "　");
 			xls.Replace("@#EM???????", "　不需确认　合格　不合格");
+			xls.Replace("@#EP???????", "PASS / FAil");
 
 
 			// 清除没赋值的标签
@@ -2353,6 +2413,8 @@ public class PcsUtils {
 						process_code = "5\\d{2}";
 					} else if("00000000054".equals(line_id)) {
 						process_code = "(3|4)\\d{2}";
+					} else if("00000000101".equals(line_id)) {
+						process_code = "0\\d{2}";
 					}
 
 					Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");

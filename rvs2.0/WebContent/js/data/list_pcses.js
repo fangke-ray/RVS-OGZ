@@ -11,6 +11,7 @@ var keepSearchData;
 var findit = function(data) {
 	if (!data) { //新查询
 		keepSearchData = {
+			"fix_type": $("#h_fix_type").val(),
 			"category_id" : $("#search_category_id").val() && $("#search_category_id").val().toString(),
 			"model_id":$("#search_modelname").val(),
 			"serial_no":$("#search_serialno").val(),
@@ -94,7 +95,11 @@ $(function() {
 	$("#searchbutton").click(function() {
 		findit();
 	});
-	
+
+	if ($("#h_fix_type").val()) {
+		modelname = "产品";
+	}
+
 	$("#resetbutton").click(function() {
 		reset();
 	}); 
@@ -223,15 +228,9 @@ var downExcel = function(file_name) {
 }
 
 function initGrid() {
-	$("#list").jqGrid({
-		toppager : true,
-		data : [],
-		height : 461,
-		width : 992,
-		rowheight : 23,
-		datatype : "local",
-		colNames : ['维修对象ID','修理单号','型号', '机身号', 'RC', '维修课室' , '当前位置','受理日期','同意日期'],
-		colModel : [
+
+	var colNames = ['维修对象ID','修理单号','型号', '机身号', 'RC', '维修课室' , '当前位置','受理日期','同意日期'];
+	var colModel = [
 			{name:'material_id',index:'material_id', hidden:true},
 			{name:'sorc_no',index:'sorc_no', width:105, key: true},
 			{name:'model_name',index:'model_name', width:125},
@@ -241,7 +240,31 @@ function initGrid() {
 			{name:'processing_position',index:'processing_position', width:35, align:'center'},
 			{name:'reception_time',index:'reception_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 			{name:'agreed_date',index:'agreed_date', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}}
-		],
+		]
+
+	if (modelname === "产品") {
+		colNames = ['material_id','型号', '序列号', '课室' , '当前位置', '生产投线', '组装完成','break_back_flg'];
+		colModel = [
+			{name:'material_id',index:'material_id', hidden:true, key: true},
+			{name:'model_name',index:'model_name', width:105},
+			{name:'serial_no',index:'serial_no', width:50},
+			{name:'section_name',index:'section_name', width:45},
+			{name:'processing_position',index:'processing_position', width:55, align:'center'},
+			{name:'inline_time',index:'inline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+			{name:'outline_time',index:'outline_time', width:45, align:'center', formatter:'date', formatoptions:{srcformat:'Y-m-d',newformat:'m-d'}},
+			{name:'break_back_flg',index:'break_back_flg', hidden:true}
+		];
+	}
+
+	$("#list").jqGrid({
+		toppager : true,
+		data : [],
+		height : 461,
+		width : 992,
+		rowheight : 23,
+		datatype : "local",
+		colNames : colNames,
+		colModel : colModel,
 		rowNum : 50,
 		toppager : false,
 		pager : "#listpager",

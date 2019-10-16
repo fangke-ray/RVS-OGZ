@@ -216,6 +216,16 @@ public class PcsRequestService {
 
 		// 设定对应工程
 		testForm.setLine_id(testForm.getLine_type().substring(0, 2));
+//			case "检查卡" : return "19";
+//			case "外科硬镜修理工程" : return "20";
+//			case "检查工程" : return "50";
+//			case "出荷检查表" : return "51";
+		switch(testForm.getLine_type()) {
+		case "19" : testForm.setLine_id("70");break;
+		case "20" : testForm.setLine_id("50");break;
+		case "50" : testForm.setLine_id("101");break;
+		case "51" : testForm.setLine_id("76");break;
+		}
 
 		// 上传的文件
 		FormFile file = testForm.getFile();

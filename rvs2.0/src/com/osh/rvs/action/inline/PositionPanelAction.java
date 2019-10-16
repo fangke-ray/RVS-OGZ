@@ -902,6 +902,9 @@ public class PositionPanelAction extends BaseAction {
 			// 检查工程是否全部完成
 			service.checkLineOver(workingPf, infoes, conn);
 
+			// 检查使用组件
+			service.checkAccessary(workingPf, infoes, conn);
+
 //			MaterialService ms = new MaterialService();
 //			MaterialForm mEntity = ms.loadSimpleMaterialDetail(conn, workingPf.getMaterial_id());
 //			String level = mEntity.getLevel();

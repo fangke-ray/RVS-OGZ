@@ -19,7 +19,7 @@ public interface SoloProductionFeatureMapper {
 	public List<SoloProductionFeatureEntity> searchSoloProductionFeature(SoloProductionFeatureEntity pfBean);
 
 	public List<SoloProductionFeatureEntity> getSnoutsByModel(String model_id);
-	public List<ProductionFeatureEntity> findUsedSnoutsByMaterial(String material_id);
+	public List<ProductionFeatureEntity> findUsedSnoutsByMaterial(@Param("material_id") String material_id, @Param("position_id")  String from_position_id);
 	public String findUsedSnoutsBySnouts(String serial_no);
 	/** 新建 */
 	public void insert(SoloProductionFeatureEntity pfBean) throws Exception;
@@ -30,11 +30,11 @@ public interface SoloProductionFeatureMapper {
 	public void finishOnOperator(SoloProductionFeatureEntity entity) throws Exception;
 	// public void normalBreak(SoloProductionFeatureEntity entity) throws Exception;
 
-	public void use(String serial_no) throws Exception;
-	public void unuse(String serial_no) throws Exception;
+	public void use(ProductionFeatureEntity pfBean) throws Exception;
+	public void unuse(@Param("serial_no") String serial_no, @Param("position_id")  String from_position_id) throws Exception;
 
 	public void useto(ProductionFeatureEntity pfBean) throws Exception;
-	public void unuseto(@Param("material_id") String material_id, @Param("rework") String rework) throws Exception;
+	public void unuseto(@Param("material_id") String material_id, @Param("rework") String rework, @Param("position_id")  String from_position_id) throws Exception;
 
 	public void leaderuseto(ProductionFeatureEntity pfBean) throws Exception;
 
@@ -75,4 +75,6 @@ public interface SoloProductionFeatureMapper {
 
 	/** 新建 */
 	public void forbid(ProductionFeatureEntity pfBean) throws Exception;
+
+	public List<SnoutEntity> searchTodayAccessaries();
 }

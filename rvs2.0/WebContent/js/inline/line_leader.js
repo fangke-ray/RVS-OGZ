@@ -222,6 +222,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 				$("#performance_list").jqGrid().clearGridData();
 				$("#performance_list").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [{current : false}]);
 			} else {
+				var isRepairLine = $("#workarea .HeaderButton span.ui-icon-circle-triangle-e").length;
 				$("#performance_list").jqGrid({
 					toppager : true,
 					data : listdata,
@@ -250,25 +251,27 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 									return "<span class='sorc_no'>" + value + "</span>  " + 
 										getFlags(row.expedited, row.direct_flg, row.light_fix);
 //										(row.direct_flg == 1 ? " <span class='direct_flg'>直</span>" :"");
-								}
+								},
+								hidden : !isRepairLine
 							}, {
 								name : 'ocm',
 								index : 'ocm',
 								width : 30, align:'center', formatter:'select', editoptions:{value:"1:SHRC;2:BJRC;3:GZRC;4:SYRC"} // TODO codelist
 								,
-								hidden : true
+								hidden : !isRepairLine
 							}, {
 								name : 'partical_order_date',
 								index : 'partical_order_date',
-								width : 85,
+								width : 55,
 								align:'center',
-								hidden : true, formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}
+								hidden : !isRepairLine, formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}
 							}, {
 								name : 'partical_bo',
 								index : 'partical_bo',
 								formatter: "select", editoptions:{value:"0:;1:BO"},
 								align:'center',
-								width : 65},
+								width : 65,
+								hidden : !isRepairLine},
 						{name:'arrival_plan_date',index:'arrival_plan_date', width:85, align:'center', hidden : true,
 						formatter:function(a,b,row) {
 							if ("9999/12/31" == a) {
@@ -292,7 +295,8 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 								index : 'level',
 								formatter: "select", editoptions:{value:resInfo.opt_level},
 								width : 35,
-								align : 'center'
+								align : 'center',
+								hidden : !isRepairLine
 							}, {
 								name : 'serial_no',
 								index : 'serial_no',
@@ -302,7 +306,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							 {
 								name : 'model_name',
 								index : 'model_name',
-								width : 125
+								width : 125 / (!isRepairLine + 1)
 							},
 							{
 								name : 'operate_result',
@@ -313,7 +317,8 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							}, {
 								name : 'process_code',
 								index : 'process_code',
-								hidden : true
+								width : 40,
+								align:'center'
 							}, {
 								name : 'position_name',
 								index : 'position_name',
@@ -401,6 +406,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 						// ②在gridComplete调用合并方法
 						var gridName = "performance_list";
 					 	Merger(gridName, 'agreed_date');
+					 	$("#performance_list").jqGrid('setGridWidth', '602');
 					}
 				});
 

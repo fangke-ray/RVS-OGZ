@@ -327,7 +327,7 @@ var mySetReferChooser = function() {
 }
 
 var dounuse = function(serial_no) {
-	var data = {serial_no : serial_no};
+	var data = {serial_no : serial_no, process_code : "301"};
 	// Ajax提交
 	$.ajax({
 		beforeSend : ajaxRequestType,

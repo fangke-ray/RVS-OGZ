@@ -115,7 +115,7 @@ public class MaterialService {
 			lResultBean = dao.searchMaterial(conditionBean);
 		} else if (processType == RvsConsts.PROCESS_TYPE_MANUFACT_LINE) {
 			lResultBean = dao.searchProduction(conditionBean);
-		} else if (processType == RvsConsts.PROCESS_TYPE_ALL) {
+		} else if (processType.equals(RvsConsts.PROCESS_TYPE_ALL)) {
 			lResultBean = dao.searchMaterial(conditionBean);
 			lResultBean.addAll(dao.searchProduction(conditionBean));
 		}
@@ -166,9 +166,11 @@ public class MaterialService {
 			BeanUtil.copyToForm(resultBean, result, CopyOptions.COPYOPTIONS_NOEMPTY);
 			String sorcNo = result.getSorc_no();
 			String subPath = "";
-			if (sorcNo== null || sorcNo.length() < 8) // If EndoEye
-				subPath = "SAPD-" + sorcNo + "________";
-			else if (sorcNo.length() == 8)
+			if (sorcNo== null) { // If Manuf
+				subPath = "MANU-" + result.getOutline_time().substring(1, 3) + result.getSerial_no() + "________";
+				sorcNo = result.getSerial_no();
+//				subPath = "SAPD-" + sorcNo + "________";
+			} else if (sorcNo.length() == 8)
 				subPath = "OMRN-" + sorcNo + "________";
 			else 
 				subPath = sorcNo;
@@ -317,6 +319,7 @@ public class MaterialService {
 		String model_id = ReverseResolution.getModelByName(insertBean.getModel_name(), conn);
 		insertBean.setModel_id(model_id);
 		insertBean.setSection_id(section_id);
+		insertBean.setLevel(0);
 
 		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 		mMapper.insertMaterial(insertBean);
@@ -506,6 +509,15 @@ public class MaterialService {
 		} else if (mform.getLevel() != null && mform.getLevel().startsWith("5")) {
 			showLines = new String[1];
 			showLines[0] = "检查卡";
+		} else if ("0".equals(mform.getLevel())) { // 制品
+			if ("00000000076".equals(sline_id)) {
+				showLines = new String[2];
+				showLines[0] = "出荷检查表";
+				showLines[1] = "检查工程";
+			} else {
+				showLines = new String[1];
+				showLines[0] = "检查工程";
+			}
 		} else {
 			if (!isEmpty(mform.getOutline_time())) {
 				showLines = new String[4];
@@ -588,13 +600,15 @@ public class MaterialService {
 
 		List<Map<String, String>> pcses = new ArrayList<Map<String, String>>();
 
-		String[] showLines = new String[6];
+		String[] showLines = new String[8];
 		showLines[0] = "最终检验";
 		showLines[1] = "分解工程";
 		showLines[2] = "NS 工程";
 		showLines[3] = "总组工程";
 		showLines[4] = "外科硬镜修理工程";
 		showLines[5] = "检查卡";
+		showLines[6] = "出荷检查表";
+		showLines[7] = "检查工程";
 
 		for (int i=0 ; i < showLines.length ; i++) {
 			String showLine = showLines[i]; 
@@ -932,6 +946,10 @@ public class MaterialService {
 		} else if (mform.getLevel() != null && mform.getLevel().startsWith("5")) {
 			showLines = new String[1];
 			showLines[0] = "检查卡";
+		} else if ("0".equals(mform.getLevel())) { // 制品
+			showLines = new String[2];
+			showLines[0] = "出荷检查表";
+			showLines[1] = "检查工程";
 		} else {
 			showLines = new String[4];
 			showLines[0] = "最终检验";
@@ -1163,13 +1181,15 @@ public class MaterialService {
 		Date today = new Date();
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + uuid + "\\";
 
-		String[] showLines = new String[6];
+		String[] showLines = new String[8];
 		showLines[0] = "检查卡";
 		showLines[1] = "最终检验";
 		showLines[2] = "分解工程";
 		showLines[3] = "NS 工程";
 		showLines[4] = "总组工程";
 		showLines[5] = "外科硬镜修理工程";
+		showLines[6] = "出荷检查表";
+		showLines[7] = "检查工程";
 
 		for (int i=0 ; i < showLines.length ; i++) {
 			String showLine = showLines[i]; 

@@ -146,6 +146,17 @@ public class SoloSnoutService {
 		return ret;
 	}
 
+	public List<SnoutForm> searchTodayAccessaries(SqlSession conn) {
+		List<SnoutForm> ret = new ArrayList<SnoutForm>();
+
+		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+
+		List<SnoutEntity> result = dao.searchTodayAccessaries();
+
+		BeanUtil.copyToFormList(result, ret, CopyOptions.COPYOPTIONS_NOEMPTY, SnoutForm.class);
+		return ret;
+	}
+
 	public SnoutForm getDetail(String serial_no, SqlSession conn) {
 		SnoutForm ret = new SnoutForm();
 		SnoutEntity entity = getDetailBean(serial_no, conn);

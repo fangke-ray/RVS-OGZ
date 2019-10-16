@@ -30,6 +30,7 @@ import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -231,6 +232,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 				ProductService pService = new ProductService();
 				callbackResponse.put("serialNos", pService.getSerialNos(5, 15, conn));
 
+				callbackResponse.put("todayAccessaries", sservice.searchTodayAccessaries(conn));
 			} else {
 				// 设备附件，取得可制作的型号
 				callbackResponse.put("modelOptions", CodeListUtils.getSelectOptions(RvsUtils.getAccessoriesModels(conn), "", "(未选择)", false));
@@ -806,16 +808,32 @@ public class PositionPanelSnoutAction extends BaseAction {
 		listResponse.put("errors", new ArrayList<MsgInfo>());
 		String material_id = req.getParameter("material_id");
 
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		String process_code = user.getProcess_code();
+
 		// 取得维修对象信息
 		MaterialService mservice = new MaterialService();
 		MaterialEntity mBean = mservice.loadMaterialDetailBean(conn, material_id);
 		String model_id = mBean.getModel_id();
 
+		boolean included = false;
+		String from_position_id = "";
+
+		if ("801".equals(process_code)) {
+			// 设备附件，取得可制作的型号
+			included = RvsUtils.getUseAccessoriesModels(conn).containsKey(model_id);
+		} else if ("002".equals(process_code)) {
+			included = true;
+			from_position_id = "00000000101";
+		} else {
+			included = RvsUtils.getSnoutModels(conn).containsKey(model_id);
+			from_position_id = "00000000024";
+		}
+
 		// 判断维修对象型号是否可做先端预制
-		if (RvsUtils.getSnoutModels(conn).containsKey(model_id)) {
-			// 取得用户信息
-			HttpSession session = req.getSession();
-			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		if (included) {
 
 			// 取得工作中维修对象
 			ProductionFeatureEntity workingPf = service.getWorkingOrSupportingPf(user, conn);
@@ -834,7 +852,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 			listResponse.put("snout_model", SNOUT_MODEL_INCLUDED);
 			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 			// 寻找维修对象已使用先端头
-			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id);
+			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id, from_position_id);
 
 			boolean chosedInRework = false;
 			List<String> serialNos = new ArrayList<String>();
@@ -847,9 +865,19 @@ public class PositionPanelSnoutAction extends BaseAction {
 			String sUsedSnout = CommonStringUtil.joinBy("，", serialNos.toArray(new String[serialNos.size()]));
 
 			if (!chosedInRework)  {
-				// 得到refer
-				String refer = sservice.getRefers(model_id, conn);
-				listResponse.put("sReferChooser", refer);
+				if ("801".equals(process_code)) {
+					// 设备附件，取得可制作的型号
+					included = RvsUtils.getUseAccessoriesModels(conn).containsKey(model_id);
+				} else if ("002".equals(process_code)) {
+					// 得到refer
+					ProductService psservice = new ProductService();
+					String refer = psservice.getRefers(model_id, conn);
+					listResponse.put("sReferChooser", refer);
+				} else {
+					// 得到refer
+					String refer = sservice.getRefers(model_id, conn);
+					listResponse.put("sReferChooser", refer);
+				}
 				listResponse.put("snout_model", SNOUT_MODEL_INCLUDED_AND_REWORKED);
 			}
 			listResponse.put("used_snout", sUsedSnout);
@@ -879,7 +907,12 @@ public class PositionPanelSnoutAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		String serial_no = req.getParameter("serial_no");
-		String process_code = req.getParameter("process_code");
+		String from_process_code = req.getParameter("process_code");
+
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		String this_process_code = user.getProcess_code();
 
 		List<MsgInfo> infoes = new ArrayList<MsgInfo>();
 		if (CommonStringUtil.isEmpty(serial_no)) {
@@ -888,6 +921,8 @@ public class PositionPanelSnoutAction extends BaseAction {
 			msginfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "先端头序号"));
 			infoes.add(msginfo);
 		}
+
+		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, conn);
 
 		// 先端头线长确认
 //		ProductionFeatureService pfService = new ProductionFeatureService();
@@ -909,32 +944,34 @@ public class PositionPanelSnoutAction extends BaseAction {
 			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.usedSnout"));
 			infoes.add(error);
 
-			// 取得用户信息
-			HttpSession session = req.getSession();
-			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
-
 			// 取得工作中维修对象
 			ProductionFeatureEntity workingPf = service.getWorkingOrSupportingPf(user, conn);
 			MaterialService ms = new MaterialService();
 			MaterialForm material = ms.loadSimpleMaterialDetail(conn, workingPf.getMaterial_id());
 
 			// 得到refer
-			String refer = sservice.getRefers(material.getModel_id(), conn);
-			listResponse.put("sReferChooser", refer);
+			if ("801".equals(this_process_code)) {
+			} else if ("002".equals(this_process_code)) {
+				// 得到refer
+				ProductService psservice = new ProductService();
+				String refer = psservice.getRefers(material.getModel_id(), conn);
+				listResponse.put("sReferChooser", refer);
+			} else {
+				// 得到refer
+				String refer = sservice.getRefers(material.getModel_id(), conn);
+				listResponse.put("sReferChooser", refer);
+			}
 		}
 
 		if (infoes.size() == 0) {
-			// 取得用户信息
-			HttpSession session = req.getSession();
-			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
-
 			// 取得工作中维修对象
 			ProductionFeatureEntity workingPf = service.getWorkingOrSupportingPf(user, conn);
+			if (workingPf == null) workingPf = service.getPausingPf(user, conn);
 			String material_id = workingPf.getMaterial_id();
 
 			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 			// 标准作业时间
-			Integer use_seconds = Integer.valueOf(RvsUtils.getZeroOverLine("_default", null, user, process_code)) * 60;
+			Integer use_seconds = Integer.valueOf(RvsUtils.getZeroOverLine("_default", null, user, from_process_code)) * 60;
 
 			ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 			pfBean.setSerial_no(serial_no);
@@ -945,7 +982,9 @@ public class PositionPanelSnoutAction extends BaseAction {
 			pfBean.setPosition_id(workingPf.getPosition_id());
 
 			dao.forbid(pfBean);
-			dao.use(serial_no);
+
+			pfBean.setPosition_id(from_position_id);
+			dao.use(pfBean);
 			dao.useto(pfBean);
 			dao.leaderuseto(pfBean);
 
@@ -955,9 +994,13 @@ public class PositionPanelSnoutAction extends BaseAction {
 			MaterialEntity mbean = mdao.loadMaterialDetail(workingPf.getMaterial_id());
 			BeanUtil.copyToForm(mbean, mform, CopyOptions.COPYOPTIONS_NOEMPTY);
 			listResponse.put("mform", mform);
-			PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+
+			if ("301".equals(from_process_code)) {
+				PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+			}
+
 			listResponse.put("snout_model" , SNOUT_MODEL_INCLUDED);
-			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id);
+			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id, from_position_id);
 
 			List<String> serialNos = new ArrayList<String>();
 			for (ProductionFeatureEntity used_snout : used_snouts) {
@@ -968,7 +1011,9 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 			// 取得维修对象的作业标准时间。
 			String leagal_overline = RvsUtils.getZeroOverLine(mform.getModel_name(), mform.getCategory_name(), user, null);
-			leagal_overline = "" + (Integer.parseInt(leagal_overline) - 15);
+			if ("301".equals(from_process_code)) {
+				leagal_overline = "" + (Integer.parseInt(leagal_overline) - 15);
+			}
 			listResponse.put("leagal_overline", leagal_overline);
 
 		} else {
@@ -1002,12 +1047,15 @@ public class PositionPanelSnoutAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		String serial_no = req.getParameter("serial_no");
+		String from_process_code = req.getParameter("process_code");
+		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, conn);
 
 		if (errors.size() == 0) {
 
 			// 取得用户信息
 			HttpSession session = req.getSession();
 			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+			String this_process_code = user.getProcess_code();
 	
 			// 取得工作中维修对象
 			ProductionFeatureEntity workingPf = service.getWorkingOrSupportingPf(user, conn);
@@ -1019,15 +1067,15 @@ public class PositionPanelSnoutAction extends BaseAction {
 			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 
 			// 寻找维修对象已使用先端头
-			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id);
+			List<ProductionFeatureEntity> used_snouts = dao.findUsedSnoutsByMaterial(material_id, from_position_id);
 			for (ProductionFeatureEntity used_snout : used_snouts) {
 				if (used_snout.getRework() == rework) {
 					serial_no = used_snout.getSerial_no();
 				}
 			}
 
-			dao.unuse(serial_no);
-			dao.unuseto(workingPf.getMaterial_id(), "" + workingPf.getRework());
+			dao.unuse(serial_no, from_position_id);
+			dao.unuseto(workingPf.getMaterial_id(), "" + workingPf.getRework(), from_position_id);
 	
 			ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 			pfBean.setSerial_no(serial_no);
@@ -1040,14 +1088,28 @@ public class PositionPanelSnoutAction extends BaseAction {
 			BeanUtil.copyToForm(mbean, mform, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 			listResponse.put("mform", mform);
-			PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+			if ("301".equals(from_process_code)) {
+				PositionPanelService.getPcses(listResponse, workingPf, user.getLine_id(), conn);
+			} else if ("001".equals(from_process_code)) {
+			}
+
 			listResponse.put("snout_model" , SNOUT_MODEL_INCLUDED);
 			listResponse.put("used_snout" , "");
 	
 			// 得到refer
-			String refer = sservice.getRefers(mform.getModel_id(), conn);
-			listResponse.put("sReferChooser", refer);
-	
+			// 得到refer
+			if ("801".equals(this_process_code)) {
+			} else if ("002".equals(this_process_code)) {
+				// 得到refer
+				ProductService psservice = new ProductService();
+				String refer = psservice.getRefers(mbean.getModel_id(), conn);
+				listResponse.put("sReferChooser", refer);
+			} else {
+				// 得到refer
+				String refer = sservice.getRefers(mbean.getModel_id(), conn);
+				listResponse.put("sReferChooser", refer);
+			}
+
 			// 取得维修对象在本工位暂停信息。TODO
 	
 			// 取得维修对象的作业标准时间。

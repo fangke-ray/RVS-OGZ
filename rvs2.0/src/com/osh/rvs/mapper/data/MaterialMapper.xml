@@ -200,12 +200,12 @@
 				a.agreed_date,
 				a.ocm_shipping_date,
 				a.break_back_flg
-			 from Material a left join material_process mpr on mpr.material_id = a.material_id and mpr.line_id in (select line_id from line where in_advance = 0)
-			 left join material_partial mpt on mpt.material_id = a.material_id
-			JOIN section sec ON a.section_id = sec.section_id
+			from Material a left join material_process mpr on mpr.material_id = a.material_id and mpr.line_id in (select line_id from line where in_advance = 0)
+			left join material_partial mpt on mpt.material_id = a.material_id
+			LEFT JOIN section sec ON a.section_id = sec.section_id
 		]]>
 		<where>
-				a.break_back_flg IN(0,1,2) AND department = 1
+				a.break_back_flg IN(0,1,2) AND (department = 1 OR department IS NULL)
 			<if test="model_id!= null and model_id!= ''">
 				and a.model_id = #{model_id}
 			</if>
@@ -383,6 +383,7 @@
 				a.section_id,
 				sec.name as section_name,
 				(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
+				a.inline_time,
 				mpr.finish_date as outline_time,
 				a.reception_time,
 				a.break_back_flg
@@ -501,7 +502,6 @@
 			<![CDATA[
 			JOIN production_feature pf47
 			ON pf47.material_id = a.material_id
-			AND pf47.position_id = 47
 			and pf47.pace = 0
 			]]>
 			<if test="finish_time_start!= null and finish_time_start!= '' ">
@@ -514,6 +514,9 @@
 				and pf47.finish_time < date_add(#{finish_time_end}, INTERVAL 1 day)
 				]]>
 			</if>
+			JOIN position pos_shipping
+			ON pf47.position_id = pos_shipping.position_id
+			AND pos_shipping.special_page = 'shipping'
 		</if>
 		<where>
 		<![CDATA[

@@ -88,6 +88,7 @@ if (peripheral!=null && peripheral) {
 	<div id="executearea">
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-middleright">
 			<span class="areatitle">品保处理</span>
+			<input type="hidden" id="department" value="${userdata.department}">
 		</div>
 		<div class="ui-widget-content dwidth-middleright">
 			<div class="ui-widget-content dwidth-middleright" id="scanner_container">

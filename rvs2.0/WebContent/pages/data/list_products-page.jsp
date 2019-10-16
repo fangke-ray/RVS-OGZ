@@ -24,7 +24,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 
-<title>产品信息</title>
+<title>制品信息</title>
 </head>
 <body class="outer" style="align: center;">
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">

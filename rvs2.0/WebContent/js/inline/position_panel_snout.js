@@ -278,10 +278,10 @@ var treatPause = function(resInfo) {
 	
 			$("#material_details td:eq(7)").text(prevzero(hours) + ":" + prevzero(minutes));
 		}
-		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
+		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline)); //  + ":00"
 		leagal_overline = resInfo.leagal_overline;
 	
-		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
+		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins || 0));
 		var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
 		if (frate > 99) {
 			frate = 99;
@@ -320,7 +320,7 @@ var treatStart = function(resInfo) {
 
 		$("#material_details td:eq(7)").text(prevzero(hours) + ":" + prevzero(minutes));
 	}
-	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
+	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline)); //  + ":00"
 	leagal_overline = resInfo.leagal_overline;
 
 	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins || 0));
@@ -329,7 +329,7 @@ var treatStart = function(resInfo) {
 		frate = 99;
 	}
 	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
-	p_time = resInfo.spent_mins - 1;
+	p_time = (resInfo.spent_mins || 0) - 1;
 
 	$("#p_operator_cost").text(resInfo.spent_mins);
 	var p_operator_cost = $("#p_operator_cost").text();

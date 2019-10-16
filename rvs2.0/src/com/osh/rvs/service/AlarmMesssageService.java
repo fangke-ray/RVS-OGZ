@@ -167,15 +167,16 @@ public class AlarmMesssageService {
 
 	/**
 	 * 建立警报信息-终检不通过
+	 * @param line_id 
 	 * @param conn 数据库连接
 	 * @throws Exception 
 	 */
-	public void createDefectsAlarmMessage(ProductionFeatureEntity workingPf, SqlSessionManager conn) throws Exception {
+	public void createDefectsAlarmMessage(ProductionFeatureEntity workingPf, String line_id, SqlSessionManager conn) throws Exception {
 		String material_id = workingPf.getMaterial_id();
 
 		AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
 		amEntity.setLevel(RvsConsts.WARNING_LEVEL_SCHEDULE);
-		amEntity.setLine_id("00000000015");
+		amEntity.setLine_id(line_id);
 		amEntity.setMaterial_id(material_id);
 		amEntity.setOperator_id(null);
 		amEntity.setPosition_id(workingPf.getPosition_id());

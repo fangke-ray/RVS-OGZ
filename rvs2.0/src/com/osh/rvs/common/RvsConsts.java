@@ -79,8 +79,12 @@ public class RvsConsts extends BaseConst {
 	public static final String POSITION_QUOTATION_P = "00000000013";
 	public static final String POSITION_QA = "00000000046";
 	public static final String POSITION_PERI_QA = "00000000065";
+
 	public static final String POSITION_SHIPPING = "00000000047";
 	public static final String POSITION_QA_LIGHT = "00000000052";
+
+	public static final String POSITION_PRODUCT_QA = "00000000108";
+	public static final String POSITION_PRODUCT_SHIPPING = "00000000109";
 
 	public static final String TEXT_PLAN_HOLD = "另行通知";
 	public static final String SEARCH_RESULT = "SEARCH_RESULT";

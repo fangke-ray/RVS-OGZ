@@ -114,7 +114,7 @@ public class LoginData extends BaseUserBean {
 	}
 
 	public String toString() {
-		return this.job_no + "  " + this.getName() + " " + this.getRole_name();
+		return this.job_no + "  " + this.getName() + " " + this.getRole_name() + " " + this.department;
 	}
 	public String getWorking_role_id() {
 		return working_role_id;

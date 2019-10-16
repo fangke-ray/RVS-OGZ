@@ -132,6 +132,11 @@
 				GROUP BY material_id)
 				infsa
 				ON infsa.material_id = m.material_id
+		]]>
+		<if test="section_id eq 9 ">
+			LEFT
+		</if>
+		<![CDATA[
 			JOIN inline_plan ip
 				ON `m`.material_id = `ip`.material_id
 			WHERE `m`.section_id = #{section_id}

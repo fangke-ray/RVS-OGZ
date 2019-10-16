@@ -172,8 +172,9 @@ var makeBreak = function() {
 		function(responseText, textStatus, XMLHttpRequest) {
 
 		// 设定中断理由
-		$("#break_reason").html(breakOptions);
-		$("#break_reason").select2Buttons();
+		$("#break_reason").html(breakOptions)
+			.find("option[value=02]").remove()
+			.end().select2Buttons();
 
 		$("#breakForm").validate({
 			rules : {
@@ -325,7 +326,7 @@ var mySetReferChooser = function() {
 }
 
 var dounuse = function(serial_no) {
-	var data = {serial_no : serial_no};
+	var data = {serial_no : serial_no, process_code : "001"};
 	// Ajax提交
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -342,15 +343,9 @@ var dounuse = function(serial_no) {
 }
 
 var douse = function(serial_no) {
-	var data = {serial_no : serial_no, process_code : "001"};
-	// 检查是否第一个
-	if (!(serial_no == $("#snouts tr.firstMatchSnout .referId").text())) {
-		warningConfirm("您选择的不是该型号最早完成的先端组件，继续吗？"
-		, function(){douse_send(data);}
-		);
-	} else {
-		douse_send(data);
-	}
+	var data = {serial_no : $("#snouts tr.firstMatchSnout .referId").text(), process_code : "001"};
+
+	douse_send(data);
 }
 var douse_send = function(data) {
 	// Ajax提交
@@ -378,12 +373,8 @@ var treatUsesnout = function(xhrobj) {
 		// 共通出错信息框
 		treatBackMessages(null, resInfo.errors);
 	} else {
-		var isLightFix = false;
-		if (resInfo.mform && resInfo.mform.level) {
-			var level = resInfo.mform.level;
-			isLightFix = f_isLightFix(level);
-		}
-		if (resInfo.snout_model >= 1 && !isLightFix) {
+
+		if (resInfo.snout_model >= 1) {
 			$("#usesnoutarea").show();
 			$("#snoutpane td:eq(1)").text($("#material_details td:eq(3)").text());
 			if (resInfo.snout_model == 2) {
@@ -470,10 +461,10 @@ var treatPause = function(resInfo) {
 	$("#p_rate div:animated").stop();
 
 	if (resInfo) {
-		$("#material_details td:eq(0) input:hidden").val(resInfo.mform.material_id);
-		$("#material_details td:eq(1)").text(resInfo.mform.sorc_no);
+		$("#material_details td:eq(1)").text(resInfo.mform.category_name);
 		$("#material_details td:eq(3)").text(resInfo.mform.model_name);
 		$("#material_details td:eq(5)").text(resInfo.mform.serial_no);
+		$("#pauseo_material_id").val(resInfo.mform.material_id);
 
 		if (resInfo.action_time) {
 			$("#material_details td:eq(7)").text(resInfo.action_time);
@@ -526,10 +517,10 @@ var treatStart = function(resInfo) {
 		css("background-color", "#58b848");
 	}
 
-	$("#material_details td:eq(0) input:hidden").val(resInfo.mform.material_id);
-	$("#material_details td:eq(1)").text(resInfo.mform.sorc_no);
+	$("#material_details td:eq(1)").text(resInfo.mform.category_name);
 	$("#material_details td:eq(3)").text(resInfo.mform.model_name);
 	$("#material_details td:eq(5)").text(resInfo.mform.serial_no);
+	$("#pauseo_material_id").val(resInfo.mform.material_id);
 
 	if (resInfo.action_time) {
 		$("#material_details td:eq(7)").text(resInfo.action_time);
@@ -819,6 +810,8 @@ var getJustWorkingFingers = function(material_id) {
 				// 以Object形式读取JSON
 				eval('resInfo =' + xhrobj.responseText);
 
+				var flowtext = "";
+
 				if (resInfo.fingers) flowtext = resInfo.fingers + (resInfo.past_fingers ? "<br>" + resInfo.past_fingers : "");
 				$("#flowtext").html(flowtext);
 //			} catch (e) {
@@ -876,33 +869,20 @@ $(function() {
 
 	// 输入框触发，配合浏览器
 	$("#scanner_inputer").keypress(function(){
-	if (this.value.length === 6) {
+	if (this.value.length === 7) {
 		doStart();
 	}
 	});
 	$("#scanner_inputer").keyup(function(){
-	if (this.value.length >= 6) {
+	if (this.value.length >= 7) {
 		doStart();
 	}
 	});
 
-	if ($("#snout_origin").length > 0) {
-	$("#snout_origin").keypress(function(){
-	if (this.value.length === 11) {
-		var snout_origin = this.value;
-		this.value = "";
-		var serial_no = $("#snouts .originId:contains(" + snout_origin + ")").parent().children(".referId").text();
-		if (serial_no) checkSnoutPartial(function(){douse(serial_no)}); else errorPop("该先端来源相关的先端头不可使用。");
-	}
-	});
-	$("#snout_origin").keyup(function(){
-	if (this.value.length >= 11) {
-		var snout_origin = this.value;
-		this.value = "";
-		var serial_no = $("#snouts .originId:contains(" + snout_origin + ")").parent().children(".referId").text();
-		if (serial_no) checkSnoutPartial(function(){douse(serial_no)}); else errorPop("该先端来源相关的先端头不可使用。");
-	}
-	});
+	if ($("#snouts").length > 0) {
+		$("#snouts").on("click", "tr.firstMatchSnout", function(){
+			douse();
+		});
 	}
 
 	$("#finishbutton").click(doFinish);
@@ -1031,7 +1011,7 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				clearInterval(oInterval);
 				$("#pauseo_edit").hide();
 				$("#pauseo_show").show();
-				$("#pauseo_show_sorc_no").text($("#material_details td:eq(1)").text());
+				$("#pauseo_show_sorc_no").text("-");
 				$("#pauseo_show_pause_reason").text(toLabelValue($("#pauseo_edit_pause_reason")));
 				$("#pauseo_show_comments").text(toLabelValue($("#pauseo_edit_comments")));
 				if (!$("#break_dialog").is(":empty")) {
@@ -1151,7 +1131,7 @@ var showWaitings = function(waitings, waitingsOtherPx){
 			waiting_html += '<div class="ui-state-default w_group" style="width: 520px; margin-top: 12px; margin-bottom: 8px; padding: 2px;">'+ reason +':</div>'
 		}
 		waiting_html += '<div class="waiting tube" id="w_' + waiting.material_id + '">' +
-							'<div class="tube-liquid">'
+							'<div class="tube-liquid tube-green">'
 								+ waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no
 								+ getFlags(waiting.reworked) +
 							'</div>' +
@@ -1205,14 +1185,3 @@ function takeWs() {
 		position_ws.send("entach:" + g_pos_id + "#"+$("#op_id").val());
 	}; 
 };
-
-var checkSnoutPartial = function(callback) {
-	var material_id = $("#pauseo_material_id").val();
-	var occur_times = 1;
-	var data = {
-		material_id: material_id,
-		occur_times: occur_times
-	};
-	callback();
-}
-

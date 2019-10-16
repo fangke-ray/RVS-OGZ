@@ -49,8 +49,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<span class="areatitle">今日${userdata.section_name} ${userdata.line_name}计划</span>
 		<style>label[for=plan_chk] .ui-button-text {font-size:12px;} </style>
 		<input id="plan_chk" class="ui-button" value="1" type="checkbox"/><label for="plan_chk">全部仕挂</label>
+
 		<a role="link" href="javascript:void(0)" class="HeaderButton areacloser">
-			<span class="ui-icon ui-icon-circle-triangle-e"></span>
+			${userdata.department eq 1 ? '<span class="ui-icon ui-icon-circle-triangle-e"></span>' : '' }
 		</a>
 	</div>
 	<div class="ui-widget-content">

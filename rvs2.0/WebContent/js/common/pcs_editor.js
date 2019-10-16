@@ -37,6 +37,18 @@ var pcsO = {
 				}
 			}
 		});
+		this.$pcs_contents.find("switcher").not("[other]").each(function(){
+			var status = $(this).attr("status");
+			if (status) {
+				if (status === "PASS") {
+					pcs_values[$(this).attr("name")] = "1"; 
+				} else {
+					pcs_values[$(this).attr("name")] = "-1"; 
+				}
+			} else {
+				pcs_values[$(this).attr("name")] = "";
+			}
+		});
 		this.$pcs_contents.find("textarea").each(function(){
 			if (this.className == "i_frequent") {
 				if (this.getAttribute("changed")) {
@@ -56,7 +68,7 @@ var pcsO = {
 				}
 			}
 		});
-	
+
 		data.pcs_inputs = Json_to_String(pcs_values);
 		data.pcs_comments = Json_to_String(pcs_comments);
 	
@@ -88,6 +100,11 @@ var pcsO = {
 						break;
 					case "R" :
 						this.$pcs_contents.find("input[name="+ pcs_key + "][value="+ (pcs_values[pcs_key] || "") +"]").attr("checked", true);
+						break;
+					case "P" :
+						if (pcs_values[pcs_key]) {
+							this.$pcs_contents.find("switcher[name="+ pcs_key + "]").attr("status", (pcs_values[pcs_key] == "1" ? "PASS" : "FAil"));
+						}
 						break;
 				}
 			}
@@ -125,11 +142,13 @@ var pcsO = {
 			this.$pcs_contents.find("input,textarea").not(".i_sff").parent().css("background-color", "#93C3CD");
 			this.$pcs_contents.find("input[name^='EN']").button();
 			this.$pcs_contents.find("input.i_switchM").click(this._emSwitch);
+			pcsO._setPass("switcher[name^='EP']");
 		} else {
 			this.$pcs_contents.find("input[name^='L'],textarea[name^='L']").parent().css("background-color", "#93C3CD");
 			this.$pcs_contents.find("input[name^='E'],textarea[name^='E']").not(".i_sff").parent().css("background-color", "#F8FB84");
 			this.$pcs_contents.find("input[name^='LN'],input[name^='EN']").button();
 			this.$pcs_contents.find("input.i_switchM").click(this._emSwitch);
+			pcsO._setPass("switcher[name^='LP'],switcher[name^='EP']");
 		}
 		this.$pcs_contents.find("input:text").autosizeInput();
 
@@ -180,6 +199,7 @@ var pcsO = {
 		// 随时前台保存
 		if (forPosition) {
 			this.$pcs_contents.find("input,textarea").change(pcsO.saveCache);
+			this.$pcs_contents.find("switcher").not("[other]").click(pcsO.saveCache);
 		}
 	},
 	_checkEMs : function($EMs){
@@ -229,6 +249,19 @@ var pcsO = {
 		$checkTarget.attr("checked", true);
 		$checkTarget.trigger("click");
 		$switchM.val($checkTarget.next().text());
+	},
+	_setPass : function(selecter) {
+		this.$pcs_contents.find(selecter).not("[other]").click(function(){
+			var $passSwitcher = $(this);
+			var status = $passSwitcher.attr("status");
+			if (!status) {
+				$passSwitcher.attr("status", "PASS");
+			} else if (status == "PASS") {
+				$passSwitcher.attr("status", "FAil");
+			} else {
+				$passSwitcher.attr("status", "");
+			}
+		}).parent().css("background-color", "#93C3CD");
 	},
 	init : function(container, forQa) {
 		this.forQa = forQa;

@@ -26,6 +26,13 @@
 	background : gray;
 	color: white;
 }
+#serials_area #products_area > div[inline] > model {
+	border: 1px solid cornflowerblue;
+	color: cornflowerblue;
+}
+#serials_area #products_area > div[inline] > serial {
+	background : cornflowerblue;
+}
 #serials_area #products_area > div > printer {
 	position: absolute;
 	width: 20px;
@@ -79,7 +86,7 @@ var printGroup = function() {
 
 	$("#products_area > div").each(function(idx, ele){
 		var $ele = $(ele);
-		if (!break_flg && !$ele.attr("inline")) {
+		if (!break_flg && $ele.attr("inline")!=undefined) {
 			
 			postData["materials.material_id["+ ii +"]"] = $ele.attr("material_id");
 			postData["materials.serial_no["+ ii +"]"] = $ele.children("serial").text();
@@ -143,9 +150,10 @@ var setNewProductModel = function() {
 						} else {
 							var selectModelName = $selector.children("option:selected").text();
 
-							$("#products_area div").each(function(){
-								var $model = $(this).children("model")
-								if (!$model.text() || $model.text() === "-") {
+							$("#products_area div").each(function(idx, ele){
+								var $ele = $(ele);
+								var $model = $ele.children("model")
+								if (!$model.text() || $model.text() === "-" || $ele.attr("inline")==undefined) {
 									$model.text(selectModelName);
 								}
 							});

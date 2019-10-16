@@ -59,7 +59,7 @@ public class LineLeaderAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("LineLeaderAction.init start");
-		
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

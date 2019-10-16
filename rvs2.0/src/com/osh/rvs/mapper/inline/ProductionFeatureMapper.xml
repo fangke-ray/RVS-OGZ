@@ -85,6 +85,7 @@
 			LEFT JOIN customer c
 				ON a.customer_id = c.customer_id
 			WHERE a.break_back_flg IN (0,3,4)
+			AND fix_type in (1, 2)
 and a.inline_time is null -- [SpeedUp]
 			and not exists (
 				select material_id from production_feature p1
@@ -470,7 +471,7 @@ and a.inline_time is null -- [SpeedUp]
 				ON `pf`.operator_id = `o`.operator_id
 			WHERE
 				(`pf`.operate_result = 2 or `pf`.operate_result = 3 or `pf`.operate_result = 6 
-					or (`pf`.operate_result in (1, 4) AND (`pf`.position_id in (select position_id from position where line_id = 15))) or `pf`.operate_result = 8)
+					or (`pf`.operate_result in (1, 4) AND (`pf`.position_id in (select position_id from position where special_page = 'qualityAssurance'))) or `pf`.operate_result = 8)
 				AND `pf`.material_id = #{material_id}
 				AND (`pf`.pcs_inputs IS NOT NULL OR `pf`.pcs_comments IS NOT NULL)
 				AND `pf`.rework = #{rework};

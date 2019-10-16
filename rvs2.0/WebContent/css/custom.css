@@ -291,6 +291,46 @@ resize: none;
 	border: 1px solid #71f92c;
 }
 
+.pcs_content switcher {
+	width : 40px;
+	height : 20px;
+	position: relative;
+	background-color: lightgray;
+	display: inline-block;
+	cursor: pointer;
+}
+.pcs_content switcher:before {
+	content: 'PASS';
+	position: absolute;
+	left: -50%;
+	width : 100%;
+	height : 100%;
+	background-color: lightgreen;
+	opacity:0;
+}
+.pcs_content switcher:after {
+	content: 'FAil';
+	position: absolute;
+	width : 100%;
+	height : 100%;
+	right: -50%;
+	background-color: crimson;
+	color: yellow;
+	opacity:0;
+}
+.pcs_content switcher[other]:before, 
+.pcs_content switcher[other]:after {
+	background-color: lightgray;
+	cursor: auto;
+}
+.pcs_content switcher[status='PASS']:before {
+	transition: .6s;
+	opacity:1;
+}
+.pcs_content switcher[status='FAil']:after {
+	transition: .6s;
+	opacity:1;
+}
 /* jquery ui datepicker 宽度重设 TODO 单体 menu */
 div.ui-datepicker {
    width: 219px;
