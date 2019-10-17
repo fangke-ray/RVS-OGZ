@@ -282,7 +282,7 @@ var treatPause = function(resInfo) {
 		leagal_overline = resInfo.leagal_overline;
 	
 		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins || 0));
-		var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
+		var frate = parseInt((resInfo.spent_mins || 0) / leagal_overline * 100);
 		if (frate > 99) {
 			frate = 99;
 		}
@@ -324,14 +324,14 @@ var treatStart = function(resInfo) {
 	leagal_overline = resInfo.leagal_overline;
 
 	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins || 0));
-	var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
+	var frate = parseInt((resInfo.spent_mins || 0) / leagal_overline * 100);
 	if (frate > 99) {
 		frate = 99;
 	}
 	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
 	p_time = (resInfo.spent_mins || 0) - 1;
 
-	$("#p_operator_cost").text(resInfo.spent_mins);
+	$("#p_operator_cost").text(resInfo.spent_mins || 0);
 	var p_operator_cost = $("#p_operator_cost").text();
 
 //	if (p_operator_cost.indexOf(':') < 0) {

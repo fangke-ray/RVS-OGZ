@@ -151,6 +151,11 @@ public class PositionPanelAction extends BaseAction {
 				} else {
 					req.setAttribute("use_snout", false);
 				}
+				if ("003".equals(process_code)) {
+					req.setAttribute("input_arm", true);
+				} else {
+					req.setAttribute("input_arm", false);
+				}
 				actionForward = mapping.findForward("product");
 			} else {
 				// 迁移到页面

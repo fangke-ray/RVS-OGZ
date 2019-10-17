@@ -130,7 +130,7 @@ public class QualityAssuranceService {
 
 			CopyOptions cos = new CopyOptions();
 			cos.excludeNull();
-			cos.dateConverter(DateUtil.ISO_DATE_TIME_PATTERN, "inline_time", "finish_time");
+			cos.dateConverter(DateUtil.ISO_DATE_TIME_PATTERN, "inline_time", "finish_time", "outline_time");
 			BeanUtil.copyToFormList(waitings, waitingsForms, cos, MaterialForm.class);
 		} else {
 			waitings = qDao.getWaitings(position_id);

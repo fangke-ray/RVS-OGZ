@@ -16,12 +16,14 @@ import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.PositionPanelMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.manufact.ProductMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
 import com.osh.rvs.service.MaterialProcessService;
+import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ProcessAssignService;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
@@ -186,7 +188,7 @@ public class ProductService {
 						newEntity.setPace(0);
 						newEntity.setRework(0);
 
-						setInline(waiting.getMaterial_id(), user.getSection_id(), "00000000228", conn);
+						setInline(waiting.getMaterial_id(), user.getSection_id(), "00000000228", conn); // TODO 228
 
 						productionFeature.add(newEntity);
 						count = 1;
@@ -339,6 +341,31 @@ public class ProductService {
 		}
 
 		return refer;
+	}
+
+	public void createArm(String model_id, String serial_no,
+			LoginData user, SqlSessionManager conn) throws Exception {
+		// 建立ARM制品信息
+		MaterialService mService = new MaterialService();
+		MaterialEntity mBean = new MaterialEntity();
+		mBean.setModel_id(model_id);
+		mBean.setSerial_no(serial_no);
+		mBean.setTicket_flg(1);
+		mBean.setPat_id("00000000229"); // TODO 229
+		mBean.setFix_type(RvsConsts.PROCESS_TYPE_ARM_LINE);
+		String materialId = mService.insertProduct(mBean, user.getSection_id(), conn);
+
+		ProductionFeatureEntity featureEntity = new ProductionFeatureEntity ();
+
+		featureEntity.setOperate_result(0);
+		featureEntity.setPace(0);
+		featureEntity.setRework(0);
+		featureEntity.setMaterial_id(materialId);
+		featureEntity.setPosition_id(user.getPosition_id());
+		featureEntity.setSection_id(user.getSection_id());
+
+		ProductionFeatureService pfService = new ProductionFeatureService();
+		pfService.fingerSpecifyPosition(materialId, true, featureEntity, new ArrayList<String>(), conn);
 	}
 
 }

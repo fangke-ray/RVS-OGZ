@@ -156,6 +156,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="clear areaencloser"></div>
 			</div>
 
+<%
+	Boolean input_arm = (Boolean) request.getAttribute("input_arm");
+%>
+
 			<div class="dwidth-full">
 				<div id="storagearea" style="float: left;">
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
@@ -175,8 +179,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="ui-widget-content dwidth-half" id="scanner_container" style="min-height: 215px;">
 						<div class="ui-state-default td-title">扫描录入区域</div>
 						<input type="text" id="scanner_inputer" title="扫描前请点入此处" class="scanner_inputer dwidth-half"></input>
-						<div style="text-align: center;">
+						<div style="text-align: center;position:relative;">
 							<img src="images/barcode.png" style="margin: auto; width: 150px; padding-top: 4px;">
+<% if (input_arm) { %>
+							<input type="button" value="ARM 录入并开始" class="ui-button" id="armbutton" style="position: absolute;right: 4em;top: 1em;"/>
+<% } %>
 						</div>
 					</div>
 					<div class="ui-widget-content dwidth-half" id="material_details" style="min-height: 215px;">
@@ -275,6 +282,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div>
 	<div id="process_dialog"></div>
 	<div id="break_dialog"></div>
+<% if (input_arm) { %>
+	<div id="arm_dialog" style="display:none;">
+		<table class="condform">
+			<tbody>
+				<tr>
+					<td class="ui-state-default td-title">ARM 机型</td>
+					<td class="td-content-text"><select><option value="00000000573">BX3</option></select></td>
+					<td class="ui-state-default td-title">序列号</td>
+					<td class="td-content-text"><input type="text"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+<%
+	}
+%>
 	<div id="comments_dialog" style="display:none;width:576px;">
 		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
 		</textarea>

@@ -66,7 +66,7 @@ var treatStart = function(resInfo) {
 
 		$("#material_details td:eq(7)").text(prevzero(hours) + ":" + prevzero(minutes));
 	}
-	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + ":00");
+	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline)); //  + ":00"
 	leagal_overline = resInfo.leagal_overline;
 
 	$("#dtl_process_time").text(minuteFormat(resInfo.spent_mins));

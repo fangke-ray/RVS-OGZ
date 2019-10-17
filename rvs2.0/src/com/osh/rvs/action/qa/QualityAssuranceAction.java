@@ -121,7 +121,10 @@ public class QualityAssuranceAction extends BaseAction {
 		if(isLeader && ("00000000015".equals(user.getLine_id()) || "00000000076".equals(user.getLine_id()))){
 			privacy = "lineLeader";
 		}
-		
+		if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+			// 制造为之后确认
+			privacy = "lineLeader";
+		}
 		req.setAttribute("privacy", privacy);
 
 		// 迁移到页面
@@ -565,6 +568,12 @@ public class QualityAssuranceAction extends BaseAction {
 						req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
 				workingPf.setPcs_comments(RvsUtils.setContentWithMemo(
 						req.getParameter("pcs_comments"), PcsUtils.PCS_COMMENTS_SIZE, conn));
+			}
+			if ("{}".equals(workingPf.getPcs_comments())) {
+				workingPf.setPcs_comments(null);
+			}
+			if ("{}".equals(workingPf.getPcs_inputs())) {
+				workingPf.setPcs_inputs(null);
 			}
 
 			pfdao.finishProductionFeature(workingPf);

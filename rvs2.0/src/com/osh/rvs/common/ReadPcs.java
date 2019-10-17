@@ -250,6 +250,7 @@ public class ReadPcs {
 						for (int idatum = 0;idatum < data.getLength();idatum++) {
 							Element textdata = (Element) data.item(idatum);
 							cellText += decodeHtmlText(textdata.getTextContent());
+							// textdata.getElementsByTagName("S"); TODO inner slash
 						}
 
 						// 解析标识符

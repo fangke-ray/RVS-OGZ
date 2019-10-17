@@ -51,6 +51,9 @@ public class AlarmMesssageForm extends ActionForm implements Serializable {
 
 	private String reciever_id;
 
+	@BeanField(title = "部门", name = "department", type = FieldType.Integer)
+	private String department;
+
 	private List<Map<String, String>> sendations;
 
 	public String getLevel() {
@@ -234,4 +237,10 @@ public class AlarmMesssageForm extends ActionForm implements Serializable {
 		this.myComment = myComment;
 	}
 
+	public String getDepartment() {
+		return department;
+	}
+	public void setDepartment(String department) {
+		this.department = department;
+	}
 }

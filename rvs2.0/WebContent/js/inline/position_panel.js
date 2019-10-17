@@ -424,7 +424,7 @@ var treatUsesnout = function(xhrobj) {
 
 			if (resInfo.leagal_overline) {
 				leagal_overline = (resInfo.leagal_overline || 120);
-				$("#material_details td:eq(9)").text(minuteFormat(leagal_overline) + (leagal_overline ? ":00" : ""));
+				$("#material_details td:eq(9)").text(minuteFormat(leagal_overline)); //  + (leagal_overline ? ":00" : "")
 			
 				var nspent_mins = convertMinute($("#dtl_process_time label").text());
 				var frate = parseInt(nspent_mins / leagal_overline * 100);
@@ -487,7 +487,7 @@ var treatPause = function(resInfo) {
 	
 			$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
 		}
-		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) +  + (leagal_overline ? ":00" : ""));
+		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline)); //  + (leagal_overline ? ":00" : "")
 		leagal_overline = resInfo.leagal_overline;
 	
 		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
@@ -549,7 +549,7 @@ var treatStart = function(resInfo) {
 
 		$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
 	}
-	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + (leagal_overline ? ":00" : ""));
+	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline)); //  + (leagal_overline ? ":00" : "")
 	leagal_overline = resInfo.leagal_overline;
 
 	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
@@ -1494,7 +1494,7 @@ var ttime=function(){
 };
 
 var minuteFormat =function(iminute) {
-	if (!iminute) return "-";
+	if (!iminute && iminute != 0) return "-";
 	var hours = parseInt(iminute / 60);
 	var minutes = iminute % 60;
 

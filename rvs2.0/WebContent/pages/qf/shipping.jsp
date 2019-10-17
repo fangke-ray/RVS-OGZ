@@ -71,18 +71,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="ui-state-default td-title">机身号</td>
 									<td class="td-content" id="show_serial_no"></td>
 								</tr>
-								<tr>
+								<tr ${userdata.department eq 2 ? 'style="display:none;"' : ''}>
 									<td class="ui-state-default td-title">修理单号</td>
 									<td class="td-content" id="show_sorc_no"></td>
 									<td class="ui-state-default td-title">等级</td>
 									<td class="td-content" id="show_level"></td>
 								</tr>
-								<tr>
+								<tr ${userdata.department eq 2 ? 'style="display:none;"' : ''}>
 									<td class="ui-state-default td-title">客户同意日</td>
 									<td class="td-content" id="show_agreed_date"></td>
 									<td class="ui-state-default td-title">修理完成时间</td>
 									<td class="td-content" id="show_finish_time"></td>
-								</tr>
+								</tr ${userdata.department eq 2 ? 'style="display:none;"' : ''}>
 								<tr>
 									<td class="ui-state-default td-title">加急</td>
 									<td class="td-content" id="show_scheduled_expedited"></td>

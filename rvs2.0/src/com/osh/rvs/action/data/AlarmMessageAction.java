@@ -124,13 +124,15 @@ public class AlarmMessageAction extends BaseAction {
 		// Ajax响应对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		// 检索条件表单合法性检查
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		List<MsgInfo> errors = v.validate();
 
 		if (errors.size() == 0) {
 			// 执行检索
-			List<AlarmMesssageForm> amResultForm = service.search(form, conn, errors);
+			List<AlarmMesssageForm> amResultForm = service.search(form, user.getDepartment(), conn, errors);
 			
 			// 查询结果放入Ajax响应对象
 			listResponse.put("list", amResultForm);

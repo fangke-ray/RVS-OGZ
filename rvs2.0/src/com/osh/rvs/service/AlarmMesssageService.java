@@ -319,10 +319,11 @@ public class AlarmMesssageService {
 		return amEntities;
 	}
 
-	public List<AlarmMesssageForm> search(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
+	public List<AlarmMesssageForm> search(ActionForm form, Integer department, SqlSession conn, List<MsgInfo> errors) {
 		List<AlarmMesssageForm> ret = new ArrayList<AlarmMesssageForm>();
 		AlarmMesssageEntity condBean = new AlarmMesssageEntity();
 		BeanUtil.copyToBean(form, condBean, CopyOptions.COPYOPTIONS_NOEMPTY);
+		condBean.setDepartment(department);
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 
 		try {

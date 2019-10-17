@@ -178,6 +178,9 @@ public class MaterialForm extends ActionForm {
 	@BeanField(title="维修等级", name="levels", type = FieldType.String, length = 100)
 	private String levels;
 
+	@BeanField(title = "部门", name = "department", type = FieldType.Integer)
+	private String department;
+
 	public String getCategory_id() {
 		return category_id;
 	}
@@ -699,6 +702,12 @@ public class MaterialForm extends ActionForm {
 	}
 	public void setLevels(String levels) {
 		this.levels = levels;
+	}
+	public String getDepartment() {
+		return department;
+	}
+	public void setDepartment(String department) {
+		this.department = department;
 	}
 	
 }

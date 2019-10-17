@@ -114,6 +114,8 @@ public class MaterialEntity implements Serializable {
 	private String levels;
 	private Integer use_seconds;
 
+	private Integer department;
+
 	public String getCategory_id() {
 		return category_id;
 	}
@@ -772,6 +774,14 @@ public class MaterialEntity implements Serializable {
 
 	public void setUse_seconds(Integer use_seconds) {
 		this.use_seconds = use_seconds;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 	
 }

@@ -52,6 +52,7 @@ public class DownloadAction extends BaseAction {
 		String filePath = req.getParameter("filePath");
 		String from = req.getParameter("from");
 		String fileName =req.getParameter("fileName");
+		String pathPrefix =req.getParameter("pathPrefix");
 
 		String contentType = "";
 		if (CommonStringUtil.isEmpty(fileName)) {
@@ -82,18 +83,27 @@ public class DownloadAction extends BaseAction {
 			Date today = new Date();
 			filePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + filePath;
 		} else if ("pcs".equals(from)) {
-			int idxdDot = filePath.indexOf(".");
 			String subPath = "";
-			if (idxdDot >= 0) {
-				subPath = filePath.substring(0, idxdDot);
+
+			if (pathPrefix == null) {
+				int idxdDot = filePath.indexOf(".");
+				if (idxdDot >= 0) {
+					subPath = filePath.substring(0, idxdDot);
+				}
+
+				if (subPath== null || subPath.length() < 8)
+					subPath = "SAPD-" + subPath + "________";
+				else if (subPath.length() == 8)
+					subPath = "OMRN-" + subPath + "________";
+				else 
+					subPath = filePath;
+
+				subPath = subPath.substring(0, 8);
+			} else {
+				subPath = pathPrefix;
 			}
-			if (subPath== null || subPath.length() < 8)
-				subPath = "SAPD-" + subPath + "________";
-			else if (subPath.length() == 8)
-				subPath = "OMRN-" + subPath + "________";
-			else 
-				subPath = filePath;
-			filePath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + subPath.substring(0, 8) + "\\" + filePath;
+
+			filePath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + subPath + "\\" + filePath;
 		} else if ("report".equals(from)) {
 			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\" + filePath;
 		} else if ("reportm".equals(from)) {
@@ -243,14 +253,19 @@ public class DownloadAction extends BaseAction {
 			MaterialForm mform = service.getMaterialInfo(material_id, conn);
 			String sorcNo = mform.getSorc_no();
 			String subPath = "";
-			if (sorcNo== null || sorcNo.length() < 8) // If EndoEye
+			if (sorcNo== null) { // If Manuf
+				subPath = "MA" + mform.getModel_name().substring(0, 2) + "-" + mform.getFinish_time().substring(1, 3) + mform.getSerial_no() + "________";
+			} else if (sorcNo.length() == 8)
 				subPath = "SAPD-" + sorcNo + "________";
 			else if (sorcNo.length() == 8)
 				subPath = "OMRN-" + sorcNo + "________";
 			else 
 				subPath = sorcNo;
 			String sub8 = subPath.substring(0, 8);
-			String folderPath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + sub8 + "\\" + sorcNo;
+
+			String packFilename = sorcNo;
+			if (packFilename == null) packFilename = mform.getSerial_no();
+			String folderPath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + sub8 + "\\" + packFilename;
 
 			// 工程检查票Pdf生成
 			service.makePdf(mform, folderPath, (getHistory != null), conn);

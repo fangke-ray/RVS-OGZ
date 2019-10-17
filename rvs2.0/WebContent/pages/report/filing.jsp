@@ -59,24 +59,24 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<table class="condform">
 					<tbody>
 						<tr>
-							<td class="ui-state-default td-title" rowspan="4">维修对象机种</td>
+							<td class="ui-state-default td-title" rowspan="4"> ${userdata.department eq 2 ? '制造' : '维修'}品机种</td>
 							<td class="td-content" rowspan="4" colspan="3"><select name="category_id" id="search_category_id" class="ui-widget-content">${cOptions}</select></td>
-							<td class="ui-state-default td-title">维修对象型号</td>
+							<td class="ui-state-default td-title">${userdata.department eq 2 ? '制造' : '维修'}品型号</td>
 							<td class="td-content">
 								<input type="text" class="ui-widget-content" readonly="readonly" id="txt_modelname">
 								<input type="hidden" name="modelname" id="search_modelname">
 							</td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">机身号</td>
+							<td class="ui-state-default td-title">${userdata.department eq 2 ? '序列号' : '机身号'}</td>
 							<td class="td-content"><input type="text" id="search_serialno" maxlength="20" class="ui-widget-content"></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">修理单号</td>
-							<td class="td-content"><input type="text" id="search_sorcno" maxlength="15" class="ui-widget-content"></td>
+							<td class="ui-state-default td-title" ${userdata.department eq 2 ? 'style="display:none;"' : ''}>修理单号</td>
+							<td class="td-content" ${userdata.department eq 2 ? 'style="display:none;"' : ''}><input type="text" id="search_sorcno" maxlength="15" class="ui-widget-content"></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">维修课室</td>
+							<td class="ui-state-default td-title">${userdata.department eq 2 ? '制造' : '维修'}课室</td>
 							<td class="td-content">
 								<select name="section_id" id="search_section_id" class="ui-widget-content">${sOptions}</select>
 							</td>
@@ -89,7 +89,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="ui-state-default td-title">包装出货日期</td>
 							<td class="td-content"><input type="text" name="name" id="search_finish_time_start" maxlength="50" class="ui-widget-content" readonly="readonly" value="${scheduled_date_start}">起<br/><input type="text" name="name" id="search_finish_time_end" maxlength="50" class="ui-widget-content" readonly="readonly">止</td>
 						</tr>
-						<tr>
+						<tr ${userdata.department eq 2 ? 'style="display:none;"' : '' }>
 							<td class="ui-state-default td-title">维修等级</td>
 							<td class="td-content" colspan="5">
 								<select name="search_level" id="search_level" class="ui-widget-content">
@@ -105,6 +105,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<input type="hidden" id="h_date_start" value="${scheduled_date_start}">
 						<input id="isEditor" type="hidden" value="<%=editor%>" />
 						<input id="sLevel" type="hidden" value="${sLevel}">
+						<input type="hidden" id="department" value="${userdata.department}">
 					</div>
 				</form>
 			</div>

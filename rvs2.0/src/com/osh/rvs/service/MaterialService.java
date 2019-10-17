@@ -140,11 +140,12 @@ public class MaterialService {
 	 * @param errors
 	 * @return
 	 */
-	public List<MaterialForm> searchMaterialFiling(ActionForm form, String completed, SqlSession conn, List<MsgInfo> errors) {
+	public List<MaterialForm> searchMaterialFiling(ActionForm form, Integer department, String completed, SqlSession conn, List<MsgInfo> errors) {
 		MaterialEntity conditionBean = new MaterialEntity();
 		BeanUtil.copyToBean(form, conditionBean, null);
 
 		conditionBean.setFind_history(completed);
+		conditionBean.setDepartment(department);
 		List<MaterialEntity> lResultBean = new ArrayList<MaterialEntity>();
 		MaterialMapper dao = conn.getMapper(MaterialMapper.class);
 //		if (!"".equals(conditionBean.getScheduled_date_start()) || !"".equals(conditionBean.getScheduled_date_end())) {
@@ -167,15 +168,21 @@ public class MaterialService {
 			String sorcNo = result.getSorc_no();
 			String subPath = "";
 			if (sorcNo== null) { // If Manuf
-				subPath = "MANU-" + result.getOutline_time().substring(1, 3) + result.getSerial_no() + "________";
-				sorcNo = result.getSerial_no();
+				if (result.getFinish_time() == null) {
+					continue;
+				}
+				subPath = "MA" + result.getModel_name().substring(0, 2) + "-" + result.getFinish_time().substring(1, 3) + result.getSerial_no() + "________";
 //				subPath = "SAPD-" + sorcNo + "________";
 			} else if (sorcNo.length() == 8)
 				subPath = "OMRN-" + sorcNo + "________";
 			else 
 				subPath = sorcNo;
 			String sub8 = subPath.substring(0, 8);
-			String folderPath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + sub8 + "\\" + sorcNo + ".zip";
+
+			String packFilename = sorcNo;
+			if (packFilename == null) packFilename = result.getSerial_no();
+
+			String folderPath = PathConsts.BASE_PATH + PathConsts.PCS + "\\" + sub8 + "\\" + packFilename + ".zip";
 			if (new File(folderPath).exists()) {
 				result.setIsHistory("true");
 			} else if (subPath.startsWith("SAPD-")) {
@@ -316,8 +323,10 @@ public class MaterialService {
 	 * @return 
 	 */
 	public String insertProduct(MaterialEntity insertBean, String section_id, SqlSession conn) {
-		String model_id = ReverseResolution.getModelByName(insertBean.getModel_name(), conn);
-		insertBean.setModel_id(model_id);
+		if (insertBean.getModel_id() == null) {
+			String model_id = ReverseResolution.getModelByName(insertBean.getModel_name(), conn);
+			insertBean.setModel_id(model_id);
+		}
 		insertBean.setSection_id(section_id);
 		insertBean.setLevel(0);
 
@@ -389,7 +398,7 @@ public class MaterialService {
 			}  else if (existId3 != null) {
 				MsgInfo info = new MsgInfo();
 				info.setErrcode("dbaccess.columnNotUnique");
-				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ mForm.getSerial_no(), "维修对象"));
 				errors.add(info);
 			}
 		} else { //更新时判断ID不相等
@@ -404,7 +413,7 @@ public class MaterialService {
 			} else if (existId3 != null && !id.equals(existId3)) {
 				MsgInfo info = new MsgInfo();
 				info.setErrcode("dbaccess.columnNotUnique");
-				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ ((MaterialForm)form).getSerial_no(), "维修对象"));
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "型号 + 机身号", mForm.getModel_name() +","+ mForm.getSerial_no(), "维修对象"));
 				errors.add(info);
 			}
 		}
@@ -491,6 +500,7 @@ public class MaterialService {
 		int ext = 0;
 
 		String[] showLines = {};
+		String unpassCode = "xyz";
 
 		if ("00000000016".equals(mform.getCategory_id())) {
 			if (!isEmpty(mform.getOutline_time())) {
@@ -518,6 +528,7 @@ public class MaterialService {
 				showLines = new String[1];
 				showLines[0] = "检查工程";
 			}
+			unpassCode = "0\\d{2}";
 		} else {
 			if (!isEmpty(mform.getOutline_time())) {
 				showLines = new String[4];
@@ -578,7 +589,7 @@ public class MaterialService {
 			if ("总组工程".equals(showLine)) filterLight(fileTempl, material_id, mform.getLevel(), conn);
 
 			Map<String, String> fileHtml = PcsUtils.toHtml(fileTempl, material_id, mform.getSorc_no(),
-					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), "xyz", (i == ext && isLeader ? sline_id : null), conn);
+					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), unpassCode, (i == ext && isLeader ? sline_id : null), conn);
 			fileHtml = RvsUtils.reverseLinkedMap(fileHtml);
 			pcses.add(fileHtml);
 		}

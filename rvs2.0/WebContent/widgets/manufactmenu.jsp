@@ -118,9 +118,9 @@ $(function() {
 <% if(links.get("viewer")) { %>
 <h3 style="padding-left:30px;" class="ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top" role="tab" id="ui-accordion-accordion-header-2" aria-controls="ui-accordion-accordion-panel-2" aria-selected="true" tabindex="0"><span></span>展示一览</h3>
 <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active" style="display: block;" id="ui-accordion-accordion-panel-2" aria-labelledby="ui-accordion-accordion-header-2" role="tabpanel" aria-expanded="true" aria-hidden="false">
-	<a title="分解工程线长界面" target="_parent" href="show.do#lineSituationD1">BX本体生产线</a>
+	<a title="BX本体生产线" target="_parent" href="show.do#lineSituationBX">BX本体生产线</a><br>
 	<a title="" target="_parent" href="show.do#allPositions-man">流水线状况展示</a><br>
-	<a title="" target="_parent" href="show.do#lineWorkDuration">BX本体生产线人员工时图</a><br>
+	<a title="" target="_parent" href="show.do#lineWorkDuration-man">BX本体生产线人员工时图</a><br>
 </div>
 <% } %>
 

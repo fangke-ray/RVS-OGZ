@@ -109,8 +109,10 @@ public class FilingAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 		List<MsgInfo> msgInfos = new ArrayList<MsgInfo>();
 
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
 		MaterialService service = new MaterialService();
-		List<MaterialForm> finishedForms = service.searchMaterialFiling(form, "2", conn, msgInfos);
+		List<MaterialForm> finishedForms = service.searchMaterialFiling(form, user.getDepartment(), "2", conn, msgInfos);
 		listResponse.put("finished", finishedForms);
 
 		// 检查发生错误时报告错误信息

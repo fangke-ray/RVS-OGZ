@@ -323,18 +323,31 @@ public class MaterialAction extends BaseAction {
 			sLine_id = "00000000015";
 		}
 
-		if ("00000000015".equals(sLine_id) && RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+		boolean isLeader = (privacies.contains(RvsConsts.PRIVACY_LINE)); //  && !privacies.contains(RvsConsts.PRIVACY_PROCESSING)
+		boolean isManuf = RvsConsts.DEPART_MANUFACT.equals(user.getDepartment());
+
+		if (("00000000015".equals(sLine_id) || isLeader) && isManuf) {
 			sLine_id = "00000000076";
 		}
 
-		boolean isLeader = (privacies.contains(RvsConsts.PRIVACY_LINE)); //  && !privacies.contains(RvsConsts.PRIVACY_PROCESSING)
-
-		// 如果完成的话，只有系统管理员能修改
-		if (mform.getOutline_time() != null) {
-			isLeader = false;
-		}
 		if (privacies.contains(RvsConsts.PRIVACY_ADMIN)) {
 			isLeader = true;
+		} else {
+			String outlineTime = mform.getOutline_time();
+			// 如果完成的话，只有系统管理员能修改
+			if (isManuf) {
+				// 完成两天内
+				Date bf = RvsUtils.switchWorkDate(new Date(), -2, conn);
+				String sBf = DateUtil.toString(bf, DateUtil.DATE_PATTERN); 
+				if (sBf.compareTo(outlineTime) > 0) {
+					isLeader = false;
+				}
+			} else {
+				// 完成就没法改
+				if (outlineTime != null) {
+					isLeader = false;
+				}
+			}
 		}
 
 		// 取得工程检查票

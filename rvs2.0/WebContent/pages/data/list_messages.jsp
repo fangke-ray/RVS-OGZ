@@ -66,11 +66,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">修理单号</td>
+					<td class="ui-state-default td-title">${userdata.department eq 2 ? '-' : '修理单号'}</td>
 					<td class="td-content"><input type="text" name="sorc_no" id="cond_sorc_no" maxlength="15" class="ui-widget-content"></td>
-					<td class="ui-state-default td-title">维修对象型号</td>
+					<td class="ui-state-default td-title">${userdata.department eq 2 ? '制造' : '维修'}品型号</td>
 					<td class="td-content"><input type="text" readonly class="ui-widget-content"><input type="hidden" name="model_id" id="cond_model_id"/></td>
-					<td class="ui-state-default td-title">机身号</td>
+					<td class="ui-state-default td-title">机身号/序列号</td>
 					<td class="td-content"><input type="text" name="serial_no" id="cond_serial_no" maxlength="20" class="ui-widget-content"></td>
 				</tr>
 				<tr>

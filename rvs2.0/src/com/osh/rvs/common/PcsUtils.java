@@ -27,11 +27,13 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 
 import com.jacob.com.Dispatch;
+import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.PcsRequestEntity;
+import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.infect.PeripheralInfectDeviceMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
@@ -1248,10 +1250,19 @@ public class PcsUtils {
 					"<input type=\"radio\" name=\"$1\" id=\"$1_y\" value=\"1\"/><label for=\"$1_y\">确认</label>" +
 					"<input type=\"radio\" name=\"$1\" id=\"$1_n\" value=\"-1\"/><label for=\"$1_n\">不做</label>");
 
+			// 通过：P
+			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"\\w\" type=\"P\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					"<switcher name=\"$1\" other status='PASS'></switcher>");
+
 			// 备注信息
 			specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"\\w\" type=\"C\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 					"<textarea name=\"$1\"></textarea>");
 
+
+			specify = specify.replaceAll("<pcinput pcid=\"@#ED0000000\" scope=\"\\w\" type=\"D\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					"    年    月    日");
+			specify = specify.replaceAll("<pcinput pcid=\"@#ED9999999\" scope=\"\\w\" type=\"D\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					"    年    月    日");
 
 			// 清除没赋值的标签
 			// specify = specify.replaceAll("<pcinput.*?/>", "");
@@ -1847,6 +1858,14 @@ public class PcsUtils {
 				// GR
 				xls.Replace("@#GR???????", CodeListUtils.getValue("material_level", level));
 
+				// @#ED0000000
+				if (xls.Hit("@#ED0000000")) { // 作业开始结束时间
+					MaterialMapper mMapper = conn.getMapper(MaterialMapper.class); 
+					MaterialEntity materialEntity = mMapper.getMaterialEntityByKey(materialId);
+					xls.Replace("@#ED0000000", DateUtil.toString(materialEntity.getInline_time(), "yyyy年 MM月 dd日"));
+					xls.Replace("@#ED9999999", DateUtil.toString(materialEntity.getOutline_time(), "yyyy年 MM月 dd日"));
+				}
+
 				Map<String, String> lineComments = new HashMap<String, String>();
 
 //				if (isLightFix 
@@ -2211,7 +2230,9 @@ public class PcsUtils {
 				// String compareValue = "ZZZ$$$Z$";
 				while (FoundValue != null) {
 					if (FoundValue.indexOf("@#EC") < 0 && FoundValue.indexOf("@#LC") < 0 && FoundValue.indexOf("@#GI") < 0) {
-						XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+						if (FoundValue.indexOf("@#L") < 0) { // 线长的不涂灰 
+							XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+						}
 						if (FoundValue.indexOf("@#EN611") < 0 && FoundValue.indexOf("@#EI611") < 0 && FoundValue.indexOf("@#ER611") < 0) {
 							hasBlank.add(FoundValue);
 						}

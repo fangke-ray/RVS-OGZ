@@ -354,6 +354,13 @@ ON ams.sendation_id = osd.operator_id
 			<if test="reciever_id!=null and reciever_id!='' ">
 				AND EXISTS (SELECT 1 FROM alarm_messsage_sendation where alarm_messsage_id = am.alarm_messsage_id and sendation_id = #{reciever_id})
 			</if>
+			<if test="department == 1 ">
+				AND (s.department = 1 OR s.department IS NULL)
+			</if>
+			<if test="department == 2 ">
+				AND s.department = 2
+			</if>
+
 		</where> 
 		<![CDATA[ 
 		group by am.alarm_messsage_id

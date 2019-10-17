@@ -497,6 +497,7 @@
 			 from Material a
 			 JOIN production_feature pf
 			 ON a.material_id = pf.material_id AND pf.operate_result = 2 AND pf.position_id in (select position_id from position where special_page = 'qualityAssurance')
+			 LEFT JOIN section sec ON a.section_id = sec.section_id
 		]]>
 		<if test="finish_time_start!= null or finish_time_end!= null">
 			<![CDATA[
@@ -550,6 +551,9 @@
 			</if>
 			<if test="section_id!= null and section_id!= ''">
 				and a.section_id = #{section_id}
+			</if>
+			<if test="department!= null and department!= ''">
+				and sec.department = #{department}
 			</if>
 			<if test="reception_time_start!= null and reception_time_start!= '' ">
 				<![CDATA[ 

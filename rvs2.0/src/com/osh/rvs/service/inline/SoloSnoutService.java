@@ -466,7 +466,14 @@ public class SoloSnoutService {
 		} else {
 			String lastestManageSerialNo = snoutsByMonthInner.get(snoutsByMonthInner.size() - 1).getSerial_no();
 			try {
-				int iSno = Integer.parseInt(lastestManageSerialNo);
+				int iSno = 0;
+				if ("11".equals(kind)) {
+					// 16进制
+					iSno = Integer.parseInt(lastestManageSerialNo, 16);
+					String hexNext = Integer.toString(iSno + 1, 16);
+					return CommonStringUtil.fillChar(hexNext, '0', 7, true).toUpperCase();
+				}
+				iSno = Integer.parseInt(lastestManageSerialNo);
 				// 采番
 				return CommonStringUtil.fillChar(("" + (iSno + 1)), '0', 7, true);
 			} catch (NumberFormatException e) {

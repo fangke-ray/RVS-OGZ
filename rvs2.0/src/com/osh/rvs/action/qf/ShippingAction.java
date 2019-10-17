@@ -21,6 +21,7 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.service.inline.PositionPanelService;
+import com.osh.rvs.service.product.ProductService;
 import com.osh.rvs.service.qf.ShippingService;
 
 import framework.huiqing.action.BaseAction;
@@ -143,8 +144,21 @@ public class ShippingAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		String material_id = req.getParameter("material_id");
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
 		ShippingService service = new ShippingService();
+
+		if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
+			String serial_no = req.getParameter("material_id");
+			ProductService pService = new ProductService();
+			ProductionFeatureEntity waitingPf = pService.checkSerialNo(serial_no, user, errors, conn);
+			if(waitingPf == null) {
+				
+			} else {
+				material_id = waitingPf.getMaterial_id();
+			}
+		}
+
 		service.scanMaterial(conn, material_id, req, errors, listResponse);
 
 		// 检查发生错误时报告错误信息

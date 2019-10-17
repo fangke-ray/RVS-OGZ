@@ -890,6 +890,8 @@ $(function() {
 	$("#stepbutton").click(makeStep);
 	$("#pausebutton").click(makePause);
 	$("#continuebutton").click(endPause);
+	$("#armbutton").click(createArm);
+	$("#arm_dialog select").select2Buttons();
 
 	$("#comments_sidebar .ui-widget-header span").on("click",function(){
 
@@ -1106,7 +1108,7 @@ var ttime=function(){
 };
 
 var minuteFormat =function(iminute) {
-	if (!iminute) return "-";
+	if (!iminute && iminute != 0) return "-";
 	var hours = parseInt(iminute / 60);
 	var minutes = iminute % 60;
 
@@ -1160,6 +1162,50 @@ var getWaitings = function() {
 		}
 	});
 };
+
+var createArm = function() {
+	var $dialog = $("#arm_dialog");
+
+	$dialog.dialog({
+		title : "来料标签序列号输入",
+		width : 480,
+		show: "blind",
+		height : 'auto' ,
+		resizable : false,
+		modal : true,
+		minHeight : 200,
+		close : function(){
+			$dialog.find("input:text").val("");
+		},
+		buttons : {
+			"开始": function(){
+				var postData = {
+					model_id : $dialog.find("select").val(),
+					serial_no : $dialog.find("input:text").val()
+				};
+				if (!serial_no || serial_no.length != 7) {
+					errorPop("请输入7位的序列号。");
+					return;
+				}
+
+				$.ajax({
+					data: postData,
+					url : servicePath + "?method=doCreateArm",
+					type : "post",
+					cache : false,
+					dataType : "json",
+					success : ajaxSuccessCheck,
+					error : ajaxError,
+					complete : function(xhrobj, textStatus){
+						$dialog.dialog("close");
+						var resInfo = $.parseJSON(xhrobj.responseText);
+						doStartForward(postData);
+					}
+				});
+			}, "关闭" : function(){ $dialog.dialog("close"); }
+		}
+	});	
+}
 
 // 工位后台推送
 function takeWs() {
