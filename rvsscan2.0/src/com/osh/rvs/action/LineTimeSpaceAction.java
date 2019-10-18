@@ -61,8 +61,13 @@ public class LineTimeSpaceAction extends BaseAction {
 			req.setAttribute("line_id", "00000000013");
 			actionForward = mapping.findForward(FW_INIT + "_ns");
 		}
+		if ("101".equals(line_id)) {
+			lineName = "组装/检查";
+			req.setAttribute("line_id", "00000000101");
+			actionForward = mapping.findForward(FW_INIT + "_bx");
+		}
 		req.setAttribute("line_name", lineName);
-		req.setAttribute("standard_column", service.getStandardColumn(lineName));
+		req.setAttribute("standard_column", service.getStandardColumn(lineName, conn));
 
 		log.info("LineTimeSpaceAction.init end");
 	}

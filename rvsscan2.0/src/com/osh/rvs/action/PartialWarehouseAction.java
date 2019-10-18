@@ -30,7 +30,7 @@ public class PartialWarehouseAction extends BaseAction {
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 
-		req.setAttribute("standard_column", lineTimespaceService.getStandardColumn(null));
+		req.setAttribute("standard_column", lineTimespaceService.getStandardColumn(null, conn));
 
 		log.info("PartialWarehouseAction.init end");
 

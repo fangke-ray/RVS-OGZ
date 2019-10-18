@@ -43,8 +43,14 @@ public class AllPositionsAction extends BaseAction {
 
 		log.info("AllPositionsAction.init start");
 
-		// 迁移到页面
-		actionForward = mapping.findForward(FW_INIT);
+		String display = req.getParameter("display");
+		if ("man".equals(display)) {
+			// 迁移到页面
+			actionForward = mapping.findForward("man");
+		} else {
+			// 迁移到页面
+			actionForward = mapping.findForward(FW_INIT);
+		}
 
 		log.info("AllPositionsAction.init end");
 	}

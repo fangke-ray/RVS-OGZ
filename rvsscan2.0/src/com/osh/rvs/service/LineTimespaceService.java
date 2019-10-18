@@ -27,6 +27,9 @@ public class LineTimespaceService {
 // 		Long now = (new Date().getTime() + 28800000) % 86400000 / 60000;
 
 		List<Map<String, Object>> productionFeatures = mapper.getProductionFeatures(line_id);
+		if ("00000000101".equals(line_id)) {
+			productionFeatures.addAll(mapper.getProductionFeatures("00000000102"));
+		}
 		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
 
 		String currentProcessCode = null;
@@ -271,7 +274,7 @@ public class LineTimespaceService {
 	private static final int FIFTEEN_O_CLOCK = 425;
 	private static final int WORK_MINUTE_OF_DAY_WITH_RESTS = 475 + 5 + 10 + 60 + 10;
 
-	public Map<String, String> getStandardColumn(String lineName) {
+	public Map<String, String> getStandardColumn(String lineName, SqlSession conn) {
 
 		StringBuffer sbCss = new StringBuffer();
 		StringBuffer sbDiv = new StringBuffer();
@@ -296,13 +299,57 @@ public class LineTimespaceService {
 			sbDiv.append("<div></div>");
 			sbDiv.append("<div></div>");
 			sbDiv.append("<div></div>");
+		} else if ("组装/检查".equals(lineName)){
+			// 根据机型取得标准时间
+			BigDecimal bdCycleTime = new BigDecimal(10);
+
+			// 取得当日作业中型号（不包括ARM）
+			LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
+			String modelName = mapper.getTodayManufatorModelName();
+			// (overline.0.000._default)
+			if (modelName != null) {
+				String sCycleTime = PathConsts.POSITION_SETTINGS.getProperty("overline.0.002." + modelName);
+				if (sCycleTime != null) {
+					bdCycleTime = new BigDecimal(sCycleTime);
+				}
+			}
+
+			BigDecimal bdLocate = new BigDecimal(5);
+
+			BigDecimal bdAbli = WORK_MINUTE_OF_DAY.divide(bdCycleTime, 0, BigDecimal.ROUND_HALF_UP);
+
+			int i = 0;
+			for (; i < bdAbli.intValue() - 1; i++) {
+				int bottom = bdLocate.intValue();
+				bdLocate = bdLocate.add(bdCycleTime);
+				int top = bdLocate.intValue();
+				System.out.println(bottom + ">>" + top);
+				if (bottom <= TEN_O_CLOCK && top >= TEN_O_CLOCK) 
+					bdLocate = bdLocate.add(new BigDecimal(10));
+				if (bottom <= TWELVE_O_CLOCK && top >= TWELVE_O_CLOCK) 
+					bdLocate = bdLocate.add(new BigDecimal(60));
+				if (bottom <= FIFTEEN_O_CLOCK && top >= FIFTEEN_O_CLOCK) 
+					bdLocate = bdLocate.add(new BigDecimal(10));
+				top = bdLocate.intValue();
+				int height = top - bottom;
+
+				sbCss.append("#standard_column > div > div:nth-child(" + (i+1) +") {bottom: " + bottom + "px; height: " + height + "px;}");
+				sbDiv.append("<div><div class=\"count_no\">" + (i+1) + "</div></div>");
+			}
+			int bottom = bdLocate.intValue();
+			int height = WORK_MINUTE_OF_DAY_WITH_RESTS - bottom;
+			sbCss.append("#standard_column > div > div:nth-child(" + (i+1) +") {bottom: " + bottom + "px; height: " + height + "px;}");
+			sbDiv.append("<div><div class=\"count_no\">" + (i+1) + "</div></div>");
+
 		} else {
 			Object oAbli = PathConsts.SCHEDULE_SETTINGS.get("daily.schedule." + lineName+ "工程");
 			String sAbli = "1";
 			if (oAbli != null) {
 				sAbli = oAbli.toString();
 			}
+
 			BigDecimal bdAbli = new BigDecimal(sAbli);
+
 			int iAbli = bdAbli.intValue();
 			BigDecimal bdCycleTime = WORK_MINUTE_OF_DAY.divide(bdAbli, 2, BigDecimal.ROUND_HALF_UP);
 
@@ -312,9 +359,9 @@ public class LineTimespaceService {
 				int bottom = bdLocate.intValue();
 				bdLocate = bdLocate.add(bdCycleTime);
 				int top = bdLocate.intValue();
-				if (bottom < TEN_O_CLOCK && top > TEN_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(10));
-				if (bottom < TWELVE_O_CLOCK && top > TWELVE_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(60));
-				if (bottom < FIFTEEN_O_CLOCK && top > FIFTEEN_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(10));
+				if (bottom <= TEN_O_CLOCK && top >= TEN_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(10));
+				if (bottom <= TWELVE_O_CLOCK && top >= TWELVE_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(60));
+				if (bottom <= FIFTEEN_O_CLOCK && top >= FIFTEEN_O_CLOCK) bdLocate = bdLocate.add(new BigDecimal(10));
 				top = bdLocate.intValue();
 				int height = top - bottom;
 

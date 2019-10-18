@@ -259,7 +259,7 @@ public class LineLeaderService {
 			}
 		}
 
-		if(delLast){
+		if(overlines.size() > 1 && delLast){
 			overlines.remove(overlines.size() - 1);
 		}
 

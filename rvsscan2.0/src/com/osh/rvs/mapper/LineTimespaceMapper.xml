@@ -226,4 +226,19 @@ from dual;
 SELECT code, value FROM `user_define_codes` where code like 'LINE_%_LEVER';
 		]]>
 	</select>
+
+	<select id="getTodayManufatorModelName" resultType="String">
+		<![CDATA[
+select mdl.name from production_feature pf
+join material ma
+on pf.material_id = ma.material_id
+join model mdl
+on mdl.model_id = ma.model_id
+where action_time > current_date
+and ma.fix_type = 6
+order by action_time desc
+limit 1;
+		]]>
+	</select>
+
 </mapper>

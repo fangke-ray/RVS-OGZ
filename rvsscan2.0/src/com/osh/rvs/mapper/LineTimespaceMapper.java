@@ -24,4 +24,6 @@ public interface LineTimespaceMapper {
 
 	public List<Map<String, String>> getLevels();
 
+	public String getTodayManufatorModelName();
+
 }

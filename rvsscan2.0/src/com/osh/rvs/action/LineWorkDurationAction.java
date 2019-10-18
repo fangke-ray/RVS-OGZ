@@ -62,7 +62,7 @@ public class LineWorkDurationAction extends BaseAction {
 			req.setAttribute("line_id", "00000000014");
 		}
 		req.setAttribute("line_name", lineName);
-		req.setAttribute("standard_column", service.getStandardColumn(null));
+		req.setAttribute("standard_column", service.getStandardColumn(null, conn));
 
 		log.info("LineWorkDurationAction.init end");
 	}

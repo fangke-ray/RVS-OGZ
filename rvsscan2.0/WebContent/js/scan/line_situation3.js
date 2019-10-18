@@ -419,6 +419,10 @@ $(document).ready(function() {
 	});
 	}
 
+	if ($("#page_line_id").val() == "00000000101") {
+		servicePath = "lineSituationBX.scan";
+	}
+
 	// Ajax提交
 	$.ajax({
 		beforeSend : ajaxRequestType,

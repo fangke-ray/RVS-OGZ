@@ -52,7 +52,7 @@ public class LineSituationPeripheralAction extends BaseAction {
 		req.setAttribute("line_id", "00000000070");
 		req.setAttribute("line_name", "周边维修工程");
 		LineTimespaceService lineTimespaceService = new LineTimespaceService();
-		req.setAttribute("standard_column", lineTimespaceService.getStandardColumn(null));
+		req.setAttribute("standard_column", lineTimespaceService.getStandardColumn(null, conn));
 
 		// 迁移到页面
 		actionForward = mapping.findForward(forward);
