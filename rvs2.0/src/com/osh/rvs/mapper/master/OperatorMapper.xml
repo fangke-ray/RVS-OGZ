@@ -122,6 +122,9 @@
 			<if test="rank_kind!= null and rank_kind!= '' ">
 				AND RANK_KIND = #{rank_kind}
 			</if>
+			<if test="department!= null and department!= '' ">
+				AND DEPARTMENT = #{department}
+			</if>
 		</where> 
 		<![CDATA[ 
 		AND OPERATOR_ID <> 1

@@ -911,6 +911,7 @@
 				agreed_date,
 				inline_time,
 				outline_time,
+				pat_id,
 				scheduled_manager_comment
 		) VALUES (
 			#{sorc_no}, 
@@ -927,6 +928,7 @@
 			#{agreed_date},
 			#{inline_time},
 			#{outline_time},
+			#{pat_id},
 			#{scheduled_manager_comment}
 		);
 		]]>

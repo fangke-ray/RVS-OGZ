@@ -493,8 +493,10 @@
 			SELECT ctg.name, count(ctg.name) as heap FROM material m
 			JOIN model mdl ON m.model_id = mdl.model_id
 			JOIN category ctg ON mdl.category_id = ctg.category_id
+			JOIN section sec ON m.section_id = sec.section_id
 			WHERE m.inline_time IS NOT NULL AND m.outline_time IS NULL
 			AND m.break_back_flg = 0
+			AND sec.department = 1
 			GROUP BY ctg.category_id, ctg.name
 		]]>
 	</select>

@@ -123,7 +123,10 @@ public class PositionPanelManufactAction extends PositionPanelAction {
 		String serial_no = req.getParameter("serial_no");
 
 		MaterialService mService = new MaterialService();
-		String existId = mService.checkModelSerialNo(form, conn);
+		MaterialForm createForm = new MaterialForm();
+		createForm.setModel_id(model_id);
+		createForm.setSerial_no(serial_no);
+		String existId = mService.checkModelSerialNo(createForm, conn);
 
 		if (existId != null) {
 			MsgInfo info = new MsgInfo();

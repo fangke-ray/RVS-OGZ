@@ -222,7 +222,7 @@
 	]]>
 	</if>
 	<![CDATA[
-		ORDER BY shelf_name is not null, expedited desc, m.scheduled_date, ip.seq, serial_no;
+		ORDER BY shelf_name is not null, expedited desc, m.scheduled_date, ip.seq, waitingat = 3, serial_no;
 	]]>
 	</select>
 	

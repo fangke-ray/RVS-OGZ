@@ -12,7 +12,8 @@ import framework.huiqing.bean.annotation.BeanField;
 
 public class LoginData extends BaseUserBean {
 
-	private static final long serialVersionUID = 4302708914726757298L;
+//	private static final long serialVersionUID = 4302708914726757298L;
+	private static final long serialVersionUID = -8853970306301323751L;
 
 	private String operator_id;
 	private String line_id;

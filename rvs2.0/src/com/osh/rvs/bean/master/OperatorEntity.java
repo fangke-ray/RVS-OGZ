@@ -40,6 +40,7 @@ public class OperatorEntity implements Serializable {
 	/** 最后更新时间 */
 	private Timestamp updated_time;
 	private Integer rank_kind;
+	private Integer department;
 
 	/**
 	 * 取得角色 ID
@@ -221,5 +222,13 @@ public class OperatorEntity implements Serializable {
 
 	public void setRank_kind(Integer rank_kind) {
 		this.rank_kind = rank_kind;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 }

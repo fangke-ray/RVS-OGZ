@@ -86,7 +86,7 @@ var printGroup = function() {
 
 	$("#products_area > div").each(function(idx, ele){
 		var $ele = $(ele);
-		if (!break_flg && $ele.attr("inline")!=undefined) {
+		if (!break_flg && $ele.attr("inline")==undefined) {
 			
 			postData["materials.material_id["+ ii +"]"] = $ele.attr("material_id");
 			postData["materials.serial_no["+ ii +"]"] = $ele.children("serial").text();

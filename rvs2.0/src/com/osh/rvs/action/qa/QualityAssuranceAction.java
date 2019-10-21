@@ -32,7 +32,6 @@ import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
-import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.AlarmMesssageService;
@@ -701,9 +700,9 @@ public class QualityAssuranceAction extends BaseAction {
 				mService.saveLeaderInput(req, workingPf.getMaterial_id(), user, conn);
 			}
 
-			MaterialService mService = new MaterialService();
-			MaterialForm material = mService.loadSimpleMaterialDetail(conn, material_id);
-			if ("1".equals(material.getFix_type())) {
+//			MaterialService mService = new MaterialService();
+//			MaterialForm material = mService.loadSimpleMaterialDetail(conn, material_id);
+//			if ("1".equals(material.getFix_type())) {
 				// 当流水线时处理
 
 				// 取消总组工程结束时间
@@ -712,17 +711,17 @@ public class QualityAssuranceAction extends BaseAction {
 	
 				// 通知
 				AlarmMesssageService amService = new AlarmMesssageService();
-				amService.createDefectsAlarmMessage(workingPf, user.getLine_id(), conn);
+				amService.createDefectsAlarmMessage(workingPf, user.getDepartment(), user.getLine_id(), conn);
 
-			} else if ("2".equals(material.getFix_type())) {
-				workingPf.setOperate_result(0);
-				workingPf.setPace(0);
-				workingPf.setRework(workingPf.getRework() + 1);
-				workingPf.setOperator_id(null);
-				workingPf.setAction_time(null);
-				// 当单元时返回等待区
-				pfdao.insertProductionFeature(workingPf);
-			}
+//			} else if ("2".equals(material.getFix_type())) {
+//				workingPf.setOperate_result(0);
+//				workingPf.setPace(0);
+//				workingPf.setRework(workingPf.getRework() + 1);
+//				workingPf.setOperator_id(null);
+//				workingPf.setAction_time(null);
+//				// 当单元时返回等待区
+//				pfdao.insertProductionFeature(workingPf);
+//			}
 
 			// 推送邮件
 			// 通知
@@ -926,7 +925,7 @@ public class QualityAssuranceAction extends BaseAction {
 				// 制作中断警报
 				AlarmMesssageService amservice = new AlarmMesssageService();
 				AlarmMesssageEntity amEntity = amservice.createBreakAlarmMessage(workingPf);
-				alarm_messsage_id = amservice.createAlarmMessage(amEntity, conn, false, triggerList);
+				alarm_messsage_id = amservice.createAlarmMessage(amEntity, user.getDepartment(), conn, false, triggerList);
 
 				// 加入等待处理区域
 				ForSolutionAreaService fsoService = new ForSolutionAreaService();

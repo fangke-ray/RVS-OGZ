@@ -17,9 +17,103 @@ var productActionName = "最终检查";
 var repairListName = "维修品";
 var productListName = "制品";
 
-var colNamesRepairL = ['受理时间', '同意时间', '修理完成时间', '品保时间', '修理单号',
-					 '型号 ID', '型号', '机身号', 'RC', '等级', '工程检查票'];
+var colNamesRepairL = ['受理时间', '同意时间', '修理完成时间', '修理单号', '型号 ID', '型号', '机身号', 'RC', '等级', '加急', '特记','工程检查票出检'];
 var colModelRepairL = [{
+						name : 'reception_time',
+						index : 'reception_time',
+						width : 40,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
+					}, {
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 40,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 65,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'sorc_no',
+						index : 'sorc_no',
+						width : 80
+					}, {
+						name : 'model_id',
+						index : 'model_id',
+						hidden : true
+					}, {
+						name : 'model_name',
+						index : 'model_id',
+						width : 80
+					}, {
+						name : 'serial_no',
+						index : 'serial_no',
+						width : 50,
+						align : 'center'
+					}, {
+						name : 'ocm',
+						index : 'ocm',
+						width : 65, formatter: 'select', editoptions:{value: oOptions}
+					}, {
+						name : 'level',
+						index : 'level',
+						width : 35,
+						align : 'center', formatter: 'select', editoptions:{value: lOptions}
+					}, {
+						name : 'scheduled_expedited',
+						index : 'scheduled_expedited',
+						width : 35,
+						align : 'center', formatter: 'select', editoptions:{value: "0:;1:加急;2:直送快速"}
+					}, {
+						name:'status',index:'status', width:65
+					},{
+						name:'qa_check_time',index:'qa_check_time', width:65,align:'center',formatter:function(data, row, record) {
+							if (data == null || data == "") {
+								return "";
+							}
+							if (isL) {
+								return '<input type="button" value="确认出检" class="click_start" onclick="doStart(\''+record["material_id"]+'\')"/>';
+							} else {
+								return "已出检";
+							}
+						}
+					}];
+var colNamesProductL = ['开始日期', '开始时间', '总组完成时间', 'QC完成时间', '型号 ID', '型号' , '机身号'];
+var colModelProductL = [{
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
+					}, {
+						name : 'inline_time',
+						index : 'inline_time',
+						width : 35,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 65,
+						align : 'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
+					}, {
+						name : 'outline_time',
+						index : 'outline_time',
+						width : 65,
+						align : 'center',
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
+					},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'}];
+
+var colNamesRepairF = ['受理时间', '同意时间', '修理完成时间', '品保时间', '修理单号',
+					 '型号 ID', '型号', '机身号', 'RC', '等级', '工程检查票'];
+var colModelRepairF = [{
 						name : 'reception_time',
 						index : 'reception_time',
 						width : 35,
@@ -82,100 +176,7 @@ var colModelRepairL = [{
 //							}
 		   				}
 					}];
-var colNamesProductL = ['开始日期', '开始时间', '总组完成时间', 'QC完成时间', '型号 ID', '型号' , '机身号'];
-var colModelProductL = [{
-						name : 'agreed_date',
-						index : 'agreed_date',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					}, {
-						name : 'inline_time',
-						index : 'inline_time',
-						width : 35,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
-					}, {
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 65,
-						align : 'center',
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
-					}, {
-						name : 'outline_time',
-						index : 'outline_time',
-						width : 65,
-						align : 'center',
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d H:i'}
-					},
-				{name:'model_id',index:'model_id', hidden:true},
-				{name:'model_name',index:'model_id', width:125},
-				{name:'serial_no',index:'serial_no', width:50, align:'center'}];
-var colNamesRepairF = ['受理时间', '同意时间', '修理完成时间', '修理单号', '型号 ID', '型号', '机身号', 'RC', '等级', '加急', '特记','工程检查票出检'];
-var colModelRepairF = [{
-						name : 'reception_time',
-						index : 'reception_time',
-						width : 40,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}
-					}, {
-						name : 'agreed_date',
-						index : 'agreed_date',
-						width : 40,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					}, {
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 65,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}
-					}, {
-						name : 'sorc_no',
-						index : 'sorc_no',
-						width : 80
-					}, {
-						name : 'model_id',
-						index : 'model_id',
-						hidden : true
-					}, {
-						name : 'model_name',
-						index : 'model_id',
-						width : 80
-					}, {
-						name : 'serial_no',
-						index : 'serial_no',
-						width : 50,
-						align : 'center'
-					}, {
-						name : 'ocm',
-						index : 'ocm',
-						width : 65, formatter: 'select', editoptions:{value: oOptions}
-					}, {
-						name : 'level',
-						index : 'level',
-						width : 35,
-						align : 'center', formatter: 'select', editoptions:{value: lOptions}
-					}, {
-						name : 'scheduled_expedited',
-						index : 'scheduled_expedited',
-						width : 35,
-						align : 'center', formatter: 'select', editoptions:{value: "0:;1:加急;2:直送快速"}
-					}, {
-						name:'status',index:'status', width:65
-					},{
-						name:'qa_check_time',index:'qa_check_time', width:65,align:'center',formatter:function(data, row, record) {
-							if (data == null || data == "") {
-								return "";
-							}
-							if (isL) {
-								return '<input type="button" value="确认出检" class="click_start" onclick="doStart(\''+record["material_id"]+'\')"/>';
-							} else {
-								return "已出检";
-							}
-						}
-					}]
-var colNamesProductF = ['总组完成时间', 'QA完成时间', '型号 ID', '型号' , '机身号', '检查责任者','工程检查票出检'];
+var colNamesProductF = ['总组完成时间', 'QA完成时间', '型号 ID', '型号' , '机身号', '检查责任者', '工程检查票'];
 var colModelProductF = [
 				{
 					name : 'finish_time',
@@ -190,17 +191,15 @@ var colModelProductF = [
 				{name:'model_id',index:'model_id', hidden:true},
 				{name:'model_name',index:'model_id', width:125},
 				{name:'serial_no',index:'serial_no', width:50, align:'center'},
-				{name:'operator_name',index:'operator_name', width:50, align:'center'},
-				{name:'qa_check_time',index:'qa_check_time', width:65,align:'center',formatter:function(data, row, record) {
-						if (data == null || data == "") {
-							return "";
-						}
-						if (isL) {
-							return '<input type="button" value="确认出检" class="click_start" onclick="doStart(\''+record["material_id"]+'\')"/>';
-						} else {
-							return "已出检";
-						}
-					}
+				{name:'operator_name',index:'operator_name', width:50, align:'center'}, 
+				{
+					name : 'scheduled_expedited',
+					index : 'scheduled_expedited',
+					width : 85,
+					align : 'center',
+					formatter : function(value, options, rData){
+						return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
+	   				}
 				}
 			]
 

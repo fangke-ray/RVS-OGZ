@@ -35,7 +35,6 @@ import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.JustlengthValidator;
-import framework.huiqing.common.util.validator.LongTypeValidator;
 
 public class ProductService {
 
@@ -130,14 +129,6 @@ public class ProductService {
 			errors.add(msgInfo);
 		}
 
-		String message1 = new LongTypeValidator("扫描序列号码").validate(parameters, "serial_no");
-		if (message1 != null) {
-			MsgInfo msgInfo = new MsgInfo();
-			msgInfo.setComponentid("material_id");
-			msgInfo.setErrcode("validator.invalidParam.invalidIntegerValue");
-			msgInfo.setErrmsg(message1);
-			errors.add(msgInfo);
-		}
 		String message2 = new JustlengthValidator("扫描序列号码", 7).validate(parameters, "serial_no");
 		if (message2 != null) {
 			MsgInfo msgInfo = new MsgInfo();
@@ -167,8 +158,11 @@ public class ProductService {
 
 				WaitingEntity scan = null;
 
-				WaitingEntity waiting = waitings.get(0);
-
+				for (WaitingEntity waiting : waitings) {
+	
+//
+//				WaitingEntity waiting = waitings.get(0);
+//
 				if (serial_no.equals(waiting.getSerial_no())) { // 是开始对象的话
 
 					PositionPanelService ppService = new PositionPanelService();
@@ -220,15 +214,20 @@ public class ProductService {
 							}
 						}
 					}
-				} else {
-					for (WaitingEntity waitingI : waitings) {
-						if (serial_no.equals(waitingI.getSerial_no())) { 
-							scan = waitingI;
-							break;
-						}
-					}
+//				} else {
+//					for (WaitingEntity waitingI : waitings) {
+//						if (serial_no.equals(waitingI.getSerial_no())) { 
+//							scan = waitingI;
+//							break;
+//						}
+//					}
+//				}
+//
+
+					break;
 				}
 
+			}
 				if (scan == null) {
 					// 维修对象不在用户所在等待区
 					msgInfo = new MsgInfo();
@@ -236,14 +235,15 @@ public class ProductService {
 					msgInfo.setErrcode("info.product.notInWaiting");
 					msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.notInWaiting"));
 					errors.add(msgInfo);
-				} else if (retWaiting == null) {
-					msgInfo = new MsgInfo();
-					msgInfo.setComponentid("material_id");
-					msgInfo.setErrcode("info.product.serialFirst");
-					msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.serialFirst", waiting.getSerial_no()));
-					errors.add(msgInfo);
+//				} else if (retWaiting == null) {
+//					msgInfo = new MsgInfo();
+//					msgInfo.setComponentid("material_id");
+//					msgInfo.setErrcode("info.product.serialFirst");
+//					msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.serialFirst", waiting.getSerial_no()));
+//					errors.add(msgInfo);
 				}
-			}
+		}
+
 		}
 
 		return retWaiting;	
@@ -352,6 +352,7 @@ public class ProductService {
 		mBean.setSerial_no(serial_no);
 		mBean.setTicket_flg(1);
 		mBean.setPat_id("00000000229"); // TODO 229
+		mBean.setScheduled_expedited(1);
 		mBean.setFix_type(RvsConsts.PROCESS_TYPE_ARM_LINE);
 		String materialId = mService.insertProduct(mBean, user.getSection_id(), conn);
 

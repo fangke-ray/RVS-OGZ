@@ -672,7 +672,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 					// 制作中断警报
 					AlarmMesssageService amservice = new AlarmMesssageService();
 					AlarmMesssageEntity amEntity = amservice.createSoloBreakAlarmMessage(workingPf);
-					amservice.createAlarmMessage(amEntity, conn, false, null);
+					amservice.createAlarmMessage(amEntity, user.getDepartment(), conn, false, null);
 
 					// 取得插入的中断警报序号
 					CommonMapper cDao = conn.getMapper(CommonMapper.class);

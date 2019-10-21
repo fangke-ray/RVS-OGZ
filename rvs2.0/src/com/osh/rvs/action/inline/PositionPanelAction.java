@@ -785,7 +785,7 @@ public class PositionPanelAction extends BaseAction {
 					// 制作中断警报
 					AlarmMesssageService amservice = new AlarmMesssageService();
 					AlarmMesssageEntity amEntity = amservice.createBreakAlarmMessage(workingPf);
-					alarm_messsage_id = amservice.createAlarmMessage(amEntity, conn, false, triggerList);
+					alarm_messsage_id = amservice.createAlarmMessage(amEntity, user.getDepartment(), conn, false, triggerList);
 	
 					// 加入等待处理区域
 					ForSolutionAreaService fsoService = new ForSolutionAreaService();
@@ -1442,7 +1442,7 @@ public class PositionPanelAction extends BaseAction {
 		// 制作中断警报
 		AlarmMesssageService amservice = new AlarmMesssageService();
 		AlarmMesssageEntity amEntity = amservice.createBreakAlarmMessage(workingPf, RvsConsts.WARNING_REASON_PARTIAL_ON_POISTION);
-		alarm_messsage_id = amservice.createAlarmMessage(amEntity, conn, false, triggerList);
+		alarm_messsage_id = amservice.createAlarmMessage(amEntity, user.getDepartment(),  conn, false, triggerList);
 
 		// 加入等待处理区域
 		String reasonText = "在"+user.getProcess_code()+"工位的零件签收可能不符，请前去确认。";

@@ -64,7 +64,7 @@ public class AlarmMesssageService {
 	 * @param triggerList 
 	 * @throws Exception 
 	 */
-	public String createAlarmMessage(AlarmMesssageEntity entity, SqlSessionManager conn, boolean sendToScheduler, List<String> triggerList) throws Exception {
+	public String createAlarmMessage(AlarmMesssageEntity entity, Integer department, SqlSessionManager conn, boolean sendToScheduler, List<String> triggerList) throws Exception {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 		// 建立警报信息记录
 		dao.createAlarmMessage(entity);
@@ -85,6 +85,7 @@ public class AlarmMesssageService {
 		// 线长
 		OperatorMapper oDao = conn.getMapper(OperatorMapper.class);
 		OperatorEntity condBean = new OperatorEntity();
+		condBean.setDepartment(department);
 		condBean.setLine_id(entity.getLine_id());
 		condBean.setSection_id(entity.getSection_id());
 		condBean.setRole_id("00000000005"); //TODO
@@ -171,7 +172,7 @@ public class AlarmMesssageService {
 	 * @param conn 数据库连接
 	 * @throws Exception 
 	 */
-	public void createDefectsAlarmMessage(ProductionFeatureEntity workingPf, String line_id, SqlSessionManager conn) throws Exception {
+	public void createDefectsAlarmMessage(ProductionFeatureEntity workingPf, Integer department, String line_id, SqlSessionManager conn) throws Exception {
 		String material_id = workingPf.getMaterial_id();
 
 		AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
@@ -202,6 +203,8 @@ public class AlarmMesssageService {
 		// 线长
 		OperatorMapper oDao = conn.getMapper(OperatorMapper.class);
 		OperatorEntity condBean = new OperatorEntity();
+		condBean.setDepartment(department);
+
 		if ("07".equals(mdBean.getKind()) || "7".equals(mdBean.getKind())) {
 			condBean.setLine_id("00000000070");
 		} else if ("06".equals(mdBean.getKind()) || "6".equals(mdBean.getKind())) {
@@ -209,6 +212,8 @@ public class AlarmMesssageService {
 		} else if ("03".equals(mdBean.getKind()) || "3".equals(mdBean.getKind()) ||
 				"04".equals(mdBean.getKind()) || "4".equals(mdBean.getKind())) {
 			condBean.setLine_id("00000000061");
+		} else if ("11".equals(mdBean.getKind())) { // 显微镜
+			condBean.setLine_id("00000000101");
 		} else {
 			condBean.setLine_id("00000000014");
 		}

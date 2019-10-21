@@ -510,7 +510,7 @@ public class QuotationAction extends BaseAction {
 				// 制作中断警报
 				AlarmMesssageService amservice = new AlarmMesssageService();
 				AlarmMesssageEntity amEntity = amservice.createBreakAlarmMessage(workingPf);
-				alarm_messsage_id = amservice.createAlarmMessage(amEntity, conn, false, triggerList);
+				alarm_messsage_id = amservice.createAlarmMessage(amEntity, user.getDepartment(), conn, false, triggerList);
 			}
 
 			// 制作暂停信息

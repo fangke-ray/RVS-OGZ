@@ -1179,9 +1179,10 @@ var createArm = function() {
 		},
 		buttons : {
 			"开始": function(){
+				var serial_no = $dialog.find("input:text").val();
 				var postData = {
 					model_id : $dialog.find("select").val(),
-					serial_no : $dialog.find("input:text").val()
+					serial_no : serial_no
 				};
 				if (!serial_no || serial_no.length != 7) {
 					errorPop("请输入7位的序列号。");
