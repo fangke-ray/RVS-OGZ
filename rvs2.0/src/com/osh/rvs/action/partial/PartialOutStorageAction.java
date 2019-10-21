@@ -21,12 +21,14 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.service.ProductionFeatureService;
+import com.osh.rvs.service.UserDefineCodesService;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.partial.FactProductionFeatureService;
 import com.osh.rvs.service.partial.PartialOutStorageService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 
@@ -45,6 +47,7 @@ public class PartialOutStorageAction extends BaseAction {
 
 	private final PositionPanelService positionPanelService = new PositionPanelService();
 	private final ProductionFeatureService pfService = new ProductionFeatureService();
+	private final UserDefineCodesService userDefineCodesService = new UserDefineCodesService();
 
 	/**
 	 * 页面初始化
@@ -92,10 +95,18 @@ public class PartialOutStorageAction extends BaseAction {
 				String processCode = factProductionFeatureEntity.getProcess_code();
 				// NS
 				if ("321".equals(processCode)) {
-					callbackResponse.put("leagal_overline", "6");
+					String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_NS", conn);
+					if(CommonStringUtil.isEmpty(code)){
+						code = "6";
+					}
+					callbackResponse.put("leagal_overline", code);
 				} else if("252".equals(processCode) || "504".equals(processCode)){
+					String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_DEC", conn);
+					if(CommonStringUtil.isEmpty(code)){
+						code = "9";
+					}
 					// 分解
-					callbackResponse.put("leagal_overline", "9");
+					callbackResponse.put("leagal_overline", code);
 				} else{
 					// 其他出库
 					callbackResponse.put("leagal_overline", "");

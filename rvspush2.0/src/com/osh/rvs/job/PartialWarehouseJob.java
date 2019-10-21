@@ -60,9 +60,9 @@ public class PartialWarehouseJob implements Job {
 	private final String MIDDLE_LINE = "一";
 
 	/** E1：NS 工程出库 **/
-	private final Integer NS_STANDARD_TIME = 6;
+	//private final Integer NS_STANDARD_TIME = 6;
 	/** E2：分解工程出库 **/
-	private final Integer DEC_STANDARD_TIME = 9;
+	//private final Integer DEC_STANDARD_TIME = 9;
 	
 	/** 每日工作时间（460分钟） **/
 	private final Integer WORK_TIME = 460;
@@ -504,13 +504,13 @@ public class PartialWarehouseJob implements Job {
 					row = sheet.getRow(11);
 					row2 = sheet.getRow(12);
 
-					standardTime = new BigDecimal(dailyWorkRecordList.size() * NS_STANDARD_TIME);
+					standardTime = new BigDecimal(dailyWorkRecordList.size() * userDefineMap.get("strPartialOutstorNs").doubleValue());
 					break;
 				case 51://E2：分解工程出库
 					row = sheet.getRow(13);
 					row2 = sheet.getRow(14);
 
-					standardTime = new BigDecimal(dailyWorkRecordList.size() * DEC_STANDARD_TIME);
+					standardTime = new BigDecimal(dailyWorkRecordList.size() * userDefineMap.get("strPartialOutstorDEC").doubleValue());
 					break;
 				case 52://E3：其他维修出库
 					row = sheet.getRow(15);
@@ -862,6 +862,27 @@ public class PartialWarehouseJob implements Job {
 			strLowLever = new BigDecimal(50);
 		}
 		listResponse.put("strLowLever", strLowLever);
+		
+		// E1：NS 工程出库标准工时
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_NS");
+		BigDecimal strPartialOutstorNs = null;
+		try {
+			strPartialOutstorNs = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorNs = new BigDecimal(6);
+		}
+		listResponse.put("strPartialOutstorNs", strPartialOutstorNs);
+		
+		// E2：分解工程出库准工时
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_DEC");
+		BigDecimal strPartialOutstorDEC = null;
+		try {
+			strPartialOutstorDEC = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorDEC = new BigDecimal(9);
+		}
+		listResponse.put("strPartialOutstorDEC", strPartialOutstorDEC);
+		
 
 		return listResponse;
 	}
@@ -987,9 +1008,9 @@ public class PartialWarehouseJob implements Job {
 			} else if (productionType == 99) {// O：其它
 				cell.setCellValue(MIDDLE_LINE);
 			} else if (productionType == 50) {// E1：NS 工程出库
-				cell.setCellValue(NS_STANDARD_TIME);
+				cell.setCellValue(userDefineMap.get("strPartialOutstorNs").doubleValue());
 			} else if (productionType == 51) {// E2：分解工程出库
-				cell.setCellValue(DEC_STANDARD_TIME);
+				cell.setCellValue(userDefineMap.get("strPartialOutstorDEC").doubleValue());
 			} else if (productionType == 52) {// E3：其他维修出库
 				cell.setCellValue(MIDDLE_LINE);
 			}
