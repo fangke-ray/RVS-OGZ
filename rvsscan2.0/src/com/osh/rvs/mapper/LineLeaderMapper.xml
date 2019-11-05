@@ -533,4 +533,32 @@ and exists (select finish_time from production_feature where material_id = ma.ma
 and not exists (select 1 from production_feature where material_id = ma.material_id and position_id = 00000000063);
 	</select>
 
+	<select id="getTodayProductPlan" resultType="map" parameterType="list">
+	<![CDATA[
+		SELECT
+		    dpp.`model_id`,
+		    mdl.name as model_name,
+		    `quantity`
+		FROM `daily_product_plan` dpp
+		JOIN model mdl
+		ON dpp.model_id = mdl.model_id
+		WHERE `plan_date` = current_date
+ 		ORDER by `seq`;
+	]]>
+	</select>
+
+	<select id="getTodayCompleteMaterialCountByModels" resultType="map">
+	<![CDATA[
+		SELECT vm.model_id, vm.name as model_name, cast(COUNT(1) as unsigned) as quantity, min(m.outline_time) as ot
+		FROM material m
+		JOIN material_process mp
+		  ON `m`.material_id = `mp`.material_id AND `mp`.line_id = #{line_id}
+		JOIN v_model vm
+		  ON m.model_id = vm.model_id
+		WHERE `m`.section_id = #{section_id}
+		AND `mp`.finish_date = current_date
+		GROUP BY vm.model_id
+		ORDER BY ot;
+	]]>
+	</select>
 </mapper>

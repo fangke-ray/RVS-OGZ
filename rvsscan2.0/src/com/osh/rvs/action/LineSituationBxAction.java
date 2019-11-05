@@ -21,7 +21,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.service.LineLeaderService;
-import com.osh.rvs.service.LineSituationCellService;
+import com.osh.rvs.service.LineSituationManufactService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -81,11 +81,11 @@ public class LineSituationBxAction extends BaseAction {
 
 		String section_id = req.getParameter("section_id");
 
-		LineSituationCellService lineSituationCellService = new LineSituationCellService();
+		LineSituationManufactService lineSituationService = new LineSituationManufactService();
 		LineLeaderService lineLeaderService = new LineLeaderService();
 
 		// 计划台数,产出台数
-		lineSituationCellService.getSituation(callback, section_id, conn);
+		lineSituationService.getSituation(callback, section_id, conn);
 
 		String[] arrLineIds = { "00000000101", "00000000102"};
 		for (int i = 0; i < arrLineIds.length; i++) {

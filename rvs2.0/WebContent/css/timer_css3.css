@@ -17,6 +17,11 @@
 	position: relative;
 	float: right;
 	width: 0.6em;
+	
+}
+
+.roll_cell > * {
+	margin-top : -.5px;
 }
 
 .roll_seconds {

@@ -39,4 +39,7 @@ public interface LineLeaderMapper {
 
 	public Integer getPeriWaitingPart();
 
+	public List<Map<String, Object>> getTodayProductPlan(@Param("section_id") String section_id);
+
+	public List<Map<String, Object>> getTodayCompleteMaterialCountByModels(@Param("section_id") String section_id,@Param("line_id") String line_id);
 }

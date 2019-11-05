@@ -23,6 +23,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.common.ReportMetaData;
 import com.osh.rvs.common.ReportUtils;
 import com.osh.rvs.common.RvsConsts;
@@ -30,10 +31,12 @@ import com.osh.rvs.form.inline.ScheduleForm;
 import com.osh.rvs.service.CapacityService;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.DownloadService;
+import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.inline.ScheduleProcessService;
 import com.osh.rvs.service.inline.ScheduleService;
+import com.osh.rvs.service.product.ProductService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -489,7 +492,6 @@ public class ScheduleProcessingAction extends BaseAction {
 		
 		log.info("ScheduleProcessingAction.capacity_setting end");
 	}
-	
 
 	/**
 	 * KPI日报画面片段表示处理
@@ -546,7 +548,7 @@ public class ScheduleProcessingAction extends BaseAction {
 		
 		log.info("ScheduleProcessingAction.doUpdateDailyKpi end");
 	}
-	
+
 	/**
 	 * 最大产能获得
 	 * @param mapping ActionMapping
@@ -599,4 +601,56 @@ public class ScheduleProcessingAction extends BaseAction {
 
 		log.info("ScheduleProcessingAction.doUpdateUpperLimit end");
 	}
+
+
+	/**
+	 * 制造计划获得
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
+	 */
+	public void getManufactPlans(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn){
+		log.info("ScheduleProcessingAction.getManufactPlans start");
+		
+		Map<String,Object> callbackResponse = new HashMap<String,Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+		
+		// 制造计划获得
+		ProductService pService = new ProductService();
+		callbackResponse.put("dailyPlans", pService.getDailyProductPlans(conn));
+
+		// 部组，取得可制作的型号
+		ModelService mdlService = new ModelService();
+		ModelEntity mdlEntity = new ModelEntity();
+		mdlEntity.setKind("11");
+		callbackResponse.put("modelOptions", mdlService.searchToSelectOptions(mdlEntity, conn));
+
+		//检查发生错误时报告错误信息
+		callbackResponse.put("errors",errors);
+		//返回JSON格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("ScheduleProcessingAction.getManufactPlans end");
+	}
+
+	public void doUpdateManufactPlans(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) 
+			throws Exception {
+		log.info("ScheduleProcessingAction.doUpdateManufactPlans start");
+		
+		Map<String,Object> callbackResponse = new HashMap<String,Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		ProductService pService = new ProductService();
+		pService.updateManufactPlans(req, errors, conn);
+
+		//检查发生错误时报告错误信息
+		callbackResponse.put("errors",errors);
+		//返回JSON格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("ScheduleProcessingAction.doUpdateManufactPlans end");
+	}
+
 }

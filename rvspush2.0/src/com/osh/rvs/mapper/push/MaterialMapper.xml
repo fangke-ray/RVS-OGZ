@@ -394,7 +394,7 @@
 				1 as symbol1,
 				max(mp.arrival_plan_date) as arrival_plan_date,
 				ma.pat_id in (206, 211) as pat_id
-				FROM rvsdb.material ma
+				FROM material ma
 			join v_model vm
 				ON ma.model_id = vm.model_id
 			left join material_partial mp

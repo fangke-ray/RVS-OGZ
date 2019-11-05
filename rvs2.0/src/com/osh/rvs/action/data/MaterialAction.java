@@ -1109,7 +1109,6 @@ public class MaterialAction extends BaseAction {
 		String addition = req.getParameter("addition"); 
 
 		// 取得所选维修对象信息
-		MaterialService mService = new MaterialService();
 		ProductService pService = new ProductService();
 		List<MaterialEntity> mBeans = pService.getModelSerials(req.getParameterMap());
 
@@ -1134,7 +1133,7 @@ public class MaterialAction extends BaseAction {
 
 				if (id == null && errors.size() == 0) {
 					mBean.setFix_type(RvsConsts.PROCESS_TYPE_MANUFACT_LINE);
-					id = mService.insertProduct(mBean, user.getSection_id(), conn);
+					id = pService.insertProduct(mBean, user.getSection_id(), conn);
 					if (mBeans.size() == 1) {
 						callbackResponse.put("id", id);
 					}
@@ -1188,9 +1187,9 @@ public class MaterialAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		ProductService mService = new ProductService();
+		ProductService pService = new ProductService();
 
-		mService.setNewProductModel(req.getParameter("model_id"), conn);
+		pService.setNewProductModel(req.getParameter("model_id"), conn);
 
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
@@ -1264,6 +1263,7 @@ public class MaterialAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		MaterialService mService = new MaterialService();
+		ProductService pService = new ProductService();
 
 		// 取得用户信息
 		HttpSession session = req.getSession();
@@ -1278,7 +1278,7 @@ public class MaterialAction extends BaseAction {
 
 		MaterialForm createForm = (MaterialForm) form;
 
-		String existId = mService.checkModelSerialNo(createForm, conn);
+		String existId = mService.checkModelSerialNo(createForm, conn); // 规则有待确定（不同型号可否用相同序列号？TODO）
 
 		if (existId != null) {
 			String productName = CodeListUtils.getValue("material_fix_type_manufact", createForm.getFix_type());
@@ -1291,7 +1291,7 @@ public class MaterialAction extends BaseAction {
 		}
 
 		if (errors.size() == 0) {
-			mService.reaccpect(form, section_id, conn);
+			pService.reaccpect(form, section_id, conn);
 		}
 
 		// 检查发生错误时报告错误信息

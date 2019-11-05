@@ -66,4 +66,43 @@
 	]]>
 	</select>
 
+	<select id="getDailyProductPlans" resultType="DailyProductPlanEntity" parameterType="list">
+	<![CDATA[
+		SELECT `plan_date`,
+		    dpp.`model_id`,
+		    mdl.name as model_name,
+		    `seq`,
+		    `quantity`
+		FROM `daily_product_plan` dpp
+		JOIN model mdl
+		ON dpp.model_id = mdl.model_id
+		WHERE `plan_date` between current_date and date_add(current_date, interval 14 day)
+ 		ORDER by `plan_date` asc, `seq`;
+	]]>
+	</select>
+
+	<insert id="insertPlan" parameterType="DailyProductPlanEntity">
+		<![CDATA[
+			INSERT INTO `daily_product_plan`
+				(`plan_date`,
+				`model_id`,
+				`seq`,
+				`quantity`)
+			VALUES
+				(#{plan_date},
+				#{model_id},
+				#{seq},
+				#{quantity});
+		]]>
+	</insert>
+
+	<delete id="deletePlanOfDate" parameterType="ScheduleEntity">
+		<![CDATA[
+			DELETE FROM
+				daily_product_plan
+			WHERE
+				plan_date = #{plan_date};
+		]]>
+	</delete>
+
 </mapper>

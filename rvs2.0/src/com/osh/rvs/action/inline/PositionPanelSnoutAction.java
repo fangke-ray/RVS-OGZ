@@ -247,6 +247,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 			// 判断是否有在进行中的维修对象
 			List<SoloProductionFeatureEntity> workingPfs = dao.searchSoloProductionFeature(pfBean);
+
 			// 进行中的话
 			if (workingPfs.size() > 0) {
 				SoloProductionFeatureEntity workingPf = workingPfs.get(0);
@@ -265,7 +266,9 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 					// 取得本先端头第一次作业 的开始时间 TODO
 					callbackResponse.put("action_time", DateUtil.toString(sservice.getFirstPaceOnRework(workingPf, conn), "HH:mm:ss"));
-					sservice.getProccessingDataSolo(callbackResponse, pfBean, user, conn);
+
+					// 取得标准时间和作业经过时间
+					sservice.getProccessingDataSolo(callbackResponse, workingPf, user, conn);
 
 					callbackResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
 					callbackResponse.put("model_name", workingPf.getModel_name());
@@ -273,6 +276,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 					// 页面设定为编辑模式
 					callbackResponse.put("workstauts", "1");
+
 				} else if (RvsConsts.OPERATE_RESULT_PAUSE == workingPf.getOperate_result()) {
 					// 暂停中的话
 	//				// 取得作业信息
@@ -283,7 +287,10 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 					//spent_mins
 					callbackResponse.put("action_time", DateUtil.toString(workingPf.getAction_time(), "HH:mm:ss"));
-					sservice.getProccessingDataSolo(callbackResponse, pfBean, user, conn);
+
+					// 取得标准时间和作业经过时间
+					pfBean.setModel_name(workingPf.getModel_name());
+					sservice.getProccessingDataSolo(callbackResponse, workingPf, user, conn);
 
 					callbackResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(workingPf.getSerial_no() ,conn));
 					callbackResponse.put("model_name", workingPf.getModel_name());
@@ -291,6 +298,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 					// 页面设定为编辑模式
 					callbackResponse.put("workstauts", "2");
+
 				}
 			}
 		}
@@ -408,6 +416,10 @@ public class PositionPanelSnoutAction extends BaseAction {
 					sservice.registSnoutOrigin(material_id, serial_no, conn);
 					listResponse.put("spent_mins", "0");
 					listResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(serial_no ,conn));
+				} else {
+					pfBean.setUse_seconds(0);
+					pfBean.setModel_name(model_name);
+					sservice.getProccessingDataSolo(listResponse, pfBean, user, conn);
 				}
 
 				// 建立独立作业记录，作业中
@@ -435,8 +447,6 @@ public class PositionPanelSnoutAction extends BaseAction {
 			// 取得工程检查票
 			getPcses(listResponse, pfBean, user.getLine_id(), conn);
 		}
-
-		listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(model_name, null, user, process_code));
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);

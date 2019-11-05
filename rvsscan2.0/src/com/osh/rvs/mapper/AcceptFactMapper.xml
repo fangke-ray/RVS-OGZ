@@ -22,6 +22,7 @@
 		select count(material_id) as count_notreach from material m
 		where outline_time is null
 		and break_back_flg = 0
+		and fix_type in (1, 2)
 		and not exists( select 1 from production_feature pf where position_id = 9 and material_id = m.material_id);
 	</select>
 

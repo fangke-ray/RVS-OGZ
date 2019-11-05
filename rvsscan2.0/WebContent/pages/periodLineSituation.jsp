@@ -37,6 +37,33 @@ td.low {
 #sikake_in {
 	font-size:12px;
 }
+#plan_complete marqueue {
+	font-size: 16px;
+	line-height: 1.6em;
+}
+#plan_complete marqueue .model {
+	font-family: Georgia;
+	float:left;
+	margin-left: 0.2em;
+}
+#plan_complete marqueue .quantity {
+	float:right;
+	background-color: darkgray;
+	color:white;
+	background-color: gray;
+	padding-right: 0.2em;
+	padding-left:0.4em;
+	border-top-left-radius:20px 12px;
+}
+#plan_complete #plan_count marqueue .quantity {
+	background-color: navy;
+}
+#plan_complete marqueue .quantity[inplan] {
+	background-color: rgb(0,170,128);
+}
+#plan_complete marqueue .quantity[finish] {
+	background-color: rgb(100,120,0);
+}
 </style>
 
 <title>${section_name} ${line_name}</title>

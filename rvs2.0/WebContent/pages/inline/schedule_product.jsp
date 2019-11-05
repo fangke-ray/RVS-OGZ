@@ -11,6 +11,57 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
+<style>
+#capacity_setting .dp_pofd {
+	float:left;
+	width:10em;
+	height: 16.2em;
+	border:1px solid black;
+	overflow:auto;
+}
+#capacity_setting .dp_pofd > date {
+	text-align : center;
+	display: block;
+	border-bottom:1px solid black;
+}
+#capacity_setting .dp_pofd > date.holiday {
+	color: red;
+	background-color: #FFFBD5;
+}
+#capacity_setting .dp_pofd > date.today {
+	color: navy;
+	background-color: lightskyblue;
+}
+#capacity_setting .dp_pofd > plan > div{
+	border-bottom:1px solid black;
+	clear: both;
+}
+#capacity_setting .dp_pofd > plan input[type=button]{
+	background-color:#93C3CD;
+	width: 2em;
+	padding: 0;
+}
+#capacity_setting .dp_pofd > plan model{
+	padding-left: 2px;
+	float:left;
+}
+#capacity_setting .dp_pofd > plan input[type=number]{
+	background-color:transparent;
+	width: 3em;
+	padding: 0;
+	text-align: right;
+	border: 1px solid lightgray;
+	float:right;
+}
+#capacity_model_setting {
+	display:none;
+	position: fixed;
+	background-color: white;
+	z-index:2000;
+	border: 1px solid lightgray;
+	padding : 2px;
+}
+</style>
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.validate.min.js"></script>
@@ -20,6 +71,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
+<script type="text/javascript" src="js/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="js/common/material_detail_ctrl.js"></script>
 <script type="text/javascript" src="js/inline/schedule_processing.js"></script>
 <title>Racing Area</title>
@@ -141,6 +193,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<%@include file="../../widgets/position_panel/product_serials.jsp"%>
 		</div>
 
+		<div id="capacity_setting"></div>
+		<div id="capacity_model_setting"></div>
 		<div id="process_dialog"></div>
 		<div id="confirmmessage"></div>
 	</div>

@@ -50,13 +50,11 @@ import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.ReportUtils;
-import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.data.MonthFilesDownloadForm;
-import com.osh.rvs.form.master.ModelForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.data.PostMessageMapper;
@@ -314,28 +312,6 @@ public class MaterialService {
 		
 		MaterialMapper dao = conn.getMapper(MaterialMapper.class);
 		dao.insertMaterial(insertBean);
-	}
-
-	/**
-	 * 新建产品
-	 * @param section_id 
-	 * @param form 产品信息
-	 * @param conn
-	 * @return 
-	 */
-	public String insertProduct(MaterialEntity insertBean, String section_id, SqlSession conn) {
-		if (insertBean.getModel_id() == null) {
-			String model_id = ReverseResolution.getModelByName(insertBean.getModel_name(), conn);
-			insertBean.setModel_id(model_id);
-		}
-		insertBean.setSection_id(section_id);
-		insertBean.setLevel(0);
-
-		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
-		mMapper.insertMaterial(insertBean);
-
-		CommonMapper cMapper = conn.getMapper(CommonMapper.class);
-		return cMapper.getLastInsertID();
 	}
 
 	/**
@@ -1635,40 +1611,5 @@ public class MaterialService {
 		
 		return cacheName;
 
-	}
-
-
-	public void reaccpect(ActionForm form, String section_id, SqlSessionManager conn) throws Exception {
-
-		MaterialEntity insertBean = new MaterialEntity();
-		BeanUtil.copyToBean(form, insertBean, null);
-
-		ModelService mdlService = new ModelService();
-		ModelForm mdlEntity = mdlService.getDetail(insertBean.getModel_id(), conn);
-		String pat_id = mdlEntity.getDefault_pat_id();
-		if (isEmpty(pat_id)) {
-			return; // TODO errInfo
-		}
-
-		insertBean.setPat_id(pat_id);
-		insertBean.setScheduled_expedited(1);
-
-		String materialId = insertProduct(insertBean, section_id, conn);
-
-		ProcessAssignService pas = new ProcessAssignService();
-		List<String> firstPosition_ids = pas.getFirstPositionIds(pat_id, conn);
-		for (String position_id: firstPosition_ids) {
-			ProductionFeatureEntity featureEntity = new ProductionFeatureEntity ();
-
-			featureEntity.setOperate_result(0);
-			featureEntity.setPace(0);
-			featureEntity.setRework(0);
-			featureEntity.setMaterial_id(materialId);
-			featureEntity.setPosition_id(position_id);
-			featureEntity.setSection_id(section_id);
-
-			ProductionFeatureService pfService = new ProductionFeatureService();
-			pfService.fingerSpecifyPosition(materialId, true, featureEntity, new ArrayList<String>(), conn);
-		}
 	}
 }

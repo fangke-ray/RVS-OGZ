@@ -179,7 +179,7 @@ order by jm.position_id, jm.section_id, jm.responsible_operator_id, jm.manage_co
 	</select>
 
 	<delete id="removeCheckStatusWait">
-		DELETE FROM rvsgdb.device_check_result where checked_status = 0;
+		DELETE FROM device_check_result where checked_status = 0;
 	</delete>
 		
 </mapper>

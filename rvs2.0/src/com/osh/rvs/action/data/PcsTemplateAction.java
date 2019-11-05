@@ -16,7 +16,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.jacob.com.ComThread;
+import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.form.master.ModelForm;
 import com.osh.rvs.service.MaterialService;
@@ -62,8 +64,12 @@ public class PcsTemplateAction extends BaseAction {
 		req.setAttribute("jacob", jacobStatus);
 
 		actionForward = mapping.findForward(FW_INIT);	
+
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 		ModelService service = new ModelService();
-		String mReferChooser = service.getAllOptions(conn);
+		Integer department = user.getDepartment();
+		String mReferChooser = service.getOptions(department, conn);
+
 		/*型号*/
 		req.setAttribute("mReferChooser", mReferChooser);	
 

@@ -183,7 +183,7 @@
 				timestampdiff(minute, date_add(sh.scheduled_date, interval 8*60+45 minute), expected_finish_time) 
 			END as remain_time,
 			count(fsa.reason) as reason, coalesce(sum(fsa.reason=4),0) append
-		FROM rvsdb.schedule_history sh
+		FROM schedule_history sh
 		LEFT join material_remain_time mrt
 		on sh.material_id = mrt.material_id
 		join material ma
@@ -212,12 +212,12 @@ update
 material_process mp
 set scheduled_assign_date = null
 where line_id in (select line_id from line where in_advance = 0) and scheduled_assign_date = #{nextDay}
-and exists (select 1 from production_feature where position_idin (select position_id from position where special_page = 'qualityAssurance') and operate_result in (1,2) and material_id = mp.material_id)
+and exists (select 1 from production_feature where position_id in (select position_id from position where special_page = 'qualityAssurance') and operate_result in (1,2) and material_id = mp.material_id)
 ;
 		]]>
 	</update>
 
 	<select id="getCapacity" resultType="map">
-		SELECT category_id,section_id,upper_limit FROM rvsdb.capacity;
+		SELECT category_id,section_id,upper_limit FROM capacity;
 	</select>
 </mapper>

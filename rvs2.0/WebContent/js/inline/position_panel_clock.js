@@ -83,6 +83,7 @@ var _minuteFormat = function(iminute) {
 
 var _secondFormat = function(fminute) {
 	if (!fminute && fminute != 0) return "-";
+	if (fminute == -1) return "-";
 	var iminute = parseInt(fminute);
 	var hours = parseInt(fminute / 60);
 	var minutes = iminute % 60;
@@ -92,6 +93,8 @@ var _secondFormat = function(fminute) {
 }
 
 var _convertMinute =function(sminute) {
+	if(sminute.endsWith(":")) sminute = sminute.substring(0, sminute.length - 1);
+
 	var hours = sminute.replace(/(.*):(.*)/, "$1");
 	var minutes = sminute.replace(/(.*):(.*)/, "$2");
 
@@ -107,7 +110,6 @@ return {
 		$material_detail_spend = $spend_container;
 		$material_detail_spend_lbl = $material_detail_spend.find("label");
 		$p_rate = $rate_viewer;
-		$p_rate.children("div").css({"transition-duration" : (iInterval / 1000) + "s"});
 	},
 	setAction : function(action_time){
 		if (action_time) {
@@ -147,7 +149,7 @@ return {
 		if (frate > 99) {
 			frate = 99;
 		}
-		$p_rate.html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+		$p_rate.html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;transition-duration:" + (iInterval / 1000) + "s'></div>");
 		dyeLiquid(frate, $p_rate.find("div"));
 	},
 	pauseClock : function(){
@@ -157,7 +159,7 @@ return {
 	startClock : function(spent_mins, spent_secs){
 		p_time = (spent_mins || 0);
 
-		spent_secs = spent_secs % 60;
+		spent_secs = (spent_secs || 0) % 60;
 		var remain_secs = 0;
 		if (spent_secs == 0) {
 			p_time--;

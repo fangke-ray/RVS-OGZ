@@ -272,7 +272,7 @@ series : [ {
 	data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
 } ]
 			});
-			} else {
+			} else if (resInfo.plans) {
 				var plans = resInfo.plans;
 				var outs = resInfo.outs;
 				var now_period = resInfo.now_period;
@@ -366,35 +366,83 @@ series : [ {
 			}
 		);
 
-
 		if ($("#plan_count").length > 0) {
- 		$("#plan_count").flipCounter(
-       	"startAnimation", // scroll counter from the current number to the specified number
-        {
-            number: plan_value, // the number we want to scroll from
-            end_number: resInfo.plan, // the number we want the counter to scroll to
-            duration: 1000 // number of ms animation should take to complete
-        });
+			if ($("#plan_count marqueue").length > 0) {
+				plan_value = 0;
+				plan_complete_value = 0;
 
-        plan_value = resInfo.plan;
+				var modelMap = {};
+				var marqueueText = "<div class='xcom'>";
+				for (var il in resInfo.linePlanList) {
+					var linePlan = resInfo.linePlanList[il];
+					modelMap[linePlan.model_id] = linePlan.quantity;
+					marqueueText += "<div class='model'>" + linePlan.model_name + " : </div><br><div class='quantity'>" + linePlan.quantity + " 台</div><br>"; 
+					plan_value += linePlan.quantity;
+				}
+				marqueueText += "</div>";
+				$("#plan_count marqueue").html(marqueueText);
+				if ($("#plan_count marqueue > div").height() < 150) {
+//					$("#plan_count marquee")[0].stop();
+//					$("#plan_count marquee")[0].scrollTop = 0;
+				} else {
+//					$("#plan_count marquee")[0].start();
+				}
 
-      	$("#plan_finish_count").flipCounter(
-       	"startAnimation", // scroll counter from the current number to the specified number
-        {
-            number: plan_complete_value, // the number we want to scroll from
-            end_number: resInfo.plan_complete, // the number we want the counter to scroll to
-            duration: 1000 // number of ms animation should take to complete
-        });
+				marqueueText = "<div class='xcom'>";
+				for (var il in resInfo.linePlanCompleteList) {
+					var lineComplete = resInfo.linePlanCompleteList[il];
 
-        plan_complete_value = resInfo.plan_complete;
+					var planString = "";
+					if (modelMap[lineComplete.MODEL_ID]) {
+						if (lineComplete.quantity < modelMap[lineComplete.MODEL_ID]) {
+							planString = " inplan";
+						} else {
+							planString = " finish";
+						}
+					}
 
-        var com_rate = 0;
-        if (plan_value > 0) {
-        	com_rate = Math.floor(plan_complete_value / plan_value * 100);
-        }
+					marqueueText += "<div class='model'>" + lineComplete.model_name + " : </div><br><div class='quantity'"+ planString +">" + lineComplete.quantity + " 台</div><br>"; 
+					plan_complete_value += linePlan.quantity;
+				}
+
+				marqueueText += "</div>";
+				$("#plan_finish_count marqueue").html(marqueueText);
+				$("#plan_finish_count marqueue")[0].stop();
+				if ($("#plan_finish_count marqueue > div").height() > 150) {
+//					$("#plan_finish_count marquee")[0].start();
+				}
+			} else {
+				$("#plan_count").flipCounter(
+					"startAnimation",
+					{
+						number: plan_value,
+						end_number: resInfo.plan,
+						duration: 1000
+					});
+
+				plan_value = resInfo.plan;
+
+				$("#plan_finish_count").flipCounter(
+					"startAnimation", // scroll counter from the current number to the specified number
+					{
+						number: plan_complete_value, // the number we want to scroll from
+						end_number: resInfo.plan_complete, // the number we want the counter to scroll to
+						duration: 1000 // number of ms animation should take to complete
+					});
+
+				plan_complete_value = resInfo.plan_complete;
+
+			}
+		}
+
+		var com_rate = 0;
+
+		if (plan_value > 0) {
+			com_rate = Math.floor(plan_complete_value / plan_value * 100);
+		}
+
 		$('.donut-arrow').trigger('updatePercentage', com_rate);
 		$("#completed_rate").text(com_rate.toFixed(0) + "%");
-		}
 
 	} catch (e) {
 	};
@@ -406,21 +454,28 @@ $(document).ready(function() {
 		line_id : $("#page_line_id").val(), section_id : $("#page_section_id").val(), isPeriod:true
 	}
 
-	if ($("#plan_count").length > 0) {
-	$("#plan_count").flipCounter({numIntegralDigits:2,
-		digitHeight:124,
-		digitWidth:62,
-		imagePath:"images/white_counter.png"
-	});
-	$("#plan_finish_count").flipCounter({numIntegralDigits:2,
-		digitHeight:124,
-		digitWidth:62,
-		imagePath:"images/white_counter.png"
-	});
-	}
-
-	if ($("#page_line_id").val() == "00000000101") {
+	if ($("#page_line_id").val() === "00000000101") {
 		servicePath = "lineSituationBX.scan";
+		$("#plan_count, #plan_finish_count").css("overflow", "hidden").html("<marqueue direction='up' behavior='alternate' height=126 scrollamount=2/>");
+//		setTimeout(function(){
+//			$("#plan_count, #plan_finish_count").find("marquee").each(function(idx, ele){
+//				console.log(idx + "ele.stop" + typeof(ele.stop));
+//				ele.stop();
+//			});
+//		}, 1000)
+	} else {
+		if ($("#plan_count").length > 0) {
+		$("#plan_count").flipCounter({numIntegralDigits:2,
+			digitHeight:124,
+			digitWidth:62,
+			imagePath:"images/white_counter.png"
+		});
+		$("#plan_finish_count").flipCounter({numIntegralDigits:2,
+			digitHeight:124,
+			digitWidth:62,
+			imagePath:"images/white_counter.png"
+		});
+		}
 	}
 
 	// Ajax提交

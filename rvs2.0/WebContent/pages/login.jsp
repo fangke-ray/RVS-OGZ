@@ -328,7 +328,7 @@ $(function() {
 <%
 	} else {
 %>
-<div class="ui-widget-panel width-full" style="background-image:url('images/login.png');height:673px;margin:auto;" id="body-1">
+<div class="ui-widget-panel width-full" style="background-image:url('images/login.png?year=2019');height:673px;margin:auto;" id="body-1">
 <%
 	}
 %>

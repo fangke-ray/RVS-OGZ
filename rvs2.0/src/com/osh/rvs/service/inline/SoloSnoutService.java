@@ -20,10 +20,12 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.data.SnoutEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
+import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -582,14 +584,19 @@ public class SoloSnoutService {
 
 		// 取到等待作业记录的本次返工总时间
 		SoloSnoutService sservice = new SoloSnoutService();
-		Integer spentSecs = sservice.getTotalTime(pf, conn);
-		Integer spentMins = spentSecs / 60;
-		cbResponse.put("spent_secs", spentSecs);
-		cbResponse.put("spent_mins", spentMins);
+		if (pf.getUse_seconds() == null) {
+			Integer spentSecs = sservice.getTotalTime(pf, conn);
+			Integer spentMins = spentSecs / 60;
+			cbResponse.put("spent_secs", spentSecs);
+			cbResponse.put("spent_mins", spentMins);
+		}
 
 		// 取得维修对象的作业标准时间。
-		String leagal_overline = RvsUtils.getZeroOverLine(pf.getModel_name(), null, user, null);
+		ModelEntity model = ReverseResolution.getModelEntityByName(pf.getModel_name(), conn);
+		if (model != null) {
+			String leagal_overline = RvsUtils.getZeroOverLine(pf.getModel_name(), model.getCategory_name(), user, null);
 
-		cbResponse.put("leagal_overline", leagal_overline);
+			cbResponse.put("leagal_overline", leagal_overline);
+		}
 	}
 }

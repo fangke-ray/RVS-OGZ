@@ -103,6 +103,8 @@
 
 		<typeAlias alias="OperationStandardDocEntity" type="com.osh.rvs.bean.manage.OperationStandardDocEntity"/>
 
+		<typeAlias alias="DailyProductPlanEntity" type="com.osh.rvs.bean.manage.DailyProductPlanEntity"/>
+
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
