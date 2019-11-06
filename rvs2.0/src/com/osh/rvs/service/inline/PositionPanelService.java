@@ -894,7 +894,9 @@ public class PositionPanelService {
 		// List<ProductionFeatureEntity> productionFeatureEntities = service.getPositionWorksByMaterial(material_id, user, conn);
 
 		// 取到等待作业记录的本次返工总时间
-		Integer spentMins = this.getTotalTimeByRework(pf, conn) / 60;
+		Integer spentSecs = this.getTotalTimeByRework(pf, conn);
+		Integer spentMins = spentSecs / 60;
+		listResponse.put("spent_secs", spentSecs);
 		listResponse.put("spent_mins", spentMins);
 
 		// 取得维修对象的作业标准时间。
@@ -921,6 +923,10 @@ public class PositionPanelService {
 			HttpAsyncClient httpclient = new DefaultHttpAsyncClient();
 			httpclient.start();
 			try {
+				int dotpos = leagal_overline.indexOf(".");
+				if (dotpos > 0) {
+					leagal_overline = leagal_overline.substring(0, dotpos);
+				}
 				// String material_id, String position_id, String line_id, Integer standard_minute, Integer cost_minute
 		        HttpGet request = new HttpGet("http://localhost:8080/rvspush/trigger/start_alarm_clock_queue/" 
 		        		+ material_id + "/" + user.getPosition_id() + "/" + user.getLine_id() + "/" + user.getOperator_id() + "/" 
@@ -993,6 +999,12 @@ public class PositionPanelService {
 		}
 	}
 
+	/**
+	 * 检查必须使用部组
+	 * @param workingPf
+	 * @param infoes
+	 * @param conn
+	 */
 	public void checkAccessary(ProductionFeatureEntity workingPf, List<MsgInfo> infoes, SqlSession conn) {
 		String processCode = workingPf.getProcess_code();
 		if ("002".equals(processCode)) {

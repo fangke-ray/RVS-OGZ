@@ -79,6 +79,12 @@
 		]]>
 		<where>
 				e.action_date is not null
+			<if test="department == null or department eq 1">
+				AND c.department = 1
+			</if>
+			<if test="department eq 2">
+				AND c.department = 2
+			</if>
 			<if test="action_time_start !=null">
 				<![CDATA[
 				and e.action_date >= #{action_time_start}

@@ -34,7 +34,9 @@ public class PositionProductionEntity implements Serializable {
 	private String model_name;
 	private String operate_result;
 	private String isToday;
-	
+
+	private Integer department;
+
 	public String getIsToday() {
 		if (action_time != null) {
 			Calendar today = Calendar.getInstance();
@@ -222,6 +224,14 @@ public class PositionProductionEntity implements Serializable {
 
 	public void setProcessed_count(String processed_count) {
 		this.processed_count = processed_count;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 	
 	

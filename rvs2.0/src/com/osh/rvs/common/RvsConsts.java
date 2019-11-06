@@ -108,5 +108,6 @@ public class RvsConsts extends BaseConst {
 	public static final Integer PROCESS_TYPE_WASH_INFECT = 3; // 清洗消毒
 	public static final Integer PROCESS_TYPE_MANUFACT_LINE = 6; // 显微镜生产流水线
 	public static final Integer PROCESS_TYPE_ARM_LINE = 7; // 显微镜ARM流水线
+	public static final Integer PROCESS_TYPE_REFIX = 8; // 显微镜ARM流水线
 	public static final Integer PROCESS_TYPE_ALL = 999; // 所有
 }

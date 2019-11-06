@@ -34,7 +34,7 @@
 		JOIN v_model mdl
 			ON ma.model_id = mdl.MODEL_ID
 		WHERE 
-			fix_type in (6, 7)
+			fix_type in (6, 7, 8)
 		AND
 		serial_no in
 		]]>

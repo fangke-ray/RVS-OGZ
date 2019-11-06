@@ -23,6 +23,7 @@ import com.osh.rvs.bean.inline.PauseFeatureEntity;
 import com.osh.rvs.bean.inline.ScheduleEntity;
 import com.osh.rvs.bean.inline.ScheduleHistoryEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.inline.ScheduleForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.inline.DailyKpiMapper;
@@ -46,15 +47,20 @@ import framework.huiqing.common.util.copy.IntegerConverter;
 
 public class ScheduleProcessService {
 
-	public List<ScheduleForm> getMaterialList(ActionForm form, SqlSession conn, List<MsgInfo> errors, Integer resolveLevel) {
+	public List<ScheduleForm> getMaterialList(ActionForm form, Integer department, SqlSession conn, List<MsgInfo> errors, Integer resolveLevel) {
 		ScheduleProcessMapper dao = conn.getMapper(ScheduleProcessMapper.class);
 		ScheduleMapper tdao = conn.getMapper(ScheduleMapper.class);
 		HolidayMapper hdao = conn.getMapper(HolidayMapper.class);
 		ScheduleEntity conditionBean = new ScheduleEntity();
 		BeanUtil.copyToBean(form, conditionBean, null);
 
-		// TODO 
-		List<String> ids = tdao.searchMaterialIdsByCondition(conditionBean);
+		// 取得进行中计划一栏 
+		List<String> ids = null;
+		if (!RvsConsts.DEPART_MANUFACT.equals(department)) {
+			ids = tdao.searchMaterialIdsByCondition(conditionBean);
+		} else {
+			ids = dao.searchMaterialIdsForManufactByCondition(conditionBean);
+		}
 		List<ScheduleForm> retForms = new ArrayList<ScheduleForm>();
 		Map<String, String> delayMap = new HashMap<String, String>();
 
@@ -104,18 +110,20 @@ public class ScheduleProcessService {
 					retForm.setBreak_message("");
 				}
 				// 过期颜色
-				if (retForm.getScheduled_date_end() != null) {
-					if (delayMap.containsKey(retForm.getScheduled_date_end()
-							+ retForm.getAm_pm())) {
-						retForm.setRemain_days(delayMap.get(retForm
-								.getScheduled_date_end() + retForm.getAm_pm()));
-					} else {
-						Map<String, Object> condiMap = new HashMap<String, Object>();
-						condiMap.put("scheduled_date", entity.getScheduled_date_end());
-						condiMap.put("am_pm", entity.getAm_pm());
-						String remain_days = hdao.compareExperial(condiMap);
-						delayMap.put(retForm.getScheduled_date_end() + retForm.getAm_pm(), remain_days);
-						retForm.setRemain_days(remain_days);
+				if (!RvsConsts.DEPART_MANUFACT.equals(department)) {
+					if (retForm.getScheduled_date_end() != null) {
+						if (delayMap.containsKey(retForm.getScheduled_date_end()
+								+ retForm.getAm_pm())) {
+							retForm.setRemain_days(delayMap.get(retForm
+									.getScheduled_date_end() + retForm.getAm_pm()));
+						} else {
+							Map<String, Object> condiMap = new HashMap<String, Object>();
+							condiMap.put("scheduled_date", entity.getScheduled_date_end());
+							condiMap.put("am_pm", entity.getAm_pm());
+							String remain_days = hdao.compareExperial(condiMap);
+							delayMap.put(retForm.getScheduled_date_end() + retForm.getAm_pm(), remain_days);
+							retForm.setRemain_days(remain_days);
+						}
 					}
 				}
 				

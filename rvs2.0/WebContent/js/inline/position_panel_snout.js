@@ -637,8 +637,10 @@ var doStart_ajaxSuccess = function(xhrobj, textStatus){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
-			$("#scanner_inputer").val("");
-			$("#input_model_id").attr("value", "").trigger("change");
+			if ($("#scanner_inputer").length > 0) {
+				$("#scanner_inputer").val("");
+				$("#input_model_id").attr("value", "").trigger("change");
+			}
 			$("#input_snout_no").attr("value", "");
 
 			treatStart(resInfo);
@@ -700,7 +702,9 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				$("#manualdetailarea").hide();
 
 				// 建立等待区一览
-				setWaiting(resInfo.waitings);
+				if (resInfo.waitings) {
+					setWaiting(resInfo.waitings);
+				}
 
 				$("#material_details td:eq(7)").text("");
 				$("#dtl_process_time label").text("");

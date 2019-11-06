@@ -44,10 +44,12 @@ public class OperatorProductionService {
 	 * @param conn
 	 * @return
 	 */
-	public List<OperatorProductionForm> searchByCondition(ActionForm form, SqlSession conn) {
+	public List<OperatorProductionForm> searchByCondition(ActionForm form, Integer department, SqlSession conn) {
 		OperatorProductionEntity conditionBean = new OperatorProductionEntity();
 		BeanUtil.copyToBean(form, conditionBean, null);
-		
+
+		conditionBean.setDepartment(department);
+
 		OperatorProductionMapper dao = conn.getMapper(OperatorProductionMapper.class);
 		List<OperatorProductionEntity> list = null;
 		if (conditionBean.getAction_time_start() != null && conditionBean.getAction_time_start().equals(conditionBean.getAction_time_end())) {

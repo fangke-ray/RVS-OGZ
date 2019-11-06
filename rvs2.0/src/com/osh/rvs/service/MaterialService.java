@@ -56,6 +56,7 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.data.MonthFilesDownloadForm;
+import com.osh.rvs.form.master.ModelForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.data.PostMessageMapper;
@@ -441,40 +442,6 @@ public class MaterialService {
 					// TODO 全
 					if ("material_id".equals(column)) {
 						rets.add(value[0]);
-					}
-				}
-			}
-		}
-		return rets;
-	}
-
-	/***
-	 * 取得提交维修对象ID(复数)
-	 * @param parameterMap
-	 * @return
-	 */
-	public List<MaterialEntity> getModelSerials(Map<String, String[]> parameterMap) {
-		List<MaterialEntity> rets = new AutofillArrayList<MaterialEntity>(MaterialEntity.class);
-		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
-
-		// 整理提交数据
-		for (String parameterKey : parameterMap.keySet()) {
-			Matcher m = p.matcher(parameterKey);
-			if (m.find()) {
-				String entity = m.group(1);
-				if ("materials".equals(entity)) {
-					String column = m.group(2);
-					Integer no = Integer.parseInt(m.group(3), 10);
-
-					String[] value = parameterMap.get(parameterKey);
-
-					// TODO 全
-					if ("material_id".equals(column)) {
-						rets.get(no).setMaterial_id(value[0]);
-					} else if ("serial_no".equals(column)) {
-						rets.get(no).setSerial_no(value[0]);
-					} else if ("model_name".equals(column)) {
-						rets.get(no).setModel_name(value[0]);
 					}
 				}
 			}
@@ -1668,5 +1635,40 @@ public class MaterialService {
 		
 		return cacheName;
 
+	}
+
+
+	public void reaccpect(ActionForm form, String section_id, SqlSessionManager conn) throws Exception {
+
+		MaterialEntity insertBean = new MaterialEntity();
+		BeanUtil.copyToBean(form, insertBean, null);
+
+		ModelService mdlService = new ModelService();
+		ModelForm mdlEntity = mdlService.getDetail(insertBean.getModel_id(), conn);
+		String pat_id = mdlEntity.getDefault_pat_id();
+		if (isEmpty(pat_id)) {
+			return; // TODO errInfo
+		}
+
+		insertBean.setPat_id(pat_id);
+		insertBean.setScheduled_expedited(1);
+
+		String materialId = insertProduct(insertBean, section_id, conn);
+
+		ProcessAssignService pas = new ProcessAssignService();
+		List<String> firstPosition_ids = pas.getFirstPositionIds(pat_id, conn);
+		for (String position_id: firstPosition_ids) {
+			ProductionFeatureEntity featureEntity = new ProductionFeatureEntity ();
+
+			featureEntity.setOperate_result(0);
+			featureEntity.setPace(0);
+			featureEntity.setRework(0);
+			featureEntity.setMaterial_id(materialId);
+			featureEntity.setPosition_id(position_id);
+			featureEntity.setSection_id(section_id);
+
+			ProductionFeatureService pfService = new ProductionFeatureService();
+			pfService.fingerSpecifyPosition(materialId, true, featureEntity, new ArrayList<String>(), conn);
+		}
 	}
 }

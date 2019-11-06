@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -30,6 +32,7 @@ import com.osh.rvs.service.inline.ForSolutionAreaService;
 import com.osh.rvs.service.inline.PositionPanelService;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.DateUtil;
@@ -46,7 +49,7 @@ public class ProductService {
 	 * @return
 	 */
 	public List<MaterialEntity> getSerialNos(int sizeBefore, int sizeAfter, SqlSession conn) {
-		String tMonth = DateUtil.toString(new Date(), "yMM").substring(3, 6);
+		String tMonth = this.getSerialMonthlyPrefix();
 		ProductMapper pMapper = conn.getMapper(ProductMapper.class);
 		String lastProductSerialNo = pMapper.getLastProductSerialNo(tMonth);
 
@@ -101,6 +104,14 @@ public class ProductService {
 		}
 
 		return rets;
+	}
+
+	/**
+	 * 取得月序列号前缀
+	 * @return
+	 */
+	public String getSerialMonthlyPrefix() {
+		return DateUtil.toString(new Date(), "yMM").substring(3, 6);
 	}
 
 	/**
@@ -322,6 +333,12 @@ public class ProductService {
 		return ret;
 	}
 
+	/**
+	 * 取得当前型号可使用的先端头一览
+	 * @param model_id
+	 * @param conn
+	 * @return
+	 */
 	public String getRefers(String model_id, SqlSession conn) {
 		String refer =  "";
 		// 寻找型号可使用的先端头一览
@@ -367,6 +384,80 @@ public class ProductService {
 
 		ProductionFeatureService pfService = new ProductionFeatureService();
 		pfService.fingerSpecifyPosition(materialId, true, featureEntity, new ArrayList<String>(), conn);
+	}
+
+	/***
+	 * 取得提交维修对象ID(复数)
+	 * @param parameterMap
+	 * @return
+	 */
+	public List<MaterialEntity> getModelSerials(Map<String, String[]> parameterMap) {
+		List<MaterialEntity> rets = new AutofillArrayList<MaterialEntity>(MaterialEntity.class);
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String entity = m.group(1);
+				if ("materials".equals(entity)) {
+					String column = m.group(2);
+					Integer no = Integer.parseInt(m.group(3), 10);
+
+					String[] value = parameterMap.get(parameterKey);
+
+					// TODO 全
+					if ("material_id".equals(column)) {
+						rets.get(no).setMaterial_id(value[0]);
+					} else if ("serial_no".equals(column)) {
+						rets.get(no).setSerial_no(value[0]);
+					} else if ("model_name".equals(column)) {
+						rets.get(no).setModel_name(value[0]);
+					}
+				}
+			}
+		}
+		return rets;
+	}
+
+	/**
+	 * 检查序列号是否已登录
+	 * 型号是否一致
+	 * 不一致强制更新
+	 * 
+	 * @param model_id 提交的型号 ID
+	 * @param serial_no 提交的序列号
+	 * @param changeModel 不一致是否强制更新
+	 * @param conn
+	 * @param errors 
+	 * @return
+	 */
+	public String getIdBySerialWithModelCheck(String model_id,
+			String serial_no, boolean changeModel, SqlSessionManager conn, List<MsgInfo> errors) {
+		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
+
+		List<MaterialEntity> list = mMapper.getProductBySerialNo(serial_no);
+
+		if (list.size() == 0) {
+			return null;
+		} else {
+			MaterialEntity entity = list.get(0);
+
+			boolean diffModel = !model_id.equals(entity.getModel_id());
+			if (diffModel) {
+				if (!changeModel) {
+					MsgInfo info = new MsgInfo();
+					info.setErrcode("info.product.serialNotMatchModel");
+					info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.serialNotMatchModel", serial_no));
+					errors.add(info);
+				} else {
+					entity.setModel_id(model_id);
+					mMapper.updateMaterialSerialModel(entity);
+				}
+			}
+
+			return entity.getMaterial_id();
+		}
 	}
 
 }

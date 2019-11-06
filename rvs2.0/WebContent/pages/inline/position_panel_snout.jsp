@@ -306,7 +306,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 				<div class="ui-state-default ui-corner-bottom areaencloser dwidth-full"></div>
 			</div>
-	<%@include file="../../widgets/position_panel/glue_mixing.jsp"%>
 <%
 	} else {
 %>

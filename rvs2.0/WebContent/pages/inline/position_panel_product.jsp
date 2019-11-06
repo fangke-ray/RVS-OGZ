@@ -13,17 +13,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 
-<style>
+<style id="xstates">
 .working_status {
 	background-color:white;
 	padding-left:6px;
 	padding-right:6px;
 	text-align: center;
-}
-.anim_pause {
-	animation-play-state: paused;
-	-webkit-animation-play-state: paused;
-	-moz-animation-play-state: paused;
 }
 
 @keyframes moveseconds {
@@ -31,27 +26,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	100% {top: -160px;} 
 }
 
-@-webkit-keyframes moveseconds {
-	0% {top: 0;}
-	100% {top: -160px;} 
-}
-
-@-moz-keyframes moveseconds {
-	0% {top: 0;}
-	100% {top: -160px;} 
-}
-
 @keyframes movetenseconds {
-	0% {top: 0;}
-	100% {top: -96px;} 
-}
-
-@-webkit-keyframes movetenseconds {
-	0% {top: 0;}
-	100% {top: -96px;} 
-}
-
-@-moz-keyframes movetenseconds {
 	0% {top: 0;}
 	100% {top: -96px;} 
 }
@@ -62,6 +37,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	overflow: hidden;
 	position: relative;
 	float: right;
+	width: 0.6em;
 }
 
 .roll_seconds {
@@ -71,11 +47,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	position: absolute;
 	top: 0;
 	left: 0;
-	-webkit-animation: moveseconds 10s steps(10, end) infinite;
-	-moz-animation: moveseconds 10s steps(10, end) infinite;
+}
+.roll_seconds.anim_act {
 	animation: moveseconds 10s steps(10, end) infinite;
 }
-
 .roll_tenseconds {
 	line-height: 16px;
 	width: 7px;
@@ -83,9 +58,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	position: absolute;
 	top: 0;
 	left: 0;
-	-webkit-animation: movetenseconds 60s steps(6, end) infinite;
-	-moz-animation: movetenseconds 60s steps(6, end) infinite;
+}
+.roll_tenseconds.anim_act {
 	animation: movetenseconds 60s steps(6, end) infinite;
+}
+
+.roll_seconds.anim_pause,
+.roll_tenseconds.anim_pause
+{
+	animation-play-state: paused;
 }
 
 </style>
@@ -101,6 +82,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/common/pcs_editor.js"></script>
+<script type="text/javascript" src="js/inline/position_panel_clock.js"></script>
 <script type="text/javascript" src="js/inline/position_panel_product.js"></script>
 <script type="text/javascript" src="js/common/material_detail_ctrl.js"></script>
 
@@ -288,7 +270,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<tbody>
 				<tr>
 					<td class="ui-state-default td-title">ARM 机型</td>
-					<td class="td-content-text"><select><option value="00000000573">BX3</option></select></td>
+					<td class="td-content-text"><select><option value="00000000583">BX3</option></select></td>
 					<td class="ui-state-default td-title">序列号</td>
 					<td class="td-content-text"><input type="text"></td>
 				</tr>

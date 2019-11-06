@@ -163,6 +163,9 @@ public class ScheduleForm extends ActionForm {
 
 	private String px;
 
+	@BeanField(title = "作业分类", name = "fix_type", type = FieldType.Integer, length = 1)
+	private String fix_type;
+
 	public String getFinish_date() {
 		return finish_date;
 	}
@@ -621,5 +624,11 @@ public class ScheduleForm extends ActionForm {
 	}
 	public void setPx(String px) {
 		this.px = px;
+	}
+	public String getFix_type() {
+		return fix_type;
+	}
+	public void setFix_type(String fix_type) {
+		this.fix_type = fix_type;
 	}
 }

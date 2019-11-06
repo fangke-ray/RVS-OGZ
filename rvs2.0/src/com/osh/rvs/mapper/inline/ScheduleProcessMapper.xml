@@ -418,4 +418,52 @@
 			)
 		]]>
 	</update>
+
+	<select id="searchMaterialIdsForManufactByCondition" parameterType="ScheduleEntity" resultType="java.lang.String">
+		<![CDATA[
+			SELECT a.material_id from material a
+			LEFT JOIN material_process c
+			ON c.material_id = a.material_id AND c.line_id in (select line_id from line where in_advance = 0)
+		]]>
+		<where>
+				a.break_back_flg = 0 
+				AND (a.outline_time IS NULL OR a.outline_time >= current_date) 
+				AND a.ticket_flg = 1
+				AND a.fix_type in (6, 7, 8)
+			<if test="serial_no!=null and serial_no!='' ">
+				 and a.serial_no = #{serial_no}
+			</if>
+			<if test="section_id!=null and section_id!='' ">
+				and a.section_id = #{section_id}
+			</if>
+			<if test="scheduled_expedited!=null">
+				and a.scheduled_expedited = #{scheduled_expedited}
+			</if>
+			<if test="category_id !=null and category_id != ''">
+				and a.model_id in(select model_id from model where category_id = #{category_id})					
+			</if>
+			<if test="position_id!=null and position_id!='' ">
+				<choose>
+					<when test="position_eval == 0">
+						<![CDATA[
+						and not exists(select material_id from production_feature d where d.material_id = a.material_id and d.position_id = #{position_id} and d.operate_result NOT IN (5,8))
+						]]>				
+					</when>
+					<when test="position_eval == 1">
+						<![CDATA[
+						and exists(select material_id from production_feature d where d.material_id = a.material_id and d.position_id = #{position_id} and d.operate_result NOT IN (5,8))
+						and not exists(select material_id from production_feature dpf where dpf.material_id = a.material_id and dpf.position_id = #{position_id} and dpf.operate_result = 2)
+						]]>
+					</when>
+					<when test="position_eval == 2">
+						<![CDATA[
+						and exists(select material_id from production_feature d where d.material_id = a.material_id and d.position_id = #{position_id} and d.operate_result NOT IN (5,8))
+						]]>
+					</when>
+				</choose>				
+			</if>
+		</where>
+		group by material_id
+		order by a.serial_no;
+	</select>
 </mapper>

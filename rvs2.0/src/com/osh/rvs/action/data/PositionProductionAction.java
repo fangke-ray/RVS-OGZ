@@ -80,10 +80,13 @@ public class PositionProductionAction extends BaseAction {
 
 		List<PositionProductionForm> lResultForm = new ArrayList<PositionProductionForm>();
 		HttpSession session = req.getSession();
+
 		if (isOperator(session)) { //当前用户是操作人员
 			lResultForm = searchByOperator(session, conn);
 		} else {
-			lResultForm = searchByCondition(form, conn);
+			LoginData loginData = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+			lResultForm = searchByCondition(form, loginData.getDepartment(), conn);
 		}
 			// 查询结果放入Ajax响应对象
 		listResponse.put("list", lResultForm);
@@ -167,11 +170,11 @@ public class PositionProductionAction extends BaseAction {
 		cal.set(Calendar.MILLISECOND, 0);
 		form.setAction_time_start(DateUtil.toString(cal.getTime(), DateUtil.DATE_PATTERN));
 		
-		List<PositionProductionForm> lResultForm = positionProductionService.searchByCondition(form, conn);
+		List<PositionProductionForm> lResultForm = positionProductionService.searchByCondition(form, loginData.getDepartment(), conn);
 		return lResultForm;
 	}
-	
-	private List<PositionProductionForm> searchByCondition(ActionForm form, SqlSession conn) {
+
+	private List<PositionProductionForm> searchByCondition(ActionForm form, Integer department, SqlSession conn) {
 		// 检索条件表单合法性检查
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		
@@ -179,7 +182,7 @@ public class PositionProductionAction extends BaseAction {
 		
 		List<PositionProductionForm> lResultForm = new ArrayList<PositionProductionForm>();
 		if (errors.size() == 0) {
-			lResultForm = positionProductionService.searchByCondition(form, conn);
+			lResultForm = positionProductionService.searchByCondition(form, department, conn);
 		}
 		
 		return lResultForm;

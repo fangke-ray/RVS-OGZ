@@ -70,8 +70,13 @@ $(function() {
 		resetSearch();
 		$("#position_eval").val("通过");
 		position_eval_data = 2;
-		$("#search_position_id").val("00000000046");
-		$("#inp_position_id").val("出检");
+		if ($("#pReferChooser .referId:contains('00000000046')")) {
+			$("#search_position_id").val("00000000046");
+			$("#inp_position_id").val("出检");
+		} else {
+			$("#search_position_id").val("00000000108");
+			$("#inp_position_id").val("QA");
+		}
 		findit();
 	});
 
@@ -94,7 +99,7 @@ $(function() {
 		process_resign();
 	}); // v1 close
 	$("#pausebutton").click(break_plan);
-	
+
 	$("#plandecbutton, #planallbutton, #plannsbutton, #plancombutton").click(function(){
 		var lineId = $(this).val();
 		$("#select_line").val(lineId)
@@ -167,7 +172,14 @@ $(function() {
 		
 	$("#reportbutton").click(exportReport);
 	$("#todayreportbutton").click(exportSchedule);
-	
+	$("#forbutton").click(moveOutOfLine);
+	if (typeof(chooseAndPrintTickets) == "function") {
+		$("#ticketbutton").click(chooseAndPrintTickets);
+	}
+	if (typeof(setReaccpect) == "function") {
+		$("#reacceptbutton").click(setReaccpect);
+	}
+
 	initGrid();
 	
 	findboth();
@@ -275,7 +287,8 @@ function exportSchedule() {
 	});
 }
 
-function initGrid(){
+function initGrid() {
+	var forManufactor = ($("#listarea .areatitle").html() === "制品一览");
 	$("#list").jqGrid({
 			data: [], 
 			height: 231, 
@@ -283,16 +296,17 @@ function initGrid(){
 			rowheight: 23, 
 			datatype: "local", 
 			colNames: ['维修对象ID','修理单号','机种', '型号 ID', '型号', '机身号', '等级', '直送', '客户<br>同意','RC','投线日期','入库<br>预定日',
-			'零件<br>到货', '零件<br>BO', '零件缺品详细', '维修课','进展<br>工位','拆镜<br>时间','零件订<br>购安排','分解产<br>出安排','分解实<br>际产出','NS进<br>展工位','NS产<br>出安排','NS实<br>际产出','纳期','总组出<br>货安排','AM/PM','加急','工程内发现/不良','break_message_level','remain_days','备注'],
+			'零件<br>到货', '零件<br>BO', '零件缺品详细', '维修课','进展<br>工位','拆镜<br>时间','零件订<br>购安排','分解产<br>出安排','分解实<br>际产出'
+			,'NS进<br>展工位','NS产<br>出安排','NS实<br>际产出','纳期','总组出<br>货安排','AM/PM','加急','工程内发现/不良','break_message_level','remain_days','备注','fix_type'],
 			colModel: [
-				{name:'material_id', index:'material_id',hidden:true},
-				{name:'sorc_no',index:'sorc_no', width:105, key: true},
+				{name:'material_id', index:'material_id', key: true,hidden:true},
+				{name:'sorc_no',index:'sorc_no', width:105, hidden:forManufactor},
 				{name:'category_name',index:'category_name', width:50},	
 				{name:'model_id',index:'model_id', hidden:true},				
 				{name:'model_name',index:'model_name', width:125},
 				{name:'serial_no',index:'serial_no', width:50},
-				{name:'levelName',index:'levelName', width:35, align:'center'},
-				{name:'direct_flg',index:'direct_flg', align:'center', width:30, formatter:'select', editoptions:{value:"1:直送;0:"}},
+				{name:'levelName',index:'levelName', width:35, align:'center', hidden:forManufactor},
+				{name:'direct_flg',index:'direct_flg', align:'center', width:30, formatter:'select', editoptions:{value:"1:直送;0:"}, hidden:forManufactor},
 				{name:'agreed_date',index:'agreed_date', width:50, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 				{name:'ocmName',index:'ocmName', width:65, hidden:true},
 				{name:'inline_time',index:'inline_time', width:50, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
@@ -308,14 +322,14 @@ function initGrid(){
 					}
 					
 					return "";
-				}},
+				}, hidden:forManufactor},
 				{name:'arrival_date',index:'arrival_date', width:50, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 				{name:'bo_flg',index:'bo_flg', width:50, align:'center',formatter:function(a,b,row){
 					if (a && a==="1") {
 						return "BO"
 					}
 					return "";
-				}},
+				}, hidden:forManufactor},
 				{name:'bo_contents',index:'bo_contents', width:150, hidden:true, formatter:function(a,b,row){
 					var content = null;
 					try {
@@ -340,8 +354,8 @@ function initGrid(){
 
 					return "";
 				}},
-				{name:'section_name',index:'section_name', width:35, hidden:true},
-				{name:'processing_position',index:'processing_position', width:35, align:'center', hidden:true},
+				{name:'section_name',index:'section_name', width:35, hidden:!forManufactor},
+				{name:'processing_position',index:'processing_position', width:35, align:'center', hidden:!forManufactor},
 				{name:'dismantle_time',index:'dismantle_time', width:35, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 				{name:'order_date',index:'order_date', width:35, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 				{name:'dec_plan_date',index:'dec_plan_date', width:35, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
@@ -388,7 +402,8 @@ function initGrid(){
 				{name:'break_message',index:'break_message', width:80, hidden:true},
 				{name:'break_message_level',index:'break_message_level', width:80, hidden:true},
 				{name:'remain_days',index:'remain_days', width:80, hidden:true},
-				{name:'scheduled_manager_comment',index:'scheduled_manager_comment', width:80, hidden:true}
+				{name:'scheduled_manager_comment',index:'scheduled_manager_comment', width:80, hidden:true},
+				{name:'fix_type',index:'fix_type', width:80, hidden:true}
 			],
 			rowNum: 50, 
 			toppager: false, 
@@ -397,6 +412,7 @@ function initGrid(){
 			caption: "", 
 			rownumbers : true,
 			ondblClickRow: function(rid, iRow, iCol, e) {
+				if (forManufactor) return;
 				var data = $("#list").getRowData(rid);
 				var material_id = data["material_id"];
 				edit_schedule_popMaterialDetail(material_id, true);
@@ -607,9 +623,12 @@ var break_plan = function() {
 /** 根据条件使按钮有效/无效化 */
 var enablebuttons = function() {
 	var rowids = $("#list").jqGrid("getGridParam", "selarrrow");
+	if (rowids == undefined) return;
+
 	if (rowids.length === 0) {
 		$("#resignbutton").disable();
 		$("#pausebutton").disable();
+		$("#forbutton").disable();
 		$("#decplannedbutton").disable();
 		$("#nsplannedbutton").disable();
 		$("#complannedbutton").disable();
@@ -619,6 +638,7 @@ var enablebuttons = function() {
 	} else if (rowids.length === 1) {
 		$("#resignbutton").enable();
 		$("#pausebutton").enable();
+		$("#forbutton").enable();
 		$("#decplannedbutton").enable();
 		$("#nsplannedbutton").enable();
 		$("#complannedbutton").enable();
@@ -637,6 +657,7 @@ var enablebuttons = function() {
 	} else {
 		$("#resignbutton").disable();
 		$("#pausebutton").disable();
+		$("#forbutton").disable();
 		$("#decplannedbutton").enable();
 		$("#nsplannedbutton").enable();
 		$("#complannedbutton").enable();
@@ -695,6 +716,7 @@ var showremain = function(){
 /** 根据条件使按钮有效/无效化 */
 var enablebuttons2 = function() {
 	var rowids = $("#planned_list").jqGrid("getGridParam", "selarrrow");
+	if (rowids === undefined) return;
 	if (rowids.length === 0) {
 		$("#removefromplanbutton").disable();
 	} else {
@@ -1012,3 +1034,269 @@ var deleteSchedule = function(rid) {
 		}
 	});
 };
+
+var moveOutOfLine = function() {
+	var $confirm = $("#confirmmessage");
+	$confirm.html("<form><textarea name='comment' id='move_reason' title='移出理由' style='width: 260px;height: 112px;resize:none;'></textarea></form>");
+	$confirm.children("form").validate({
+		rules : {
+			comment : {
+				required : true
+			}
+		}
+	});
+
+	$confirm.dialog({
+		resizable: false,
+		modal: true,
+		title: "输入移出流水线理由",
+		buttons: {
+			"确认": function() {
+				if ($confirm.children("form").valid()) {
+
+					var selectedIds  = $("#list").jqGrid("getGridParam","selarrrow"); 
+					// 读取排入行
+					var rowData = null;
+					if (selectedIds.length == 1) {
+						rowData = $("#list").getRowData(selectedIds[0]);
+					} else {
+						return;
+					}
+
+					var postData = {move_reason : $("#move_reason").val(),
+					material_id : rowData.material_id,
+					processing_position : rowData.processing_position
+					}
+
+					// Ajax提交
+					$.ajax({
+						beforeSend: ajaxRequestType, 
+						async: true, 
+						url: 'schedule.do?method=doupdateToPause', 
+						cache: false, 
+						data: postData, 
+						type: "post", 
+						dataType: "json", 
+						success: ajaxSuccessCheck, 
+						error: ajaxError, 
+						complete: function(xhrobj){
+							var resInfo = null;
+
+							// 以Object形式读取JSON
+							eval('resInfo =' + xhrobj.responseText);
+
+							if (resInfo.errors.length > 0) {
+								// 共通出错信息框
+								treatBackMessages($confirm, resInfo.errors);
+							} else {
+								// 读取一览
+								var listdata = resInfo.material_list;
+								treatInline(listdata);
+							}
+						}
+					});
+					$confirm.dialog("close");
+				}
+			},
+			"取消": function() {
+				$confirm.dialog("close");
+			}
+		}
+	})
+};
+
+var chooseAndPrintTickets = function(resInfo){
+	// Ajax提交
+	$.ajax({
+		beforeSend: ajaxRequestType, 
+		async: true, 
+		url: 'material.do?method=getForProductSerial', 
+		cache: false, 
+		data: null, 
+		type: "post", 
+		dataType: "json", 
+		success: ajaxSuccessCheck, 
+		error: ajaxError, 
+		complete: function(xhrObj){
+
+			// 以Object形式读取JSON
+			var resInfo = $.parseJSON(xhrObj.responseText);
+
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				chooseAndPrintTicketsCb(resInfo);
+			}
+		}
+	});
+}
+
+var chooseAndPrintTicketsCb = function(resInfo){
+	var $confirm = $("#confirmmessage");
+
+	$confirm.html("<form><table><tr><td colspan=2 class='td-content'><select name='model_id' id='ticket_model'>" +
+			resInfo.modelOptions +
+			"</select></td></tr>" +
+			"<tr><td class='ui-state-default td-title'>起始编号</td><td class='td-content'><input type='text' id='ticket_from' prefix='" + (resInfo.serial_no || "") +"' value='" + (resInfo.serial_no || "") +
+			"'></td></tr><tr><td class='ui-state-default td-title'>连续数量</td><td class='td-content'><input type='number' id='ticket_count' value='1'></td></tr></form>");
+	$confirm.find("select").select2Buttons();
+	$confirm.dialog({
+		resizable: false,
+		modal: true,
+		title: "指定连续打印小票",
+		open: function( event, ui ) {
+			var textI = $confirm.find("#ticket_from")[0];
+			textI.focus();
+			textI.selectionStart = textI.selectionEnd = textI.value.length;
+		},
+		buttons: {
+			"确认": function() {
+				var model_id = $("#ticket_model").val();
+				var model_name = $("#ticket_model").children("option:selected").text();
+				var serial_no = $("#ticket_from").val();
+				var count = parseInt($("#ticket_count").val());
+				$("#ticket_count").val(count);
+				console.log(model_id + " " + serial_no + " " + count);
+
+				if (!model_id || !serial_no || !count) {
+					errorPop("请填写全部信息后提交。");
+					return;
+				}
+				if (serial_no.length != 7) {
+					errorPop("请输入7位的序列号。");
+					return;
+				}
+				if (isNaN(count)) {
+					errorPop("请为连续打印序列数量输入一个数值。");
+					return;
+				}
+				if (count < 0 || count > 100) {
+					errorPop("请为连续打印序列数量输入一个合理的数值。");
+					return;
+				}
+
+				var postData = {};
+				var eSerialNo = parseInt(serial_no, 10);
+				var prefix = $("#ticket_from").attr("prefix");
+				for (var iv = 0; iv < count; iv++) {
+					postData["materials.serial_no[" + iv + "]"] = eSerialNo;
+					postData["materials.model_name[" + iv + "]"] = model_name;
+					eSerialNo++;
+					if (("" + eSerialNo).substring(0, 3) != prefix) {
+						errorPop("本月已经提供不了更多的序列号。");
+						return;
+					}
+				}
+				postData["addition"] = "addition";
+				doPrintProductTickets(postData);
+				$confirm.dialog("close");
+			},
+			"取消": function() {
+				$confirm.dialog("close");
+			}
+		}
+	});
+}
+
+var setReaccpect = function(){
+	// Ajax提交
+	$.ajax({
+		beforeSend: ajaxRequestType, 
+		async: true, 
+		url: 'material.do?method=getForProductSerial', 
+		cache: false, 
+		data: null, 
+		type: "post", 
+		dataType: "json", 
+		success: ajaxSuccessCheck, 
+		error: ajaxError, 
+		complete: function(xhrObj){
+
+			// 以Object形式读取JSON
+			var resInfo = $.parseJSON(xhrObj.responseText);
+
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				setReaccpectInput(resInfo);
+			}
+		}
+	});
+}
+
+
+var setReaccpectInput = function(resInfo) {
+	
+	var $confirm = $("#confirmmessage");
+
+	$confirm.html("<form><table><tr><td colspan=2 class='td-content'><select name='fix_type' id='insert_fix_type'>" +
+			resInfo.fixTypeOptions +
+			"</select></td></tr><tr><td colspan=2 class='td-content'><select name='model_id' id='insert_model_id'>" +
+			resInfo.modelOptions +
+			"</select></td></tr>" +
+			"<tr><td class='ui-state-default td-title'>输入修理机序列号</td><td class='td-content'><input type='text' id='insert_serial_no'></td></tr></form>");
+	$confirm.find("#insert_fix_type").val("8");
+	$confirm.find("select").select2Buttons();
+	$confirm.dialog({
+		resizable: false,
+		modal: true,
+		title: "输入中途加入修理机信息",
+		buttons: {
+			"确认": function() {
+				var model_id = $("#insert_model_id").val();
+				var fix_type = $("#insert_fix_type").val();
+				var serial_no = $("#insert_serial_no").val();
+
+				if (!model_id || !serial_no || !fix_type) {
+					errorPop("请填写全部信息后提交。");
+					return;
+				}
+				if (serial_no.length != 7) {
+					errorPop("请输入7位的序列号。");
+					return;
+				}
+
+				var postData = {};
+
+				postData["model_id"] = model_id;
+				postData["fix_type"] = fix_type;
+				postData["serial_no"] = serial_no;
+
+				doReaccpect(postData);
+				$confirm.dialog("close");
+			},
+			"取消": function() {
+				$confirm.dialog("close");
+			}
+		}
+	});
+}
+
+var doReaccpect = function(postData) {
+	// Ajax提交
+	$.ajax({
+		beforeSend: ajaxRequestType, 
+		async: true, 
+		url: 'material.do?method=doReaccpect', 
+		cache: false, 
+		data: postData, 
+		type: "post", 
+		dataType: "json", 
+		success: ajaxSuccessCheck, 
+		error: ajaxError, 
+		complete: function(xhrObj){
+
+			// 以Object形式读取JSON
+			var resInfo = $.parseJSON(xhrObj.responseText);
+
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				infoPop("受理加入完成。");
+			}
+		}
+	});
+}

@@ -157,9 +157,15 @@ public class SoloSnoutService {
 		return ret;
 	}
 
-	public SnoutForm getDetail(String serial_no, SqlSession conn) {
+	public SnoutForm getDetail(String serial_no, String from_position_id, SqlSession conn) {
 		SnoutForm ret = new SnoutForm();
-		SnoutEntity entity = getDetailBean(serial_no, conn);
+
+		SnoutEntity entity = null;
+		if ("24".equals(from_position_id) || "00000000024".equals(from_position_id)) {
+			entity = getSnoutDetailBean(serial_no, conn);
+		} else {
+			entity = getDetailBean(serial_no, from_position_id, conn);
+		}
 
 		if (entity != null) {
 			BeanUtil.copyToForm(entity, ret, CopyOptions.COPYOPTIONS_NOEMPTY);
@@ -167,7 +173,7 @@ public class SoloSnoutService {
 		return ret;
 	}
 
-	private SnoutEntity getDetailBean(String serial_no, SqlSession conn) {
+	private SnoutEntity getSnoutDetailBean(String serial_no, SqlSession conn) {
 		SnoutEntity condition = new SnoutEntity();
 		condition.setSerial_no(serial_no);
 
@@ -179,6 +185,25 @@ public class SoloSnoutService {
 		} else {
 			return null;
 		}
+	}
+
+	private SnoutEntity getDetailBean(String serial_no, String position_id, SqlSession conn) {
+		SoloProductionFeatureEntity condition = new SoloProductionFeatureEntity();
+		condition.setSerial_no(serial_no);
+		condition.setPosition_id(position_id);
+		condition.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
+
+		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+		List<SoloProductionFeatureEntity> list = dao.searchSoloProductionFeature(condition);
+		if (list != null && list.size() > 0) {
+			SnoutEntity ret = new SnoutEntity();
+			ret.setStatus(list.get(0).getUsed());
+
+			return ret;
+		} else {
+			return null;
+		}
+		
 	}
 
 	public String getSnoutPcs(String serial_no, String model_name, SqlSession conn) {
@@ -217,7 +242,7 @@ public class SoloSnoutService {
 			return null;
 		}
 
-		SnoutEntity entity = getDetailBean(serial_no, conn);
+		SnoutEntity entity = getSnoutDetailBean(serial_no, conn);
 		if (entity == null) {
 			MsgInfo msgInfo = new MsgInfo();
 			msgInfo.setErrcode("dbaccess.recordNotExist");
@@ -547,5 +572,24 @@ public class SoloSnoutService {
 
 		BeanUtil.copyToFormList(result, ret, CopyOptions.COPYOPTIONS_NOEMPTY, SnoutForm.class);
 		return ret;
+	}
+
+	/**
+	 * 取得维修对象工作工时信息
+	 */
+	public void getProccessingDataSolo(Map<String, Object> cbResponse, SoloProductionFeatureEntity pf,
+			LoginData user, SqlSession conn) throws Exception {
+
+		// 取到等待作业记录的本次返工总时间
+		SoloSnoutService sservice = new SoloSnoutService();
+		Integer spentSecs = sservice.getTotalTime(pf, conn);
+		Integer spentMins = spentSecs / 60;
+		cbResponse.put("spent_secs", spentSecs);
+		cbResponse.put("spent_mins", spentMins);
+
+		// 取得维修对象的作业标准时间。
+		String leagal_overline = RvsUtils.getZeroOverLine(pf.getModel_name(), null, user, null);
+
+		cbResponse.put("leagal_overline", leagal_overline);
 	}
 }

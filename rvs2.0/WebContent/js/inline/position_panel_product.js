@@ -5,16 +5,6 @@ var listdata = {};
 var servicePath = "position_panel_man.do";
 var hasPcs = (typeof pcsO === "object");
 
-// 已启动作业时间
-var p_time = 0;
-// 定时处理对象
-var oInterval, ttInterval;
-// 定时处理间隔（1分钟）
-var iInterval = 60000;
-// 取到的标准作业时间
-var leagal_overline;
-var t_operator_cost = 0;
-var t_run_cost = 0;
 var pauseOptions = "";
 var stepOptions = "";
 var breakOptions = "";
@@ -412,15 +402,7 @@ var treatUsesnout = function(xhrobj) {
 			$("#input_snout").val("").prev().val("");
 
 			if (resInfo.leagal_overline) {
-				leagal_overline = (resInfo.leagal_overline || 120);
-				$("#material_details td:eq(9)").text(minuteFormat(leagal_overline) + (leagal_overline ? ":00" : ""));
-			
-				var nspent_mins = convertMinute($("#dtl_process_time label").text());
-				var frate = parseInt(nspent_mins / leagal_overline * 100);
-				if (frate > 99) {
-					frate = 99;
-				}
-				$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+				posClockObj.setLeagalAndSpent(resInfo.leagal_overline);
 			}
 		} else {
 			$("#usesnoutarea").hide();
@@ -466,24 +448,9 @@ var treatPause = function(resInfo) {
 		$("#material_details td:eq(5)").text(resInfo.mform.serial_no);
 		$("#pauseo_material_id").val(resInfo.mform.material_id);
 
-		if (resInfo.action_time) {
-			$("#material_details td:eq(7)").text(resInfo.action_time);
-		} else {
-			var thistime=new Date();
-			var hours=thistime.getHours();
-			var minutes=thistime.getMinutes();
-	
-			$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
-		}
-		$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) +  + (leagal_overline ? ":00" : ""));
-		leagal_overline = resInfo.leagal_overline;
-	
-		$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
-		var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
-		if (frate > 99) {
-			frate = 99;
-		}
-		$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
+		posClockObj.setAction(resInfo.action_time);
+
+		posClockObj.setLeagalAndSpent(resInfo.leagal_overline, resInfo.spent_mins, resInfo.spent_secs);
 	
 		if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
 			showPeripheral(resInfo);
@@ -503,7 +470,7 @@ var treatPause = function(resInfo) {
 		if ($("#usesnoutarea").length > 0) getUsesnout(resInfo.mform.material_id);
 	}
 
-	clearInterval(oInterval);
+	posClockObj.pauseClock();
 }
 
 var treatStart = function(resInfo) {
@@ -522,29 +489,13 @@ var treatStart = function(resInfo) {
 	$("#material_details td:eq(5)").text(resInfo.mform.serial_no);
 	$("#pauseo_material_id").val(resInfo.mform.material_id);
 
-	if (resInfo.action_time) {
-		$("#material_details td:eq(7)").text(resInfo.action_time);
-	} else {
-		var thistime=new Date();
-		var hours=thistime.getHours();
-		var minutes=thistime.getMinutes();
+	posClockObj.setAction(resInfo.action_time);
 
-		$("#material_details td:eq(7)").text(fillZero(hours, 2) + ":" + fillZero(minutes, 2));
-	}
-	$("#material_details td:eq(9)").text(minuteFormat(resInfo.leagal_overline) + (leagal_overline ? ":00" : ""));
-	leagal_overline = resInfo.leagal_overline;
+	posClockObj.setLeagalAndSpent(resInfo.leagal_overline, resInfo.spent_mins, resInfo.spent_secs);
 
-	$("#dtl_process_time label").text(minuteFormat(resInfo.spent_mins));
-	var frate = parseInt((resInfo.spent_mins) / leagal_overline * 100);
-	if (frate > 99) {
-		frate = 99;
-	}
-	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
-	p_time = resInfo.spent_mins - 1;
+	posClockObj.startClock(resInfo.spent_mins, resInfo.spent_secs);
 
-	var p_operator_cost = $("#p_operator_cost").text();
-
-	t_operator_cost = convertMinute(p_operator_cost);// + resInfo.spent_mins;
+	posClockObj.recountTopClock();
 		
 	$("#continuebutton").hide();
 	$("#breakbutton").enable();
@@ -553,8 +504,6 @@ var treatStart = function(resInfo) {
 	$("#finishbutton").enable();
 	$("#unusesnoutbutton").enable();
 
-	ctime();
-	oInterval = setInterval(ctime,iInterval);
 	$("#w_" + resInfo.mform.material_id).hide("drop", {direction: 'right'}, function() {
 		var jthis = $(this);
 		var jGroup = jthis.prevAll(".w_group");
@@ -681,22 +630,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 				showWaitings(resInfo.waitings, resInfo.waitingsOtherPx);
 			}
 
-			// 计算当前用时
-			var p_operator_cost = $("#p_operator_cost").text();
-			if (p_operator_cost.indexOf(':') < 0) {
-				t_operator_cost = p_operator_cost;
-				$("#p_operator_cost").text(minuteFormat(t_operator_cost));
-			}
-
-			// 计算总用时
-			var p_run_cost = $("#p_run_cost").text();
-			if (p_run_cost.indexOf(':') < 0) {
-				if (p_run_cost != "0" && p_run_cost != "") {
-					t_run_cost = p_run_cost;
-					$("#p_run_cost").text(minuteFormat(t_run_cost));
-					ttInterval = setInterval(ttime, iInterval);
-				}
-			}
+			posClockObj.initTopClock();
 
 			if (resInfo.infectString) {
 				$("#toInfect").show()
@@ -863,6 +797,8 @@ $(function() {
 	$("#position_status").text("准备中")
 		.css({"background-color": "#0080FF","color": "white"});
 
+	posClockObj.init($("#material_details td:eq(7)"), $("#material_details td:eq(9)"), $("#dtl_process_time"), $("#p_rate"));
+
 	hasPcs && pcsO.init($("#manualdetailarea"), false);
 
 	doInit();
@@ -1006,11 +942,8 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 
 				if (resInfo.past_fingers) $("#flowtext").text(resInfo.past_fingers);
 
-				$("#material_details td:eq(7)").text("");
-				$("#dtl_process_time label").text("");
-				$("#p_rate").html("");
-				p_time = 0;
-				clearInterval(oInterval);
+				posClockObj.stopClock();
+
 				$("#pauseo_edit").hide();
 				$("#pauseo_show").show();
 				$("#pauseo_show_sorc_no").text("-");
@@ -1073,54 +1006,6 @@ var doFinish=function(){
 		});
 	}
 };
-
-// 进行中效果
-var ctime=function(){
-	p_time++;
-	$("#dtl_process_time label").text(minuteFormat(p_time));
-
-	var rate = parseInt((p_time + 1) / leagal_overline * 100);
-	//var nextrate = 
-	if (rate == 99) return;
-	if (rate >= 100) rate = 99;
-	var liquid = $("#p_rate div");
-	liquid.animate({width : rate + "%"}, iInterval, "linear");
-	if (rate > 80) {
-		liquid.removeClass("tube-green");
-		if (rate > 95) {
-			liquid.removeClass("tube-yellow");
-			liquid.addClass("tube-orange");
-		} else {
-			liquid.addClass("tube-yellow");
-		}
-	} else {
-		liquid.addClass("tube-green");
-	}
-
-	$("#p_operator_cost").text(minuteFormat(t_operator_cost));
-	t_operator_cost++;
-};
-
-// 进行中效果
-var ttime=function(){
-	$("#p_run_cost").text(minuteFormat(t_run_cost));
-	t_run_cost++;
-};
-
-var minuteFormat =function(iminute) {
-	if (!iminute && iminute != 0) return "-";
-	var hours = parseInt(iminute / 60);
-	var minutes = iminute % 60;
-
-	return fillZero(hours, 2) + ":" + fillZero(minutes, 2);
-}
-
-var convertMinute =function(sminute) {
-	var hours = sminute.replace(/(.*):(.*)/, "$1");
-	var minutes = sminute.replace(/(.*):(.*)/, "$2");
-
-	return hours * 60 + parseInt(minutes);
-}
 
 var showWaitings = function(waitings, waitingsOtherPx){
 	var reason = "";

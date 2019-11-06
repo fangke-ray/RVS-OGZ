@@ -16,10 +16,12 @@ public class PositionProductionService {
 	
 //	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-	public List<PositionProductionForm> searchByCondition(ActionForm form, SqlSession conn) {
+	public List<PositionProductionForm> searchByCondition(ActionForm form, Integer department, SqlSession conn) {
 		PositionProductionEntity conditionBean = new PositionProductionEntity();
 		BeanUtil.copyToBean(form, conditionBean, null);
-		
+
+		conditionBean.setDepartment(department);
+
 		PositionProductionMapper dao = conn.getMapper(PositionProductionMapper.class);
 		List<PositionProductionEntity> list = dao.getProductionFeatureByPosition(conditionBean);
 		

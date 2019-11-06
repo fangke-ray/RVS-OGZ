@@ -30,6 +30,12 @@
 		<value code="2">非流水线</value>
 	</codelist>
 	
+	<codelist name="material_fix_type_manufact">
+		<value code="6">本体制造</value>
+		<value code="7">ARM制造</value>
+		<value code="8">修理机修理</value>
+	</codelist>
+
 	<codelist name="material_service_repair">
 		<value code="1">保内返修</value>
 		<value code="2">QIS</value>

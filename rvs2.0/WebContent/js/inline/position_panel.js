@@ -562,13 +562,14 @@ var treatStart = function(resInfo) {
 
 	var p_operator_cost = $("#p_operator_cost").text();
 
-	$("#working_detail").show();
 //	if (p_operator_cost.indexOf(':') < 0) {
 //		t_operator_cost = p_operator_cost;
 //	} else {
 		t_operator_cost = convertMinute(p_operator_cost);// + resInfo.spent_mins;
 //	}
 		
+	$("#working_detail").show();
+
 	if ($('#partialconfirmarea:visible').length > 0) { // 
 		partial_closer = false;
 		$('#partialconfirmarea').dialog("close");

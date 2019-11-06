@@ -71,6 +71,13 @@ public class StandardWorkTimeService {
 					}
 				}
 			}
+		} else if ("0".equals(level)) {
+			if (lines.size() > 3) { // TODO
+				PositionEntity element = new PositionEntity();
+				element.setProcess_code("001");
+				element.setName("部组"); // TODO
+				lines.add(0, element);
+			}
 		} else {
 			// 先端预制对象
 			if (RvsUtils.getSnoutModels(conn).containsKey(model_id)) {

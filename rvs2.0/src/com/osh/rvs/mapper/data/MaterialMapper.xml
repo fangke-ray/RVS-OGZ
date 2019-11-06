@@ -1081,4 +1081,17 @@
 		]]>
 	</update>
 
+	<select id="getProductBySerialNo" resultType="MaterialEntity">
+		select material_id, model_id, serial_no, inline_time
+		from material where break_back_flg = 0 and outline_time is null and serial_no = #{serial_no}
+		and fix_type in (6, 7, 8);
+	</select>
+
+	<update id="updateMaterialSerialModel" parameterType="MaterialEntity">
+		UPDATE Material SET
+			model_id = #{model_id},
+			serial_no = #{serial_no}
+		where material_id = #{material_id}
+	</update>
+
 </mapper>

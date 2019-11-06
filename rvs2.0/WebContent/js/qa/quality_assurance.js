@@ -199,7 +199,7 @@ var colModelProductF = [
 					align : 'center',
 					formatter : function(value, options, rData){
 						return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
-	   				}
+					}
 				}
 			]
 
@@ -483,6 +483,7 @@ $(function() {
 		$("#show_sorc_no").closest("tr").hide()
 			.nextAll().hide();
 	}
+	isL = $("#passbutton").length > 0;
 
 	// 画面项目效果
 	$("input.ui-button").button();

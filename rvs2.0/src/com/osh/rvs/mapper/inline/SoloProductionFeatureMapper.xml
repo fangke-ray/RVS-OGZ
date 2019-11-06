@@ -334,6 +334,7 @@
 		ON o.operator_id = spf.operator_id
 		WHERE o.DELETE_FLG = 0
 		AND o.OPERATOR_ID <> 1
+		AND spf.position_id = 24
 		GROUP BY OPERATOR_ID
 		;
 		]]>
@@ -371,7 +372,7 @@ FROM
     operator opt1 ON spf.operator_id = opt1.operator_id
 		]]>
 		<where>
-			spf.position_id = 25
+			spf.position_id = 24
 			<if test="model_id!= null and model_id!= ''">
 				and spf.model_id = #{model_id}
 			</if>

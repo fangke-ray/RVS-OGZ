@@ -51,12 +51,12 @@ public class CategoryService {
 		// 制造品
 		Map<String, String> codeMapManu = new TreeMap<String, String>();
 		for (CategoryEntity bean : l) {
-			if (bean.getKind() != 7) {
-				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
+			if (bean.getKind() == 7) {
+				codeMapPeripheral.put(bean.getCategory_id(), bean.getName());
 			} else if (bean.getKind() == 11) {
 				codeMapManu.put(bean.getCategory_id(), bean.getName());
 			} else {
-				codeMapPeripheral.put(bean.getCategory_id(), bean.getName());
+				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
 			}
 		}
 		return "<optgroup label=\"\"><option value=\"\"></option></optgroup>" 
@@ -125,7 +125,7 @@ public class CategoryService {
 				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
 			} 
 		}
-		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false);
+		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, "", false);
 	}
 
 	/**

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.manage.DailyProductPlanMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+	
+	<select id="searchOutSchedule" resultType="ScheduleEntity">
+		<![CDATA[
+			SELECT `plan_date`,
+				`model_id`,
+				`seq`,
+				`quantity`
+			FROM `daily_product_plan`
+		]]>
+		<where> 
+			<if test="plan_date!= null">
+				AND plan_date = #{plan_date}
+			</if>
+			<if test="plan_date_start!= null">
+				AND plan_date_start >= #{plan_date_start}
+			</if>
+			<if test="plan_date_end!= null">
+		<![CDATA[
+				AND plan_date_end <= #{plan_date_end}
+		]]>
+			</if>
+		</where> 
+		<![CDATA[
+			;
+		]]>
+		
+	</select>
+	
+	<insert id="insertPlan" parameterType="DailyProductPlanEntity">
+		<![CDATA[
+			INSERT INTO `daily_product_plan`
+				(`plan_date`,
+				`model_id`,
+				`seq`,
+				`quantity`)
+			VALUES
+				#{plan_date},
+				#{model_id},
+				#{seq},
+				#{quantity});
+		]]>
+	</insert>
+
+	<delete id="deleteSchedule" parameterType="ScheduleEntity">
+		<![CDATA[
+			DELETE FROM
+				daily_product_plan
+			WHERE
+				plan_date = #{plan_date};
+		]]>
+	</delete>
+
+</mapper>

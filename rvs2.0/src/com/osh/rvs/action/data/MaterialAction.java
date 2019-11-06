@@ -28,8 +28,10 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -1103,9 +1105,15 @@ public class MaterialAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
+		// 补打
+		String addition = req.getParameter("addition"); 
+
 		// 取得所选维修对象信息
 		MaterialService mService = new MaterialService();
-		List<MaterialEntity> mBeans = mService.getModelSerials(req.getParameterMap());
+		ProductService pService = new ProductService();
+		List<MaterialEntity> mBeans = pService.getModelSerials(req.getParameterMap());
+
+		String model_id = null;
 
 		if (mBeans.size() > 0) {
 			List<String> ids = new ArrayList<String>();
@@ -1114,8 +1122,17 @@ public class MaterialAction extends BaseAction {
 			LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
 			for (MaterialEntity mBean : mBeans) {
-				id = mBean.getMaterial_id();
-				if (id == null) {
+				if (addition == null) {
+					id = mBean.getMaterial_id();	
+				} else {
+					if (model_id == null) {
+						model_id = ReverseResolution.getModelByName(mBean.getModel_name(), conn);
+					}
+					id = pService.getIdBySerialWithModelCheck(model_id, mBean.getSerial_no(), 
+							addition.equals("change"), conn, errors);
+				}
+
+				if (id == null && errors.size() == 0) {
 					mBean.setFix_type(RvsConsts.PROCESS_TYPE_MANUFACT_LINE);
 					id = mService.insertProduct(mBean, user.getSection_id(), conn);
 					if (mBeans.size() == 1) {
@@ -1126,13 +1143,17 @@ public class MaterialAction extends BaseAction {
 				ids.add(id);
 			}
 
-			DownloadService dService = new DownloadService();
-			String filename = dService.printSerialTickets(mBeans, conn);
-			callbackResponse.put("tempFile", filename);
+			if (errors.size() == 0) {
+				DownloadService dService = new DownloadService();
+				String filename = dService.printSerialTickets(mBeans, conn);
+				callbackResponse.put("tempFile", filename);
 
-			// 更新维修对象小票打印标记
-			MaterialMapper mdao = conn.getMapper(MaterialMapper.class);
-			mdao.updateMaterialTicket(ids);
+				// 更新维修对象小票打印标记
+				MaterialMapper mdao = conn.getMapper(MaterialMapper.class);
+				mdao.updateMaterialTicket(ids);
+			} else {
+				conn.rollback();
+			}
 
 		} else {
 			MsgInfo msgInfo = new MsgInfo();
@@ -1195,5 +1216,89 @@ public class MaterialAction extends BaseAction {
 		returnJsonResponse(res, callbackResponse);
 
 		log.info("MaterialAction.refreshSerialNos end");
+	}
+
+
+	/**
+	 * 取得制品型号信息
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
+	 * @throws Exception
+	 */
+	@Privacies(permit={1, 0})
+	public void getForProductSerial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
+
+		log.info("MaterialAction.getForSerial start");
+
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+
+		// 检查发生错误时报告错误信息
+		callbackResponse.put("errors", new ArrayList<MsgInfo>());
+
+		ProductService pService = new ProductService();
+		callbackResponse.put("serial_no", pService.getSerialMonthlyPrefix());
+
+		// 部组，取得可制作的型号
+		ModelService mdlService = new ModelService();
+		ModelEntity mdlEntity = new ModelEntity();
+		mdlEntity.setKind("11");
+		callbackResponse.put("modelOptions", mdlService.searchToSelectOptions(mdlEntity, conn));
+
+		// 取得作业类别
+		callbackResponse.put("fixTypeOptions", CodeListUtils.getSelectOptions("material_fix_type_manufact"));
+
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("MaterialAction.getForSerial end");
+	}
+
+	public void doReaccpect(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{ 
+		log.info("MaterialAction.doReaccpect start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		MaterialService mService = new MaterialService();
+
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		String section_id = user.getSection_id();
+		if (section_id == null) {
+			MsgInfo info = new MsgInfo();
+			info.setErrcode("info.product.withoutSection");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.product.withoutSection"));
+			errors.add(info);
+		}
+
+		MaterialForm createForm = (MaterialForm) form;
+
+		String existId = mService.checkModelSerialNo(createForm, conn);
+
+		if (existId != null) {
+			String productName = CodeListUtils.getValue("material_fix_type_manufact", createForm.getFix_type());
+
+			MsgInfo info = new MsgInfo();
+			info.setErrcode("dbaccess.columnNotUnique");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "机身号", 
+					createForm.getSerial_no(), productName));
+			errors.add(info);
+		}
+
+		if (errors.size() == 0) {
+			mService.reaccpect(form, section_id, conn);
+		}
+
+		// 检查发生错误时报告错误信息
+		callbackResponse.put("errors", errors);
+		// 返回Json格式回馈信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("MaterialAction.doReaccpect end");
 	}
 }

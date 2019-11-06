@@ -97,7 +97,7 @@ public class SnoutsAction extends BaseAction {
 			actionForward = mapping.findForward("error");
 		} else {
 			SoloSnoutService service = new SoloSnoutService();
-			SnoutForm retForm = service.getDetail(serial_no, conn);
+			SnoutForm retForm = service.getDetail(serial_no, "00000000024", conn);
 			String pcs = service.getSnoutPcs(serial_no, retForm.getModel_name(), conn);
 			req.setAttribute("snout", retForm);
 			req.setAttribute("pcs", pcs);

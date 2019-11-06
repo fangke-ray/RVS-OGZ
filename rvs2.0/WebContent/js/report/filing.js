@@ -87,14 +87,14 @@ var colModelProductL = [
 					}
 					else
 						return "";
-   				}},
+				}},
 				{name:'pcs_pdf_recreate',index:'pcs_pdf', width:36, align:'center', hidden:($("#isEditor").val() != 'true'),
 					formatter : function(value, options, rData){
 					if (rData['isHistory']) 
 						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + ", 1\");' >重新生成</a>";
 					else
 						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + "\");' >生成</a>";
-   				}}
+				}}
 			];
 
 

@@ -211,11 +211,17 @@ public class PositionService {
 	 * @return
 	 */
 	public String getOptions(SqlSession conn) {
+		return getOptions(null, conn);
+	}
+	public String getOptions(Integer department, SqlSession conn) {
 		List<String[]> lst = new ArrayList<String[]>();
 		
 		List<PositionEntity> allPosition = this.getAllPosition(conn);
 		
 		for (PositionEntity position: allPosition) {
+			if (RvsConsts.DEPART_MANUFACT.equals(department)) {
+				if (position.getProcess_code().charAt(0) != '0') continue;
+			}
 			String[] p = new String[3];
 			p[0] = position.getPosition_id();
 			p[1] = position.getName();

@@ -42,7 +42,7 @@ public class OperatorProductionEntity implements Serializable {
 	private Date pause_start_time;
 	
 	private Integer overwork_reason;
-	
+	private Integer department;
 	
 	public String getOperate_result() {
 		return operate_result;
@@ -200,6 +200,12 @@ public class OperatorProductionEntity implements Serializable {
 	}
 	public void setProcess_code(String process_code) {
 		this.process_code = process_code;
+	}
+	public Integer getDepartment() {
+		return department;
+	}
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 	
 	

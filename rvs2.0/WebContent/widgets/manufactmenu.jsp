@@ -78,6 +78,9 @@ $(function() {
 	<% if(links.get("inlinePosition")) { %>
 		        ${inlinePosition}
 	<% } %>
+	<% if(links.get("manufactline")) { %>
+		        <a href="scheduleProcessing.do">${userdata.line_name}流水线在线管理</a><br>
+	<% } %>
 		    </div>
 <% } %>
 
@@ -100,9 +103,6 @@ $(function() {
 		        <a href="positionProduction.do">工位工时</a><br>
 		        <a href="operatorProduction.do">操作者工时</a><br>
 		        <a href="alarmMessage.do">警报</a><br>
-	<% if(links.get("nsline")) { %>
-		        <a href="snouts.do">先端组件</a><br>
-	<% } %>
 		        <a href="materialPcs.do">工程检查票</a><br>
 		    </div>
 <% } %>

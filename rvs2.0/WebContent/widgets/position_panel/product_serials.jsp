@@ -64,6 +64,63 @@ var showSerialNos = function(serialNos) {
 	$products_area.html(productsAreaHtml);
 }
 
+
+var doPrintProductTickets = function(postData, $ele){
+	// Ajax提交
+	$.ajax({
+		beforeSend: ajaxRequestType, 
+		async: false, 
+		url: 'material.do?method=doPrintProductTickets', 
+		cache: false, 
+		data: postData, 
+		type: "post", 
+		dataType: "json", 
+		success: ajaxSuccessCheck, 
+		error: ajaxError, 
+		complete:  function(xhrobj, textStatus){
+			// 读取JSON
+			var resInfo = $.parseJSON(xhrobj.responseText);
+
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				// treatBackMessages(null, resInfo.errors);
+				var warnData = "";
+				for (var iw in resInfo.errors) {
+					var errorline = resInfo.errors[iw];
+					warnData += errorline.errmsg + "<br>";
+				}
+				warningConfirm(warnData, function(){
+					postData["addition"] = "change";
+					doPrintProductTickets(postData, $ele);
+				}, null, "型号冲突", "强制更新", "取消打印");
+			} else {
+				if ($("iframe").length > 0) {
+					$("iframe").attr("src", "download.do"+"?method=output&fileName=tickets.pdf&filePath=" + resInfo.tempFile);
+				} else {
+					var iframe = document.createElement("iframe");
+		            iframe.src = "download.do"+"?method=output&fileName=tickets.pdf&filePath=" + resInfo.tempFile;
+		            iframe.style.display = "none";
+		            document.body.appendChild(iframe);
+				}
+
+				if($ele == null) {
+					var hitSerialNo = postData["materials.serial_no[0]"];
+					$ele = $("#products_area").find("serial").filter(function(){return $(this).text() === hitSerialNo}).parent();
+				}
+				$ele.attr("ticket", "printed");
+
+				// 取得id（如果有）
+				if (resInfo.id) {
+					$ele.attr("material_id", resInfo.id);
+				} else {
+					// 如果没有（批量）就刷新
+					refreshSerialNos();
+				}
+			}
+		}
+	});
+};
+
 $(function() {
 	$("#products_area").on("click", "printer", function(){
 		var postData = {};
@@ -168,52 +225,6 @@ var setNewProductModel = function() {
 	});
 };
 
-var doPrintProductTickets = function(postData, $ele){
-	// Ajax提交
-	$.ajax({
-		beforeSend: ajaxRequestType, 
-		async: false, 
-		url: 'material.do?method=doPrintProductTickets', 
-		cache: false, 
-		data: postData, 
-		type: "post", 
-		dataType: "json", 
-		success: ajaxSuccessCheck, 
-		error: ajaxError, 
-		complete:  function(xhrobj, textStatus){
-			// 读取JSON
-			var resInfo = $.parseJSON(xhrobj.responseText);
-
-			if (resInfo.errors.length > 0) {
-				// 共通出错信息框
-				treatBackMessages(null, resInfo.errors);
-			} else {
-				if ($("iframe").length > 0) {
-					$("iframe").attr("src", "download.do"+"?method=output&fileName=tickets.pdf&filePath=" + resInfo.tempFile);
-				} else {
-					var iframe = document.createElement("iframe");
-		            iframe.src = "download.do"+"?method=output&fileName=tickets.pdf&filePath=" + resInfo.tempFile;
-		            iframe.style.display = "none";
-		            document.body.appendChild(iframe);
-				}
-
-				if($ele == null) {
-					var hitSerialNo = postData["materials.serial_no[0]"];
-					$ele = $("#products_area").find("serial").filter(function(){return $(this).text() === hitSerialNo}).parent();
-				}
-				$ele.attr("ticket", "printed");
-
-				// 取得id（如果有）
-				if (resInfo.id) {
-					$ele.attr("material_id", resInfo.id);
-				} else {
-					// 如果没有（批量）就刷新
-					refreshSerialNos()
-				}
-			}
-		}
-	});
-};
 
 var refreshSerialNos = function(){
 	// Ajax提交

@@ -98,6 +98,7 @@ public class ScheduleEntity implements Serializable {
 
 	private Date expected_finish_time;
 	private Integer quotation_first;
+	private Integer fix_type;
 
 	public Date getTomorrow() {
 		Calendar calendar = Calendar.getInstance();
@@ -523,5 +524,11 @@ public class ScheduleEntity implements Serializable {
 	}
 	public void setQuotation_first(Integer quotation_first) {
 		this.quotation_first = quotation_first;
+	}
+	public Integer getFix_type() {
+		return fix_type;
+	}
+	public void setFix_type(Integer fix_type) {
+		this.fix_type = fix_type;
 	}
 }

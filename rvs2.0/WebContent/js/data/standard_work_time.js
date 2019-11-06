@@ -68,7 +68,7 @@ $(function(){
 		        level:$("#reference_rank_id").val()
 		        };
 		    if ($("#reference_rank_id").length == 0) {
-		    	data.level = 1;
+		    	data.level = 0;
 		    }
 			$.ajax({
 				beforeSend : ajaxRequestType,

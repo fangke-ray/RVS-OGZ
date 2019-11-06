@@ -337,6 +337,7 @@
 		<action path="/scheduleProcessing" type="com.osh.rvs.action.inline.ScheduleProcessingAction" parameter="method" validate="false" name="scheduleForm" scope="request">
 			<forward name="init" path="/pages/inline/schedule_processing.jsp" />
 			<forward name="success" path="/pages/inline/schedule_processing.jsp" />
+			<forward name="product" path="/pages/inline/schedule_product.jsp" />
 			
 			<forward name="capacity_setting" path="/widgets/manage/capacity_setting.jsp"/>
 			

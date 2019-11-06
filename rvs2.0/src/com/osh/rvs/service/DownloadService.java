@@ -373,8 +373,8 @@ public class DownloadService {
 	 * @param
 	 */
 	public String printSerialTickets(List<MaterialEntity> mBeans, SqlSession conn) throws Exception {
-		// Rectangle rect = new Rectangle(180, 108); // 120
-		Rectangle rect = new Rectangle(216, 128); // 120
+		Rectangle rect = new Rectangle(176, 108); // 120
+		// Rectangle rect = new Rectangle(216, 128); // 120
 		Document document = new Document(rect, 6, 6, 0, 0);
 
 		Date today = new Date();
@@ -391,7 +391,7 @@ public class DownloadService {
 			document.open();
 			BaseFont bfStencil = BaseFont.createFont(PathConsts.BASE_PATH + "\\BOOKOSB.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-			Font boldFont = new Font(bfStencil, 42, Font.BOLD);
+			Font boldFont = new Font(bfStencil, 36, Font.BOLD);
 
 			for (int i = 0; i < mBeans.size() - 1; i++) {
 				MaterialEntity mBean = mBeans.get(i);
@@ -419,19 +419,19 @@ public class DownloadService {
 			MaterialEntity mBean, Font boldFont, SqlSession conn) throws DocumentException {
 		PdfPTable mainTable = new PdfPTable(1);
 		mainTable.setHorizontalAlignment(Element.ALIGN_CENTER);
-//		mainTable.setTotalWidth(176);
-		mainTable.setTotalWidth(212);
+		mainTable.setTotalWidth(172);
+//		mainTable.setTotalWidth(212);
 		mainTable.setLockedWidth(true);
 		mainTable.getDefaultCell().setBorderWidth(1);
 //		mainTable.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
 		
 		PdfPCell cell = new PdfPCell(new Paragraph(new Paragraph(mBean.getSerial_no(), boldFont)));
-//		cell.setFixedHeight(60);
-		cell.setFixedHeight(70);
+		cell.setFixedHeight(60);
+//		cell.setFixedHeight(70);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setPadding(0.0f);
-//		cell.setPaddingBottom(10f);
+		cell.setPaddingBottom(10f);
 		cell.setBorderWidth(0);
 		cell.setBackgroundColor(BaseColor.WHITE);
 		mainTable.addCell(cell);

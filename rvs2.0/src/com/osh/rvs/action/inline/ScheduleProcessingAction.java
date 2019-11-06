@@ -66,27 +66,35 @@ public class ScheduleProcessingAction extends BaseAction {
 
 		log.info("ScheduleProcessingAction.init start");
 
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
 		// 机种信息取得
-		String cOptions = categoryService.getRepairOptions(conn);
+		String cOptions = null;
+		if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+			cOptions = categoryService.getManufactureOptions(conn);
+		} else {
+			cOptions = categoryService.getRepairOptions(conn);
+		}
 		// 机种信息设定
 		req.setAttribute("cOptions", cOptions);
 		
 		// 工位信息取得
-		String pReferChooser = positionService.getOptions(conn);
+		String pReferChooser = positionService.getOptions(user.getDepartment(), conn);
 		// 工位信息设定
 		req.setAttribute("pReferChooser", pReferChooser);
 
 		SectionService sectionService = new SectionService();
-		String sOptions = sectionService.getOptions(conn, "(全部)");
+		String sOptions = sectionService.getOptions(user.getDepartment(), conn, "(全部)");
 		req.setAttribute("sOptions", sOptions);
-
-		// 取得用户信息
-		HttpSession session = req.getSession();
-		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		// 权限区分
 		List<Integer> privacies = user.getPrivacies();
-		if (privacies.contains(RvsConsts.PRIVACY_SCHEDULE)) {
+
+		if (RvsConsts.DEPART_REPAIR.equals(user.getDepartment()) && privacies.contains(RvsConsts.PRIVACY_SCHEDULE)) {
 			req.setAttribute("role", "planner");
+		} else if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment()) && privacies.contains(RvsConsts.PRIVACY_LINE)) {
+			req.setAttribute("role", "manufact_reader");
 		} else if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
 			req.setAttribute("role", "manager");
 		} else {
@@ -94,7 +102,11 @@ public class ScheduleProcessingAction extends BaseAction {
 		}
 
 		// 迁移到页面
-		actionForward = mapping.findForward(FW_INIT);
+		if (!RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+			actionForward = mapping.findForward(FW_INIT);
+		} else {
+			actionForward = mapping.findForward("product");
+		}
 
 		log.info("ScheduleProcessingAction.init end");
 	}
@@ -127,7 +139,7 @@ public class ScheduleProcessingAction extends BaseAction {
 			}
 
 			// 执行检索
-			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, conn, errors, resolveLevel);
+			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, user.getDepartment(), conn, errors, resolveLevel);
 			
 			// 查询结果放入Ajax响应对象
 			listResponse.put("material_list", lResultForm);
@@ -187,7 +199,7 @@ public class ScheduleProcessingAction extends BaseAction {
 
 		if (errors.size() == 0) {
 			// 执行检索
-			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, conn, errors, resolveLevel);
+			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, user.getDepartment(), conn, errors, resolveLevel);
 			
 			// 查询结果放入Ajax响应对象
 			listResponse.put("material_list", lResultForm);
@@ -369,13 +381,13 @@ public class ScheduleProcessingAction extends BaseAction {
 	public void report(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("ScheduleProcessingAction.report start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
-		
+
 		// 检索条件表单合法性检查
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		if (errors.size() == 0) {
 			// 执行检索
-			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, conn, errors, 99);
+			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, null, conn, errors, 99);
 			
 			String filePath = ReportUtils.createReport(lResultForm, ReportMetaData.materialTitles, ReportMetaData.materialColNames);
 			listResponse.put("filePath", filePath);
@@ -563,7 +575,7 @@ public class ScheduleProcessingAction extends BaseAction {
 		
 		log.info("ScheduleProcessingAction.getUpperLimit end");
 	}
-	
+
 	/**
 	 * 修改产能
 	 * @param mapping

@@ -175,5 +175,8 @@ public interface MaterialMapper {
 	public List<MaterialEntity> searchProduction(MaterialEntity conditionBean);
 
 	public void setNewProductModel(String model_id);
-	
+
+	public List<MaterialEntity> getProductBySerialNo(String serial_no);
+
+	public void updateMaterialSerialModel(MaterialEntity entity);
 }

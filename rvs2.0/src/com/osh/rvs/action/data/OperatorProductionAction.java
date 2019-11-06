@@ -73,7 +73,7 @@ public class OperatorProductionAction extends BaseAction {
 		boolean isOperator = isOperator(req.getSession());
 		req.setAttribute("isOperator", Boolean.toString(isOperator));
 		req.setAttribute("isLeader",isLeader(req.getSession()));
-		
+
 		log.info("OperatorProductionAction.init end");
 	}
 
@@ -117,7 +117,9 @@ public class OperatorProductionAction extends BaseAction {
 		// Ajax回馈对象
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
-		List<OperatorProductionForm> lResultForm = searchByCondition(form, conn);
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+		List<OperatorProductionForm> lResultForm = searchByCondition(form, user.getDepartment(), conn);
 
 		// 查询结果放入Ajax响应对象
 		listResponse.put("list", lResultForm);
@@ -380,7 +382,7 @@ public class OperatorProductionAction extends BaseAction {
 		return null;
 	}
 
-	private List<OperatorProductionForm> searchByCondition(ActionForm form, SqlSession conn) {
+	private List<OperatorProductionForm> searchByCondition(ActionForm form, Integer department, SqlSession conn) {
 		// 检索条件表单合法性检查
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		
@@ -388,7 +390,7 @@ public class OperatorProductionAction extends BaseAction {
 		
 		List<OperatorProductionForm> lResultForm = new ArrayList<OperatorProductionForm>();
 		if (errors.size() == 0) {
-			lResultForm = operatorProductionService.searchByCondition(form, conn);
+			lResultForm = operatorProductionService.searchByCondition(form, department, conn);
 		}
 		
 		return lResultForm;
