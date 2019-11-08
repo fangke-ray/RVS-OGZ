@@ -34,16 +34,23 @@ var _ctime=function(){
 
 	var $liquid = $p_rate.find("div");
 
-	$(".roll_cell > .anim_act").removeClass("anim_act").addClass("anim_act");
+	var $resets = $(".roll_cell > .anim_act");
+	if ($resets.length > 0) {
+		if (!$resets.eq(0).css("top") != "0px") {
+			$resets.removeClass("anim_act");
+			setTimeout(function(){$resets.addClass("anim_act");} , 4);
+		}
+	}
+
+	if ($liquid.css("width") != "99%") {
+		$liquid.css({width : rate + "%"});
+	}
 
 	if (rate == 99) {
 		$liquid.addClass("tube-orange");
-		return;
+	} else {
+		dyeLiquid(rate, $liquid);
 	}
-
-	$liquid.animate({width : rate + "%"}, iInterval, "linear");
-
-	dyeLiquid(rate, $liquid);
 };
 
 var dyeLiquid = function(rate, $liquid) {
@@ -100,6 +107,7 @@ return {
 		$material_detail_spend = $spend_container;
 		$material_detail_spend_lbl = $material_detail_spend.find("label");
 		$p_rate = $rate_viewer;
+		$p_rate.children("div").css({"transition-duration" : (iInterval / 1000) + "s"});
 	},
 	setAction : function(action_time){
 		if (action_time) {
@@ -121,6 +129,9 @@ return {
 		if (!spent_mins) {
 			spent_mins = _convertMinute($material_detail_spend_lbl.text()) || 0;
 			spent_secs = spent_mins * 60;
+			if (!spent_mins) {
+				$material_detail_spend_lbl.text("00:00:");
+			}
 		} else {
 			$material_detail_spend_lbl.text(_minuteFormat(spent_mins) + ":");
 			$(".roll_cell > *").addClass("anim_pause");
@@ -168,7 +179,7 @@ return {
 		}
 	},
 	stopClock : function(){
-		$material_detail_action.text("");
+		if ($material_detail_action) $material_detail_action.text("");
 		$material_detail_spend_lbl.text("");
 		$p_rate.html("");
 		p_time = 0;

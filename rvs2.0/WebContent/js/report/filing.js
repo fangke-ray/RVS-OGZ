@@ -16,88 +16,6 @@ var enablebuttons = function() {
 var repairListName = "维修品";
 var productListName = "制品";
 
-var colNamesRepairL = ['','受理日','同意日','品保日'
-				// ,'归档时间'
-				, '修理单号', '修理结果', '型号 ID', '型号' , '机身号','维修等级', '归档文件', ''];
-var colModelRepairL = [
-					{name: 'material_id', index: 'material_id', hidden: true, key:true},
-					{
-						name : 'reception_time',
-						index : 'reception_time',
-						width : 50,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
-					}, {
-						name : 'agreed_date',
-						index : 'agreed_date',
-						width : 50,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
-					}, {
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 50,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
-					},
-//				{name:'quotation_time',index:'quotation_time', width:65, align:'center',
-//						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
-//				},
-				{name:'sorc_no',index:'sorc_no', width:105},
-				{name:'break_back_flg',index:'break_back_flg',formatter:'select',editoptions:{value:"0:修理完成;2:未修理返还"}, align : 'center', width:40},
-				{name:'model_id',index:'model_id', hidden:true},
-				{name:'model_name',index:'model_id', width:125},
-				{name:'serial_no',index:'serial_no', width:50, align:'center'},
-				{name:'level',index:'level', width:40, align:'center',formatter:'select',editoptions:{value:$("#sLevel").val()}},
-				{name:'pcs_pdf',index:'pcs_pdf', width:85, align:'center',
-					formatter : function(value, options, rData){
-					if (rData['isHistory']) 
-						return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
-					else
-						return "";
-   				}},
-				{name:'pcs_pdf_recreate',index:'pcs_pdf', width:36, align:'center', hidden:($("#isEditor").val() != 'true'),
-					formatter : function(value, options, rData){
-					if (rData['isHistory']) 
-						return "<a href='javascript:rePdf(\"" + rData['sorc_no'] + "\", \"" + rData['material_id'] + ", 1\");' >重新生成</a>";
-					else
-						return "<a href='javascript:rePdf(\"" + rData['sorc_no'] + "\", \"" + rData['material_id'] + "\");' >生成</a>";
-   				}}
-			];
-var colNamesProductL = ['', '品保日', '结果', '型号 ID', '型号' , '机身号', '归档文件', ''];
-var colModelProductL = [
-					{name: 'material_id', index: 'material_id', hidden: true, key:true},
-					{
-						name : 'finish_time',
-						index : 'finish_time',
-						width : 50,
-						align : 'center', 
-						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
-					},
-				{name:'break_back_flg',index:'break_back_flg',formatter:'select', hidden:true, align : 'center', width:40},
-				{name:'model_id',index:'model_id', hidden:true},
-				{name:'model_name',index:'model_id', width:125},
-				{name:'serial_no',index:'serial_no', width:50, align:'center'},
-				{name:'pcs_pdf',index:'pcs_pdf', width:85, align:'center',
-					formatter : function(value, options, rData){
-					if (rData['isHistory']) {
-						return "<a href='javascript:downPdf(\"" + rData['serial_no'] + "\", \"" 
-							+ ("MA" + rData['model_name'].substring(0, 2) + "-" + rData['finish_time'].substring(1, 3)) + rData['serial_no'].substring(0, 1)  +  "\");' >" 
-							+ rData['serial_no'] + ".zip</a>";
-					}
-					else
-						return "";
-				}},
-				{name:'pcs_pdf_recreate',index:'pcs_pdf', width:36, align:'center', hidden:($("#isEditor").val() != 'true'),
-					formatter : function(value, options, rData){
-					if (rData['isHistory']) 
-						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + ", 1\");' >重新生成</a>";
-					else
-						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + "\");' >生成</a>";
-				}}
-			];
-
-
 var downPdf = function(sorc_no, pathPrefix) {
 	if ($("iframe").length > 0) {
 		$("iframe").attr("src", "download.do"+"?method=output&fileName="+ sorc_no +".zip&from=pcs" 
@@ -325,6 +243,89 @@ function filed_list(){
 		$("#exd_list").jqGrid().clearGridData();
 		$("#exd_list").jqGrid('setGridParam',{data:quotation_listdata}).trigger("reloadGrid", [{current:false}]);
 	} else {
+
+		var colNamesRepairL = ['','受理日','同意日','品保日'
+				// ,'归档时间'
+				, '修理单号', '修理结果', '型号 ID', '型号' , '机身号','维修等级', '归档文件', ''];
+		var colModelRepairL = [
+					{name: 'material_id', index: 'material_id', hidden: true, key:true},
+					{
+						name : 'reception_time',
+						index : 'reception_time',
+						width : 50,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
+					}, {
+						name : 'agreed_date',
+						index : 'agreed_date',
+						width : 50,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
+					}, {
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 50,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
+					},
+//				{name:'quotation_time',index:'quotation_time', width:65, align:'center',
+//						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'H:i'}
+//				},
+				{name:'sorc_no',index:'sorc_no', width:105},
+				{name:'break_back_flg',index:'break_back_flg',formatter:'select',editoptions:{value:"0:修理完成;2:未修理返还"}, align : 'center', width:40},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'},
+				{name:'level',index:'level', width:40, align:'center',formatter:'select',editoptions:{value:$("#sLevel").val()}},
+				{name:'pcs_pdf',index:'pcs_pdf', width:85, align:'center',
+					formatter : function(value, options, rData){
+					if (rData['isHistory']) 
+						return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
+					else
+						return "";
+   				}},
+				{name:'pcs_pdf_recreate',index:'pcs_pdf', width:36, align:'center', hidden:($("#isEditor").val() != 'true'),
+					formatter : function(value, options, rData){
+					if (rData['isHistory']) 
+						return "<a href='javascript:rePdf(\"" + rData['sorc_no'] + "\", \"" + rData['material_id'] + ", 1\");' >重新生成</a>";
+					else
+						return "<a href='javascript:rePdf(\"" + rData['sorc_no'] + "\", \"" + rData['material_id'] + "\");' >生成</a>";
+   				}}
+			];
+		var colNamesProductL = ['', '品保日', '结果', '型号 ID', '型号' , '机身号', '归档文件', ''];
+		var colModelProductL = [
+					{name: 'material_id', index: 'material_id', hidden: true, key:true},
+					{
+						name : 'finish_time',
+						index : 'finish_time',
+						width : 50,
+						align : 'center', 
+						sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'y/m/d'}
+					},
+				{name:'break_back_flg',index:'break_back_flg',formatter:'select', hidden:true, align : 'center', width:40},
+				{name:'model_id',index:'model_id', hidden:true},
+				{name:'model_name',index:'model_id', width:125},
+				{name:'serial_no',index:'serial_no', width:50, align:'center'},
+				{name:'pcs_pdf',index:'pcs_pdf', width:85, align:'center',
+					formatter : function(value, options, rData){
+						console.log(rData['finish_time']);
+					if (rData['isHistory']) {
+						return "<a href='javascript:downPdf(\"" + rData['serial_no'] + "\", \"" 
+							+ ("MA" + rData['model_name'].substring(0, 2) + "-" + rData['finish_time'].substring(1, 3)) + rData['serial_no'].substring(0, 1)  +  "\");' >" 
+							+ rData['serial_no'] + ".zip</a>";
+					}
+					else
+						return "";
+				}},
+				{name:'pcs_pdf_recreate',index:'pcs_pdf', width:36, align:'center', hidden:($("#isEditor").val() != 'true'),
+					formatter : function(value, options, rData){
+					if (rData['isHistory']) 
+						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + ", 1\");' >重新生成</a>";
+					else
+						return "<a href='javascript:rePdf(\"" + rData['serial_no'] + "\", \"" + rData['material_id'] + "\");' >生成</a>";
+				}}
+			];
+
 		$("#exd_list").jqGrid({
 			toppager : true,
 			data:quotation_listdata,

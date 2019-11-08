@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -60,6 +61,14 @@ public class LoginAction extends BaseAction {
 			req.setAttribute("version", RvsConsts.VERSION + "<BR>" + "From Addr:" + addr);
 		}
 
+		Cookie[] cookies = req.getCookies();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals("dpt")) {
+				req.setAttribute("department", cookie.getValue());
+				break;
+			}
+		}
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 
@@ -100,7 +109,7 @@ public class LoginAction extends BaseAction {
 		}
 
 		// 建立会话用户信息
-		Map<String, String> roles = makeSession((OperatorForm)form, req.getSession(), errors, conn);
+		Map<String, String> roles = makeSession((OperatorForm)form, req.getSession(), res, errors, conn);
 
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
@@ -117,6 +126,14 @@ public class LoginAction extends BaseAction {
 		req.getSession().removeAttribute(RvsConsts.SESSION_USER);
 		req.getSession().removeAttribute(RvsConsts.DONT_CARE);
 		_logger.fine("run end");
+
+		Cookie[] cookies = req.getCookies();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals("dpt")) {
+				req.setAttribute("department", cookie.getValue());
+				break;
+			}
+		}
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
@@ -221,12 +238,13 @@ public class LoginAction extends BaseAction {
 	 * 做成登录的Session项目
 	 *
 	 * @param operator
+	 * @param res 
 	 * @param conn
 	 * @param company
 	 * @param errorsDto
 	 * @return 是否多角色
 	 */
-	public Map<String, String> makeSession(OperatorForm operator, HttpSession session, List<MsgInfo> errors, SqlSession conn) {
+	public Map<String, String> makeSession(OperatorForm operator, HttpSession session, HttpServletResponse res, List<MsgInfo> errors, SqlSession conn) {
 
 		// 表单复制到数据对象
 		OperatorEntity conditionBean = new OperatorEntity();
@@ -267,6 +285,12 @@ public class LoginAction extends BaseAction {
 			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.invalidPassword"));
 			errors.add(error);
 			return null;
+		}
+
+		if (RvsConsts.DEPART_REPAIR.equals(loginData.getDepartment())) {
+			Cookie cookie = new Cookie("dpt", RvsConsts.DEPART_REPAIR + "");
+			cookie.setMaxAge(240000000);
+			res.addCookie(cookie);
 		}
 
 		if (errors.isEmpty()) {

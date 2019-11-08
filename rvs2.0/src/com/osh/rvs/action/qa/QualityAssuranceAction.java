@@ -199,8 +199,8 @@ public class QualityAssuranceAction extends BaseAction {
 				// 取得作业信息
 				boolean qa_checked = service.getProccessingData(callbackResponse, workingPf.getMaterial_id(), workingPf, user, conn);
 
-//				MaterialService msevice = new MaterialService();
-//				MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
+				MaterialService msevice = new MaterialService();
+				MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
 
 				// 小修理共用大修理表单
 				if ("612".equals(workingPf.getProcess_code())) {
@@ -239,6 +239,14 @@ public class QualityAssuranceAction extends BaseAction {
 				}
 				// 取得工程检查票
 				getPf(workingPf, qa_checked, isLeader, user.getDepartment(), callbackResponse, conn);
+
+				callbackResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, process_code));
+
+				// 取到等待作业记录的本次返工总时间
+				Integer spentSecs = ppService.getTotalTimeByRework(workingPf, conn);
+				Integer spentMins = spentSecs / 60;
+				callbackResponse.put("spent_secs", spentSecs);
+				callbackResponse.put("spent_mins", spentMins);
 			} else {
 				// 暂停中的话
 				// 判断是否有在进行中的维修对象
@@ -249,6 +257,9 @@ public class QualityAssuranceAction extends BaseAction {
 					if ("612".equals(pauseingPf.getProcess_code())) {
 						pauseingPf.setProcess_code("611");
 					}
+
+					MaterialService msevice = new MaterialService();
+					MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, pauseingPf.getMaterial_id());
 
 					// 取得作业信息
 					boolean qa_checked = service.getProccessingData(callbackResponse, pauseingPf.getMaterial_id(), pauseingPf, user, conn);
@@ -282,9 +293,15 @@ public class QualityAssuranceAction extends BaseAction {
 					}
 
 					// 取得维修对象备注信息
-					MaterialService ms = new MaterialService();
-					ms.getMaterialComment(pauseingPf.getMaterial_id(), callbackResponse, conn);
+					msevice.getMaterialComment(pauseingPf.getMaterial_id(), callbackResponse, conn);
 
+					callbackResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, process_code));
+
+					// 取到等待作业记录的本次返工总时间
+					Integer spentSecs = ppService.getTotalTimeByRework(pauseingPf, conn);
+					Integer spentMins = spentSecs / 60;
+					callbackResponse.put("spent_secs", spentSecs);
+					callbackResponse.put("spent_mins", spentMins);
 				} else {
 					// 准备中
 					callbackResponse.put("workstauts", WORK_STATUS_PREPAIRING);
@@ -377,8 +394,8 @@ public class QualityAssuranceAction extends BaseAction {
 			waitingPf.setOperator_id(user.getOperator_id());
 			dao.startProductionFeature(waitingPf);
 
-//			MaterialService msevice = new MaterialService();
-//			MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, material_id);
+			MaterialService msevice = new MaterialService();
+			MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, material_id);
 
 //			// 单元无工程检查票
 //			if (mBean.getFix_type() == 2) {
@@ -423,8 +440,7 @@ public class QualityAssuranceAction extends BaseAction {
 				}
 
 				// 取得维修对象备注信息
-				MaterialService ms = new MaterialService();
-				ms.getMaterialComment(material_id, listResponse, conn);
+				msevice.getMaterialComment(material_id, listResponse, conn);
 			}
 			// 判断是否线长
 			boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
@@ -432,6 +448,14 @@ public class QualityAssuranceAction extends BaseAction {
 			// 取得工程检查票
 			waitingPf.setProcess_code(process_code);
 			getPf(waitingPf, qa_checked, isLeader, user.getDepartment(), listResponse, conn);
+
+			listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, process_code));
+
+			// 取到等待作业记录的本次返工总时间
+			Integer spentSecs = ppService.getTotalTimeByRework(waitingPf, conn);
+			Integer spentMins = spentSecs / 60;
+			listResponse.put("spent_secs", spentSecs);
+			listResponse.put("spent_mins", spentMins);
 		}
 
 		user.setSection_id(section_id); // TODO
@@ -859,6 +883,17 @@ public class QualityAssuranceAction extends BaseAction {
 					listResponse.put("workstauts", WORK_STATUS_WORKING);
 				}
 			}
+
+			MaterialService msevice = new MaterialService();
+			MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, material_id);
+
+			listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, workwaitingPf.getProcess_code()));
+
+			// 取到等待作业记录的本次返工总时间
+			Integer spentSecs = ppService.getTotalTimeByRework(workwaitingPf, conn);
+			Integer spentMins = spentSecs / 60;
+			listResponse.put("spent_secs", spentSecs);
+			listResponse.put("spent_mins", spentMins);
 		}
 
 		// 检查发生错误时报告错误信息

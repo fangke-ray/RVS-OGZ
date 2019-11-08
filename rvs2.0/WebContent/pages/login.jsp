@@ -320,7 +320,18 @@ $(function() {
 </head>
 <body class="outer">
 
+<%
+	String dpt = (String) request.getAttribute("department");
+	if ("1".equals(dpt)) {
+%>
+<div class="ui-widget-panel width-full" style="background-image:url('images/login-r.png');height:673px;margin:auto;" id="body-1">
+<%
+	} else {
+%>
 <div class="ui-widget-panel width-full" style="background-image:url('images/login.png');height:673px;margin:auto;" id="body-1">
+<%
+	}
+%>
 <div id="loginarea" style="position:relative;left: 155px;top: 375px;">
 	<form class="loginput" id="loginput">
 	    <h1>登录系统</h1>

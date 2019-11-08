@@ -13,6 +13,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/olympus/select2Buttons.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
 
+<link rel="stylesheet" type="text/css" href="css/timer_css3.css">
+
 <style id="xstates">
 .working_status {
 	background-color:white;
@@ -20,55 +22,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	padding-right:6px;
 	text-align: center;
 }
-
-@keyframes moveseconds {
-	0% {top: 0;}
-	100% {top: -160px;} 
-}
-
-@keyframes movetenseconds {
-	0% {top: 0;}
-	100% {top: -96px;} 
-}
-
-.roll_cell {
-	top: 1px;
-	height: 16px;
-	overflow: hidden;
-	position: relative;
-	float: right;
-	width: 0.6em;
-}
-
-.roll_seconds {
-	line-height: 16px;
-	width: 7px;
-	text-align: center;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-.roll_seconds.anim_act {
-	animation: moveseconds 10s steps(10, end) infinite;
-}
-.roll_tenseconds {
-	line-height: 16px;
-	width: 7px;
-	text-align: center;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-.roll_tenseconds.anim_act {
-	animation: movetenseconds 60s steps(6, end) infinite;
-}
-
-.roll_seconds.anim_pause,
-.roll_tenseconds.anim_pause
-{
-	animation-play-state: paused;
-}
-
 </style>
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>

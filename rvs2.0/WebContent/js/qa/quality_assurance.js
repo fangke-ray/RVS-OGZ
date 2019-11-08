@@ -17,6 +17,11 @@ var productActionName = "最终检查";
 var repairListName = "维修品";
 var productListName = "制品";
 
+var tenyearTag = "";
+{
+	tenyearTag = (new Date().getFullYear() + "").substring(1, 3);
+};
+
 var colNamesRepairL = ['受理时间', '同意时间', '修理完成时间', '修理单号', '型号 ID', '型号', '机身号', 'RC', '等级', '加急', '特记','工程检查票出检'];
 var colModelRepairL = [{
 						name : 'reception_time',
@@ -198,7 +203,9 @@ var colModelProductF = [
 					width : 85,
 					align : 'center',
 					formatter : function(value, options, rData){
-						return "<a href='javascript:downPdf(\"" + rData['sorc_no'] + "\");' >" + rData['sorc_no'] + ".zip</a>";
+						return "<a href='javascript:downPdf(\"" + rData['serial_no'] + "\", \"" 
+							+ ("MA" + rData['model_name'].substring(0, 2) + "-" + tenyearTag) + rData['serial_no'].substring(0, 1)  +  "\");' >" 
+							+ rData['serial_no'] + ".zip</a>";
 					}
 				}
 			]
@@ -420,6 +427,7 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			// 共通出错信息框
 			treatBackMessages(null, resInfo.errors);
 		} else {
+
 			lOptions = resInfo.lOptions;
 			oOptions = resInfo.oOptions;
 
@@ -432,13 +440,15 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			acceptted_list(resInfo.finished);
 			if (resInfo.pauseOptions) pauseOptions = resInfo.pauseOptions;
 			if (resInfo.stepOptions) stepOptions = resInfo.stepOptions;
-			
+
 			// 存在进行中作业的时候
 			if(resInfo.workstauts != 0) {
 				treatStart(resInfo);
 
 				hasPcs && pcsO.loadCache();
 			} else {
+
+				posClockObj.stopClock();
 				$("#uld_listarea").addClass("waitForStart");
 				allowScan = true;
 				if ($("#scanner_inputer").val()) {
@@ -481,7 +491,11 @@ $(function() {
 		$("#shipbutton").val(productActionName);
 		scanner_length = 7;
 		$("#show_sorc_no").closest("tr").hide()
-			.nextAll().hide();
+			.nextAll().hide()
+			.end().closest("tbody")
+			.append('<tr><td class="ui-state-default td-title">作业标准时间</td><td id="dtl_standard_time" style="text-align:right;"></td><td class="ui-state-default td-title">作业经过时间</td>' +
+					'<td id="dtl_process_time"><div class="roll_cell"><div class="roll_seconds">0 1 2 3 4 5 6 7 8 9</div></div><div class="roll_cell"><div class="roll_tenseconds">0 1 2 3 4 5 6</div></div><label style="float:right;"></label></td></tr>' +
+					'<tr><td class="ui-state-default td-title">标准进行度</td><td colspan=3><div class="waiting tube" id="p_rate" style="height: 20px; margin: auto;"></div></td></tr>');
 	}
 	isL = $("#passbutton").length > 0;
 
@@ -518,7 +532,15 @@ $(function() {
 	}
 	hasPcs && pcsO.init($("#pcsarea"), true);
 
-	doInit();
+	if (typeof posClockObj == "undefined") {
+		loadJs("js/inline/position_panel_clock.js",
+		function(){
+			posClockObj.init(null, $("#dtl_standard_time"), $("#dtl_process_time"), $("#p_rate"));
+			doInit();
+		});
+	} else {
+		doInit();
+	}
 });
 
 function load_list(t_listdata) {
@@ -654,6 +676,14 @@ var treatStart = function(resInfo) {
 		$("#continuebutton").show();
 	}
 
+	posClockObj.setLeagalAndSpent(resInfo.leagal_overline, resInfo.spent_mins, resInfo.spent_secs);
+
+	if (resInfo.workstauts == 1 || resInfo.workstauts == 1.5 || resInfo.workstauts == 4) {
+		posClockObj.startClock(resInfo.spent_mins, resInfo.spent_secs);
+	} else {
+		posClockObj.pauseClock();
+	}
+
 	$("#uld_listarea").removeClass("waitForStart");
 };
 
@@ -740,6 +770,8 @@ var makePauseDialog = function(jBreakDialog) {
 							$("#pcscombutton").hide();
 							$("#forbidbutton").hide();
 							$("#passbutton,#stepbutton").hide();
+
+							posClockObj.pauseClock();
 						}
 					});
 				}
