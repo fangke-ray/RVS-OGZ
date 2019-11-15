@@ -226,7 +226,11 @@
 	<select id="getErrorAlarms" resultType="map">
 		<![CDATA[ 
 		select
-			coalesce(m.omr_notifi_no, concat('机身号:' , m.serial_no)) as material_name,
+			coalesce(m.omr_notifi_no, 
+				CASE WHEN am.section_id = 9 THEN concat('序列号:' , m.serial_no)
+				ELSE concat('机身号:' , m.serial_no)
+				END
+			) as material_name,
 			date_format(pf.pause_start_time, '%m-%d %k:%i') as start_time,
 			unix_timestamp(current_timestamp) - unix_timestamp(pf.pause_start_time) as seconds
 		from

@@ -4,26 +4,58 @@ var iamreadyLts = function() {
 
 	var servicePath = "lineTimeSpace.scan";
 
+	var showFactor = $("#h_factor").val() || 1;
+
+	$("#time_axis .time_axis_point").each(function(){
+		$(this).css("bottom", (parseFloat($(this).css("bottom")) * showFactor) + "px");
+	});
+
 	var lampAssign = {};
 	var lampAssignNo = 1;
 	var positionCountNo = {};
 	var keyBound = {};
 	var nowKey = null;
 	var rkTo = null;
+	var rolling = 0;
+	var now = 0;
+
+	var rollAxis = function(ypos, height){
+		// f(0) => 0 / f(560) => 560 * (showFactor - 1)
+		var offsetTop = ypos * (showFactor - 1);
+		$("#axis_base").css({"marginTop": offsetTop + "px"});
+		if (ypos > 20) {
+			if ($("#axis_base").hasClass("overwork")) {
+				offsetTop /= 0.81; 
+			}
+			$("#axis_base").attr("roled", true);
+			$("#axis_base[roled] .position_intro").css("bottom", (offsetTop) + "px");
+		} else {
+			$("#axis_base[roled] .position_intro").css("bottom", "-1.5em");
+			$("#axis_base").removeAttr("roled");
+		}
+	}
+
+	if (showFactor > 1) {
+		$('#performance_container').disableSelection();
+	}
 
 	var refresh = function() {
-		var now = parseInt(((new Date().getTime() + 28800000) % 86400000) / 60000) - 480; // 美德UTC+8
+		now = parseInt(((new Date().getTime() + 28800000) % 86400000) / 60000) - 480; // 美德UTC+8
 		var $standard_columns = $("#standard_column div").not(".position_intro, #now_period");
 		if (now > 0 && now < 690) {
-			$("#axis_base #now_period").css("height", now + "px");
+			$("#axis_base #now_period").css("height", (now * showFactor) + "px");
 		}
-			if (now > 570) {
-				$("#axis_base").addClass("overwork");
+		if (now > 570) {
+			$("#axis_base").addClass("overwork");
+		} else {
+			if (!rolling && showFactor != 1) {
+				rollAxis(now, 560);
 			}
+		}
 
 		$standard_columns.each(function(idx, ele) {
 			var bottom = parseInt(window.getComputedStyle(ele).bottom);
-			if (bottom <= now)
+			if (bottom <= (now * showFactor))
 				ele.className = "exceed";
 		});
 
@@ -138,7 +170,7 @@ var iamreadyLts = function() {
 
 				var $item = $('<div class="production_feature" title="' +
 					pf.model_name + '" lamp_no=' + lampNo + ' style="bottom:' + 
-					pf.action_time + 'px;height:' + pf.spare_minutes + 'px;"' +
+					(pf.action_time * showFactor) + 'px;height:' + (pf.spare_minutes * showFactor) + 'px;"' +
 						(pf.overtime ? ' overtime' : '') + " key='" + lampKey + "'" +
 					'>' + 
 					((pf.finish && pf.process_code == pf.o_process_code) ? "<div class='count_no'>" + getPositionCountNo(pf.process_code) + "</div>" : "") +
@@ -182,29 +214,41 @@ var iamreadyLts = function() {
 
 				if (pf.pauseFrom) {
 					var $pitem = $('<div class="pause_feature" style="bottom:' + 
-						pf.pauseFrom + 'px;height:' + pf.pauseTime + 'px;"></div>');
+						(pf.pauseFrom * showFactor) + 'px;height:' + (pf.pauseTime * showFactor) + 'px;"></div>');
 					$y_columns.filter(".y_column[for=" + pf.process_code + "]").append($pitem);
 				}
 
 				if (pf.LB) {
-					var resBottom = parseInt(pf.action_time) + parseInt(pf.spare_minutes) - 24 - 2;
+					var resBottom = parseInt(pf.action_time) + parseInt(pf.spare_minutes) - (24 + 2) / showFactor;
 
-					var $result = $('<div class="result_material" style="bottom: '+ resBottom +'px;" key="' + lampKey + '"><div class="result_model" lamp_no=' +
-							lampNo + '><nobr>' + pf.model_name + '</nobr></div><div class="result_summary" res="' + pf.LBST + '">LB: ' + pf.LB + '% </div><div class="result_summary" res="' + pf.WTRST + '">STR: ' + pf.WTR + '%</div></div>');
+					var $result = $('<div class="result_material" style="bottom: '+ (resBottom * showFactor) +'px;" key="' + lampKey + '"><div class="result_model" lamp_no=' +
+							lampNo + (pf.serial_no ? (" serial_no=" + pf.serial_no) : "") + '><nobr>' + pf.model_name + '</nobr></div><div class="result_summary" res="' + pf.LBST + '">LB: ' + pf.LB + '% </div><div class="result_summary" res="' + pf.WTRST + '">STR: ' + pf.WTR + '%</div></div>');
 					$y_columns.filter(".y_result_column").append($result);
 				}
 			}
 
-			$y_columns.each(function(){
-				var $y_column = $(this);
-				var position = $y_column.attr("for");
-				var rate = checkDirxTime(dirxTime[position]);
-				if ($y_column.is(".y_column_sync")) {
-					$y_column.attr("work-rate", rate + "%"); // dirxTime[position]
-				} else {
-					$y_column.attr("work-rate", "WTR " + rate + "%"); // dirxTime[position]
-				}
-			});
+			if (lampAssignNo == 1) {
+				$y_columns.each(function(){
+					var $y_column = $(this);
+					var position = $y_column.attr("for");
+					var rate = checkDirxTime(dirxTime[position]);
+					if ($y_column.is(".y_column_sync")) {
+						$y_column.attr("work-rate", rate + "%"); // dirxTime[position]
+					} else {
+						$y_column.attr("work-rate", "WTR " + rate + "%"); // dirxTime[position]
+					}
+				});
+			} else {
+				$y_columns.each(function(){
+					var $y_column = $(this);
+					var position = $y_column.attr("for");
+					var rate = checkDirxTime(dirxTime[position]);
+					if (!$y_column.is("#standard_column")) {
+						$y_column.find(".position_intro").attr("work-rate", "WTR\n" + rate + "%");
+					}
+				});
+			}
+
 			if ($.fn.hammer) {
 				$y_columns.find(".production_feature").hammer().on("touch", setAlert);
 			} else {
@@ -258,6 +302,34 @@ var iamreadyLts = function() {
 		rkTo = setTimeout(refreshKey, 2000);
 	}
 
+	if (showFactor > 1) {
+		loadJs("js/jquery.hammer.js", function(){
+			$("#performance_container").hammer()
+				.on("swipeup", function() {
+					if (rolling == 0) {
+						rolling = now;
+					}
+					rolling -= 60;
+					if (rolling <= 0) {
+						rolling = 1;
+					}
+					rollAxis(rolling, 560);
+					setTimeout(function(){rolling = 0;}, 60000);
+				})
+				.on("swipedown", function() {
+					if (rolling == 0) {
+						rolling = now;
+					}
+					rolling += 60;
+					if (rolling >= 590) {
+						rolling = 570;
+					}
+					rollAxis(rolling, 560);
+					setTimeout(function(){rolling = 0;}, 60000);
+				});
+		});
+	}
+	
 	rkTo = setTimeout(refreshKey, 2000);
 };
 

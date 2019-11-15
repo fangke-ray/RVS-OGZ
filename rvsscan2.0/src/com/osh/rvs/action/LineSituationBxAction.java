@@ -96,7 +96,7 @@ public class LineSituationBxAction extends BaseAction {
 				delLast = true;
 			}
 
-			lineLeaderService.getChartContent(section_id, arrLineIds[i], map, null, conn, delLast);
+			lineLeaderService.getChartContent(section_id, arrLineIds[i], map, "manufactor", conn, delLast);
 
 			if (!callback.containsKey("categories")) {
 				callback.putAll(map);

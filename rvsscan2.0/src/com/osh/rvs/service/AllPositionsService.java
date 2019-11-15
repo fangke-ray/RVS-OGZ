@@ -56,6 +56,8 @@ public class AllPositionsService {
 					keys = new String[]{position+ "_1"};
 				} else if (3L == section) {
 					keys = new String[]{position+ "_2"};
+				} else if (9L == section || 10L == section) {
+					keys = new String[]{position+ "_9"};
 				} else {
 					keys = new String[]{position+ "_3"};
 				}

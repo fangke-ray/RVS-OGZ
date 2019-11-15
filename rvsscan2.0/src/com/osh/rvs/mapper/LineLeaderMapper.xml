@@ -467,6 +467,16 @@
 		and time(finish_time) > '15:00:00'
 		]]>
 			</if>
+			<if test="out_period == '2.6'">
+		<![CDATA[
+		and time(finish_time) between '10:00:00' and '11:30:00'
+		]]>
+			</if>
+			<if test="out_period == '3.6'">
+		<![CDATA[
+		and time(finish_time) between '11:30:00' and '15:00:00'
+		]]>
+			</if>
 		;
 	</select>
 

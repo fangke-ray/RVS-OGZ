@@ -1,6 +1,7 @@
 #performance_container {
 	height: 600px;
 	position:relative;
+	overflow:hidden;
 }
 #axis_base {
 	height: 560px;
@@ -11,11 +12,19 @@
 	left: 3em;
 	top: 8px;
 	width: 942px;
+	transition-duration : .6s;
+}
+#axis_base[roled] {
+	box-shadow:0;
+	border-left : 0;
+}
+#axis_base > *{
+	transition : none;
 }
 #axis_base.overwork {
 	height: 695px;
 	transform: scaleY(0.81);
-    transform-origin: 0 0 0;
+	transform-origin: 0 0 0;
 }
 #axis_base #time_axis {
 	height: 100%;
@@ -71,7 +80,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0c2c9', end
 	position: absolute;
 }
 
-#axis_base .y_column:before {
+#axis_base .y_column[work-rate]:before {
 	position: absolute;
 	background-color: rgba(255,255,0,0.85);
 	width: 100%;
@@ -125,6 +134,29 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0c2c9', end
 	text-align:center;
 	font-weight: bold;
 }
+#axis_base[roled] .position_intro  {
+	z-index: 12;
+	background-color:white;
+	border-radius: 20px;
+	border: 1px solid lightgray;
+}
+#axis_base[roled] .position_intro:hover {
+	background-color:rgba(255,255,255,0.6);
+	border: 0;
+}
+#axis_base[roled] .y_columns .y_column .position_intro[work-rate]:before {
+	position: absolute;
+	background-color: rgba(255,255,0,0.85);
+	width: 100%;
+	height: 4em;
+	line-height: 2em;
+	text-align: center;
+	z-index: 4;
+	top: -4em;
+	left: 0px;
+	border-radius: .5em;
+	content: attr(work-rate);
+}
 #standard_column > div {position:absolute; width:100%; height:100%;}
 #standard_column > div > div {
 	width: 100%;
@@ -171,6 +203,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0c2c9', end
 	width : 7.5em;
 	float : left;
 	padding-left:.5em;
+}
+@keyframes serialmove
+{
+	0% {opacity: 1;}
+	45% {opacity: 1;}
+	50% {opacity: 0;} 
+	95% {opacity: 0;} 
+}
+#axis_base .y_result_column .result_material .result_model[serial_no]:before {
+	width : 7.5em;
+	height : 100%;
+	content: attr(serial_no);
+	position:absolute;
+	background-color:inherit;
+	animation: serialmove 10s infinite;
 }
 #axis_base .y_result_column .result_material .result_summary {
 	width : 5.5em;

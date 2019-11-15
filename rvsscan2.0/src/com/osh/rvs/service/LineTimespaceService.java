@@ -12,6 +12,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.mapper.LineLeaderMapper;
 import com.osh.rvs.mapper.LineTimespaceMapper;
 
 public class LineTimespaceService {
@@ -88,6 +89,10 @@ public class LineTimespaceService {
 			}
 
 			String modelName = "" + feature.get("model_name");
+			Object serialNo = feature.get("serial_no");
+			if (serialNo != null) {
+				retPf.put("serial_no", "" + serialNo);
+			}
 			retPf.put("model_name",  modelName);
 			retPf.put("model_group", getModelGroup(modelName));
 
@@ -164,7 +169,7 @@ public class LineTimespaceService {
 
 			Long operate_result = (Long) feature.get("operate_result");
 			if (processCode != null && ("471".equals(processCode) || "362".equals(processCode)
-					 || (processCode.startsWith("262"))) 
+					 || (processCode.startsWith("262")) || "006".equals(processCode)) 
 					&& operate_result == 2) {
 				// 取得烘干时间
 				String categoryName = "" + feature.get("CATEGORY_NAME");
@@ -269,9 +274,10 @@ public class LineTimespaceService {
 	}
 
 	private static final BigDecimal WORK_MINUTE_OF_DAY = new BigDecimal(475);
-	private static final int TEN_O_CLOCK = 125;
-	private static final int TWELVE_O_CLOCK = 245;
-	private static final int FIFTEEN_O_CLOCK = 425;
+	static final int TEN_O_CLOCK = 125;
+	static final int TWELVE_O_CLOCK = 245;
+	static final int ELEVEN_O_CLOCK_AND_THIRTY = 215;
+	static final int FIFTEEN_O_CLOCK = 425;
 	private static final int WORK_MINUTE_OF_DAY_WITH_RESTS = 475 + 5 + 10 + 60 + 10;
 
 	public Map<String, String> getStandardColumn(String lineName, SqlSession conn) {
@@ -300,46 +306,83 @@ public class LineTimespaceService {
 			sbDiv.append("<div></div>");
 			sbDiv.append("<div></div>");
 		} else if ("组装/检查".equals(lineName)){
+			BigDecimal bdFactor = new BigDecimal(3); // 3
+
 			// 根据机型取得标准时间
 			BigDecimal bdCycleTime = new BigDecimal(10);
 
-			// 取得当日作业中型号（不包括ARM）
-			LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
-			String modelName = mapper.getTodayManufatorModelName();
+			// 取得当日作业计划
+			LineLeaderMapper llMapper = conn.getMapper(LineLeaderMapper.class);
+			List<Map<String, Object>> todayProductPlan = llMapper.getTodayProductPlan("101"); // TODO 101
+
+			int posBx3 = -1, quBx3 = 0;
+			BigDecimal bdBx3CycleTime = null;
+
+			for (int i = 0; i < todayProductPlan.size(); i++) {
+				if ("BX3".equals(todayProductPlan.get(i).get("model_name"))) {
+					posBx3 = i;
+					quBx3 = (Integer) todayProductPlan.get(i).get("quantity");
+					String sCycleTime = PathConsts.POSITION_SETTINGS.getProperty("overline.0.003." + "BX3");
+					if (sCycleTime != null) {
+						bdBx3CycleTime = new BigDecimal(sCycleTime);
+					} else {
+						bdBx3CycleTime = new BigDecimal(7);
+					}
+					break;
+				}
+			}
+
+			//	String modelName = mapper.getTodayManufatorModelName();
 			// (overline.0.000._default)
-			if (modelName != null) {
+			BigDecimal bdLocate = new BigDecimal(5).multiply(bdFactor);
+
+			Integer iB = 0;
+
+			for (int i = 0; i < todayProductPlan.size(); i++) {
+				if (i == posBx3) {
+					continue;
+				}
+				String modelName = "" + todayProductPlan.get(i).get("model_name");
+				Integer iQuantity = (Integer) todayProductPlan.get(i).get("quantity");
 				String sCycleTime = PathConsts.POSITION_SETTINGS.getProperty("overline.0.002." + modelName);
 				if (sCycleTime != null) {
 					bdCycleTime = new BigDecimal(sCycleTime);
 				}
+				for (int ii = 0; ii < iQuantity; ii++) {
+					iB++;
+					bdLocate = addBlock(iB, bdLocate, modelName, bdCycleTime, bdFactor, sbCss, sbDiv);
+					if (i == posBx3 - 1) {
+						// 与BX3一起生产的型号
+						if (quBx3 > 0) {
+							iB++;
+							bdLocate = addBlock(iB, bdLocate, "BX3", bdBx3CycleTime, bdFactor, sbCss, sbDiv);
+							quBx3--;
+						}
+					}
+				}
 			}
 
-			BigDecimal bdLocate = new BigDecimal(5);
-
-			BigDecimal bdAbli = WORK_MINUTE_OF_DAY.divide(bdCycleTime, 0, BigDecimal.ROUND_HALF_UP);
-
-			int i = 0;
-			for (; i < bdAbli.intValue() - 1; i++) {
-				int bottom = bdLocate.intValue();
-				bdLocate = bdLocate.add(bdCycleTime);
-				int top = bdLocate.intValue();
-				System.out.println(bottom + ">>" + top);
-				if (bottom <= TEN_O_CLOCK && top >= TEN_O_CLOCK) 
-					bdLocate = bdLocate.add(new BigDecimal(10));
-				if (bottom <= TWELVE_O_CLOCK && top >= TWELVE_O_CLOCK) 
-					bdLocate = bdLocate.add(new BigDecimal(60));
-				if (bottom <= FIFTEEN_O_CLOCK && top >= FIFTEEN_O_CLOCK) 
-					bdLocate = bdLocate.add(new BigDecimal(10));
-				top = bdLocate.intValue();
-				int height = top - bottom;
-
-				sbCss.append("#standard_column > div > div:nth-child(" + (i+1) +") {bottom: " + bottom + "px; height: " + height + "px;}");
-				sbDiv.append("<div><div class=\"count_no\">" + (i+1) + "</div></div>");
+			// 多余的BX3
+			if (quBx3 > 0) {
+				for (int ii = 0; ii < quBx3; ii++) {
+					iB++;
+					bdLocate = addBlock(iB, bdLocate, "BX3", bdBx3CycleTime, bdFactor, sbCss, sbDiv);
+				}
 			}
+
 			int bottom = bdLocate.intValue();
-			int height = WORK_MINUTE_OF_DAY_WITH_RESTS - bottom;
-			sbCss.append("#standard_column > div > div:nth-child(" + (i+1) +") {bottom: " + bottom + "px; height: " + height + "px;}");
-			sbDiv.append("<div><div class=\"count_no\">" + (i+1) + "</div></div>");
+			int fWmodwr = bdFactor.multiply(new BigDecimal(WORK_MINUTE_OF_DAY_WITH_RESTS)).intValue();
+			int height = fWmodwr - bottom;
+			BigDecimal bdAbli = new BigDecimal(height).divide(bdCycleTime, 0, BigDecimal.ROUND_HALF_UP);
+			int iAbli = bdAbli.intValue();
+			while (height > iAbli) {
+				// 按最后型号标准时间补到下班
+				sbCss.append("#standard_column > div > div:nth-child(" + (iB+1) +") {bottom: " + bottom + "px; height: " + iAbli + "px;}");
+				sbDiv.append("<div></div>");
+				iB++;
+				bottom += iAbli;
+				height = fWmodwr - bottom;
+			}
 
 		} else {
 			Object oAbli = PathConsts.SCHEDULE_SETTINGS.get("daily.schedule." + lineName+ "工程");
@@ -380,6 +423,28 @@ public class LineTimespaceService {
 		retMap.put("divHtml", sbDiv.toString());
 
 		return retMap;
+	}
+
+	private BigDecimal addBlock(Integer iBlockIndex, BigDecimal bdLocate, String modelName,
+			BigDecimal bdCycleTime, BigDecimal bdFactor, StringBuffer sbCss, StringBuffer sbDiv) {
+
+		int bottom = bdLocate.intValue();
+		bdLocate = bdLocate.add(bdCycleTime.multiply(bdFactor));
+		int top = bdLocate.intValue();
+		System.out.println(bottom + ">>" + top);
+		if (bottom <= TEN_O_CLOCK * bdFactor.doubleValue() && top >= TEN_O_CLOCK * bdFactor.doubleValue()) 
+			bdLocate = bdLocate.add(new BigDecimal(10).multiply(bdFactor));
+		if (bottom <= ELEVEN_O_CLOCK_AND_THIRTY * bdFactor.doubleValue() && top >= ELEVEN_O_CLOCK_AND_THIRTY * bdFactor.doubleValue()) 
+			bdLocate = bdLocate.add(new BigDecimal(60).multiply(bdFactor));
+		if (bottom <= FIFTEEN_O_CLOCK * bdFactor.doubleValue() && top >= FIFTEEN_O_CLOCK * bdFactor.doubleValue()) 
+			bdLocate = bdLocate.add(new BigDecimal(10).multiply(bdFactor));
+		top = bdLocate.intValue();
+		int height = top - bottom;
+
+		sbCss.append("#standard_column > div > div:nth-child(" + iBlockIndex +") {bottom: " + bottom + "px; height: " + height + "px;}");
+		sbDiv.append("<div model_name=\"" + modelName + "\"><div class=\"count_no\">" + iBlockIndex + "</div></div>");
+
+		return bdLocate;
 	}
 
 	public Object getOperatorFeatures(String [] line_ids, SqlSession conn) {

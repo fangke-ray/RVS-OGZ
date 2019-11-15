@@ -1,5 +1,6 @@
 package com.osh.rvs.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -292,57 +293,90 @@ public class LineLeaderService {
 //		} ]
 
 		if (isPeriod != null) {
-			List<Integer> plans = new ArrayList<Integer>();
-			List<Integer> outs = new ArrayList<Integer>();
+			if ("manufactor".equals(isPeriod)) {
+				List<Integer> plans = new ArrayList<Integer>();
 
-			Integer plan1 = 0,plan2 = 0,plan3 = 0,plan4 = 0;
-			try {
-				if ("00000000014".equals(line_id)) {
-					plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.总组工程"));
-					plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.总组工程"));
-					plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.总组工程"));
-					plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.总组工程"));
-				} else if ("00000000013".equals(line_id)) {
-					plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.NS 工程"));
-					plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.NS 工程"));
-					plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.NS 工程"));
-					plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.NS 工程"));
-				} else if ("00000000012".equals(line_id)) {
-					plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.分解工程"));
-					plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.分解工程"));
-					plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.分解工程"));
-					plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.分解工程"));
+				getManufactorPlanToPeriod(plans, dao);
+
+				List<Integer> outs = new ArrayList<Integer>();
+
+				outs.add(null);
+				Integer out1 = dao.getOutPeriod(""+1, section_id, line_id);
+				outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
+				Integer out2 = dao.getOutPeriod(""+2.6, section_id, line_id);
+				outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
+				Integer out3 = dao.getOutPeriod(""+3.6, section_id, line_id);
+				outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
+				Integer out4 = dao.getOutPeriod(""+4, section_id, line_id);
+				outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
+
+				responseMap.put("plans", plans);
+				responseMap.put("outs", outs);
+				Calendar now = Calendar.getInstance();
+				int hour = now.get(Calendar.HOUR_OF_DAY);
+				if (hour < 10) {
+					responseMap.put("now_period", 1);
+				} else if (hour < 12) { // 11:30 后大休, 判断12点也可以
+					responseMap.put("now_period", 2);
+				} else if (hour < 15) {
+					responseMap.put("now_period", 3);
+				} else {
+					responseMap.put("now_period", 4);
 				}
-			} catch (NumberFormatException e) {
-			}
-			plans.add(null);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(null);
-			plans.add(null);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(null);
-			plans.add(null);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(null);
-			plans.add(null);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(null);
-			plans.add(null);
 
-			outs.add(null);
-			Integer out1 = dao.getOutPeriod(""+1, section_id, line_id);
-			outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
-			Integer out2 = dao.getOutPeriod(""+2, section_id, line_id);
-			outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
-			Integer out3 = dao.getOutPeriod(""+3, section_id, line_id);
-			outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
-			Integer out4 = dao.getOutPeriod(""+4, section_id, line_id);
-			outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
-
-			responseMap.put("plans", plans);
-			responseMap.put("outs", outs);
-			Calendar now = Calendar.getInstance();
-			int hour = now.get(Calendar.HOUR_OF_DAY);
-			if (hour < 10) {
-				responseMap.put("now_period", 1);
-			} else if (hour < 12) {
-				responseMap.put("now_period", 2);
-			} else if (hour < 15) {
-				responseMap.put("now_period", 3);
 			} else {
-				responseMap.put("now_period", 4);
+				List<Integer> plans = new ArrayList<Integer>();
+				List<Integer> outs = new ArrayList<Integer>();
+
+				Integer plan1 = 0,plan2 = 0,plan3 = 0,plan4 = 0;
+				try {
+					if ("00000000014".equals(line_id)) {
+						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.总组工程"));
+						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.总组工程"));
+						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.总组工程"));
+						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.总组工程"));
+					} else if ("00000000013".equals(line_id)) {
+						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.NS 工程"));
+						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.NS 工程"));
+						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.NS 工程"));
+						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.NS 工程"));
+					} else if ("00000000012".equals(line_id)) {
+						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.分解工程"));
+						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.分解工程"));
+						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.分解工程"));
+						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.分解工程"));
+					}
+				} catch (NumberFormatException e) {
+				}
+				plans.add(null);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(null);
+				plans.add(null);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(null);
+				plans.add(null);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(null);
+				plans.add(null);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(null);
+				plans.add(null);
+
+				outs.add(null);
+				Integer out1 = dao.getOutPeriod(""+1, section_id, line_id);
+				outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
+				Integer out2 = dao.getOutPeriod(""+2, section_id, line_id);
+				outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
+				Integer out3 = dao.getOutPeriod(""+3, section_id, line_id);
+				outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
+				Integer out4 = dao.getOutPeriod(""+4, section_id, line_id);
+				outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
+
+				responseMap.put("plans", plans);
+				responseMap.put("outs", outs);
+				Calendar now = Calendar.getInstance();
+				int hour = now.get(Calendar.HOUR_OF_DAY);
+				if (hour < 10) {
+					responseMap.put("now_period", 1);
+				} else if (hour < 12) {
+					responseMap.put("now_period", 2);
+				} else if (hour < 15) {
+					responseMap.put("now_period", 3);
+				} else {
+					responseMap.put("now_period", 4);
+				}
 			}
 		}
 		return;
@@ -472,5 +506,95 @@ public class LineLeaderService {
 	public Integer getPeriWaitingPart(SqlSession conn) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		return dao.getPeriWaitingPart();
+	}
+
+	private void getManufactorPlanToPeriod(List<Integer> plans, LineLeaderMapper llMapper) {
+		Integer plan1 = 0,plan2 = 0,plan3 = 0,plan4 = 0;
+
+		List<Map<String, Object>> todayProductPlan = llMapper.getTodayProductPlan("101"); // TODO 101
+
+		int posBx3 = -1, quBx3 = 0;
+		BigDecimal bdBx3CycleTime = null;
+
+		for (int i = 0; i < todayProductPlan.size(); i++) {
+			if ("BX3".equals(todayProductPlan.get(i).get("model_name"))) {
+				posBx3 = i;
+				quBx3 = (Integer) todayProductPlan.get(i).get("quantity");
+				String sCycleTime = PathConsts.POSITION_SETTINGS.getProperty("overline.0.003." + "BX3");
+				if (sCycleTime != null) {
+					bdBx3CycleTime = new BigDecimal(sCycleTime);
+				} else {
+					bdBx3CycleTime = new BigDecimal(7);
+				}
+				break;
+			}
+		}
+
+		// 根据机型取得标准时间
+		BigDecimal bdCycleTime = new BigDecimal(10);
+
+		BigDecimal bdLocate = new BigDecimal(5); // 8:05
+
+		for (int i = 0; i < todayProductPlan.size(); i++) {
+			if (i == posBx3) {
+				continue;
+			}
+			String modelName = "" + todayProductPlan.get(i).get("model_name");
+			Integer iQuantity = (Integer) todayProductPlan.get(i).get("quantity");
+			String sCycleTime = PathConsts.POSITION_SETTINGS.getProperty("overline.0.002." + modelName);
+			if (sCycleTime != null) {
+				bdCycleTime = new BigDecimal(sCycleTime);
+			}
+			for (int ii = 0; ii < iQuantity; ii++) {
+				bdLocate = bdLocate.add(bdCycleTime);
+				if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+					plan4++;				
+				} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+					plan3++;
+				} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+					plan2++;
+				} else {
+					plan1++;
+				}
+				if (i == posBx3 - 1) {
+					// 与BX3一起生产的型号
+					if (quBx3 > 0) {
+						bdLocate = bdLocate.add(bdBx3CycleTime);
+						if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+							plan4++;				
+						} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+							plan3++;
+						} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+							plan2++;
+						} else {
+							plan1++;
+						}
+						quBx3--;
+					}
+				}
+			}
+		}
+
+		// 多余的BX3
+		if (quBx3 > 0) {
+			for (int ii = 0; ii < quBx3; ii++) {
+				bdLocate = bdLocate.add(bdBx3CycleTime);
+				if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+					plan4++;				
+				} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+					plan3++;
+				} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+					plan2++;
+				} else {
+					plan1++;
+				}
+			}
+		}
+
+		plans.add(null);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(plan1);plans.add(null);
+		plans.add(null);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(plan2);plans.add(null);
+		plans.add(null);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(plan3);plans.add(null);
+		plans.add(null);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(null);
+		plans.add(null);
 	}
 }

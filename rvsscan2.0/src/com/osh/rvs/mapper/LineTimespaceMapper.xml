@@ -11,6 +11,11 @@ select ma.material_id, ma.level, mdl.name as model_name, mdl.category_name,
 timestampdiff(minute, current_date, pf.action_time) as action_time, l.name as line_name,
 timestampdiff(minute, current_date, coalesce(pf.finish_time, current_timestamp)) as finish_time,
 pos.process_code, mp.finish_date, pf.operate_result, pf.rework,
+CASE WHEN
+	mp.line_id = 101 THEN serial_no
+ELSE
+	null
+END as serial_no,
 CASE WHEN 
 	operate_result = 1 THEN -1
 ELSE
@@ -48,8 +53,10 @@ and pos.process_code not in ('211','251','252','302','303','321')
 	<select id="getWorkingStandingRate" resultType="java.math.BigDecimal" parameterType="String">
 		<![CDATA[
 select 
+GREATEST(
 Round((1 - (use_seconds / 60 + cast(#{drying_time} as unsigned)) /
-f_diff_factwork_minutes(action_time, finish_time, #{line_id})) * 100, 1) as wtr FROM
+f_diff_factwork_minutes(action_time, finish_time, #{line_id})) * 100, 1)
+,0) as wtr FROM
 (select sum(
 	case 
 	when use_seconds is null then 0
@@ -59,8 +66,15 @@ f_diff_factwork_minutes(action_time, finish_time, #{line_id})) * 100, 1) as wtr 
 from production_feature pf
 join position pos on pf.position_id = pos.position_id
 where material_id = #{material_id}
+		]]>
+			<if test="line_id eq 101">
+and pos.line_id in (101, 102)
+			</if>
+			<if test="line_id neq 101">
 and pos.line_id = #{line_id}
-and pos.process_code not in ('211','302','303')
+			</if>
+		<![CDATA[
+and pos.process_code not in ('211','302','303','001')
 ) mwt;
 		]]>
 	</select>

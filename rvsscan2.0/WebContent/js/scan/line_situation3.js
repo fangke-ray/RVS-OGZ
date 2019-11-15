@@ -29,6 +29,8 @@ var getfree = true;
 
 var time_archer = (new Date()).getTime();
 
+var chart3XCategories = [ '','','','08:00<br>~<br>10:00','','','','','','10:00<br>~<br>12:00','','','','','','13:00<br>~<br>15:00','','','','','','15:00<br>~<br>17:15','','',''];
+
 var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 	var resInfo = null;
 	try {
@@ -190,8 +192,7 @@ title : {
 	text : ''
 },
 xAxis : {
-	categories : [ '','','','08:00<br>~<br>10:00','','','','','','10:00<br>~<br>12:00','','','','','','13:00<br>~<br>15:00','','','','','','15:00<br>~<br>17:15','','',''
-],
+	categories : chart3XCategories,
 	labels : {
 		style : {
 			fontWeight : 'bold',
@@ -367,7 +368,7 @@ series : [ {
 		);
 
 		if ($("#plan_count").length > 0) {
-			if ($("#plan_count marqueue").length > 0) {
+			if ($("#plan_count div.marqueue").length > 0) {
 				plan_value = 0;
 				plan_complete_value = 0;
 
@@ -380,12 +381,25 @@ series : [ {
 					plan_value += linePlan.quantity;
 				}
 				marqueueText += "</div>";
-				$("#plan_count marqueue").html(marqueueText);
-				if ($("#plan_count marqueue > div").height() < 150) {
-//					$("#plan_count marquee")[0].stop();
-//					$("#plan_count marquee")[0].scrollTop = 0;
+				$("#plan_count div.marqueue").html(marqueueText);
+
+				var inHeight = $("#plan_count div.marqueue .xcom").height();
+				var marqueued = $("#plan_count .js-marquee-wrapper").length;
+				if (inHeight > 126) {
+					$("#plan_count div.marqueue").css("height", (inHeight - 126) + "px")
+					if (!marqueued) {
+						$("#plan_count").marquee({
+							direction:'up',
+							animDirection:'alternate',
+							pauseOnCycle: true,
+							duration : 2020
+						});
+						$("#plan_count .js-marquee-wrapper").css("transform", "translateY(0)");
+					}
 				} else {
-//					$("#plan_count marquee")[0].start();
+					if (marqueued) {
+						$("#plan_count").marquee("destroy");
+					}
 				}
 
 				marqueueText = "<div class='xcom'>";
@@ -402,14 +416,30 @@ series : [ {
 					}
 
 					marqueueText += "<div class='model'>" + lineComplete.model_name + " : </div><br><div class='quantity'"+ planString +">" + lineComplete.quantity + " 台</div><br>"; 
-					plan_complete_value += linePlan.quantity;
+					plan_complete_value += lineComplete.quantity;
 				}
 
 				marqueueText += "</div>";
-				$("#plan_finish_count marqueue").html(marqueueText);
-				$("#plan_finish_count marqueue")[0].stop();
-				if ($("#plan_finish_count marqueue > div").height() > 150) {
-//					$("#plan_finish_count marquee")[0].start();
+				$("#plan_finish_count div.marqueue").html(marqueueText);
+
+				inHeight = $("#plan_finish_count div.marqueue .xcom").height();
+				marqueued = $("#plan_count .js-marquee-wrapper").length;
+
+				if (inHeight > 126) {
+					$("#plan_finish_count div.marqueue").css("height", inHeight + "px")
+					if (!marqueued) {
+						$("#plan_finish_count").marquee({
+							direction:'up',
+							animDirection:'alternate',
+							startVisible: true,
+							duration : 2020
+						});
+						$("#plan_finish_count .js-marquee-wrapper").css("transform", "translateY(0)");
+					}
+				} else {
+					if (marqueued) {
+						$("#plan_finish_count").marquee("destroy");
+					}
 				}
 			} else {
 				$("#plan_count").flipCounter(
@@ -445,9 +475,24 @@ series : [ {
 		$("#completed_rate").text(com_rate.toFixed(0) + "%");
 
 	} catch (e) {
+		console.log(e.message);
 	};
 	getfree = true;
 };
+
+//$.fn.marquee.defaults={
+//	allowCss3Support:!0,
+//	css3easing:'linear',
+//	easing:'linear',
+//	delayBeforeStart:1000,
+//	direction:'left',
+//	duplicated:!1,
+//	duration:5000,
+//	speed:0,
+//	gap:20,
+//	pauseOnCycle:!1,
+//	pauseOnHover:!1,
+//	startVisible:!1};
 
 $(document).ready(function() {
 	var data = {
@@ -456,13 +501,20 @@ $(document).ready(function() {
 
 	if ($("#page_line_id").val() === "00000000101") {
 		servicePath = "lineSituationBX.scan";
-		$("#plan_count, #plan_finish_count").css("overflow", "hidden").html("<marqueue direction='up' behavior='alternate' height=126 scrollamount=2/>");
-//		setTimeout(function(){
-//			$("#plan_count, #plan_finish_count").find("marquee").each(function(idx, ele){
-//				console.log(idx + "ele.stop" + typeof(ele.stop));
-//				ele.stop();
-//			});
-//		}, 1000)
+		$("#plan_count, #plan_finish_count").css("overflow", "hidden").html("<div class='marqueue'/>"); // marquee direction='up' behavior='alternate' height=126 scrollamount=2
+		loadJs("js/jquery.marquee.min.js", function(){
+		});
+
+		// 分时段 
+		$(".plan_process_grid tbody")
+			.find("tr:eq(1) td:eq(0)").text("10:00~11:30")
+			.end()
+			.find("tr:eq(2) td:eq(0)").text("12:30~15:00")
+			.end()
+			.find("tr:eq(3) td:eq(0)").text("15:00~17:20");
+
+		chart3XCategories = [ '','','','08:00<br>~<br>10:00','','','','','','10:00<br>~<br>11:30','','','','','','12:30<br>~<br>15:00','','','','','','15:00<br>~<br>17:20','','',''];
+
 	} else {
 		if ($("#plan_count").length > 0) {
 		$("#plan_count").flipCounter({numIntegralDigits:2,

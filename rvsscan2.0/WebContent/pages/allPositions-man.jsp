@@ -23,23 +23,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 		<div id="wiparea" class="ui-widget-panel" style="width:100%;height:670px; position: relative;">
 			<div class="line choosed" style="height:150px;width:320px;left: 300px;top: 50px;" id="line_bx" beforeOf="line_dec" group="line_bx">
-				<div class="posi" id="posi_001" style="left: 10px; top: 80px;">001</div>
+				<div class="posi" id="posi_001_9" style="left: 10px; top: 80px;">001</div>
 
-				<div class="posi" id="posi_002" style="left: 10px; top: 40px;">002</div>
+				<div class="posi" id="posi_002_9" style="left: 10px; top: 40px;">002</div>
 
-				<div class="posi" id="posi_003" style="left: 50px; top: 40px;">003</div>
+				<div class="posi" id="posi_003_9" style="left: 50px; top: 40px;">003</div>
 
-				<div class="posi" id="posi_004" style="left: 90px; top: 40px;">004</div>
+				<div class="posi" id="posi_004_9" style="left: 90px; top: 40px;">004</div>
 
-				<div class="posi" id="posi_005" style="left: 130px; top: 40px;">005</div>
+				<div class="posi" id="posi_005_9" style="left: 130px; top: 40px;">005</div>
 
-				<div class="posi" id="posi_006" style="left: 170px; top: 40px;">006</div>
+				<div class="posi" id="posi_006_9" style="left: 170px; top: 40px;">006</div>
 
-				<div class="posi" id="posi_007" style="left: 210px; top: 40px;">007</div>
+				<div class="posi" id="posi_008_9" style="left: 210px; top: 40px;">008</div>
 
-				<div class="posi" id="posi_008" style="left: 250px; top: 40px;">008</div>
-
-				<div class="posi" id="posi_009" style="left: 250px; top: 80px;">009</div>
+				<div class="posi" id="posi_009_9" style="left: 250px; top: 80px;">009</div>
 
 				<div class="banner" for="line_bx">BX 本体</div>
 
@@ -48,32 +46,29 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div id="showline" class="line choosed" style="left: 10px; top: 410px; width: 998px; height: 242px;overflow:hidden;">
 
 				<div class="scrollline" for="line_bx" style="position: relative;">
-					<div class="position gridX3 gridY3" for="posi_001">001<br>部组</div>
-					<div class="position-f gridX3 gridFY3" for="posi_001"></div>
+					<div class="position gridX3 gridY3" for="posi_001_9">001<br>部组</div>
+					<div class="position-f gridX3 gridFY3" for="posi_001_9"></div>
 
-					<div class="position gridX3 gridY1" for="posi_002">002<br>总组1</div>
-					<div class="position-f gridX3 gridFY1" for="posi_002"></div>
+					<div class="position gridX3 gridY1" for="posi_002_9">002<br>总组1</div>
+					<div class="position-f gridX3 gridFY1" for="posi_002_9"></div>
 
-					<div class="position gridX4 gridY1" for="posi_003">003<br>总组2</div>
-					<div class="position-f gridX4 gridFY1" for="posi_003"></div>
+					<div class="position gridX4 gridY1" for="posi_003_9">003<br>总组2</div>
+					<div class="position-f gridX4 gridFY1" for="posi_003_9"></div>
 
-					<div class="position gridX5 gridY1" for="posi_004">004<br>总组3</div>
-					<div class="position-f gridX5 gridFY1" for="posi_004"></div>
+					<div class="position gridX5 gridY1" for="posi_004_9">004<br>总组3</div>
+					<div class="position-f gridX5 gridFY1" for="posi_004_9"></div>
 
-					<div class="position gridX6 gridY1" for="posi_005">005<br>总组4</div>
-					<div class="position-f gridX6 gridFY1" for="posi_005"></div>
+					<div class="position gridX6 gridY1" for="posi_005_9">005<br>QC1</div>
+					<div class="position-f gridX6 gridFY1" for="posi_005_9"></div>
 
-					<div class="position gridX7 gridY1" for="posi_006">006<br>总组5</div>
-					<div class="position-f gridX7 gridFY1" for="posi_006"></div>
+					<div class="position gridX7 gridY1" for="posi_006_9">006<br>QC2</div>
+					<div class="position-f gridX7 gridFY1" for="posi_006_9"></div>
 
-					<div class="position gridX8 gridY1" for="posi_007">007<br>QC</div>
-					<div class="position-f gridX8 gridFY1" for="posi_007"></div>
+					<div class="position gridX8 gridY1" for="posi_008_9">008<br>QA</div>
+					<div class="position-f gridX8 gridFY1" for="posi_008_9"></div>
 
-					<div class="position gridX9 gridY1" for="posi_008">008<br>QA</div>
-					<div class="position-f gridX9 gridFY1" for="posi_008"></div>
-
-					<div class="position gridX9 gridY3" for="posi_009">009<br>捆包</div>
-					<div class="position-f gridX9 gridFY3" for="posi_009"></div>
+					<div class="position gridX9 gridY3" for="posi_009_9">009<br>捆包</div>
+					<div class="position-f gridX9 gridFY3" for="posi_009_9"></div>
 
 					<div class="banner" for="line_bx" style="font-size:18px;padding: 8px 10px;z-index:22;">BX 本体流水线状况</div>
 				</div>
