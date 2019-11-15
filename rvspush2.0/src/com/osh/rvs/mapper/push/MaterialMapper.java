@@ -40,7 +40,7 @@ public interface MaterialMapper {
 	 * 同意两天内未投线的维修对象
 	 * @return
 	 */
-	public List<MaterialEntity> getMaterialInlineLater(Integer kind);
+	public List<MaterialEntity> getMaterialInlineLater(@Param("kind") Integer kind);
 
 	public BigDecimal getCountRecieptInPeriod(@Param("start_date") String start_date, @Param("end_date") String end_date,  @Param("isDirect") String isDirect);
 

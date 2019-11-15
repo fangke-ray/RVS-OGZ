@@ -175,8 +175,8 @@ public class ForecastOverTimeOfMaterialJob implements Job {
 		// 邮件
 		if (materails4Mail.length() > 0) {
 			String base = "" + PathConsts.MAIL_CONFIG.getProperty("fore.expedition.content");
-			materails4Mail = base.replaceAll("{timeLimit}", "" + RvsConsts.TIME_LIMIT)
-					.replaceAll("{content}", materails4Mail);
+			materails4Mail = base.replaceAll("\\{timeLimit\\}", "" + RvsConsts.TIME_LIMIT)
+					.replaceAll("\\{content\\}", materails4Mail);
 
 			String subject = PathConsts.MAIL_CONFIG.getProperty("fore.expedition.title");
 

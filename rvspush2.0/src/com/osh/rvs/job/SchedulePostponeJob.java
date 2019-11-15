@@ -299,7 +299,10 @@ public class SchedulePostponeJob implements Job {
 		Date outline_date = scheduleHistory.getOutline_date();
 		if (outline_date == null)
 			outline_date = treatDate;
-		Boolean scheduledExpire = DateUtil.compareDate(outline_date, scheduleHistory.getScheduled_expire_date()) > 0;
+		Boolean scheduledExpire = false;
+		if (scheduleHistory.getScheduled_expire_date() != null) {
+			scheduledExpire = DateUtil.compareDate(outline_date, scheduleHistory.getScheduled_expire_date()) > 0;
+		}
 		Integer comparePartialExpireDate = DateUtil.compareDate(outline_date, scheduleHistory.getPartial_expire_date());
 		Boolean partialExpire = comparePartialExpireDate != null && comparePartialExpireDate > 0;
 		Boolean planExpire = DateUtil.compareDate(outline_date, scheduleHistory.getScheduled_date()) > 0;
@@ -310,8 +313,13 @@ public class SchedulePostponeJob implements Job {
 		cell.setCellValue(getDateFormat(scheduleHistory.getAgreed_date()));
 
 		cell = row.createCell(10);
-		cell.setCellStyle(styleAlignCenter);
-		cell.setCellValue(getDateFormat(scheduleHistory.getScheduled_expire_date()));
+		if (scheduleHistory.getScheduled_expire_date() != null) {
+			cell.setCellStyle(styleAlignCenter);
+			cell.setCellValue(getDateFormat(scheduleHistory.getScheduled_expire_date()));
+		} else {
+			cell.setCellStyle(styleAlignCenter);
+			cell.setCellValue("-");
+		}
 
 		cell = row.createCell(11);
 		cell.setCellStyle(styleAlignCenter);

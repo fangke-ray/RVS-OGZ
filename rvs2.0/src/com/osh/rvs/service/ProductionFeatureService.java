@@ -549,7 +549,7 @@ public class ProductionFeatureService {
 					mpService.finishMaterialProcess(material_id, "00000000070", triggerList, conn);
 				}
 			} else
-			if (!isLightFix && "00000000107".equals(position_id)) { // MF1Over TODO
+			if (!isLightFix && "00000000111".equals(position_id)) { // MF1Over TODO
 				if (isFact) {
 					mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
 				}

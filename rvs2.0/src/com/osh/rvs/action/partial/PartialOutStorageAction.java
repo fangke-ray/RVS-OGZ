@@ -31,6 +31,7 @@ import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.message.ApplicationMessage;
 
 /**
  * 零件出库
@@ -175,25 +176,33 @@ public class PartialOutStorageAction extends BaseAction {
 		ProductionFeatureEntity workingPf = positionPanelService.getWorkingPf(user, conn);
 		Integer use_seconds = positionPanelService.getTotalTimeByRework(workingPf, conn);
 
-		// 作业信息状态改为，作业完成
-		workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
-		workingPf.setUse_seconds(use_seconds);
-		workingPf.setPcs_inputs("{\"EN" + workingPf.getProcess_code() + "01\":\"1\"}");
-		workingPf.setPcs_comments("");
-		pfService.finishProductionFeature(workingPf, conn);
+		if (workingPf != null) {
+			// 作业信息状态改为，作业完成
+			workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
+			workingPf.setUse_seconds(use_seconds);
+			workingPf.setPcs_inputs("{\"EN" + workingPf.getProcess_code() + "01\":\"1\"}");
+			workingPf.setPcs_comments("");
+			pfService.finishProductionFeature(workingPf, conn);
 
-		try {
-			// 启动下个工位
-			pfService.fingerNextPosition(workingPf.getMaterial_id(), workingPf, conn, triggerList, true);
-		} catch (Exception e) {
+			try {
+				// 启动下个工位
+				pfService.fingerNextPosition(workingPf.getMaterial_id(), workingPf, conn, triggerList, true);
+			} catch (Exception e) {
+				MsgInfo info = new MsgInfo();
+				info.setErrmsg(e.getMessage());
+				errors.add(info);
+				conn.rollback();
+			}
+
+			conn.commit();
+			RvsUtils.sendTrigger(triggerList);
+		} else {
 			MsgInfo info = new MsgInfo();
-			info.setErrmsg(e.getMessage());
+			info.setErrcode("info.linework.workingLost");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.workingLost"));
 			errors.add(info);
 			conn.rollback();
 		}
-
-		conn.commit();
-		RvsUtils.sendTrigger(triggerList);
 
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);

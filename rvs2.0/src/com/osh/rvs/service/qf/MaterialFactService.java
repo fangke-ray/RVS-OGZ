@@ -372,8 +372,6 @@ public class MaterialFactService {
 
 		String materialId = entity.getMaterial_id();
 
-		ProductionFeatureMapper featureMapper = conn.getMapper(ProductionFeatureMapper.class);
-
 		{ // //如果是流水线增加进展记录
 			// 插入找到的记录到material_process
 			String patId = entity.getPat_id();
@@ -413,7 +411,9 @@ public class MaterialFactService {
 					MaterialPartialService mptlService = new MaterialPartialService();
 					mptlService.createMaterialPartialWithExistCheck(materialId, conn);
 				}
-				pfService.fingerSpecifyPosition(materialId, false, featureEntity, new ArrayList<String>(), conn);
+				boolean fixed = 
+						("25".equals(featureEntity.getPosition_id()) || "00000000025".equals(featureEntity.getPosition_id()));
+				pfService.fingerSpecifyPosition(materialId, fixed, featureEntity, new ArrayList<String>(), conn);
 			}
 		}
 	}
