@@ -120,9 +120,9 @@ public class LineTimespaceService {
 					String sOvertime = null;
 					try {
 						sOvertime = RvsUtils.getLevelOverLine(modelName, categoryName, level, null, processCode);
-						Integer iOverMinutes = Integer.parseInt(sOvertime);
+						Double dOverMinutes = Double.parseDouble(sOvertime);
 						boolean overtime = false;
-						if (iOverMinutes * 60 <= useSeconds) {
+						if (dOverMinutes * 60 <= useSeconds) {
 							retPf.put("overtime",  "true");
 							retPf.put("use_seconds", "" + useSeconds);
 							overtime = true;

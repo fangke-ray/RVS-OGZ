@@ -1146,7 +1146,7 @@ public class PositionPanelAction extends BaseAction {
 				/// 取得本次工时
 				String sUse_seconds = RvsUtils.getZeroOverLine("_default", null, user, user.getProcess_code());
 				try {
-					use_seconds = Integer.parseInt(sUse_seconds) * 60;
+					use_seconds = (int) (Double.parseDouble(sUse_seconds) * 60);
 				} catch (Exception e){
 				}
 

@@ -391,7 +391,7 @@ public class LineLeaderService {
 
 		String sUse_seconds = RvsUtils.getZeroOverLine(model_name, null, user, position.getProcess_code());
 		try {
-			use_seconds = Integer.parseInt(sUse_seconds) * 60;
+			use_seconds = (int) (Double.parseDouble(sUse_seconds) * 60);
 		} catch (Exception e) {
 		}
 

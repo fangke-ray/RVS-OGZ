@@ -85,7 +85,7 @@ public class ShippingService {
 		String sUse_seconds = RvsUtils.getZeroOverLine("_default", null, user, "711");
 		Integer use_seconds = 600;
 		try {
-			use_seconds = Integer.parseInt(sUse_seconds) * 60;
+			use_seconds = (int) (Double.parseDouble(sUse_seconds) * 60);
 		} catch (Exception e) {
 
 		}

@@ -1003,17 +1003,21 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 			SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 			// 标准作业时间
-			Integer use_seconds = Integer.valueOf(RvsUtils.getZeroOverLine("_default", null, user, from_process_code)) * 60;
 
 			ProductionFeatureEntity pfBean = new ProductionFeatureEntity();
 			pfBean.setSerial_no(serial_no);
-			pfBean.setUse_seconds(use_seconds);
 			pfBean.setMaterial_id(material_id);
 			pfBean.setRework(workingPf.getRework());
 			pfBean.setSection_id(workingPf.getSection_id());
 			pfBean.setPosition_id(workingPf.getPosition_id());
 
 			dao.forbid(pfBean);
+
+			SoloProductionFeatureEntity spfBean = new SoloProductionFeatureEntity();
+			spfBean.setPosition_id(from_position_id);
+			spfBean.setSerial_no(serial_no);
+			Integer use_seconds = sservice.getTotalTime(spfBean, conn);
+			pfBean.setUse_seconds(use_seconds);
 
 			pfBean.setPosition_id(from_position_id);
 			dao.use(pfBean);
