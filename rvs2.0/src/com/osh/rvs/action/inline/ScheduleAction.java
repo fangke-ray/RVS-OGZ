@@ -45,7 +45,9 @@ import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
+import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.Validators;
 
 public class ScheduleAction extends BaseAction {
@@ -402,13 +404,25 @@ public class ScheduleAction extends BaseAction {
 
 		String material_id = req.getParameter("material_id");
 		String move_reason = req.getParameter("move_reason");
-		String processing_position = req.getParameter("processing_position");
-		String position_id = ReverseResolution.getPositionByProcessCode(processing_position, conn);
-
-		scheduleService.updateToPuse(material_id, move_reason, position_id, conn);
+//		String processing_position = req.getParameter("processing_position");
+		String process_code = req.getParameter("process_code");
 
 		// 检索条件表单合法性检查
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		ProductionFeatureService featureService = new ProductionFeatureService();
+		int result = featureService.checkOperateResult(material_id, conn);
+		if (result > 0) {
+			// 如果有工位在对其进行作业则警告，不能进行未修理返还。
+			MsgInfo info = new MsgInfo();
+			info.setErrcode("info.modify.stop.working");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.modify.stop.working"));
+			errors.add(info);
+		} else {
+			String position_id = ReverseResolution.getPositionByProcessCode(process_code, conn);
+			scheduleService.updateToPuse(material_id, move_reason, position_id, conn);
+		}
+
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		if (errors.size() == 0) {
@@ -418,6 +432,9 @@ public class ScheduleAction extends BaseAction {
 			// 查询结果放入Ajax响应对象
 			listResponse.put("material_list", lResultForm);
 		}
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

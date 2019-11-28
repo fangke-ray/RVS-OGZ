@@ -69,7 +69,8 @@ public class ScheduleForm extends ActionForm {
 	@BeanField(title="维修课", name="section_id", type = FieldType.String, length = 11)
 	private String section_id;
 	private String section_name;
-	private String processing_position;//进展工位显示process_code
+	private String process_code;//进展工位显示process_code
+	private String processing_position;//进展工位显示name
 	@BeanField(title = "拆镜时间", name = "dismantle_time", type = FieldType.Date)
 	private String dismantle_time;
 	@BeanField(title = "零件订购日期", name = "order_date", type = FieldType.Date)
@@ -630,5 +631,11 @@ public class ScheduleForm extends ActionForm {
 	}
 	public void setFix_type(String fix_type) {
 		this.fix_type = fix_type;
+	}
+	public String getProcess_code() {
+		return process_code;
+	}
+	public void setProcess_code(String process_code) {
+		this.process_code = process_code;
 	}
 }

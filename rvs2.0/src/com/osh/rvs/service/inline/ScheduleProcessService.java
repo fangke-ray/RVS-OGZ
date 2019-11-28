@@ -22,7 +22,9 @@ import com.osh.rvs.bean.inline.DailyKpiDataEntity;
 import com.osh.rvs.bean.inline.PauseFeatureEntity;
 import com.osh.rvs.bean.inline.ScheduleEntity;
 import com.osh.rvs.bean.inline.ScheduleHistoryEntity;
+import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.inline.ScheduleForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
@@ -84,6 +86,9 @@ public class ScheduleProcessService {
 						if (resolveLevel <= message.getLevel()) {
 							levelup = true;
 						}
+						if (1 < message.getLevel() && RvsConsts.DEPART_MANUFACT.equals(department)) {
+							levelup = true;
+						}
 
 						// 取得原因
 						PauseFeatureEntity pauseEntity = amDao.getBreakOperatorMessageByID(message.getAlarm_messsage_id());
@@ -126,7 +131,15 @@ public class ScheduleProcessService {
 						}
 					}
 				}
-				
+
+				if (entity.getProcessing_position() != null) {
+					retForm.setProcess_code(entity.getProcessing_position());
+					PositionEntity pe = ReverseResolution.getPositionEntityByProcessCode(entity.getProcessing_position(), conn);
+					if (pe != null) {
+						retForm.setProcessing_position(pe.getName());
+					}
+				}
+
 				retForms.add(retForm);
 			}
 		}

@@ -85,13 +85,6 @@ var getWarningComplete = function(xhrobj, rowData, callback, break_message_level
 
 	var $this_dialog = $("#nogood_treat");
 
-	$("#nogoodclosebtn").unbind("click");
-	$("#nogoodclosebtn").click(function(){
-		if ($("#nogoodform").valid()) {
-			$("#nogoodclosebtn").attr("checked", "checked");
-			$this_dialog.dialog("close");
-		}
-	});
 	$this_dialog.dialog({
 		// position : [ 800, 20 ],
 		title : "不良信息及处置",
@@ -104,6 +97,7 @@ var getWarningComplete = function(xhrobj, rowData, callback, break_message_level
 		close : function() {
 			selectedMaterial.comment = $("#nogood_comment").val();
 			selectedMaterial.append_parts = ($("#append_parts_y").attr("checked") ? 1 : 0);
+
 			if ($("#nogoodclosebtn").attr("checked") === "checked") {
 				if (callback) callback(resInfo.warning.material_id, break_message_level, is_modal);
 			}

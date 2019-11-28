@@ -202,6 +202,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison_content">
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
+								<p>19/11/15 2.5.510 更新</p>
+								<p>显微镜制作：展示画面相应(标准工时/计划排定/流水线变更)调整</p>
+								<p>显微镜制作：增加计划排定等管理功能</p>
+								<p>显微镜制作：标准时间允许小数化</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/10/14 2.5.500 更新</p>
+								<p>显微镜制作：BX流水线导入</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
 								<p>19/8/1 2.4.451 更新</p>
 								<p>设备・专用工具管理：同工位点检表单批量进行点检</p>
 								<p>--------------------------------------</p>

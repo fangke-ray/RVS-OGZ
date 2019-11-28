@@ -144,8 +144,8 @@ var pcsO = {
 			this.$pcs_contents.find("input.i_switchM").click(this._emSwitch);
 			pcsO._setPass("switcher[name^='EP']");
 		} else {
-			this.$pcs_contents.find("input[name^='L'],textarea[name^='L']").parent().css("background-color", "#93C3CD");
-			this.$pcs_contents.find("input[name^='E'],textarea[name^='E']").not(".i_sff").parent().css("background-color", "#F8FB84");
+			this.$pcs_contents.find("input[name^='L'],textarea[name^='L']").parent().css("background-color", "#F8FB84");
+			this.$pcs_contents.find("input[name^='E'],textarea[name^='E']").not(".i_sff").parent().css("background-color", "#93C3CD");
 			this.$pcs_contents.find("input[name^='LN'],input[name^='EN']").button();
 			this.$pcs_contents.find("input.i_switchM").click(this._emSwitch);
 			pcsO._setPass("switcher[name^='LP'],switcher[name^='EP']");

@@ -26,13 +26,16 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.common.ReportMetaData;
 import com.osh.rvs.common.ReportUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.inline.ScheduleForm;
 import com.osh.rvs.service.CapacityService;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.DownloadService;
+import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.PositionService;
+import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.inline.ScheduleProcessService;
 import com.osh.rvs.service.inline.ScheduleService;
@@ -41,7 +44,9 @@ import com.osh.rvs.service.product.ProductService;
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
+import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.Validators;
 
 public class ScheduleProcessingAction extends BaseAction {
@@ -653,4 +658,65 @@ public class ScheduleProcessingAction extends BaseAction {
 		log.info("ScheduleProcessingAction.doUpdateManufactPlans end");
 	}
 
+	public void doupdateToPause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
+		log.info("ScheduleAction.updateToPause start");
+
+		String material_id = req.getParameter("material_id");
+		String move_reason = req.getParameter("move_reason");
+		String levelName = req.getParameter("levelName");
+//		String processing_position = req.getParameter("processing_position");
+		String process_code = req.getParameter("process_code");
+
+		// 检索条件表单合法性检查
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		ProductionFeatureService featureService = new ProductionFeatureService();
+		int result = featureService.checkOperateResult(material_id, conn);
+		if (result > 0) {
+			// 如果有工位在对其进行作业则警告，不能进行未修理返还。
+			MsgInfo info = new MsgInfo();
+			info.setErrcode("info.modify.stop.working");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.modify.stop.working"));
+			errors.add(info);
+		} else {
+			if (CommonStringUtil.isEmpty(levelName)) {
+				MaterialService mService = new MaterialService();
+				mService.removeMaterial(material_id, move_reason, conn);
+			} else {
+				ScheduleService scheduleService = new ScheduleService();
+				String position_id = ReverseResolution.getPositionByProcessCode(process_code, conn);
+				scheduleService.updateToPuse(material_id, move_reason, position_id, conn);
+			}
+		}
+
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+
+		if (errors.size() == 0) {
+			// 取得用户信息
+			HttpSession session = req.getSession();
+			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+			List<Integer> privacies = user.getPrivacies();
+			Integer resolveLevel = 99;
+			if (privacies.contains(RvsConsts.PRIVACY_SCHEDULE)) {
+				resolveLevel = 3;
+			} else if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
+				resolveLevel = 2;
+			}
+
+			// 执行检索
+			List<ScheduleForm> lResultForm = scheduleProcessService.getMaterialList(form, user.getDepartment(), conn, errors, resolveLevel);
+
+			// 查询结果放入Ajax响应对象
+			listResponse.put("material_list", lResultForm);
+		}
+
+		// 检查发生错误时报告错误信息
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+
+		log.info("ScheduleAction.updateToPause end");
+	}
 }

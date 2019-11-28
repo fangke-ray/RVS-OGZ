@@ -66,6 +66,7 @@ import com.osh.rvs.mapper.master.ModelMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.AcceptanceMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
+import com.osh.rvs.mapper.qf.WipMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -1611,5 +1612,33 @@ public class MaterialService {
 		
 		return cacheName;
 
+	}
+
+	/**
+	 * 删除维修品操作
+	 * 
+	 * @param material_id
+	 * @param move_reason
+	 * @param conn
+	 * @throws Exception 
+	 */
+	public void removeMaterial(String material_id, String move_reason,
+			SqlSessionManager conn) throws Exception {
+
+		// 删除工程计划
+		MaterialProcessService mpService = new MaterialProcessService();
+		mpService.removeByBreak(material_id, conn);
+
+		// 删除工位等待
+		ProductionFeatureService pfService = new ProductionFeatureService();
+		pfService.removeWorking(material_id, null, conn);
+
+		// 删除零件需求
+		// 删除等待处理中断
+		// 删除库位存放
+
+		// break end
+		WipMapper wMapper = conn.getMapper(WipMapper.class);
+		wMapper.stop(material_id);
 	}
 }

@@ -185,6 +185,12 @@ public class WidgetAction extends BaseAction {
 			req.setAttribute("level", "0");
 		}
 
+		if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+			req.setAttribute("depart", "man");
+		} else {
+			req.setAttribute("depart", "rpr");
+		}
+
 		// 迁移到页面
 		actionForward = mapping.findForward(req.getParameter(BaseConst.METHOD));
 

@@ -51,7 +51,7 @@ var pcs_buttons = {
 	}
 };
 
-var showPcsDetail = function(material_id, is_modal, get_history){
+var showPcsDetail = function(material_id, is_modal, get_history, isLeader){
 	trans_material_id = material_id;
 
 	pcs_dialog = $("#detail_dialog");
@@ -104,7 +104,7 @@ var showPcsDetail = function(material_id, is_modal, get_history){
 	
 						// 工程检查票
 						if (resInfo.pcses && resInfo.pcses.length > 0) {
-							pcsO.generate(resInfo.pcses);
+							pcsO.generate(resInfo.pcses, null, isLeader);
 						}
 					}
 				} catch (e) {
@@ -180,7 +180,7 @@ var showPcsDetailLeader = function(material_id, ismodal, get_history) {
 			});
 		}
 	}
-	showPcsDetail(material_id, ismodal, get_history);
+	showPcsDetail(material_id, ismodal, get_history, true);
 }
 
 function line_pcs(pcs_data) {

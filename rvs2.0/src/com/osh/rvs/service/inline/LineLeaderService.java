@@ -338,7 +338,7 @@ public class LineLeaderService {
 		CopyOptions co = new CopyOptions();
 
 		co.dateConverter("MM-dd HH:mm", "occur_time");
-		co.include("alarm_messsage_id", "occur_time", "sorc_no", "model_name", "serial_no", "line_name", "process_code", "operator_name");
+		co.include("alarm_messsage_id", "occur_time", "sorc_no", "model_name", "serial_no", "line_name", "process_code", "operator_name", "position_name");
 		BeanUtil.copyToForm(entity, form, co);
 
 		// 取得原因

@@ -8,7 +8,11 @@ var caseId = 0;
 var keepSearchData;
 
 $(function() {
-	setInterval(findSchedule, "300000");
+	var forManufactor = ($("#listarea .areatitle").html() === "制品一览");
+	if (!forManufactor) {
+		setInterval(findSchedule, "300000");
+	}
+
 	$("input.ui-button").button();
 	$("#removefromplanbutton").disable();
 
@@ -296,7 +300,7 @@ function initGrid() {
 			rowheight: 23, 
 			datatype: "local", 
 			colNames: ['维修对象ID','修理单号','机种', '型号 ID', '型号', '机身号', '等级', '直送', '客户<br>同意','RC','投线日期','入库<br>预定日',
-			'零件<br>到货', '零件<br>BO', '零件缺品详细', '维修课','进展<br>工位','拆镜<br>时间','零件订<br>购安排','分解产<br>出安排','分解实<br>际产出'
+			'零件<br>到货', '零件<br>BO', '零件缺品详细', (forManufactor ? '课室' : '维修课'),'进展<br>工位号','进展<br>工位名','拆镜<br>时间','零件订<br>购安排','分解产<br>出安排','分解实<br>际产出'
 			,'NS进<br>展工位','NS产<br>出安排','NS实<br>际产出','纳期','总组出<br>货安排','AM/PM','加急','工程内发现/不良','break_message_level','remain_days','备注','fix_type'],
 			colModel: [
 				{name:'material_id', index:'material_id', key: true,hidden:true},
@@ -355,6 +359,7 @@ function initGrid() {
 					return "";
 				}},
 				{name:'section_name',index:'section_name', width:35, hidden:!forManufactor},
+				{name:'process_code',index:'process_code', width:35, align:'center', hidden:!forManufactor},
 				{name:'processing_position',index:'processing_position', width:35, align:'center', hidden:!forManufactor},
 				{name:'dismantle_time',index:'dismantle_time', width:35, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
 				{name:'order_date',index:'order_date', width:35, align:'center', hidden:true, formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d'}},
@@ -399,7 +404,7 @@ function initGrid() {
 						}
 						return "";
 					}},
-				{name:'break_message',index:'break_message', width:80, hidden:true},
+				{name:'break_message',index:'break_message', width:80, hidden:!forManufactor},
 				{name:'break_message_level',index:'break_message_level', width:80, hidden:true},
 				{name:'remain_days',index:'remain_days', width:80, hidden:true},
 				{name:'scheduled_manager_comment',index:'scheduled_manager_comment', width:80, hidden:true},
@@ -1065,14 +1070,16 @@ var moveOutOfLine = function() {
 
 					var postData = {move_reason : $("#move_reason").val(),
 					material_id : rowData.material_id,
-					processing_position : rowData.processing_position
+					processing_position : rowData.processing_position,
+					levelName: rowData.levelName,
+					process_code : rowData.process_code
 					}
 
 					// Ajax提交
 					$.ajax({
 						beforeSend: ajaxRequestType, 
-						async: true, 
-						url: 'schedule.do?method=doupdateToPause', 
+						async: false, 
+						url: servicePath + '?method=doupdateToPause', 
 						cache: false, 
 						data: postData, 
 						type: "post", 

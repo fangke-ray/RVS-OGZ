@@ -26,6 +26,8 @@ public class ReverseResolution {
 
 	public static Map<String, String> positionRever = new HashMap<String, String>();
 
+	public static Map<String, PositionEntity> positionEntityRever = new HashMap<String, PositionEntity>();
+
 	public static Map<String, String> modelRever = new HashMap<String, String>();
 	public static Map<String, String> itemCodeRever = new HashMap<String, String>();
 
@@ -125,6 +127,7 @@ public class ReverseResolution {
 			List<PositionEntity> position = dao.searchPosition(condition);
 			if (position.size() > 0) {
 				positionRever.put(process_code, position.get(0).getPosition_id());
+				positionEntityRever.put(process_code, position.get(0));
 				logger.info("Get " + process_code + " is :" + position.get(0).getPosition_id());
 			}
 		}
@@ -134,6 +137,32 @@ public class ReverseResolution {
 			conn = null;
 		}
 		return positionRever.get(process_code);
+	}
+
+	public static PositionEntity getPositionEntityByProcessCode(String process_code, SqlSession conn) {
+		if (CommonStringUtil.isEmpty(process_code)) return null;
+		boolean ownConn = false;
+		if (conn == null) {
+			conn = getTempConn();
+			ownConn = true;
+		}
+		if (!positionEntityRever.containsKey(process_code)) {
+			PositionEntity condition = new PositionEntity();
+			condition.setProcess_code(process_code);
+			PositionMapper dao = conn.getMapper(PositionMapper.class);
+			List<PositionEntity> position = dao.searchPosition(condition);
+			if (position.size() > 0) {
+				positionRever.put(process_code, position.get(0).getPosition_id());
+				positionEntityRever.put(process_code, position.get(0));
+				logger.info("Get " + process_code + " is :" + position.get(0).getPosition_id());
+			}
+		}
+		if (ownConn) {
+			logger.info("Connnection close");
+			conn.close();
+			conn = null;
+		}
+		return positionEntityRever.get(process_code);
 	}
 
 	public static SqlSession getTempConn() {

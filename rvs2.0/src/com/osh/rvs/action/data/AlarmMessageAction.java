@@ -217,6 +217,13 @@ public class AlarmMessageAction extends BaseAction {
 					actionForward = mapping.findForward("detail");
 				}
 			}
+
+			if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment())) {
+				req.setAttribute("depart", "man");
+			} else {
+				req.setAttribute("depart", "rpr");
+			}
+
 		}
 
 		log.info("AlarmMessageAction.detail end");

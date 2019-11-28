@@ -60,12 +60,12 @@ public class ScheduleEntity implements Serializable {
 	private String bo_contents;
 	private String section_id;
 	private String section_name;
-	private String processing_position;//进展工位显示process_code
+	private String processing_position;//进展工位显示process_code, 另外取name
 	private Date dismantle_time;//拆镜时间
 	private Date order_date;
 	private Date dec_plan_date;
 	private Date dec_finish_date;
-	private String ns_processing_position;//ns进展工位
+	private String ns_processing_position;//ns进展工位name
 	private Date ns_plan_date;
 	private Date ns_finish_date;
 	private Date com_plan_date;

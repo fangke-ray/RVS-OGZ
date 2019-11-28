@@ -136,7 +136,7 @@
 			a.section_id,
 			sc.name as section_name,
 			dismantle.action_time as dismantle_time,
-			(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id <>13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
+			(select p1.process_code from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id <>13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
 			(select p1.name from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id =13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as ns_processing_position,
 			mpd.scheduled_date as dec_plan_date,
 			mpd.finish_date as dec_finish_date,

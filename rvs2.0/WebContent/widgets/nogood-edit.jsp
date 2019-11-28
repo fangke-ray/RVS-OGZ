@@ -23,6 +23,7 @@ var nogoodJs = function(){
 			$("#nogoodspns span").hide();
 		});
 		$("#nogoodclosebtn, #nogoodoperatebtn").click(function(){
+
 			if ($("#nogoodform").valid()) {
 				if ($("#break_message_level").val() == 2 && $("#planned_listarea").length > 0) {
 					edit_schedule_popMaterialDetail(selectedMaterial.material_id, $("#break_message_level").val() ,true);
@@ -49,6 +50,7 @@ var nogoodJs = function(){
 							success : ajaxSuccessCheck,
 							error : ajaxError,
 							complete : function() {
+								if (typeof(refreshList) === "function" && $("#nogoodclosebtn:visible").val() === "解除中断") refreshList();
 								$("#nogood_treat").dialog("close");
 								if (typeof(refreshMes) === "function") refreshMes();
 								if ($(".ui-jqgrid-title:eq(0)").text() === "警告信息一览") findit();
@@ -213,10 +215,13 @@ if (!$.validator) {
 			<td class="ui-state-default td-title">发生时间<input type="hidden" id="interfaced" value="${interfaced}"/><input type="hidden" id="message-detail_id" value="${alarm_messsage_id}"/></td>
 			<td class="td-content" id="nogood_occur_time" style="width:300px"></td>
 			</tr>
+<% String depart = (String) request.getAttribute("depart"); %>
+<% if (!"man".equals(depart)) { %>
 			<tr>
 			<td class="ui-state-default td-title">修理单号</td>
 			<td class="td-content" id="nogood_sorc_no"></td>
 			</tr>
+<% } %>
 			<tr>
 			<td class="ui-state-default td-title">型号</td>
 			<td class="td-content" id="nogood_model_name"></td>
@@ -238,6 +243,7 @@ if (!$.validator) {
 			<td class="td-content" id="nogood_reason"></td>
 			</tr>
 			<tr>
+<% if (!"man".equals(depart)) { %>
 			<tr>
 				<td class="ui-state-default td-title">追加订购零件</td>
 				<td class="td-content" colspan="3">
@@ -245,6 +251,7 @@ if (!$.validator) {
 					<input class="ui-button" type="radio" name="append_parts" id="append_parts_n" checked></input><label for="append_parts_n">不追加</label>
 				</td>
 			</tr>
+<% } %>
 			<script type="text/javascript">
 				$("#flowcase input[name=append_parts]").button();
 			</script>

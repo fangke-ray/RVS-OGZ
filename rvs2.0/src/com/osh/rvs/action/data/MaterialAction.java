@@ -336,17 +336,17 @@ public class MaterialAction extends BaseAction {
 			isLeader = true;
 		} else {
 			String outlineTime = mform.getOutline_time();
-			// 如果完成的话，只有系统管理员能修改
-			if (isManuf) {
-				// 完成两天内
-				Date bf = RvsUtils.switchWorkDate(new Date(), -2, conn);
-				String sBf = DateUtil.toString(bf, DateUtil.DATE_PATTERN); 
-				if (sBf.compareTo(outlineTime) > 0) {
-					isLeader = false;
-				}
-			} else {
-				// 完成就没法改
-				if (outlineTime != null) {
+			if (outlineTime != null) {
+				// 如果完成的话，只有系统管理员能修改
+				if (isManuf) {
+					// 完成两天内
+					Date bf = RvsUtils.switchWorkDate(new Date(), -2, conn);
+					String sBf = DateUtil.toString(bf, DateUtil.DATE_PATTERN); 
+					if (sBf.compareTo(outlineTime) > 0) {
+						isLeader = false;
+					}
+				} else {
+					// 完成就没法改
 					isLeader = false;
 				}
 			}
