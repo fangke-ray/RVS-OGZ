@@ -159,6 +159,12 @@ public class DownloadAction extends BaseAction {
 		}else if ("report_weeks_confirm".equals(from)) {
 			
 			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\weeks\\confirm\\" + filePath;
+		} else if ("report_package".equals(from)) {
+			
+			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\package\\" + strFileName + "\\" + filePath;
+		} else if ("report_package_confirm".equals(from)) {
+			
+			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\package\\" + strFileName + "\\confirm\\" + filePath;
 		}else if ("prop".equals(from)) {
 			filePath = PathConsts.BASE_PATH + PathConsts.PROPERTIES + "\\" + filePath;
 		}

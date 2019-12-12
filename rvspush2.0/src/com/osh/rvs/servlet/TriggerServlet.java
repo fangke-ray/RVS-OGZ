@@ -33,6 +33,7 @@ import com.osh.rvs.job.DeviceJigOrderJob;
 import com.osh.rvs.job.PositionStandardTimeQueue;
 import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.service.MaterialService;
+import com.osh.rvs.service.PackageFilingService;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.TriggerPositionService;
 
@@ -84,6 +85,9 @@ public class TriggerServlet extends HttpServlet {
 	private static final String METHOD_DEVICE_JIG_ORDER_APPLICATE = "device_jig_order_applicate";
 	/** 到货验收 **/
 	private static final String METHOD_DEVICE_JIG_ORDER_INLINE_RECEPT = "device_jig_order_inline_recept";
+
+	/** 作业日报表签章 **/
+	private static final String METHOD_DAILY_REPORT_RESPOND = "daily_report_respond";
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse arg1) throws ServletException, IOException {
@@ -172,6 +176,9 @@ public class TriggerServlet extends HttpServlet {
 				param.put("manage_code", parameters[8]);
 				DeviceJigOrderJob deviceJigOrderJob = new DeviceJigOrderJob();
 				deviceJigOrderJob.inlineRecept(param);
+			} else if (METHOD_DAILY_REPORT_RESPOND.equals(method)) {
+				PackageFilingService pfService = new PackageFilingService();
+				pfService.respond(target, object);
 			}
 		}
 	}

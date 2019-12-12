@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -45,28 +46,38 @@ public class DailyWorkSheetAction extends BaseAction {
 		
         //获取当前操作者的工位权限
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
-		List<PositionEntity> positions =user.getPositions();
-		if(positions.size()>0){
-			for(int i=0;i<positions.size();i++){
-				PositionEntity positionEntity = positions.get(i);
-				//如果可操作工位包括111，当前操作人就可以上传受理、消毒、灭菌、出货文件，否则只提供受理、消毒、灭菌、出货文件的下载
-				if("111".equals(positionEntity.getProcess_code())){
-					req.setAttribute("accept", "accept");
-				}
-				if("121".equals(positionEntity.getProcess_code())){
-					req.setAttribute("disinfection", "disinfection");
-				}
-				if("131".equals(positionEntity.getProcess_code())){
-					req.setAttribute("disinfect", "disinfect");
-				}
-				if("711".equals(positionEntity.getProcess_code())){
-					req.setAttribute("shipment", "shipment");
+
+		boolean onlyManufactor = (user.getDepartment() != null && user.getDepartment() == RvsConsts.DEPART_MANUFACT);
+
+		if (onlyManufactor) {
+			if (user.getPrivacies().contains(RvsConsts.PRIVACY_LINE)) {
+				req.setAttribute("package_manage", "package");
+			}
+		} else {
+			List<PositionEntity> positions =user.getPositions();
+			if(positions.size()>0){
+				for(int i=0;i<positions.size();i++){
+					PositionEntity positionEntity = positions.get(i);
+					//如果可操作工位包括111，当前操作人就可以上传受理、消毒、灭菌、出货文件，否则只提供受理、消毒、灭菌、出货文件的下载
+					if("111".equals(positionEntity.getProcess_code())){
+						req.setAttribute("accept", "accept");
+					}
+					if("121".equals(positionEntity.getProcess_code())){
+						req.setAttribute("disinfection", "disinfection");
+					}
+					if("131".equals(positionEntity.getProcess_code())){
+						req.setAttribute("disinfect", "disinfect");
+					}
+					if("711".equals(positionEntity.getProcess_code())){
+						req.setAttribute("shipment", "shipment");
+					}
 				}
 			}
+			if (user.getPrivacies().contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
+				req.setAttribute("inline", "inline");
+			}
 		}
-		if (user.getPrivacies().contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
-			req.setAttribute("inline", "inline");
-		}
+
 		log.info("DailyWorkSheetAction.init end");
 	}
 
@@ -102,6 +113,9 @@ public class DailyWorkSheetAction extends BaseAction {
 		case "report_snout":
 			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\snout\\";
 			break;
+		case "report_package":
+			filePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\package\\" + req.getParameter("year_month");
+			break;
 		}
 
 		if (errors.size() == 0) {
@@ -117,4 +131,36 @@ public class DailyWorkSheetAction extends BaseAction {
 		returnJsonResponse(res, listResponse);
 		log.info("DailyWorkSheetAction.searchDailyWorkSheet end");
 	}
+
+	/**
+	 * 验证盖章
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doRespond(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
+			SqlSessionManager conn) throws Exception {
+
+		log.info("DailyWorkSheetAction.doRespond start");
+		// Ajax响应对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 获取当前操作者
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+		DailyWorkSheetService service = new DailyWorkSheetService();
+		service.sendRespond(user.getJob_no(), req.getParameter("fileName"));
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		log.info("DailyWorkSheetAction.doRespond end");
+	}
+	
 }

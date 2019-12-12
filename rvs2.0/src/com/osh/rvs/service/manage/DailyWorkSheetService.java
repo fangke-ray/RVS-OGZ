@@ -6,7 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
+import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.log4j.Logger;
+
 public class DailyWorkSheetService {
+	Logger _log = Logger.getLogger(DailyWorkSheetService.class);
+
 	public List<Map<String, Object>> searchFileName(String filepath) {
 
 		List<Map<String, Object>> fileList = new ArrayList<Map<String, Object>>();
@@ -38,5 +46,24 @@ public class DailyWorkSheetService {
 		}
 
 		return fileList;
+	}
+
+	public void sendRespond(String jobNo, String fileName) throws IOReactorException, InterruptedException {
+		String postFileName = fileName.replaceAll("包装检查表", "BZJCB");
+
+		// 签当前人员章到确认者位置
+		HttpAsyncClient httpclient = new DefaultHttpAsyncClient();
+		httpclient.start();
+		try {
+			String inUrl = "http://localhost:8080/rvspush/trigger/daily_report_respond/" + postFileName + "/" + jobNo + "/package";
+			HttpGet request = new HttpGet(inUrl);
+			_log.info("finger:" + request.getURI());
+			httpclient.execute(request, null);
+		} catch (Exception e) {
+		} finally {
+			Thread.sleep(100);
+			httpclient.shutdown();
+		}
+
 	}
 }

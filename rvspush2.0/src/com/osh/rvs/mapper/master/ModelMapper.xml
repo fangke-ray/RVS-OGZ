@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.master.ModelMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getModelByName" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT MODEL_ID
+		FROM `model`
+		WHERE NAME REGEXP #{model_name}
+		AND DELETE_FLG = 0 LIMIT 1;
+		]]>
+	</select>
+
+	<select id="getModelByItemCode" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT MODEL_ID
+		FROM `model`
+		WHERE item_code = #{item_code}
+		AND DELETE_FLG = 0 LIMIT 1;
+		]]>
+	</select>
+
+	<select id="checkModelByName" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT MODEL_ID
+		FROM `model`
+		WHERE NAME = #{model_name}
+		]]>
+			<if test="model_id!= null and model_id!= '' ">
+		<![CDATA[ 
+			AND MODEL_ID <> #{model_id}
+		]]>
+			</if>
+		<![CDATA[ 
+		AND DELETE_FLG = 0;
+		]]>
+	</select>
+
+</mapper>

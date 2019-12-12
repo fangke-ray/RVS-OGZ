@@ -72,6 +72,10 @@
 			</div>
 			<div class="ui-widget-content">
 				<div style="width: 991px; height: 44px; border-bottom: 0;" id="infoes" class="dwidth-full ui-widget-content">
+<%
+		String department = "" + request.getAttribute("department");
+		if ("1".equals(department)) {
+%>
 					<div>
 						<input type="radio" name="infoes" class="ui-button ui-corner-up" id="acceptbutton" value="1" role="button" checked="checked">
 						<label for="acceptbutton">受理消毒灭菌</label>
@@ -92,6 +96,17 @@
 						<input id="hidden_is_shipment" type="hidden" value="${shipment}">
 						<input id="hidden_is_inline" type="hidden" value="${inline}">
 					</div>
+<%
+		} else {
+%>
+					<div>
+						<input type="radio" name="infoes" class="ui-button ui-corner-up" id="packagebutton" value="1" role="button" checked="checked">
+						<label for="packagebutton">包装检查表</label>
+						<input id="hidden_is_package" type="hidden" value="${package_manage}">
+					</div>
+<%
+		}
+%>
 				</div>
 				<div id="daily_work_sheet_load">
 

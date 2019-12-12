@@ -59,4 +59,24 @@
 			AND pf.finish_time between #{start_date} AND #{end_date};
 		]]>
 	</select>
+
+	<select id="getPackageMaterialByModelInDay" resultType="MaterialEntity">
+		<![CDATA[ 
+			SELECT model_id, serial_no, op.job_no
+			FROM production_feature pf
+			JOIN material ma
+			ON pf.material_id = ma.material_id
+			JOIN operator op
+			ON pf.operator_id = op.operator_id
+			JOIN position pos
+			ON pf.position_id = pos.position_id
+			WHERE pf.operate_result = 2
+			AND ma.model_id = #{model_id}
+			AND pf.finish_time between #{package_date} AND date_add(#{package_date}, interval 1 day)
+			AND pos.special_page = 'shipping'
+			ORDER BY pf.finish_time
+			;
+		]]>
+	</select>
+
 </mapper>

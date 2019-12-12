@@ -8,6 +8,9 @@ captions["report_schedule"] = "每日计划工作记录表";
 captions["report_shipping"] = "每日出货工作记录表";
 captions["report_unrepaire"] = "每周未修理翻修品清点状况记录表";
 captions["report_snout"] = "每月先端回收记录表";
+captions["report_package"] = "每月包装检查表";
+
+var callBackTO = null;
 
 $(function(){
 	$("#infoes >div").buttonset();
@@ -45,7 +48,7 @@ $(function(){
 		rowheight : 23,
 		shrinkToFit:true,
 		datatype : "local",  
-		colNames : ['日期', '系统生成', '确认完成','上传'],
+		colNames : ['日期', '系统生成', '确认完成','上传','责任者确认'],
 		colModel : [ 
             {name : 'fileDayTime',index : 'fileDayTime',align : 'center'}, 
             {name : 'fileName',index : 'fileName',width : 200,align : 'center',
@@ -63,6 +66,11 @@ $(function(){
 				formatter : function(value, options, rData){	
 					return "<a style='text-decoration:none;' href='javascript:import_upload_file(\"" +
 					rData['fileDayTime'] +"\");' ><input type='button'value='上传'class='upload-button ui-state-default '></input></a>";
+   			}},
+            {name : 'respond',index : 'respond',width : 80,align : 'center',
+				formatter : function(value, options, rData){	
+					return "<a style='text-decoration:none;' href='javascript:respond_by_manager(\"" +
+					rData['fileName'] +"\");' ><input type='button'value='确认'class='upload-button ui-state-default '></input></a>";
    			}}],
 		rowNum :20,
 		toppager : false,
@@ -90,6 +98,8 @@ $(function(){
 		$("#choosebutton").show();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").hide();
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["respond"]);
 		if ($("#hidden_is_inline").val()) {
 			$("#exd_list").jqGrid('showCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
 		} else {
@@ -104,6 +114,8 @@ $(function(){
 		$("#choosebutton").show();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").hide();
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["respond"]);
 		if ($("#hidden_is_accept").val()) {
 			$("#exd_list").jqGrid('showCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
 		} else {
@@ -118,7 +130,8 @@ $(function(){
 		$("#choosebutton").show();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").hide();
-		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload", "respond"]).jqGrid('setGridWidth', '990');
 		nowPage = "report_schedule";
 		findit();
 	});
@@ -127,6 +140,8 @@ $(function(){
 		$("#choosebutton").show();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").hide();
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["respond"]);
 		if ($("#hidden_is_shipment").val()) {
 			$("#exd_list").jqGrid('showCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
 		} else {
@@ -141,7 +156,8 @@ $(function(){
 		$("#choosebutton").show();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").hide();
-		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload", "respond"]).jqGrid('setGridWidth', '990');
 		nowPage = "report_unrepaire";
 		findit();
 	});
@@ -151,17 +167,37 @@ $(function(){
 		$("#choosebutton").hide();
 		$("#monthdownbutton").hide();
 		$("#monthshowbutton").show();
-		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload"]).jqGrid('setGridWidth', '990');
+		$("#responsebutton").hide();
+		$("#exd_list").jqGrid('hideCol', ["confirmfilename", "upload", "respond"]).jqGrid('setGridWidth', '990');
 		nowPage = "report_snout";
 		findit();
 	});
-	
+
+	//包装检查表
+	$("#packagebutton").click(function(){
+		$("#choosebutton").show();
+		$("#monthdownbutton").hide();
+		$("#monthshowbutton").hide();
+		$("#responsebutton").show();
+		$("#exd_list")
+			.jqGrid('hideCol', ["upload"])
+			.jqGrid('showCol', ["confirmfilename"]);
+		if ($("#hidden_is_package").val()) {
+			$("#exd_list").jqGrid('showCol', ["respond"]);
+		} else {
+			$("#exd_list").jqGrid('hideCol', ["respond"]);
+		}
+		$("#exd_list").jqGrid('setGridWidth', '990');
+		nowPage = "report_package";
+		findit();
+	});
+
 	$("#daily_work_sheet_load").show();
 	$("#choosebutton").button();
 	$("#choosebutton").click(function(){
 		findit();
 	});
-	$("#acceptbutton").trigger("click");
+	$("#infoes .ui-buttonset input:radio:eq(0)").trigger("click");
 
 	$("#monthshowbutton").button().click(showmonth);
 });
@@ -189,6 +225,34 @@ var import_upload_file = function(date) {
 		
 	});
 	$("#upload_file").show();	
+};
+
+var respond_by_manager = function(filename){
+	var postData = {
+		"type" : nowPage,
+		"fileName" : filename
+	};
+	$.ajax({
+		beforeSend: ajaxRequestType, 
+		async: true, 
+		url: servicePath + '?method=doRespond', 
+		cache: false, 
+		data: postData, 
+		type: "post", 
+		dataType: "json", 
+		success: ajaxSuccessCheck, 
+		error: ajaxError,
+		complete: function(){
+			if (callBackTO) {
+				clearTimeout(callBackTO);
+				callBackTO = null;
+			}
+			callBackTO = setTimeout(function(){
+				findit();
+				callBackTO = null;
+			}, 2000);
+		}
+	});
 };
 
 var searchdata;

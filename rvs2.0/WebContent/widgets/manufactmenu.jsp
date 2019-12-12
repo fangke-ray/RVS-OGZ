@@ -112,6 +112,7 @@ $(function() {
 	<div>
 		        <a href="filing.do">检查票归档</a><br>
 		        <a href="operatorProduction.do?method=monthly">SORC 作业月报</a><br>
+		        <a href="daily_work_sheet.do">工作记录表</a>
 	</div>
 <% } %>
 

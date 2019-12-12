@@ -30,6 +30,7 @@ import com.osh.rvs.job.InfectFilingJob;
 import com.osh.rvs.job.InfectWarningJob;
 import com.osh.rvs.job.InlinePlanJob;
 import com.osh.rvs.job.OverTimeOfMaterialJob;
+import com.osh.rvs.job.PackageFilingJob;
 import com.osh.rvs.job.PartialWarehouseJob;
 import com.osh.rvs.job.PositionStandardTimeQueue;
 import com.osh.rvs.job.RemainTimeJob;
@@ -277,6 +278,13 @@ public class InitServlet extends HttpServlet {
 
 			scheduler.scheduleJob(job, trigger);
 
+			// 出货包装记录生成
+			job = newJob(PackageFilingJob.class).withIdentity("packageFilingJob", "rvspush").build();
+
+			trigger = newTrigger().withIdentity("packageFilingTrigger", "rvspush")
+					.withSchedule(dailyAtHourAndMinute(22, 25)) // 22, 25
+					.build();
+			
 		} catch (NumberFormatException nfe) {
 			logger.error("Scheduler Load Fail :" + nfe.getMessage() , nfe);
 		} catch (SchedulerException se) {

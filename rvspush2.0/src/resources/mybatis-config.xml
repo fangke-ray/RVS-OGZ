@@ -35,10 +35,10 @@
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">
 				<property name="driver" value="com.mysql.jdbc.Driver" />
-				<property name="url" value="jdbc:mysql://10.220.130.100:3306/rvsdb?autoReconnect=true" />
 				<!--
-				<property name="url" value="jdbc:mysql://localhost:3306/rvsgdb?autoReconnect=true" />
+				<property name="url" value="jdbc:mysql://10.220.130.100:3306/rvsdb?autoReconnect=true" />
 				-->
+				<property name="url" value="jdbc:mysql://localhost:3306/rvsgdb?autoReconnect=true" />
 				<property name="username" value="dbma" />
 				<property name="password" value="FEDur7s#" />
 			</dataSource>
@@ -65,5 +65,6 @@
 		<mapper resource="com/osh/rvs/mapper/push/PostMessageMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/DevicesTypeMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/push/DeviceJigOrderMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/master/ModelMapper.xml" />
 	</mappers>
 </configuration> 
