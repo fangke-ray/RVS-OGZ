@@ -377,7 +377,7 @@ series : [ {
 				for (var il in resInfo.linePlanList) {
 					var linePlan = resInfo.linePlanList[il];
 					modelMap[linePlan.model_id] = linePlan.quantity;
-					marqueueText += "<div class='model'>" + linePlan.model_name + " : </div><br><div class='quantity'>" + linePlan.quantity + " 台</div><br>"; 
+					marqueueText += "<div class='model'>" + linePlan.model_name + " : </div><br><div class='quantity'>" + linePlan.quantity + " <span>台</span></div><br>"; 
 					plan_value += linePlan.quantity;
 				}
 				marqueueText += "</div>";
@@ -415,7 +415,7 @@ series : [ {
 						}
 					}
 
-					marqueueText += "<div class='model'>" + lineComplete.model_name + " : </div><br><div class='quantity'"+ planString +">" + lineComplete.quantity + " 台</div><br>"; 
+					marqueueText += "<div class='model'>" + lineComplete.model_name + " : </div><br><div class='quantity'"+ planString +">" + lineComplete.quantity + " <span>台</span></div><br>"; 
 					plan_complete_value += lineComplete.quantity;
 				}
 

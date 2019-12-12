@@ -106,7 +106,7 @@ public class MaterialAction extends BaseAction {
 
 		req.setAttribute("mReferChooser", mReferChooser);
 
-		boolean onlyManufactor = (user.getDepartment() != null && user.getDepartment() == 2);
+		boolean onlyManufactor = (user.getDepartment() != null && user.getDepartment() == RvsConsts.DEPART_MANUFACT);
 
 		if (!onlyManufactor) {
 			// OCM取得

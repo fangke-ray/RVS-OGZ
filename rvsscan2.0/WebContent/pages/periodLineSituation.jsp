@@ -39,12 +39,12 @@ td.low {
 }
 #plan_complete div.marqueue {
 	font-size: 16px;
-	line-height: 1.6em;
 }
 #plan_complete div.marqueue .model {
 	font-family: Georgia;
 	float:left;
 	margin-left: 0.2em;
+	line-height: 1.6em;
 }
 #plan_complete div.marqueue .quantity {
 	float:right;
@@ -54,6 +54,10 @@ td.low {
 	padding-right: 0.2em;
 	padding-left:0.4em;
 	border-top-left-radius:20px 12px;
+	font-size:28px;
+}
+#plan_complete div.marqueue .quantity span {
+	font-size:16px;
 }
 #plan_complete #plan_count div.marqueue .quantity {
 	background-color: navy;

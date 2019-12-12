@@ -548,10 +548,13 @@ public class LineLeaderService {
 			for (int ii = 0; ii < iQuantity; ii++) {
 				bdLocate = bdLocate.add(bdCycleTime);
 				if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+					if (plan4 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 					plan4++;				
 				} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+					if (plan3 == 0) bdLocate = bdLocate.add(new BigDecimal(60));
 					plan3++;
 				} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+					if (plan2 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 					plan2++;
 				} else {
 					plan1++;
@@ -561,10 +564,13 @@ public class LineLeaderService {
 					if (quBx3 > 0) {
 						bdLocate = bdLocate.add(bdBx3CycleTime);
 						if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+							if (plan4 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 							plan4++;				
 						} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+							if (plan3 == 0) bdLocate = bdLocate.add(new BigDecimal(60));
 							plan3++;
 						} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+							if (plan2 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 							plan2++;
 						} else {
 							plan1++;
@@ -580,10 +586,13 @@ public class LineLeaderService {
 			for (int ii = 0; ii < quBx3; ii++) {
 				bdLocate = bdLocate.add(bdBx3CycleTime);
 				if (bdLocate.intValue() > LineTimespaceService.FIFTEEN_O_CLOCK) {
+					if (plan4 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 					plan4++;				
 				} else if (bdLocate.intValue() > LineTimespaceService.ELEVEN_O_CLOCK_AND_THIRTY) {
+					if (plan3 == 0) bdLocate = bdLocate.add(new BigDecimal(60));
 					plan3++;
 				} else if (bdLocate.intValue() > LineTimespaceService.TEN_O_CLOCK) {
+					if (plan2 == 0) bdLocate = bdLocate.add(new BigDecimal(10));
 					plan2++;
 				} else {
 					plan1++;

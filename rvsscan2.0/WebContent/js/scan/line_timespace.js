@@ -227,7 +227,7 @@ var iamreadyLts = function() {
 				}
 			}
 
-			if (lampAssignNo == 1) {
+			if (showFactor  == 1) {
 				$y_columns.each(function(){
 					var $y_column = $(this);
 					var position = $y_column.attr("for");
