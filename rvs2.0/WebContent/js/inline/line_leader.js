@@ -230,7 +230,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 					width : 602,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['产出安排', '同意日期', '加急', '修理单号','维修站', '零件订购日','零件BO','入库预定日','不良', '等级', '机身号', '机种', '型号', '状态', '位置', '工位名称' ,'本工程外位置',
+					colNames : ['产出安排', '同意日期', '加急', '修理单号','维修站', '零件订购日','零件BO','入库预定日','不良', '等级', '机身号', '机种', '型号', '状态', '位置', '', '工位名称' ,'本工程外位置',
 							'material_id', 'position_id', 'is_reworking', 'is_today', 'light_fix'],
 					colModel : [
 							{name:'scheduled_date',index:'scheduled_date', width:40, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d', newformat:'m-d'}},
@@ -247,7 +247,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							}, {
 								name : 'sorc_no',
 								index : 'sorc_no',
-								width : 60, formatter:function(value,b,row) {
+								width : 65, formatter:function(value,b,row) {
 									return "<span class='sorc_no'>" + value + "</span>  " + 
 										getFlags(row.expedited, row.direct_flg, row.light_fix);
 //										(row.direct_flg == 1 ? " <span class='direct_flg'>直</span>" :"");
@@ -300,13 +300,13 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							}, {
 								name : 'serial_no',
 								index : 'serial_no',
-								width : 50
+								width : 55
 							},
 						{name:'category_name',index:'category_name', width:50, hidden : true},
 							 {
 								name : 'model_name',
 								index : 'model_name',
-								width : 125 / (!isRepairLine + 1)
+								width : 115 / (!isRepairLine + 1)
 							},
 							{
 								name : 'operate_result',
@@ -320,6 +320,11 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 								width : 40,
 								align:'center'
 							}, {
+								name : 'px',
+								index : 'px',
+								width : 20, align:'center', formatter:'select', editoptions:{value:resInfo.opt_px},
+								hidden : !resInfo.division_flg
+							}, {
 								name : 'position_name',
 								index : 'position_name',
 								width : 90,
@@ -332,7 +337,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 						{name : 'is_today', index : 'is_today', hidden : true},
 						{name : 'light_fix', index : 'light_fix', hidden : true}
 							],
-					rowNum : 100,
+					rowNum : 200,
 					rownumbers : true,
 					toppager : false,
 					viewrecords : true,

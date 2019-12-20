@@ -16,11 +16,12 @@
 			ROLE_ID,
 			POSITION_ID,
 			EMAIL,
+			PX,
 			UPDATED_BY,
-			UPDATED_TIME
+			UPDATED_TIME,
+			DELETE_FLG
 		FROM OPERATOR
-		WHERE DELETE_FLG = 0
-		AND OPERATOR_ID = #{operator_id};
+		WHERE OPERATOR_ID = #{operator_id};
 		]]>
 	</select>
 
@@ -34,6 +35,7 @@
 			LINE_NAME,
 			ROLE_NAME,
 			EMAIL,
+			PX,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM V_OPERATOR_NAMED
@@ -92,6 +94,7 @@
 			ROLE_NAME,
 			RANK_KIND,
 			EMAIL,
+			PX,
 			o.UPDATED_BY,
 			o.UPDATED_TIME
 		FROM V_OPERATOR_NAMED o
@@ -124,6 +127,10 @@
 			</if>
 			<if test="department!= null and department!= '' ">
 				AND DEPARTMENT = #{department}
+			</if>
+			<if test="position_id != null and position_id != '' ">
+				AND EXISTS (SELECT * FROM operator_abilities a 
+						WHERE o.OPERATOR_ID = a.OPERATOR_ID and a.POSITION_ID = #{position_id})
 			</if>
 		</where> 
 		<![CDATA[ 
@@ -169,7 +176,8 @@
 			LINE_NAME,
 			ROLE_NAME,
 			POSITION_NAME,
-			PWD_DATE
+			PWD_DATE,
+			PX
 		FROM V_OPERATOR_LOGIN
 		WHERE DELETE_FLG = 0
 			AND JOB_NO = #{job_no}
@@ -189,9 +197,9 @@
 	<insert id="insertOperator" parameterType="OperatorEntity">
 		<![CDATA[ 
 		INSERT INTO OPERATOR 
-			(NAME, JOB_NO, PWD, WORK_COUNT_FLG, SECTION_ID, LINE_ID, ROLE_ID, POSITION_ID, EMAIL, UPDATED_BY, UPDATED_TIME) 
+			(NAME, JOB_NO, PWD, WORK_COUNT_FLG, SECTION_ID, LINE_ID, ROLE_ID, POSITION_ID, EMAIL, PX, UPDATED_BY, UPDATED_TIME) 
 		VALUES 
-			(#{name}, #{job_no}, #{pwd}, #{work_count_flg}, #{section_id}, #{line_id}, #{role_id}, #{position_id}, #{email}, #{updated_by}, current_timestamp);
+			(#{name}, #{job_no}, #{pwd}, #{work_count_flg}, #{section_id}, #{line_id}, #{role_id}, #{position_id}, #{email}, #{px}, #{updated_by}, current_timestamp);
 		]]>
 	</insert>
 
@@ -213,6 +221,7 @@
 			ROLE_ID = #{role_id},
 			POSITION_ID = #{position_id},
 			EMAIL = #{email},
+			PX = #{px},
 			UPDATED_BY = #{updated_by},
 			UPDATED_TIME = current_timestamp
 		WHERE OPERATOR_ID = #{operator_id};

@@ -13,10 +13,7 @@
 			    CAST(`p`.POSITION_ID as char) as POSITION_ID,
 			    `p`.NAME,
 			    `p`.PROCESS_CODE,
-				CASE WHEN pos.SECTION_ID = 1
-					THEN CAST(`p`.LIGHT_DIVISION_FLG as char)
-				ELSE '0'
-				end as LIGHT_DIVISION_FLG,
+				CAST(`p`.LIGHT_DIVISION_FLG as char) as LIGHT_DIVISION_FLG,
 			    cast(coalesce(`pf`.material_count, 0) as char) as material_count,
 			    cast(coalesce(`pf2`.material_count, 0) as char) as light_fix_count,
 			    qf.quotation_first

@@ -27,6 +27,7 @@ public class AllPositionsService {
 
 	public Map<String, Map<String, String>> makeOnjs(Map<String, Object> listResponse, List<Map<String, Object>> objs, SqlSession conn) {
 		Map<String, Map<String, String>> ret = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, String>> retDivided = new HashMap<String, Map<String, String>>();
 		String quotationCount = "0";
 		for (Map<String, Object> obj : objs) {
 			String position = (String) obj.get("PROCESS_CODE");
@@ -68,10 +69,10 @@ public class AllPositionsService {
 				String today_work = toString(obj.get("today_work"), "0");
 				String heaps = toString(obj.get("w_count"), "0");
 				record.put("heaps", heaps);
-				if (position.startsWith("2") || position.startsWith("3") || position.startsWith("4") || position.startsWith("5")) {
-					record.put("l_heaps", toString(obj.get("l_count"), "0"));
-					record.put("h_heaps", toString(obj.get("h_count"), "0"));
-				}
+//				if (position.startsWith("2") || position.startsWith("3") || position.startsWith("4") || position.startsWith("5")) {
+//					record.put("l_heaps", toString(obj.get("l_count"), "0"));
+//					record.put("h_heaps", toString(obj.get("h_count"), "0"));
+//				}
 				if ("111".equals(key)) {
 					// 取得在途 TODO
 					// 当日受理
@@ -88,6 +89,25 @@ public class AllPositionsService {
 					// TODO merge
 				} else {
 					ret.put(key, record);
+					boolean divisionFlg = Boolean.TRUE.equals(obj.get("light_division_flg"));
+					if (divisionFlg) { // 分线
+						Map<String, String> recordA = new HashMap<String, String>();
+						Map<String, String> recordB = new HashMap<String, String>();
+						recordA.put("heaps", toString(obj.get("h_count"), "0"));
+						recordB.put("heaps", toString(obj.get("l_count"), "0"));
+						recordA.put("overline", overline);
+						recordB.put("overline", overline);
+						recordA.put("today_work", "0");
+						recordA.put("avg_cost", "-");
+						recordB.put("today_work", "0");
+						recordB.put("avg_cost", "-");
+
+						checkStatus(position, recordA, overline, recordA.get("heaps"), record.get("alarm_messsage_id"), conn);
+						checkStatus(position, recordB, overline, recordB.get("heaps"), record.get("alarm_messsage_id"), conn);
+
+						retDivided.put(key+"A", recordA);
+						retDivided.put(key+"B", recordB);
+					}
 				}
 			}
 		}
@@ -148,6 +168,25 @@ public class AllPositionsService {
 					ret.put(position + "_3", record);
 				}
 			}
+		}
+
+		// 分线工位
+		if (!retDivided.isEmpty()) {
+			AllPositionsMapper dao = conn.getMapper(AllPositionsMapper.class);
+			List<Map<String, Object>> outcomeDivided = dao.getOutcomeDivided();
+			for (Map<String, Object> obj : outcomeDivided) {
+				String position = (String) obj.get("PROCESS_CODE");
+				Long section = (Long) obj.get("section_id");
+				Long px = (Long) obj.get("px");
+				String key = position + "_" + section + (px == 1 ? "B" : "A");
+				if (retDivided.containsKey(key)) {
+					Map<String, String> record = retDivided.get(key);
+					String today_work = toString(obj.get("today_work"), "0");
+					record.put("today_work", today_work);
+					record.put("avg_cost", toString(obj.get("avg_cost"), "-"));
+				}
+			}
+			ret.putAll(retDivided);
 		}
 
 		listResponse.put("quotationCount", quotationCount);

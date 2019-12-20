@@ -128,7 +128,7 @@ var search_handleComplete = function(xhrobj, textStatus) {
 					width : gridWidthMiddleRight,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['', '用户 ID', '角色', '工号', '用户姓名', '', '所在课室', '所在工程','邮箱地址', '最后更新人', '最后更新时间'],
+					colNames : ['', '用户 ID', '角色', '工号', '用户姓名', '', '所在课室', '所在工程','邮箱地址','分线','最后更新人', '最后更新时间'],
 					colModel : [
 					{name:'myac', width:60, fixed:true, sortable:false, resize:false, formatter:'actions', formatoptions:{keys:true}},
 					{ // 用户 ID
@@ -150,6 +150,8 @@ var search_handleComplete = function(xhrobj, textStatus) {
 					{name:'section_name',index:'section_name', width:60},
 					{name:'line_name',index:'line_name', width:60},
 					{name:'email',index:'email', width:130},
+					{name:'px',index:'px', align:"center", formatter: 'select',
+						editoptions:{value:"0:全部;1:A;2:B"}, width:30},
 					{ // 最后更新人
 						name : 'updated_by',
 						index : 'updated_by',
@@ -251,6 +253,7 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#input_account_type").val(resInfo.operatorForm.work_count_flg).trigger('change');
 			//$("#work_count_flg_set input[value="+resInfo.operatorForm.work_count_flg+"]").attr("checked", true).trigger('change');
 			$("#input_email").val(resInfo.operatorForm.email);
+			$("#input_px").val(resInfo.operatorForm.px).trigger('change');
 			$("#label_edit_updated_by").text(resInfo.operatorForm.updated_by);
 			$("#label_edit_updated_time").text(resInfo.operatorForm.updated_time);
 			$("#grid_edit_main_position").find("tr").removeClass("ui-state-active");
@@ -313,7 +316,8 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 								"role_id" : $("#input_role_id").val(),
 								"line_id" : $("#input_line_id").val(),
 								"position_id" : $("#grid_edit_main_position tr.ui-state-active").find(".referId").html(),
-								"email" : $("#input_email").val()
+								"email" : $("#input_email").val(),
+								"px" : $("#input_px").val()
 							}
 
 							$("#grid_edit_positions tr.ui-state-active").each(function(i,item){
@@ -449,7 +453,8 @@ var showAdd = function() {
 				"role_id" : $("#input_role_id").val(),
 				"line_id" : $("#input_line_id").val(),
 				"position_id" : $("#grid_edit_main_position tr.ui-state-active").find(".referId").html(),
-				"email" : $("#input_email").val()
+				"email" : $("#input_email").val(),
+				"px" : $("#input_px").val()
 			}
 
 			$("#editarea #grid_edit_positions tr.ui-state-active").each(function(i,item){

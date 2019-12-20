@@ -105,16 +105,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<input type="text" alt="工位名称" name="name" id="input_name" maxlength="20" class="ui-widget-content">
 					</td>
 				</tr>
-				<!--tr>
-					<td class="ui-state-default td-title">中小修理工时比率</td>
-					<td class="td-content">
-						<input type="text" alt="中小修理工时比率" name="light_worktime_rate" id="input_light_worktime_rate" maxlength="3" class="ui-widget-content">
-					</td>
-				</tr>
 				<tr>
-					<td class="ui-state-default td-title">独立小修理工位标记</td>
+					<td class="ui-state-default td-title">进行分线的工位</td>
 					<td class="td-content" id="input_light_division_flg"></td>
-				</tr-->
+				</tr>
 				<tr>
 					<td class="ui-state-default td-title">最后更新时间</td>
 					<td class="td-content"><label id="label_edit_updated_time"></label></td>

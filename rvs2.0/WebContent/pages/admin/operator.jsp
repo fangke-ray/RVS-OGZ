@@ -195,6 +195,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</label></td>
 				</tr>
 				<tr>
+					<td class="ui-state-default td-title">分线</td>
+					<td class="td-content">
+						<select name="px" alt="分线" id="input_px" class="ui-widget-content">
+							<%=request.getAttribute("pxOptions")%>
+						</select>
+					</td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">最后更新时间</td>
 					<td class="td-content"><label id="label_edit_updated_time"></label></td>
 				</tr>

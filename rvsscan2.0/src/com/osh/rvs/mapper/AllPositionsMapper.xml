@@ -9,7 +9,7 @@
 		<![CDATA[ 
 		select p.process_code, pos.section_id, cast(p.position_id as char) as position_id,
 		outcome.today_work, outcome.avg_cost, heap.w_count, heap.h_count, heap.l_count,
-		am.alarm_messsage_id
+		am.alarm_messsage_id, p.light_division_flg
 		from v_position p 
 		JOIN
 		position_of_section pos
@@ -28,18 +28,28 @@
 		AND (pos.section_id = outcome.section_id or p.line_id = 15)
 		LEFT JOIN
 		(
-		select position_id, section_id, count(1) as w_count, sum(not is_light_fix) as h_count, sum(is_light_fix) as l_count
+		select position_id, section_id, count(1) as w_count, sum(is_div = 0) as h_count, sum(is_div = 1) as l_count
 		from (
 			select 
-				position_id, pf.section_id, level in (9,91,92,93) as is_light_fix
+				pf.position_id, pf.section_id, 
+				CASE WHEN pos.light_division_flg = 1 THEN mp.px
+				ELSE null END as is_div
 			from
 				production_feature pf 
+			JOIN
+				position pos
+			ON
+				pf.position_id = pos.position_id
 			JOIN
 				material ma
 			ON
 				pf.material_id = ma.material_id
+			LEFT JOIN
+				material_process mp
+			ON 
+				ma.material_id = mp.material_id AND pos.line_id = mp.line_id
 			where
-				finish_time IS NULL AND operate_result <> 5 AND (operate_result <> 7 AND position_id not in (10, 11))
+				finish_time IS NULL AND operate_result <> 5 AND (operate_result <> 7 AND pf.position_id not in (10, 11))
 			and ma.qa_check_time IS NULL
 		) pfmix
 		group by
@@ -68,6 +78,41 @@
 		AND pos.section_id = am.section_id
 		;
 		]]>
+	</select>
+
+	<select id="getOutcomeDivided" resultType="map">
+		select p.PROCESS_CODE, pos.section_id, cast(p.position_id as char) as position_id,
+		outcome.today_work, outcome.avg_cost, outcome.px
+		from position p 
+		JOIN
+		position_of_section pos
+		ON p.position_id = pos.position_id
+		JOIN
+		(select
+			pf.position_id, pf.section_id, mp.px, count(pf.material_id) as today_work , round(avg(use_seconds) / 60) as avg_cost
+		from
+		    production_feature pf
+		JOIN
+			position pos
+		ON
+			pf.position_id = pos.position_id
+		JOIN
+			material ma
+		ON
+			pf.material_id = ma.material_id
+		JOIN
+			material_process mp
+		ON 
+			ma.material_id = mp.material_id AND pos.line_id = mp.line_id
+		where
+			operate_result in (2,6)
+			and finish_time >= current_date
+		group by
+			position_id, section_id, px) outcome
+		ON p.position_id = outcome.position_id
+		AND pos.section_id = outcome.section_id
+		WHERE p.light_division_flg = 1
+		;
 	</select>
 
 	<select id="getAlarmMessage" resultType="map">

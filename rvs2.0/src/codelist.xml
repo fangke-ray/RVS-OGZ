@@ -786,6 +786,15 @@
 		<value code="130">135</value>
 	</codelist>
 
+	<codelist name="operator_px">
+		<value code="1">A</value>
+		<value code="2">B</value>
+	</codelist>
+
+	<codelist name="material_px">
+		<value code="0">A</value>
+		<value code="1">B</value>
+	</codelist>
 	<codelist name="specialized_device_type">
 		<value code="1">电烙铁工具</value>
 		<value code="2">力矩工具</value>

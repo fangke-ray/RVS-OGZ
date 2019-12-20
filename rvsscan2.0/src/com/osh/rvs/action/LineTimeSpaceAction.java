@@ -94,10 +94,12 @@ public class LineTimeSpaceAction extends BaseAction {
 			line_id = "00000000014";
 		}
 
+		String px = req.getParameter("px");
+
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
 
-		listResponse.put("productionFeatures", service.getProductionFeatures(line_id, conn));
+		listResponse.put("productionFeatures", service.getProductionFeatures(line_id, px, conn));
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

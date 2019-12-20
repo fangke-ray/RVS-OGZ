@@ -28,7 +28,7 @@ public class MaterialProcessForm extends ActionForm {
 	@BeanField(title="", name="com_finish_date", type = FieldType.Date)
 	private String com_finish_date;
 	
-	@BeanField(title="产出安排", name="schedule_date", type = FieldType.Date)
+	@BeanField(title="产出安排", name="scheduled_date", type = FieldType.Date)
 	private String schedule_date;
 	
 	public String getSchedule_date() {

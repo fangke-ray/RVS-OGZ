@@ -84,10 +84,10 @@ public class LineLeaderService {
 			boolean depar = false;
 			if ("1".equals(light_division_flg)) { // 分线
 				depar = true;
-				if ("0".equals(workingOfPositionL.get("material_count"))
-						&& "0".equals(workingOfPositionL.get("light_fix_count"))) { // B线无仕挂
-					depar = false;
-				}
+//				if ("0".equals(workingOfPositionL.get("material_count"))
+//						&& "0".equals(workingOfPositionL.get("light_fix_count"))) { // B线无仕挂
+//					depar = false;
+//				}
 			}
 
 			if (depar) { // 分线
@@ -116,67 +116,68 @@ public class LineLeaderService {
 		List<Object> counts = new ArrayList<Object>();
 		List<Object> light_fix_counts = new ArrayList<Object>();
 
-		// 工位合并
-		Map<String, Float[]> processesCnt = new HashMap<String, Float[]>();
-		Map<String, Set<String>> countIntos = new HashMap<String, Set<String>>();
-
-		for (Map<String, String> workingOfPosition : newWorkingOfPositions) {
-			String processCode = "" + workingOfPosition.get("PROCESS_CODE");
-			if (processCode.endsWith("A") || processCode.endsWith("B")) {
-				processCode = processCode.substring(0, processCode.length() - 1);
-			}
-			String countIntoProcessCode = PathConsts.POSITION_SETTINGS.getProperty("count.into." + processCode);
-			if (countIntoProcessCode != null) {
-				workingOfPosition.put("PROCESS_CODE", null);
-				if (countIntos.containsKey(countIntoProcessCode)) {
-					Set<String> countInto = countIntos.get(countIntoProcessCode);
-					countInto.add(processCode);
-				} else {
-					Set<String> countInto = new HashSet<String>();
-					countInto.add(countIntoProcessCode);
-					countInto.add(processCode);
-					countIntos.put(countIntoProcessCode, countInto);
-				}
-				processCode = countIntoProcessCode;
-			}
-			if (!processesCnt.containsKey(processCode)) {
-				Float newInt[] = {0.0f,0.0f};
-				processesCnt.put(processCode, newInt);
-			}
-			// 大修理数据
-			Float fCount = 0f;
-			try {
-				fCount = Float.parseFloat(workingOfPosition.get("material_count"));
-				if ("400".equals(processesCnt)) {
-					fCount /= 10;
-				}
-			} catch (NumberFormatException e) {
-			}
-
-			// 小修理数据
-			Float light_fix_count = 0f;
-			try {
-				light_fix_count = Float.parseFloat(workingOfPosition.get("light_fix_count"));
-				if ("400".equals(processesCnt)) {
-					light_fix_count /= 10;
-				}
-			} catch (NumberFormatException e) {
-			}
-			Float[] cntOfProcess = processesCnt.get(processCode);
-			cntOfProcess[0] = cntOfProcess[0] + fCount;
-			cntOfProcess[1] = cntOfProcess[1] + light_fix_count;
-		}
+//		// 工位合并
+//		Map<String, Float[]> processesCnt = new HashMap<String, Float[]>();
+//		Map<String, Set<String>> countIntos = new HashMap<String, Set<String>>();
+//
+//		for (Map<String, String> workingOfPosition : newWorkingOfPositions) {
+//			String processCode = "" + workingOfPosition.get("PROCESS_CODE");
+//			if (processCode.endsWith("A") || processCode.endsWith("B")) {
+//				processCode = processCode.substring(0, processCode.length() - 1);
+//			}
+//			String countIntoProcessCode = PathConsts.POSITION_SETTINGS.getProperty("count.into." + processCode);
+//			if (countIntoProcessCode != null) {
+//				workingOfPosition.put("PROCESS_CODE", null);
+//				if (countIntos.containsKey(countIntoProcessCode)) {
+//					Set<String> countInto = countIntos.get(countIntoProcessCode);
+//					countInto.add(processCode);
+//				} else {
+//					Set<String> countInto = new HashSet<String>();
+//					countInto.add(countIntoProcessCode);
+//					countInto.add(processCode);
+//					countIntos.put(countIntoProcessCode, countInto);
+//				}
+//				processCode = countIntoProcessCode;
+//			}
+//			if (!processesCnt.containsKey(processCode)) {
+//				Float newInt[] = {0.0f,0.0f};
+//				processesCnt.put(processCode, newInt);
+//			}
+//			// 大修理数据
+//			Float fCount = 0f;
+//			try {
+//				fCount = Float.parseFloat(workingOfPosition.get("material_count"));
+////				if ("400".equals(processesCnt)) {
+////					fCount /= 10;
+////				}
+//			} catch (NumberFormatException e) {
+//			}
+//
+//			// 小修理数据
+//			Float light_fix_count = 0f;
+//			try {
+//				light_fix_count = Float.parseFloat(workingOfPosition.get("light_fix_count"));
+////				if ("400".equals(processesCnt)) {
+////					light_fix_count /= 10;
+////				}
+//			} catch (NumberFormatException e) {
+//			}
+//			Float[] cntOfProcess = processesCnt.get(processCode);
+//			cntOfProcess[0] = cntOfProcess[0] + fCount;
+//			cntOfProcess[1] = cntOfProcess[1] + light_fix_count;
+//		}
 
 		for (Map<String, String> workingOfPosition : newWorkingOfPositions){			
 			String process_code = workingOfPosition.get("PROCESS_CODE");
+			String processCodeKey = process_code;
 			if (process_code == null) continue;
-			if (process_code.endsWith("A") || process_code.endsWith("B")) {
+			if (processCodeKey.endsWith("A") || processCodeKey.endsWith("B")) {
 				process_code = process_code.substring(0, process_code.length() - 1);
 			}
 //			if ("400".equals(process_code)) {
 //				positions.add("" + workingOfPosition.get("PROCESS_CODE") + " " + workingOfPosition.get("NAME") + "\n(x 10)");
 //			} else {
-				positions.add("<a href=\"javaScript:positionFilter('"+workingOfPosition.get("POSITION_ID")+"')\">" + workingOfPosition.get("PROCESS_CODE") + " " + workingOfPosition.get("NAME") + "</a>");
+				positions.add("" + processCodeKey + "\r\n<br>" + workingOfPosition.get("NAME") + "");
 //			}
 			
 			String sWaitingflow = RvsUtils.getWaitingflow(section_id, null, process_code);
@@ -185,9 +186,9 @@ public class LineLeaderService {
 			if (sWaitingflow != null) {
 				try {
 					iWaitingflow = Integer.parseInt(sWaitingflow);
-					if (workingOfPosition.get("PROCESS_CODE").endsWith("B")) {
-						iWaitingflow = 6;
-					}
+//					if (workingOfPosition.get("PROCESS_CODE").endsWith("B")) {
+//						iWaitingflow = 6;
+//					}
 				} catch (NumberFormatException e) {
 				}
 			}
@@ -197,16 +198,36 @@ public class LineLeaderService {
 			overlines.add(null);
 
 			// 大修理数据
-			Float[] cntOfProcess = processesCnt.get(process_code);
-			Float fCount = cntOfProcess[0];
-			if (countIntos.containsKey(process_code)) {
-				// 取得合并后的仕挂数
-				fCount = dao.getComninedCount(section_id, countIntos.get(process_code)) + 0.0f;
+			Float fCount = 0f;
+			try {
+				fCount = Float.parseFloat(workingOfPosition.get("material_count"));
+//				if ("400".equals(process_code)) {
+//					fCount /= 10;
+//				}
+			} catch (NumberFormatException e) {
 			}
 
 			// 小修理数据
-			Float light_fix_count = cntOfProcess[1];
-			// 合计
+			Float light_fix_count = 0f;
+			try {
+				light_fix_count = Float.parseFloat(workingOfPosition.get("light_fix_count"));
+//				if ("400".equals(process_code)) {
+//					light_fix_count /= 10;
+//				}
+			} catch (NumberFormatException e) {
+			}
+//
+//			// 大修理数据
+//			Float[] cntOfProcess = processesCnt.get(process_code);
+//			Float fCount = cntOfProcess[0];
+//			if (countIntos.containsKey(process_code)) {
+//				// 取得合并后的仕挂数
+//				fCount = dao.getComninedCount(section_id, countIntos.get(process_code)) + 0.0f;
+//			}
+//
+//			// 小修理数据
+//			Float light_fix_count = cntOfProcess[1];
+//			// 合计
 			Float total = fCount + light_fix_count;
 
 			Map<String, Object> series = new HashMap<String, Object>();

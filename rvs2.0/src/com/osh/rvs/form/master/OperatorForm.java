@@ -59,6 +59,8 @@ public class OperatorForm extends ActionForm {
 	@BeanField(title = "更新时间", name = "updated_time", type = FieldType.TimeStamp)
 	private String updated_time;
 
+	@BeanField(title = "分线", name = "px", type = FieldType.Integer)
+	private String px;
 	/** 拥有技能 */
 	private List<String> abilities = new AutofillArrayList<String>(String.class);
 	/** 拥有临时角色 */
@@ -304,4 +306,10 @@ public class OperatorForm extends ActionForm {
 		this.rank_kind = rank_kind;
 	}
 
+	public String getPx() {
+		return px;
+	}
+	public void setPx(String px) {
+		this.px = px;
+	}
 }

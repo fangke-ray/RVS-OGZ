@@ -17,12 +17,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	</select>
@@ -41,12 +41,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	</select>
@@ -64,12 +64,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	</select>
@@ -89,12 +89,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	<![CDATA[
@@ -116,6 +116,17 @@
 		FROM production_feature pf
 		JOIN material m
 			ON pf.material_id = m.material_id
+	]]>
+	<if test='level != null'>
+	<![CDATA[ 
+		JOIN position pos 
+			ON pos.position_id = pf.position_id
+		LEFT JOIN material_process mp
+			ON `mp`.line_id = pos.line_id
+			AND `mp`.material_id = `m`.material_id
+	]]>
+	</if>
+	<![CDATA[ 
 		WHERE pf.position_id = #{position_id}
 	]]>
 		<if test="section_id!= null and section_id!= '' ">
@@ -132,16 +143,16 @@
 		and pf.action_time is null
 		and pf.finish_time is null
 	]]>
-		<if test='level == "1"'>
-		<![CDATA[ 
-			and m.quotation_first = 0
-		]]>
-		</if>
-		<if test='level == "2"'>
-		<![CDATA[ 
-			and m.quotation_first = 1
-		]]>
-		</if>
+	<if test='level == "1"'>
+	<![CDATA[ 
+		and (mp.px IS NULL OR mp.px = 0)
+	]]>
+	</if>
+	<if test='level == "2"'>
+	<![CDATA[ 
+		and mp.px = 1
+	]]>
+	</if>
 	</select>
 
 	<select id="getWaitingCount" resultType="int" parameterType="String">
@@ -213,12 +224,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	<![CDATA[
@@ -274,12 +285,12 @@
 	]]>
 	<if test='level == "1"'>
 	<![CDATA[ 
-		and m.quotation_first = 0
+		and (mp.px IS NULL OR mp.px = 0)
 	]]>
 	</if>
 	<if test='level == "2"'>
 	<![CDATA[ 
-		and m.quotation_first = 1
+		and mp.px = 1
 	]]>
 	</if>
 	<![CDATA[ 

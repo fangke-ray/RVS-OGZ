@@ -12,10 +12,12 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.inline.MaterialProcessEntity;
+import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.inline.MaterialProcessForm;
 import com.osh.rvs.mapper.inline.MaterialProcessMapper;
 import com.osh.rvs.mapper.master.HolidayMapper;
+import com.osh.rvs.mapper.master.OperatorMapper;
 
 import framework.huiqing.common.util.copy.BeanUtil;
 
@@ -45,21 +47,21 @@ public class MaterialProcessService {
 		
 		if (conditionBean.getDec_finish_date() != null || conditionBean.getDec_plan_date() != null) {
 			conditionBean.setFinish_date(conditionBean.getDec_finish_date());
-			conditionBean.setSchedule_date(conditionBean.getDec_plan_date());
+			conditionBean.setScheduled_date(conditionBean.getDec_plan_date());
 			conditionBean.setLine_id(mpMapper.getMaterialProcessLine(materialId, "1"));
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
 		
 		if (conditionBean.getNs_finish_date() != null || conditionBean.getNs_plan_date() != null) {
 			conditionBean.setFinish_date(conditionBean.getNs_finish_date());
-			conditionBean.setSchedule_date(conditionBean.getNs_plan_date());
+			conditionBean.setScheduled_date(conditionBean.getNs_plan_date());
 			conditionBean.setLine_id("00000000013");
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
 		
 		if (conditionBean.getCom_finish_date() != null || conditionBean.getCom_plan_date() != null) {
 			conditionBean.setFinish_date(conditionBean.getCom_finish_date());
-			conditionBean.setSchedule_date(conditionBean.getCom_plan_date());
+			conditionBean.setScheduled_date(conditionBean.getCom_plan_date());
 			conditionBean.setLine_id(mpMapper.getMaterialProcessLine(materialId, "0"));
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
@@ -209,22 +211,22 @@ public class MaterialProcessService {
 
 			if (scheduleTimes == null) {
 				Date today = new Date();
-				insertBean.setSchedule_date(today);
-				insertBean.setSchedule_assign_date(today);
+				insertBean.setScheduled_date(today);
+				insertBean.setScheduled_assign_date(today);
 			} else {
 				if (inAdvances.get(lineId) == 0) {
-					insertBean.setSchedule_date(scheduleTimes[IDX_COM_FINISH]);
+					insertBean.setScheduled_date(scheduleTimes[IDX_COM_FINISH]);
 					if (level == 1) {
-						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S1]);
+						insertBean.setScheduled_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S1]);
 					} else {
-						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S3]);
+						insertBean.setScheduled_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S3]);
 					}
 				} else {
-					insertBean.setSchedule_date(scheduleTimes[IDX_DEC_FINISH]);
+					insertBean.setScheduled_date(scheduleTimes[IDX_DEC_FINISH]);
 					if (level == 1) {
-						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S1]);
+						insertBean.setScheduled_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S1]);
 					} else {
-						insertBean.setSchedule_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S3]);
+						insertBean.setScheduled_assign_date(scheduleAssignTimes[IDX_DEC_FINISH_S3]);
 					}
 				}
 			}
@@ -284,9 +286,9 @@ public class MaterialProcessService {
 				MaterialProcessEntity insertBean = new MaterialProcessEntity();
 				insertBean.setMaterial_id(material_id);
 				if (inAdvances.get(lineId) == 0) {
-					insertBean.setSchedule_date(dSchedulePlans[IDX_COM_FINISH]);
+					insertBean.setScheduled_date(dSchedulePlans[IDX_COM_FINISH]);
 				} else {
-					insertBean.setSchedule_date(dSchedulePlans[IDX_DEC_FINISH]);
+					insertBean.setScheduled_date(dSchedulePlans[IDX_DEC_FINISH]);
 				}
 
 				insertBean.setLine_id(lineId);
@@ -300,6 +302,34 @@ public class MaterialProcessService {
 					finishMaterialProcess(material_id, lineId, null, conn);
 				}
 			}
+		}
+	}
+
+	/**
+	 * 进入分线工位,判断是需要切换工位
+	 * 
+	 * @param material_id
+	 * @param line_id
+	 * @param operator_id
+	 * @param conn
+	 * @throws Exception 
+	 */
+	public void checkDividePx(String material_id, String line_id,
+			String operator_id, SqlSessionManager conn) throws Exception {
+		OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
+		OperatorEntity operator = oMapper.getOperatorByID(operator_id);
+		if (operator.getPx() == null) {
+			return;
+		}
+
+		Integer materialPx = operator.getPx() - 1;
+
+		MaterialProcessMapper mapper = conn.getMapper(MaterialProcessMapper.class);
+		MaterialProcessEntity entity = mapper.loadMaterialProcessOfLine(material_id, line_id);
+		if (!materialPx.equals(entity.getPx())) {
+			entity.setPx(materialPx);
+			entity.setLine_id(line_id);
+			mapper.updateMaterialProcess(entity);
 		}
 	}
 }

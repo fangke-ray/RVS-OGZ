@@ -80,6 +80,7 @@ public class AppMenuAction extends BaseAction {
 		String process_code = user.getProcess_code();
 		List<PositionEntity> userPositions = user.getPositions();
 		String section_id = user.getSection_id();
+		String px = user.getPx();
 
 		Map<String, Boolean> menuLinks = new HashMap<String, Boolean>();
 
@@ -87,7 +88,7 @@ public class AppMenuAction extends BaseAction {
 
 		// 受理报价全工位
 		menuLinks.put("acceptance", false);
-		String links = getLinksByPositions(userPositions, LINE_ACCEPT_QUOTATE, section_id);
+		String links = getLinksByPositions(userPositions, LINE_ACCEPT_QUOTATE, section_id, px);
 		if (links.length() > 0) {
 			menuLinks.put("acceptance", true);
 			req.setAttribute("beforePosition", links);
@@ -177,7 +178,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_DECOM, section_id);
+				links = getLinksByPositions(userPositions, LINE_DECOM, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -192,7 +193,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_NS, section_id);
+				links = getLinksByPositions(userPositions, LINE_NS, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -209,7 +210,7 @@ public class AppMenuAction extends BaseAction {
 				// 总组库位
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_COM, section_id);
+				links = getLinksByPositions(userPositions, LINE_COM, section_id, px);
 				inlinePosition += links;
 			}
 			if ("00000000001".equals(section_id)) {
@@ -226,7 +227,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_SURGI, section_id);
+				links = getLinksByPositions(userPositions, LINE_SURGI, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -240,7 +241,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_LIGHTMED, section_id);
+				links = getLinksByPositions(userPositions, LINE_LIGHTMED, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -254,7 +255,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_FEB_DECOM, section_id);
+				links = getLinksByPositions(userPositions, LINE_FEB_DECOM, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -268,7 +269,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_FEB_COM, section_id);
+				links = getLinksByPositions(userPositions, LINE_FEB_COM, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -282,7 +283,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, LINE_PERI, section_id);
+				links = getLinksByPositions(userPositions, LINE_PERI, section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -297,7 +298,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, user.getLine_id(), section_id);
+				links = getLinksByPositions(userPositions, user.getLine_id(), section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -308,7 +309,7 @@ public class AppMenuAction extends BaseAction {
 				menuLinks.put("在线作业", true);
 			}
 			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
-				links = getLinksByPositions(userPositions, user.getLine_id(), section_id);
+				links = getLinksByPositions(userPositions, user.getLine_id(), section_id, px);
 				inlinePosition += links;
 			}
 		}
@@ -347,7 +348,7 @@ public class AppMenuAction extends BaseAction {
 			}
 		}
 
-		links = getLinksByPositions(userPositions, LINE_QA, section_id);
+		links = getLinksByPositions(userPositions, LINE_QA, section_id, px);
 		if (links.length() > 0) {
 //			links = links.replaceAll("javascript:getPositionWork\\('00000000046'\\);", "qualityAssurance.do")
 //					.replaceAll("javascript:getPositionWork\\('00000000051'\\);", "service_repair_referee.do");
@@ -410,20 +411,40 @@ public class AppMenuAction extends BaseAction {
 	 * @param line_id
 	 * @return
 	 */
-	private String getLinksByPositions(List<PositionEntity> positions, String line_id, String section_id) {
+	private String getLinksByPositions(List<PositionEntity> positions, String line_id, String section_id, String px) {
 		StringBuffer ret = new StringBuffer("");
 		for (PositionEntity position : positions) {
 			if (line_id.equals(position.getLine_id())) {
-				if ("00000000001".equals(section_id) && position.getLight_division_flg() != null
+				if (position.getLight_division_flg() != null
 						&& position.getLight_division_flg() == 1) {
-					ret.append("<a href=\"javascript:getPositionWork('"
-							+ position.getPosition_id() + "', 1);\">" +
-							position.getProcess_code() + " " + position.getName() +
-							" A线</a><br>");
-					ret.append("<a href=\"javascript:getPositionWork('"
-							+ position.getPosition_id() + "', 2);\">" +
-							position.getProcess_code() + " " + position.getName() +
-							" B线</a><br>");
+					if ("2".equals(px)) {
+						ret.append("<a href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 2);\">" +
+								position.getProcess_code() + " " + position.getName() + 
+								"</a><br><px>");
+						ret.append("<a href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 1);\">" +
+								" A线</a>");
+						ret.append("<a class=\"px_on\" href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 2);\">" + 
+								" B线</a></px><br>");
+					} else if ("1".equals(px)) { 
+						ret.append("<a href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 1);\">" +
+								position.getProcess_code() + " " + position.getName() + 
+								"</a><br><px>");
+						ret.append("<a class=\"px_on\" href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 1);\">" +
+								" A线</a>");
+						ret.append("<a href=\"javascript:getPositionWork('" 
+								+ position.getPosition_id() + "', 2);\">" + 
+								" B线</a></px><br>");
+					} else {
+						ret.append("<a href=\"javascript:getPositionWork('"
+								+ position.getPosition_id() + "');\">" +
+								position.getProcess_code() + " " + position.getName() +
+								"</a><br>");
+					}					
 				} else {
 					ret.append("<a href=\"javascript:getPositionWork('"
 							+ position.getPosition_id() + "');\">" +

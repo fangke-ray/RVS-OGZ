@@ -40,6 +40,10 @@ public class OperatorEntity implements Serializable {
 	/** 最后更新时间 */
 	private Timestamp updated_time;
 	private Integer rank_kind;
+
+	private String process_code;
+	/** 分线 */
+	private Integer px;
 	private Integer department;
 
 	/**
@@ -222,6 +226,21 @@ public class OperatorEntity implements Serializable {
 
 	public void setRank_kind(Integer rank_kind) {
 		this.rank_kind = rank_kind;
+	}
+
+	public String getProcess_code() {
+		return process_code;
+	}
+	public void setProcess_code(String process_code) {
+		this.process_code = process_code;
+	}
+
+	public Integer getPx() {
+		return px;
+	}
+
+	public void setPx(Integer px) {
+		this.px = px;
 	}
 
 	public Integer getDepartment() {

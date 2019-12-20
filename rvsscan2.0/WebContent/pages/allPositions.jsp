@@ -101,19 +101,25 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 170px;" id="line_com" beforeOf="line_endoeye" group="line_com">
-				<div class="posi" for="posi_411_1" style="top: 10px; left: 10px;">411</div>
+			<div class="line" style="height:80px;width:284px;left: 492px;top: 160px;" id="line_com" beforeOf="line_endoeye" group="line_com">
+				<div class="posi" for="posi_411_1" style="top: 25px; left: 10px;">411</div>
 
-				<div class="posi" for="posi_421_1" style="top: 10px; left: 50px;">421</div>
-				<div class="posi" for="posi_431_1" style="top: 10px; left: 90px;">431</div>
-				<div class="posi" for="posi_451_1" style="top: 10px; left: 130px;">451</div>
-				<div class="posi" for="posi_461_1" style="top: 10px; left: 170px;">461</div>
-				<div class="posi" for="posi_471_1" style="top: 10px; left: 210px;">471</div>
+				<div class="posi" division="A" for="posi_421_1A" style="top: 5px; left: 50px;">421</div>
+				<div class="posi" division="A" for="posi_431_1A" style="top: 5px; left: 90px;">431</div>
+				<div class="posi" division="A" for="posi_451_1A" style="top: 5px; left: 130px;">451</div>
+				<div class="posi" division="A" for="posi_461_1A" style="top: 5px; left: 170px;">461</div>
+				<div class="posi" division="A" for="posi_471_1A" style="top: 5px; left: 210px;">471</div>
+
+				<div class="posi" division="B" for="posi_421_1B" style="top: 45px; left: 50px;">421</div>
+				<div class="posi" division="B" for="posi_431_1B" style="top: 45px; left: 90px;">431</div>
+				<div class="posi" division="B" for="posi_451_1B" style="top: 45px; left: 130px;">451</div>
+				<div class="posi" division="B" for="posi_461_1B" style="top: 45px; left: 170px;">461</div>
+				<div class="posi" division="B" for="posi_471_1B" style="top: 45px; left: 210px;">471</div>
 
 				<div class="banner" for="line_com">总组</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 90px;" id="line_endoeye" beforeOf="line_fs_dec" group="line_endoeye">
+			<div class="line" style="height:50px;width:284px;left: 492px;top: 80px;" id="line_endoeye" beforeOf="line_fs_dec" group="line_endoeye">
 				<div class="posi" for="posi_568_1" style="top: 10px; left: 10px;">568</div>
 
 				<div class="posi" for="posi_569_1" style="top: 10px; left: 50px;">569</div>
@@ -134,7 +140,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line_fs_dec">纤维镜分解</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 250px;" id="line_fs_com" beforeOf="line_lm" group="line_fs_com">
+			<div class="line" style="height:50px;width:284px;left: 492px;top: 260px;" id="line_fs_com" beforeOf="line_lm" group="line_fs_com">
 				<div class="posi" for="posi_511_1" style="top: 10px; left: 10px;">511</div>
 
 				<div class="posi" for="posi_521_1" style="top: 10px; left: 50px;">521</div>
@@ -144,11 +150,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line_fs_com">纤维镜总组</div>
 			</div>
 
-			<div class="line" style="height:100px;width:104px;left: 56px;top: 282px;" id="line_lm" beforeOf="line_peri" group="line_lm">
+			<div class="line" style="height:100px;width:124px;left: 46px;top: 282px;" id="line_lm" beforeOf="line_peri" group="line_lm">
 				<div class="posi" for="posi_300_1" style="top: 24px; left: 50px;">300</div>
 
 				<div class="posi" for="posi_401_1" style="top: 64px; left: 10px;">401</div>
 				<div class="posi" for="posi_400_1" style="top: 64px; left: 50px;">400</div>
+
+				<div class="posi" for="posi_500_1" style="top: 24px; left: 90px;">500</div>
 
 				<div class="banner" for="line_lm">中小修</div>
 			</div>
@@ -287,20 +295,35 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="position gridX3 gridY2" for="posi_411_1">411<br>内镜对接<br>+钢丝焊接</div>
 					<div class="position-f gridX3 gridFY2P" for="posi_411_1"></div>
 
-					<div class="position gridX4 gridY2" for="posi_421_1">421<br>软管对接<br>+LG穿束</div>
-					<div class="position-f gridX4 gridFY2P" for="posi_421_1"></div>
+					<div class="position gridX4 gridY1" for="posi_421_1A">421 A<br>软管对接<br>+LG穿束</div>
+					<div class="position-f gridX4 gridFY1P" for="posi_421_1A"></div>
 
-					<div class="position gridX5 gridY2" for="posi_431_1">431<br>S 连接座<br>组装</div>
-					<div class="position-f gridX5 gridFY2P" for="posi_431_1"></div>
+					<div class="position gridX5 gridY1" for="posi_431_1A">431 A<br>S 连接座<br>组装</div>
+					<div class="position-f gridX5 gridFY1P" for="posi_431_1A"></div>
 
-					<div class="position gridX6 gridY2" for="posi_451_1">451<br>EL 焊接</div>
-					<div class="position-f gridX6 gridFY2" for="posi_451_1"></div>
+					<div class="position gridX6 gridY1" for="posi_451_1A">451 A<br>EL 焊接</div>
+					<div class="position-f gridX6 gridFY1" for="posi_451_1A"></div>
 
-					<div class="position gridX7 gridY2" for="posi_461_1">461<br>画像检查<br>+护套安装</div>
-					<div class="position-f gridX7 gridFY2P" for="posi_461_1"></div>
+					<div class="position gridX7 gridY1" for="posi_461_1A">461 A<br>画像检查<br>+护套安装</div>
+					<div class="position-f gridX7 gridFY1P" for="posi_461_1A"></div>
 
-					<div class="position gridX8 gridY2 gridWide" for="posi_471_1">471<br>测漏，送气/送水量<br>最终检测</div>
-					<div class="position-f gridX8 gridFY2P" for="posi_471_1"></div>
+					<div class="position gridX8 gridY1 gridWide" for="posi_471_1A">471 A<br>测漏，送气/送水量<br>最终检测</div>
+					<div class="position-f gridX8 gridFY1P" for="posi_471_1A"></div>
+
+					<div class="position gridX4 gridY3" for="posi_421_1B">421 B<br>软管对接<br>+LG穿束</div>
+					<div class="position-f gridX4 gridFY3P" for="posi_421_1B"></div>
+
+					<div class="position gridX5 gridY3" for="posi_431_1B">431 B<br>S 连接座<br>组装</div>
+					<div class="position-f gridX5 gridFY3P" for="posi_431_1B"></div>
+
+					<div class="position gridX6 gridY3" for="posi_451_1B">451 B<br>EL 焊接</div>
+					<div class="position-f gridX6 gridFY3" for="posi_451_1B"></div>
+
+					<div class="position gridX7 gridY3" for="posi_461_1B">461 B<br>画像检查<br>+护套安装</div>
+					<div class="position-f gridX7 gridFY3P" for="posi_461_1B"></div>
+
+					<div class="position gridX8 gridY3 gridWide" for="posi_471_1B">471 B<br>测漏，送气/送水量<br>最终检测</div>
+					<div class="position-f gridX8 gridFY3P" for="posi_471_1B"></div>
 
 					<div class="banner" for="line_com" style="font-size:18px;padding: 8px 10px;z-index:22;">总组工程状况</div>
 				</div>
@@ -366,6 +389,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 					<div class="position gridX6 gridY3" for="posi_400_1">400<br>总组粗细镜<br>全岗位</div>
 					<div class="position-f gridX6 gridFY3P" for="posi_400_1"></div>
+
+					<div class="position gridX8 gridY2" for="posi_500_1">500<br>纤维镜<br>全岗位</div>
+					<div class="position-f gridX8 gridFY2P" for="posi_500_1"></div>
 
 					<div class="banner" for="line_lm" style="font-size:18px;padding: 8px 10px;z-index:22;">中小修状况</div>
 				</div>

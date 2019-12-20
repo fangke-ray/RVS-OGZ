@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.ibatis.session.SqlSession;
@@ -653,21 +654,26 @@ public class ProductionFeatureService {
 
 		// 建立后续工位的初始作业信息
 		for (String nextPosition_id : nextPositions) {
-//			if (!isLightFix
-//					&& ("20".equals(nextPosition_id) || "00000000020".equals(nextPosition_id))
-//					&& (("00000000002".equals(mEntity.getPat_id()) || "00000000004".equals(mEntity.getPat_id())) 
-//							&& mEntity.getLevel() != null && mEntity.getLevel() != 1) ) {
-//				// NS零件订购单已交付
-//			}
 			nPf.setPosition_id(nextPosition_id);
 			fingerPosition(mEntity, fixed, nPf, conn, pfDao, paProxy, ret, triggerList, isFact);
 		}
 
+		Set<String> dividePositions = PositionService.getDividePositions(conn);
+
 		PositionMapper ps = conn.getMapper(PositionMapper.class);
 		for (int i = 0; i < ret.size(); i++) {
 			String ret_position_id = ret.get(i);
+
 			if (ret_position_id.indexOf("[") < 0) {
 				PositionEntity position = ps.getPositionByID(ret_position_id);
+
+				// 判断切线
+				if (isFact && 
+					dividePositions.contains(position.getPosition_id())) {
+					mpService.checkDividePx(material_id, workingPf.getLine_id(), workingPf.getOperator_id(), conn);
+				}
+
+				// 变成文字描述
 				ret.set(i, "[" + position.getProcess_code() + " " + position.getName() + "]");
 			}
 		}

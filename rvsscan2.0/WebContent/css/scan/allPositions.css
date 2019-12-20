@@ -51,6 +51,23 @@
 //	box-sizing: border-box;
 	z-index : 20;
 }
+.posi[division]:before {
+	position:absolute;
+	right:-6px;
+	top:0;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.45);
+	z-index : 19;
+}
+.posi[division='A']:before {
+	content:'A';
+	background-color: lightgreen;
+}
+.posi[division='B']:before {
+	content:'B';
+	background-color: lightpink;
+}
 .position {
 	min-height : 28px;
 	width : 62px;

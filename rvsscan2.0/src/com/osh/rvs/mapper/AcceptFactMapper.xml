@@ -87,8 +87,8 @@
 	
 	<select id="getReceptionInWeek" resultType="map">
 		<![CDATA[ 
-		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level=9 or m.level=91 or m.level=92 or m.level=93)) light_fix,
-		sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level is null or (m.level<>9 and m.level<>91 and m.level<>92 and m.level<>93))) heavy_fix,
+		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level in (9,91,92,93,99,96,97,98))) light_fix,
+		sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level is null or (m.level not in (9,91,92,93,99,96,97,98)))) heavy_fix,
 		sum(m.fix_type = 1 and vm.kind = 06) endoeye_sum,
 		sum(m.fix_type = 2) as cell_sum,
 		sum(m.fix_type = 1 and vm.kind = 07) as peripheral
@@ -104,8 +104,8 @@
 
 	<select id="getShippingInWeek" resultType="map">
 		<![CDATA[ 
-		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level=9 or m.level=91 or m.level=92 or m.level=93)) light_fix,
-		sum(m.fix_type=1 and vm.kind not in (06, 07) and m.level<>9 and m.level<>91 and m.level<>92 and m.level<>93) heavy_fix,
+		select sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level in (9,91,92,93,99,96,97,98))) light_fix,
+		sum(m.fix_type = 1 and vm.kind not in (06, 07) and (m.level is null or (m.level not in (9,91,92,93,99,96,97,98)))) heavy_fix,
 		sum(m.fix_type = 1 and vm.kind = 06) endoeye_sum,
 		sum(m.fix_type = 2) as cell_sum,
 		sum(m.fix_type = 1 and vm.kind = 07) as peripheral

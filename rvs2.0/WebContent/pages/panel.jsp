@@ -190,16 +190,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.5.500</p>
+								<p id="nee">2.5.513</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2019年10月14日</p>
+								<p>2019年12月20日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>19/12/20 2.5.513 更新</p>
+								<p>在线作业/管理：总组流水线工程分线。</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>19/11/15 2.5.510 更新</p>

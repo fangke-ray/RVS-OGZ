@@ -12,6 +12,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/custom.css">
 <link rel="stylesheet" type="text/css" href="css/olympus/jquery-ui-1.9.1.custom.css">
 <link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css">
+<style>
+#processing_container .highcharts-axis-labels > text > tspan:nth-child(n+2) {
+	font-size : 12px;
+}
+</style>
 
 <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.9.1.custom.min.js"></script>
@@ -64,6 +69,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 		<input id="reccdbutton" class="ui-button" value="重新更换CCD盖玻璃" ${userdata.line_id eq '00000000013' ? '' : 'style=\"display:none;\"'} type="button" />
 		${userdata.line_id eq '00000000054' ? '<input type="hidden" id="lm_tag"/>' : ''}
+		<input id="pxbutton" type="button" value="切线" class="ui-button" style="display:none;"/>
 		</div>
 		<table id="performance_list" class="leader_grid"></table>
 	</div>

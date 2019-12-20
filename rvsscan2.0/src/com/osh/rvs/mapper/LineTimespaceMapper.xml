@@ -5,7 +5,7 @@
 	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
 		</cache -->
 
-	<select id="getProductionFeatures" resultType="map">
+	<select id="getProductionFeatures" resultType="map" parameterType="String">
 		<![CDATA[
 select ma.material_id, ma.level, mdl.name as model_name, mdl.category_name, 
 timestampdiff(minute, current_date, pf.action_time) as action_time, l.name as line_name,
@@ -29,6 +29,14 @@ join material_process mp on ma.material_id = mp.material_id and mp.line_id = #{l
 join line l on l.line_id = #{line_id}
 where action_time > current_date
 and pos.line_id = #{line_id}
+		]]>
+	<if test="division != null and division eq 'A'.toString()">
+		and (mp.px = 0 OR pos.light_division_flg = 0)
+	</if>
+	<if test="division != null and division eq 'B'.toString()">
+		and (mp.px = 1 OR pos.light_division_flg = 0)
+	</if>
+		<![CDATA[
 and pf.operate_result not in (5,8)
 and not (pf.operate_result = 4 AND pf.finish_time is null)
 order by process_code, action_time;

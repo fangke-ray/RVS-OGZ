@@ -122,10 +122,10 @@ public class LineLeaderAction extends BaseAction {
 			listResponse.put("receivePos" , "504");
 		}
 
-//		// 1课有分线
-//		if ("00000000001".equals(section_id)) {
-//			listResponse.put("division_flg" , "1");
-//		}
+		// 有分线
+		if (listResponse.get("division_flg") != null) {
+			listResponse.put("opt_px", CodeListUtils.getGridOptions("material_px"));
+		}
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", new ArrayList<MsgInfo>());

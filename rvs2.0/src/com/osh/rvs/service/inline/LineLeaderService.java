@@ -102,10 +102,13 @@ public class LineLeaderService {
 	 * @param line_id
 	 * @param conn
 	 * @param listResponse
+	 * 
+	 * @return 有无分线
 	 */
 	public void getChartContent(String section_id, String line_id, SqlSession conn, Map<String, Object> listResponse) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		List<Map<String, String>> workingOfPositions = dao.getWorkingOfPositions(section_id, line_id);
+		boolean division_flg = false;
 
 		// 数据整合
 		List<Map<String, String>> newWorkingOfPositions = new ArrayList<Map<String, String>>();
@@ -118,13 +121,14 @@ public class LineLeaderService {
 			boolean depar = false;
 			if ("1".equals(light_division_flg)) { // 分线
 				depar = true;
-				if ("0".equals(workingOfPositionL.get("material_count"))
-						&& "0".equals(workingOfPositionL.get("light_fix_count"))) { // B线无仕挂
-					depar = false;
-				}
+//				if ("0".equals(workingOfPositionL.get("material_count"))
+//						&& "0".equals(workingOfPositionL.get("light_fix_count"))) { // B线无仕挂
+//					depar = false;
+//				}
 			}
 
 			if (depar) { // 分线
+				division_flg = true;
 				workingOfPositionH.put("PROCESS_CODE", process_code + "A");
 				workingOfPositionL.put("PROCESS_CODE", process_code + "B");
 				newWorkingOfPositions.add(workingOfPositionH);
@@ -158,7 +162,7 @@ public class LineLeaderService {
 //			if ("400".equals(process_code)) {
 //				positions.add("<a href=\"javaScript:positionFilter('"+workingOfPosition.get("POSITION_ID")+"')\">" + workingOfPosition.get("PROCESS_CODE") + " " + workingOfPosition.get("NAME") + "\n(x 10)" + "</a>");
 //			} else {
-				positions.add("<a href=\"javaScript:positionFilter('"+workingOfPosition.get("POSITION_ID")+"')\">" + workingOfPosition.get("PROCESS_CODE") + " " + workingOfPosition.get("NAME") + "</a>");
+				positions.add("<a href=\"javaScript:positionFilter('"+workingOfPosition.get("POSITION_ID")+"')\">" + workingOfPosition.get("PROCESS_CODE") + "</a>\r\n<br><a href=\"javaScript:positionFilter('"+workingOfPosition.get("POSITION_ID")+"')\">" + workingOfPosition.get("NAME") + "</a>");
 //			}
 
 			String sWaitingflow = RvsUtils.getWaitingflow(section_id, null, process_code);
@@ -167,9 +171,9 @@ public class LineLeaderService {
 			if (sWaitingflow != null) {
 				try {
 					iWaitingflow = Integer.parseInt(sWaitingflow);
-					if (workingOfPosition.get("PROCESS_CODE").endsWith("B")) {
-						iWaitingflow = 6;
-					}
+//					if (workingOfPosition.get("PROCESS_CODE").endsWith("B")) {
+//						iWaitingflow = 6;
+//					}
 				} catch (NumberFormatException e) {
 				}
 			}
@@ -304,6 +308,12 @@ public class LineLeaderService {
 		listResponse.put("overlines", overlines);
 		listResponse.put("counts", counts);
 		listResponse.put("light_fix_counts", light_fix_counts);
+
+		// 有分线
+		if(division_flg) {
+			listResponse.put("division_flg" , "1");
+		}
+
 		return;
 	}
 

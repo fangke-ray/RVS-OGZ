@@ -59,11 +59,6 @@ public class ProcessAssignService {
 		}
 	}
 
-	public void insert(ProductionFeatureEntity entity, SqlSession conn) {
-		ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
-		dao.insertProductionFeature(entity);
-	}
-
 	public List<ProcessAssignTemplateForm> searchTemplate(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
 		// 表单复制到数据对象
 		ProcessAssignTemplateEntity conditionBean = new ProcessAssignTemplateEntity();

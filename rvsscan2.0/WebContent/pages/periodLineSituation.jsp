@@ -68,6 +68,9 @@ td.low {
 #plan_complete div.marqueue .quantity[finish] {
 	background-color: rgb(100,120,0);
 }
+#processing_container .highcharts-axis-labels > text > tspan:nth-child(2) {
+	font-size : 12px;
+}
 </style>
 
 <title>${section_name} ${line_name}</title>

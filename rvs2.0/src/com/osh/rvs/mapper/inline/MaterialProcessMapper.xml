@@ -21,7 +21,7 @@
 	
 	<select id="loadMaterialProcessOfLine" resultType="MaterialProcessEntity" parameterType="java.lang.String">
 		<![CDATA[ 
-			SELECT material_id, scheduled_date, scheduled_assign_date, finish_date
+			SELECT material_id, scheduled_date, scheduled_assign_date, finish_date, px
 				 from material_process mp where mp.material_id = #{material_id} and mp.line_id = #{line_id} 
 		]]>
 	</select>
@@ -30,11 +30,14 @@
 		<![CDATA[ 
 			UPDATE material_process SET 
 		]]>
-		<if test="schedule_date != null">
-			scheduled_date = #{schedule_date},
+		<if test="scheduled_date != null">
+			scheduled_date = #{scheduled_date},
 		</if>
 		<if test="finish_date != null">
 			finish_date = #{finish_date},
+		</if>
+		<if test="px != null">
+			px = #{px},
 		</if>
 		<![CDATA[
 			material_id = #{material_id}
@@ -51,8 +54,8 @@
 	
 	<insert id="insertMaterialProcess" parameterType="MaterialProcessEntity">
 		<![CDATA[
-			insert into material_process(material_id,scheduled_date,scheduled_assign_date,line_id) 
-			values (#{material_id},#{schedule_date},#{schedule_assign_date},#{line_id}) 
+			insert into material_process(material_id,scheduled_date,scheduled_assign_date,line_id,px)
+			values (#{material_id},#{scheduled_date},#{scheduled_assign_date},#{line_id},#{px})
 		]]>
 	</insert>
 
@@ -105,9 +108,22 @@
 		]]>
 	</update>
 
+	<!-- 切换平行线位 -->
+	<update id="updatePx" parameterType="String">
+		<![CDATA[
+			update material_process set px =
+			CASE
+			WHEN px = 0 THEN 1
+			WHEN px = 1 THEN 0
+			ELSE px
+			END
+			where material_id = #{material_id} and line_id = #{line_id}
+		]]>
+	</update>
+
 	<select id="loadMaterialProcessLines" resultType="MaterialProcessEntity" parameterType="java.lang.String">
 		<![CDATA[
-			SELECT material_id, line_id, scheduled_date, scheduled_assign_date, finish_date
+			SELECT material_id, line_id, scheduled_date, scheduled_assign_date, finish_date, px
 				 from material_process mp where mp.material_id = #{material_id}
 		]]>
 	</select>

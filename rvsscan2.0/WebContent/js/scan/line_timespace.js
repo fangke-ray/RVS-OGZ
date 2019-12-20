@@ -5,6 +5,9 @@ var iamreadyLts = function() {
 	var servicePath = "lineTimeSpace.scan";
 
 	var showFactor = $("#h_factor").val() || 1;
+	if (showFactor > 1) {
+		$("#performance_container").addClass("factor");
+	}
 
 	$("#time_axis .time_axis_point").each(function(){
 		$(this).css("bottom", (parseFloat($(this).css("bottom")) * showFactor) + "px");
@@ -18,6 +21,21 @@ var iamreadyLts = function() {
 	var rkTo = null;
 	var rolling = 0;
 	var now = 0;
+
+	var qs_px = null;
+	if (location.search) {
+		var idx = location.search.indexOf("px=");
+		if (idx >= 0) {
+			qs_px = location.search.substring(idx + 3);
+			idx = qs_px.indexOf("&"); 
+			if (idx >= 0) {
+				qs_px = qs_px.substring(0, idx);
+			}
+		}
+	}
+	if (qs_px) {
+		$("#workarea .areatitle").append(" " + qs_px + "线")
+	}
 
 	var rollAxis = function(ypos, height){
 		// f(0) => 0 / f(560) => 560 * (showFactor - 1)
@@ -65,7 +83,7 @@ var iamreadyLts = function() {
 			async : true, // false
 			url : servicePath + '?method=refresh',
 			cache : false,
-			data : {line_id : $("#line_id").val()},
+			data : {line_id : $("#line_id").val(), px : qs_px},
 			type : "post",
 			dataType : "json",
 			success : ajaxSuccessCheck,

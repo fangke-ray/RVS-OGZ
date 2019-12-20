@@ -12,7 +12,7 @@ import java.util.Date;
 public class MaterialProcessEntity  implements Serializable {
 
 	/**
-	 * 
+	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 420070483135911357L;
 
@@ -22,8 +22,9 @@ public class MaterialProcessEntity  implements Serializable {
 
 	private String line_id;
 	private Date finish_date;
-	private Date schedule_date;
-	private Date schedule_assign_date;
+	private Date scheduled_date;
+	private Date scheduled_assign_date;
+	private int line_expedited = 0;
 
 	private Date dec_plan_date;
 	private Date dec_finish_date;
@@ -31,14 +32,10 @@ public class MaterialProcessEntity  implements Serializable {
 	private Date ns_finish_date;
 	private Date com_plan_date;
 	private Date com_finish_date;
+	private String rework_trigger_position_id;	
+
+	private Integer px = 0;
 	
-	
-	public Date getSchedule_date() {
-		return schedule_date;
-	}
-	public void setSchedule_date(Date schedule_date) {
-		this.schedule_date = schedule_date;
-	}
 	public String getLine_id() {
 		return line_id;
 	}
@@ -93,14 +90,34 @@ public class MaterialProcessEntity  implements Serializable {
 	public void setCom_finish_date(Date com_finish_date) {
 		this.com_finish_date = com_finish_date;
 	}
-	public Date getSchedule_assign_date() {
-		return schedule_assign_date;
+	public String getRework_trigger_position_id() {
+		return rework_trigger_position_id;
 	}
-	public void setSchedule_assign_date(Date schedule_assign_date) {
-		this.schedule_assign_date = schedule_assign_date;
+	public void setRework_trigger_position_id(String rework_trigger_position_id) {
+		this.rework_trigger_position_id = rework_trigger_position_id;
 	}
-	
-	
-	
-	
+	public Date getScheduled_date() {
+		return scheduled_date;
+	}
+	public void setScheduled_date(Date scheduled_date) {
+		this.scheduled_date = scheduled_date;
+	}
+	public Date getScheduled_assign_date() {
+		return scheduled_assign_date;
+	}
+	public void setScheduled_assign_date(Date scheduled_assign_date) {
+		this.scheduled_assign_date = scheduled_assign_date;
+	}
+	public Integer getPx() {
+		return px;
+	}
+	public void setPx(Integer px) {
+		this.px = px;
+	}
+	public int getLine_expedited() {
+		return line_expedited;
+	}
+	public void setLine_expedited(int line_expedited) {
+		this.line_expedited = line_expedited;
+	}
 }

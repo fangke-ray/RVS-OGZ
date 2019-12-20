@@ -22,14 +22,14 @@ public class LineTimespaceService {
 		TYPES.put("PCF", "CF");
 	}
 
-	public List<Map<String, String>> getProductionFeatures(String line_id, SqlSession conn) {
+	public List<Map<String, String>> getProductionFeatures(String line_id, String px, SqlSession conn) {
 		LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
 
 // 		Long now = (new Date().getTime() + 28800000) % 86400000 / 60000;
 
-		List<Map<String, Object>> productionFeatures = mapper.getProductionFeatures(line_id);
+		List<Map<String, Object>> productionFeatures = mapper.getProductionFeatures(line_id, px);
 		if ("00000000101".equals(line_id)) {
-			productionFeatures.addAll(mapper.getProductionFeatures("00000000102"));
+			productionFeatures.addAll(mapper.getProductionFeatures("00000000102", null));
 		}
 		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
 

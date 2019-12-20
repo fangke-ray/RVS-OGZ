@@ -194,7 +194,8 @@ $(function() {
 	<a title="" target="_parent" href="show.do#allPositions">全工位状况展示</a><br>
 	<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-12">分解</a>
 	<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-13">NS</a>
-	<a title="" target="_parent" href="show.do#lineTimeSpace">总组</a>进度管理板<br>
+	<a title="" target="_parent" href="show.do#lineTimeSpace-px-A">总组A</a>
+	<a title="" target="_parent" href="show.do#lineTimeSpace-px-B">总组B</a>进度管理板<br>
 	<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-12">分解</a>
 	<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-13">NS</a>
 	<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-14">总组</a>

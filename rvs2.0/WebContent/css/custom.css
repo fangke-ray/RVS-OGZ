@@ -781,9 +781,18 @@ div.hidemenu {
 #accordion a.processing:before {
 	color:red;
 }
+#accordion px {
+	padding-left :2em;
+}
+#accordion px a:before {
+	content: "\20\00BB\20";
+}
 
 /* 菜单链接 */
-#accordion a:hover:before {
+#accordion a:hover:before,
+#accordion px a:hover,
+#accordion a:hover + br + px .px_on:before,
+#accordion a:hover + br + px .px_on {
 	color: #FFB300;
 }
 

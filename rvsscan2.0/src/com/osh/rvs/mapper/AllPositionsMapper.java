@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 public interface AllPositionsMapper {
 
 	public List<Map<String, Object>> getHeapAndWork();
+	
+	public List<Map<String, Object>> getOutcomeDivided();
 
 	public Map<String, Object> getAlarmMessage(String alarm_id);
 

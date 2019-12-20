@@ -155,9 +155,9 @@ public class PositionService {
 		PositionEntity updateBean = new PositionEntity();
 		BeanUtil.copyToBean(positionForm, updateBean, CopyOptions.COPYOPTIONS_NOEMPTY);
 		
-//		if(updateBean.getLight_division_flg()==2){//独立小修理工位标记 否
+		if(updateBean.getLight_division_flg()==2){//独立小修理工位标记 否
 			updateBean.setLight_division_flg(0);
-//		}
+		}
 
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		updateBean.setUpdated_by(user.getOperator_id());
