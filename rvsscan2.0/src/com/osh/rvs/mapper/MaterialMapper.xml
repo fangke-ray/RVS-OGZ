@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.MaterialMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="searchScheduled" resultType="MaterialEntity" parameterType="string">
+	<![CDATA[
+	SELECT 
+	    ma.omr_notifi_no,
+	    ma.serial_no,
+	    ma.level,
+	    v_model.name AS model_name,
+	    v_model.kind,
+	    MIN(position.process_code) AS process_code,
+	    pf.operate_result,
+	    EXISTS (SELECT 1 FROM alarm_messsage 
+			WHERE 
+				material_id = ma.material_id 
+			AND 
+				NOT EXISTS(SELECT 1 FROM alarm_messsage_sendation WHERE alarm_messsage_id = alarm_messsage.alarm_messsage_id AND red_flg = 1)
+		) AS break_off,
+		EXISTS (SELECT 1 FROM production_feature WHERE material_id=ma.material_id AND position_id = position.position_id AND operate_result=8) AS rework
+	FROM
+	    material ma
+	JOIN
+		v_model
+	ON
+		v_model.model_id = ma.model_id
+	JOIN
+		inline_plan
+	ON
+		ma.material_id = inline_plan.material_id
+	JOIN
+		production_feature pf
+	ON
+		pf.material_id = ma.material_id AND pf.finish_time IS NULL
+	JOIN
+		position
+	ON
+		position.position_id = pf.position_id
+	WHERE
+		ma.outline_time IS NULL
+	AND 
+		ma.scheduled_date = #{scheduled_date}
+	GROUP BY
+		ma.omr_notifi_no
+	ORDER BY
+		ma.scheduled_expedited DESC,inline_plan.seq
+	]]>
+	</select>
+</mapper>

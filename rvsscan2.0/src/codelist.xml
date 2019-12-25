@@ -34,10 +34,22 @@
 		<value code="1">S1</value>
 		<value code="2">S2</value>
 		<value code="3">S3</value>
+		<!--value code="4">S3(单追组件)</value-->
 		<value code="6">A</value>
 		<value code="7">B</value>
 		<value code="8">C</value>
 		<value code="9">D</value>
+		<value code="91">D1</value>
+		<value code="92">D2</value>
+		<value code="93">D3</value>
+		<value code="99">DW</value>
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<!--value code="58">E3</value-->
+		<value code="59">EW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
 	</codelist>
 
 	<codelist name="material_level_inline">

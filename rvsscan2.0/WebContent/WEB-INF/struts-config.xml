@@ -207,6 +207,10 @@
 			<forward name="ns" path="/pages/nsLineSituation.jsp" />
 			<forward name="period" path="/pages/periodLineSituation.jsp" />
 		</action>
+		
+		<action path="/scheduledMaterial" type="com.osh.rvs.action.ScheduledMaterialAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/scheduledMaterial.jsp" />
+		</action>
 	</action-mappings>
 	<!-- ======================================== Message Resources Definitions -->
 

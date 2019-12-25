@@ -15,6 +15,7 @@
 		<typeAlias alias="LineLeaderEntity" type="com.osh.rvs.bean.LineLeaderEntity" />
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.ServiceRepairManageEntity" />
 		<typeAlias alias="PartialWarehouseEntity" type="com.osh.rvs.bean.PartialWarehouseEntity" />
+		<typeAlias alias="MaterialEntity" type="com.osh.rvs.bean.MaterialEntity" />
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -43,5 +44,6 @@
 		<mapper resource="com/osh/rvs/mapper/UserDefineCodesMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/LineTimespaceMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/PartialWarehouseMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/MaterialMapper.xml" />
 	</mappers>
 </configuration> 

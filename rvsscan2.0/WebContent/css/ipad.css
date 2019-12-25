@@ -1,0 +1,53 @@
+@CHARSET "UTF-8";
+* {
+	outline: 0;
+	-webkit-user-select: none;  /*禁止选择文本*/
+	-webkit-appearance: none;   /*移除系统默认样式*/
+	-webkit-touch-action: none; /*禁止触发默认的手势操作*/
+	-webkit-touch-callout: none;/*禁止系统默认菜单*/
+	-webkit-text-size-adjust: 100%;
+}
+	
+html, body {
+	height: 100vh;
+	width: 100vw;
+	font-family: -apple-system, BlinkMacSystemFont, "PingFang SC","Helvetica Neue",STHeiti,"Microsoft Yahei",Tahoma,Simsun,sans-serif;
+	overflow: hidden;
+}
+
+ul{
+	list-style: none;
+}
+
+.box{
+	padding-left: 4px;
+	padding-right: 4px;
+	height: 660px;
+}
+.box::after{
+	content: "	";
+	display: table;
+	clear: both;
+}
+
+.clearfix::after{
+	content: "	";
+	display: table;
+	clear: both;
+}
+.godown{
+	height:5em;
+	width:100%;
+	background-image: -webkit-linear-gradient(top, hsla(0,0%,100%,0), #fff);
+	position: absolute;
+	bottom:0;
+	left:0;
+}
+.goup{
+	height:5em;
+	width:100%;
+	background-image: -webkit-linear-gradient(bottom, hsla(0,0%,100%,0), #fff);
+	position: absolute;
+	top:0;
+	left:0;
+}
