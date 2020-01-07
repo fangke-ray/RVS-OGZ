@@ -15,12 +15,7 @@
 	    v_model.kind,
 	    MIN(position.process_code) AS process_code,
 	    pf.operate_result,
-	    EXISTS (SELECT 1 FROM alarm_messsage 
-			WHERE 
-				material_id = ma.material_id 
-			AND 
-				NOT EXISTS(SELECT 1 FROM alarm_messsage_sendation WHERE alarm_messsage_id = alarm_messsage.alarm_messsage_id AND red_flg = 1)
-		) AS break_off,
+	    (SELECT reason FROM for_solution_area WHERE solved_time is null and material_id = ma.material_id order by happen_time limit 1) AS break_off,
 		EXISTS (SELECT 1 FROM production_feature WHERE material_id=ma.material_id AND position_id = position.position_id AND operate_result=8) AS rework
 	FROM
 	    material ma

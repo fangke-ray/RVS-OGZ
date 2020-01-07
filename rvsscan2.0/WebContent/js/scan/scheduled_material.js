@@ -50,11 +50,29 @@ $(function () {
 						var break_off = '';
 						var rework = '';
 						if(process_code){
-							if(item.break_off == 1){
-								break_off = "有未处理中断";
+							if(item.break_off){
+								switch(item.break_off) {
+									case 2:
+									case 3:
+										break_off = "有未处理中断";
+										break;
+									case 1:
+									case 4:
+										break_off = "缺零件";
+										break;
+									case 5:
+										break_off = "品保不通过";
+										break;
+									case 8:
+										break_off = "客户要求暂停";
+										break;
+									case 9:
+										break_off = "客户要求返还";
+										break;
+								}
 							}
 							if(item.rework == 1){
-								rework = "反过工";
+								rework = "有过返工";
 							}
 						}
 

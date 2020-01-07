@@ -182,6 +182,7 @@ var getPositionWork = function(position_id, px){
 		<a title="" target="_parent" href="show.do#service_repair_manage">保内返品分析展示</a><br>
 		<a title="" target="_parent" href="show.do#finalCheck">最终检查展示</a><br>
 		<a title="" target="_parent" href="show.do#partialWarehouse">仓管人员工时图</a><br>
+		<a title="" target="_parent" href="show.do#scheduledMaterial">今日纳期维修品一览</a><br>
 	</div>
 </div>
 <% } %>
