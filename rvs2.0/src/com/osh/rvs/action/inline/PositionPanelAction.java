@@ -523,6 +523,10 @@ public class PositionPanelAction extends BaseAction {
 			pfService.startProductionFeature(waitingPf, conn);
 
 			if (waitingPf.getOperate_result() == 0 || waitingPf.getOperate_result() == 7){
+
+				// 取得维修对象在本工位的技术提示
+				QualityTipService qtService = new QualityTipService();
+
 				// 取得Cookies
 				Cookie[] cookies = req.getCookies();
 				String qt4 = null;
@@ -533,13 +537,10 @@ public class PositionPanelAction extends BaseAction {
 					}
 				}
 
-				// 取得维修对象在本工位的技术提示
-				QualityTipService qtService = new QualityTipService();
-
 				listResponse.put("quality_tip", 
 						qtService.getQualityTipOfMaterialAtPosition(material_id, user.getPosition_id(), qt4, conn));
 
-
+				// 出库位操作
 				if (waitingPf.getOperate_result() == 7){ // 从库位开始
 					service.getOutFromDeposeStorage(material_id, conn);
 				}
@@ -994,6 +995,11 @@ public class PositionPanelAction extends BaseAction {
 				MaterialService ms = new MaterialService();
 				MaterialEntity mEntity = ms.loadSimpleMaterialDetailEntity(conn, workingPf.getMaterial_id());
 				service.updatePutinBalance(mEntity.getModel_name(), mEntity.getCategory_name(), mEntity.getPat_id(), user.getSection_id(), user.getLine_id(), user.getPosition_id(), conn);
+			}
+
+			if (process_code.equals("431")
+					&& "1".equals(user.getPx())) {
+				listResponse.put("procedure_step_count_message", service.getProcedureStepCountMessage());
 			}
 		}
 

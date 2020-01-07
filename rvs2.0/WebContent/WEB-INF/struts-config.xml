@@ -173,6 +173,12 @@
 			<forward name="success" path="/pages/admin/operator.jsp" />
 		</action>
 
+		<action path="/procedureStepCount" type="com.osh.rvs.action.master.ProcedureStepCountAction" name="operatorForm"
+			scope="request" parameter="method" validate="false">
+			<forward name="init" path="/pages/admin/procedure_step_count.jsp" />
+			<forward name="success" path="/pages/admin/procedure_step_count.jsp" />
+		</action>
+
 		<action path="/holiday" type="com.osh.rvs.action.master.HolidayAction" scope="request" parameter="method" validate="false">
 			<forward name="init" path="/pages/admin/holiday.jsp" />
 			<forward name="success" path="/pages/admin/holiday.jsp" />

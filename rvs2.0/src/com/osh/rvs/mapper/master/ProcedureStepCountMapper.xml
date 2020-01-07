@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.master.ProcedureStepCountMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+
+	<select id="searchProcedureStepCount" resultType="ProcedureStepCountEntity" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		SELECT `procedure_step_count_id`,
+			psc.`name`,
+			psc.`position_id`,
+			pos.process_code,
+			pos.`name` as position_name,
+			px
+		FROM procedure_step_count psc
+		JOIN position pos ON psc.`position_id` = pos.`position_id`
+		]]>
+		<where>
+			<if test="procedure_step_count_id!= null and procedure_step_count_id!= '' ">
+				AND `procedure_step_count_id` = #{procedure_step_count_id}
+			</if>
+			<if test="name!=null and name!='' ">
+				AND psc.`name` LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="position_id!= null and position_id!= '' ">
+				AND psc.`position_id` = #{position_id}
+			</if>
+		</where> 
+		<![CDATA[ 
+		ORDER BY psc.`position_id`, psc.`name`;
+		]]>
+	</select>
+
+	<insert id="insertProcedureStepCount" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		INSERT INTO `procedure_step_count` 
+			(NAME, `position_id`, `px`) 
+		VALUES 
+			(#{name}, #{position_id}, #{px});
+		]]>
+	</insert>
+
+	<update id="updateProcedureStepCount" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		UPDATE `procedure_step_count`
+		SET
+		`name` = #{name},
+		`position_id` = #{position_id},
+		`px` = #{px}
+		WHERE `procedure_step_count_id` = #{procedure_step_count_id};
+		]]>
+	</update>
+
+	<delete id="deleteProcedureStepCount" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		DELETE FROM procedure_step_count
+		WHERE `procedure_step_count_id` = #{procedure_step_count_id};
+		]]>
+	</delete>
+
+	<select id="searchProcedureStepOfModel" resultType="ProcedureStepCountEntity" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		SELECT psm.`procedure_step_count_id`,
+			psm.`relation_type`,
+			psm.`relation_id`,
+			psm.`step_times`,
+			rela.name as model_name
+		FROM procedure_step_of_model psm
+		JOIN procedure_step_count psc ON psc.`procedure_step_count_id` = psm.`procedure_step_count_id`
+		]]>
+		<if test="relation_type == null or relation_type eq 1">
+			JOIN model rela ON psm.`relation_id` = rela.model_id
+		</if>
+		<![CDATA[ 
+		]]>
+		<where>
+			psm.`procedure_step_count_id` = #{procedure_step_count_id}
+			<if test="relation_id!= null and relation_id!= '' ">
+				<if test="relation_type == null or relation_type eq 1">
+				AND `relation_id` = #{relation_id}
+				</if>
+			</if>
+		</where> 
+		<![CDATA[ 
+		ORDER BY model_name;
+		]]>
+	</select>
+
+	<insert id="insertProcedureStepOfModel" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		INSERT INTO `procedure_step_of_model` 
+			(procedure_step_count_id, relation_type, `relation_id`, `step_times`) 
+		VALUES 
+			(#{procedure_step_count_id}, #{relation_type}, #{relation_id}, #{step_times});
+		]]>
+	</insert>
+
+	<update id="updateProcedureStepOfModel" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		UPDATE `procedure_step_of_model`
+		SET
+		`step_times` = #{step_times}
+		WHERE `procedure_step_count_id` = #{procedure_step_count_id}
+		AND `relation_type` = #{relation_type}
+		AND `step_times` = #{step_times}
+		;
+		]]>
+	</update>
+
+	<delete id="deleteProcedureStepOfModel" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		DELETE FROM procedure_step_of_model
+		WHERE `procedure_step_count_id` = #{procedure_step_count_id}
+		AND `relation_type` = #{relation_type}
+		AND `step_times` = #{step_times}
+		;
+		]]>
+	</delete>
+
+</mapper>

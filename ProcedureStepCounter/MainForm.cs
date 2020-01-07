@@ -9,8 +9,11 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
+using ProcedureStepCounter.Entity;
 using ProcedureStepCounter.Service;
+using System.Web.Script.Serialization;
 
 namespace ProcedureStepCounter
 {
@@ -37,6 +40,9 @@ namespace ProcedureStepCounter
 		private const string RESET_AL1 = "01 06 00 00 00 03 C9 CB";
 		private System.Windows.Forms.PictureBox pictureBox1;
 
+		RecSocket recSocket;
+		private System.Windows.Forms.Timer ComRefreshTimer;
+
 		public MainForm()
 		{
 			this.InitializeComponent();
@@ -44,6 +50,17 @@ namespace ProcedureStepCounter
 			SetComGrid.InitDataGridColumnHeader(ComDataGrid);
 			ComTimer.Interval = 500;
 			ComTimer.Start();
+
+			ComRefreshTimer.Start();
+
+			GetComClick(0, "COM3"); // COM4
+
+			recSocket = new RecSocket(this);
+			Thread socketThread = 
+				new Thread(new ThreadStart(recSocket.ListenMethod));
+			socketThread.Name = "SocketThread";
+			socketThread.IsBackground = true;
+			socketThread.Start();
 		}
 			//
 		private void MainFormLoad(object sender, EventArgs e)
@@ -96,7 +113,7 @@ namespace ProcedureStepCounter
 		private bool ResetAL1(int idx)
 		{
 			String retError = ComConnector.sendToMachine(idx, 
-					ComConnector.GetHexValue(GET_AL1));
+					ComConnector.GetHexValue(RESET_AL1));
 			if (retError != null) {
 				DataGridViewCell statusCell = ComDataGrid.Rows[idx].Cells[6];
 	
@@ -143,6 +160,41 @@ namespace ProcedureStepCounter
 			}
 		}
 
+		public void showProcessMaterial(string startAjax)
+		{
+			if (startAjax != null) {
+				JavaScriptSerializer js = new JavaScriptSerializer();//实例化一个能够序列化数据的类
+				MaterialData materialData = js.Deserialize<MaterialData>(startAjax); //将json数据转化为对象类型并赋值给list
+				Action action = () =>
+				{
+					lbl_notifiNo.Text = materialData.omr_notifi_no;
+					lbl_serialNo.Text = materialData.serial_no;
+					lbl_modelName.Text = materialData.model_name;
+					lbl_processCode.Text = "431 A";
+					ComDataGrid.Rows[0].Cells[2].Value = materialData.set_times;
+					ComDataGrid.Rows[0].Cells[3].Value = "0";
+					ResetAL1(0);
+                };
+                Invoke(action);   
+			}
+		}
+
+		public string getCount()
+		{
+            string set_count = ComDataGrid.Rows[0].Cells[2].Value.ToString();
+ 			Action action = () =>
+			{
+				lbl_notifiNo.Text = "-";
+				lbl_serialNo.Text = "-";
+				lbl_modelName.Text = "-";
+				lbl_processCode.Text = "431 A";
+				ComDataGrid.Rows[0].Cells[2].Value = "-";
+            };
+            Invoke(action);
+            string noe_count = ComDataGrid.Rows[0].Cells[3].Value.ToString();
+            return set_count + ">>" + noe_count;
+		}
+
 		private void readCounter(object sender, EventArgs e)
 		{
 			for (int i=0 ; i < ComConnector.retCounts.Length; i++) {
@@ -153,6 +205,14 @@ namespace ProcedureStepCounter
 				}
 			}
 			ComTimer.Enabled = false;
+		}
+
+		private void refreshCounter(object sender, EventArgs e)
+		{
+			if (!"-".Equals(lbl_notifiNo.Text)
+			    && "连通".Equals(ComDataGrid.Rows[0].Cells[6].Value)) {
+				GetAL1(0);
+			}
 		}
 
 		private void InitializeComponent()
@@ -172,6 +232,7 @@ namespace ProcedureStepCounter
 			this.cpt_notifiNo = new System.Windows.Forms.Label();
 			this.ComTimer = new System.Windows.Forms.Timer(this.components);
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
+			this.ComRefreshTimer = new System.Windows.Forms.Timer(this.components);
 			this.gb_coms.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.ComDataGrid)).BeginInit();
 			this.gb_process.SuspendLayout();
@@ -242,6 +303,7 @@ namespace ProcedureStepCounter
 			this.lbl_modelName.Name = "lbl_modelName";
 			this.lbl_modelName.Size = new System.Drawing.Size(227, 27);
 			this.lbl_modelName.TabIndex = 8;
+			this.lbl_modelName.Text = "-";
 			// 
 			// lbl_processCode
 			// 
@@ -263,6 +325,7 @@ namespace ProcedureStepCounter
 			this.lbl_serialNo.Name = "lbl_serialNo";
 			this.lbl_serialNo.Size = new System.Drawing.Size(220, 27);
 			this.lbl_serialNo.TabIndex = 8;
+			this.lbl_serialNo.Text = "-";
 			// 
 			// lbl_notifiNo
 			// 
@@ -273,6 +336,7 @@ namespace ProcedureStepCounter
 			this.lbl_notifiNo.Name = "lbl_notifiNo";
 			this.lbl_notifiNo.Size = new System.Drawing.Size(227, 27);
 			this.lbl_notifiNo.TabIndex = 8;
+			this.lbl_notifiNo.Text = "-";
 			// 
 			// cpt_processCode
 			// 
@@ -314,6 +378,11 @@ namespace ProcedureStepCounter
 			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.pictureBox1.TabIndex = 10;
 			this.pictureBox1.TabStop = false;
+			// 
+			// ComRefreshTimer
+			// 
+			this.ComRefreshTimer.Interval = 2000;
+			this.ComRefreshTimer.Tick += new System.EventHandler(this.refreshCounter);
 			// 
 			// MainForm
 			// 

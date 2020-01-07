@@ -56,6 +56,7 @@ import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialService;
+import com.osh.rvs.service.master.ProcedureStepCountService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -937,6 +938,29 @@ public class PositionPanelService {
 				Thread.sleep(100);
 				httpclient.shutdown();
 			}
+		}
+
+		// 作业步骤计次(临时)
+		if (pf.getOperate_result() == 0
+				&& pf.getPosition_id().equals("00000000036")
+				&& "1".equals(user.getPx())) {
+			ProcedureStepCountService pscService = new ProcedureStepCountService(); 
+			String recieveFrom = pscService.startProcedureStepCount(mform, conn);
+			if (recieveFrom != null && recieveFrom.endsWith("Exception")) {
+				
+			}
+		}
+	}
+
+	public String getProcedureStepCountMessage() {
+		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
+		String recvMessage = pscService.finishProcedureStepCount();
+		if (recvMessage != null && recvMessage.startsWith("getCount:")) {
+			String rec = recvMessage.substring("getCount:".length());
+			String[] se = rec.split(">>");
+			return "当前维修对象作业[KE-45胶水涂布次数2]应当进行 " + se[0] + " 次，实际记录 " + se[1] + "次。";
+		} else {
+			return "没有开始作业计数。";
 		}
 	}
 

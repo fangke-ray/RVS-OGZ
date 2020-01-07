@@ -1425,6 +1425,10 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 				}
 
 				hasPcs && pcsO.clearCache();
+
+				if (resInfo.procedure_step_count_message) {
+					infoPop(resInfo.procedure_step_count_message, null, "作业步骤计数");
+				}
 			}
 		}
 	} catch (e) {

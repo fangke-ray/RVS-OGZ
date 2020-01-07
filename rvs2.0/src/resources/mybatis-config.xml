@@ -105,6 +105,8 @@
 
 		<typeAlias alias="DailyProductPlanEntity" type="com.osh.rvs.bean.manage.DailyProductPlanEntity"/>
 
+		<typeAlias alias="ProcedureStepCountEntity" type="com.osh.rvs.bean.master.ProcedureStepCountEntity"/>
+
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -222,5 +224,6 @@
 		<mapper resource="com/osh/rvs/mapper/manage/OperationStandardDocMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manufact/ProductMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/master/ProcedureStepCountMapper.xml"/>
 	</mappers>
 </configuration> 
