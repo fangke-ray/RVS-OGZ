@@ -51,7 +51,8 @@ public class ScheduledMaterialAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		String curDate = DateUtil.toString(Calendar.getInstance().getTime(), DateUtil.DATE_PATTERN);
-
+		listResponse.put("curDate", curDate);
+		
 		MaterialService service = new MaterialService();
 		List<MaterialForm> list = service.searchScheduld(curDate, conn);
 		listResponse.put("list", list);

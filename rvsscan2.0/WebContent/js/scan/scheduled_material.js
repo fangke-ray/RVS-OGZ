@@ -36,6 +36,11 @@ $(function () {
 				var $tbody = $("#table tbody");
 				var list = resInfo.list;
 
+				$("title").text(resInfo.curDate + " 纳期维修品一览");
+				$("#introduction").text(resInfo.curDate + " 纳期维修品一览");
+				
+				$("#sum").text("总数：" + list.length);
+				
 				if (list.length == 0) {
 					$("#tip").show().siblings().hide();
 					$tbody.html("");
