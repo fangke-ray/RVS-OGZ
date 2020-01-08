@@ -147,7 +147,8 @@
 
 		<div class="ui-widget-panel dwidth-full" style="padding-top:6px;">
 			<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-				<span class="areatitle" style="font-size: 20px;line-height: 1;">${today } 纳期维修品一览</span>
+				<span class="areatitle" style="font-size: 20px;line-height: 1;" id="introduction">${today } 纳期维修品一览</span>
+				<span class="areatitle" style="font-size: 20px;line-height: 1;float: right;" id="sum"></span>
 			</div>
 
 			<div class="ui-widget-content">
