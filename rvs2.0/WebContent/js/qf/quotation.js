@@ -518,6 +518,10 @@ var treatStart = function(resInfo) {
 	$("#pausebutton").show();
 	$("#breakbutton, #stepbutton").enable();
 	$("#confirmbutton, #wipconfirmbutton").enable();
+
+	if (resInfo.quality_tip) {
+		showTips(resInfo.quality_tip);
+	}
 }
 
 var getMaterialInfo = function(resInfo) {
@@ -1091,3 +1095,21 @@ var getFlags = function(over_time, direct_flg, light_fix, service_repair_flg) {
 		return "";
 	}
 };
+
+var showTips = function(quality_tip, material_comment) {
+	$("#comments_dialog textarea").val(material_comment);
+	$("#comments_dialog").find("img").remove();
+	if (quality_tip) {
+		$("#comments_dialog").append("<br/><img src='/photos/quality_tip/" + quality_tip.quality_tip_id + "'></img>");
+		if (quality_tip.bind_type == 1) {
+			document.cookie = "qt4=" + (new Date()).getTime();
+		}
+	}
+ 	$("#comments_dialog").dialog({
+		modal : false,
+		resizable:false,
+		width : '576px',
+		title : "质量提示",
+		closeOnEscape: false
+	});
+}

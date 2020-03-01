@@ -249,6 +249,10 @@ if (peripheral!=null && peripheral) {
 
 	</div>
 	
+	<div id="comments_dialog" style="display:none;width:576px;">
+		<textarea style="width:90%;height:6em;resize:none;" disabled readonly>
+		</textarea>
+	</div>
 	<div id="light_fix_dialog"></div>
 	<input type="hidden" id="paOptions" value='${paOptions }'>
 	

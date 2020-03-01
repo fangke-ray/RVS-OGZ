@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -34,6 +35,7 @@ import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
 import com.osh.rvs.service.ProcessAssignService;
 import com.osh.rvs.service.ProductionFeatureService;
+import com.osh.rvs.service.QualityTipService;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.qa.ServiceRepairManageService;
 import com.osh.rvs.service.qf.QuotationService;
@@ -89,9 +91,9 @@ public class QuotationAction extends BaseAction {
 
 		req.setAttribute("edit_ocm", CodeListUtils.getSelectOptions("material_ocm", null, null, false));
 		if (isPeripheral) {
-			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_peripheral", null, null, false));
+			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_peripheral", null, "(未选)", false));
 		} else {
-			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_endoscope", null, null, false));
+			req.setAttribute("edit_level", CodeListUtils.getSelectOptions("material_level_endoscope", null, "(未选)", false));
 		}
 		req.setAttribute("edit_fix_type", CodeListUtils.getSelectOptions("material_fix_type", null, null, false));
 		req.setAttribute("edit_service_repair_flg", CodeListUtils.getSelectOptions("material_service_repair", null, "", false));
@@ -327,6 +329,25 @@ public class QuotationAction extends BaseAction {
 //		}
 
 		if (errors.size() == 0) {
+
+			if (waitingPf.getOperate_result() == 0){
+				// 取得维修对象在本工位的技术提示
+				QualityTipService qtService = new QualityTipService();
+
+				// 取得Cookies
+				Cookie[] cookies = req.getCookies();
+				String qt4 = null;
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals("qt4")) {
+						qt4 = cookie.getValue();
+						break;
+					}
+				}
+
+				detailResponse.put("quality_tip", 
+						qtService.getQualityTipOfMaterialAtPosition(material_id, user.getPosition_id(), qt4, conn));
+				
+			}
 
 			QuotationService qService = new QuotationService();
 			qService.getProccessingData(detailResponse, material_id, user, conn);
