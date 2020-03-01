@@ -193,11 +193,11 @@ public class ProductionFeatureService {
 	 * @throws Exception 
 	 * @return 是否发动
 	 */
-	public void fingerPosition(MaterialEntity mEntity, boolean fixed,
+	private void fingerPosition(MaterialEntity mEntity, boolean fixed,
 			ProductionFeatureEntity workingPf, SqlSessionManager conn, ProductionFeatureMapper pfDao, ProcessAssignProxy paProxy, List<String> retList, List<String> triggerList) throws Exception {
 		fingerPosition(mEntity, fixed, workingPf, conn, pfDao, paProxy, retList, triggerList, true);
 	}
-	public void fingerPosition(MaterialEntity mEntity, boolean fixed,
+	private void fingerPosition(MaterialEntity mEntity, boolean fixed,
 			ProductionFeatureEntity workingPf, SqlSessionManager conn, ProductionFeatureMapper pfDao, ProcessAssignProxy paProxy, List<String> retList, List<String> triggerList, boolean isFact) throws Exception {
 
 		if (retList == null) retList = new ArrayList<String> ();
@@ -253,7 +253,7 @@ public class ProductionFeatureService {
 				if (prevPositions.size() == 0 || !isFact 
 						|| paProxy.getFinishedCountByPositions(prevPositions) == prevPositions.size()) {
 					workingPf.setPosition_id(position_id);
-					List<String> x = fingerNextPosition(material_id, workingPf, conn, triggerList);
+					List<String> x = fingerNextPosition(material_id, workingPf, conn, triggerList, isFact);
 					if (x!=null) {
 						retList.addAll(x);
 					}

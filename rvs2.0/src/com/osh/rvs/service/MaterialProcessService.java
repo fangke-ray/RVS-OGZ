@@ -49,6 +49,7 @@ public class MaterialProcessService {
 			conditionBean.setFinish_date(conditionBean.getDec_finish_date());
 			conditionBean.setScheduled_date(conditionBean.getDec_plan_date());
 			conditionBean.setLine_id(mpMapper.getMaterialProcessLine(materialId, "1"));
+			conditionBean.setPx(null);
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
 		
@@ -56,6 +57,7 @@ public class MaterialProcessService {
 			conditionBean.setFinish_date(conditionBean.getNs_finish_date());
 			conditionBean.setScheduled_date(conditionBean.getNs_plan_date());
 			conditionBean.setLine_id("00000000013");
+			conditionBean.setPx(null);
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
 		
@@ -63,6 +65,7 @@ public class MaterialProcessService {
 			conditionBean.setFinish_date(conditionBean.getCom_finish_date());
 			conditionBean.setScheduled_date(conditionBean.getCom_plan_date());
 			conditionBean.setLine_id(mpMapper.getMaterialProcessLine(materialId, "0"));
+			conditionBean.setPx(null);
 			mpMapper.updateMaterialProcess(conditionBean);
 		}
 	}
@@ -316,9 +319,11 @@ public class MaterialProcessService {
 	 */
 	public void checkDividePx(String material_id, String line_id,
 			String operator_id, SqlSessionManager conn) throws Exception {
+		if (operator_id == null) return;
+
 		OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
 		OperatorEntity operator = oMapper.getOperatorByID(operator_id);
-		if (operator.getPx() == null) {
+		if (operator.getPx() == null || operator.getPx() == 0) {
 			return;
 		}
 

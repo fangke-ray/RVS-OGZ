@@ -261,7 +261,7 @@ public class DownloadAction extends BaseAction {
 			String subPath = "";
 			if (sorcNo== null) { // If Manuf
 				subPath = "MA" + mform.getModel_name().substring(0, 2) + "-" + mform.getFinish_time().substring(1, 3) + mform.getSerial_no() + "________";
-			} else if (sorcNo.length() == 8)
+			} else if (subPath== null || subPath.length() < 8)
 				subPath = "SAPD-" + sorcNo + "________";
 			else if (sorcNo.length() == 8)
 				subPath = "OMRN-" + sorcNo + "________";

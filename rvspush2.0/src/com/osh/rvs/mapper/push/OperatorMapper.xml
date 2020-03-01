@@ -104,7 +104,7 @@
 				-- (unix_timestamp(finish_time) - unix_timestamp(action_time)) / 60 as minutes ,
 				use_seconds / 60 as minutes ,
 				(select name from model where model_id = am.model_id) as model_name,
-				am.omr_notifi_no as sorc_no,
+				COALESCE(am.omr_notifi_no, am.serial_no) as sorc_no,
 				CASE WHEN break_back_flg in (3,4) THEN 100 + break_back_flg
 				ELSE am.`level` END as level,
 				null as reason,

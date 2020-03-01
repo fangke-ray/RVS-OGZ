@@ -64,10 +64,12 @@ public class LoginAction extends BaseAction {
 		}
 
 		Cookie[] cookies = req.getCookies();
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("dpt")) {
-				req.setAttribute("department", cookie.getValue());
-				break;
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("dpt")) {
+					req.setAttribute("department", cookie.getValue());
+					break;
+				}
 			}
 		}
 

@@ -836,8 +836,15 @@ public class DayWorkTotalToMonthJob implements Job {
 		}
 
 		String process_code = (String)operatorProcess.get("process_code");
-		cell = row.createCell(4, HSSFCell.CELL_TYPE_NUMERIC);
-		setCell(cell, getInteger(process_code));
+		if (process_code != null) {
+			if (process_code.startsWith("0")) {
+				cell = row.createCell(4, HSSFCell.CELL_TYPE_STRING);
+				setCell(cell, process_code);
+			} else {
+				cell = row.createCell(4, HSSFCell.CELL_TYPE_NUMERIC);
+				setCell(cell, getInteger(process_code));
+			}
+		}
 
 		String action_time = (String)operatorProcess.get("action_time");
 		cell = row.createCell(5, HSSFCell.CELL_TYPE_STRING);
@@ -1063,6 +1070,9 @@ public class DayWorkTotalToMonthJob implements Job {
 		if (isEmpty(string)) {
 			return null;
 		}
+		if ("0".equals(along)) {
+			return "-";
+		}
 		if ("103".equals(string)) {
 			return "备";
 		}
@@ -1266,8 +1276,8 @@ public class DayWorkTotalToMonthJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 
-		today.set(Calendar.YEAR, 2019);
-		today.set(Calendar.MONTH, Calendar.JANUARY);
+//		today.set(Calendar.YEAR, 2019);
+//		today.set(Calendar.MONTH, Calendar.JANUARY);
 		today.set(Calendar.DATE, 1);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);

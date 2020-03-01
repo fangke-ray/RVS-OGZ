@@ -178,7 +178,7 @@
 	<select id="getPostMessageGroup" resultType="PostMessageEntity">
 SELECT occur_time,reason,op.name as operator_name,content FROM post_message pm
 join operator op on op.operator_id = pm.sender_id 
-where post_message_id = #{post_message_id} or root_post_message_id = #{post_message_id}
+where post_message_id = #{post_message_id} OR root_post_message_id = #{post_message_id}
 order by occur_time;
 	</select>
 

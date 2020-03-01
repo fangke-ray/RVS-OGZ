@@ -30,7 +30,7 @@ var downPdf = function(sorc_no, pathPrefix) {
 }
 
 var rePdf = function(sorc_no, material_id) {
-	if (sorc_no = "undefined") sorc_no = "制品";
+	if (sorc_no == "undefined") sorc_no = "制品";
 	warningConfirm("是否重新生成"+sorc_no+"的PDF文档？", function(){
 		var data = {material_id : material_id};
 		$.ajax({
