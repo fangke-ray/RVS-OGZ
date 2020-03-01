@@ -57,6 +57,7 @@ public class RvsConsts extends BaseConst {
 	public static final Integer WARNING_REASON_INFECT_ERROR = 9; // 点检不通过
 	public static final Integer WARNING_REASON_NOT_REACH_LOAD_RATE = 11; // 负荷率未达成
 	public static final Integer WARNING_REASON_NOT_REACH_ENERGY_RATE = 12; // 能率未达成
+	public static final Integer WARNING_REASON_PROCEDURE_OVERSET = 13; // 作业步骤不一致
 
 	public static final String ROLE_ACCEPTOR = "00000000001";
 	public static final String ROLE_QUOTATOR = "00000000002";

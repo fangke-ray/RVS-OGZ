@@ -12,6 +12,8 @@ public interface ProcedureStepCountMapper {
 
 	public int updateProcedureStepCount(ProcedureStepCountEntity entity);
 
+	public int updateClientAddress(ProcedureStepCountEntity entity);
+
 	public int deleteProcedureStepCount(ProcedureStepCountEntity entity);
 
 	public List<ProcedureStepCountEntity> searchProcedureStepOfModel(ProcedureStepCountEntity entity);

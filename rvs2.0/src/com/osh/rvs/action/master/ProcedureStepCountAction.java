@@ -14,14 +14,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.arnx.jsonic.JSON;
-
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
-import com.osh.rvs.common.SocketCommunitcator;
+import com.osh.rvs.service.master.ProcedureStepCountService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -73,18 +71,8 @@ public class ProcedureStepCountAction extends BaseAction {
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
 		List<MsgInfo> errors = v.validate();
 
-		SocketCommunitcator scUtil = new SocketCommunitcator();
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("omr_notifi_no", "TEST_单号");
-		map.put("model_name", "TEST_型号");
-		map.put("serial_no", "TEST_序列");
-		map.put("set_times", "7");
-		String recv = scUtil.clientSendMessage("127.0.0.1", 50023, "In:" + JSON.encode(map));
-
-		Thread.sleep(10000);
-
-		recv = scUtil.clientSendMessage("127.0.0.1", 50023, "Out:" + JSON.encode(map));
-		_log.info(recv);
+		ProcedureStepCountService service = new ProcedureStepCountService();
+		service.test2(listResponse, conn);
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);

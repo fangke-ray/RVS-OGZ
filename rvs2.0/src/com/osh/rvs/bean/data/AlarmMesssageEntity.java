@@ -36,6 +36,8 @@ public class AlarmMesssageEntity implements Serializable {
 
 	private Integer department;
 
+	private String give_message;
+
 	// List<AlarmMesssageSendationEntity> sendation = new ArrayList
 
 	public String getAlarm_messsage_id() {
@@ -187,5 +189,11 @@ public class AlarmMesssageEntity implements Serializable {
 	}
 	public void setDepartment(Integer department) {
 		this.department = department;
+	}
+	public String getGive_message() {
+		return give_message;
+	}
+	public void setGive_message(String give_message) {
+		this.give_message = give_message;
 	}
 }

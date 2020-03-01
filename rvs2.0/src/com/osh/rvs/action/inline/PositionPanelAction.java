@@ -891,6 +891,9 @@ public class PositionPanelAction extends BaseAction {
 
 		// 取得当前作业中作业信息
 		ProductionFeatureEntity workingPf = service.getWorkingPf(user, conn); 
+
+		String process_code = user.getProcess_code();
+
 		// 没有进行中的作业，请刷新页面确认。
 		if (workingPf == null) {
 			MsgInfo info = new MsgInfo();
@@ -910,6 +913,12 @@ public class PositionPanelAction extends BaseAction {
 
 			// 检查使用组件
 			service.checkAccessary(workingPf, infoes, conn);
+
+			if (process_code.equals("431")
+					&& "1".equals(user.getPx())) {
+				service.getProcedureStepCountMessage(workingPf.getMaterial_id(), 
+						user, listResponse, infoes, conn);
+			}
 
 //			MaterialService ms = new MaterialService();
 //			MaterialForm mEntity = ms.loadSimpleMaterialDetail(conn, workingPf.getMaterial_id());
@@ -989,17 +998,11 @@ public class PositionPanelAction extends BaseAction {
 				conn.rollback();
 			}
 
-			String process_code = user.getProcess_code();
 			if ("311".equals(process_code) 
 					|| "411".equals(process_code)) {
 				MaterialService ms = new MaterialService();
 				MaterialEntity mEntity = ms.loadSimpleMaterialDetailEntity(conn, workingPf.getMaterial_id());
 				service.updatePutinBalance(mEntity.getModel_name(), mEntity.getCategory_name(), mEntity.getPat_id(), user.getSection_id(), user.getLine_id(), user.getPosition_id(), conn);
-			}
-
-			if (process_code.equals("431")
-					&& "1".equals(user.getPx())) {
-				listResponse.put("procedure_step_count_message", service.getProcedureStepCountMessage());
 			}
 		}
 

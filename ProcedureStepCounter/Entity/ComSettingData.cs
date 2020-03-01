@@ -1,37 +1,29 @@
 ﻿/*
  * 由SharpDevelop创建。
  * 用户： Ray.G
- * 日期: 2019-12-30
- * 时间: 14:05
+ * 日期: 2020-02-17
+ * 时间: 10:34
  * 
  * 要改变这种模板请点击 工具|选项|代码编写|编辑标准头文件
  */
 using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace ProcedureStepCounter.Entity
 {
 	/// <summary>
-	/// Description of ComData.
+	/// Description of ComSettingData.
 	/// </summary>
-	public partial class ComData
+	public class ComSettingData
 	{
-		public ComData()
+		public ComSettingData()
 		{
-
 		}
 
 		public string item_id { get; set; }
 		public string item_name { get; set; }
-		public string set_times { get; set; }
-		public int count { get; set; }
 		public string com_port { get; set; }
 		public int pbs { get; set; }
-		public string connect_status { get; set; }
 		public string address_code { get; set; }
 
-		// int parity_bits; // 校验位
 	}
 }

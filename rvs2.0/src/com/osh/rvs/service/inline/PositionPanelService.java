@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.arnx.jsonic.JSON;
+
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.nio.client.DefaultHttpAsyncClient;
 import org.apache.http.nio.client.HttpAsyncClient;
@@ -54,6 +56,7 @@ import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
+import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.master.ProcedureStepCountService;
@@ -945,22 +948,58 @@ public class PositionPanelService {
 				&& pf.getPosition_id().equals("00000000036")
 				&& "1".equals(user.getPx())) {
 			ProcedureStepCountService pscService = new ProcedureStepCountService(); 
-			String recieveFrom = pscService.startProcedureStepCount(mform, conn);
+			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), conn);
 			if (recieveFrom != null && recieveFrom.endsWith("Exception")) {
 				
 			}
 		}
 	}
 
-	public String getProcedureStepCountMessage() {
+	/**
+	 * 判断作业步骤次数计数
+	 * 
+	 * @param listResponse
+	 * @param infoes
+	 * @param conn
+	 * @throws Exception 
+	 */
+	public void getProcedureStepCountMessage(String material_id, LoginData user, Map<String, Object> listResponse, List<MsgInfo> infoes, SqlSessionManager conn) throws Exception {
 		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
 		String recvMessage = pscService.finishProcedureStepCount();
 		if (recvMessage != null && recvMessage.startsWith("getCount:")) {
 			String rec = recvMessage.substring("getCount:".length());
 			String[] se = rec.split(">>");
-			return "当前维修对象作业[KE-45胶水涂布次数2]应当进行 " + se[0] + " 次，实际记录 " + se[1] + "次。";
+			if (se.length == 2) { // 最初版本
+				int setTimes = 0, actualTimes = 0;
+				try {
+					setTimes = Integer.parseInt(se[0]); 
+					actualTimes = Integer.parseInt(se[1]); 
+				} catch (NumberFormatException e) {
+				}
+				if (actualTimes < setTimes) {
+					MsgInfo info = new MsgInfo();
+					info.setErrmsg("当前维修对象作业[KE-45胶水涂布次数2]应当进行 " + se[0] + " 次，实际记录 " + se[1] + " 次。请操作达到计数。");
+					infoes.add(info);
+				} else if (actualTimes > setTimes) {
+					String message = "当前维修对象作业[KE-45胶水涂布次数2]应当进行 " + se[0] + " 次，实际记录 " + se[1] + " 次。";
+					listResponse.put("procedure_step_count_message", message);
+					AlarmMesssageService amService = new AlarmMesssageService();
+					MaterialService mService = new MaterialService();
+					MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, material_id);
+					amService.createPscAlarmMessage(material_id, mEntity.getSorc_no(), message, user, conn);
+				}
+			} else {
+				try {
+					Map<String, String> decodedRec = JSON.decode(rec, Map.class);
+
+					pscService.confirmFinish(decodedRec, material_id, user, listResponse, infoes, conn);
+
+				} catch (Exception e) {
+					listResponse.put("procedure_step_count_message", e.getMessage());
+				}
+			}
 		} else {
-			return "没有开始作业计数。";
+			listResponse.put("procedure_step_count_message", "没有开始作业计数。");
 		}
 	}
 

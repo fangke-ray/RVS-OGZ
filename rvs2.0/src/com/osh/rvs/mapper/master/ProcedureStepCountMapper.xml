@@ -13,7 +13,8 @@
 			psc.`position_id`,
 			pos.process_code,
 			pos.`name` as position_name,
-			px
+			px,
+			psc.`client_address`
 		FROM procedure_step_count psc
 		JOIN position pos ON psc.`position_id` = pos.`position_id`
 		]]>
@@ -26,6 +27,12 @@
 			</if>
 			<if test="position_id!= null and position_id!= '' ">
 				AND psc.`position_id` = #{position_id}
+			</if>
+			<if test="process_code!= null and process_code!= '' ">
+				AND pos.`process_code` = #{process_code}
+			</if>
+			<if test="px!= null and px!= '' ">
+				AND px = #{px}
 			</if>
 		</where> 
 		<![CDATA[ 
@@ -53,6 +60,15 @@
 		]]>
 	</update>
 
+	<update id="updateClientAddress" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		UPDATE `procedure_step_count`
+		SET
+		`client_address` = #{client_address}
+		WHERE `procedure_step_count_id` = #{procedure_step_count_id};
+		]]>
+	</update>
+
 	<delete id="deleteProcedureStepCount" parameterType="ProcedureStepCountEntity">
 		<![CDATA[ 
 		DELETE FROM procedure_step_count
@@ -63,6 +79,7 @@
 	<select id="searchProcedureStepOfModel" resultType="ProcedureStepCountEntity" parameterType="ProcedureStepCountEntity">
 		<![CDATA[ 
 		SELECT psm.`procedure_step_count_id`,
+			psc.`name`,
 			psm.`relation_type`,
 			psm.`relation_id`,
 			psm.`step_times`,
@@ -76,11 +93,16 @@
 		<![CDATA[ 
 		]]>
 		<where>
-			psm.`procedure_step_count_id` = #{procedure_step_count_id}
+			<if test="procedure_step_count_id!= null and procedure_step_count_id!= '' ">
+				AND psm.`procedure_step_count_id` = #{procedure_step_count_id}
+			</if>
 			<if test="relation_id!= null and relation_id!= '' ">
 				<if test="relation_type == null or relation_type eq 1">
 				AND `relation_id` = #{relation_id}
 				</if>
+			</if>
+			<if test="position_id!= null and position_id!= '' ">
+				AND psc.`position_id` = #{position_id}
 			</if>
 		</where> 
 		<![CDATA[ 

@@ -51,21 +51,33 @@ namespace ProcedureStepCounter.Service
 			grid.Columns[6].Width=80;
 			grid.Columns[6].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
 
+			grid.Columns[7].Visible = false;
 		}
-		public static List<ComData> InitGrid() {
-			List<ComData> data = new List<ComData>();
-			ComData testData = new ComData();
-			testData.item_id = "1";
-			testData.item_name = "KE-45胶水涂布次数2";
-			testData.set_times = "-";
-			testData.count = 0;
-			testData.com_port = "COM4";
-			testData.pbs = 9600;
-			testData.connect_status = "断开";
 
-			data.Add(testData);
+		public static void InitSetDataGridColumnHeader(DataGridView grid) {
+			grid.RowTemplate.Height = 40;
 
-			return data;
+			grid.Columns[0].HeaderText = "";
+			grid.Columns[0].Visible = false;
+
+			grid.Columns[1].HeaderText = "计数项目";
+			grid.Columns[1].Width=170;
+			grid.Columns[1].ReadOnly = true;
+
+			grid.Columns[2].HeaderText = "端口";
+			grid.Columns[2].Width=60;
+			grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[2].DefaultCellStyle.BackColor = System.Drawing.Color.Aqua;
+
+			grid.Columns[3].HeaderText = "波特率";
+			grid.Columns[3].Width=68;
+			grid.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[3].DefaultCellStyle.BackColor = System.Drawing.Color.Aqua;
+
+			grid.Columns[4].HeaderText = "地址号";
+			grid.Columns[4].Width=70;
+			grid.Columns[4].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			grid.Columns[4].DefaultCellStyle.BackColor = System.Drawing.Color.Aqua;
 		}
 	}
 }

@@ -893,5 +893,22 @@ public class AlarmMesssageService {
 		
 		return respForm;
 	}
-	
+
+	public void createPscAlarmMessage(String material_id, String omr_notifi_no, 
+			String giceMessage, LoginData user, SqlSessionManager conn) throws Exception {
+		AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
+		amEntity.setLevel(RvsConsts.WARNING_LEVEL_NORMAL);
+		amEntity.setLine_id(user.getLine_id());
+		amEntity.setMaterial_id(material_id);
+		amEntity.setOperator_id(user.getOperator_id());
+		amEntity.setPosition_id(user.getPosition_id());
+		amEntity.setSection_id(user.getSection_id());
+		amEntity.setReason(RvsConsts.WARNING_REASON_PROCEDURE_OVERSET);
+		String amId = this.createAlarmMessage(amEntity, RvsConsts.DEPART_REPAIR, conn, false, null);
+
+		AlarmMesssageMapper mapper = conn.getMapper(AlarmMesssageMapper.class);
+		amEntity.setAlarm_messsage_id(amId);
+		amEntity.setGive_message(user.getProcess_code() + "岗位" + user.getName() + "操作维修品" + omr_notifi_no + "时，" + giceMessage);
+		mapper.createAlarmMesssageContent(amEntity);
+	}
 }

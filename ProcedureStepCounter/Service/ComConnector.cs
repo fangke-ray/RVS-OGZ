@@ -206,9 +206,77 @@ namespace ProcedureStepCounter.Service
 
 			return covertHexByte;
 		}
+
+		#region  ByteToString
 		public static string ByteToString(byte input)
 		{
 			return input.ToString("X2");
 		}
+		public static string BytesToString(byte[] arr, bool isReverse)
+		{
+			try
+			{
+				byte hi = arr[0], lo = arr[1];
+				return Convert.ToString(isReverse ? hi + lo * 0x100 : hi * 0x100 + lo, 16).ToUpper().PadLeft(4, '0');
+			}
+			catch (Exception ex) { throw (ex); }
+		}
+
+		public static string BytesToString(byte[] arr)
+		{
+			try
+			{
+				return BytesToString(arr, true);
+			}
+			catch (Exception ex) { throw (ex); }
+		}
+		#endregion
+
+		#region  CRC16
+		public static byte[] CRC16(byte[] data)
+		{
+			int len = data.Length;
+			if (len > 0)
+			{
+				ushort crc = 0xFFFF;
+
+				for (int i = 0; i < len; i++)
+				{
+					crc = (ushort)(crc ^ (data[i]));
+					for (int j = 0; j < 8; j++)
+					{
+						crc = (crc & 1) != 0 ? (ushort)((crc >> 1) ^ 0xA001) : (ushort)(crc >> 1);
+					}
+				}
+				byte hi = (byte)((crc & 0xFF00) >> 8);  //高位置
+				byte lo = (byte)(crc & 0x00FF);         //低位置
+
+				return new byte[] { hi, lo };
+			}
+			return new byte[] { 0, 0 };
+		}
+		#endregion
+
+		#region  ToModbusCRC16
+		public static string ToModbusCRC16(string s)
+		{
+			return ToModbusCRC16(s, true);
+		}
+
+		public static string ToModbusCRC16(string s, bool isReverse)
+		{
+			return BytesToString(CRC16(GetHexValue(s)), isReverse);
+		}
+
+		public static string ToModbusCRC16(byte[] data)
+		{
+			return ToModbusCRC16(data, true);
+		}
+
+		public static string ToModbusCRC16(byte[] data, bool isReverse)
+		{
+			return BytesToString(CRC16(data), isReverse);
+		}
+		#endregion
 	}
 }

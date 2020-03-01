@@ -19,9 +19,9 @@ namespace ProcedureStepCounter.Service
 		{
 		public delegate void ShowInForm(String startAjax);
 		public delegate string GetFromForm();
-		private static ShowInForm showProcessMaterial = null;
-		private static GetFromForm showFinishCount = null;
-		private static MainForm mainForm = null;
+		static ShowInForm showProcessMaterial = null;
+		static GetFromForm showFinishCount = null;
+		static MainForm mainForm = null;
 
 		public RecSocket(MainForm mF) {
 			showProcessMaterial = new ShowInForm(mF.showProcessMaterial);
@@ -43,7 +43,7 @@ namespace ProcedureStepCounter.Service
 			// 示例程序中绑定的是本地地址“127.0.0.1”和1234号端口。
 			// 127.0.0.1是回送地址， 指本地机， 一般用于测试。
 			// 读者也可以设置成真实的IP地址， 然后在两台电脑上分别运行客户端和服务端程序。
-			IPAddress ipAdr = IPAddress.Parse("10.220.126.181");// 10.220.126.181
+			IPAddress ipAdr = IPAddress.Parse(Common.local_ip);// 10.220.126.181
 			// 根据IP地址创建IPAddress对象，如IPAddress.Parse("192.168.1.1")
 
 			IPEndPoint ipEp = new IPEndPoint(ipAdr, 50023);//用IPAddress指定的地址和端口号初始化

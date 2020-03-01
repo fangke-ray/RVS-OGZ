@@ -19,6 +19,9 @@ public class ProcedureStepCountEntity implements Serializable {
 	private String relation_id;
 	private Integer step_times;
 	private String model_name;
+
+	private String client_address;
+
 	public String getProcedure_step_count_id() {
 		return procedure_step_count_id;
 	}
@@ -78,6 +81,12 @@ public class ProcedureStepCountEntity implements Serializable {
 	}
 	public void setModel_name(String model_name) {
 		this.model_name = model_name;
+	}
+	public String getClient_address() {
+		return client_address;
+	}
+	public void setClient_address(String client_address) {
+		this.client_address = client_address;
 	}
 
 }

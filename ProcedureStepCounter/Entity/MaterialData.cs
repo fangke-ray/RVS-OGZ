@@ -7,6 +7,7 @@
  * 要改变这种模板请点击 工具|选项|代码编写|编辑标准头文件
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -25,6 +26,6 @@ namespace ProcedureStepCounter.Entity
 		public string omr_notifi_no { get; set; }
 		public string model_name { get; set; }
 		public string serial_no { get; set; }
-		public string set_times { get; set; }
+		public Dictionary<string, string> set_times_map { get; set; }
 	}
 }

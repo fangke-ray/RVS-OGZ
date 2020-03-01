@@ -430,4 +430,16 @@ ORDER BY occur_time DESC;
 		count_red = 0
 	]]> 
 	</select>
+
+	<insert id="createAlarmMesssageContent" parameterType="AlarmMesssageEntity">
+		<![CDATA[ 
+		INSERT INTO `alarm_messsage_content`
+		(`alarm_messsage_id`,
+		`give_message`)
+		VALUES
+		(#{alarm_messsage_id},
+		#{give_message});
+		]]>
+	</insert>
+
 </mapper>

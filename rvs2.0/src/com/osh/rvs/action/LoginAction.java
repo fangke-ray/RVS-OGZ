@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
@@ -38,6 +39,7 @@ import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.RoleService;
 import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.inline.PositionPanelService;
+import com.osh.rvs.service.master.ProcedureStepCountService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
@@ -516,5 +518,34 @@ public class LoginAction extends BaseAction {
 			return loginData.getPrivacies();
 		}
 		return null;
+	}
+
+	/**
+	 * 仪表客户端登录
+	 * 
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doMeter(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
+		_logger.fine("LoginAction.doMeter start");
+
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+
+		String client_ip = req.getParameter("client_ip");
+		String process_code = req.getParameter("process_code");
+		String line_part = req.getParameter("line_part");
+
+		ProcedureStepCountService service = new ProcedureStepCountService();
+		service.clientLogin(client_ip, process_code, line_part, callbackResponse, conn);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		_logger.fine("LoginAction.doMeter start");
 	}
 }
