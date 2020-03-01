@@ -81,7 +81,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</td>
 					</tr>
 					<tr>
-					    <td class="ui-state-default td-title">资产编号</td>
+					    <td class="ui-state-default td-title">资产编号/<br>计量器具管理编号</td>
 						<td class="td-content">	
 							<input id="search_asset_no" class="ui-widget-content" type="text">
 						</td>
@@ -385,13 +385,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</td>
 				</tr>
 				<tr>
+					<td class="ui-state-default td-title">计量器具管理编号</td>
+					<td class="td-content">	
+						<input id="add_measuring_instrument_manage_code" class="ui-widget-content" type="text">
+					</td>
+					<td class="ui-state-default td-title" rowspan="2">状态</td>
+					<td  class="td-content" rowspan="2">
+						<select id="add_status" name="status" alt="状态">${status}</select>				
+					</td>
+				</tr>	
+				<tr>
 					<td class="ui-state-default td-title">管理等级</td>
 					<td class="td-content">	
 					<select id="add_manage_level" name="manage_level" alt="管理等级">${manageLevel}</select>
-					</td>
-					<td class="ui-state-default td-title">状态</td>
-					<td  class="td-content">
-						<select id="add_status" name="status" alt="状态">${status}</select>				
 					</td>
 				</tr>	
 				<tr>
@@ -407,12 +413,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>	
 				<tr>
 					<td class="ui-state-default td-title">分发课室</td>
-					<td style="width:200px;">
-						<select id="add_section_id" name="section_id" alt="分发课室"></select>					
+					<td colspan="3">
+						<select id="add_section_id" name="section_id" alt="分发课室"></select>
 					</td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">责任工程</td>
-					<td style="width:100px;">
-						<select id="add_line_id"></select>
+					<td colspan="3">
+						<select id="add_line_id" name="line_id" alt="责任工程"></select>						
 					</td>
 				</tr>
 				<tr>
@@ -512,8 +520,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">	
 					<select id="update_manage_level" name="manage_level" alt="管理等级">${nCmanageLevel}</select>
 					</td>
-					<td class="ui-state-default td-title" rowspan="2">状态</td>
-					<td class="td-content" rowspan="2">
+					<td class="ui-state-default td-title" rowspan="3">状态</td>
+					<td class="td-content" rowspan="3">
 						<select id="update_status" name="status" alt="状态">${nCstatus}</select>				
 					</td>
 				</tr>	
@@ -521,6 +529,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				    <td class="ui-state-default td-title">资产编号</td>
 					<td class="td-content">	
 						<input id="update_asset_no" class="ui-widget-content" type="text">
+					</td>
+				</tr>	
+				<tr>
+				    <td class="ui-state-default td-title">计量器具管理编号</td>
+					<td class="td-content">	
+						<input id="update_measuring_instrument_manage_code" class="ui-widget-content" type="text">
 					</td>
 				</tr>	
 				<tr>
@@ -537,11 +551,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">分发课室</td>
-					<td style="width:200px;">
+					<td colspan="3">
 						<select id="update_section_id" name="section_id" alt="分发课室"></select>
 					</td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">责任工程</td>
-					<td style="width:100px;">
+					<td colspan="3">
 						<select id="update_line_id" name="line_id" alt="责任工程"></select>						
 					</td>
 				</tr>
@@ -873,12 +889,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>	
 				<tr>
 					<td class="ui-state-default td-title">分发课室</td>
-					<td style="width:200px;">
-						<select id="replace_section_id" name="section_id" alt="分发课室"></select>					
+					<td colspan="3">
+						<select id="replace_section_id" name="section_id" alt="分发课室"></select>
 					</td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">责任工程</td>
-					<td style="width:100px;">
-						<select id="replace_line_id"></select>						
+					<td colspan="3">
+						<select id="replace_line_id" name="line_id" alt="责任工程"></select>						
 					</td>
 				</tr>
 				<tr>

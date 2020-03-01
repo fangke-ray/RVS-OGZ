@@ -41,6 +41,7 @@ $(function(){
         $("#search_brand").data("post",$("#search_brand").val());//厂商
         $("#search_model_name").data("post",$("#search_model_name").val());//型号
         $("#search_manage_code").data("post",$("#search_manage_code").val());//管理编号
+        $("#search_measuring_instrument_manage_code").data("post",$("#search_measuring_instrument_manage_code").val());//管理编号
         $("#search_section_id").data("post",$("#search_section_id").val());//分发课室
         $("#search_responsible_line_id").data("post",$("#search_responsible_line_id").val());//责任工程
         $("#search_products_code").data("post",$("#search_products_code").val());//出厂编号
@@ -293,6 +294,7 @@ var reset=function(){
     $("#search_brand").data("post","").val("");//厂商
     $("#search_model_name").data("post","").val("");//型号
     $("#search_manage_code").data("post","").val("");//管理编号
+    $("#search_measuring_instrument_manage_code").data("post", "").val("");//管理编号
     $("#search_section_id").data("post","").val("").trigger("change");//分发课室
     $("#search_responsible_line_id").data("post","").val("").trigger("change");//责任工程
     $("#search_products_code").data("post","").val("");//出厂编号
@@ -314,6 +316,7 @@ var findit=function(){
         "brand":$("#search_brand").data("post"),
         "model_name":$("#search_model_name").data("post"),
         "manage_code":$("#search_manage_code").data("post"),
+        "measuring_instrument_manage_code":$("#search_measuring_instrument_manage_code").data("post"),
         "products_code": $("#search_products_code").data("post"),
         "section_id":$("#search_section_id").data("post"),
         "line_id":$("#search_responsible_line_id").data("post"),
@@ -370,10 +373,11 @@ var list=function(datalist){
             width: 992,
             rowheight: 23,
             datatype: "local",
-            colNames:['','管理编号','品名','厂商','厂商','型号','出厂编号','分发课室','责任工程','校验日期','过期日期','有效期','校验费用','检验单位','校验机构名称','','','','',''],
+            colNames:['','管理编号','计量器具管理编号','品名','厂商','厂商','型号','出厂编号','分发课室','责任工程','校验日期','过期日期','有效期','校验费用','检验单位','校验机构名称','','','','',''],
             colModel:[
                 {name:'devices_manage_id',index:'devices_manage_id',hidden:true},
-                {name:'manage_code',index:'manage_code',width:100},
+                {name:'manage_code',index:'manage_code',width:70},
+ 				{name:'measuring_instrument_manage_code',index:'measuring_instrument_manage_code',width:70},
                 {name:'name',index:'name',width:140},
                 {name:'brand_id',index:'brand_id',hidden:true},
 				{name:'brand',index:'brand',width:100,align:'left',
@@ -444,14 +448,14 @@ var list=function(datalist){
                       var checking_flg=rowData.checking_flg;
                       var idle_flg=rowData.idle_flg;
                       if(checking_flg==1){//校验中
-                            pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("wait");
+                            pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("wait");
                       }else{
                            if(idle_flg==1){//闲置
-                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("spare");
+                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("spare");
                            }else if(isover==1){//过期需校验
-                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("require_check");
+                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("require_check");
                            }else if(isover==2){
-                           		pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx == 2 || idx > 9}).addClass("close_to_check");
+                           		pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("close_to_check");
                            }
                       }
                 }

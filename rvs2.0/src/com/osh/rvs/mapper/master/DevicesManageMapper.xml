@@ -15,6 +15,7 @@
 		    dt.name,
 		    dm.devices_manage_id,
 		    dm.manage_code,
+			dm.measuring_instrument_manage_code,
 		    dm.device_type_id,
 		    dm.model_name,
 		    dm.manager_operator_id,
@@ -115,7 +116,7 @@
 			</if>
 			<if test="asset_no!=null and asset_no!='' ">
 				<![CDATA[
-				    and dm.asset_no = #{asset_no}
+				    and (dm.asset_no = #{asset_no} OR dm.measuring_instrument_manage_code = #{asset_no})
 			    ]]>
 			</if>
 			<if test="manager_operator_id!=null and manager_operator_id!='' ">
@@ -260,6 +261,7 @@
 	   <![CDATA[
 	   UPDATE devices_manage SET 				
 				manage_code =#{manage_code},
+				measuring_instrument_manage_code =#{measuring_instrument_manage_code},
 				device_type_id =#{device_type_id},
 				model_name=#{model_name},
 				manager_operator_id =#{manager_operator_id},
@@ -329,6 +331,7 @@
 		    	devices_manage
 		    	(devices_manage_id,
 				manage_code,
+				measuring_instrument_manage_code,
 				device_type_id,
 				model_name,
 				manager_operator_id,
@@ -353,6 +356,7 @@
 			]]>
 		        #{devices_manage_id},
 				#{manage_code},
+				#{measuring_instrument_manage_code},
 				#{device_type_id},
 				#{model_name},
 				#{manager_operator_id},
@@ -495,12 +499,13 @@
 	<update id="exchange" parameterType="DevicesManageEntity">
 	   <![CDATA[
 		INSERT INTO `devices_manage`
-		(`manage_code`, `device_type_id`, `model_name`, `location`,
+		(`manage_code`, `measuring_instrument_manage_code`, `device_type_id`, `model_name`, `location`,
 		`manager_operator_id`, `manage_level`, `asset_no` `products_code`, `brand_id`, `section_id`, `line_id`, `position_id`,
 		`responsible_operator_id`, `import_date`, `provide_date`, `waste_date`, `delete_flg`, `updated_by`,
 		`updated_time`, `status`, `comment`)
 		SELECT 
 		    #{manage_code} as manage_code,
+		    `odm`.`measuring_instrument_manage_code`,
 		    `odm`.`device_type_id`,
 		    `odm`.`model_name`,
 		    `odm`.`location`,

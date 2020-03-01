@@ -876,16 +876,17 @@ function filed_list(listdata){
 			width: 992,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['设备工具管理ID','设备工具品名ID','管理编号','品名','型号','资产编号','放置位置',
+			colNames:['设备工具管理ID','设备工具品名ID','管理<br>编号','计量器具<br>管理编号','品名','型号','资产编号','放置位置',
                       '管理员ID','管理员','管理<br>等级','状态','点检表管理号','对应类型','日常点检表<br>管理号','定期点检表<br>管理号',
                       '出厂编号','厂商','','备注','分发课室','责任工程','分发课室ID','责任工程ID','责任工位ID',
                       '责任工位','导入日期','发放日期','发放者','废弃日期','更新时间','最后更新人'],
 	        colModel:[
 					{name:'devices_manage_id',index:'devices_manage_id',hidden:true},
 					{name:'devices_type_id',index:'devices_type_id',hidden:true},
-					{name:'manage_code',index:'manage_code',width:80},
+					{name:'manage_code',index:'manage_code',width:60},
+					{name:'measuring_instrument_manage_code',index:'measuring_instrument_manage_code',width:70},
 					{name:'name',index:'name',width:120},
-					{name:'model_name',index:'model_name',width:140},
+					{name:'model_name',index:'model_name',width:120},
 					{name:'asset_no',index:'asset_no',width:70},
 					{name:'location',index:'location',hidden:true},
 	                {name:'manager_operator_id',index:'manager_operator_id',width:100,align:'center',hidden:true},
@@ -904,8 +905,8 @@ function filed_list(listdata){
 	                },  
 	                {name:'check_manage_code',index:'check_manage_code',width:110,align:'center',hidden:true},
 	                {name:'access_place',index:'access_place',width:120,align:'center',hidden:true},
-					{name:'daily_sheet_manage_no',index:'daily_sheet_manage_no',width:120,align:'center'},
-					{name:'regular_sheet_manage_no',index:'regular_sheet_manage_no',width:110,align:'center'},
+					{name:'daily_sheet_manage_no',index:'daily_sheet_manage_no',width:105,align:'center'},
+					{name:'regular_sheet_manage_no',index:'regular_sheet_manage_no',width:105,align:'center'},
 					{name:'products_code',index:'products_code',width:100,align:'center'},
 					{name:'brand',index:'brand',width:100,align:'center',
 						formatter : function(value, options, rData) {
@@ -968,6 +969,7 @@ var showAdd = function(add_method, entity){
 	$("#add_manage_code").val("");
 	$("#add_manage_level").val("").trigger("change");
 	$("#add_asset_no").val("");
+	$("#add_measuring_instrument_manage_code").val("");
 	$("#add_products_code").val("");
 	$("#add_position_id").val("");
 	$("#add_import_date").val("");
@@ -1109,6 +1111,7 @@ var showAdd = function(add_method, entity){
 			        "order_key": $("#hidden_order_key").val(), // 订购品收获时的设备工具治具订单 Key
 			        "manage_level":$("#add_manage_level").val(),
 			        "asset_no":$("#add_asset_no").val(),
+			        "measuring_instrument_manage_code":$("#add_measuring_instrument_manage_code").val(),
 			        "manage_content":$("#add_manage_content").val(), 
 			        "products_code": $("#add_products_code").val(),
 			       //"brand": $("#add_brand ").val(), 
@@ -1210,6 +1213,8 @@ var showEdit = function(){
     $("#update_manage_level").val(rowData.manage_level).trigger("change");
     //资产编号
     $("#update_asset_no").val(rowData.asset_no);
+    // 计量器具管理编号
+    $("#update_measuring_instrument_manage_code").val(rowData.measuring_instrument_manage_code);
      //管理内容
     $("#update_manage_content").val(rowData.manage_content);
     //出厂编码
@@ -1319,6 +1324,7 @@ var showEdit = function(){
 					"manager_operator_id":$("#hidden_update_manager_operator_id").val(),
 					"manage_level":$("#update_manage_level").val(),
 					"asset_no":$("#update_asset_no").val(),
+					"measuring_instrument_manage_code":$("#update_measuring_instrument_manage_code").val(),
 					"manage_content":$("#update_manage_content").val(), 
 					"products_code": $("#update_products_code").val(),
 			       //"brand": $("#update_brand ").val(), 

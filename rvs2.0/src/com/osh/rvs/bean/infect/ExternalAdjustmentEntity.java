@@ -2,7 +2,6 @@ package com.osh.rvs.bean.infect;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-
 import java.util.Date;
 
 /**
@@ -53,6 +52,9 @@ public class ExternalAdjustmentEntity implements Serializable {
 	private Integer object_type;//类型
 	private String jig_manage_id;//治具管理ID
 	private Integer idle_flg;//闲置标记
+
+	// 计量器具管理编号
+	private String measuring_instrument_manage_code;
 
 	public String getDevices_manage_id() {
 		return devices_manage_id;
@@ -292,6 +294,15 @@ public class ExternalAdjustmentEntity implements Serializable {
 
 	public void setIdle_flg(Integer idle_flg) {
 		this.idle_flg = idle_flg;
+	}
+
+	public String getMeasuring_instrument_manage_code() {
+		return measuring_instrument_manage_code;
+	}
+
+	public void setMeasuring_instrument_manage_code(
+			String measuring_instrument_manage_code) {
+		this.measuring_instrument_manage_code = measuring_instrument_manage_code;
 	}
 
 }

@@ -190,16 +190,30 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.5.513</p>
+								<p id="nee">2.5.519</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2019年12月20日</p>
+								<p>2020年3月2日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>20/3/2 2.5.519 更新</p>
+								<p>在线作业/管理：工作步骤计次工具测试版第二版。</p>
+								<p>设备・专用工具管理：计量器具管理编号记载。</p>
+								<p>--------------------------------------</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>20/1/7 2.5.517 更新</p>
+								<p>在线作业/管理：工作步骤计次工具测试版。</p>
+								<p>展示：纳期维修品一览展示。</p>
+								<p>--------------------------------------</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>19/12/20 2.5.513 更新</p>

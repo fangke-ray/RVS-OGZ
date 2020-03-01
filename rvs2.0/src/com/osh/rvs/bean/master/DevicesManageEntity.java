@@ -102,6 +102,9 @@ public class DevicesManageEntity implements Serializable {
 	private String old_position_id;
 	private Integer event;
 
+	// 计量器具管理编号
+	private String measuring_instrument_manage_code;
+
 	// 可替换状况
 	private Integer free_displace_flg;
 
@@ -362,5 +365,12 @@ public class DevicesManageEntity implements Serializable {
 	}
 	public void setFree_displace_flg(Integer free_displace_flg) {
 		this.free_displace_flg = free_displace_flg;
+	}
+	public String getMeasuring_instrument_manage_code() {
+		return measuring_instrument_manage_code;
+	}
+	public void setMeasuring_instrument_manage_code(
+			String measuring_instrument_manage_code) {
+		this.measuring_instrument_manage_code = measuring_instrument_manage_code;
 	}
 }

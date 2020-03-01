@@ -15,6 +15,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <style type="text/css">
 .require_check{
 	background-color:red;
+	color:white;
 }
 .close_to_check{
 	background-color:#FFC000;
@@ -93,12 +94,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="td-content" >
 										<input type="text" id="search_manage_code" class="ui-widget-content">
 									</td>
-									<td class="ui-state-default td-title" rowspan="2">分发课室</td>
-									<td class="td-content" rowspan="2">
+									<td class="ui-state-default td-title">分发课室</td>
+									<td class="td-content" colspan="3">
 										<select id="search_section_id">${sectionOptions}</select>
 									</td>
+								</tr>
+								<tr>
+									<td class="ui-state-default td-title">计量器具<br>管理编号</td>
+									<td class="td-content" >
+										<input type="text" id="search_measuring_instrument_manage_code" class="ui-widget-content">
+									</td>
 									<td class="ui-state-default td-title" rowspan="2">责任工程</td>
-									<td class="td-content" rowspan="2">
+									<td class="td-content" rowspan="2" colspan="3">
 										<select id="search_responsible_line_id">${lineOptions }</select>
 									</td>
 								</tr>

@@ -110,6 +110,9 @@ public class ExternalAdjustmentForm extends ActionForm implements Serializable {
 	@BeanField(title = "闲置", name = "idle_flg", type = FieldType.Integer,notNull=true)
 	private String idle_flg;//闲置
 
+	@BeanField(title = "计量器具管理编号", name = "measuring_instrument_manage_code", type = FieldType.String, length = 7)
+	private String measuring_instrument_manage_code;
+
 	public String getDevices_manage_id() {
 		return devices_manage_id;
 	}
@@ -340,6 +343,15 @@ public class ExternalAdjustmentForm extends ActionForm implements Serializable {
 
 	public void setIdle_flg(String idle_flg) {
 		this.idle_flg = idle_flg;
+	}
+
+	public String getMeasuring_instrument_manage_code() {
+		return measuring_instrument_manage_code;
+	}
+
+	public void setMeasuring_instrument_manage_code(
+			String measuring_instrument_manage_code) {
+		this.measuring_instrument_manage_code = measuring_instrument_manage_code;
 	}
 
 }

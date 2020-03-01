@@ -12,6 +12,7 @@
 				ea.devices_manage_id,
 				ea.object_type,
 				coalesce(dm.manage_code, tm.manage_code) as manage_code,
+				coalesce(dm.measuring_instrument_manage_code, '-') as measuring_instrument_manage_code,
 				coalesce(dt.name, jig_name) as name,
 				b.name as brand,
 				coalesce(dm.brand_id, jig_brand_id) as brand_id,
@@ -82,6 +83,12 @@
 				AND (dm.manage_code LIKE CONCAT('%',#{manage_code},'%') OR tm.manage_code LIKE CONCAT('%',#{manage_code},'%'))
 			]]>
 		</if>
+		<if test="measuring_instrument_manage_code!=null and measuring_instrument_manage_code!=''">
+			<![CDATA[
+				AND dm.measuring_instrument_manage_code = #{measuring_instrument_manage_code}
+			]]>
+		</if>
+		
 		<if test="products_code!=null and products_code!=''">
 			<![CDATA[
 				AND dm.products_code LIKE CONCAT('%',#{products_code},'%')

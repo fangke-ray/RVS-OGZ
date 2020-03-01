@@ -67,6 +67,7 @@ public class DevicesManageForm extends ActionForm {
 	// 管理编号
 	@BeanField(title = "设备工具管理编号", name = "manage_code", type = FieldType.String, length = 9, notNull = true)
 	private String manage_code;
+
 	// 设备工具品名ID
 	@BeanField(title = "设备工具品名ID", name = "device_type_id", type = FieldType.String, length = 11, notNull = true)
 	private String devices_type_id;
@@ -145,6 +146,10 @@ public class DevicesManageForm extends ActionForm {
 
 	@BeanField(title = "设备工具治具订单 Key", name = "order_key", type = FieldType.String)
 	private String order_key;
+
+	// 计量器具管理编号
+	@BeanField(title = "计量器具管理编号", name = "measuring_instrument_manage_code", type = FieldType.String, length = 7)
+	private String measuring_instrument_manage_code;
 
 	public String getCompare_section_id() {
 		return compare_section_id;
@@ -480,6 +485,15 @@ public class DevicesManageForm extends ActionForm {
 
 	public void setOrder_key(String order_key) {
 		this.order_key = order_key;
+	}
+
+	public String getMeasuring_instrument_manage_code() {
+		return measuring_instrument_manage_code;
+	}
+
+	public void setMeasuring_instrument_manage_code(
+			String measuring_instrument_manage_code) {
+		this.measuring_instrument_manage_code = measuring_instrument_manage_code;
 	}
 
 }
