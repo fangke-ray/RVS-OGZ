@@ -27,16 +27,6 @@ public class ProcedureStepCountService {
 	private static final Integer RELATION_TYPE_MODEL = 1;
 	private static String IP_ADDR = "10.220.126.181"; // 10.220.126.181 // 127.0.0.1
 
-//	ALTER TABLE `procedure_step_count` 
-//	ADD COLUMN `client_address` VARCHAR(15) NULL DEFAULT NULL COMMENT '客户端地址' ;
-//	CREATE TABLE `alarm_messsage_content` (
-//			  `alarm_messsage_id` int(11) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'ID',
-//			  `give_message` varchar(256) NOT NULL COMMENT '附加信息',
-//			  PRIMARY KEY (`alarm_messsage_id`)
-//			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='警报记录附信息';
-//	ALTER TABLE `devices_manage` 
-//	ADD COLUMN `measuring_instrument_manage_code` VARCHAR(7) NULL COMMENT '计量器具管理编号' AFTER `manage_code`;
-
 	private Logger _log = Logger.getLogger(getClass());
 
 	public void clientLogin(String client_ip, String process_code,

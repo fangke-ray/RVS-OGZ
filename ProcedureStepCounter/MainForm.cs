@@ -43,6 +43,7 @@ namespace ProcedureStepCounter
 
 		RecSocket recSocket;
 		private System.Windows.Forms.Timer ComRefreshTimer;
+		private System.Windows.Forms.Button SettingButton;
 
 		public MainForm()
 		{
@@ -322,6 +323,10 @@ namespace ProcedureStepCounter
 							IniAccessory.Read("item." + avaCounterId, "pbs", "9600", filePath);
 						transData.pbs = int.Parse(iniPbs);
 
+						string iniAddressCode =
+							IniAccessory.Read("item." + avaCounterId, "address_code", "01", filePath);
+						transData.address_code = iniAddressCode;
+
 						transData.connect_status = "断开";
 
 						Common.comdata.Add(transData);
@@ -338,6 +343,16 @@ namespace ProcedureStepCounter
 			} else {
 				SettingForm fSetting = new SettingForm();
 				fSetting.ShowDialog(this);
+			}
+		}
+
+		void SettingButtonClick(object sender, EventArgs e)
+		{
+			SettingForm fSetting = new SettingForm();
+			fSetting.ShowDialog(this);
+
+			for(var idx = 0; idx < Common.comdata.Count; idx++) {
+				GetComClick(idx, Common.comdata[idx].com_port);
 			}
 		}
 
@@ -359,14 +374,15 @@ namespace ProcedureStepCounter
 			this.ComTimer = new System.Windows.Forms.Timer(this.components);
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.ComRefreshTimer = new System.Windows.Forms.Timer(this.components);
+			this.SettingButton = new System.Windows.Forms.Button();
 			this.gb_coms.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.ComDataGrid)).BeginInit();
 			this.gb_process.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
-			//
+			// 
 			// gb_coms
-			//
+			// 
 			this.gb_coms.Controls.Add(this.ComDataGrid);
 			this.gb_coms.Location = new System.Drawing.Point(65, 288);
 			this.gb_coms.Margin = new System.Windows.Forms.Padding(5, 1, 5, 1);
@@ -376,9 +392,9 @@ namespace ProcedureStepCounter
 			this.gb_coms.TabIndex = 5;
 			this.gb_coms.TabStop = false;
 			this.gb_coms.Text = "计数结果";
-			//
+			// 
 			// ComDataGrid
-			//
+			// 
 			this.ComDataGrid.AllowUserToAddRows = false;
 			this.ComDataGrid.AllowUserToDeleteRows = false;
 			this.ComDataGrid.AllowUserToResizeColumns = false;
@@ -391,9 +407,9 @@ namespace ProcedureStepCounter
 			this.ComDataGrid.Size = new System.Drawing.Size(879, 150);
 			this.ComDataGrid.TabIndex = 0;
 			this.ComDataGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ComDataGridCellClick);
-			//
+			// 
 			// gb_process
-			//
+			// 
 			this.gb_process.Controls.Add(this.cpt_serialNo);
 			this.gb_process.Controls.Add(this.lbl_modelName);
 			this.gb_process.Controls.Add(this.lbl_processCode);
@@ -410,18 +426,18 @@ namespace ProcedureStepCounter
 			this.gb_process.TabIndex = 9;
 			this.gb_process.TabStop = false;
 			this.gb_process.Text = "作业信息";
-			//
+			// 
 			// cpt_serialNo
-			//
+			// 
 			this.cpt_serialNo.Location = new System.Drawing.Point(486, 41);
 			this.cpt_serialNo.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
 			this.cpt_serialNo.Name = "cpt_serialNo";
 			this.cpt_serialNo.Size = new System.Drawing.Size(112, 27);
 			this.cpt_serialNo.TabIndex = 6;
 			this.cpt_serialNo.Text = "机身号";
-			//
+			// 
 			// lbl_modelName
-			//
+			// 
 			this.lbl_modelName.BackColor = System.Drawing.SystemColors.Info;
 			this.lbl_modelName.ForeColor = System.Drawing.Color.Black;
 			this.lbl_modelName.Location = new System.Drawing.Point(174, 88);
@@ -430,9 +446,9 @@ namespace ProcedureStepCounter
 			this.lbl_modelName.Size = new System.Drawing.Size(227, 27);
 			this.lbl_modelName.TabIndex = 8;
 			this.lbl_modelName.Text = "-";
-			//
+			// 
 			// lbl_processCode
-			//
+			// 
 			this.lbl_processCode.BackColor = System.Drawing.SystemColors.Info;
 			this.lbl_processCode.ForeColor = System.Drawing.Color.Black;
 			this.lbl_processCode.Location = new System.Drawing.Point(607, 88);
@@ -440,10 +456,9 @@ namespace ProcedureStepCounter
 			this.lbl_processCode.Name = "lbl_processCode";
 			this.lbl_processCode.Size = new System.Drawing.Size(220, 27);
 			this.lbl_processCode.TabIndex = 8;
-			this.lbl_processCode.Text = "";
-			//
+			// 
 			// lbl_serialNo
-			//
+			// 
 			this.lbl_serialNo.BackColor = System.Drawing.SystemColors.Info;
 			this.lbl_serialNo.ForeColor = System.Drawing.Color.Black;
 			this.lbl_serialNo.Location = new System.Drawing.Point(607, 41);
@@ -452,9 +467,9 @@ namespace ProcedureStepCounter
 			this.lbl_serialNo.Size = new System.Drawing.Size(220, 27);
 			this.lbl_serialNo.TabIndex = 8;
 			this.lbl_serialNo.Text = "-";
-			//
+			// 
 			// lbl_notifiNo
-			//
+			// 
 			this.lbl_notifiNo.BackColor = System.Drawing.SystemColors.Info;
 			this.lbl_notifiNo.ForeColor = System.Drawing.Color.Black;
 			this.lbl_notifiNo.Location = new System.Drawing.Point(174, 41);
@@ -463,40 +478,40 @@ namespace ProcedureStepCounter
 			this.lbl_notifiNo.Size = new System.Drawing.Size(227, 27);
 			this.lbl_notifiNo.TabIndex = 8;
 			this.lbl_notifiNo.Text = "-";
-			//
+			// 
 			// cpt_processCode
-			//
+			// 
 			this.cpt_processCode.Location = new System.Drawing.Point(486, 88);
 			this.cpt_processCode.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
 			this.cpt_processCode.Name = "cpt_processCode";
 			this.cpt_processCode.Size = new System.Drawing.Size(112, 27);
 			this.cpt_processCode.TabIndex = 6;
 			this.cpt_processCode.Text = "作业岗位";
-			//
+			// 
 			// cpt_modelName
-			//
+			// 
 			this.cpt_modelName.Location = new System.Drawing.Point(53, 88);
 			this.cpt_modelName.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
 			this.cpt_modelName.Name = "cpt_modelName";
 			this.cpt_modelName.Size = new System.Drawing.Size(112, 27);
 			this.cpt_modelName.TabIndex = 6;
 			this.cpt_modelName.Text = "机型名";
-			//
+			// 
 			// cpt_notifiNo
-			//
+			// 
 			this.cpt_notifiNo.Location = new System.Drawing.Point(53, 41);
 			this.cpt_notifiNo.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
 			this.cpt_notifiNo.Name = "cpt_notifiNo";
 			this.cpt_notifiNo.Size = new System.Drawing.Size(112, 27);
 			this.cpt_notifiNo.TabIndex = 6;
 			this.cpt_notifiNo.Text = "维修单号";
-			//
+			// 
 			// ComTimer
-			//
+			// 
 			this.ComTimer.Tick += new System.EventHandler(this.readCounter);
-			//
+			// 
 			// pictureBox1
-			//
+			// 
 			this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
 			this.pictureBox1.Location = new System.Drawing.Point(65, 25);
 			this.pictureBox1.Name = "pictureBox1";
@@ -504,17 +519,28 @@ namespace ProcedureStepCounter
 			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.pictureBox1.TabIndex = 10;
 			this.pictureBox1.TabStop = false;
-			//
+			// 
 			// ComRefreshTimer
-			//
+			// 
 			this.ComRefreshTimer.Interval = 2000;
 			this.ComRefreshTimer.Tick += new System.EventHandler(this.refreshCounter);
-			//
+			// 
+			// SettingButton
+			// 
+			this.SettingButton.Image = ((System.Drawing.Image)(resources.GetObject("SettingButton.Image")));
+			this.SettingButton.Location = new System.Drawing.Point(951, 95);
+			this.SettingButton.Name = "SettingButton";
+			this.SettingButton.Size = new System.Drawing.Size(29, 28);
+			this.SettingButton.TabIndex = 11;
+			this.SettingButton.UseVisualStyleBackColor = true;
+			this.SettingButton.Click += new System.EventHandler(this.SettingButtonClick);
+			// 
 			// MainForm
-			//
+			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 25F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1046, 523);
+			this.Controls.Add(this.SettingButton);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.gb_process);
 			this.Controls.Add(this.gb_coms);

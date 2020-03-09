@@ -21,10 +21,13 @@ namespace ProcedureStepCounter
 	/// </summary>
 	public partial class SettingForm : Form
 	{
+		static bool changeBas;
+
 		public SettingForm()
 		{
 			InitializeComponent();
 
+			changeBas = false;
 			ComSetGrid.DataSource = GetFromComdata();
 			SetComGrid.InitSetDataGridColumnHeader(ComSetGrid);
 		}

@@ -726,4 +726,14 @@
   <metadata name="ComRefreshTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>118, 17</value>
   </metadata>
+  <data name="SettingButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAD0SURBVDhPYxgGoH/S9P+UYLABl28+IIgzKifC6Ru3boFp
+        uAGnzpwlC8MN+PfvH05cc/HR/8xT98Dsr1+/wvHHjx8JGzD31ov/5ruv/u+/+uT/9+8/UAwAYbwGXHj6
+        4b/iyjP/Y/Zc///j+3cUjSDbsbrg1Zcf/z99/wlm+y0/+19h2pH/1199wLAdpwHR8w7/t5iw/3/HhhP/
+        2Zu3/5966DbQduyasRowa/uJ/0pAjVwtO/+7Tz0A1zRz2ioMjNUAUPyeufv8v2HLhv/Ljl5D8TtIA0EX
+        PLz1CIyvXLz2/8z9FzgDD6cBMIysCRnjNIB8PP0/APBuvb832rLaAAAAAElFTkSuQmCC
+</value>
+  </data>
 </root>
