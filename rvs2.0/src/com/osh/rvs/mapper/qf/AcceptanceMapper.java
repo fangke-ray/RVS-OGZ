@@ -11,8 +11,10 @@ public interface AcceptanceMapper {
 	
 	public void updateMaterial(MaterialEntity entity);
 	
-	public String checkSorcNo(MaterialEntity entity);
+	public String checkSorcNoUsed(MaterialEntity entity);
 	
+	public String checkSorcNoUsing(MaterialEntity entity);
+
 	public String checkModelSerialNo(MaterialEntity entity);
 
 	public List<MaterialEntity> getTodayMaterialDetail();

@@ -76,17 +76,21 @@
 		
 	</update>
 
-	<select id="checkSorcNo" resultType="String" parameterType="MaterialEntity">
+	<select id="checkSorcNoUsed" resultType="String" parameterType="MaterialEntity">
 		<![CDATA[ 
 			SELECT material_id from Material 
-			where (omr_notifi_no =  #{sorc_no}) 
+			where omr_notifi_no =  #{sorc_no} 
+			LIMIT 1;
 		]]>
-		<if test="ticket_flg == 1 ">
+	</select>
+
+	<select id="checkSorcNoUsing" resultType="String" parameterType="MaterialEntity">
 		<![CDATA[ 
+			SELECT material_id from Material 
+			where omr_notifi_no =  #{sorc_no} 
 			AND break_back_flg = 0
 			AND outline_time IS NULL;
 		]]>
-		</if> 
 	</select>
 
 	<select id="checkModelSerialNo" resultType="String" parameterType="MaterialEntity">

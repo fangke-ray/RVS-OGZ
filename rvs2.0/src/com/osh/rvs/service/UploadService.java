@@ -90,6 +90,8 @@ public class UploadService {
 					MaterialForm lineform = new MaterialForm();
 
 					String sorc_no = getCellStringValue(row.getCell(0));
+					if (CommonStringUtil.isEmpty(sorc_no)) continue;
+
 					lineform.setSorc_no(sorc_no);
 
 					// 根据解析文件中的用户同意日期，对应数据库中未投线的维修对象，更新其客户同意日
@@ -138,11 +140,11 @@ public class UploadService {
 						continue;
 					}
 
-					// 检查维修对象是否存在并且在修
+					// 检查维修对象是否存在无论在修
 					MaterialEntity entity = new MaterialEntity();
 					entity.setSorc_no(sorc_no);
-					entity.setTicket_flg(1); // 在修
-					String hitMaterailId = dao.checkSorcNo(entity);
+					// 存在
+					String hitMaterailId = dao.checkSorcNoUsed(entity);
 					if (hitMaterailId != null) {
 						continue;
 					}
