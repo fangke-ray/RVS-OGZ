@@ -448,17 +448,22 @@ public class ProductionFeatureService {
 			if (mEntity.getBreak_back_flg() != null && mEntity.getBreak_back_flg() == 2) { // 未修理返还
 				nextPositions.add("00000000047"); // 出货
 			}
-		} else if (!isLightFix 
-				&& ("00000000025".equals(position_id) || "00000000060".equals(position_id))) { //CCD or LG
+		} else if ( 
+				("00000000025".equals(position_id))) { //CCD or LG  || "00000000060".equals(position_id)
 			// 已投线
 			if (mEntity.getInline_time() != null) {
+				ProcessAssignService pas = new ProcessAssignService();
+				List<String> firstPositionIds = pas.getFirstPositionIds(mEntity.getPat_id(), conn);
 				// 确认已经是否完成作业
 				ProductionFeatureMapper ppDao = conn.getMapper(ProductionFeatureMapper.class);
-				if (!ppDao.checkPositionDid(material_id, "00000000016", "2", null)) {
-					nextPositions.add("00000000016"); // 分解
+				if (firstPositionIds.size() > 1) {
+					for (String firstPositionId : firstPositionIds) {
+						if (!ppDao.checkPositionDid(material_id, firstPositionId, "2", null)) {
+							nextPositions.add(firstPositionId); // 分解
+						}
+					}
 				}
 			}
-
 		} else { // 维修流程上
 			if ("00000000016".equals(position_id)) { // 零件分解库位
 				DeposeStorageMapper dsMapper = conn.getMapper(DeposeStorageMapper.class);

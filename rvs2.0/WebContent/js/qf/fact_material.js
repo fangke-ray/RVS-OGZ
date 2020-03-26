@@ -127,8 +127,9 @@ if (rowids.length > 0) {
 //			if (level == 9 || level == 91 || level == 92 ||level == 93) {
 //				flag_img = false;
 //			}
-			if (f_isLightFix(level) || f_isPeripheralFix(level)) {
+			if (f_isPeripheralFix(level)) {
 				flag_ccd = false;
+				flag_img = false;
 			}
 
 			if (data["img_check"] != "0") {
@@ -145,9 +146,6 @@ if (rowids.length > 0) {
 
 			if (data["scheduled_expedited"] != "0") {
 				scheduled_expedited = true;
-			}
-			if (f_isPeripheralFix(level)) {
-				flag_img = false;
 			}
 		}
 
@@ -834,10 +832,6 @@ $(function() {
 		var rowids = $list.jqGrid("getGridParam", "selarrrow");
 		var rowdata = $list.getRowData(rowids[0]);
 		var level = rowdata["level"];
-		var isLightFix = false;
-		if (f_isLightFix(level)) {
-			isLightFix = true;
-		}
 
 		var material_id = rowdata["material_id"];
 		var srcData = $list.jqGrid('getGridParam','data');
@@ -858,7 +852,7 @@ $(function() {
 			return;
 		}
 
-		if (!isLightFix && (rowdata["ccd_model"] == 1 || rowdata["ccd_model"] == 3) && rowdata["ccd_operate_result"] == "" && level != 1) {
+		if ((rowdata["ccd_model"] == 1 || rowdata["ccd_model"] == 3) && rowdata["ccd_operate_result"] == "" && level != 1) {
 			// "是CCD 盖玻璃对象型号的维修对象，请确定不需要做 CCD 盖玻璃更换即可投线？"
 			warningConfirm(rowdata["sorc_no"]+"是CCD 盖玻璃对象型号的维修对象，请确定投线后不需要做 CCD 盖玻璃更换？",
 				function(){
