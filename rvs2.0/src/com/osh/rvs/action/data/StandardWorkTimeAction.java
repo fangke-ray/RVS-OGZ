@@ -78,7 +78,9 @@ public class StandardWorkTimeAction extends BaseAction {
 		service.checkInput(req, errors);
 
 		if (errors.size() == 0) {
-			retData = service.getData(req.getParameter("model_id"),req.getParameter("level"),conn);	
+			LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+			retData = service.getData(req.getParameter("model_id"), user.getDepartment(), req.getParameter("level"),conn);	
 		}
 
 		callbackResponse.put("retData",retData);

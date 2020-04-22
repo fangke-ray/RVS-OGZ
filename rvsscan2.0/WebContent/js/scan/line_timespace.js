@@ -21,6 +21,7 @@ var iamreadyLts = function() {
 	var rkTo = null;
 	var rolling = 0;
 	var now = 0;
+	var hammerRollingTo = null;
 
 	var qs_px = null;
 	if (location.search) {
@@ -191,7 +192,8 @@ var iamreadyLts = function() {
 					(pf.action_time * showFactor) + 'px;height:' + (pf.spare_minutes * showFactor) + 'px;"' +
 						(pf.overtime ? ' overtime' : '') + " key='" + lampKey + "'" +
 					'>' + 
-					((pf.finish && pf.process_code == pf.o_process_code) ? "<div class='count_no'>" + getPositionCountNo(pf.process_code) + "</div>" : "") +
+					((pf.finish && pf.process_code == pf.o_process_code) ? "<div class='count_no'" +
+							(pf.use_seconds ? "minutes='" + minuteFormat(pf.use_seconds) + "'" : "") + ">" + getPositionCountNo(pf.process_code) + "</div>" : "") +
 					'</div>');
 				$y_columns.filter(".y_column[for=" + pf.process_code + "]").append($item);
 
@@ -332,7 +334,8 @@ var iamreadyLts = function() {
 						rolling = 1;
 					}
 					rollAxis(rolling, 560);
-					setTimeout(function(){rolling = 0;}, 60000);
+					clearTimeout(hammerRollingTo);
+					hammerRollingTo = setTimeout(function(){rolling = 0;}, 60000);
 				})
 				.on("swipedown", function() {
 					if (rolling == 0) {
@@ -343,7 +346,8 @@ var iamreadyLts = function() {
 						rolling = 570;
 					}
 					rollAxis(rolling, 560);
-					setTimeout(function(){rolling = 0;}, 60000);
+					clearTimeout(hammerRollingTo);
+					hammerRollingTo = setTimeout(function(){rolling = 0;}, 60000);
 				});
 		});
 	}
@@ -364,3 +368,11 @@ if (typeof(jQuery) === "undefined") {
 } else {
 	iamreadyLts();
 }
+
+function minuteFormat(iseconds) {
+	if (!iseconds) return "-";
+	var minutes = parseInt(iseconds / 60);
+	var seconds = iseconds % 60;
+
+	return minutes + ":" + fillZero(seconds, 2);
+};

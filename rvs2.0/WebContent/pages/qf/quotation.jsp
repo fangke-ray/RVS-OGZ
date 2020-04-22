@@ -232,8 +232,8 @@ if (peripheral!=null && peripheral) {
 						<div id="exd_listedit"></div>
 						<div class="ui-widget-content areabase dwidth-full">
 							<div id="executes" style="margin-left: 4px; margin-top: 4px;">
-								<input type="button" class="ui-button" id="printbutton" value="重新打印小票" />
-								<input type="button" class="ui-button" id="printaddbutton" value="补充打印小票" />
+								<input type="button" class="ui-button" id="printbutton" value="重新打印现品票" />
+								<input type="button" class="ui-button" id="printaddbutton" value="补充打印现品票" />
 								<!-- <input type="button" class="ui-button" id="modifybutton" value="报价说明书修改" />
 								<input type="button" class="ui-button" id="downloadbutton" value="下载报价说明书" /> -->
 								<input type="hidden" id="hide_material_id" value="" />

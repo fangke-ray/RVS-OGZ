@@ -249,8 +249,12 @@ public class ReadPcs {
 						data = rowcell.getElementsByTagName("ss:Data");
 						for (int idatum = 0;idatum < data.getLength();idatum++) {
 							Element textdata = (Element) data.item(idatum);
-							cellText += decodeHtmlText(textdata.getTextContent());
-							// textdata.getElementsByTagName("S"); TODO inner slash
+							if (textdata.getElementsByTagName("S").getLength() > 0) {
+								// inner slash
+								cellText += getSsDataContent(textdata);
+							} else {
+								cellText += decodeHtmlText(textdata.getTextContent());
+							}
 						}
 
 						// 解析标识符
@@ -591,6 +595,24 @@ public class ReadPcs {
 			}
 		}
 		return ret;
+	}
+
+	private static String getSsDataContent(Element textdata) {
+		StringBuffer retContent = new StringBuffer("");
+		NodeList childNodes = textdata.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Element childNode = (Element) childNodes.item(i);
+			
+			String tagName = childNode.getTagName();
+			switch (tagName) {
+			case "S": 
+				retContent.append("<span class=\"StTh\">" + childNode.getTextContent() + "</span>");
+				break;
+			default:
+				retContent.append(childNode.getTextContent());
+			}
+		}
+		return retContent.toString();
 	}
 
 	private static String getNumberFormatCss(NodeList numberFormat) {

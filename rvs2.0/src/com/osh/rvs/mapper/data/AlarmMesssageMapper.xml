@@ -221,7 +221,7 @@
 
 	<select id="getBreakOperatorMessageByID" resultType="PauseFeatureEntity" parameterType="String">
 		<![CDATA[ 
-		SELECT `pf`.REASON, `pf`.COMMENTS, `p`.process_code
+		SELECT `pf`.REASON, `pf`.COMMENTS, `p`.position_id, `p`.process_code, `pf`.snout_serial_no
 		FROM pause_feature pf
 		JOIN `position` p ON `pf`.position_id = `p`.position_id
 		WHERE `pf`.ALARM_MESSSAGE_ID = #{alarm_messsage_id}
@@ -298,7 +298,7 @@
 	<select id="searchAlarmMessages" resultType="AlarmMesssageEntity" timeout="55">
 		<![CDATA[ 
 			SELECT am.alarm_messsage_id, am.level, am.reason, am.occur_time,
-			  m.omr_notifi_no as sorc_no, mdl.name as model_name, o.name as operator_name,
+			  m.omr_notifi_no as sorc_no, mdl.name as model_name, m.serial_no, o.name as operator_name,
 			  s.name as section_name, l.name as line_name, p.process_code,p.name AS position_name,
 			  min(ams.resolve_time) as resolve_time, group_concat(osd.name
                 order by resolve_time
@@ -308,7 +308,7 @@
 			LEFT JOIN model mdl ON m.model_id = mdl.model_id
 			LEFT JOIN operator o ON am.operator_id = o.operator_id
 			LEFT JOIN section s ON am.section_id = s.section_id
-			LEFT JOIN line l ON am.line_id = l.line_id
+			JOIN line l ON am.line_id = l.line_id
 			LEFT JOIN `position` p ON am.position_id = p.position_id
 LEFT JOIN
 alarm_messsage_sendation ams
@@ -319,7 +319,7 @@ operator osd
 ON ams.sendation_id = osd.operator_id
 		]]>
 		<where>
-			1 = 1
+			am.reason != 6
 			<if test="level!= null and level!= '' ">
 				AND am.LEVEL = #{level}
 			</if>
@@ -344,6 +344,78 @@ ON ams.sendation_id = osd.operator_id
 			</if>
 			<if test="serial_no!= null and serial_no!= '' ">
 				AND m.SERIAL_NO = #{serial_no}
+			</if>
+			<if test="section_id!= null and section_id!= '' ">
+				AND s.SECTION_ID = #{section_id}
+			</if>
+			<if test="line_id!= null and line_id!= '' ">
+				AND l.LINE_ID = #{line_id}
+			</if>
+			<if test="reciever_id!=null and reciever_id!='' ">
+				AND EXISTS (SELECT 1 FROM alarm_messsage_sendation where alarm_messsage_id = am.alarm_messsage_id and sendation_id = #{reciever_id})
+			</if>
+			<if test="department == 1 ">
+				AND (s.department = 1 OR s.department IS NULL)
+			</if>
+			<if test="department == 2 ">
+				AND s.department = 2
+			</if>
+
+		</where> 
+		<![CDATA[ 
+		group by am.alarm_messsage_id
+		ORDER BY occur_time DESC;
+		]]>
+	</select>
+
+	<select id="searchAlarmMessagesFromSolo" resultType="AlarmMesssageEntity" timeout="55">
+		<![CDATA[ 
+			SELECT am.alarm_messsage_id, am.level, am.reason, am.occur_time,
+			  null as sorc_no, spf.model_name, spf.serial_no, o.name as operator_name,
+			  s.name as section_name, l.name as line_name, p.process_code,p.name AS position_name,
+			  min(ams.resolve_time) as resolve_time, group_concat(distinct osd.name
+                order by resolve_time
+                separator ' ') as resolver_name
+			FROM alarm_messsage am
+			JOIN operator o ON am.operator_id = o.operator_id
+			JOIN section s ON am.section_id = s.section_id
+			JOIN line l ON am.line_id = l.line_id
+			JOIN `position` p ON am.position_id = p.position_id
+LEFT JOIN
+alarm_messsage_sendation ams
+ON ams.alarm_messsage_id = am.alarm_messsage_id
+AND ams.red_flg = 1
+LEFT join
+operator osd
+ON ams.sendation_id = osd.operator_id
+			JOIN pause_feature ppf
+				ON am.alarm_messsage_id = ppf.alarm_messsage_id
+			JOIN solo_production_feature spf
+				ON spf.position_id = am.position_id AND spf.serial_no = ppf.snout_serial_no
+		]]>
+		<where>
+			am.reason = 6
+			<if test="level!= null and level!= '' ">
+				AND am.LEVEL = #{level}
+			</if>
+			<if test="occur_time_from!= null ">
+			<![CDATA[ 
+				AND am.OCCUR_TIME >= #{occur_time_from}
+			]]>
+			</if>
+			<if test="occur_time_to!= null ">
+			<![CDATA[ 
+				AND am.OCCUR_TIME < date_add(#{occur_time_to}, interval 1 day)
+			]]>
+			</if>
+			<if test="reason!= null and reason!= '' ">
+				AND am.REASON = #{reason}
+			</if>
+			<if test="model_id!= null and model_id!= '' ">
+				AND spf.MODEL_ID = #{model_id}
+			</if>
+			<if test="serial_no!= null and serial_no!= '' ">
+				AND spf.SERIAL_NO = #{serial_no}
 			</if>
 			<if test="section_id!= null and section_id!= '' ">
 				AND s.SECTION_ID = #{section_id}

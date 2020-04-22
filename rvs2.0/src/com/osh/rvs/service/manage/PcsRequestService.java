@@ -372,6 +372,9 @@ public class PcsRequestService {
 		List<PositionEntity> pentities = mapper.getTestOflines(line_id);
 		if ("00000000019".equals(line_id)) { // TODO
 		}
+		if ("00000000101".equals(line_id)) { // TODO
+			pentities.addAll(mapper.getTestOflines("00000000102"));
+		}
 		for (PositionEntity pentity : pentities) {
 			if (pentity.getLine_id() == null) {
 				// 无指定主工位
@@ -767,19 +770,72 @@ public class PcsRequestService {
 		return retForm;
 	}
 
+	/**
+	 * 更新时检查
+	 * @param form
+	 * @param httpSession
+	 * @param msgInfos
+	 */
 	public void customValidateEdit(ActionForm form,
-			Map<String, String[]> parameterMap, HttpSession session,
-			List<MsgInfo> msgErrors, List<MsgInfo> msgInfos,
-			Map<String, Object> lResponseResult) {
-		// TODO Auto-generated method stub
-		
+			HttpSession httpSession,
+			List<MsgInfo> msgErrors) {
+
+		PcsRequestForm testForm = (PcsRequestForm) form;
+		PcsRequestEntity update = new PcsRequestEntity();
+
+		if (testForm.getOrg_file_name() != null) {
+			update = (PcsRequestEntity) httpSession.getAttribute(SESSION_ENTITY);
+			update.setOrg_file_name(testForm.getOrg_file_name());
+			httpSession.setAttribute(SESSION_ENTITY, update);
+			return;
+		}
+
+		// 上传的文件
+		FormFile file = testForm.getFile();
+		if (file == null) {
+			httpSession.setAttribute(SESSION_FILE, null);
+		} else {
+			String fileName = "";
+			if (file == null || CommonStringUtil.isEmpty(file.getFileName())) {
+				MsgInfo error = new MsgInfo();
+				error.setErrcode("file.notExist");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("file.notExist"));
+				msgErrors.add(error);
+			} else {
+				fileName = cropExt(file.getFileName());
+				testForm.setFile_name(fileName);
+			}
+
+			httpSession.setAttribute(SESSION_FILE, file);
+		}
+
+		httpSession.setAttribute(SESSION_ENTITY, update);
 	}
 
-	public void update(ActionForm form, SqlSessionManager conn) {
+	/**
+	 * 更新操作
+	 * 
+	 * @param form
+	 * @param conn
+	 */
+	public void update(ActionForm form, HttpSession httpSession, SqlSessionManager conn) {
 		PcsRequestMapper mapper = conn.getMapper(PcsRequestMapper.class);
 		PcsRequestEntity update = new PcsRequestEntity();
 		BeanUtil.copyToBean(form, update, CopyOptions.COPYOPTIONS_NOEMPTY);	
 		mapper.updatePcsRequest(update);
+
+		FormFile uploadfile = (FormFile) httpSession.getAttribute(SESSION_FILE);
+		if (uploadfile != null) { // 更新new文件
+			
+			String savePath = PathConsts.BASE_PATH + PathConsts.PCS_TEMPLATE + "\\_request\\" 
+					+ Integer.parseInt(update.getPcs_request_key(), 10);
+			writeFile(uploadfile, savePath, null);
+
+			// 清除会话
+			httpSession.removeAttribute(SESSION_FILE);
+		}
+
+		httpSession.removeAttribute(SESSION_ENTITY);
 	}
 
 

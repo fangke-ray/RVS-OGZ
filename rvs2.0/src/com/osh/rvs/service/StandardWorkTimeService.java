@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.PositionEntity;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.master.ModelForm;
 import com.osh.rvs.mapper.master.ModelMapper;
@@ -53,12 +54,24 @@ public class StandardWorkTimeService {
 		ajaxResponse.put("level_options", options);
 	}
 
-	public List<PositionEntity> getData(String model_id, String level, SqlSession conn) throws Exception {
+	public List<PositionEntity> getData(String model_id, Integer department, String level, SqlSession conn) throws Exception {
 		ModelMapper dao = conn.getMapper(ModelMapper.class);
 		// 取出name和category_name
 		ModelEntity nameCategoryNameByVmodel = dao.getModelByID(model_id);
 		// 获取所有相关工位的processCode和name
-		List<PositionEntity> lines = dao.getPositionsOfModel(model_id);
+		ModelEntity model = new ModelEntity();
+		model.setModel_id(model_id);
+		if (department == null) {
+			ModelService ms = new ModelService();
+			ModelForm modelForm = ms.getDetail(model_id, conn);
+			if (modelForm.getKind().equals("11")) {
+				department = RvsConsts.DEPART_MANUFACT;
+			} else {
+				department = RvsConsts.DEPART_REPAIR;
+			}
+		}
+		model.setLevel(department);
+		List<PositionEntity> lines = dao.getPositionsOfModel(model);
 
 		// 取出S1跳过工位
 		if ("1".equals(level)) {
@@ -98,13 +111,13 @@ public class StandardWorkTimeService {
 			if ("9".equals(level)) {
 				// LG 目镜对应机型
 				ModelService ms = new ModelService();
-				ModelForm model = ms.getDetail(model_id, conn);
-				if (model.getKind().equals("01")) {
+				ModelForm modelForm = ms.getDetail(model_id, conn);
+				if (modelForm.getKind().equals("01")) {
 					PositionEntity element = new PositionEntity();
 					element.setProcess_code("303");
 					element.setName("LG 玻璃更换"); // TODO
 					lines.add(element);
-				} else if (model.getKind().equals("03")) {
+				} else if (modelForm.getKind().equals("03")) {
 					PositionEntity element = new PositionEntity();
 					element.setProcess_code("361");
 					element.setName("A 橡皮涂胶"); // TODO

@@ -59,7 +59,9 @@ var getPositionWork = function(position_id, px){
 	<% if(links.get("inlinePosition")) { %>
 		        ${inlinePosition}
 	<% } %>
-		    </div>
+	<% if(links.get("manufactline")) { %>
+		        <a href="scheduleProcessing.do">${userdata.line_name}流水线在线管理</a><br>
+	<% } %>
 </div>
 <% } %>
 
@@ -86,7 +88,7 @@ var getPositionWork = function(position_id, px){
 		        <a href="operatorProduction.do">操作者工时</a><br>
 		        <a href="alarmMessage.do">警报</a><br>
 	<% if(links.get("nsline")) { %>
-		        <a href="snouts.do">先端组件</a><br>
+		        <a href="snouts.do">部组组件</a><br>
 	<% } %>
 		        <a href="materialPcs.do">工程检查票</a><br>
 		    </div>

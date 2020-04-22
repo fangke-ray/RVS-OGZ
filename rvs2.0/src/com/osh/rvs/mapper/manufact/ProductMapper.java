@@ -11,6 +11,7 @@ import com.osh.rvs.bean.manage.DailyProductPlanEntity;
 public interface ProductMapper {
 
 	public String getLastProductSerialNo(String prefix);
+	public String getLastProductSerialNoWhenClear(String prefix);
 
 	public List<MaterialEntity> getProductsBySerials(List<String> serialNoList);
 

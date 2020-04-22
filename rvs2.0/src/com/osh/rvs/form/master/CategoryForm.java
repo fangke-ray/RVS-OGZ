@@ -10,13 +10,13 @@ public class CategoryForm extends ActionForm {
 	private static final long serialVersionUID = -6772953557829159713L;
 
 	/** 维修对象机种 ID */
-	@BeanField(title = "维修对象机种 ID", name = "category_id", primaryKey = true, length = 11)
+	@BeanField(title = "维修/生产对象机种 ID", name = "category_id", primaryKey = true, length = 11)
 	private String id;
 	/** 维修对象机种名称 */
-	@BeanField(title = "维修对象机种名称", name = "name", type = FieldType.String, length = 50)
+	@BeanField(title = "维修/生产对象机种名称", name = "name", type = FieldType.String, length = 50)
 	private String name;
 	/** 维修对象种类 */
-	@BeanField(title = "维修对象种类", name = "kind", type = FieldType.Integer, length = 2)
+	@BeanField(title = "维修/生产对象种类", name = "kind", type = FieldType.Integer, length = 2)
 	private String kind;
 	/** 最后更新人 */
 	@BeanField(title = "更新者", name = "updated_by")
@@ -27,7 +27,7 @@ public class CategoryForm extends ActionForm {
 	/** 默认流程 ID */
 	@BeanField(title = "默认流程 ID", name = "default_pat_id", notNull=true, length = 11)
 	private String default_pat_id;
-	@BeanField(title = "单元默认流程 ID", name = "default_cell_pat_id", notNull=true, length = 11)
+	@BeanField(title = "单元默认流程 ID", name = "default_cell_pat_id", length = 11)
 	private String default_cell_pat_id;
 
 	/**

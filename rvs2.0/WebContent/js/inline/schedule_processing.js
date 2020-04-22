@@ -74,7 +74,7 @@ $(function() {
 		resetSearch();
 		$("#position_eval").val("通过");
 		position_eval_data = 2;
-		if ($("#pReferChooser .referId:contains('00000000046')")) {
+		if ($("#pReferChooser .referId:contains('00000000046')").length) {
 			$("#search_position_id").val("00000000046");
 			$("#inp_position_id").val("出检");
 		} else {
@@ -1187,10 +1187,11 @@ var chooseAndPrintTicketsCb = function(resInfo){
 				var eSerialNo = parseInt(serial_no, 10);
 				var prefix = $("#ticket_from").attr("prefix");
 				for (var iv = 0; iv < count; iv++) {
-					postData["materials.serial_no[" + iv + "]"] = eSerialNo;
+					var sSerialNo = fillZero(eSerialNo, 7);
+					postData["materials.serial_no[" + iv + "]"] = sSerialNo;
 					postData["materials.model_name[" + iv + "]"] = model_name;
 					eSerialNo++;
-					if (("" + eSerialNo).substring(0, 3) != prefix) {
+					if (sSerialNo.substring(0, 3) != prefix) {
 						errorPop("本月已经提供不了更多的序列号。");
 						return;
 					}

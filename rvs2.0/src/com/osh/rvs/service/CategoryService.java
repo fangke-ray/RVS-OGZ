@@ -227,6 +227,10 @@ public class CategoryService {
 		String userid = loginData.getOperator_id();
 		insertBean.setUpdated_by(userid);
 
+		if (insertBean.getDefault_cell_pat_id() == null) {
+			insertBean.setDefault_cell_pat_id(insertBean.getDefault_pat_id());
+		}
+
 		// 新建记录插入到数据库中
 		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
 		dao.insertCategory(insertBean);

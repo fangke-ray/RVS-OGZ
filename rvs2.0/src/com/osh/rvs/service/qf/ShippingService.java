@@ -1,5 +1,10 @@
 package com.osh.rvs.service.qf;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +19,7 @@ import org.apache.log4j.Logger;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
-import com.osh.rvs.common.FseBridgeUtil;
+import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -24,6 +29,7 @@ import com.osh.rvs.mapper.qf.ShippingMapper;
 import com.osh.rvs.service.inline.PositionPanelService;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.IntegerConverter;
@@ -130,7 +136,8 @@ public class ShippingService {
 			ProductionFeatureEntity waitingPf = ppService.checkMaterialId(material_id, user, errors, conn);
 
 			if (errors.size() == 0) {
-				getProccessingData(listResponse, material_id, waitingPf, user, conn);
+				String fileContent = getProccessingData(listResponse, material_id, waitingPf, user, conn);
+				listResponse.put("fileContent", fileContent);
 
 				// 作业信息状态改为，作业中
 				ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
@@ -142,11 +149,18 @@ public class ShippingService {
 		user.setSection_id(section_id); // TODO
 	}
 
-	public void getProccessingData(Map<String, Object> listResponse, String material_id, ProductionFeatureEntity pf,
+	public String getProccessingData(Map<String, Object> listResponse, String material_id, ProductionFeatureEntity pf,
 			LoginData user, SqlSession conn) throws Exception {
 		// 取得维修对象信息。
 		MaterialForm mform = getMaterialInfo(material_id, conn);
 		listResponse.put("mform", mform);
+
+		String templatePath = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\package\\" + mform.getModel_name() + ".htm";
+
+		if (new File(templatePath).exists()) {
+			return getContent(templatePath);
+		}
+		return null;
 	}
 
 	public MaterialForm getMaterialInfo(String material_id, SqlSession conn) {
@@ -156,6 +170,35 @@ public class ShippingService {
 		BeanUtil.copyToForm(materialEntity, materialForm, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		return materialForm;
+	}
+
+	private String getContent(String filename) {
+		File xmlfile = new File(filename);
+		if (xmlfile.exists()) {
+			if (xmlfile.isFile()) {
+				BufferedReader input = null;
+				try {
+					input = new BufferedReader(new InputStreamReader(new FileInputStream(xmlfile),"UTF-8"));
+					StringBuffer buffer = new StringBuffer();
+					String text;
+
+					while ((text = input.readLine()) != null)
+						buffer.append(text);
+
+					String content = buffer.toString();
+
+					return content;
+				} catch (IOException ioException) {
+				} finally {
+					try {
+						input.close();
+					} catch (IOException e) {
+					}
+					input = null;
+				}
+			}
+		}
+		return null;
 	}
 
 }

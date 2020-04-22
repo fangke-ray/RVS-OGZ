@@ -60,13 +60,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<form id="searchform" method="POST" onsubmit="return false;">
 			<table class="condform">
 				<tr>
-					<td class="ui-state-default td-title">维修对象机种</td>
+					<td class="ui-state-default td-title">维修/生产机种</td>
 					<td class="td-content" colspan="3"><select name="category_id" id="cond_category_id"><%=request.getAttribute("cOptions")%></select></td>
-					<!-- td class="ui-state-default td-title">维修对象型号 ID</td>
+					<!-- td class="ui-state-default td-title">维修/生产对象型号 ID</td>
 					<td class="td-content"><input type="text" name="id" id="cond_id" maxlength="11" class="ui-widget-content"></td-->
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象型号名称</td>
+					<td class="ui-state-default td-title">维修/生产对象型号名称</td>
 					<td class="td-content"><input type="text" name="name" id="cond_name" maxlength="50" class="ui-widget-content"></td>
 					<td class="ui-state-default td-title">备注1</td>
 					<td class="td-content"><input type="text" name="feature1" id="cond_feature1" maxlength="16" class="ui-widget-content"></td>
@@ -117,23 +117,23 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<form id="editform" method="POST" onsubmit="return false;">
 			<table class="condform">
 				<tr>
-					<td class="ui-state-default td-title">维修对象机种</td>
-					<td class="td-content" colspan="3"><select alt="维修对象机种" name="category_id" id="input_category_id" class="ui-widget-content"><%=request.getAttribute("cOptions")%></select></td>
+					<td class="ui-state-default td-title">维修/生产对象机种</td>
+					<td class="td-content" colspan="3"><select alt="维修/生产对象机种" name="category_id" id="input_category_id" class="ui-widget-content"><%=request.getAttribute("cOptions")%></select></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象型号 ID</td>
+					<td class="ui-state-default td-title">维修/生产对象型号 ID</td>
 					<td class="td-content" colspan="3"><label id="label_edit_id"></label></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象型号名称</td>
+					<td class="ui-state-default td-title">维修/生产对象型号名称</td>
 					<td class="td-content">
-						<input type="text" alt="维修对象型号名称" name="name" id="input_name" maxlength="50" class="ui-widget-content"/>
+						<input type="text" alt="维修/生产对象型号名称" name="name" id="input_name" maxlength="50" class="ui-widget-content"/>
 					</td>
-					<td class="ui-state-default td-title">维修对象型号代码</td>
-					<td class="td-content"><input type="text" alt="维修对象型号代码" name="item_code" id="input_item_code" maxlength="50" class="ui-widget-content"></td>
+					<td class="ui-state-default td-title">维修/生产对象型号代码</td>
+					<td class="td-content"><input type="text" alt="维修/生产对象型号代码" name="item_code" id="input_item_code" maxlength="50" class="ui-widget-content"></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象型号描述</td>
+					<td class="ui-state-default td-title">维修/生产对象型号描述</td>
 					<td class="td-content">
 						<textarea id="input_description" style="resize:none" rows="4" cols="25" class="ui-widget-content"></textarea>
 					</td>

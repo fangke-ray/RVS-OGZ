@@ -1,5 +1,5 @@
 /** 模块名 */
-var modelname = "维修对象机种";
+var modelname = "维修/生产对象机种";
 /** 一览数据对象 */
 var listdata = {};
 /** 服务器处理路径 */
@@ -100,7 +100,7 @@ var search_handleComplete = function(xhrobj, textStatus) {
 					width : gridWidthMiddleRight,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['', '维修对象机种 ID', '类别', '维修对象机种名称', '最后更新人', '最后更新时间'],
+					colNames : ['', '维修/生产对象机种 ID', '类别', '维修/生产对象机种名称', '最后更新人', '最后更新时间'],
 					colModel : [
 					{name:'myac', width:48, fixed:true, sortable:false, resize:false, formatter:'actions', formatoptions:{keys:true, editbutton:false}},
 					{ // 维修对象型号 ID

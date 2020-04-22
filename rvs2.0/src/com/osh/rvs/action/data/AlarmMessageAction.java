@@ -170,7 +170,7 @@ public class AlarmMessageAction extends BaseAction {
 		if (CommonStringUtil.isEmpty(alarm_messsage_id)) {
 			actionForward = mapping.findForward("error");
 		} else {
-			
+
 			// 取得用户信息
 			HttpSession session = req.getSession();
 			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);

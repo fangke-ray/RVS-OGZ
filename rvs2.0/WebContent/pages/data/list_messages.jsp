@@ -57,8 +57,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 					<td class="ui-state-default td-title">警报等级</td>
 					<td class="td-content"><select name="level" id="cond_level" class="ui-widget-content">${lvlOptions}</select></td>
-					<td class="ui-state-default td-title">原因</td>
-					<td class="td-content"><select name="reason" id="cond_reason" class="ui-widget-content">${rOptions}</select></td>
+					<td class="ui-state-default td-title" rowspan="2">原因</td>
+					<td class="td-content" colspan="3" rowspan="2"><select name="reason" id="cond_reason" class="ui-widget-content">${rOptions}</select></td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">发生时间</td>
 					<td class="td-content">
 						<input type="text" name="occur_time_from" id="cond_occur_time_from" class="ui-widget-content" value="${today}">起<br/>
@@ -67,7 +69,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">${userdata.department eq 2 ? '-' : '修理单号'}</td>
-					<td class="td-content"><input type="text" name="sorc_no" id="cond_sorc_no" maxlength="15" class="ui-widget-content"></td>
+					<td class="td-content"><input type="text" name="sorc_no" id="cond_sorc_no" maxlength="15" class="ui-widget-content" ${userdata.department eq 2 ? 'style="display:none"' : ''}></td>
 					<td class="ui-state-default td-title">${userdata.department eq 2 ? '制造' : '维修'}品型号</td>
 					<td class="td-content"><input type="text" readonly class="ui-widget-content"><input type="hidden" name="model_id" id="cond_model_id"/></td>
 					<td class="ui-state-default td-title">机身号/序列号</td>
@@ -86,6 +88,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div style="height:44px">
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="清除" role="button" aria-disabled="false" style="float:right;right:2px">
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="searchbutton" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
+				<input type="hidden" id="department" value="${userdata.department}">
 			</div>
 			</form>
 	</div>

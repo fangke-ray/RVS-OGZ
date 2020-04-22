@@ -139,6 +139,7 @@ var pcsO = {
 			$("#" + this.id.replace("pcs_page_", "pcs_content_")).show();
 		});
 		if (!isLeader) {
+			this.$pcs_contents.find("input[name^='L']").hide();
 			this.$pcs_contents.find("input,textarea").not(".i_sff").parent().css("background-color", "#93C3CD");
 			this.$pcs_contents.find("input[name^='EN']").button();
 			this.$pcs_contents.find("input.i_switchM").click(this._emSwitch);
@@ -252,16 +253,25 @@ var pcsO = {
 	},
 	_setPass : function(selecter) {
 		this.$pcs_contents.find(selecter).not("[other]").click(function(){
-			var $passSwitcher = $(this);
-			var status = $passSwitcher.attr("status");
-			if (!status) {
-				$passSwitcher.attr("status", "PASS");
-			} else if (status == "PASS") {
-				$passSwitcher.attr("status", "FAil");
-			} else {
-				$passSwitcher.attr("status", "");
-			}
-		}).parent().css("background-color", "#93C3CD");
+			pcsO._passSwitch($(this));
+		}).parent().css({"background-color": "#93C3CD", "cursor": "pointer"})
+			.click(function(evt){
+				if(evt.target.tagName === "SWITCHER") return;
+				if(evt.target.tagName === "INPUT") return;
+				$(this).find(selecter).each(function(){
+					pcsO._passSwitch($(this));
+				});
+			});
+	},
+	_passSwitch : function($passSwitcher) {
+		var status = $passSwitcher.attr("status");
+		if (!status) {
+			$passSwitcher.attr("status", "PASS");
+		} else if (status == "PASS") {
+			$passSwitcher.attr("status", "FAil");
+		} else {
+			$passSwitcher.attr("status", "");
+		}
 	},
 	init : function(container, forQa) {
 		this.forQa = forQa;

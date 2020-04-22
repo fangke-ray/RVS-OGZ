@@ -41,11 +41,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">
 					<select name="section_id" id="search_section_id" class="ui-widget-content">${sOptions}</select></td>
 					<td class="ui-state-default td-title">所属工程</td>
-					<td class="td-content">
+					<td class="td-content" colspan="3">
 					<select name="line_id" id="search_line_id" class="ui-widget-content">${lOptions}</select></td>
-					<td class="ui-state-default td-title"></td>
-					<td class="td-content">
-						
 					</td>
 				</tr>
 			</tbody>

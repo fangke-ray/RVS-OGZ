@@ -456,7 +456,7 @@ public class ProductionFeatureService {
 				List<String> firstPositionIds = pas.getFirstPositionIds(mEntity.getPat_id(), conn);
 				// 确认已经是否完成作业
 				ProductionFeatureMapper ppDao = conn.getMapper(ProductionFeatureMapper.class);
-				if (firstPositionIds.size() > 1) {
+				if (firstPositionIds.size() > 0) {
 					for (String firstPositionId : firstPositionIds) {
 						if (!ppDao.checkPositionDid(material_id, firstPositionId, "2", null)) {
 							nextPositions.add(firstPositionId); // 分解
@@ -555,11 +555,6 @@ public class ProductionFeatureService {
 					mpService.finishMaterialProcess(material_id, "00000000070", triggerList, conn);
 				}
 			} else
-			if (!isLightFix && "00000000111".equals(position_id)) { // MF1Over TODO
-				if (isFact) {
-					mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
-				}
-			} else
 			if (!isLightFix && ("00000000031".equals(position_id) || "00000000085".equals(position_id))) { 
 				if (isFact) {
 					// 检查本工程是否都完成 // NSOver TODO
@@ -621,9 +616,20 @@ public class ProductionFeatureService {
 
 			 // 维修流程参照
 			 getNext(paProxy, material_id, pat_id, position_id, mEntity.getLevel(), nextPositions);
+
 			 if (nextPositions.size() == 1 && RvsConsts.POSITION_QA.equals(nextPositions.get(0))) fixed = true;
 			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PERI_QA.equals(nextPositions.get(0))) fixed = true;
-			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PRODUCT_QA.equals(nextPositions.get(0))) fixed = true;
+			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PRODUCT_QA.equals(nextPositions.get(0))) {
+				fixed = true;
+				// MF1Over
+				if (isFact) {
+					// 检查本工程是否都完成
+					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
+					if (paMapper.getWorkedLine(material_id, "00000000101")) {
+						mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
+					}
+				}
+			 }
 			 else fixed = false;
 
 //			if (isLightFix && isFact) {

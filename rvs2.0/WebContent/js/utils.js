@@ -1,6 +1,6 @@
-var wsPath = "ws://10.220.130.100:8080/rvspush";
+//var wsPath = "ws://10.220.130.100:8080/rvspush";
 var scanPath = "http://10.220.130.100:8080/rvsscan";
-//var wsPath = "ws://localhost:8080/rvspush";
+var wsPath = "ws://localhost:8080/rvspush";
 //var scanPath = "http://localhost:8080/rvsscan";
 
 /*

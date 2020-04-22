@@ -162,7 +162,8 @@
 			pcs_comments = #{pcs_comments},
 			finish_time = current_timestamp
 		WHERE serial_no = #{serial_no}
-		AND pace = #{pace};
+		AND pace = #{pace}
+		AND position_id = #{position_id};
 		]]>
 	</update>
 
@@ -272,7 +273,7 @@
 	<![CDATA[ 
 		SELECT pf.model_id, serial_no, p.position_id, pf.section_id, pace, operator_id, operate_result,
 			action_time, finish_time, pcs_inputs, pcs_comments, pf.section_id,
-			(unix_timestamp(current_timestamp) - unix_timestamp(action_time)) as use_seconds,
+			null as use_seconds,
 			p.process_code, p.name as position_name, s.name as section_name, `l`.line_id as line_id, `l`.name as line_name
 		FROM solo_production_feature pf
     	JOIN `position` p
@@ -385,13 +386,13 @@ FROM
 			<if test="finish_time_from!= null and finish_time_from!= ''">
 		<![CDATA[ 
 				and spf.finish_time >= #{finish_time_from}
-				and spf.operat_result = 2
+				and spf.operate_result = 2
 		]]>
 			</if>
 			<if test="finish_time_to!= null and finish_time_to!= ''">
 		<![CDATA[ 
 				and date(spf.finish_time) <= #{finish_time_to}
-				and spf.operat_result = 2
+				and spf.operate_result = 2
 		]]>
 			</if>
 		</where>
@@ -431,6 +432,14 @@ LEFT JOIN
 		<![CDATA[ 
 				and spfo.operate_result = 2
 				AND spfo.used = 0
+				and lpii.confirm_time IS NULL
+		]]>
+			</if>
+			<if test="status == 2">
+		<![CDATA[ 
+				and spfo.operate_result = 2
+				AND spfo.used = 0
+				and lpii.confirm_time IS NOT NULL
 		]]>
 			</if>
 			<if test="status == 3">

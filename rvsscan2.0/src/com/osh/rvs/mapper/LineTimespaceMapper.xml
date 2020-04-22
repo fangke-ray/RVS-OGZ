@@ -12,7 +12,7 @@ timestampdiff(minute, current_date, pf.action_time) as action_time, l.name as li
 timestampdiff(minute, current_date, coalesce(pf.finish_time, current_timestamp)) as finish_time,
 pos.process_code, mp.finish_date, pf.operate_result, pf.rework,
 CASE WHEN
-	mp.line_id = 101 THEN serial_no
+	mp.line_id = 102 THEN serial_no
 ELSE
 	null
 END as serial_no,
@@ -38,6 +38,29 @@ and pos.line_id = #{line_id}
 	</if>
 		<![CDATA[
 and pf.operate_result not in (5,8)
+and not (pf.operate_result = 4 AND pf.finish_time is null)
+order by process_code, action_time;
+		]]>
+	</select>
+
+
+	<select id="getSoloProductionFeatures" resultType="map" parameterType="String">
+		<![CDATA[
+select 0 as material_id, mdl.name as model_name, mdl.category_name, 
+timestampdiff(minute, current_date, pf.action_time) as action_time, l.name as line_name,
+timestampdiff(minute, current_date, coalesce(pf.finish_time, current_timestamp)) as finish_time,
+pos.process_code, pf.operate_result, 
+pf.serial_no,
+unix_timestamp(pf.finish_time) - unix_timestamp(pf.action_time)
+ as use_seconds
+from solo_production_feature pf
+join v_model mdl on pf.model_id = mdl.model_id
+join position pos on pf.position_id = pos.position_id
+join line l on l.line_id = #{line_id}
+where action_time > current_date
+and pos.line_id = #{line_id}
+and pf.operate_result not in (5,8)
+and pf.used = 0
 and not (pf.operate_result = 4 AND pf.finish_time is null)
 order by process_code, action_time;
 		]]>

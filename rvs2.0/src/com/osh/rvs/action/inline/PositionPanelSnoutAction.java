@@ -417,8 +417,8 @@ public class PositionPanelSnoutAction extends BaseAction {
 					listResponse.put("spent_mins", "0");
 					listResponse.put("snout_origin", sservice.getSnoutOriginNoBySerialNo(serial_no ,conn));
 				} else {
-					pfBean.setUse_seconds(0);
 					pfBean.setModel_name(model_name);
+					pfBean.setUse_seconds(0);
 					sservice.getProccessingDataSolo(listResponse, pfBean, user, conn);
 				}
 
@@ -430,6 +430,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 				spfDao.insert(pfBean);
 			} else {
+				// 中断后继续
 				pfBean.setPace(pace);
 				sservice.pauseToResume(pfBean, conn);
 				pfBean.setModel_name(model_name);
@@ -575,7 +576,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 			listResponse.put("action_time", DateUtil.toString(sworkingPf.getAction_time(), "HH:mm:ss"));
 
-			sservice.getProccessingDataSolo(listResponse, sworkingPf, user, conn);
+//			sservice.getProccessingDataSolo(listResponse, sworkingPf, user, conn);
 
 			listResponse.put("workstauts", "2");
 		}
@@ -737,6 +738,11 @@ public class PositionPanelSnoutAction extends BaseAction {
 					sservice.breakToNext(soloWorkingPf, conn);
 				}
 			}
+
+			// 取得等待区一览
+			listResponse.put("waitings", sservice.getWaitingMaterial(user.getSection_id(), user.getPosition_id(),
+					user.getOperator_id(), user.getProcess_code(), conn));
+
 		}
 
 		// 检查发生错误时报告错误信息
@@ -767,6 +773,8 @@ public class PositionPanelSnoutAction extends BaseAction {
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+		String from_process_code = user.getProcess_code();
 
 		// 取得当前作业中作业信息
 		SoloProductionFeatureEntity condition = new SoloProductionFeatureEntity();
@@ -805,7 +813,24 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 		// 取得等待区一览
 		callBackResponse.put("waitings", sservice.getWaitingMaterial(user.getSection_id(), user.getPosition_id(),
-				user.getOperator_id(), user.getProcess_code(), conn));
+				user.getOperator_id(), from_process_code, conn));
+
+		if (errors.size() == 0) {
+			List<String> target_position_ids = new ArrayList<String>();
+			if ("301".equals(from_process_code)) {
+				target_position_ids.add("00000000028"); // 331
+				target_position_ids.add("00000000081"); // 333
+			} else if ("001".equals(from_process_code)) {
+				target_position_ids.add("00000000102"); // 002
+			}
+
+			if (target_position_ids.size() > 0) {
+				conn.commit();
+				for (String target_position_id : target_position_ids) {
+					service.notifyPosition(user.getSection_id(), target_position_id, null);
+				}
+			}
+		}
 
 		// 检查发生错误时报告错误信息
 		callBackResponse.put("errors", errors);

@@ -16,6 +16,7 @@ import com.osh.rvs.mapper.LineLeaderMapper;
 import com.osh.rvs.mapper.LineTimespaceMapper;
 
 public class LineTimespaceService {
+	private static final Object BX_END_POS = "007"; // "006"
 	private static Map<String, String> TYPES = new HashMap<String, String>();
 	static {
 		TYPES.put("TJF", "JF");
@@ -30,6 +31,7 @@ public class LineTimespaceService {
 		List<Map<String, Object>> productionFeatures = mapper.getProductionFeatures(line_id, px);
 		if ("00000000101".equals(line_id)) {
 			productionFeatures.addAll(mapper.getProductionFeatures("00000000102", null));
+			mergeInto(productionFeatures, mapper.getSoloProductionFeatures("00000000101"));
 		}
 		List<Map<String, String>> ret = new ArrayList<Map<String, String>>();
 
@@ -124,12 +126,12 @@ public class LineTimespaceService {
 					String level = "" + feature.get("level");
 					String sOvertime = null;
 					try {
+						retPf.put("use_seconds", "" + useSeconds);
 						sOvertime = RvsUtils.getLevelOverLine(modelName, categoryName, level, null, processCode);
 						Double dOverMinutes = Double.parseDouble(sOvertime);
 						boolean overtime = false;
 						if (dOverMinutes * 60 <= useSeconds) {
 							retPf.put("overtime",  "true");
-							retPf.put("use_seconds", "" + useSeconds);
 							overtime = true;
 						}
 
@@ -156,7 +158,6 @@ public class LineTimespaceService {
 								if (overtime) {
 									retBefore.put("overtime",  "true");
 								}
-								retPf.put("use_seconds", "" + useSeconds);
 							}
 						}
 					} catch (Exception e) {
@@ -169,7 +170,7 @@ public class LineTimespaceService {
 
 			Long operate_result = (Long) feature.get("operate_result");
 			if (processCode != null && ("471".equals(processCode) || "362".equals(processCode)
-					 || (processCode.startsWith("262")) || "006".equals(processCode)) 
+					 || (processCode.startsWith("262")) || BX_END_POS.equals(processCode)) 
 					&& operate_result == 2) {
 				// 取得烘干时间
 				String categoryName = "" + feature.get("CATEGORY_NAME");
@@ -499,6 +500,51 @@ public class LineTimespaceService {
 		}
 
 		return ret;
+	}
+
+	/**
+	 * 按工位和时间插入
+	 * @param productionFeatures
+	 * @param subProductionFeatures
+	 */
+	private void mergeInto(List<Map<String, Object>> productionFeatures,
+			List<Map<String, Object>> subProductionFeatures) {
+		if (subProductionFeatures == null || subProductionFeatures.size() == 0) {
+			return;
+		}
+		if (productionFeatures.size() == 0) {
+			productionFeatures.addAll(subProductionFeatures);
+			return;
+		}
+
+		// 被插入游标
+		int mainIndex = 0;
+
+		// 按需插入循环
+		for (Map<String, Object> subProductionFeature : subProductionFeatures) {
+			String subPos = (String) subProductionFeature.get("process_code");
+			for (; mainIndex < productionFeatures.size();) {
+				String mainPos = (String) productionFeatures.get(mainIndex).get("process_code");
+				int posCompare = mainPos.compareTo(subPos);
+				if (posCompare < 0) {
+					mainIndex++;
+					continue;
+				} else if (posCompare > 0) {
+					productionFeatures.add(mainIndex, subProductionFeature);
+					break;
+				} else if (posCompare == 0) {
+					Long subActionTime = (Long) subProductionFeature.get("action_time");
+					Long mainActionTime = (Long) productionFeatures.get(mainIndex).get("action_time");
+					if (subActionTime > mainActionTime) {
+						mainIndex++;
+						continue;
+					} else {
+						productionFeatures.add(mainIndex, subProductionFeature);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 }

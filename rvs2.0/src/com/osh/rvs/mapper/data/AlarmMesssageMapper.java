@@ -38,6 +38,7 @@ public interface AlarmMesssageMapper {
 	public int countBreakUnPushedAlarmMessage(String material_id);
 
 	public List<AlarmMesssageEntity> searchAlarmMessages(AlarmMesssageEntity entity);
+	public List<AlarmMesssageEntity> searchAlarmMessagesFromSolo(AlarmMesssageEntity entity);
 
 	/** 工位发生过未解决的点检故障  */
 	public List<AlarmMesssageEntity> searchAlarmMessagesInfect(AlarmMesssageEntity entity);

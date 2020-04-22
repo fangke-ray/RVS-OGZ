@@ -1198,6 +1198,10 @@ public class PcsUtils {
 				"<input type=\"radio\" name=\"$1\" id=\"$1_y\" value=\"1\" code=\"$2\" class=\"i_act tag_n\"/><label for=\"$1_y\">确认</label>" +
 				"<input type=\"radio\" name=\"$1\" id=\"$1_n\" value=\"-1\" code=\"$2\" class=\"i_act tag_n\"/><label for=\"$1_n\">不做</label>");
 
+		// 通过：P
+		specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"\\w\" type=\"P\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+				"<switcher name=\"$1\" other status='PASS'></switcher>");
+
 		// 合格总计
 		specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d\\d\" scope=\"\\w\" type=\"T\" position=\"(\\d{3})\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 				"<section locate=\"$1\" code=\"$2\" class=\"i_total\">合格</section>" + 

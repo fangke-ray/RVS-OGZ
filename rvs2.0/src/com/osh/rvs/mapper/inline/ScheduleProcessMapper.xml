@@ -428,7 +428,7 @@
 		<where>
 				a.break_back_flg = 0 
 				AND (a.outline_time IS NULL OR a.outline_time >= current_date) 
-				AND a.ticket_flg = 1
+				AND (a.ticket_flg = 1 OR a.fix_type = 8)
 				AND a.fix_type in (6, 7, 8)
 			<if test="serial_no!=null and serial_no!='' ">
 				 and a.serial_no = #{serial_no}

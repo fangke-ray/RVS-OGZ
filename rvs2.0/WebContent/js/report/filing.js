@@ -350,7 +350,7 @@ function filed_list(){
 					showPcsDetailLeader(material_id, true, true);
 				}
 			},
-			caption: "完成维修一览",
+			caption: (g_depa == 1 ? "完成维修一览" : "完成制造一览"),
 			gridview: true, // Speed up
 			pagerpos: 'right',
 			pgbuttons: true,

@@ -1,5 +1,5 @@
 /** 模块名 */
-var modelname = "维修对象型号";
+var modelname = "维修/生产对象型号";
 /** 一览数据对象 */
 var listdata = {};
 /** 服务器处理路径 */
@@ -174,7 +174,7 @@ var search_handleComplete = function(xhrobj, textStatus) {
 					width : gridWidthMiddleRight,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['', '维修对象型号 ID', '机种 ID', '维修对象机种', '维修对象型号名称', '备注1', '备注2', '系列','EL 座<br>类别','S 连接座<br>类别','操作部<br>类别','接眼<br>类别','最后更新人', '最后更新时间'],
+					colNames : ['', '维修/生产对象型号 ID', '机种 ID', '维修/生产对象机种', '维修/生产对象<br>型号名称', '备注1', '备注2', '系列','EL 座<br>类别','S 连接座<br>类别','操作部<br>类别','接眼<br>类别','最后更新人', '最后更新时间'],
 					colModel : [
 					{name:'myac', width:48, fixed:true, sortable:false, resize:false, formatter:'actions', formatoptions:{keys:true, editbutton:false}},
 					{ // 工程 ID
@@ -653,7 +653,7 @@ var type_list=function(listdata){
 			rowNum: 17,
 			toppager: false,
 			pager: null,
-			caption : modelname + "受理维修等级设定/废止",
+			caption : "型号受理维修等级设定/废止",
 			viewrecords: true,
 			rownumbers : true,/*行号*/
 			pagerpos: 'right',

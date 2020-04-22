@@ -584,6 +584,8 @@ public class SoloSnoutService {
 
 		// 取到等待作业记录的本次返工总时间
 		SoloSnoutService sservice = new SoloSnoutService();
+
+		// 需要获取耗时
 		if (pf.getUse_seconds() == null) {
 			Integer spentSecs = sservice.getTotalTime(pf, conn);
 			Integer spentMins = spentSecs / 60;

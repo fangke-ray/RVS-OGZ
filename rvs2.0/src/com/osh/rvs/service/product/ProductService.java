@@ -69,21 +69,32 @@ public class ProductService {
 		ProductMapper pMapper = conn.getMapper(ProductMapper.class);
 		String lastProductSerialNo = pMapper.getLastProductSerialNo(tMonth);
 
+		if (lastProductSerialNo == null) {
+			lastProductSerialNo = pMapper.getLastProductSerialNoWhenClear(tMonth);
+			sizeAfter += sizeBefore;
+			sizeBefore = 0;
+		}
+
+		return getSerialNos(lastProductSerialNo, tMonth, sizeBefore, sizeAfter, pMapper);
+	}
+
+	public List<MaterialEntity> getSerialNos(String baseSerialNo, String tMonth, int sizeBefore, int sizeAfter, ProductMapper pMapper) {
+
 		List<MaterialEntity> rets = new ArrayList<MaterialEntity>();
 
 		// 取得显示用序号
 		List<String> serialNoList = new ArrayList<String>();
-		if (lastProductSerialNo == null) {
+		if (baseSerialNo == null) {
 			// 本月没有
 			for (int i = 0; i < sizeBefore + sizeAfter; i++) {
 				serialNoList.add(tMonth + CommonStringUtil.fillChar((i+1) + "", '0', 4, true));
 			}
 		} else {
-			String numericPart = lastProductSerialNo.substring(3); // .replaceAll("^^\\d(\\d*)$", "$1");
+			String numericPart = baseSerialNo.substring(3); // .replaceAll("^^\\d(\\d*)$", "$1");
 			int numericPartSerial = Integer.parseInt(numericPart);
 			int numericPartLength = 4; // numericPart.length();
-			String nonNumericPart = lastProductSerialNo
-					.substring(0, lastProductSerialNo.length() - numericPartLength);
+			String nonNumericPart = baseSerialNo
+					.substring(0, baseSerialNo.length() - numericPartLength);
 			int beforeSerial = numericPartSerial;
 			int afterSerial = numericPartSerial;
 			for (int i = 0; i < sizeBefore; i++) {
@@ -91,14 +102,23 @@ public class ProductService {
 				if (beforeSerial == 0) break;
 				serialNoList.add(0, nonNumericPart +  CommonStringUtil.fillChar(beforeSerial + "", '0', 4, true));
 			}
+			if (numericPartSerial <= sizeBefore) {
+				sizeAfter += (sizeBefore - numericPartSerial + 1); 
+			}
 			for (int i = 0; i < sizeAfter; i++) {
 				serialNoList.add(nonNumericPart +  CommonStringUtil.fillChar(afterSerial + "", '0', 4, true));
 				afterSerial++;
 			}
 		}
 
+		if (sizeBefore < 0) {
+			serialNoList.remove(0);
+		}
 		// 按序列号取得产品信息
 		List<MaterialEntity> productions = pMapper.getProductsBySerials(serialNoList);
+
+		// 中断序号
+		List<String> stopSerialList = new ArrayList<String>();
 
 		String lastModelName = "";
 		for (String serialNo : serialNoList) {
@@ -108,6 +128,9 @@ public class ProductService {
 				if (production.getSerial_no().equals(serialNo)) {
 					rets.add(production);
 					hit = true;
+					if (production.getBreak_back_flg() != 0) {
+						stopSerialList.add(serialNo);
+					}
 					break;
 				}
 			}
@@ -117,6 +140,22 @@ public class ProductService {
 				production.setModel_name(lastModelName);
 				rets.add(production);
 			}
+		}
+
+		// 已废除序列号跳过
+		if (stopSerialList.size() > 0) {
+			String lastSerialNo = null;
+			for (int i = rets.size() - 1; i >= 0; i--) {
+				MaterialEntity ret = rets.get(i);
+				if (lastSerialNo == null) lastSerialNo = ret.getSerial_no();
+				for (int i1 = 0; i1 < stopSerialList.size(); i1++) {
+					if (ret.getSerial_no().equals(stopSerialList.get(i1))) {
+						rets.remove(ret);
+						break;
+					}
+				}
+			}
+			rets.addAll(getSerialNos(lastSerialNo, tMonth, -1, stopSerialList.size() + 1, pMapper));
 		}
 
 		return rets;

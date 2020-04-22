@@ -81,8 +81,8 @@
 				<td class="td-content-text" id="nogood_operator_name"></td>
 			</tr>
 			<tr>
-				<td class="ui-state-default td-title">修理单号</td>
-				<td class="td-content-text" id="nogood_sorc_no">SORC-124453-SY</td>
+				<td class="ui-state-default td-title">${depart eq 'man' ? '序列号' : '修理单号'}</td>
+				<td class="td-content-text" id="nogood_sorc_no">-</td>
 				<td class="ui-state-default td-title">型号</td>
 				<td class="td-content-text" id="nogood_model_name">CF-H260AZI</td>
 			</tr>

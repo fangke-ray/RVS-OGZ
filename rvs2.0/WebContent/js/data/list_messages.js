@@ -36,7 +36,11 @@ var findit = function() {
 	});
 };
 
+var g_depa = 0;
+
 $(function() {
+
+	g_depa = $("#department").val();
 
 	$("input.ui-button").button();
 
@@ -136,15 +140,16 @@ function search_handleComplete(xhrobj, textStatus) {
 					width : 992,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['','警报等级', '原因', '发生时间', '修理单号', '维修对象型号',
+					colNames : ['','警报等级', '原因', '发生时间', '修理单号', (g_depa == 2 ? '制造品型号' : '维修对象型号'), '机身号/序列号',
 							'担当人', '课室', '工程', '工位', '处理人', '处理时间'],
 					colModel : [
 						{name:'id',index:'id', hidden: true, key: true},
 						{name:'level',index:'level', width:60, formatter:'select', editoptions:{value:lOptions}},
 						{name:'reason',index:'reason', width:60, formatter:'select', editoptions:{value:rOptions}},
 						{name:'occur_time',index:'occur_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}},
-						{name:'sorc_no',index:'sorc_no', width:95},
+						{name:'sorc_no',index:'sorc_no', width:95, hidden : (g_depa == 2)},
 						{name:'model_name',index:'model_id', width:125},
+						{name:'serial_no',index:'serial_no', width:65},
 						{name:'operator_name',index:'operator_name', width:60},
 						{name:'section_name',index:'section_name', width:35},
 						{name:'line_name',index:'line_name', width:65},

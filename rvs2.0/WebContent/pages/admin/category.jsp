@@ -22,7 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/admin/category.js"></script>
-<title>维修对象机种检索</title>
+<title>维修/生产对象机种检索</title>
 </head>
 <body>
 
@@ -37,9 +37,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<form id="searchform" method="POST" onsubmit="return false;">
 			<table class="condform">
 				<tr>
-					<td class="ui-state-default td-title">维修对象机种 ID</td>
+					<td class="ui-state-default td-title">维修/生产对象机种 ID</td>
 					<td class="td-content"><input type="text" name="id" id="cond_id" maxlength="11" class="ui-widget-content"></td>
-					<td class="ui-state-default td-title">维修对象机种名称</td>
+					<td class="ui-state-default td-title">维修/生产对象机种名称</td>
 					<td class="td-content"><input type="text" name="name" id="cond_name" maxlength="50" class="ui-widget-content"></td>
 				</tr>
 				<tr>
@@ -76,13 +76,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content"><select name="kind" alt="类别" id="input_kind" class="ui-widget-content">${kOptions}</select></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象机种 ID</td>
+					<td class="ui-state-default td-title">维修/生产对象机种 ID</td>
 					<td class="td-content"><label id="label_edit_id"> - </label></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">维修对象机种名称</td>
+					<td class="ui-state-default td-title">维修/生产对象机种名称</td>
 					<td class="td-content">
-						<input type="text" name="name" alt="维修对象机种名称" id="input_name" maxlength="50" class="ui-widget-content">
+						<input type="text" name="name" alt="维修/生产对象机种名称" id="input_name" maxlength="50" class="ui-widget-content">
 						<br>
 						<label for="input_name" generated="false" class="errorarea-single" style="display:none">
 					</label></td>

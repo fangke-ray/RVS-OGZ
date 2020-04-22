@@ -294,7 +294,7 @@ var douse_complete = function(xhrobj) {
 		// 共通出错信息框
 		treatBackMessages("#inlineForm", resInfo.errors);
 		if (resInfo.sReferChooser) {
-			$("#snouts").find("tbody").html(resInfo.sReferChooser);
+			setSnoutRefers(resInfo.sReferChooser);
 			mySetReferChooser();
 		}
 		return;
@@ -308,6 +308,9 @@ var douse_complete = function(xhrobj) {
 	}
 }
 
+var setSnoutRefers = function(sReferChooser) {
+	$("#snouts").find("tbody").html(sReferChooser);
+}
 var mySetReferChooser = function() {
 	var target = $("#input_snout");
 	var shower = target.prev("input:text");
@@ -377,7 +380,7 @@ var treatUsesnout = function(xhrobj) {
 				}
 				// 关联先端头参照
 				if (resInfo.sReferChooser != null) {
-					$("#snouts").find("tbody").html(resInfo.sReferChooser);
+					setSnoutRefers(resInfo.sReferChooser);
 					mySetReferChooser();
 				}
 			} else if (resInfo.used_snout){
@@ -395,7 +398,7 @@ var treatUsesnout = function(xhrobj) {
 				$("#snoutpane td:eq(4), #snoutpane td:eq(5), #unusesnoutbutton").hide();
 				// 关联先端头参照
 				if (resInfo.sReferChooser != null) {
-					$("#snouts").find("tbody").html(resInfo.sReferChooser);
+					setSnoutRefers(resInfo.sReferChooser);
 					mySetReferChooser();
 				}
 			}
@@ -407,6 +410,29 @@ var treatUsesnout = function(xhrobj) {
 		} else {
 			$("#usesnoutarea").hide();
 		}
+	}
+}
+
+var resetSnoutRefers = function() {
+	if ($("#pauseo_material_id").val()) {
+		// 取得可使用先端头列表
+		var data = {material_id : $("#pauseo_material_id").val()};
+		// Ajax提交
+		$.ajax({
+			beforeSend : ajaxRequestType,
+			async : false,
+			url : "position_panel_snout.do" + '?method=getMaterialUse',
+			cache : false,
+			data : data,
+			type : "post",
+			dataType : "json",
+			success : ajaxSuccessCheck,
+			error : ajaxError,
+			complete : function(xhrobj){
+				var resInfo = $.parseJSON(xhrobj.responseText);
+				setSnoutRefers(resInfo.sReferChooser);
+			}
+		});
 	}
 }
 
@@ -1095,25 +1121,26 @@ var createArm = function() {
 
 // 工位后台推送
 function takeWs() {
-	var g_pos_id = $("#g_pos_id").val(); 
+	var g_pos_id = $("#g_pos_id").val();
 
 	if (g_pos_id) {
-		// 创建WebSocket  
+		// 创建WebSocket
 		var position_ws = new WebSocket(wsPath + "/position");
 		// 收到消息时做相应反应
 		position_ws.onmessage = function(evt) {
-	    	var resInfo = {};
-	    	try {
-	    		resInfo = $.parseJSON(evt.data);
-	    	} catch(e) {
-	    	}
-    		if ("refreshWaiting" == resInfo.method) {
-    			getWaitings();
-    		}
-    	}
-	};  
-	// 连接上时走这个方法  
-	position_ws.onopen = function() {     
+			var resInfo = {};
+			try {
+				resInfo = $.parseJSON(evt.data);
+			} catch(e) {
+			}
+			if ("refreshWaiting" == resInfo.method) {
+				getWaitings();
+				if (typeof(resetSnoutRefers) === "function") resetSnoutRefers();
+			}
+		}
+	};
+	// 连接上时走这个方法
+	position_ws.onopen = function() {
 		position_ws.send("entach:" + g_pos_id + "#"+$("#op_id").val());
-	}; 
+	};
 };

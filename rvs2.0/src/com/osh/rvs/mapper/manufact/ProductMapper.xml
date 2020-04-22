@@ -27,9 +27,28 @@
 	]]>
 	</select>
 
+	<!-- PROCESS_TYPE_MANUFACT_LINE = 6 -->
+	<select id="getLastProductSerialNoWhenClear" resultType="String" parameterType="String">
+	<![CDATA[ 
+		SELECT serial_no 
+		FROM material ma
+		JOIN v_model mdl
+			ON ma.model_id = mdl.MODEL_ID
+		WHERE 
+			fix_type = 6
+		AND
+			break_back_flg = 0
+        AND inline_time IS NULL
+		AND
+			serial_no LIKE CONCAT(#{prefix}, '%')
+		ORDER by serial_no ASC
+		LIMIT 1
+	]]>
+	</select>
+
 	<select id="getProductsBySerials" resultType="MaterialEntity" parameterType="list">
 	<![CDATA[ 
-		SELECT ma.material_id, ma.serial_no, ma.model_id, mdl.name as model_name, inline_time, outline_time, ticket_flg
+		SELECT ma.material_id, ma.serial_no, ma.model_id, mdl.name as model_name, inline_time, outline_time, ticket_flg, break_back_flg
 		FROM material ma
 		JOIN v_model mdl
 			ON ma.model_id = mdl.MODEL_ID

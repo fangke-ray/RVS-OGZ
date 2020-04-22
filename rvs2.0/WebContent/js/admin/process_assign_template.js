@@ -1,5 +1,5 @@
 /** 模块名 */
-var modelname = "修理流程模板";
+var modelname = "作业流程模板";
 /** 一览数据对象 */
 var listdata = {};
 /** 服务器处理路径 */

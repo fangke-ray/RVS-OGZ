@@ -35,7 +35,7 @@ public interface ModelMapper {
 
 	public List<String> checkModelByName(ModelEntity model);
 	
-	public List<PositionEntity> getPositionsOfModel(String model_id);
+	public List<PositionEntity> getPositionsOfModel(ModelEntity model);
 	
 	public List<ModelEntity> searchAbolishOfModelLevel(ModelEntity entity);
 	

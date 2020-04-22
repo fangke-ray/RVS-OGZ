@@ -326,7 +326,7 @@ public class MaterialService {
 		BeanUtil.copyToBean(form, insertBean, CopyOptions.COPYOPTIONS_NOEMPTY);
 		if (insertBean.getSorc_no() != null) {
 			AcceptanceMapper dao = conn.getMapper(AcceptanceMapper.class);
-			String id = dao.checkSorcNo(insertBean);
+			String id = dao.checkSorcNoUsing(insertBean);
 			
 			return id;
 		}

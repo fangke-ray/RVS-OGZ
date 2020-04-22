@@ -10,6 +10,8 @@ public interface LineTimespaceMapper {
 
 	public List<Map<String, Object>> getProductionFeatures(@Param("line_id")String line_id, @Param("division") String px);
 
+	public List<Map<String, Object>> getSoloProductionFeatures(@Param("line_id")String line_id);
+
 	public List<Map<String, Object>> getLineBalancing(@Param("material_id") String material_id, @Param("line_id")String line_id);
 
 	public BigDecimal getWorkingStandingRate(@Param("material_id")String material_id, @Param("line_id")String line_id

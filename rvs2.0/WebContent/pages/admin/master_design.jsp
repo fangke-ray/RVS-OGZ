@@ -64,7 +64,7 @@ $(function() {
 				<div class="ui-widget-content dwidth-left">
 				<div id="accordion">
 				
-				    <h3 style="padding-left:30px;">维修品信息管理</h3>
+				    <h3 style="padding-left:30px;">维修品/制造品信息管理</h3>
 				    <div>
 				        <a href="adminmenu.do#category">机种信息管理</a><br>
 				        <a href="adminmenu.do#model">型号信息管理</a><br>
@@ -76,7 +76,7 @@ $(function() {
 				        <a href="adminmenu.do#section">课室信息管理</a><br>
 				        <a href="adminmenu.do#line">工程信息管理</a><br>
 				        <a href="adminmenu.do#position">工位信息管理</a><br>
-				        <a href="adminmenu.do#process_assign_template">修理流程模板管理</a><br>
+				        <a href="adminmenu.do#process_assign_template">流水线流程模板管理</a><br>
 				        <a href="adminmenu.do#operator">用户信息管理</a><br>
 				    </div>
 				    <h3 style="padding-left:30px;">系统信息管理</h3>
@@ -88,7 +88,7 @@ $(function() {
 				        <a href="adminmenu.do#system_image_manage">系统图片管理</a><br>
 				        <a href="adminmenu.do#quality_tip">质量提示管理</a><br>
 				        <a href="adminmenu.do#pcsFixOrder">工程检查票输入修正</a><br>
-				        <!--a href="pcs_request.do">工程检查票修正履历</a><br-->
+				        <a href="pcs_request.do">工程检查票修正履历</a><br>
 				        <!--a href="adminmenu.do#interface_data">接口未处理信息管理</a-->
 				        <a href="adminmenu.do#user_define_codes">用户定义</a>
 				    </div>

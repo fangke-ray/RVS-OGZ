@@ -193,6 +193,37 @@ var doFinish = function(type) {
 	}	
 };
 
+var doPackage = function() {
+	var pass = true;
+	if ($("#pcs_contents span[name=EP00899]").length) {
+		pass = ($("#pcs_contents span[name=EP00899]").text() === "Pass");
+	}
+
+	if (pass) {
+		// Ajax提交
+		$.ajax({
+			beforeSend : ajaxRequestType,
+			async : false,
+			url : servicePath + '?method=dofinish',
+			cache : false,
+			data : null,
+			type : "post",
+			dataType : "json",
+			success : ajaxSuccessCheck,
+			error : ajaxError,
+			complete : function() {
+				$("#scanner_inputer").attr("value", "");
+				$("#material_details").hide();
+				$("#scanner_container").show();
+				$("#pcsarea").hide();
+				doShippingInit();
+			}
+		});
+	} else {
+		errorPop("请将所有检查项目设定为Pass。");
+	}
+}
+
 var doInit_ajaxSuccess = function(xhrobj, textStatus){
 	var resInfo = null;
 	try {
@@ -268,7 +299,11 @@ $(function() {
 	}
 	});	
 
-	$("#shipbutton").click(doFinish);
+	if (g_depa == 2) {
+		$("#shipbutton").click(doPackage);
+	} else {
+		$("#shipbutton").click(doFinish);
+	}
 
 	$("#reportbutton").click(makeReport);
 
@@ -399,6 +434,23 @@ var treatStart = function(resInfo) {
 //	$("#show_bound_out_ocm_select").val(mform.bound_out_ocm || mform.ocm).trigger("change");
 
 	$("#show_package_no").val("原箱");
+
+	if (resInfo.fileContent) {
+		var $pcs_contents = $("#pcs_contents").html(resInfo.fileContent);
+		$pcs_contents.find("sup").filter(function() {return this.innerText === "SN："}).append("<span class='pcs_serial_no'>" + mform.serial_no + "</span>");
+		$pcs_contents.find("switcher").not("[other]").click(function(){
+			_passSwitch($(this));
+		}).parent().css({"background-color": "#93C3CD", "cursor": "pointer"})
+			.click(function(evt){
+				if(evt.target.tagName === "SWITCHER") return;
+				if(evt.target.tagName === "INPUT") return;
+				$(this).find("switcher").each(function(){
+					_passSwitch($(this));
+				});
+			});
+	} else {
+		$("#pcs_contents").html("");
+	}
 };
 
 var doStart_ajaxSuccess=function(xhrobj){
@@ -439,4 +491,24 @@ var doStart=function(){
 		error : ajaxError,
 		complete : doStart_ajaxSuccess
 	});
+};
+
+var _passSwitch = function($passSwitcher) {
+	var status = $passSwitcher.attr("status");
+	if (!status) {
+		$passSwitcher.attr("status", "PASS");
+	} else if (status == "PASS") {
+		$passSwitcher.attr("status", "FAil");
+	} else {
+		$passSwitcher.attr("status", "");
+	}
+	var $passCommit = $("#pcs_contents span[name=EP00899]");
+	var $switchers = $("#pcs_contents switcher");
+	if ($switchers.filter("[status=FAil]").length > 0) {
+		$passCommit.text("Fail").css("color", "red");
+	} else if($switchers.filter("[status=PASS]").length === $switchers.length) {
+		$passCommit.text("Pass").css("color", "blue");
+	} else {
+		$passCommit.text("-").css("color", "inherit");
+	}
 };

@@ -61,7 +61,6 @@ public class PackageFilingService {
 				fillTemplate(modelName, date, tFilePath, templateSetting, list);
 			}
 		}
-		
 	}
 
 	/**

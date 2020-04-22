@@ -106,7 +106,8 @@ public class ShippingAction extends BaseAction {
 				listResponse.put("redirect", "support.do");
 			} else {
 				// 取得作业信息
-				service.getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, conn);
+				String fileContent = service.getProccessingData(listResponse, workingPf.getMaterial_id(), workingPf, user, conn);
+				listResponse.put("fileContent", fileContent);
 
 				// 页面设定为编辑模式
 				listResponse.put("workstauts", "1");

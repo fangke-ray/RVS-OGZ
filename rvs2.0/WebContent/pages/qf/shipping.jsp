@@ -93,6 +93,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								</tr>
 							</tbody>
 						</table>
+						<div class="">
+							<style>
+								.pcs_serial_no {color:blue;}
+							</style>
+							<div id="pcs_contents" class="pcs_content">
+							</div>
+						</div>
 						<div style="height: 44px">
 							<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="shipbutton" value="出货" role="button" aria-disabled="false" style="float: right; right: 2px">
 						</div>

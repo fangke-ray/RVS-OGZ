@@ -7,7 +7,7 @@ var nogoodJs = function(){
 
 	var popServicePath = "alarmMessage.do";
 
-	$(function() {
+	{ // $(function() 
 		$("#nogoodform").validate({
 			rules : {
 				comment : {
@@ -157,16 +157,25 @@ var nogoodJs = function(){
 								$("#nogoodfixbtn").show();
 								$("#nogoodcommentbtn[value=保留警报]").hide();
 								$("#nogoodoperatebtn").hide();
+								$("#append_parts_tr").show();
+							} else if ("线外工位异常" == resInfo.alarm.reason) {
+								$("#nogoodclosebtn").show();
+								$("#nogoodfixbtn").hide();
+								$("#nogoodcommentbtn[value=保留警报]").hide();
+								$("#nogoodoperatebtn").hide();
+								$("#append_parts_tr").show();
 							} else if ("品保不通过" == resInfo.alarm.reason) {
 								$("#nogoodclosebtn").hide();
 								$("#nogoodfixbtn").show();
 								$("#nogoodcommentbtn[value=保留警报]").hide();
 								$("#nogoodoperatebtn").hide();
+								$("#append_parts_tr").show();
 							} else {
 								$("#nogoodclosebtn").hide();
 								$("#nogoodfixbtn").hide();
 								$("#nogoodcommentbtn").show();
 								$("#nogoodoperatebtn").show();
+								$("#append_parts_tr").hide();
 							}
 							var otherCommentHtml = (resInfo.alarm.operator_name == null ? "" : (resInfo.alarm.operator_name + ":")) + resInfo.alarm.comment;
 							
@@ -187,7 +196,7 @@ var nogoodJs = function(){
 				}
 			});
 		}
-	});
+	}; // $(function() 
 } // nogoodJs
 
 var loadNogoodEditJqueryPlus = function(){
@@ -204,9 +213,7 @@ if (!$.validator) {
 	loadNogoodEditJqueryPlus();
 }
 
-
 </script>
-
 
 <form id="nogoodform">
 	<table class="condform">
@@ -242,9 +249,8 @@ if (!$.validator) {
 			<td class="ui-state-default td-title">警报原因</td>
 			<td class="td-content" id="nogood_reason"></td>
 			</tr>
-			<tr>
 <% if (!"man".equals(depart)) { %>
-			<tr>
+			<tr id="append_parts_tr">
 				<td class="ui-state-default td-title">追加订购零件</td>
 				<td class="td-content" colspan="3">
 					<input class="ui-button" type="radio" name="append_parts" id="append_parts_y"></input><label for="append_parts_y">追加</label>

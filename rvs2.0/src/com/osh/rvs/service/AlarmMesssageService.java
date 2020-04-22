@@ -23,6 +23,7 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.PauseFeatureEntity;
+import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
@@ -40,6 +41,7 @@ import com.osh.rvs.mapper.inline.ForSolutionAreaMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.PauseFeatureMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
+import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ModelMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
@@ -332,7 +334,15 @@ public class AlarmMesssageService {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 
 		try {
-			List<AlarmMesssageEntity> amEntities = dao.searchAlarmMessages(condBean);
+			List<AlarmMesssageEntity> amEntities = new ArrayList<AlarmMesssageEntity>();
+			if (condBean.getReason() == null) {
+				amEntities.addAll(dao.searchAlarmMessages(condBean));
+				amEntities.addAll(dao.searchAlarmMessagesFromSolo(condBean));
+			} else if (condBean.getReason() == RvsConsts.WARNING_REASON_BREAK_SOLO){
+				amEntities = dao.searchAlarmMessagesFromSolo(condBean);
+			} else {
+				amEntities = dao.searchAlarmMessages(condBean);
+			}
 
 			BeanUtil.copyToFormList(amEntities, ret, CopyOptions.COPYOPTIONS_NOEMPTY, AlarmMesssageForm.class);
 		} catch (Exception e) {
@@ -384,11 +394,12 @@ public class AlarmMesssageService {
 
 		Integer amReason = entity.getReason();
 
-		if (RvsConsts.WARNING_REASON_BREAK.equals(amReason)) {
+		switch(amReason) {
+		case RvsConsts.WARNING_REASON_BREAK : {
 			// 取得原因
 			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
 			if (pauseEntity == null) {
-				pauseEntity = dao.getBreakOperatorMessage(entity.getOperator_id(), entity.getMaterial_id(),entity.getPosition_id());
+				pauseEntity = dao.getBreakOperatorMessage(entity.getOperator_id(), entity.getMaterial_id(), entity.getPosition_id());
 			}
 
 			if (pauseEntity != null) {
@@ -412,16 +423,25 @@ public class AlarmMesssageService {
 			} else {
 				form.setComment("(不明)");
 			}
-			
-		} else if (RvsConsts.WARNING_REASON_INLINE_LATE.equals(amReason)) {
+			break;
+		}
+		case RvsConsts.WARNING_REASON_INLINE_LATE : {
 			form.setComment("请确认是何原因还未投线。"); // TODO 请确认XXX(同意日期mom-dad)是何原因还未投线。
-		} else if (RvsConsts.WARNING_REASON_QAFORBID.equals(amReason)) {
+			break;
+		} 
+		case RvsConsts.WARNING_REASON_QAFORBID : {
 			form.setComment("由于品保终检不合格被退回，请知晓并及时处理！");
-		} else if (RvsConsts.WARNING_REASON_PARTIAL_ON_POISTION.equals(amReason)) {
+			break;
+		}
+		case RvsConsts.WARNING_REASON_PARTIAL_ON_POISTION : {
 			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位零件签收清点发生异常。请前去确认！");
-		} else if (RvsConsts.WARNING_REASON_INFECT_ERROR.equals(amReason)) {
+			break;
+		}
+		case RvsConsts.WARNING_REASON_INFECT_ERROR : {
 			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位发生点检错误。请前去确认！");
-		} else if (RvsConsts.WARNING_REASON_WAITING_OVERFLOW.equals(amReason)) {
+			break;
+		}
+		case RvsConsts.WARNING_REASON_WAITING_OVERFLOW : {
 			// 取得等待区上线数
 			String overflow = "0";
 			String position_id = entity.getPosition_id();
@@ -430,16 +450,69 @@ public class AlarmMesssageService {
 			}
 			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位的仕挂数已经超过" + overflow +
 					"，请知晓并及时处理！");
-		} else if (RvsConsts.WARNING_REASON_POSITION_OVERTIME.equals(amReason)) {
+			break;
+		}
+		case RvsConsts.WARNING_REASON_POSITION_OVERTIME : {
 			form.setComment("维修品在" + entity.getProcess_code() + "工位的实际作业时间已超出标准。请予以确认！");
-		} else if (RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE.equals(amReason)) {// 负荷率未达成
+			break;
+		}
+		case RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE : {
 			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
 			form.setComment(amsEntity.getComment());
 			form.setOperator_name(null);
-		} else if (RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE.equals(amReason)) {// 能率未达成
+			break;
+		}
+		case RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE : {// 能率未达成
 			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
 			form.setComment(amsEntity.getComment());
 			form.setOperator_name(null);
+			break;
+		}
+		case RvsConsts.WARNING_REASON_BREAK_SOLO : {// 能率未达成
+			// 取得原因
+			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
+
+			if (pauseEntity != null) {
+				// 取得暂停信息里的记录
+				Integer iReason = pauseEntity.getReason();
+				// 不良理由
+				String sReason = null;
+				if (iReason != null && iReason < 10) {
+					sReason = CodeListUtils.getValue("break_reason", "0" + iReason);
+				} else {
+					sReason = PathConsts.POSITION_SETTINGS.getProperty("break."+ pauseEntity.getProcess_code() +"." + iReason);
+				}
+
+				// 备注信息
+				String sComments = pauseEntity.getComments();
+				if (CommonStringUtil.isEmpty(sComments)) {
+					form.setComment(sReason);
+				} else {
+					form.setComment(sReason + " : " + sComments);
+				}
+	
+				// 取得独立工位对象信息
+				SoloProductionFeatureMapper spfMapper = conn.getMapper(SoloProductionFeatureMapper.class);
+				
+				SoloProductionFeatureEntity spfBean = new SoloProductionFeatureEntity();
+				spfBean.setPosition_id(pauseEntity.getPosition_id());
+				spfBean.setSerial_no(pauseEntity.getSnout_serial_no());
+				List<SoloProductionFeatureEntity> spfList = spfMapper.searchSoloProductionFeature(spfBean);
+				if (spfList.size() > 0) {
+					form.setModel_name(spfList.get(0).getModel_name());
+					form.setSerial_no(spfList.get(0).getSerial_no());
+					form.setSorc_no("序列号：" + spfList.get(0).getSerial_no());
+				} else {
+					form.setModel_name("(不明)");
+					form.setSerial_no("(不明)");
+				}
+			} else {
+				form.setComment("(不明)");
+				form.setModel_name("(不明)");
+				form.setSerial_no("(不明)");
+			}
+			break;
+		}
 		}
 
 		form.setLevel(CodeListUtils.getValue("alarm_level", form.getLevel()));

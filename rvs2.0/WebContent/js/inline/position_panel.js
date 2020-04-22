@@ -305,7 +305,7 @@ var douse_complete = function(xhrobj) {
 		// 共通出错信息框
 		treatBackMessages("#inlineForm", resInfo.errors);
 		if (resInfo.sReferChooser) {
-			$("#snouts").find("tbody").html(resInfo.sReferChooser);
+			setSnoutRefers(resInfo.sReferChooser);
 			mySetReferChooser();
 		}
 		return;
@@ -317,6 +317,10 @@ var douse_complete = function(xhrobj) {
 		pcsO.generate(resInfo.pcses, true);
 		pcsO.loadCache();
 	}
+}
+
+var setSnoutRefers = function(sReferChooser) {
+	$("#snouts").find("tbody").html(sReferChooser);
 }
 
 var mySetReferChooser = function() {
@@ -398,7 +402,7 @@ var treatUsesnout = function(xhrobj) {
 				}
 				// 关联先端头参照
 				if (resInfo.sReferChooser != null) {
-					$("#snouts").find("tbody").html(resInfo.sReferChooser);
+					setSnoutRefers(resInfo.sReferChooser);
 					mySetReferChooser();
 				}
 			} else if (resInfo.used_snout){
@@ -416,7 +420,7 @@ var treatUsesnout = function(xhrobj) {
 				$("#snoutpane td:eq(4), #snoutpane td:eq(5), #unusesnoutbutton").hide();
 				// 关联先端头参照
 				if (resInfo.sReferChooser != null) {
-					$("#snouts").find("tbody").html(resInfo.sReferChooser);
+					setSnoutRefers(resInfo.sReferChooser);
 					mySetReferChooser();
 				}
 			}
@@ -436,6 +440,29 @@ var treatUsesnout = function(xhrobj) {
 		} else {
 			$("#usesnoutarea").hide();
 		}
+	}
+}
+
+var resetSnoutRefers = function() {
+	if ($("#pauseo_material_id").val()) {
+		// 取得可使用先端头列表
+		var data = {material_id : $("#pauseo_material_id").val()};
+		// Ajax提交
+		$.ajax({
+			beforeSend : ajaxRequestType,
+			async : false,
+			url : "position_panel_snout.do" + '?method=getMaterialUse',
+			cache : false,
+			data : data,
+			type : "post",
+			dataType : "json",
+			success : ajaxSuccessCheck,
+			error : ajaxError,
+			complete : function(xhrobj){
+				var resInfo = $.parseJSON(xhrobj.responseText);
+				setSnoutRefers(resInfo.sReferChooser);
+			}
+		});
 	}
 }
 
@@ -853,6 +880,8 @@ var getJustWorkingFingers = function(material_id) {
 //			try {
 				// 以Object形式读取JSON
 				eval('resInfo =' + xhrobj.responseText);
+
+				var flowtext = "";
 
 				if (resInfo.fingers) flowtext = resInfo.fingers + (resInfo.past_fingers ? "<br>" + resInfo.past_fingers : "");
 				$("#flowtext").html(flowtext);
@@ -1625,6 +1654,7 @@ function takeWs() {
 	    	}
     		if ("refreshWaiting" == resInfo.method) {
     			getWaitings();
+    			if (typeof(resetSnoutRefers) === "function") resetSnoutRefers();
     		}
 	};  
 	// 连接上时走这个方法  
