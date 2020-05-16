@@ -343,7 +343,10 @@ public class LineLeaderService {
 	public AlarmMesssageForm getWarning(String material_id, String operator_id, String position_id, SqlSession conn) {
 		// 取得对应工位的中断信息
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
-		AlarmMesssageEntity entity = dao.getBreakAlarmMessage(material_id, position_id);
+		AlarmMesssageService amService = new AlarmMesssageService();
+
+		AlarmMesssageEntity entity = amService.getBreakAlarmMessage(material_id, position_id, conn);
+
 		AlarmMesssageForm form = new AlarmMesssageForm();
 		CopyOptions co = new CopyOptions();
 

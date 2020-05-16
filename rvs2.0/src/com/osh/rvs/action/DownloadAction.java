@@ -260,7 +260,9 @@ public class DownloadAction extends BaseAction {
 			String sorcNo = mform.getSorc_no();
 			String subPath = "";
 			if (sorcNo== null) { // If Manuf
-				subPath = "MA" + mform.getModel_name().substring(0, 2) + "-" + mform.getFinish_time().substring(1, 3) + mform.getSerial_no() + "________";
+				String finishDate = mform.getOutline_time();
+				if (finishDate == null) finishDate = mform.getFinish_time();
+				subPath = "MA" + mform.getModel_name().substring(0, 2) + "-" + finishDate.substring(1, 3) + mform.getSerial_no() + "________";
 			} else if (subPath== null || subPath.length() < 8)
 				subPath = "SAPD-" + sorcNo + "________";
 			else if (sorcNo.length() == 8)

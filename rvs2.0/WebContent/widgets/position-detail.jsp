@@ -38,11 +38,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="ui-state-default td-title"><label id="title_stop_count">年/月/日中止次数</label></td>
 							<td class="td-content-text"><label id="label_stop_count"></label></td>
 						</tr>
-						<tr id="message_batch">
+						<tr id="message_batch" style="display:none;">
 							<td class="ui-state-default td-title"><label>工位计时区分</label></td>
 							<td class="td-content-text" colspan="3"><label>本工位的工时计时是采用标准平均工时。</label></td>
 						</tr>
-						<tr id="message_leader">
+						<tr id="message_leader" style="display:none;">
 							<td class="ui-state-default td-title"><label>工位计时区分</label></td>
 							<td class="td-content-text" colspan="3"><label>当由线长以上人员处理时，本工位的工时计时是采用标准平均工时。<br>当由操作人员处理时，采用实际作业时间计时。</label></td>
 						</tr>

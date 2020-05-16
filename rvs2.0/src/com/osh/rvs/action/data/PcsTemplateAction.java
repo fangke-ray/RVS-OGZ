@@ -72,6 +72,7 @@ public class PcsTemplateAction extends BaseAction {
 
 		/*型号*/
 		req.setAttribute("mReferChooser", mReferChooser);	
+		req.setAttribute("isAdmin", user.getPrivacies().contains(RvsConsts.PRIVACY_ADMIN));	
 
 		log.info("PcsTemplateAction.init end");
 	}
@@ -157,7 +158,9 @@ public class PcsTemplateAction extends BaseAction {
 
 		MaterialService service = new MaterialService();			;
 
-		callbackResponse.put("tempFile", service.getPcsesBlankXls(modelName, conn));
+		String tag = req.getParameter("tag");
+
+		callbackResponse.put("tempFile", service.getPcsesBlankXls(modelName, conn, (tag == null)));
 
 		returnJsonResponse(res, callbackResponse);
 		log.info("PcsTemplateAction.makeTemplateFiles end");

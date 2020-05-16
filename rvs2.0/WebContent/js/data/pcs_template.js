@@ -112,9 +112,15 @@ $(function(){
 		output();
 		
 	});
-	function output() {
+	$("#tagbutton").click(function(){
+		
+		output(true);
+		
+	});
+	function output(tag) {
 		var data = {
-			model_id :$("#detail_model_id").val()
+			model_id :$("#detail_model_id").val(),
+			tag : tag
 		}
 		// Ajax提交
 		$.ajax({

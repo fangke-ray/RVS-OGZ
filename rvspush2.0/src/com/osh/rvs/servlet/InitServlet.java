@@ -285,6 +285,8 @@ public class InitServlet extends HttpServlet {
 					.withSchedule(dailyAtHourAndMinute(22, 25)) // 22, 25
 					.build();
 			
+			scheduler.scheduleJob(job, trigger);
+
 		} catch (NumberFormatException nfe) {
 			logger.error("Scheduler Load Fail :" + nfe.getMessage() , nfe);
 		} catch (SchedulerException se) {

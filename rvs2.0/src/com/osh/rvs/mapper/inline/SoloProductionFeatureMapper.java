@@ -47,7 +47,7 @@ public interface SoloProductionFeatureMapper {
 
 	public List<SnoutEntity> searchSnouts(SnoutEntity condition);
 
-	public void deleteSnouts(@Param("model_id") String model_id, @Param("serial_no") String serial_no) throws Exception;
+	public void deleteSnouts(@Param("position_id") String position_id, @Param("model_id") String model_id, @Param("serial_no") String serial_no) throws Exception;
 
 	public Integer getMaxPace(SoloProductionFeatureEntity pfBean);
 

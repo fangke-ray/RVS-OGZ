@@ -163,7 +163,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/inline/manager_processing.js"></script>
 					<div id="executes" style="margin-left: 4px; margin-top: 4px;">
 						<input id="nogoodbutton" class="ui-button" value="处置不良" type="button"/>
-						<input type="button" class="ui-button" id="forbutton" value="移出维修流水线" />
+						<input type="button" class="ui-button" id="forbutton" value="移出流水线" />
 
 						<input id="capacitybutton" class="ui-button" value="设定日生产计划" type="button"/>
 
@@ -187,10 +187,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 -->
 			<div class="clear"></div>
-		</div>
 
-		<div style="display:none;">
+<% if (isManufactLeader) { %>
+	<input type="hidden" id="input_model_id">${modelOptions}</input>
 	<%@include file="../../widgets/position_panel/product_serials.jsp"%>
+	<%@include file="../../widgets/position_panel/unused_assemblies.jsp"%>
+<% } %>
+
 		</div>
 
 		<div id="capacity_setting"></div>

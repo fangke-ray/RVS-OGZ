@@ -781,9 +781,12 @@ var getJustWorkingFingers = function(material_id) {
 	});
 }
 
-var getFlags = function(reworked) {
-	if (reworked) {
+var getFlags = function(expedited, reworked) {
+	if (expedited || reworked) {
 		var retDiv = "<div class='material_flags'>";
+
+		if (expedited >= 10) retDiv += "<div class='tube-yellow'>急</div>";
+		else if (expedited == 1) retDiv += "<div class='tube-blue'>急</div>";
 
 		if (reworked == 1) {
 			retDiv += "<div class='service_repair_flg'>返</div>";
@@ -1046,7 +1049,7 @@ var showWaitings = function(waitings, waitingsOtherPx){
 		waiting_html += '<div class="waiting tube" id="w_' + waiting.material_id + '">' +
 							'<div class="tube-liquid tube-green">'
 								+ waiting.category_name + ' | ' + waiting.model_name + ' | ' + waiting.serial_no
-								+ getFlags(waiting.reworked) +
+								+ getFlags(waiting.expedited, waiting.reworked) +
 							'</div>' +
 						'</div>'
 	}

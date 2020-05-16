@@ -323,6 +323,19 @@ resize: none;
 	background-color: lightgray;
 	cursor: auto;
 }
+.pcs_content switcher[rcd] {
+	background-color: transparent;
+}
+.pcs_content switcher[rcd]:before,
+.pcs_content switcher[other]:before
+{
+	left:0;
+}
+.pcs_content switcher[rcd]:after,
+.pcs_content switcher[other]:after
+{
+	right:0;
+}
 .pcs_content switcher[status='PASS']:before {
 	transition: .6s;
 	opacity:1;

@@ -573,10 +573,10 @@ public class PcsUtils {
 											// 通过：P
 											if ("1".equals(sInput)) {
 												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
-														"<switcher name=\"$1\" status='PASS'></switcher>");
+														"<switcher name=\"$1\" rcd status='PASS'></switcher>");
 											} else if ("-1".equals(sInput)) {
 												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
-														"<switcher name=\"$1\" status='FAil'></switcher>");
+														"<switcher name=\"$1\" rcd status='FAil'></switcher>");
 											}
 											break;
 										}
@@ -706,10 +706,10 @@ public class PcsUtils {
 											// 通过：P
 											if ("1".equals(sInput)) {
 												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
-														"<switcher name=\"$1\" status='PASS'></switcher>");
+														"<switcher name=\"$1\" rcd status='PASS'></switcher>");
 											} else if ("-1".equals(sInput)) {
 												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
-														"<switcher name=\"$1\" status='FAil'></switcher>");
+														"<switcher name=\"$1\" rcd status='FAil'></switcher>");
 											}
 											break;
 										}
@@ -1019,6 +1019,12 @@ public class PcsUtils {
 									+ "<textarea name=\"EC00000\"></textarea>");
 						}
 					}
+
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d\\d\" scope=\"E\" type=\"T\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+							"<section locate=\"$1\" class=\"i_total\">-</section>" + 
+									"<input type=\"hidden\" name=\"$1\" value=\"0\" class=\"i_total_hidden\"/>"
+							);
+
 					// 没有输入过的文本框
 					if (leaderLineId != null) {
 						specify = specify.replaceAll("<pcinput pcid=\"@#([EL]C\\d{5})\\d{2}\" scope=\"[EL]\" type=\"C\" position=\"(000|" + currentProcessCode + ")\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
@@ -1096,6 +1102,8 @@ public class PcsUtils {
 							"<input type=\"hidden\" value=\"#date#\"></input>");
 				}
 
+				// 清除没赋值的标签
+				specify = specify.replaceAll("<pcinput pcid=\"@#.{20} type=\"P\" .*?/>", "<nonsw>");
 				// 清除没赋值的标签
 				specify = specify.replaceAll("<pcinput.*?/>", "");
 
@@ -2299,16 +2307,14 @@ public class PcsUtils {
 
 	/**
 	 * @param srcPcses 相关工程检查票文件 key 显示名 value 文件本地路径
-	 * @param materialId 维修对象ID
-	 * @param sorcNo
 	 * @param modelName
-	 * @param serialNo
-	 * @param currentProcessCode 当前页面工位代码
+	 * @param cachePath
+	 * @param setBlank 
 	 * @param conn
 	 * @return
 	 * @throws IOException
 	 */
-	public static String toTemplatesXls(Map<String, String> srcPcses, String modelName, String cachePath, SqlSession conn) throws IOException {
+	public static String toTemplatesXls(Map<String, String> srcPcses, String modelName, String cachePath, boolean setBlank, SqlSession conn) throws IOException {
 
 		if (srcPcses == null) return null;
 
@@ -2323,23 +2329,26 @@ public class PcsUtils {
 			String cacheFile = cachePath + pcsName + ".xls";
 			FileUtils.copyFile(new File(specify), new File(cacheFile));
 
-			XlsUtil xls = new XlsUtil(cacheFile);
-			xls.SelectActiveSheet();
+			if (setBlank) {
+				
+				XlsUtil xls = new XlsUtil(cacheFile);
+				xls.SelectActiveSheet();
 
-			// GM
-			xls.Replace("@#GM???????", modelName);
-			xls.Replace("@#EI???????", "　　　");
-			xls.Replace("@#ER???????", "　");
-			xls.Replace("@#LI???????", "　　　");
-			xls.Replace("@#LR???????", "　");
-			xls.Replace("@#EM???????", "　不需确认　合格　不合格");
-			xls.Replace("@#EP???????", "PASS / FAil");
+				// GM
+				xls.Replace("@#GM???????", modelName);
+				xls.Replace("@#EI???????", "　　　");
+				xls.Replace("@#ER???????", "　");
+				xls.Replace("@#LI???????", "　　　");
+				xls.Replace("@#LR???????", "　");
+				xls.Replace("@#EM???????", "　不需确认　合格　不合格");
+				xls.Replace("@#EP???????", "PASS / FAil");
 
+				// 清除没赋值的标签
+				xls.Replace("@#?????????", "");
 
-			// 清除没赋值的标签
-			xls.Replace("@#?????????", "");
+				xls.SaveCloseExcel(false);
+			}
 
-			xls.SaveCloseExcel(false);
 			tempMap.put(pcsName, cacheFile);
 		}
 

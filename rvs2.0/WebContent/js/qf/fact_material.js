@@ -147,6 +147,10 @@ if (rowids.length > 0) {
 			if (data["scheduled_expedited"] != "0") {
 				scheduled_expedited = true;
 			}
+			if (flag_img && 
+				(f_isPeripheralFix(level)) {
+				flag_img = false;
+			}
 		}
 
 		if (scheduled_expedited) {

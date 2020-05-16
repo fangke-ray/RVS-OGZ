@@ -1131,7 +1131,7 @@ public class MaterialService {
 		}
 	}
 
-	public String getPcsesBlankXls(String modelName, SqlSession conn) {
+	public String getPcsesBlankXls(String modelName, SqlSession conn, boolean setBlank) {
 		String uuid = UUID.randomUUID().toString();
 		Date today = new Date();
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + uuid + "\\";
@@ -1152,7 +1152,7 @@ public class MaterialService {
 			Map<String, String> fileTempl = PcsUtils.getXlsContents(showLine, modelName, null, null, false, conn);
 
 			try {
-				PcsUtils.toTemplatesXls(fileTempl, modelName, cachePath, conn);
+				PcsUtils.toTemplatesXls(fileTempl, modelName, cachePath, setBlank, conn);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}

@@ -69,6 +69,7 @@
 			`m`.reception_time,
 			`m`.qa_check_time,
 			`m`.agreed_date,
+			`m`.outline_time,
 			`mp`.finish_date as finish_time
 		 FROM material m 
 		 JOIN v_model mdl

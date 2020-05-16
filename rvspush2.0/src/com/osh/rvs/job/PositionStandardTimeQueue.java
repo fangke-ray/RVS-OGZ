@@ -36,7 +36,7 @@ public class PositionStandardTimeQueue implements Runnable {
 
 	private static Map<String, Long> materialPositionIndexes = new HashMap<String, Long>();
 
-	public static synchronized void startAlarmClockQueue(String material_id, String position_id, String line_id, String operator_id, Integer standard_minute, Integer cost_minute) {
+	public static synchronized void startAlarmClockQueue(String material_id, String position_id, String line_id, String operator_id, Double standard_minute, Double cost_minute) {
 		String key = material_id + "_" + position_id;
 
 		if (materialPositionIndexes.containsKey(key)) return;

@@ -279,7 +279,14 @@ public class AlarmMesssageService {
 	public AlarmMesssageEntity getBreakAlarmMessage(String material_id, String position_id, SqlSession conn) {
 		AlarmMesssageMapper dao = conn.getMapper(AlarmMesssageMapper.class);
 
-		AlarmMesssageEntity amEntity = dao.getBreakAlarmMessage(material_id, position_id);
+		List<AlarmMesssageEntity> alarms = dao.getBreakAlarmMessage(material_id, position_id);
+		if (alarms.size() == 0) {
+			return null;
+		}
+		if (alarms.size() != 1) {
+			logger.error("alarms:" + alarms.size());
+		}
+		AlarmMesssageEntity amEntity = alarms.get(0);
 
 		return amEntity;
 	}

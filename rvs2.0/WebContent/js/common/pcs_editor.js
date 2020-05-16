@@ -15,8 +15,10 @@ var pcsO = {
 				if (!isBreak || this.value)
 					pcs_values[this.name] = this.value;
 			} else {
-				if (!isBreak && this.className == "i_total_hidden")
-					pcs_values[this.name] = this.value;
+				if (this.className == "i_total_hidden") {
+					if (!isBreak && this.value != "0")
+						pcs_values[this.name] = this.value;
+				}
 				else if (this.className == "i_sff") {}
 				else if (!isBreak && this.name && this.name != "") pcs_values[this.name] = "";
 			}
@@ -37,7 +39,7 @@ var pcsO = {
 				}
 			}
 		});
-		this.$pcs_contents.find("switcher").not("[other]").each(function(){
+		this.$pcs_contents.find("switcher").not("[other],[rcd]").each(function(){
 			var status = $(this).attr("status");
 			if (status) {
 				if (status === "PASS") {
@@ -115,6 +117,8 @@ var pcsO = {
 			}
 		}
 
+		pcsO._checkEPs();
+
 		pcsO.filling = false;
 	},
 	generate : function(pcses, forPosition, isLeader) {
@@ -155,6 +159,7 @@ var pcsO = {
 
 		var $EMs = this.$pcs_contents.find("input[name^='EM']");
 		pcsO._checkEMs($EMs);
+		pcsO._checkEPs();
 		$EMs.click(function(){pcsO._checkEMs($EMs)});
 		$EMs.hide().next("label").hide();
 
@@ -200,7 +205,7 @@ var pcsO = {
 		// 随时前台保存
 		if (forPosition) {
 			this.$pcs_contents.find("input,textarea").change(pcsO.saveCache);
-			this.$pcs_contents.find("switcher").not("[other]").click(pcsO.saveCache);
+			this.$pcs_contents.find("switcher").not("[other],[rcd]").click(pcsO.saveCache);
 		}
 	},
 	_checkEMs : function($EMs){
@@ -252,7 +257,7 @@ var pcsO = {
 		$switchM.val($checkTarget.next().text());
 	},
 	_setPass : function(selecter) {
-		this.$pcs_contents.find(selecter).not("[other]").click(function(){
+		this.$pcs_contents.find(selecter).not("[other],[rcd]").click(function(){
 			pcsO._passSwitch($(this));
 		}).parent().css({"background-color": "#93C3CD", "cursor": "pointer"})
 			.click(function(evt){
@@ -272,6 +277,31 @@ var pcsO = {
 		} else {
 			$passSwitcher.attr("status", "");
 		}
+		pcsO._checkEPs();
+	},
+	_checkEPs : function() {
+		var $showingContent = this.$pcs_contents.children(".pcs_content:visible");
+		var $EPs = $showingContent.find("switcher[name^='EP']");
+		if (!$EPs.length) {
+			return;
+		}
+		if ($EPs.filter('[status="FAil"]').length) {
+			pcsO.$pcs_contents.find(".i_total").text("不合格")
+			.addClass("forbid")
+			.next().val("-1");
+			return;
+		}
+		if ($showingContent.find("nonsw").length == 0) {
+			if ($EPs.filter('[status="PASS"]').length === $EPs.length) {
+				pcsO.$pcs_contents.find(".i_total").text("合格")
+				.removeClass("forbid")
+				.next().val("1");
+				return;
+			}
+		}
+		pcsO.$pcs_contents.find(".i_total").text("确认中")
+			.removeClass("forbid")
+			.next().val("0");
 	},
 	init : function(container, forQa) {
 		this.forQa = forQa;

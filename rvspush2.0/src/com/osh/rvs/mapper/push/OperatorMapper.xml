@@ -81,6 +81,9 @@
 			<if test="role_id!= null and role_id!= '' ">
 				AND ROLE_ID = #{role_id}
 			</if>
+			<if test="department!= null and department!= '' ">
+				AND EXISTS (SELECT 1 FROM section WHERE department = #{department} AND section_id = V_OPERATOR_NAMED.SECTION_ID)
+			</if>
 		</where> 
 		<![CDATA[ 
 		AND OPERATOR_ID <> 1

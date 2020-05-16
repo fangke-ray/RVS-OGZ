@@ -139,6 +139,8 @@ public class SoloSnoutService {
 		List<SnoutForm> ret = new ArrayList<SnoutForm>();
 		SnoutEntity condition = new SnoutEntity();
 		BeanUtil.copyToBean(form, condition, CopyOptions.COPYOPTIONS_NOEMPTY);
+		if (CommonStringUtil.isEmpty(condition.getPosition_id()))
+			condition.setPosition_id("00000000024"); // 先端组件画面的默认查询
 
 		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 
@@ -164,7 +166,7 @@ public class SoloSnoutService {
 
 		SnoutEntity entity = null;
 		if ("24".equals(from_position_id) || "00000000024".equals(from_position_id)) {
-			entity = getSnoutDetailBean(serial_no, conn);
+			entity = getSnoutDetailBean(from_position_id, serial_no, conn);
 		} else {
 			entity = getDetailBean(serial_no, from_position_id, conn);
 		}
@@ -175,9 +177,10 @@ public class SoloSnoutService {
 		return ret;
 	}
 
-	private SnoutEntity getSnoutDetailBean(String serial_no, SqlSession conn) {
+	private SnoutEntity getSnoutDetailBean(String position_id, String serial_no, SqlSession conn) {
 		SnoutEntity condition = new SnoutEntity();
 		condition.setSerial_no(serial_no);
+		condition.setPosition_id(position_id);
 
 		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 
@@ -244,7 +247,7 @@ public class SoloSnoutService {
 			return null;
 		}
 
-		SnoutEntity entity = getSnoutDetailBean(serial_no, conn);
+		SnoutEntity entity = getSnoutDetailBean("00000000024", serial_no, conn);
 		if (entity == null) {
 			MsgInfo msgInfo = new MsgInfo();
 			msgInfo.setErrcode("dbaccess.recordNotExist");
@@ -296,14 +299,16 @@ public class SoloSnoutService {
 		return dao.findUsedSnoutsBySnouts(serial);
 	}
 
-	public void delete(String model_id, String serial_no, SqlSessionManager conn) throws Exception {
+	public void delete(String position_id, String model_id, String serial_no, SqlSessionManager conn) throws Exception {
 		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 
 		// 删除先端组件
-		dao.deleteSnouts(model_id, serial_no);
+		dao.deleteSnouts(position_id, model_id, serial_no);
 
-		// 删除其先端来源
-		dao.removeSnoutOrigin(serial_no);
+		if ("00000000024".equals(position_id)) {
+			// 删除其先端来源
+			dao.removeSnoutOrigin(serial_no);
+		}
 	}
 
 	public String getRefers(String model_id, SqlSession conn) {
@@ -371,6 +376,7 @@ public class SoloSnoutService {
 			SoloProductionFeatureMapper mapper = conn.getMapper(SoloProductionFeatureMapper.class);
 			SnoutEntity condition = new SnoutEntity();
 			condition.setModel_id(model_id);
+			condition.setPosition_id("00000000024");
 			condition.setStatus(SEARCH_STATUS_USED);
 			List<SnoutEntity> l = mapper.searchSnouts(condition);
 			int available = l.size();

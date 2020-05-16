@@ -14,7 +14,7 @@ public interface AlarmMesssageMapper {
 
 	public void createAlarmMessageSendation(AlarmMesssageSendationEntity sendation) throws Exception;
 
-	public AlarmMesssageEntity getBreakAlarmMessage(@Param("material_id") String material_id, @Param("position_id") String position_id);
+	public List<AlarmMesssageEntity> getBreakAlarmMessage(@Param("material_id") String material_id, @Param("position_id") String position_id);
 	public AlarmMesssageEntity getBreakAlarmMessageByKey(@Param("alarm_messsage_id") String alarm_messsage_id);
 
 	public List<AlarmMesssageEntity> getBreakAlarmMessages(@Param("material_id") String material_id, @Param("position_id") String position_id);

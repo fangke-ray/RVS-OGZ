@@ -50,6 +50,9 @@ public class RvsConsts extends BaseConst {
 	public static final String ROLE_LINELEADER = "00000000005";
 	public static final String ROLE_DEVICEMANAGER = "00000000019";
 
+	public static final Integer DEPART_REPAIR = 1;
+	public static final Integer DEPART_MANUFACT = 2;
+
 	public static final Integer TIME_LIMIT = 5; // 纳期
 	public static final Integer PLANE_INV = 8; // 零件补充周期
 }

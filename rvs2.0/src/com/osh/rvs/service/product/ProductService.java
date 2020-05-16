@@ -175,6 +175,7 @@ public class ProductService {
 		}
 		insertBean.setSection_id(section_id);
 		insertBean.setLevel(0);
+		insertBean.setScheduled_expedited(0);
 
 		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 		mMapper.insertMaterial(insertBean);

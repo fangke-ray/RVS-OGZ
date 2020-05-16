@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import com.osh.rvs.common.MailUtils;
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.MaterialEntity;
@@ -195,17 +196,17 @@ public class TriggerServlet extends HttpServlet {
 		String sStandardMinute = parameters[6];
 		String sCostMinute = parameters[7];
 
-		Integer iStandardMinute = null;
-		Integer iCostMinute = null;
+		Double dStandardMinute = null;
+		Double dCostMinute = null;
 		try {
-			iStandardMinute = Integer.parseInt(sStandardMinute);
-			iCostMinute = Integer.parseInt(sCostMinute);
+			dStandardMinute = Double.parseDouble(sStandardMinute);
+			dCostMinute = Double.parseDouble(sCostMinute);
 		} catch (Exception e) {
 			return;
 		}
 
 		if ("571".equals(positionId)) return;
-		PositionStandardTimeQueue.startAlarmClockQueue(materialId, positionId, lineId, operatorId, iStandardMinute, iCostMinute);
+		PositionStandardTimeQueue.startAlarmClockQueue(materialId, positionId, lineId, operatorId, dStandardMinute, dCostMinute);
 	}
 
 	/**
@@ -242,8 +243,8 @@ public class TriggerServlet extends HttpServlet {
 			PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 			position = pMapper.getPositionWithSectionByID(section_id, position_id);
 
-			toIas = RvsUtils.getMailIas("infect.break2dm.to", conn, null, null);
-			ccIas = RvsUtils.getMailIas("infect.break2dm.cc", conn, null, null);
+			toIas = RvsUtils.getMailIas("infect.break2dm.to", conn);
+			ccIas = RvsUtils.getMailIas("infect.break2dm.cc", conn);
 
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -444,6 +445,12 @@ public class TriggerServlet extends HttpServlet {
 		MaterialService service = new MaterialService();
 
 		MaterialEntity bean = service.getMaterial(material_id);
+		Integer department = null;
+		if (bean.getLevel() == null || bean.getLevel() == 0) {
+			department = RvsConsts.DEPART_MANUFACT;
+		} else {
+			department = RvsConsts.DEPART_REPAIR;
+		}
 		String mailContent = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "forbid.qa.content", bean.getSorc_no());
 
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
@@ -451,8 +458,8 @@ public class TriggerServlet extends HttpServlet {
 		SqlSession conn = factory.openSession(TransactionIsolationLevel.READ_COMMITTED);
 
 		try {
-			Collection<InternetAddress> toIas = RvsUtils.getMailIas("forbid.qa.to", conn, null, null);
-			Collection<InternetAddress> ccIas = RvsUtils.getMailIas("forbid.qa.cc", conn, null, null);
+			Collection<InternetAddress> toIas = RvsUtils.getMailIas("forbid.qa.to", conn, null, department);
+			Collection<InternetAddress> ccIas = RvsUtils.getMailIas("forbid.qa.cc", conn, null, department);
 
 			MailUtils.sendMail(toIas, ccIas, subject, mailContent);
 		} catch (Exception e) {

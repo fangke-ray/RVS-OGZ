@@ -161,11 +161,14 @@ public class SnoutsAction extends BaseAction {
 		SoloSnoutService service = new SoloSnoutService();
 
 		if (msgInfos.size() == 0) {
+			String position_id = req.getParameter("position_id");
 			// 删除预置品
-			service.delete(req.getParameter("model_id"), req.getParameter("serial_no"), conn);
+			service.delete(position_id, req.getParameter("model_id"), req.getParameter("serial_no"), conn);
 
-			// 检查安全库存
-			service.checkBenchmark(req.getParameter("model_id"), conn);
+			if ("00000000024".equals(position_id)) {
+				// 检查安全库存
+				service.checkBenchmark(req.getParameter("model_id"), conn);
+			}
 		}
 
 		// 检查发生错误时报告错误信息

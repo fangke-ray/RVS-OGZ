@@ -108,9 +108,9 @@ $(function() {
 		try {
 			// 以Object形式读取JSON
 			eval('resInfo =' + xhrobj.responseText);
-			setLabel(resInfo.detail);
+			var isManufact = setLabel(resInfo.detail);
 			setOperatorList(resInfo.names);
-			loadData(resInfo.list)
+			loadData(resInfo.list, isManufact)
 		} catch (e) {
 			alert("name: " + e.name + " message: " + e.message
 					+ " lineNumber: " + e.lineNumber + " fileName: "
@@ -129,15 +129,12 @@ $(function() {
 			$("#title_oem_count").html(date + "<br/>代工台数");
 			$("#title_stop_count").html(date + "<br/>中止次数");
 		}
-		if (process_code == "111" || process_code == "121" || process_code == "131" || process_code == "711") {
+		$("#message_batch").hide();
+		$("#message_leader").hide();
+		if (process_code == "111" || process_code == "121" || process_code == "131" || process_code == "711" || process_code == "009") {
 			$("#message_batch").show();
-			$("#message_leader").hide();
 		} else if (process_code == "252" || process_code == "321" || process_code == "400") {
-			$("#message_batch").hide();
 			$("#message_leader").show();
-		} else {
-			$("#message_batch").hide();
-			$("#message_leader").hide();
 		}
 	}
 
@@ -152,15 +149,18 @@ $(function() {
 		$("#label_stop_count").text(data.stop_count+"次");
 		
 		setTitle(data.action_time, data.isToday, data.process_code);
+
+		return data.process_code.charAt(0) == '0';
 	}
 
-	function loadData(data) {
+	function loadData(data, isManu) {
 		$("#position_detail_list").jqGrid().clearGridData();
 		$("#position_detail_list").jqGrid('setGridParam', {
 					data : data
-				}).trigger("reloadGrid", [{
-							current : false
-						}]);
+				}).trigger("reloadGrid", [{current : false}]);
+		if (isManu) {
+			$("#jqgh_position_detail_list_sorc_no").text("序列号");
+		}
 	}
 	
 	function setOperatorList(names) {

@@ -112,7 +112,7 @@ var getPositionWork = function(position_id, px){
 	<div class="ui-accordion-content ui-helper-reset ui-widget-content">
 	<a title="BX本体生产线" target="_parent" href="show.do#lineSituationBX">BX本体生产线</a><br>
 	<a title="" target="_parent" href="show.do#allPositions-display-man">流水线状况展示</a><br>
-	<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-101">BX本体生产线人员工时图</a><br>
+	<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-101">BX本体进度管理板</a><br>
 </div>
 </div>
 <% } %>

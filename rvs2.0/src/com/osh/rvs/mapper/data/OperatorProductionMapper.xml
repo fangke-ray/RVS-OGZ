@@ -222,7 +222,7 @@
 				a.action_time as pause_start_time,
 				a.finish_time as pause_finish_time,
 				(select name from model where model_id = am.model_id) as model_name,
-				omr_notifi_no as sorc_no,
+				coalesce(omr_notifi_no, serial_no) as sorc_no,
 				'' as reason,
 				'' as comments,
 				a.operate_result,

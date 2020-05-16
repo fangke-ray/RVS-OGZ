@@ -333,14 +333,22 @@ public class RvsUtils {
 	 */
 	public static Collection<InternetAddress> getMailIas(String property,
 			SqlSession conn) {
-		return getMailIas(property, conn, null, null);
+		return getMailIas(property, conn, null, RvsConsts.DEPART_REPAIR, null);
 	}
 	public static Collection<InternetAddress> getMailIas(String property,
 			SqlSession conn, String line_id) {
-		return getMailIas(property, conn, line_id, null);
+		return getMailIas(property, conn, line_id, RvsConsts.DEPART_REPAIR);
+	}
+	public static Collection<InternetAddress> getMailIas(String property,
+			SqlSession conn, String line_id, Integer department) {
+		return getMailIas(property, conn, line_id, department, null);
 	}
 	public static Collection<InternetAddress> getMailIas(String property,
 			SqlSession conn, String line_id, List<String> senderIds) {
+		return getMailIas(property, conn, line_id, RvsConsts.DEPART_REPAIR, senderIds);
+	}
+	public static Collection<InternetAddress> getMailIas(String property,
+			SqlSession conn, String line_id, Integer department, List<String> senderIds) {
 		List<InternetAddress> ias = new ArrayList<InternetAddress>();
 
 		// 找到所有经理以上人员
@@ -356,6 +364,7 @@ public class RvsUtils {
 				OperatorEntity cond = new OperatorEntity();
 				if ("M".equals(rever)) {
 					cond.setRole_id(RvsConsts.ROLE_MANAGER);
+					cond.setDepartment(department);
 				} else if ("?L".equals(rever)) {
 					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
 					cond.setLine_id(line_id);

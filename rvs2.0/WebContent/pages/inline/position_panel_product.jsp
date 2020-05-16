@@ -166,7 +166,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <%
 	Boolean use_snout = (Boolean) request.getAttribute("use_snout");
-	if (use_snout) {
+	if (use_snout != null && use_snout) {
 %>
 			<div id="usesnoutarea" style="margin-bottom: 16px;display:none;">
 				<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">

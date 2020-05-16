@@ -410,7 +410,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 					gridComplete : function() {
 						// ②在gridComplete调用合并方法
 						var gridName = "performance_list";
-					 	Merger(gridName, 'agreed_date');
+					 	Merger(gridName, 'agreed_date', isRepairLine);
 					 	$("#performance_list").jqGrid('setGridWidth', '602');
 					}
 				});
@@ -706,13 +706,20 @@ $(document).ready(function() {
 });
 
 // 公共调用方法
-function Merger(gridName, CellName) {
+function Merger(gridName, CellName, isRepairLine) {
 	// 得到显示到界面的id集合
 	var mya = $("#" + gridName + "").getDataIDs();
 	// 当前显示多少条
 	var length = mya.length;
 
 	var pill = $("#" + gridName + "");
+
+	var nameShow = null;
+	if (isRepairLine) {
+		nameShow = " td[aria\\-describedby='" + gridName + "_sorc_no']";
+	} else {
+		nameShow = " td[aria\\-describedby='" + gridName + "_serial_no']";
+	}
 
 	for (var i = 0; i < length; i++) {
 		// 从上到下获取一条信息
@@ -740,18 +747,18 @@ function Merger(gridName, CellName) {
 		// 当日计划
 		var today = before["is_today"];
 		if (today == "1") {
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("color", "green");
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("font-weight", "bolder");
+			pill.find("tr#" + mya[i] + nameShow).css("color", "green");
+			pill.find("tr#" + mya[i] + nameShow).css("font-weight", "bolder");
 		}
 		// 紧急区分
 		var expedited = before["expedited"];
 		if (expedited == "1") {
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("color", "blue");
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("font-weight", "bolder");
+			pill.find("tr#" + mya[i] + nameShow).css("color", "blue");
+			pill.find("tr#" + mya[i] + nameShow).css("font-weight", "bolder");
 		} else
 		if (expedited == "10" || expedited == "11") {
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("color", "#F0C800;");
-			pill.find("tr#" + mya[i] + " td[aria\\-describedby='" + gridName + "_sorc_no']").css("font-weight", "bolder");
+			pill.find("tr#" + mya[i] + nameShow).css("color", "#F0C800;");
+			pill.find("tr#" + mya[i] + nameShow).css("font-weight", "bolder");
 		}
 		// 返工中
 		var reworking = before["is_reworking"];

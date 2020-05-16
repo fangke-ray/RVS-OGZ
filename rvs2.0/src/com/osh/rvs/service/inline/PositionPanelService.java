@@ -75,6 +75,8 @@ import framework.huiqing.common.util.validator.LongTypeValidator;
 public class PositionPanelService {
 	protected static final Logger _log = Logger.getLogger("Production");
 
+	private static final BigDecimal SEC_IN_MIN = new BigDecimal(60);
+
 	private static Map<String, PutinBalanceBound> putinBalanceBounds = new HashMap<String, PutinBalanceBound>(); 
 
 	/**
@@ -931,10 +933,11 @@ public class PositionPanelService {
 				if (dotpos > 0) {
 					leagal_overline = leagal_overline.substring(0, dotpos);
 				}
+				BigDecimal bdMin = new BigDecimal(spentSecs).divide(SEC_IN_MIN, 1, BigDecimal.ROUND_HALF_DOWN);
 				// String material_id, String position_id, String line_id, Integer standard_minute, Integer cost_minute
 		        HttpGet request = new HttpGet("http://localhost:8080/rvspush/trigger/start_alarm_clock_queue/" 
 		        		+ material_id + "/" + user.getPosition_id() + "/" + user.getLine_id() + "/" + user.getOperator_id() + "/" 
-		        		+ leagal_overline + "/" + spentMins);
+		        		+ leagal_overline + "/" + bdMin.toPlainString());
 		        httpclient.execute(request, null);
 		    } catch (Exception e) {
 			} finally {

@@ -91,7 +91,8 @@
 	<select id="getBreakAlarmMessage" resultType="AlarmMesssageEntity" parameterType="String">
 		<![CDATA[ 
 			SELECT `am`.alarm_messsage_id, `am`.`LEVEL`, `am`.OCCUR_TIME, `am`.REASON, m.omr_notifi_no as sorc_no, `mdl`.name as MODEL_NAME, `m`.SERIAL_NO,
-			  `l`.NAME as LINE_NAME, `p`.process_code, `p`.position_id, `am`.operator_id, `o`.name as OPERATOR_NAME,p.name AS position_name
+			  `l`.NAME as LINE_NAME, `p`.process_code, `p`.position_id, `am`.operator_id, `o`.name as OPERATOR_NAME,p.name AS position_name,
+			  `am`.REASON in (1, 5, 6, 13) as is_break
 			FROM alarm_messsage am
 			JOIN material m
 			  ON `am`.material_id = `m`.material_id
@@ -106,6 +107,7 @@
 			WHERE `am`.material_id = #{material_id}
 			  AND `am`.position_id = #{position_id}
 			  AND NOT EXISTS (SELECT 1 FROM alarm_messsage_sendation ams WHERE `ams`.`alarm_messsage_id` = `am`.`alarm_messsage_id` AND `ams`.`red_flg` = 1)
+			ORDER BY is_break desc, `am`.OCCUR_TIME
 			;
 		]]>
 	</select>
@@ -355,10 +357,10 @@ ON ams.sendation_id = osd.operator_id
 				AND EXISTS (SELECT 1 FROM alarm_messsage_sendation where alarm_messsage_id = am.alarm_messsage_id and sendation_id = #{reciever_id})
 			</if>
 			<if test="department == 1 ">
-				AND (s.department = 1 OR s.department IS NULL)
+				AND (s.department = 1 OR m.level != 0)
 			</if>
 			<if test="department == 2 ">
-				AND s.department = 2
+				AND (s.department = 2 OR m.level = 0)
 			</if>
 
 		</where> 

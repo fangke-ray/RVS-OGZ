@@ -144,28 +144,34 @@ public class PositionPanelAction extends BaseAction {
 
 		String special_forwards = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
 
-		if (special_forwards == null) {
-			if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
-				if ("002".equals(process_code)) {
-					req.setAttribute("use_snout", true);
-				} else {
-					req.setAttribute("use_snout", false);
-				}
-				if ("003".equals(process_code)) {
-					req.setAttribute("input_arm", true);
-				} else {
-					req.setAttribute("input_arm", false);
-				}
-				actionForward = mapping.findForward("product");
-			} else {
-				// 迁移到页面
-				actionForward = mapping.findForward(FW_INIT);
+		// 默认画面迁移
+		if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
+			req.setAttribute("input_arm", false);
+		
+			if ("002".equals(process_code)) {
+				req.setAttribute("use_snout", true);
 			}
+
+			actionForward = mapping.findForward("product");
+
 		} else {
+			// 迁移到页面
+			actionForward = mapping.findForward(FW_INIT);
+		}
+
+		// 特殊画面
+		if (special_forwards != null) {
 			String[] arrSpecialForward = special_forwards.split(";");
 
 			if (matchforward(arrSpecialForward, "peripheral") != null) {
 				req.setAttribute("peripheral", true);
+			}
+
+			if (matchforward(arrSpecialForward, "decom") != null) {
+				String decom = matchforward(arrSpecialForward, "decom");
+				String skipPosition = decom.replaceAll(".*decom\\[(.*)\\].*", "$1");
+				req.setAttribute("skip_process_code", skipPosition);
+				req.setAttribute("skip_position", ReverseResolution.getPositionByProcessCode(skipPosition, conn));
 			}
 
 			if (matchforward(arrSpecialForward, "result") != null) {
@@ -196,23 +202,10 @@ public class PositionPanelAction extends BaseAction {
 
 			} else if (matchforward(arrSpecialForward, "use_snout") != null) {
 				actionForward = mapping.findForward("usesnout");
+			}
 
-				String decom = matchforward(arrSpecialForward, "decom");
-				if (decom != null) {
-					decom = decom.replaceAll(".*decom\\[(.*)\\].*", "$1");
-					String skipPosition = ReverseResolution.getPositionByProcessCode(decom, conn);
-					req.setAttribute("skip_position", skipPosition);
-				}
-			} else if (matchforward(arrSpecialForward, "decom") != null) {
-				String decom = matchforward(arrSpecialForward, "decom");
-				decom = decom.replaceAll(".*decom\\[(.*)\\].*", "$1");
-				String skipPosition = ReverseResolution.getPositionByProcessCode(decom, conn);
-				req.setAttribute("skip_position", skipPosition);
-			} else if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
-				actionForward = mapping.findForward("product");
-			} else {
-				// 迁移到页面
-				actionForward = mapping.findForward(FW_INIT);
+			if (matchforward(arrSpecialForward, "arm") != null) {
+				req.setAttribute("input_arm", true);
 			}
 		}
 

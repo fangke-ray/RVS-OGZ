@@ -267,8 +267,5 @@ var refreshSerialNos = function(){
 	</div>
 	<div id="products_area">
 	</div>
-	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-full">
-		<span class="areatitle">完成部组信息</span>
-	</div>
 </div>
 </div>

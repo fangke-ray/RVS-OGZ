@@ -193,7 +193,7 @@ public class PackageFilingService {
 					}
 				}
 
-				new File(targetPath).setLastModified(date.getTimeInMillis());
+				new File(targetPath).setLastModified(date.getTimeInMillis() + 79200000l);
 			}
 		} catch (Exception e) {
 			return;

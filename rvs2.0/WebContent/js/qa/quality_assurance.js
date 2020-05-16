@@ -441,6 +441,12 @@ var doInit_ajaxSuccess = function(xhrobj, textStatus){
 			if (resInfo.pauseOptions) pauseOptions = resInfo.pauseOptions;
 			if (resInfo.stepOptions) stepOptions = resInfo.stepOptions;
 
+			if (!stepOptions) {
+				$("#stepbutton").hide().attr("hide", "empty");
+			} else {
+				$("#stepbutton").show();
+			}
+
 			// 存在进行中作业的时候
 			if(resInfo.workstauts != 0) {
 				treatStart(resInfo);
@@ -637,7 +643,7 @@ var treatStart = function(resInfo) {
 	} else if (resInfo.workstauts == 1.5) {
 		$("#pcscombutton").hide();
 		$("#forbidbutton").show();
-		$("#passbutton,#stepbutton").show();
+		$("#passbutton,#stepbutton").not("[hide]").show();
 		$("#pausebutton").show();
 		$("#continuebutton").hide();
 		$("#devicearea").hide();
@@ -659,7 +665,7 @@ var treatStart = function(resInfo) {
 		$("#pcsarea").hide();
 		$("#pcscombutton").hide();
 		$("#forbidbutton").show();
-		$("#passbutton,#stepbutton").show();
+		$("#passbutton,#stepbutton").not("[hide]").show();
 		$("#pausebutton").hide();
 		$("#continuebutton").hide();
 	} else if (resInfo.workstauts == 4) {
@@ -676,7 +682,9 @@ var treatStart = function(resInfo) {
 		$("#continuebutton").show();
 	}
 
-	posClockObj.setLeagalAndSpent(resInfo.leagal_overline, resInfo.spent_mins, resInfo.spent_secs);
+	if (resInfo.leagal_overline) {
+		posClockObj.setLeagalAndSpent(resInfo.leagal_overline, resInfo.spent_mins, resInfo.spent_secs);
+	}
 
 	if (resInfo.workstauts == 1 || resInfo.workstauts == 1.5 || resInfo.workstauts == 4) {
 		posClockObj.startClock(resInfo.spent_mins, resInfo.spent_secs);

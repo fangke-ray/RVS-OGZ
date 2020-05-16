@@ -214,9 +214,6 @@ public class QualityAssuranceAction extends BaseAction {
 				// 页面设定为编辑模式
 				if (qa_checked) {
 					callbackResponse.put("workstauts", WORK_STATUS_DECIDE);
-	
-					// 取得工程检查票
-					PositionPanelService.getPcsesFinish(callbackResponse, workingPf, conn);
 				} else {
 					boolean infectFinishFlag = true;
 					if ("peripheral".equals(special_forward)) {
@@ -269,7 +266,7 @@ public class QualityAssuranceAction extends BaseAction {
 						callbackResponse.put("workstauts", WORK_STATUS_DECIDE_PAUSING);
 
 						// 取得工程检查票
-						PositionPanelService.getPcsesFinish(callbackResponse, pauseingPf, conn);
+						// PositionPanelService.getPcsesFinish(callbackResponse, pauseingPf, conn);
 					} else {
 						boolean infectFinishFlag = true;
 						if ("peripheral".equals(special_forward)) {
@@ -529,6 +526,13 @@ public class QualityAssuranceAction extends BaseAction {
 			// 取得工程检查票
 			boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
 			getPf(workingPf, true, isLeader, user.getDepartment(), listResponse, conn);
+
+
+			// 取到等待作业记录的本次返工总时间
+			Integer spentSecs = ppService.getTotalTimeByRework(workingPf, conn);
+			Integer spentMins = spentSecs / 60;
+			listResponse.put("spent_secs", spentSecs);
+			listResponse.put("spent_mins", spentMins);
 		}
 
 		// listRefresh(listResponse, conn);

@@ -49,6 +49,9 @@ public class OperatorEntity implements Serializable {
 	/** 所属人员 */
 	private List<OperatorEntity> belongs;
 
+	/** 部门 */
+	private Integer department;
+
 	/**
 	 * 取得角色 ID
 	 * @return role_id 角色 ID
@@ -236,5 +239,13 @@ public class OperatorEntity implements Serializable {
 
 	public void setBelongs(List<OperatorEntity> belongs) {
 		this.belongs = belongs;
+	}
+
+	public Integer getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Integer department) {
+		this.department = department;
 	}
 }

@@ -153,15 +153,20 @@ from (
 			SELECT 
 				a.action_time,
 				a.finish_time,
-				b.omr_notifi_no as sorc_no,
+				CASE WHEN sec.department = 2
+					THEN b.serial_no 
+				ELSE b.omr_notifi_no
+				END as sorc_no,
 				(select name from model where model_id = b.model_id) as model_name,
 				a.operator_id,
 				(select name from operator where operator_id = a.operator_id) as operator_name,
 				a.operate_result
-			FROM production_feature a, material b
+			FROM production_feature a
+			JOIN material b
+			ON a.material_id = b.material_id
+			JOIN section sec
+			ON a.section_id = sec.section_id
 			WHERE
-				a.material_id = b.material_id
-			and
 				a.operate_result not in (5, 8) 
 			and
 				a.position_id = #{position_id}

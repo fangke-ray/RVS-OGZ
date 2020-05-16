@@ -101,6 +101,13 @@ public class ScheduleProcessingAction extends BaseAction {
 
 		if (RvsConsts.DEPART_REPAIR.equals(user.getDepartment()) && privacies.contains(RvsConsts.PRIVACY_SCHEDULE)) {
 			req.setAttribute("role", "planner");
+
+			// 部组，取得可制作的型号
+			ModelService mdlService = new ModelService();
+			ModelEntity mdlEntity = new ModelEntity();
+			mdlEntity.setKind("11");
+			req.setAttribute("modelOptions", mdlService.searchToSelectOptions(mdlEntity, conn));
+
 		} else if (RvsConsts.DEPART_MANUFACT.equals(user.getDepartment()) && privacies.contains(RvsConsts.PRIVACY_LINE)) {
 			req.setAttribute("role", "manufact_reader");
 		} else if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
