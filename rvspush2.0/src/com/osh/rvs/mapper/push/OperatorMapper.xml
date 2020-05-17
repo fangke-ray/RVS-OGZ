@@ -118,8 +118,7 @@
 			FROM production_feature a
 			JOIN material am
 			ON a.material_id = am.material_id
-			WHERE a.action_time >= #{start_date}
-			AND a.position_id <> 24 -- 先端预制特别显示
+			WHERE a.action_time between #{start_date} and date_add(#{start_date},interval 1 month)
 			AND am.model_id > 0
 			union ALL
 			SELECT
@@ -139,7 +138,7 @@
 				null as pace,
 				2 as d_type
 			FROM pause_feature b
-			WHERE b.pause_start_time >= #{start_date}
+			WHERE b.pause_start_time between #{start_date} and date_add(#{start_date},interval 1 month)
 			AND (b.reason between 40 and 70)
 			union ALL
 			SELECT
@@ -165,7 +164,7 @@
 				spf.pace,
 				1 as d_type
 			FROM solo_production_feature spf
-			WHERE spf.action_time >= #{start_date}
+			WHERE spf.action_time between #{start_date} and date_add(#{start_date},interval 1 month)
 			AND used = 0
 			UNION ALL
 			SELECT 
@@ -203,7 +202,7 @@
 			ON
 				partial.partial_id = glue.partial_id
 			WHERE
-				gmpp.mixing_action_time >= #{start_date}
+				gmpp.mixing_action_time between #{start_date} and date_add(#{start_date},interval 1 month)
 			union ALL
 			SELECT
 				date_format(nom.action_time, '%Y-%m-%d') as action_date,
@@ -224,7 +223,8 @@
 			FROM production_feature nom
 			JOIN material nomam
 			ON nom.material_id = nomam.material_id
-			WHERE nom.action_time >= #{start_date}
+			WHERE 
+				nom.action_time between #{start_date} and date_add(#{start_date},interval 1 month)
 			AND nomam.model_id = 0
 			) cnt
 		JOIN `v_operator_named` o
