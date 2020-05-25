@@ -459,6 +459,15 @@ public class PositionPanelSnoutAction extends BaseAction {
 	}
 
 	@Privacies(permit={0})
+	/**
+	 * 扫描件（先端来源/周边本体）
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
 	public void checkScan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("PositionPanelSnoutAction.checkScan start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -466,21 +475,40 @@ public class PositionPanelSnoutAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		String material_id = req.getParameter("material_id");
-		MaterialForm mForm = sservice.checkOrigin(material_id, conn, errors);
+		MaterialForm mForm = null;
+		
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+		switch(user.getProcess_code().charAt(0)) {
+		case '3' : {
+			mForm = sservice.checkOrigin(material_id, conn, errors); 
+			if (errors.size() == 0) {
+				List<MaterialEntity> snoutsByMonth = new ArrayList<MaterialEntity>();
+
+				// 取得本月先端管理列表
+				if (mForm.getSerial_no() == null) {
+					String manage_serial_no = sservice.loadSnoutsByMonth(snoutsByMonth, "01", conn);
+					mForm.setSerial_no(manage_serial_no);
+				} else {
+					listResponse.put("Continue", true);
+				}
+
+				// 返回
+				listResponse.put("snoutsByMonth", snoutsByMonth);
+			}
+			break;
+		}
+		case '8' : {
+			mForm = sservice.checkBody(material_id, conn, errors); 
+			Map<String, List<String>> accessoriesModelAccessories = RvsUtils.getAccessoriesModelAccessories(conn);
+			listResponse.put("accessoriesModels", accessoriesModelAccessories.get(mForm.getModel_id()));
+			break;
+		}
+		}
 
 		if (errors.size() == 0) {
-			List<MaterialEntity> snoutsByMonth = new ArrayList<MaterialEntity>();
-
-			// 取得本月先端管理列表
-			if (mForm.getSerial_no() == null) {
-				String manage_serial_no = sservice.loadSnoutsByMonth(snoutsByMonth, "01", conn);
-				mForm.setSerial_no(manage_serial_no);
-			} else {
-				listResponse.put("Continue", true);
-			}
-
-			// 返回
-			listResponse.put("snoutsByMonth", snoutsByMonth);
 			listResponse.put("mForm", mForm);
 		}
 
@@ -505,21 +533,28 @@ public class PositionPanelSnoutAction extends BaseAction {
 		List<Map<String, String>> pcses = new ArrayList<Map<String, String>>();
 
 		String[] showLines = new String[1];
-		showLines[0] = "NS 工程";
+		String processCode = null;
+		if ("00000000013".equals(sline_id)) {
+			showLines[0] = "NS 工程";
+			processCode = "301";
+		} else {
+			showLines[0] = "检查卡";
+			processCode = "812";
+		}
 
 		for (String showLine : showLines) {
 			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, pf.getModel_name(), null, conn);
 
 			Map<String, String> fileTemplSolo = new HashMap<String, String>();
 			for (String key : fileTempl.keySet()) {
-				if (key.contains("先端预制")) {
+				if (key.contains("先端预制") || key.contains("检查卡")) {
 					fileTemplSolo.put(key, fileTempl.get(key));
 					break;
 				}
 			}
 
 			Map<String, String> fileHtml = PcsUtils.toHtmlSnout(fileTemplSolo,
-					pf.getModel_name(), pf.getSerial_no(), "301", null, conn);
+					pf.getModel_name(), pf.getSerial_no(), processCode, null, conn);
 
 			fileHtml = RvsUtils.reverseLinkedMap(fileHtml);
 			pcses.add(fileHtml);

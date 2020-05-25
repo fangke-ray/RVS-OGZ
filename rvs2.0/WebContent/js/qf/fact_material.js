@@ -148,7 +148,7 @@ if (rowids.length > 0) {
 				scheduled_expedited = true;
 			}
 			if (flag_img && 
-				(f_isPeripheralFix(level)) {
+				f_isPeripheralFix(level)) {
 				flag_img = false;
 			}
 		}

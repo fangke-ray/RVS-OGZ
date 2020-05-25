@@ -32,8 +32,6 @@ public interface MaterialMapper {
 	 *            符合所有查询条件的ID集合
 	 * @return
 	 */
-	public List<MaterialEntity> getMaterialDetail(List<String> ids);
-
 	public List<MaterialEntity> getMaterialDetailTicket(List<String> ids);
 
 	/**
@@ -97,40 +95,6 @@ public interface MaterialMapper {
 	public void updateMaterialPat(@Param("material_id") String material_id,@Param("pat_id") String pat_id) throws Exception;
 
 	public void updateMaterialScheduledDate(MaterialEntity entity);
-	/**
-	 * 零件签收详细数据
-	 * 
-	 * @param material_id
-	 * @return
-	 */
-	public MaterialEntity searchMaterialReceptByMaterialID(@Param("material_id") String material_id,@Param("occur_times") String occur_times);
-	
-	/**
-	 * WIP库存
-	 * @param entity
-	 * @return
-	 */
-	public int getWipCount(MaterialEntity entity);
-	
-	/**
-	 * 受理数
-	 * @return
-	 */
-	public int getReceptCount(MaterialEntity entity);
-	
-	/**
-	 * 同意数
-	 * @param entoty
-	 * @return
-	 */
-	public int getAgreeCount(MaterialEntity entoty);
-	
-	/**
-	 * 等级型号拉动台数平均同意数
-	 * @param entoty
-	 * @return
-	 */
-	public double getAverageAgreeOfLevelModelLeeds(MaterialEntity entity);
 
 	/**
 	 * 更新注释

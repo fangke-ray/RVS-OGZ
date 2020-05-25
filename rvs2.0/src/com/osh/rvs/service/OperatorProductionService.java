@@ -33,10 +33,10 @@ public class OperatorProductionService {
 	private Logger logger = Logger.getLogger(getClass());
 
 //	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	public static final int work_start = 8;
-	public static final int work_end = 17;
-	public static final int work_start_min = 00;
-	public static final int work_end_min = 15;
+	private static final int work_start = 8;
+	private static final int work_end = 17;
+	private static final int work_start_min = 00;
+	private static final int work_end_min = 15;
 
 	/**
 	 * 维修担当人一览

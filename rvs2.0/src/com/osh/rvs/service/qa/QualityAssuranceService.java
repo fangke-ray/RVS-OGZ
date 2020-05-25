@@ -11,9 +11,13 @@ import org.apache.log4j.Logger;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
+import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.MaterialService;
 
@@ -80,6 +84,32 @@ public class QualityAssuranceService {
 			if (retEmpty!= null && retEmpty.length() > 0) {
 				Logger logger = Logger.getLogger("Download");
 				logger.info(retEmpty + " MODEL: " + mform.getModel_name() + " PAT:" + mform.getPat_id());
+			}
+		}
+
+		// 周边附件
+		if (RvsUtils.getUseAccessoriesModels(conn).containsKey(mform.getModel_id())) {
+			SoloProductionFeatureMapper spfMapper = conn.getMapper(SoloProductionFeatureMapper.class); 
+			MaterialEntity spoEntity = spfMapper.checkSnoutOrigin(mform.getMaterial_id(), null);
+
+			if (spoEntity != null) {
+				SoloProductionFeatureEntity spfEntity = new SoloProductionFeatureEntity();
+				spfEntity.setSerial_no(spoEntity.getSerial_no());
+				spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", conn));
+
+				List<SoloProductionFeatureEntity> l = spfMapper.searchSoloProductionFeature(spfEntity);
+
+				if (l.size() > 0) {
+					String showLine = "检查卡";
+					String accessoryModelName = l.get(0).getModel_name();
+
+					Map<String, String> fileTempl = PcsUtils.getXlsContents(showLine, accessoryModelName, null, mform.getMaterial_id(), getHistory, conn);
+
+					fileTempl.put("附件-检查卡", fileTempl.remove("检查卡"));
+
+					PcsUtils.toPdfSolo(fileTempl, mform.getMaterial_id(), mform.getSorc_no(), accessoryModelName,
+							mform.getSerial_no(), mform.getLevel(), spoEntity.getSerial_no(), folderPath, conn);
+				}
 			}
 		}
 	}

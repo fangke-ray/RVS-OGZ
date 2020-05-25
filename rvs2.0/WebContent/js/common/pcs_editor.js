@@ -160,7 +160,7 @@ var pcsO = {
 		var $EMs = this.$pcs_contents.find("input[name^='EM']");
 		pcsO._checkEMs($EMs);
 		pcsO._checkEPs();
-		$EMs.click(function(){pcsO._checkEMs($EMs)});
+		$EMs.click(function(){pcsO._checkEMs($EMs, this.name)});
 		$EMs.hide().next("label").hide();
 
 		// 自动选择第一个可填写页
@@ -208,25 +208,65 @@ var pcsO = {
 			this.$pcs_contents.find("switcher").not("[other],[rcd]").click(pcsO.saveCache);
 		}
 	},
-	_checkEMs : function($EMs){
-		if (!$EMs.length) {
-			pcsO.$pcs_contents.find(".i_total").text("合格")
-			.removeClass("forbid")
-			.next().val("1");
-		}
-		else if(!$EMs.filter("[checked][value=-1], [checked][value=1]").length) {
-			pcsO.$pcs_contents.find(".i_total").text("不操作")
-			.removeClass("forbid")
-			.next().val("0");
-		}
-		else if($EMs.filter("[value=-1][checked]").length) {
-			pcsO.$pcs_contents.find(".i_total").text("不合格")
-			.addClass("forbid")
-			.next().val("-1");
-		} else {
-			pcsO.$pcs_contents.find(".i_total").text("合格")
-			.removeClass("forbid")
-			.next().val("1");
+	_checkEMs : function($EMs, EmName){
+		var $i_total = pcsO.$pcs_contents.find(".i_total");
+		var mulTi = pcsO.$pcs_contents.find(".pcs_content").length > 1;
+		if ($i_total.length == 1) {
+			if (mulTi) {
+				var pcsContentId = $i_total.closest(".pcs_content").attr("id");
+				$EMs = $EMs.filter(function(idx, ele){
+					return $(ele).parents("#" + pcsContentId).length > 0;
+				});
+			}
+			if (!$EMs.length) {
+				$i_total.text("合格")
+				.removeClass("forbid")
+				.next().val("1");
+			}
+			else if(!$EMs.filter("[checked][value=-1], [checked][value=1]").length) {
+				$i_total.text("不操作")
+				.removeClass("forbid")
+				.next().val("0");
+			}
+			else if($EMs.filter("[value=-1][checked]").length) {
+				$i_total.text("不合格")
+				.addClass("forbid")
+				.next().val("-1");
+			} else {
+				$i_total.text("合格")
+				.removeClass("forbid")
+				.next().val("1");
+			}
+		} else if ($i_total.length > 1) {
+			if(EmName) EmName = EmName.substring(2, 5);
+
+			$i_total.each(function(idx, ele) {
+				var $eletotal = $(ele);
+				var processCode = $eletotal.next().attr("name").substring(2, 5);
+				if (EmName && EmName !== processCode) return;
+
+				var $EMpos = $EMs.filter("[name^=EM" + processCode + "]");
+
+				if (!$EMpos.length) {
+					$eletotal.text("合格")
+					.removeClass("forbid")
+					.next().val("1");
+				}
+				else if(!$EMpos.filter("[checked][value=-1], [checked][value=1]").length) {
+					$eletotal.text("不操作")
+					.removeClass("forbid")
+					.next().val("0");
+				}
+				else if($EMpos.filter("[value=-1][checked]").length) {
+					$eletotal.text("不合格")
+					.addClass("forbid")
+					.next().val("-1");
+				} else {
+					$eletotal.text("合格")
+					.removeClass("forbid")
+					.next().val("1");
+				}
+			})
 		}
 	},
 	_emSwitch : function() {

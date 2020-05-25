@@ -26,13 +26,16 @@ import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
+import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
+import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.qa.QualityAssuranceMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultPageService;
@@ -235,7 +238,7 @@ public class QualityAssuranceAction extends BaseAction {
 					}
 				}
 				// 取得工程检查票
-				getPf(workingPf, qa_checked, isLeader, user.getDepartment(), callbackResponse, conn);
+				getPf(workingPf, qa_checked, isLeader, user.getDepartment(), mBean.getModel_id(), callbackResponse, conn);
 
 				callbackResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, process_code));
 
@@ -284,7 +287,7 @@ public class QualityAssuranceAction extends BaseAction {
 						} else {
 							callbackResponse.put("workstauts", WORK_STATUS_PAUSING);
 							// 取得工程检查票
-							getPf(pauseingPf, qa_checked, isLeader, user.getDepartment(), callbackResponse, conn);
+							getPf(pauseingPf, qa_checked, isLeader, user.getDepartment(), mBean.getModel_id(), callbackResponse, conn);
 						}
 
 					}
@@ -444,7 +447,7 @@ public class QualityAssuranceAction extends BaseAction {
 
 			// 取得工程检查票
 			waitingPf.setProcess_code(process_code);
-			getPf(waitingPf, qa_checked, isLeader, user.getDepartment(), listResponse, conn);
+			getPf(waitingPf, qa_checked, isLeader, user.getDepartment(), mBean.getModel_id(), listResponse, conn);
 
 			listResponse.put("leagal_overline", RvsUtils.getZeroOverLine(mBean.getModel_name(), mBean.getCategory_name(), user, process_code));
 
@@ -509,7 +512,6 @@ public class QualityAssuranceAction extends BaseAction {
 			// 作业信息内更新工程检查票输入
 			ProductionFeatureMapper pfdao = conn.getMapper(ProductionFeatureMapper.class);
 
-
 			// 作业信息状态还是作业中
 			workingPf.setPcs_inputs(RvsUtils.setContentWithMemo(
 					req.getParameter("pcs_inputs"), PcsUtils.PCS_INPUTS_SIZE, conn));
@@ -525,8 +527,10 @@ public class QualityAssuranceAction extends BaseAction {
 			workingPf.setProcess_code(process_code);
 			// 取得工程检查票
 			boolean isLeader = user.getPrivacies().contains(RvsConsts.PRIVACY_LINE);
-			getPf(workingPf, true, isLeader, user.getDepartment(), listResponse, conn);
 
+			MaterialService mservice = new MaterialService();
+			bean = mservice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
+			getPf(workingPf, true, isLeader, user.getDepartment(), bean.getModel_id(), listResponse, conn);
 
 			// 取到等待作业记录的本次返工总时间
 			Integer spentSecs = ppService.getTotalTimeByRework(workingPf, conn);
@@ -1034,9 +1038,11 @@ public class QualityAssuranceAction extends BaseAction {
 	/**
 	 * 取得工程检查票(按完成检查票确认与权限)
 	 * @param department 
+	 * @param string 
 	 */
 	private void getPf(ProductionFeatureEntity pf, boolean qaChecked,
-			boolean isLeader, Integer department, Map<String, Object> response, SqlSession conn) {
+			boolean isLeader, Integer department, String model_id, 
+			Map<String, Object> response, SqlSession conn) {
 //		MaterialForm mform = (MaterialForm) response.get("mform");
 
 //		if ("1".equals(mform.getFix_type())) {
@@ -1052,6 +1058,38 @@ public class QualityAssuranceAction extends BaseAction {
 				PositionPanelService.getPcses(response, pf, line_id, (qaChecked && isLeader), conn);
 			}
 //		}
+		// origin bind solo
+		if ("613".equals(pf.getProcess_code())) {
+			if (model_id == null || RvsUtils.getUseAccessoriesModels(conn).containsKey(model_id)) {
+
+				@SuppressWarnings("unchecked")
+				List<Map<String, String>> pcses = (List<Map<String, String>>) response.get("pcses");
+				if (pcses == null) 	pcses = new ArrayList<Map<String, String>>();
+				
+				SoloProductionFeatureMapper spfMapper = conn.getMapper(SoloProductionFeatureMapper.class); 
+				MaterialEntity spoEntity = spfMapper.checkSnoutOrigin(pf.getMaterial_id(), null);
+
+				if (spoEntity != null) {
+					SoloProductionFeatureEntity spfEntity = new SoloProductionFeatureEntity();
+					spfEntity.setSerial_no(spoEntity.getSerial_no());
+					spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", conn));
+
+					List<SoloProductionFeatureEntity> l = spfMapper.searchSoloProductionFeature(spfEntity);
+
+					if (l.size() > 0) {
+						String accessoryModelName = l.get(0).getModel_name();
+
+						Map<String, String> fileTemplSolo = PcsUtils.getXmlContents("检查卡", accessoryModelName, null, conn);
+						Map<String, String> fileHtml = PcsUtils.toHtmlSnout(fileTemplSolo,
+								accessoryModelName, spoEntity.getSerial_no(), "800", null, conn);
+						fileHtml.put("附件-检查卡", fileHtml.remove("检查卡"));
+						pcses.add(fileHtml);
+
+						response.put("pcses", pcses);
+					}
+				}
+			}
+		}
 	}
 
 }

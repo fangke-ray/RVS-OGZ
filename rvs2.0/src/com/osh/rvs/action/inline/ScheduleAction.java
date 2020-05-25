@@ -45,7 +45,6 @@ import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
-import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.Validators;

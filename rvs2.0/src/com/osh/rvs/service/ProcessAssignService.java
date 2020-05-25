@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
-import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.bean.master.ProcessAssignTemplateEntity;
 import com.osh.rvs.common.PathConsts;
@@ -25,7 +24,6 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.form.master.ProcessAssignTemplateForm;
 import com.osh.rvs.mapper.CommonMapper;
-import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 
 import framework.huiqing.bean.message.MsgInfo;

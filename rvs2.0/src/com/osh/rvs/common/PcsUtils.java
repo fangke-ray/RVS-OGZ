@@ -1152,6 +1152,8 @@ public class PcsUtils {
 			return "3\\d\\d";
 		} else if ("200".equals(currentProcessCode)) {
 			return "2\\d\\d";
+		} else if ("812".equals(currentProcessCode)) {
+			return "(811|613|181)";
 		}
 		return currentProcessCode;
 	}
@@ -2267,7 +2269,7 @@ public class PcsUtils {
 						FoundValue = Dispatch.get(cell, "Value").toString();
 					}
 				}
-				// xls.Replace("@#?????????", "");
+				xls.Replace("@#?????????", "");
 
 				xls.SaveCloseExcel(false);
 				tempMap.put(pcsName, cachePath);
@@ -2295,6 +2297,7 @@ public class PcsUtils {
 //				}
 			}
 		}
+
 		if (hasBlank.size() > 0) {
 			logger.info(sorcNo + "有未填项目。返工" + reworkCount);
 			if (reworkCount == 0)
@@ -2303,6 +2306,402 @@ public class PcsUtils {
 
 		// 工位对象
 		return "";
+	}
+
+	/**
+	 * 
+	 * @param srcPcses 相关工程检查票文件 key 显示名 value 文件本地路径
+	 * @param bodyMaterialId 维修对象ID
+	 * @param bodySorcNo 
+	 * @param accessoryModelName
+	 * @param bodySerialNo
+	 * @param bodyLevel
+	 * @param accessorySerialNo
+	 * @param folderPath
+	 * @param conn
+	 */
+	public static void toPdfSolo(Map<String, String> srcPcses,
+			String bodyMaterialId, String bodySorcNo, String accessoryModelName,
+			String bodySerialNo, String bodyLevel, String accessorySerialNo,
+			String folderPath, SqlSession conn) throws IOException {
+
+		logger.info("getXmlContents for bodySerialNo=" + bodySerialNo + " accessorySerialNo=" + accessorySerialNo);
+
+		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+		LeaderPcsInputMapper llDao = conn.getMapper(LeaderPcsInputMapper.class);
+
+		// 取得维修对象返工次数
+		int reworkCount = 0;
+		logger.info("reworkCount:"+ reworkCount);
+
+		if (srcPcses == null) return;
+
+		File material = new File(folderPath);
+		if (!material.exists()) {
+			material.mkdirs();
+		}
+
+		String positionId =  ReverseResolution.getPositionByProcessCode("812", conn);
+
+		// 对于每次返工
+		for (int iRework = 0, factRework = 0; iRework <= reworkCount; iRework++) {
+			logger.info("iRework:"+ iRework);
+
+			SoloProductionFeatureEntity condEntity = new SoloProductionFeatureEntity();
+			condEntity.setPosition_id(positionId);
+			condEntity.setModel_name(accessoryModelName);
+			condEntity.setSerial_no(accessorySerialNo);
+
+			ProductionFeatureEntity condLeaderEntity = new ProductionFeatureEntity();
+			condLeaderEntity.setMaterial_id(bodyMaterialId);
+			condLeaderEntity.setRework(iRework);
+			
+			// 取得每次返工中作业记录
+			List<SoloProductionFeatureEntity> pfEntities = dao.searchSoloProductionFeature(condEntity);
+			List<ProductionFeatureEntity> lpcs = llDao.searchLeaderPcsInput(condLeaderEntity);
+
+			if (pfEntities.size() == 0 && lpcs.size() == 00) {
+				continue;
+			}
+
+			// 本次替换掉的工位件数
+			boolean bReplacedAtPosition = false;
+
+			Map<String, String> tempMap = new LinkedHashMap<String, String>();
+
+			// Map<String, String> allComments = new HashMap<String, String>();
+			String currentComments = "";
+
+			// 对于每张工检票
+			for (String pcsName : srcPcses.keySet()) {
+				logger.info("pcsName:"+ pcsName);
+
+				String specify = srcPcses.get(pcsName);
+				// 复制一份模板
+				String cacheFilename =  pcsName + new Date().getTime() + ".xls";
+				Date today = new Date();
+				String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + cacheFilename;
+				FileUtils.copyFile(new File(specify), new File(cachePath));
+
+				XlsUtil xls = new XlsUtil(cachePath);
+				xls.SelectActiveSheet();
+
+				// GS
+				xls.Replace("@#GS???????", bodySorcNo);
+				// GM
+				xls.Replace("@#GM???????", accessoryModelName);
+				// GC
+				xls.Replace("@#GC???????", accessorySerialNo);
+				// GR
+				xls.Replace("@#GR???????", CodeListUtils.getValue("material_level", bodyLevel));
+
+				Map<String, String> lineComments = new HashMap<String, String>();
+
+				// 线长对象
+				if (lpcs !=null && lpcs.size() > 0) {
+					for (ProductionFeatureEntity pf : lpcs) {
+						// 工位代码
+						String process_code = "613";
+						String process_code2 = null;
+
+						// 判断有本工号的标签
+						if (xls.Hit("@#E?" + process_code + "????") 
+								|| (process_code2 != null && (xls.Hit("@#E?" + process_code2 + "????"))) 
+								|| xls.Hit("@#L????????")) {
+
+							String sPcs_inputs = pf.getPcs_inputs();
+							if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+								sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
+								// 解析输入值
+								@SuppressWarnings("unchecked")
+								Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
+
+								// 当前工位最新返工
+								logger.info("sPcs_inputs edit:"+ sPcs_inputs);
+
+								// 读入既有值的输入
+								for (String pcid : jsonPcs_inputs.keySet()) {
+									// 输入值
+									String sInput = jsonPcs_inputs.get(pcid);
+									// 类别
+									char sIype = pcid.charAt(1);
+
+									if (!"".equals(sInput)) {
+										switch (sIype) {
+										
+										case 'I': {
+											// 输入：I
+											if (!CommonStringUtil.isEmpty(sInput)) {
+												xls.Replace("@#"+pcid+"??", sInput);
+											}
+											break;
+										}
+										case 'R': {
+											// 单选：R
+											if (!CommonStringUtil.isEmpty(sInput)) {
+												xls.Replace("@#"+pcid+sInput, CHECKED);
+												xls.Replace("@#"+pcid+"??", UNCHECKED);
+											}
+											break;
+										}
+										case 'M': {
+											// 合格确认：M
+											if ("1".equals(sInput)) {
+												xls.Replace("@#"+pcid+"??", CHECKED);
+											} else if ("-1".equals(sInput)) {
+												Dispatch cell = xls.Locate("@#"+pcid+"??");
+												if (cell != null) {
+													XlsUtil.SetCellBackGroundColor(cell, "255");
+													Dispatch font = xls.GetCellFont(cell);
+													Dispatch.put(font, "Color", "16777215"); // FFFFFF
+												}
+												xls.Replace("@#"+pcid+"??", FORBIDDEN);
+											}
+											xls.Replace("@#"+pcid+"??", NOCARE);
+											break;
+										}
+										case 'N': {
+											// 签章：N
+											if ("1".equals(sInput)) {
+												// 按钮
+												Dispatch cell = xls.Locate("@#"+pcid+"??");
+												if (cell != null) {
+													xls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + pf.getJob_no().toUpperCase(),
+															cell);
+												}
+												xls.Replace("@#"+pcid+"??", ""); // sign
+												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+												if (dateCell != null) {
+													xls.SetNumberFormatLocal(dateCell, "m-d;@");
+													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												}
+											} else if ("-1".equals(sInput)) { 
+												// 不做
+												// if 611
+												if (pcid.indexOf("N61") >= 0) {
+													Dispatch cell = xls.Locate("@#"+pcid+"??");
+													if (cell != null)  XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+													cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+													if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+												} else {
+													xls.Replace("@#"+pcid+"??", NOCARE);
+												}
+												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+												if (dateCell != null) {
+													xls.SetNumberFormatLocal(dateCell, "m-d;@");
+													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												}
+											}
+											break;
+										}
+										case 'P': {
+											// 通过：P
+											if ("1".equals(sInput)) {
+												xls.Replace("@#"+pcid+"??", "PASS");
+											} else if ("-1".equals(sInput)) {
+												xls.Replace("@#"+pcid+"??", "FAil");
+											}
+											break;
+										}
+										}
+									}
+								}
+
+								currentComments = pf.getPcs_comments();
+								if (!CommonStringUtil.isEmpty(currentComments)) {
+									currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
+									@SuppressWarnings("unchecked")
+									Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
+									for (String commentskey : jsonPcs_comments.keySet()) {
+										if (!CommonStringUtil.isEmpty(jsonPcs_comments.get(commentskey))) {
+											if (lineComments.containsKey(commentskey)){
+												lineComments.put(commentskey, lineComments.get(commentskey) + "\n" + pf.getOperator_name() + ":" + jsonPcs_comments.get(commentskey));
+											} else {
+												lineComments.put(commentskey, pf.getOperator_name() + ":" + jsonPcs_comments.get(commentskey));
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				for (SoloProductionFeatureEntity pf : pfEntities) {
+					// 工位号 
+					if (xls.Hit("@#E?" + "???" + "????")) {
+	
+						// 如果有本工位的标签，进行替换
+						bReplacedAtPosition = true;
+	
+						String sPcs_inputs = pf.getPcs_inputs();
+						if (!CommonStringUtil.isEmpty(sPcs_inputs)) {
+							sPcs_inputs = RvsUtils.getContentWithMemo(sPcs_inputs, conn);
+							// 解析输入值
+							@SuppressWarnings("unchecked")
+							Map<String, String> jsonPcs_inputs = JSON.decode(sPcs_inputs, Map.class);
+	
+							logger.info("sPcs_inputs edit:"+ sPcs_inputs);
+	
+							for (String pcid : jsonPcs_inputs.keySet()) {
+								// 输入值
+								String sInput = jsonPcs_inputs.get(pcid);
+								// 类别
+								char sIype = pcid.charAt(1);
+	
+								switch (sIype) {
+	
+								case 'I': {
+									if (!CommonStringUtil.isEmpty(sInput)) {
+										// 输入：I
+										xls.Replace("@#"+pcid+"??", sInput);
+									}
+									break;
+								}
+								case 'R': {
+									if (!CommonStringUtil.isEmpty(sInput)) {
+										// 单选：R
+										xls.Replace("@#"+pcid+sInput, CHECKED);
+										xls.Replace("@#"+pcid+"??", UNCHECKED);
+									}
+									break;
+								}
+								case 'M': {
+									// 合格确认：M
+									if ("1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", CHECKED);
+									} else if ("-1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", FORBIDDEN);
+									}
+									xls.Replace("@#"+pcid+"??", NOCARE);
+									break;
+								}
+								case 'N': {
+									// 签章：N
+									if ("1".equals(sInput)) {
+										// 按钮
+										Dispatch cell = xls.Locate("@#"+pcid+"??");
+										if (cell != null) {
+											xls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + pf.getJob_no().toUpperCase(),
+													cell);
+										}
+										xls.Replace("@#"+pcid+"??", ""); // sign
+										Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
+										if (dateCell != null) {
+											xls.SetNumberFormatLocal(dateCell, "m-d;@");
+											xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										}
+									} else if ("-1".equals(sInput)) {
+										// 不做
+										// if 611
+										if (pcid.indexOf("N611") >= 0) {
+											Dispatch cell = xls.Locate("@#"+pcid+"??");
+											if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+											cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
+											if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+										}
+										xls.Replace("@#"+pcid+"??", NOCARE);
+										Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED")+"??");
+										if (dateCell != null) {
+											xls.SetNumberFormatLocal(dateCell, "m-d;@");
+											xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+										}
+									}
+									break;
+								}
+								case 'X': {
+									// 返工：X
+									String Xkey = "@#"+pcid.substring(0, 5).replaceAll("EX", "EN")+"????";
+									Dispatch cell = xls.Locate(Xkey);
+									String FoundValue = null;
+									if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
+									while (FoundValue != null) {
+										XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+										xls.SetValue(cell, "发生返工");
+										cell = xls.Locate(Xkey);
+										if (cell == null) {
+											FoundValue = null;
+										} else {
+											FoundValue = Dispatch.get(cell, "Value").toString();
+										}
+									}
+
+									break;
+								}
+								case 'T': {
+									// 合格确认：M
+									if ("1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", QUALIFIED); // sign
+									} else if ("0".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", NOCARE); // sign
+									} else if ("-1".equals(sInput)) {
+										Dispatch cell = xls.Locate("@#"+pcid+"??");
+										if (cell != null) {
+											xls.SetValue(cell, UNQUALIFIED);
+											XlsUtil.SetCellBackGroundColor(cell, "255"); 
+											Dispatch font = xls.GetCellFont(cell);
+											Dispatch.put(font, "Color", "16777215"); // FFFFFF
+										}
+									}
+									break;
+								}
+								case 'P': {
+									// 通过：P
+									if ("1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", "PASS");
+									} else if ("-1".equals(sInput)) {
+										xls.Replace("@#"+pcid+"??", "FAil");
+									}
+									break;
+								}
+								}
+							}
+	
+							// 备注信息
+							currentComments = pf.getPcs_comments();
+							if (!CommonStringUtil.isEmpty(currentComments)) {
+								currentComments = RvsUtils.getContentWithMemo(currentComments, conn);
+								@SuppressWarnings("unchecked")
+								Map<String, String> jsonPcs_comments = JSON.decode(currentComments, Map.class);
+								for (String commentskey : jsonPcs_comments.keySet()) {
+									// GC
+									if (!CommonStringUtil.isEmpty(jsonPcs_comments.get(commentskey))) {
+										xls.Replace("@#"+commentskey+"??", jsonPcs_comments.get(commentskey) + "\n@#"+commentskey+"00");
+									}
+								}
+							}
+						}
+					}
+				}
+				for (String commentskey : lineComments.keySet()) {
+					String comment = lineComments.get(commentskey);
+					xls.Replace("@#"+commentskey+"??", comment +
+					"\n@#"+commentskey+"00");
+				}
+
+				xls.Replace("@#?????????", "");
+
+				xls.SaveCloseExcel(false);
+				tempMap.put(pcsName, cachePath);
+			}
+
+			// 如果没有替换掉作业记录，就不算实际返工。
+			if (bReplacedAtPosition) {
+				// 放入第factRework次的工程检查票
+				String sheetname = "";
+				if (factRework != 0) {
+					sheetname = " 第" + factRework + "次返工";
+				}
+				factRework++;
+
+				for (String pcsName : tempMap.keySet()) {
+					String cachePath = tempMap.get(pcsName);
+					XlsUtil xls = new XlsUtil(cachePath);
+					xls.SaveAsPdf(folderPath + "\\" + pcsName + sheetname);
+				}
+			} else {
+			}
+		}
 	}
 
 	/**
@@ -2370,7 +2769,6 @@ public class PcsUtils {
 	public static Map<String, String> toHtmlSnout(Map<String, String> srcPcses, String modelName,
 			String serial_no, String currentProcessCode, String leaderLineId, SqlSession conn) {
 
-
 		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
 		LeaderPcsInputMapper llDao = conn.getMapper(LeaderPcsInputMapper.class);
 
@@ -2381,7 +2779,8 @@ public class PcsUtils {
 
 		if (srcPcses == null) return htmlPcses;
 
-		Pattern pCurrentProcessCode = Pattern.compile("<pcinput.*?scope=\"E\".*?position=\""+currentProcessCode+"\".*?/>");
+		String overAllProcessCode = checkOverAll(currentProcessCode);
+		Pattern pCurrentProcessCode = Pattern.compile("<pcinput.*?scope=\"E\".*?position=\""+ overAllProcessCode +"\".*?/>");
 
 //		Map<String, Integer> checkedOnId = new HashMap<String, Integer>(); TODO
 
@@ -2402,6 +2801,7 @@ public class PcsUtils {
 
 		// 本次替换掉的工位件数
 		boolean bReplacedAtPosition = false;
+		bReplacedAtPosition = "800".equals(currentProcessCode);
 
 		// 是最新一次返工
 		boolean bNewest = true;
@@ -2555,15 +2955,14 @@ public class PcsUtils {
 
 			for (SoloProductionFeatureEntity pf : pfEntities) {
 				// 工位代码
-				String process_code = "301";
-				logger.info("process_code"+ process_code);
+				logger.info("process_code"+ currentProcessCode);
 
-				boolean isCurrent = process_code.equals(currentProcessCode);
+				boolean isCurrent = "301".equals(currentProcessCode) || "811".equals(currentProcessCode);
 
-				Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
+				Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
 				Matcher mProcessCode = pProcessCode.matcher(specify);
 
-				if (mProcessCode.find()) {
+				if ("800".equals(currentProcessCode) || mProcessCode.find()) {
 					// 如果有本工位的标签，进行替换
 					bReplacedAtPosition = true;
 
@@ -2592,28 +2991,31 @@ public class PcsUtils {
 
 									case 'I': {
 										// 输入：I
-										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<label>" + sInput + "</label>");
 										break;
 									}
 									case 'R': {
 										// 单选：R
-										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
+										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
 												"<label>" + CHECKED + "</label>");
-										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<label>" + UNCHECKED + "</label>");
 										break;
 									}
 									case 'M': {
-										// 合格确认：M
 										if ("1".equals(sInput)) {
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\""+overAllProcessCode+"\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<label>" + CHECKED + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"1\">");
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + CHECKED + "</label>");
 										} else if ("-1".equals(sInput)) {
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\""+overAllProcessCode+"\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<label>" + FORBIDDEN + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"-1\">");
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + FORBIDDEN + "</label>");
 										}
-										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<label>" + NOCARE + "</label>");
 										break;
 									}
@@ -2621,16 +3023,31 @@ public class PcsUtils {
 										// 签章：N
 										if ("1".equals(sInput)) {
 											// 确认
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<img src=\"/images/sign/" + pf.getJob_no() + "\"/>");
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
 										} else if ("-1".equals(sInput)) {
 											// 不做
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>"+NOCARE+"</label>");
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
+										}
+										break;
+									}
+									case 'T': {
+										// 综合合格判定：T
+										if ("1".equals(sInput)) {
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<section locate=\"$1\" class=\"i_total\">合格</section>" + 
+															"<input type=\"hidden\" name=\"$1\" value=\"1\" class=\"i_total_hidden\"/>"
+													);
+										} else if ("-1".equals(sInput)) {
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											"<section locate=\"$1\" class=\"i_total\">不合格</section>" + 
+													"<input type=\"hidden\" name=\"$1\" value=\"-1\" class=\"i_total_hidden\"/>"
+													);
 										}
 										break;
 									}
@@ -2643,6 +3060,8 @@ public class PcsUtils {
 							logger.info("sPcs_inputs view:"+ sPcs_inputs);
 
 							for (String pcid : jsonPcs_inputs.keySet()) {
+								String process_code = pcid.substring(2, 5);
+
 								// 输入值
 								String sInput = jsonPcs_inputs.get(pcid);
 								// 类别
@@ -2668,13 +3087,17 @@ public class PcsUtils {
 									case 'M': {
 										// 合格确认：M
 										if ("1".equals(sInput)) {
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\""+process_code+"\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<label>" + CHECKED + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"1\">");
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + CHECKED + "</label>");
 										} else if ("-1".equals(sInput)) {
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\""+process_code+"\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<label>" + FORBIDDEN + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"-1\">");
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + FORBIDDEN + "</label>");
 										}
-										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+										specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"\\w\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<label>" + NOCARE + "</label>");
 										break;
 									}
@@ -2693,6 +3116,19 @@ public class PcsUtils {
 													"<label>"+NOCARE+"</label>");
 											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
+										}
+										break;
+									}
+									case 'T': {
+										// 综合合格判定：T
+										if ("1".equals(sInput)) {
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+													"<section locate=\"$1\">合格</section>"
+													);
+										} else if ("-1".equals(sInput)) {
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											"<section locate=\"$1\">不合格</section>"
+													);
 										}
 										break;
 									}
@@ -2743,19 +3179,23 @@ public class PcsUtils {
 					hasCurrent = true;
 
 					// 输入：I
-					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"I\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"I\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 							"<input type=\"text\" name=\"$1\" value=\"\"/>");
-					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
 							"<input type=\"radio\" name=\"$1\" value=\"$2\"/>");
-					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"M\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
-							"<input type=\"checkbox\" name=\"$1\" value=\"$2\"/>");
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"M\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
+							"<input type=\"radio\" name=\"$1\" id=\"$1_0\" value=\"0\" checked/><label for=\"$1_0\">不需确认</label>" +
+							"<input type=\"radio\" name=\"$1\" id=\"$1_y\" value=\"1\"/><label for=\"$1_y\">合格</label>" +
+							"<input type=\"radio\" name=\"$1\" id=\"$1_n\" value=\"-1\"/><label for=\"$1_n\">不合格</label><input type=button class=\"i_switchM\" for=\"$1\" value=\"---\">");
 					// 按钮
-					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"N\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"N\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 							"<input type=\"radio\" name=\"$1\" id=\"$1_0\" value=\"\" checked></input><label for=\"$1_0\">撤消</label>" +
 							"<input type=\"radio\" name=\"$1\" id=\"$1_y\" value=\"1\"></input><label for=\"$1_y\">确认</label>" +
 							"<input type=\"radio\" name=\"$1\" id=\"$1_n\" value=\"-1\"></input><label for=\"$1_n\">不做</label>");
-					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"D\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"D\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 							"<input type=\"hidden\" value=\"#date#\"></input>");
+					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"T\" position=\"" + overAllProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+							"<section class=\"i_total\">-</section><input type=\"hidden\" name=\"$1\" value=\"\" class=\"i_total_hidden\">");
 				}
 
 				// 线长空格
@@ -2837,6 +3277,7 @@ public class PcsUtils {
 		// 工位对象
 		return htmlPcses;
 	}
+
 	public static Map<String, String> getFolderTypes() {
 		return folderTypes;
 	}

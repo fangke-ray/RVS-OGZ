@@ -471,6 +471,65 @@ public class SoloSnoutService {
 	}
 
 	/**
+	 * 附件本体检查与返回
+	 * @param material_id 先端来源
+	 * @param conn
+	 * @param errors
+	 * @return
+	 */
+	public MaterialForm checkBody(String material_id, SqlSession conn,
+			List<MsgInfo> errors) {
+		MaterialForm ret = new MaterialForm();
+
+		MaterialService ms = new MaterialService();
+		MaterialEntity mBean = ms.loadMaterialDetailBean(conn, material_id);
+
+		// 附件本体存在
+		if (mBean == null) {
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("material_id");
+			error.setErrcode("info.linework.invalidCode");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.invalidCode"));
+			errors.add(error);
+		} else {
+			// 附件本体型号
+			String model_id = mBean.getModel_id();
+			Map<String, String> useAccessoriesModels = RvsUtils.getUseAccessoriesModels(conn);
+			if (!useAccessoriesModels.containsKey(model_id)) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("material_id");
+				error.setErrcode("info.linework.notAccessoriesBodyModel");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.notAccessoriesBodyModel"));
+				errors.add(error);
+			}
+			if (mBean.getOutline_time() != null) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("material_id");
+				error.setErrcode("info.linework.shipped");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.shipped"));
+//				errors.add(error);
+			}
+			// 附件本体已绑定
+			SoloProductionFeatureMapper mapper = conn.getMapper(SoloProductionFeatureMapper.class);
+			MaterialEntity soBean =  mapper.checkSnoutOrigin(material_id, null);
+			if (soBean != null) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("material_id");
+				error.setErrcode("info.linework.bindAccessoriesBody");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.bindAccessoriesBody"));
+				errors.add(error);
+			}
+			if (errors.size() == 0) {
+				ret.setMaterial_id(material_id);
+				ret.setModel_id(model_id);
+				ret.setSerial_no(mBean.getSorc_no().substring(mBean.getSorc_no().length() - 7));
+			}
+		}
+
+		return ret;
+	}
+
+	/**
 	 * 取得当月生成先端头
 	 * @param snoutsByMonth 生成先端头一览，返回用
 	 * @@param kind 取得的机种（粗镜，周边，显微镜）
@@ -487,6 +546,8 @@ public class SoloSnoutService {
 		List<MaterialEntity> snoutsByMonthInner = null;
 		if ("11".equals(kind)) {
 			snoutsByMonthInner = mapper.getCoalitionProcessOnMonth(month, kind, "00000000101");
+		} else if ("07".equals(kind)) {
+			snoutsByMonthInner = mapper.getCoalitionProcessOnMonth(month, kind, "00000000113");
 		} else {
 			snoutsByMonthInner = mapper.getSnoutOriginOnMonth(month, kind);
 		}

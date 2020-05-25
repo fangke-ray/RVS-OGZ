@@ -32,7 +32,7 @@ var makeBreakDialog = function(jBreakDialog) {
 					}
 
 					if (hasPcs) {
-						pcsO.valuePcs(data);
+						pcsO.valuePcs(data, true);
 					}
 
 					// Ajax提交
@@ -558,7 +558,18 @@ var doSetOrigin_ajaxSuccess = function(xhrobj, textStatus){
 	} else {
 		var mForm = resInfo.mForm;
 		$("#scanner_inputer").val(mForm.material_id).disable();
-		$("#input_model_id").val(mForm.model_id).enable().trigger("change");
+		if (resInfo.accessoriesModels) {
+			var $input_model_id = $("#input_model_id").enable();
+			var opLength = $input_model_id.children("option").length;
+			var visibleArray = [];
+			$input_model_id.children("option").each(function(idx, ele){
+				if(ele.value === "" || resInfo.accessoriesModels.indexOf(ele.value) >= 0)
+					visibleArray.push(idx);
+			});
+			$input_model_id.select2Buttons("setDisplay", {visible : visibleArray})
+		} else {
+			$("#input_model_id").val(mForm.model_id).enable().trigger("change");
+		}
 		$("#input_snout_no").val(mForm.serial_no).enable();
 		$("#startbutton").enable();
 		if (resInfo.Continue) {
