@@ -747,6 +747,7 @@
 		<value code="3">干燥灯</value>
 		<value code="4">干燥炉</value>
 		<value code="49">40℃～50℃</value>
+		<value code="50">45℃～55℃</value>
 		<value code="52">50℃～55℃</value>
 		<value code="55">50℃～60℃</value>
 		<value code="60">55℃～65℃</value>
@@ -761,6 +762,7 @@
 
 	<codelist name="drying_oven_lower_limit">
 		<value code="49">40</value>
+		<value code="50">45</value>
 		<value code="52">50</value>
 		<value code="55">50</value>
 		<value code="60">55</value>
@@ -775,6 +777,7 @@
 
 	<codelist name="drying_oven_upper_limit">
 		<value code="49">50</value>
+		<value code="50">55</value>
 		<value code="52">55</value>
 		<value code="55">60</value>
 		<value code="60">65</value>
