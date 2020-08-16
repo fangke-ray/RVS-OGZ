@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
@@ -109,7 +110,7 @@ public class ReadInfect {
 		}
 	}
 
-	public void convert(String fromfile, String tofile, String check_file_manage_id, SqlSessionManager conn, Integer linage, List<MsgInfo> errors) {
+	public void convert(String fromfile, String tofile, String check_file_manage_id, SqlSession conn, Integer linage, List<MsgInfo> errors) {
 		// Defines a factory API
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 

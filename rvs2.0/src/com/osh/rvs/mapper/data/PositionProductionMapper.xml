@@ -31,7 +31,7 @@
 					    section_id, position_id, count(material_id) as processing_count
 					from
 					    production_feature
-					where operate_result = 1
+					where finish_time is null AND operate_result = 1
 					group by
 						section_id, position_id
 				) processing
@@ -118,7 +118,8 @@
 select mado.section_name, mado.action_time, mado.process_code, mado.position_name, mado.line_name,
 (select count(material_id) from production_feature where position_id = mado.position_id and section_id = mado.section_id and action_time is null and finish_time is null) as waiting_count,
 (select count(material_id) from production_feature where position_id = mado.position_id and section_id = mado.section_id and operate_result = 2 and action_time between #{action_time} and DATE_ADD(#{action_time}, INTERVAL 1 DAY)) as processed_count,
-(select count(p.material_id) from operator o join production_feature p on o.operator_id = p.operator_id where p.position_id = mado.position_id and p.section_id = mado.section_id and p.operate_result = 2 and date(p.action_time) = mado.action_time and not exists(select role_id from privacy_of_role where privacy_id in('100','101','107','108','109') and role_id=o.role_id)) as oem_count,
+(select count(p.material_id) from operator o join production_feature p on o.operator_id = p.operator_id where p.position_id = mado.position_id and p.section_id = mado.section_id and p.operate_result = 2 and p.action_time between #{action_time} and DATE_ADD(#{action_time}, INTERVAL 1 DAY) 
+	and not exists(select role_id from privacy_of_role where privacy_id in('100','101','107','108','109') and role_id=o.role_id)) as oem_count,
 (select count(material_id) from production_feature where position_id = mado.position_id and section_id = mado.section_id and operate_result = 3 and finish_time between #{action_time} and DATE_ADD(#{action_time}, INTERVAL 1 DAY)) as stop_count
 from (
 	SELECT distinct

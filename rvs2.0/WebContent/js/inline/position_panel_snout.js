@@ -689,7 +689,7 @@ var doFinish_ajaxSuccess = function(xhrobj, textStatus){
 			}
 		}
 	} catch (e) {
-		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
 }

@@ -599,6 +599,14 @@ public class AlarmMesssageService {
 		amDao.updateAlarmMessageSendation(sendation);
 	}
 
+	/**
+	 * 实行工位的返工
+	 * @param req
+	 * @param conn
+	 * @param reworkPositions 需要返工的工位ID
+	 * @param triggerList 触发访问列表
+	 * @throws Exception
+	 */
 	public void reworkbreak(HttpServletRequest req, SqlSessionManager conn, List<String> reworkPositions, List<String> triggerList) throws Exception {
 		// 取得用户信息
 		HttpSession session = req.getSession();
@@ -606,6 +614,7 @@ public class AlarmMesssageService {
 
 		String material_id = req.getParameter("material_id");
 		String position_id = req.getParameter("position_id");
+		// 发生中断的工位
 		List<String> break_position_ids = new ArrayList<String>();
 
 		PauseFeatureMapper pfdao = conn.getMapper(PauseFeatureMapper.class);

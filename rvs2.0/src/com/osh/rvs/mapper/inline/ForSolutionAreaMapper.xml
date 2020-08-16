@@ -32,7 +32,7 @@ FROM `for_solution_area`
 				    ma.inline_time,
 				    `happen_time`,
 				    `solved_time`,
-				    `reason`,
+				    fsa.`reason`,
 				    pos.process_code,
 				    pos.name AS position_name,
 				    ma.level,
@@ -43,7 +43,7 @@ FROM `for_solution_area`
 				    ma.scheduled_manager_comment,
 				    ma.direct_flg, ma.scheduled_expedited,
 				    mps.scheduled_assign_date,
-				    `comment`,
+				    fsa.`comment`,
 					solved_time is null and -- [Speed Up] 
 					EXISTS (SELECT * FROM production_feature p where material_id = ma.material_id and operate_result = 3 and action_time is null) as break_message,
 				    max(mp.bo_flg) as bo_flg,
@@ -126,7 +126,7 @@ FROM `for_solution_area`
 			</if>
 			<if test="happen_time!= null">
 				<![CDATA[ 
-				and date(fsa.happen_time) = #{happen_time}
+				and fsa.happen_time between #{happen_time} AND DATE_ADD(#{happen_time}, INTERVAL 1 DAY)
 				]]>	
 			</if>
 			<if test="line_id!=null and line_id!='' ">

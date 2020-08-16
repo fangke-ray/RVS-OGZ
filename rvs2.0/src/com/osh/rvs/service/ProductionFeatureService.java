@@ -20,6 +20,7 @@ import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.ProductionFeatureForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
@@ -732,7 +733,7 @@ public class ProductionFeatureService {
 			String line_id = pa.getLine_id();
 			if ((RvsConsts.PROCESS_ASSIGN_LINE_BASE + "").equals(line_id)) {
 				if (paProxy.getFinishedByLine(line_id)) {
-					if (level == 56 || level == 57 || level == 58 || level == 59) {
+					if (RvsUtils.isPeripheral(level)) {
 						nextPositions.add(RvsConsts.POSITION_PERI_QA);
 					} else if (level == 0) {
 						nextPositions.add(RvsConsts.POSITION_PRODUCT_QA);

@@ -284,7 +284,7 @@ public class InitServlet extends HttpServlet {
 			trigger = newTrigger().withIdentity("packageFilingTrigger", "rvspush")
 					.withSchedule(dailyAtHourAndMinute(22, 25)) // 22, 25
 					.build();
-			
+
 			scheduler.scheduleJob(job, trigger);
 
 		} catch (NumberFormatException nfe) {

@@ -609,17 +609,17 @@ public class PcsUtils {
 				Set<String> hasProcess = new HashSet<String>();
 				for (ProductionFeatureEntity pf : pfEntities) {
 					// 工位代码
-					String process_code = pf.getProcess_code();
-					if ("612".equals(process_code)) process_code = "611";
-					String orgProcessCode = process_code;
+					String processCode = pf.getProcess_code();
+					if ("612".equals(processCode)) processCode = "611";
+					String orgProcessCode = processCode;
 
-					boolean isCurrent = process_code.equals(currentProcessCode);
+					boolean isCurrent = processCode.equals(currentProcessCode);
 					if (currentProcessCode != null && currentProcessCode.indexOf("\\d") >= 0) {
-						isCurrent = process_code.matches(currentProcessCode);
+						isCurrent = processCode.matches(currentProcessCode);
 					}
-					process_code = checkOverAll(process_code);
+					processCode = checkOverAll(processCode);
 
-					Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
+					Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
 					Matcher mProcessCode = pProcessCode.matcher(specify);
 
 					if (hasProcess.contains(orgProcessCode) || mProcessCode.find()) {
@@ -653,28 +653,28 @@ public class PcsUtils {
 
 										case 'I': {
 											// 输入：I
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + sInput + "</label>");
 											break;
 										}
 										case 'R': {
 											// 单选：R
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
 													"<label>" + CHECKED + "</label>");
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + UNCHECKED + "</label>");
 											break;
 										}
 										case 'M': {
 											// 合格确认：M
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + CHECKED + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"1\">");
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + FORBIDDEN + "</label><input name=\"$1\" class=\"i_sff\" type=\"hidden\" checked value=\"-1\">");
 											}
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + NOCARE + "</label>");
 											break;
 										}
@@ -682,16 +682,16 @@ public class PcsUtils {
 											// 签章：N
 											if ("1".equals(sInput)) {
 												// 确认
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<img src=\"/images/sign/" + pf.getJob_no() + "\"/>");
 														// "<img src=\"images/operator/" + pf.getJob_no() + "\"/>");
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
 											} else if ("-1".equals(sInput)) {
 												// 不做
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>"+NOCARE+"</label>");
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
 											}
 											break;
@@ -705,10 +705,10 @@ public class PcsUtils {
 										case 'P': {
 											// 通过：P
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<switcher name=\"$1\" rcd status='PASS'></switcher>");
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<switcher name=\"$1\" rcd status='FAil'></switcher>");
 											}
 											break;
@@ -716,12 +716,12 @@ public class PcsUtils {
 										case 'T': {
 											// 综合合格判定：T
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<section locate=\"$1\" class=\"i_total\">合格</section>" + 
 																"<input type=\"hidden\" name=\"$1\" value=\"1\" class=\"i_total_hidden\"/>"
 														);
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<section locate=\"$1\" class=\"i_total\">不合格</section>" + 
 														"<input type=\"hidden\" name=\"$1\" value=\"-1\" class=\"i_total_hidden\"/>"
 														);
@@ -798,28 +798,28 @@ public class PcsUtils {
 	
 										case 'I': {
 											// 输入：I
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"I\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + sInput + "</label>");
 											break;
 										}
 										case 'R': {
 											// 单选：R
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"("+sInput+")\"/>",
 													"<label>" + CHECKED + "</label>");
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"R\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + UNCHECKED + "</label>");
 											break;
 										}
 										case 'M': {
 											// 合格确认：M
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + CHECKED + "</label>");
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + FORBIDDEN + "</label>");
 											}
-											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+											specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"M\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 													"<label>" + NOCARE + "</label>");
 											break;
 										}
@@ -827,16 +827,16 @@ public class PcsUtils {
 											// 签章：N
 											if ("1".equals(sInput)) {
 												// 确认
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<img src=\"/images/sign/" + pf.getJob_no().toUpperCase() + "\"/>");
 														// "<img src=\"images/operator/" + pf.getJob_no().toUpperCase() + "\"/>");
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
 											} else if ("-1".equals(sInput)) {
 												// 不做
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"N\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>"+NOCARE+"</label>");
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid.replaceAll("EN", "ED") + ")\\d\\d\" scope=\"E\" type=\"D\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<label>" + DateUtil.toString(pf.getFinish_time(), "MM-dd") + "</label>");
 											}
 											break;
@@ -850,10 +850,10 @@ public class PcsUtils {
 										case 'P': {
 											// 通过：P
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<switcher name=\"$1\" other status='PASS'></switcher>");
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"P\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<switcher name=\"$1\" other status='FAil'></switcher>");
 											}
 											break;
@@ -861,11 +861,11 @@ public class PcsUtils {
 										case 'T': {
 											// 综合合格判定：T
 											if ("1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 														"<section locate=\"$1\">合格</section>"
 														);
 											} else if ("-1".equals(sInput)) {
-												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
+												specify = specify.replaceAll("<pcinput pcid=\"@#(" + pcid + ")\\d\\d\" scope=\"E\" type=\"T\" position=\"" + processCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 												"<section locate=\"$1\">不合格</section>"
 														);
 											}
@@ -1757,11 +1757,11 @@ public class PcsUtils {
 					filename = files.get(modelNameBFile);
 				} else {
 					ModelEntity modelEntity = ReverseResolution.getModelEntityByName(modelName, conn);
-	
+
 					// 按目录对应分类取得 TODO
 					String packkind = getPackFromLineName(pace);
 					String getPackName = getPackName(packkind, modelEntity);;
-	
+
 					if (!CommonStringUtil.isEmpty(getPackName)) {
 						filename = files.get(getPackName);
 					}

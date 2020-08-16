@@ -37,7 +37,6 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.qf.MaterialFactForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
-import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
 // import com.osh.rvs.service.MaterialProcessAssignService;
@@ -475,7 +474,7 @@ public class MaterialFactService {
 			BeanUtil.copyToForm(bean, form, cos);
 			int level = bean.getLevel();
 			boolean isLightFix = RvsUtils.isLightFix(level);
-			if (!isLightFix && level != 56 && level != 57 && level != 58) {
+			if (!isLightFix && !RvsUtils.isPeripheral(level)) {
 				if (!RvsUtils.getCcdModels(conn).contains(form.getModel_id())) {
 					form.setQuotation_first("-1");
 				}

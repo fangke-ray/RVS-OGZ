@@ -13,6 +13,7 @@ import org.apache.ibatis.session.SqlSessionManager;
 
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.master.HolidayMapper;
 
@@ -87,27 +88,27 @@ public class HolidayService {
 
 	public void fixScheduledDate(Map<String, Object> callbackResponse,
 			SqlSessionManager conn) {
-		HolidayMapper hMapper = conn.getMapper(HolidayMapper.class);
 		MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 
 		List<MaterialEntity> list = mMapper.getInlineScheduled();
-		Map<Long, Long> catchMap = new HashMap<Long, Long>();
+		Map<String, Long> catchMap = new HashMap<String, Long>();
 
 		int pushForwardCount = 0;
 		int pushBackwardCount = 0;
 
 		for (MaterialEntity me : list) {
 			Date agreedDate = me.getAgreed_date();
-			long agreedDateGetTime = agreedDate.getTime();
-			if (!catchMap.containsKey(agreedDateGetTime)) {
-				Map<String, Object> cond = new HashMap<String, Object>();
-				cond.put("date", agreedDate);
-				cond.put("interval", RvsConsts.TIME_LIMIT);
-				Date added = hMapper.addWorkdays(cond);
-				catchMap.put(agreedDate.getTime(), added.getTime());
+			Integer level = me.getLevel();
+			Integer scheduledExpedite = me.getScheduled_expedited();
+			String agreedDateGetTimeKey = agreedDate.getTime() + "_" + level + "_" + scheduledExpedite;
+
+			if (!catchMap.containsKey(agreedDateGetTimeKey)) {
+				Date[] timeLimit = RvsUtils.getTimeLimit(agreedDate, level, scheduledExpedite, conn, false);
+
+				catchMap.put(agreedDateGetTimeKey, timeLimit[0].getTime());
 			}
 
-			Date newScheduleDate = new Date(catchMap.get(agreedDateGetTime));
+			Date newScheduleDate = new Date(catchMap.get(agreedDateGetTimeKey));
 
 			int diff = newScheduleDate.compareTo(me.getScheduled_date());
 			if (diff == 0) {

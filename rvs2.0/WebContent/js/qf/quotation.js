@@ -517,7 +517,12 @@ var treatStart = function(resInfo) {
 	$("#continuebutton").hide();
 	$("#pausebutton").show();
 	$("#breakbutton, #stepbutton").enable();
-	$("#confirmbutton, #wipconfirmbutton").enable();
+
+	if (resInfo.workstauts == "4") {
+		$("#confirmbutton, #wipconfirmbutton").disable();
+	} else {
+		$("#confirmbutton, #wipconfirmbutton").enable();
+	}
 
 	if (resInfo.quality_tip) {
 		showTips(resInfo.quality_tip);

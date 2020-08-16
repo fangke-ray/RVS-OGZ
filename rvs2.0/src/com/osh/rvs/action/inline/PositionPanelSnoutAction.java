@@ -132,7 +132,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 		String level = user.getPx();
 
 		// 取得工位信息
-		req.setAttribute("position", service.getPositionMap(section_id, position_id, level, conn));
+		req.setAttribute("position", service.getPositionMap(section_id, position_id, null, conn));
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

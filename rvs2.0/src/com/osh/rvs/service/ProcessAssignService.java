@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.bean.master.ProcessAssignTemplateEntity;
 import com.osh.rvs.common.PathConsts;
@@ -24,6 +25,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.form.master.ProcessAssignTemplateForm;
 import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -55,6 +57,11 @@ public class ProcessAssignService {
 				S1PASSES = new Integer[0];
 			}
 		}
+	}
+
+	public void insert(ProductionFeatureEntity entity, SqlSession conn) {
+		ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
+		dao.insertProductionFeature(entity);
 	}
 
 	public List<ProcessAssignTemplateForm> searchTemplate(ActionForm form, SqlSession conn, List<MsgInfo> errors) {
@@ -146,6 +153,9 @@ public class ProcessAssignService {
 		// 表单复制到数据对象
 		ProcessAssignTemplateEntity updateBean = new ProcessAssignTemplateEntity();
 		BeanUtil.copyToBean(form, updateBean, null);
+
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		updateBean.setUpdated_by(user.getOperator_id());
 
 		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
 		dao.deleteProcessAssignTemplate(updateBean);

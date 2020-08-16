@@ -329,7 +329,7 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 	 */
 	public void sourceImage(ActionMapping mapping, ActionForm form, HttpServletRequest req,
 			HttpServletResponse res, SqlSession conn) throws Exception {
-		log.info("ToolsManageAction.sourceImage start");
+		log.info("DeviceJigRepairRecordAction.sourceImage start");
 
 		// Ajax回馈对象
 		Map<String, Object> jsonResponse = new HashMap<String, Object>();
@@ -348,7 +348,7 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		// 返回Json格式响应信息
 		returnJsonResponse(res, jsonResponse);
 
-		log.info("ToolsManageAction.sourceImage end");
+		log.info("DeviceJigRepairRecordAction.sourceImage end");
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 	 */
 	public void delImage(ActionMapping mapping, ActionForm form, HttpServletRequest req,
 			HttpServletResponse res, SqlSession conn) throws Exception {
-		log.info("ToolsManageAction.delImage start");
+		log.info("DeviceJigRepairRecordAction.delImage start");
 
 		// Ajax回馈对象
 		Map<String, Object> jsonResponse = new HashMap<String, Object>();
@@ -377,7 +377,7 @@ public class DeviceJigRepairRecordAction extends BaseAction {
 		// 返回Json格式响应信息
 		returnJsonResponse(res, jsonResponse);
 
-		log.info("ToolsManageAction.delImage end");
+		log.info("DeviceJigRepairRecordAction.delImage end");
 	}
 	
 }

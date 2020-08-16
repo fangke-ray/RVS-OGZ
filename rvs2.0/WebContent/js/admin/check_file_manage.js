@@ -174,22 +174,22 @@ var showDelete=function(rid){
 
 	warningConfirm("删除不能恢复。确认要删除["+rowData.check_manage_code+"]的记录吗？", 
 		function() {
-            var data={
-                "check_file_manage_id":rowData.check_file_manage_id
-            }
-             $.ajax({
-		        beforeSend : ajaxRequestType,
-		        async : true,
-		        url : servicePath + '?method=doDelete',
-		        cache : false,
-		        data : data,
-		        type : "post",
-		        dataType : "json",
-		        success : ajaxSuccessCheck,
-		        error : ajaxError,
-		        complete : delete_handleComplete
-		    });
-        },null,
+			var data={
+				"check_file_manage_id":rowData.check_file_manage_id
+			}
+			$.ajax({
+				beforeSend : ajaxRequestType,
+				async : true,
+				url : servicePath + '?method=doDelete',
+				cache : false,
+				data : data,
+				type : "post",
+				dataType : "json",
+				success : ajaxSuccessCheck,
+				error : ajaxError,
+				complete : delete_handleComplete
+			});
+		},null,
 		"删除确认"
 	);
 };

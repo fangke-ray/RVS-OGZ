@@ -361,8 +361,8 @@
     	ON p.line_id = l.line_id
     	LEFT JOIN `section` s
     	ON pf.section_id = s.section_id
-		WHERE operate_result = 1
-		AND action_time IS NOT NULL AND finish_time IS NULL
+		WHERE action_time IS NOT NULL AND finish_time IS NULL
+		AND operate_result = 1
 		AND operator_id = #{operator_id};
 	]]>
 	</select>
@@ -437,6 +437,7 @@
     	LEFT JOIN `section` s
     	ON pf.section_id = s.section_id
 		WHERE operate_result = 7
+		AND `pf`.finish_time is null
 		AND `pf`.position_id = #{position_id}
 		AND `pf`.operator_id = #{operator_id};
 	]]>

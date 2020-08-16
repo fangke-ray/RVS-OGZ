@@ -125,7 +125,6 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 			chosedPos = {};
 
 			if ($("#rework_pat_id").attr("neo")) {
-				$("#rework_pat_id").removeAttr("neo");
 				$("#hdn_pat_id").val(resInfo.pat_id);
 				$("#rework_pat_id").val(resInfo.pat_id).trigger("change");
 			}

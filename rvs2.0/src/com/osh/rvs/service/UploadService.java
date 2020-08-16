@@ -482,6 +482,7 @@ public class UploadService {
 	 * @param checkT 
 	 * @return list
 	 */
+	@SuppressWarnings("deprecation")
 	public Map<String, Map<String, Integer>> readFileByLines(String fileName, Map<String, Map<String, Integer>> materialMap, boolean checkT, SqlSession conn, List<MsgInfo> errors) {
 		File file = new File(fileName);
 		String code = RvsUtils.getFileCode(fileName);// 取得文件编码
@@ -732,6 +733,7 @@ public class UploadService {
 	 * @param conn
 	 * @param errors
 	 */
+	@SuppressWarnings("deprecation")
 	public Map<String, Map<String, Date>> readBoExcel(String fileName, SqlSessionManager conn, List<MsgInfo> errors){
 		InputStream in = null;
 		Map<String, Map<String, Date>> materialMap = new HashMap<String, Map<String, Date>>();

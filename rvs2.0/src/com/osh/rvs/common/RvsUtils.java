@@ -1013,7 +1013,7 @@ public class RvsUtils {
 
 		boolean lightFix = isLightFix(level);
 //		boolean mediumFix = isMediumFix(level);
-		boolean peripheral = (level == 56 || level == 57 || level == 58);
+		boolean peripheral = isPeripheral(level);
 		// lightFix = lightFix && (fix_type == 1);
 
 		Integer timeLimit = RvsConsts.TIME_LIMIT;
@@ -1024,8 +1024,8 @@ public class RvsUtils {
 //		if (mediumFix) {
 //			timeLimit = +6;
 //		}
-		if (peripheral) { // 周边8个工作日
-			timeLimit = +8;
+		if (peripheral) { // 周边8个工作日 -> (153PB) 6个工作日
+			timeLimit = +6;
 		}
 
 		Date workDate = RvsUtils.switchWorkDate(agreedDate, timeLimit);

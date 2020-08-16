@@ -57,10 +57,13 @@ public class PackageFilingJob implements Job {
 		Calendar today = Calendar.getInstance();
 		today.set(Calendar.HOUR_OF_DAY, 0);
 
-		_log.info("InfectWarningJob: " + jobKey + " executing at " + today);
+		_log.info("PackageFilingJob: " + jobKey + " executing at " + today);
 
 		// 取得数据库连接
 		SqlSession conn = getTempConn();
+
+		_log.info("resetModelMap");
+		resetModelMap(conn);
 
 		PackageFilingService service = new PackageFilingService();
 

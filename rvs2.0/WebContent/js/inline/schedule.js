@@ -142,10 +142,10 @@ $(function() {
 				var dd = new Date(date);
 				if (dd > minDate) {
 					dd.setDate(dd.getDate()-1);
-					$("#pick_date").val(dd.getFullYear()+"/"+(dd.getMonth()+1)+"/"+dd.getDate());
+					$("#pick_date").val(dd.getFullYear()+"/"+fillZero(dd.getMonth()+1)+"/"+fillZero(dd.getDate()));
 				}
 			} else {
-				$("#pick_date").val(minDate.getFullYear()+"/"+(minDate.getMonth()+1)+"/"+minDate.getDate());
+				$("#pick_date").val(minDate.getFullYear()+"/"+fillZero(minDate.getMonth()+1)+"/"+fillZero(minDate.getDate()));
 			}
 			changeDate();
 		} else if ($(this).hasClass('ui-icon-circle-triangle-e')){ //加
@@ -154,20 +154,17 @@ $(function() {
 				var dd = new Date(date);
 				if (dd < maxDate) {
 					dd.setDate(dd.getDate()+1);
-					$("#pick_date").val(dd.getFullYear()+"/"+(dd.getMonth()+1)+"/"+dd.getDate());
+					$("#pick_date").val(dd.getFullYear()+"/"+fillZero(dd.getMonth()+1)+"/"+fillZero(dd.getDate()));
 				}
 			} else {
-				$("#pick_date").val(minDate.getFullYear()+"/"+(minDate.getMonth()+1)+"/"+minDate.getDate());
+				$("#pick_date").val(minDate.getFullYear()+"/"+fillZero(minDate.getMonth()+1)+"/"+fillZero(minDate.getDate()));
 			}
 			changeDate();
 		}
 	});
 
-	$("#search_level").select2Buttons();
-	$("#search_ocm").select2Buttons();
-	$("#search_category_id").select2Buttons();
-	$("#search_section").select2Buttons();
-	$("#sel_period").select2Buttons();
+	$("#search_level, #search_ocm, #search_category_id, #search_section, #sel_period").select2Buttons();
+
 	setReferChooser($("#search_position_id"), $("#pReferChooser"));
 	setReferChooser($("#search_position_id2"), $("#pReferChooser2"));
 
@@ -1184,6 +1181,7 @@ var findboth = function() {
 	};
 
 	keepSearchData = data;
+	keepSearchData["scheduled_assign_date"] = $("#pick_date").val();
 
 	// Ajax提交
 	$.ajax({

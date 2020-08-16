@@ -175,7 +175,7 @@ on a.model_id = new_model.model_id
 				section_id = #{section_id},
 				wip_location = null,
 				pat_id = COALESCE(#{pat_id}, pat_id),
-				quotation_first = ${quotation_first}
+				quotation_first = #{quotation_first}
 			where material_id = #{material_id}
 		]]>
 	</update>

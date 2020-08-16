@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.service.ProcessAssignService;
 import com.osh.rvs.service.ProductionFeatureService;
@@ -294,7 +295,7 @@ public class WidgetAction extends BaseAction {
 			if (mBean.getInline_time() == null) { // 尚未投线
 				if (mBean.getLevel() == null) {
 					req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level", null, "(未定)", false));
-				} else if (mBean.getLevel()==56 || mBean.getLevel()==57 || mBean.getLevel()==58) {
+				} else if (RvsUtils.isPeripheral(mBean.getLevel())) {
 					req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level_peripheral", null, "(未定)", false));
 					req.setAttribute("hasDecom", false);
 				} else {
@@ -305,9 +306,9 @@ public class WidgetAction extends BaseAction {
 				if (mBean.getFix_type() == 1) {
 					if (mBean.getLevel()==null) {
 						req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level", null, null, false));
-					} else if (mBean.getLevel()==9 || mBean.getLevel()==91 || mBean.getLevel()==92 || mBean.getLevel()==93 || mBean.getLevel()==9 || mBean.getLevel()==96 || mBean.getLevel()==97 || mBean.getLevel()==98) {
+					} else if (RvsUtils.isLightFix(mBean.getLevel())) {
 						req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level_light", null, null, false));
-					} else if (mBean.getLevel()==56 || mBean.getLevel()==57 || mBean.getLevel()==58) {
+					} else if (RvsUtils.isPeripheral(mBean.getLevel())) {
 						req.setAttribute("lOptions", CodeListUtils.getSelectOptions("material_level_peripheral", null, null, false));
 						req.setAttribute("hasDecom", false);
 					} else {

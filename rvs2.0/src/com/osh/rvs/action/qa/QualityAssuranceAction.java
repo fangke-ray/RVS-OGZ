@@ -237,6 +237,12 @@ public class QualityAssuranceAction extends BaseAction {
 //						getPf(workingPf, qa_checked, isLeader, callbackResponse, conn);
 					}
 				}
+
+
+				// 取得维修对象备注信息
+				MaterialService ms = new MaterialService();
+				ms.getMaterialComment(workingPf.getMaterial_id(), callbackResponse, conn);
+
 				// 取得工程检查票
 				getPf(workingPf, qa_checked, isLeader, user.getDepartment(), mBean.getModel_id(), callbackResponse, conn);
 
