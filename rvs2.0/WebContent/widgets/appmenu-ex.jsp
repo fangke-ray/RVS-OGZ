@@ -58,6 +58,7 @@ var getPositionWork = function(position_id, px){
 	<% if(links.get("beforeline")) { %>
 		        <a href="beforeLineLeader.do" title="受理报价线长界面">投线前维修对象一览</a><br>
 	<% } %>
+    <a href="turnover_case.do" title="通箱库位">通箱库位管理</a><br>
 	<a href="materialFact.do">投线管理</a><br>
 		</div>
 </div>

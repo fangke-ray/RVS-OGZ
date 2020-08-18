@@ -974,6 +974,16 @@ public class ProductionFeatureService {
 		mapper.remove(material_id, position_id);
 	}
 	
+	/**
+	 * 判断是否完成消毒
+	 * @param material_id
+	 * @param conn
+	 */
+	public int checkFinishedDisinfection(String material_id, SqlSession conn) {
+		// ProductionFeatureMapper mapper = conn.getMapper(ProductionFeatureMapper.class);
+		return 1; // mapper.checkFinishedDisinfection(material_id);
+	}
+
 	public void updateFinishTime(ProductionFeatureEntity workingPf,SqlSessionManager conn){
 		ProductionFeatureMapper mapper = conn.getMapper(ProductionFeatureMapper.class);
 		mapper.updateFinishTime(workingPf);

@@ -18,7 +18,7 @@ var productActionName = "包装";
 var repairListName = "维修品";
 var productListName = "制品";
 
-var colNamesRepairL = ['受理时间','同意时间','完成日期','返还','修理单号', '型号 ID', '型号' , '机身号','返送地区', '等级', '加急'];
+var colNamesRepairL = ['受理时间','同意时间','完成日期','返还','修理单号', '型号 ID', '型号' , '机身号','返送地区', '等级', '加急', '通箱位置'];
 var colModelRepairL = [{
 						name : 'reception_time',
 						index : 'reception_time',
@@ -71,6 +71,16 @@ var colModelRepairL = [{
 					index : 'scheduled_expedited',
 					width : 35,
 					align : 'center', formatter: 'select', editoptions:{value: "0:;1:加急;2:直送快速"}
+				}, {
+					name : 'wip_location',
+					index : 'wip_location',
+					width : 35,
+					align : 'center', formatter:  function(value,r,rData){
+						if(!value){
+							return '(已取出)';
+						}		
+						return value;
+					}
 				}
 			];
 var colNamesProductL = ['开始日期', '开始时间', '总组完成时间', 'QA完成时间', '型号 ID', '型号' , '机身号'];
@@ -306,6 +316,7 @@ $(function() {
 	}
 
 	$("#reportbutton").click(makeReport);
+	$("#tcWarehouseButton").click(showWarehousingPlan);
 
 	doShippingInit();
 });

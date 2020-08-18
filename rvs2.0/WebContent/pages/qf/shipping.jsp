@@ -21,6 +21,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
+<script type="text/javascript" src="js/qf/turnover_case_common.js"></script>
 <script type="text/javascript" src="js/qf/shipping.js"></script>
 <title>出货</title>
 </head>
@@ -116,6 +117,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div id="functionarea" class="dwidth-middleright" style="margin:auto;">
 	<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase bar_fixed">
 		<div id="executes" style="margin-left:4px;margin-top:4px;">
+			<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="tcWarehouseButton" value="通箱出库" role="button" aria-disabled="false">
 			<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="reportbutton" value="临时生成当日报表" role="button" aria-disabled="false" style="float: right; right: 2px">
 		</div>
 	</div>

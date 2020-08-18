@@ -79,14 +79,14 @@ public class LoginAction extends BaseAction {
 		_logger.info("LoginAction.init end");
 	}
 
-	public void consumable(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
+	public void pda(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
-		_logger.info("LoginAction.consumable start");
+		_logger.info("LoginAction.pda start");
 
 		// 迁移到pda登陆页面
 		actionForward = mapping.findForward("pda_init");
 
-		_logger.info("LoginAction.consumable end");
+		_logger.info("LoginAction.pda end");
 	}
 
 	public void login(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
@@ -420,18 +420,39 @@ public class LoginAction extends BaseAction {
 
 		List<MsgInfo> errors = v.validate();
 
+		boolean hasPrivacy = false;
 		if (errors.isEmpty()) {
 			req.setAttribute("isFact", false);
 			req.setAttribute("isRecept", false);
+
 			// 建立会话用户信息
 			List<Integer> privacies = pdaMakeSession(operator, req.getSession(), errors, conn);
 			if (privacies != null) {
 				if (privacies.contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
 					req.setAttribute("isFact", true);
+					hasPrivacy = true;
+				}
+
+				LoginData loginData = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+				for (LineEntity lines : loginData.getLines()) {
+					if ("00000000011".equals(lines.getLine_id())) {
+						if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+							req.setAttribute("isRecept", true);
+							hasPrivacy = true;
+						}
+						break;
+					}
 				}
 			}
 		}
 
+		if (errors.isEmpty() && !hasPrivacy) {
+			MsgInfo info = new MsgInfo();
+			info.setComponentid("job_no");
+			info.setErrcode("privacy.noPrivacy");
+			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("privacy.noPrivacy"));
+			errors.add(info);
+		}
 		if (!errors.isEmpty()) {
 			req.setAttribute("errors", getStrMsgInfo(errors));
 			// 迁移到页面
@@ -513,6 +534,24 @@ public class LoginAction extends BaseAction {
 
 		if (errors.isEmpty()) {
 			loginData.setPrivacies(getPrivacies(loginData.getRole_id(), conn));
+
+			OperatorService oService = new OperatorService();
+			List<PositionEntity> positionsList = oService.getUserPositions(loginData.getOperator_id(), conn);
+
+			List<LineEntity> linesList = new ArrayList<LineEntity>();
+
+			Set<String> line_ids = new HashSet<String>();
+			for (PositionEntity position : positionsList) {
+				String line_id = position.getLine_id();
+				if (!line_ids.contains(line_id) && !"00000000000".equals(line_id)) {
+					line_ids.add(line_id);
+					LineEntity line = new LineEntity();
+					line.setLine_id(line_id);
+					line.setName(position.getLine_name());
+					linesList.add(line);
+				}
+			}
+			loginData.setLines(linesList);
 
 			// 用户信息保存在会话中
 			session.setAttribute(RvsConsts.SESSION_USER, loginData);

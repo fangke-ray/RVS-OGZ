@@ -11,7 +11,7 @@
 			  `m`.`level`, `m`.direct_flg, `m`.service_repair_flg, `m`.reception_time, `m`.fix_type,
 			  `m`.agreed_date, `mdl`.name as model_name, `pf`.operate_result, `m`.scheduled_expedited,
 			  coalesce(`mp`.finish_date,`m`.outline_time) as finish_time,
-			  `m`.break_back_flg
+			  `m`.break_back_flg, tcs.location as wip_location
 			FROM material m
 			JOIN model mdl ON `m`.model_id = `mdl`.model_id
 			JOIN production_feature pf
@@ -22,6 +22,7 @@
 			LEFT JOIN material_process mp
 				ON mp.material_id = m.material_id
 				AND mp.line_id in (select line_id from line where in_advance = 0)
+			LEFT JOIN turnover_case_storage tcs ON `m`.material_id = tcs.material_id
 			ORDER BY operate_result DESC, reception_time
 		]]>
 		

@@ -80,6 +80,7 @@
 		<typeAlias alias="GlueMixingProcessPaceEntity" type="com.osh.rvs.bean.inline.GlueMixingProcessPaceEntity"/>
 
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.qa.ServiceRepairManageEntity"/>
+		<typeAlias alias="TurnoverCaseEntity" type="com.osh.rvs.bean.qf.TurnoverCaseEntity"/>
 		<typeAlias alias="WeeklyKpiDataEntity" type="com.osh.rvs.bean.report.WeeklyKpiDataEntity"/>
 		
 		<typeAlias alias="PartialBussinessStandardEntity" type="com.osh.rvs.bean.master.PartialBussinessStandardEntity"/>
@@ -163,6 +164,7 @@
 		<mapper resource="com/osh/rvs/mapper/qf/ShippingMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/qf/MaterialFactMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/qf/WipMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/qf/TurnoverCaseMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/DryingOvenDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/ElectricIronDeviceMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/infect/ExternalAdjustmentMapper.xml"/>

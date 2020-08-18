@@ -72,7 +72,7 @@
 				a.ocm_deliver_date,a.osh_deliver_date,
 				a.direct_flg,a.service_repair_flg,a.fix_type,a.selectable,
 				not a.ticket_flg as sterilized, b.finish_time, a.area, a.bound_out_ocm ,
-				a.scheduled_expedited,
+				a.scheduled_expedited, tcs.location as wip_location,
 				a.break_back_flg
 			FROM material a
 			LEFT JOIN model
@@ -84,6 +84,7 @@
 				ON o.operator_id = b.operator_id
 			LEFT JOIN customer c
 				ON a.customer_id = c.customer_id
+			LEFT JOIN turnover_case_storage tcs ON a.material_id = tcs.material_id
 			WHERE a.break_back_flg IN (0,3,4)
 			AND fix_type in (1, 2)
 and a.inline_time is null -- [SpeedUp]

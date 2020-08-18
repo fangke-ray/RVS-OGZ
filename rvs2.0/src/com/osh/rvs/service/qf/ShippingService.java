@@ -29,7 +29,6 @@ import com.osh.rvs.mapper.qf.ShippingMapper;
 import com.osh.rvs.service.inline.PositionPanelService;
 
 import framework.huiqing.bean.message.MsgInfo;
-import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
 import framework.huiqing.common.util.copy.IntegerConverter;
@@ -88,13 +87,7 @@ public class ShippingService {
 //		}
 
 		// 工时按标准工时：
-		String sUse_seconds = RvsUtils.getZeroOverLine("_default", null, user, "711");
-		Integer use_seconds = 600;
-		try {
-			use_seconds = (int) (Double.parseDouble(sUse_seconds) * 60);
-		} catch (Exception e) {
-
-		}
+		Integer use_seconds = ppService.getTotalTimeByRework(workingPf, conn);
 
 		// 作业信息状态改为，作业完成
 		ProductionFeatureMapper pfdao = conn.getMapper(ProductionFeatureMapper.class);

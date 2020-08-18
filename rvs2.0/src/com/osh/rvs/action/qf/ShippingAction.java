@@ -18,11 +18,13 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.qf.TurnoverCaseEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.service.inline.PositionPanelService;
 import com.osh.rvs.service.product.ProductService;
 import com.osh.rvs.service.qf.ShippingService;
+import com.osh.rvs.service.qf.TurnoverCaseService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -130,6 +132,7 @@ public class ShippingAction extends BaseAction {
 
 	/**
 	 * 扫描开始/直接暂停重开
+	 * 
 	 * @param mapping ActionMapping
 	 * @param form 表单
 	 * @param req 页面请求
@@ -147,8 +150,6 @@ public class ShippingAction extends BaseAction {
 		String material_id = req.getParameter("material_id");
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
-		ShippingService service = new ShippingService();
-
 		if (user.getDepartment() == RvsConsts.DEPART_MANUFACT) {
 			String serial_no = req.getParameter("material_id");
 			ProductService pService = new ProductService();
@@ -158,9 +159,21 @@ public class ShippingAction extends BaseAction {
 			} else {
 				material_id = waitingPf.getMaterial_id();
 			}
+		} else {
+			TurnoverCaseService tcService = new TurnoverCaseService();
+			TurnoverCaseEntity tce = tcService.getStorageByMaterial(material_id, conn);
+			if (tce != null) {
+				MsgInfo info = new MsgInfo();
+				info.setErrcode("info.turnoverCase.materialShippingWithoutCase");
+				info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.turnoverCase.materialShippingWithoutCase"));
+				errors.add(info);
+			}
 		}
 
-		service.scanMaterial(conn, material_id, req, errors, listResponse);
+		if (errors.size() == 0) {
+			ShippingService service = new ShippingService();
+			service.scanMaterial(conn, material_id, req, errors, listResponse);
+		}
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);

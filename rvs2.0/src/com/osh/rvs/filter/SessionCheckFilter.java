@@ -88,7 +88,7 @@ public class SessionCheckFilter implements Filter {
 				}
 			} else if (path.contains("/pda_")) {// ("consumable".equals(requestType)) {
 				// 消耗品扫描仪
-				request.getRequestDispatcher(RvsConsts.PAGE_LOGIN + "?method=consumable").forward(request, response);
+				request.getRequestDispatcher(RvsConsts.PAGE_LOGIN + "?method=pda").forward(request, response);
 			} else {
 				// 页面整体提交的场合转到登录画面
 				request.getRequestDispatcher(RvsConsts.PAGE_LOGIN + "?method=sessionTimeout").forward(request, response);

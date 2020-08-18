@@ -77,6 +77,7 @@
 		<form-bean name="UsageCheckForm" type="com.osh.rvs.form.infect.UsageCheckForm"></form-bean>
 		<form-bean name="TorsionDeviceForm" type="com.osh.rvs.form.infect.TorsionDeviceForm"></form-bean>
 		<form-bean name="ElectricIronDeviceForm" type="com.osh.rvs.form.infect.ElectricIronDeviceForm"></form-bean>
+		<form-bean name="TurnoverCaseForm" type="com.osh.rvs.form.qf.TurnoverCaseForm"></form-bean>
 		<form-bean name="PeripheralInfectDeviceForm" type="com.osh.rvs.form.infect.PeripheralInfectDeviceForm"></form-bean>
 		<form-bean name="WeeklyKpiDataForm" type="com.osh.rvs.form.report.WeeklyKpiDataForm"></form-bean>
 		<form-bean name="GlueMixingForm" type="com.osh.rvs.form.inline.GlueMixingForm"></form-bean>
@@ -455,6 +456,7 @@
 			<forward name="init-ex" path="/widgets/appmenu-ex.jsp" />
 			<forward name="partial-ex" path="/widgets/partialmenu-ex.jsp" />
 			<forward name="tools-ex" path="/widgets/toolsmenu-ex.jsp" />
+			<forward name="pda_menu" path="/pages/pda/pda_menu.jsp" />
 			<forward name="manufact-ex" path="/widgets/manufactmenu-ex.jsp" />
 		</action>
 
@@ -1020,6 +1022,36 @@
 				parameter="method"
 				validate="false">
 				<forward name="init" path="/pages/manage/operation_standard_doc.jsp"/>
+		</action>
+
+		<!-- 通箱一览 -->
+		<action path="/turnover_case"
+				type="com.osh.rvs.action.qf.TurnoverCaseAction"
+				name="TurnoverCaseForm"
+				parameter="method"
+		        validate="false" 
+				scope="request">
+				<forward name="init" path="/pages/qf/turnover_case.jsp"></forward>
+		</action>
+
+		<!-- 周转箱存放 -->
+		<action path="/pda_turnover_case_storage"
+			type="com.osh.rvs.action.pda.PdaTcStorageAction"
+			name="TurnoverCaseForm"
+			scope="request"
+			parameter="method"
+			validate="false">
+			<forward name="init" path="/pages/pda/pda_turnover_case_storage.jsp" />
+		</action>
+
+		<!-- 周转箱出库 -->
+		<action path="/pda_turnover_case_shipping"
+			type="com.osh.rvs.action.pda.PdaTcShippingAction"
+			name="TurnoverCaseForm"
+			scope="request"
+			parameter="method"
+			validate="false">
+			<forward name="init" path="/pages/pda/pda_turnover_case_shipping.jsp" />
 		</action>
 
 	</action-mappings>

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
@@ -20,6 +21,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.RvsConsts;
 
@@ -554,6 +556,44 @@ public class AppMenuAction extends BaseAction {
 		// 可用链接设定到画面
 		req.setAttribute("menuLinks", menuLinks);
 		req.setAttribute("linkto", req.getParameter("linkto"));
+
+		log.info("AppMenuAction.tinit end");
+	}
+
+	public void pdaMenu(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
+			SqlSession conn) throws Exception {
+		log.info("AppMenuAction.pdaMenu start");
+
+		String flg = req.getParameter("flg");
+		if (flg == null) {
+			req.setAttribute("isFact", false);
+			req.setAttribute("isRecept", false);
+			// 得到会话用户信息
+			HttpSession session = req.getSession();
+			LoginData loginData = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+			List<Integer> privacies = loginData.getPrivacies();
+			if (privacies != null) {
+				if (privacies.contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
+					req.setAttribute("isFact", true);
+				}
+				for (LineEntity lines : loginData.getLines()) {
+					if ("00000000011".equals(lines.getLine_id())) {
+						if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+							req.setAttribute("isRecept", true);
+						}
+						break;
+					}
+				}
+			}
+		} else if ("cs".equals(flg)) {
+			req.setAttribute("isFact", true);
+			req.setAttribute("isRecept", false);
+		} else if ("tc".equals(flg)) {
+			req.setAttribute("isFact", false);
+			req.setAttribute("isRecept", true);
+		}
+
+		actionForward = mapping.findForward(FW_PDA_MENU);
 
 		log.info("AppMenuAction.pdaMenu end");
 	}

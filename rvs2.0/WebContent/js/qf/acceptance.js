@@ -514,7 +514,7 @@ function acceptted_list(){
 			datatype: "local",
 			colNames:['受理对象ID','导入时间','受理时间', '修理单号', '型号 ID', '型号' , '机身号','RC ID','RC','同意日', 
 			'等级ID', '等级','受理人员ID','受理人员', '备注', '直送', '返修标记', '流水类型','消毒灭菌ID', '选择式报价'
-			,'ocm_rank','customer_name','vip','scheduled_expedited','ocm_deliver_date','osh_deliver_date','area','返送地区','break_back_flg'],
+			,'ocm_rank','customer_name','vip','scheduled_expedited','ocm_deliver_date','osh_deliver_date','area','返送地区', '通箱位置','break_back_flg'],
 			colModel:[
 				{name:'material_id',index:'material_id', hidden:true},
 				{name:'reception_time',index:'reception_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}},
@@ -557,6 +557,7 @@ function acceptted_list(){
 					width : 35,
 					align : 'center'
 				},
+				{name:'wip_location',index:'wip_location', width : 35},
 				{name:'break_back_flg',index:'break_back_flg', hidden:true}
 			],
 			rowNum: 50,
