@@ -25,14 +25,17 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.qf.TurnoverCaseEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.MaterialForm;
+import com.osh.rvs.form.qf.TurnoverCaseForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.qf.AcceptanceService;
+import com.osh.rvs.service.qf.TurnoverCaseService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -357,5 +360,56 @@ public class AcceptanceAction extends BaseAction {
 
 		log.info("AcceptanceAction.return end");
 	}
-	
+
+	/**
+	 * 取得维修对象一览信息
+	 * @param mapping ActionMapping
+	 * @param form 表单
+	 * @param req 页面请求
+	 * @param res 页面响应
+	 * @param conn 数据库会话
+	 * @throws Exception
+	 */
+	@Privacies(permit={107})
+	public void getTcLoad(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
+		log.info("AcceptanceAction.getTcLoad start");
+		// Ajax回馈对象
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+
+		TurnoverCaseService service = new TurnoverCaseService();
+		List<TurnoverCaseForm> idleMaterialList = service.getIdleMaterialList(conn);
+
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 查询预计的入库位信息
+		try {
+			List<String> nextLocations = service.getEmptyLocations("0", 10, false, conn);
+			List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
+
+			listResponse.put("nextLocations", nextLocations);
+			listResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);
+		} catch (Exception e) {
+			// if (e.getMessage().equals("递归安排也无法找到库位！")) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("location");
+				error.setErrmsg("剩余空闲的通箱库位已经不足。请先处理出库。");
+				errors.add(error);
+			// }
+		}
+
+		if (errors.size() == 0) {
+			// 查询入库待处理维修品放入Ajax响应对象
+			listResponse.put("idleMaterialList", idleMaterialList);
+
+			// 查询推车信息
+			List<TurnoverCaseEntity> trolleyStacks = service.getTrolleyStacks(conn);
+			listResponse.put("trolleyStacks", trolleyStacks);
+		}
+
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		log.info("AcceptanceAction.getTcLoad end");
+	}
 }

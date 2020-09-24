@@ -2,6 +2,7 @@ package com.osh.rvs.service.qf;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,14 +16,17 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
+import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.qf.TurnoverCaseEntity;
 import com.osh.rvs.form.qf.TurnoverCaseForm;
 import com.osh.rvs.mapper.qf.TurnoverCaseMapper;
+import com.osh.rvs.service.MaterialService;
 
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.copy.DateUtil;
 
 public class TurnoverCaseService {
 
@@ -308,4 +312,276 @@ public class TurnoverCaseService {
 		}
 	}
 
+	public List<TurnoverCaseEntity> getTrolleyStacks(SqlSession conn) {
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		return mapper.getTrolleyStacks();
+	}
+
+	private static final String TYPE_NORMAL_SHELF = "NORMAL_SHELF";
+	private static final String TYPE_ENDOEYE_SHELF = "ENDOEYE_SHELF";
+	private static final String TYPE_NORMAL_LOCATION = "NORMAL_LOCATION";
+	private static final String TYPE_ENDOEYE_LOCATION = "ENDOEYE_LOCATION";
+	private static final String TYPE_NORMAL_LAYER = "NORMAL_LAYER";
+
+	private static Map<String, Map<String, String>> locationSets = new HashMap<String, Map<String, String>>();
+
+	/**
+	 * 连续取得空置的通箱库位
+	 * 
+	 * @param kind 6 = Endoeye
+	 * @param count 取得数量
+	 * @param realPutin 实际分配
+	 * @param conn
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<String> getEmptyLocations(String kind, int count, boolean realPutin,
+			SqlSession conn) throws Exception {
+		List<String> ret = new ArrayList<String>();
+
+		String locationStart = null;
+		String shelf = null;
+		for (int i = 0; i < count; i++) {
+			locationStart = getEmptyLocation(kind, locationStart, shelf, ret, conn, false);
+			shelf = locationStart.substring(0, 2).trim();
+			if (ret.size() == count) {
+				break;
+			}
+		}
+		if (ret.size() > count) {
+			ret.remove(ret.size() - 1);
+		}
+
+		// 重定位
+		if (realPutin) {
+			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
+			Map<String, String> locationSetsToday = locationSets.get(todayString);
+			if (!kind.equals("06")) {
+				locationSetsToday.put(TYPE_NORMAL_SHELF, ret.get(0).substring(0, 2).trim());
+				locationSetsToday.put(TYPE_NORMAL_LOCATION, ret.get(0));
+			} else {
+				locationSetsToday.put(TYPE_ENDOEYE_SHELF, ret.get(0).substring(0, 2).trim());
+				locationSetsToday.put(TYPE_ENDOEYE_LOCATION, ret.get(0));
+			}
+		}
+
+		return ret;
+	}
+
+	public String getEmptyLocation(String kind, String locationStart, String shelf, List<String> ret, SqlSession conn, boolean bHitAgain) throws Exception {
+
+		// 按照起始位置取得自动位置
+		String assignLocation = null;
+
+		boolean isEndoeye = kind.equals("06");
+
+		synchronized (locationSets) {
+			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
+			if (!locationSets.containsKey(todayString)) {
+				Map<String, String> locationSetsToday = getLocationSetsToday(null, null, conn);
+				locationSets.put(todayString, locationSetsToday);
+
+				// 当日取得时，初始定位提供
+				if (isEndoeye) {
+					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
+					ret.add(locationStart); // 起始位置
+				} else {
+					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
+					ret.add(locationStart); // 起始位置
+				}
+			}
+
+			Map<String, String> locationSetsToday = locationSets.get(todayString);
+
+			if (locationStart == null || shelf == null) {
+				if (isEndoeye) {
+					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
+					shelf = locationSetsToday.get(TYPE_ENDOEYE_SHELF);
+				} else {
+					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
+					shelf = locationSetsToday.get(TYPE_NORMAL_SHELF);
+				}
+			}
+			
+			if (isEndoeye) {
+				assignLocation = getLocation(locationStart, shelf, "1", conn);
+			} else {
+				assignLocation = getLocation(locationStart, shelf, locationSetsToday.get(TYPE_NORMAL_LAYER), conn);
+			}
+
+			if (assignLocation == null) {
+				if (bHitAgain) {
+					throw new Exception("递归安排也无法找到库位！");
+				}
+				// 重新计算空余位置并且递归安排
+				locationSetsToday = getLocationSetsToday(kind, shelf, conn);
+				locationSets.get(todayString).putAll(locationSetsToday);
+
+				// 找不到时，由Exception跳出递归
+				String restartLocation = null;
+				if (!isEndoeye) {
+					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
+					ret.add(locationStart); // 起始位置
+
+					restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_NORMAL_LOCATION), locationSetsToday.get(TYPE_NORMAL_SHELF), 
+							ret, conn, true);
+				} else {
+					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
+					ret.add(locationStart); // 起始位置
+
+					restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_ENDOEYE_LOCATION), locationSetsToday.get(TYPE_ENDOEYE_SHELF), 
+							ret, conn, true);
+				}
+				ret.add(restartLocation);
+				return restartLocation;
+			}
+		}
+
+		ret.add(assignLocation);
+		return assignLocation;
+	}
+
+	private Map<String, String> getLocationSetsToday(String kind, String shelf, SqlSession conn) throws Exception {
+		Map<String, String> result = new HashMap<String, String>();
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+
+		if (kind == null || (!kind.equals("06"))) {
+			// 取得非Endoeye
+			String mostSpacialShelf = mapper.getFirstSpaceShelf("01", shelf); 
+
+			String startLocation = null;
+			if (mostSpacialShelf == null) {
+				if (shelf != null) {
+					mostSpacialShelf = mapper.getFirstSpaceShelf("01", null);
+				}
+
+				if (mostSpacialShelf == null) {
+					throw new Exception("通箱（非Endoeye）库位满了！");
+				}
+			} else {
+				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
+				result.put(TYPE_NORMAL_LAYER, "1");
+			}
+			result.put(TYPE_NORMAL_SHELF, mostSpacialShelf);
+			result.put(TYPE_NORMAL_LOCATION, startLocation);
+		}
+
+		if (kind == null || kind.equals("06")) {
+			// 取得Endoeye
+			String mostSpacialShelf = mapper.getMostSpacialShelf(06, null);
+			String startLocation = null;
+			if (mostSpacialShelf == null) {
+				throw new Exception("通箱（Endoeye）库位满了！");
+			} else {
+				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
+			}
+			result.put(TYPE_ENDOEYE_SHELF, mostSpacialShelf);
+			result.put(TYPE_ENDOEYE_LOCATION, startLocation);
+		}
+
+		return result;
+	}
+
+	private String getLocation(String locationStart, String shelf, String layer,
+			SqlSession conn) {
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		return mapper.getFirstSpaceInShelf(shelf, null, locationStart); // (shelf, layer, locationStart)
+	}
+
+	/**
+	 * 更新推车放置
+	 * 
+	 * @param parameterMap
+	 * @param conn
+	 */
+	public void trolleyUpdate(Map<String, String[]> parameterMap,
+			SqlSessionManager conn) {
+		List<TurnoverCaseEntity> list = new AutofillArrayList<TurnoverCaseEntity> (TurnoverCaseEntity.class); 
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String table = m.group(1);
+				if ("trolley_stack".equals(table)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+					String[] value = parameterMap.get(parameterKey);
+					if ("trolley_code".equals(column)) {
+						list.get(icounts).setTrolley_code(value[0]);
+					} else if ("layer".equals(column)) {
+						list.get(icounts).setLayer(Integer.parseInt(value[0]));
+					} else if ("material_id".equals(column)) {
+						list.get(icounts).setMaterial_id(value[0]);
+					}
+				}
+			}
+		}		
+
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		mapper.removeTrolleyStacks();
+		mapper.insertTrolleyStacks(list);
+	}
+
+	public String assignLocation(Map<String, String[]> parameterMap,
+			SqlSessionManager conn) throws Exception {
+		String retMessage = "";
+
+		List<TurnoverCaseEntity> list = new AutofillArrayList<TurnoverCaseEntity> (TurnoverCaseEntity.class); 
+		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String table = m.group(1);
+				if ("assign_location".equals(table)) {
+					String column = m.group(2);
+					int icounts = Integer.parseInt(m.group(3));
+					String[] value = parameterMap.get(parameterKey);
+					if ("location".equals(column)) {
+						list.get(icounts).setLocation(value[0]);
+					} else if ("material_id".equals(column)) {
+						list.get(icounts).setMaterial_id(value[0]);
+					}
+				}
+			}
+		}		
+
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+
+		for (TurnoverCaseEntity tcEntity : list) {
+			// 判断库位是否已分配
+			TurnoverCaseEntity entity = mapper.checkEmpty(tcEntity.getLocation());
+			if (entity != null) {
+				tcEntity.setExecute(0);
+				mapper.putin(tcEntity);
+
+				// 清除推车
+				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
+			}
+		}
+
+		for (TurnoverCaseEntity tcEntity : list) {
+			MaterialService mService = new MaterialService();
+
+			// 已经占用的重新分配并且加入提示
+			if (tcEntity.getExecute() == null) {
+				MaterialEntity mBean = mService.loadSimpleMaterialDetailEntity(conn, tcEntity.getMaterial_id());
+				List<String> emptyLocations = getEmptyLocations(mBean.getKind(), 1, true, conn);
+				tcEntity.setExecute(0);
+				String orgLocation = tcEntity.getLocation();
+				tcEntity.setLocation(emptyLocations.get(0));
+				mapper.putin(tcEntity);
+
+				retMessage += "维修品" + (mBean.getSorc_no() == null ? "" : mBean.getSorc_no()) 
+						+ "(" + mBean.getModel_name() + " " + mBean.getSerial_no() + ")"
+						+ "原先分配的[" + orgLocation + "]库位已被分配，另行分配到[" + tcEntity.getLocation() + "]。\n";
+
+				// 清除推车
+				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
+			}
+		}
+
+		return retMessage;
+	}
 }

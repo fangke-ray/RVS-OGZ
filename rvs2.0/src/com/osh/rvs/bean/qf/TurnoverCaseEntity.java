@@ -32,6 +32,7 @@ public class TurnoverCaseEntity implements Serializable {
 	private Integer direct_flg;
 	private String omr_notifi_no;
 	private Integer break_back_flg;
+	private String trolley_code;
 
 	public String getMaterial_id() {
 		return material_id;
@@ -167,6 +168,14 @@ public class TurnoverCaseEntity implements Serializable {
 
 	public void setBreak_back_flg(Integer break_back_flg) {
 		this.break_back_flg = break_back_flg;
+	}
+
+	public String getTrolley_code() {
+		return trolley_code;
+	}
+
+	public void setTrolley_code(String trolley_code) {
+		this.trolley_code = trolley_code;
 	}
 
 }

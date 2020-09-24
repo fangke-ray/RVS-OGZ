@@ -196,19 +196,22 @@ LIMIT 1;
 	</select>
 
 	<select id="getIdleMaterialList" resultType="TurnoverCaseEntity">
+		<![CDATA[ 
 	select ma.material_id, ma.omr_notifi_no, mdl.name as model_name, ma.serial_no,
-		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm
+		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm, kind as execute
 	from material ma
-	JOIN model mdl ON ma.model_id = mdl.model_id
+	JOIN v_model mdl ON ma.model_id = mdl.model_id
 	WHERE ma.outline_time is null
 		and break_back_flg = 0
 		and fix_type in (1, 2)
+		and kind < 7 
 		and exists (select 1 from production_feature where material_id = ma.material_id)
 		and not exists
 		(
 		select 1 from turnover_case_storage where material_id = ma.material_id
 		)
-	order by ma.reception_time;
+	order by mdl.name, ma.reception_time;
+		]]>
 	</select>
 
 	<select id="checkEmpty" resultType="TurnoverCaseEntity">
@@ -220,4 +223,98 @@ LIMIT 1;
 			AND material_id IS NULL
 		]]>
 	</select>
+
+	<select id="getTrolleyStacks" resultType="TurnoverCaseEntity">
+		<![CDATA[ 
+			SELECT trolley_code,layer,material_id 
+			FROM trolley_stack
+			order by trolley_code,layer;
+		]]>
+	</select>
+
+	<delete id="removeTrolleyStacks">
+		<![CDATA[ 
+			DELETE 
+			FROM trolley_stack;
+		]]>
+	</delete>
+
+	<insert id="insertTrolleyStacks" parameterType="TurnoverCaseEntity">
+		<![CDATA[ 
+			INSERT INTO `trolley_stack` VALUES 
+		]]>
+		<foreach item="entity" collection="list" separator=",">
+             ( #{entity.trolley_code}, #{entity.layer}, #{entity.material_id} )
+		</foreach> 
+	</insert>
+
+	<update id="clearTrolleyStacks" parameterType="String">
+		<![CDATA[ 
+		UPDATE `trolley_stack`
+		SET 
+		material_id = null
+		WHERE material_id = #{material_id};
+		]]>
+	</update>
+
+	<select id="getMostSpacialShelf" resultType="String" parameterType="int">
+		<![CDATA[ 
+	SELECT shelf from
+	(SELECT shelf, sum(material_id is null) as cnt FROM turnover_case_storage
+		]]>
+	<where>
+		<if test="kind neq 06">
+			AND shelf not in ('H', 'H2')
+		</if>
+		<if test="kind eq 06">
+			AND shelf in ('H', 'H2')
+		</if>
+	</where>
+		<![CDATA[ 
+	group by shelf
+	order by cnt desc, shelf
+	limit 1) a
+	;
+		]]>
+	</select>
+
+	<select id="getFirstSpaceInShelf" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT location 
+		FROM turnover_case_storage
+		WHERE material_id is null
+		and shelf = #{shelf}
+		]]>
+		<if test="location != null and location != ''">
+			AND location > #{location}
+		</if>
+		<![CDATA[
+		AND layer != 0 
+		limit 1;
+		]]>
+	</select>
+
+	<select id="getFirstSpaceShelf" resultType="String" parameterType="String">
+		<![CDATA[ 
+	Select shelf from turnover_case_storage 
+		]]>
+	<where>
+		material_id is null
+		<if test="kind neq '06'">
+			AND shelf not in ('H', 'H2')
+		</if>
+		<if test="kind eq '06'">
+			AND shelf in ('H', 'H2')
+		</if>
+		<if test="shelf != null">
+			AND shelf > #{shelf}
+		</if>
+		AND layer != 0
+	</where>
+		<![CDATA[ 
+	limit 1
+	;
+		]]>
+	</select>
+
 </mapper>

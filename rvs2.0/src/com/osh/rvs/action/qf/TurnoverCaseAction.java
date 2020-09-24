@@ -16,6 +16,7 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.LineEntity;
+import com.osh.rvs.bean.qf.TurnoverCaseEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.qf.TurnoverCaseForm;
 import com.osh.rvs.service.ModelService;
@@ -345,4 +346,80 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doPutin end");
 	}
 
+	@Privacies(permit = { 101, 109, 0 })
+	public void doTrolleyUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
+			SqlSessionManager conn) throws Exception {
+
+		log.info("TurnoverCaseAction.doTrolleyUpdate start");
+		// Ajax回馈对象
+		Map<String, Object> calbackResponse = new HashMap<String, Object>();
+
+		// 推车位置
+		TurnoverCaseService service = new TurnoverCaseService();
+		service.trolleyUpdate(req.getParameterMap(), conn);
+
+		// 检查发生错误时报告错误信息
+		calbackResponse.put("errors", new ArrayList<MsgInfo>());
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, calbackResponse);
+
+		log.info("TurnoverCaseAction.doTrolleyUpdate end");
+	}
+
+	@Privacies(permit = { 101, 109, 0 })
+	public void doAssignLocation(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
+			SqlSessionManager conn) throws Exception {
+
+		log.info("TurnoverCaseAction.doAssignLocation start");
+		// Ajax回馈对象
+		Map<String, Object> calbackResponse = new HashMap<String, Object>();
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
+
+		// 推车位置
+		TurnoverCaseService service = new TurnoverCaseService();
+		service.trolleyUpdate(req.getParameterMap(), conn);
+
+		// 定位
+		String retMessage = service.assignLocation(req.getParameterMap(), conn);
+
+		calbackResponse.put("retMessage", retMessage);
+
+		List<TurnoverCaseForm> idleMaterialList = service.getIdleMaterialList(conn);
+
+		// 刷新等待维修品以及推车信息
+		// 查询预计的入库位信息
+		try {
+			List<String> nextLocations = service.getEmptyLocations("0", 10, false, conn);
+			List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
+
+			calbackResponse.put("nextLocations", nextLocations);
+			calbackResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);
+		} catch (Exception e) {
+			// if (e.getMessage().equals("递归安排也无法找到库位！")) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("location");
+				error.setErrmsg("剩余空闲的通箱库位已经不足。请先处理出库。");
+				errors.add(error);
+			// }
+		}
+
+		if (errors.size() == 0) {
+			// 查询入库待处理维修品放入Ajax响应对象
+			calbackResponse.put("idleMaterialList", idleMaterialList);
+
+			// 查询推车信息
+			List<TurnoverCaseEntity> trolleyStacks = service.getTrolleyStacks(conn);
+			calbackResponse.put("trolleyStacks", trolleyStacks);
+		}
+
+		// 检查发生错误时报告错误信息
+		calbackResponse.put("errors", new ArrayList<MsgInfo>());
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, calbackResponse);
+
+		log.info("TurnoverCaseAction.doAssignLocation end");
+	}
+	
 }

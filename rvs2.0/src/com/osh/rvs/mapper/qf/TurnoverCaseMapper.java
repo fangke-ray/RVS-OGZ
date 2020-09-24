@@ -35,4 +35,21 @@ public interface TurnoverCaseMapper {
 	public List<TurnoverCaseEntity> getIdleMaterialList();
 
 	public TurnoverCaseEntity checkEmpty(String location);
+
+	public List<TurnoverCaseEntity> getTrolleyStacks();
+
+	public int removeTrolleyStacks();
+
+	public int insertTrolleyStacks(List<TurnoverCaseEntity> list);
+
+	public void clearTrolleyStacks(String material_id);
+
+	/** 取得最空余的货架 **/
+	public String getMostSpacialShelf(@Param("kind")Integer kind, @Param("layer")Integer layer);
+
+	/** 取得货架中的起始库位 **/
+	public String getFirstSpaceInShelf(@Param("shelf")String shelf, @Param("layer")String layer, @Param("location")String location);
+
+
+	public String getFirstSpaceShelf(@Param("kind")String kind, @Param("shelf")String shelf);
 }

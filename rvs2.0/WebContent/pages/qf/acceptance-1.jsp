@@ -21,6 +21,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="js/qf/acceptance.js?version=215"></script>
+<script type="text/javascript" src="js/qf/acceptance_turnover_case.js"></script>
 <style>
 .waitTicket {
 	background-color : #0070C0;
@@ -97,6 +98,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</div>
 						<input type="button" class="ui-button" id="disinfectionbutton" value="进行消毒" />
 						<input type="button" class="ui-button" id="sterilizationbutton" value="进行灭菌" />
+						<input type="button" class="ui-button" id="tcbutton" value="通箱入库准备" style="float: right; right: 2px">
 						<input type="button" class="ui-button-primary ui-button" id="outbutton" value="临时生成当日报表" role="button" aria-disabled="false" style="float: right; right: 2px">
 					</div>
 				</div>

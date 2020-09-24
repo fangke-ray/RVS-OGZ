@@ -679,6 +679,8 @@ $(function() {
 		load_list();
 	});
 
+	$("#tcbutton").click(tcLoad);
+
 	load_list();
 
 	getAutoComplete();
@@ -1021,4 +1023,17 @@ function doSterilization(){
 			loadImpListData();
 		}
 	});	
+}
+
+var tcLoad = function() {
+	$.ajax({
+		data : null,
+		url: servicePath + "?method=getTcLoad",
+		async: true, 
+		beforeSend: ajaxRequestType, 
+		success: ajaxSuccessCheck, 
+		error: ajaxError, 
+		type : "post",
+		complete : tcLoadShow
+	});
 }
