@@ -317,13 +317,12 @@ public class TurnoverCaseService {
 		return mapper.getTrolleyStacks();
 	}
 
-	private static final String TYPE_NORMAL_SHELF = "NORMAL_SHELF";
-	private static final String TYPE_ENDOEYE_SHELF = "ENDOEYE_SHELF";
-	private static final String TYPE_NORMAL_LOCATION = "NORMAL_LOCATION";
-	private static final String TYPE_ENDOEYE_LOCATION = "ENDOEYE_LOCATION";
+	private static final String TYPE_SHELF = "SHELF";
+	private static final String TYPE_LOCATION = "LOCATION";
 	private static final String TYPE_NORMAL_LAYER = "NORMAL_LAYER";
 
-	private static Map<String, Map<String, String>> locationSets = new HashMap<String, Map<String, String>>();
+	private static Map<String, Map<String, String>> locationNormalSets = new HashMap<String, Map<String, String>>();
+	private static Map<String, Map<String, String>> locationEndoeyeSets = new HashMap<String, Map<String, String>>();
 
 	/**
 	 * 连续取得空置的通箱库位
@@ -355,13 +354,16 @@ public class TurnoverCaseService {
 		// 重定位
 		if (realPutin) {
 			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
-			Map<String, String> locationSetsToday = locationSets.get(todayString);
+			Map<String, String> locationSetsToday = null;
+			
 			if (!kind.equals("06")) {
-				locationSetsToday.put(TYPE_NORMAL_SHELF, ret.get(0).substring(0, 2).trim());
-				locationSetsToday.put(TYPE_NORMAL_LOCATION, ret.get(0));
+				locationSetsToday = locationNormalSets.get(todayString);
+				locationSetsToday.put(TYPE_SHELF, ret.get(0).substring(0, 2).trim());
+				locationSetsToday.put(TYPE_LOCATION, ret.get(0));
 			} else {
-				locationSetsToday.put(TYPE_ENDOEYE_SHELF, ret.get(0).substring(0, 2).trim());
-				locationSetsToday.put(TYPE_ENDOEYE_LOCATION, ret.get(0));
+				locationSetsToday = locationEndoeyeSets.get(todayString);
+				locationSetsToday.put(TYPE_SHELF, ret.get(0).substring(0, 2).trim());
+				locationSetsToday.put(TYPE_LOCATION, ret.get(0));
 			}
 		}
 
@@ -375,32 +377,30 @@ public class TurnoverCaseService {
 
 		boolean isEndoeye = kind.equals("06");
 
+		Map<String, Map<String, String>> locationSets = null;
+
+		if (isEndoeye) {
+			locationSets = locationEndoeyeSets;
+		} else {
+			locationSets = locationNormalSets;
+		}
+
 		synchronized (locationSets) {
 			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
 			if (!locationSets.containsKey(todayString)) {
-				Map<String, String> locationSetsToday = getLocationSetsToday(null, null, conn);
+				Map<String, String> locationSetsToday = getLocationSetsToday(kind, null, conn);
 				locationSets.put(todayString, locationSetsToday);
 
 				// 当日取得时，初始定位提供
-				if (isEndoeye) {
-					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
-					ret.add(locationStart); // 起始位置
-				} else {
-					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
-					ret.add(locationStart); // 起始位置
-				}
+				locationStart = locationSetsToday.get(TYPE_LOCATION);
+				ret.add(locationStart); // 起始位置
 			}
 
 			Map<String, String> locationSetsToday = locationSets.get(todayString);
 
 			if (locationStart == null || shelf == null) {
-				if (isEndoeye) {
-					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
-					shelf = locationSetsToday.get(TYPE_ENDOEYE_SHELF);
-				} else {
-					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
-					shelf = locationSetsToday.get(TYPE_NORMAL_SHELF);
-				}
+				locationStart = locationSetsToday.get(TYPE_LOCATION);
+				shelf = locationSetsToday.get(TYPE_SHELF);
 			}
 			
 			if (isEndoeye) {
@@ -418,20 +418,12 @@ public class TurnoverCaseService {
 				locationSets.get(todayString).putAll(locationSetsToday);
 
 				// 找不到时，由Exception跳出递归
-				String restartLocation = null;
-				if (!isEndoeye) {
-					locationStart = locationSetsToday.get(TYPE_NORMAL_LOCATION);
-					ret.add(locationStart); // 起始位置
+				locationStart = locationSetsToday.get(TYPE_LOCATION);
+				ret.add(locationStart); // 起始位置
 
-					restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_NORMAL_LOCATION), locationSetsToday.get(TYPE_NORMAL_SHELF), 
-							ret, conn, true);
-				} else {
-					locationStart = locationSetsToday.get(TYPE_ENDOEYE_LOCATION);
-					ret.add(locationStart); // 起始位置
+				String restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_LOCATION), locationSetsToday.get(TYPE_SHELF), 
+						ret, conn, true);
 
-					restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_ENDOEYE_LOCATION), locationSetsToday.get(TYPE_ENDOEYE_SHELF), 
-							ret, conn, true);
-				}
 				ret.add(restartLocation);
 				return restartLocation;
 			}
@@ -462,8 +454,8 @@ public class TurnoverCaseService {
 				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
 				result.put(TYPE_NORMAL_LAYER, "1");
 			}
-			result.put(TYPE_NORMAL_SHELF, mostSpacialShelf);
-			result.put(TYPE_NORMAL_LOCATION, startLocation);
+			result.put(TYPE_SHELF, mostSpacialShelf);
+			result.put(TYPE_LOCATION, startLocation);
 		}
 
 		if (kind == null || kind.equals("06")) {
@@ -475,8 +467,8 @@ public class TurnoverCaseService {
 			} else {
 				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
 			}
-			result.put(TYPE_ENDOEYE_SHELF, mostSpacialShelf);
-			result.put(TYPE_ENDOEYE_LOCATION, startLocation);
+			result.put(TYPE_SHELF, mostSpacialShelf);
+			result.put(TYPE_LOCATION, startLocation);
 		}
 
 		return result;

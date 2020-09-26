@@ -45,5 +45,6 @@
 		<mapper resource="com/osh/rvs/mapper/LineTimespaceMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/PartialWarehouseMapper.xml" />
 		<mapper resource="com/osh/rvs/mapper/MaterialMapper.xml" />
+		<mapper resource="com/osh/rvs/mapper/TurnoverCaseMapper.xml" />
 	</mappers>
 </configuration> 

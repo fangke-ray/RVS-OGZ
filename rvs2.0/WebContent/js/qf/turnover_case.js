@@ -295,7 +295,7 @@ var doMove = function() {
 			
 					this_dialog.find("td").addClass("storage-empty");
 					for (var iheap in resInfo.heaps) {
-						this_dialog.find("td[location="+resInfo.heaps[iheap]+"]").removeClass("storage-empty").addClass("ui-storage-highlight storage-heaped");
+						this_dialog.find("td[location='"+resInfo.heaps[iheap]+"']").removeClass("storage-empty").addClass("ui-storage-highlight storage-heaped");
 					}
 			
 					//this_dialog.css("cursor", "pointer");

@@ -1,14 +1,17 @@
 <%@ page language="java" pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" isELIgnored="false"%>
 <style>
-.wip-table td.storage-empty {
-cursor :pointer;
+.wip-table td.wip-storage {
+	outline: 1px solid green;
+	box-shadow : 1px 1px 1px 1px green;
+}
+
+.wip-table td.wip-shipping {
+	outline: 1px solid blue;
+	box-shadow : 1px 1px 1px 1px blue;
 }
 </style>
-	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
-		<span class="areatitle">通箱库位区域一览</span>
-	</div>
-	<div class="ui-widget-content">
-		<div style="margin: 15px; float: left;">
+	<div class="ui-widget-content" style="border:0;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">A 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -59,7 +62,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">A2货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -92,7 +95,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">B 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -182,7 +185,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">C 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -272,7 +275,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">D 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -362,7 +365,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">E 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -452,7 +455,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">F 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -543,7 +546,7 @@ cursor :pointer;
 		</div>
 
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="ui-widget-header" style="text-align: center;">G 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -633,7 +636,7 @@ cursor :pointer;
 			</table>
 		</div>
 <br style="clear: left;">
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="" style="background-color:#087b10;color: #ffffff;font-weight: bold;text-align: center;">H 货架</div>
 			<table class="condform wip-table">
 				<tr>
@@ -723,7 +726,7 @@ cursor :pointer;
 			</table>
 		</div>
 
-		<div style="margin: 15px; float: left;">
+		<div style="margin: 5px 15px 0; float: left;">
 			<div class="" style="background-color:#087b10;color: #ffffff;font-weight: bold;text-align: center;">H2货架</div>
 			<table class="condform wip-table">
 				<tr>

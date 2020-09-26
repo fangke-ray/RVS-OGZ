@@ -12,6 +12,10 @@ public class WipEntity implements Serializable {
 	private String wip_location;
 	private String wip_overceed;
 
+	private String bound_out_ocm;
+	private Integer execute;
+	private Integer kind;
+
 	public String getSorc_no() {
 		return sorc_no;
 	}
@@ -41,6 +45,24 @@ public class WipEntity implements Serializable {
 	}
 	public void setWip_overceed(String wip_overceed) {
 		this.wip_overceed = wip_overceed;
+	}
+	public String getBound_out_ocm() {
+		return bound_out_ocm;
+	}
+	public void setBound_out_ocm(String bound_out_ocm) {
+		this.bound_out_ocm = bound_out_ocm;
+	}
+	public Integer getExecute() {
+		return execute;
+	}
+	public void setExecute(Integer execute) {
+		this.execute = execute;
+	}
+	public Integer getKind() {
+		return kind;
+	}
+	public void setKind(Integer kind) {
+		this.kind = kind;
 	}
 
 }

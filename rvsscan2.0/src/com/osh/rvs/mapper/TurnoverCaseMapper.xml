@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvs.mapper.TurnoverCaseMapper">
+
+	<select id="getTurnoverCase" resultType="WipEntity">
+		<![CDATA[
+		SELECT 
+		ma.omr_notifi_no as sorc_no,
+		mdl.name as model_name,
+		ma.serial_no,
+		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm,
+		tcs.storage_time <= date_add(current_date, interval -2 month) as wip_overceed,
+		CASE
+		WHEN tcs.`execute` = 0 THEN 1
+		WHEN (ma.break_back_flg = 1
+ OR 
+	(Exists (select 2 
+		from production_feature where position_id = 47 
+		and material_id = ma.material_id
+		and operate_result = 0
+))
+) THEN 2
+		ELSE 0
+		END as `execute`,
+		tcs.location as wip_location
+		FROM turnover_case_storage tcs
+		LEFT JOIN material ma ON tcs.material_id = ma.material_id
+		LEFT JOIN model mdl on ma.model_id = mdl.model_id
+		WHERE tcs.material_id IS NOT NULL
+		ORDER BY tcs.key
+		;
+		]]>
+	</select>
+
+</mapper>

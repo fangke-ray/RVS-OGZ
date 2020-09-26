@@ -211,7 +211,11 @@
 		<action path="/scheduledMaterial" type="com.osh.rvs.action.ScheduledMaterialAction" parameter="method" validate="false">
 			<forward name="init" path="/pages/scheduledMaterial.jsp" />
 		</action>
-	</action-mappings>
+
+		<action path="/turnoverCase" type="com.osh.rvs.action.TurnoverCaseScanAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/turnoverCase.jsp" />
+ 		</action>
+ 	</action-mappings>
 	<!-- ======================================== Message Resources Definitions -->
 
 	<message-resources parameter="resources.message" key="message" />
