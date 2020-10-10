@@ -116,7 +116,7 @@ public class PartialWarehouseService {
 						totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorNs"));
 					} else if ("51".equals(productionType)) {// E2：分解工程出库
 						totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorDEC"));
-					} else if ("52".equals(productionType)) {//E3：其他维修出库
+					} else if ("52".equals(productionType)) {//E3：其他维修出库 TODO
 						totalStandardTime = totalStandardTime.add(new BigDecimal(0));
 					} else if("20".equals(productionType)){//B1：核对+上架
 						totalStandardTime = dao.searchCurrentCollectAndOnShelfStandardTime(factPfKey);
@@ -244,7 +244,36 @@ public class PartialWarehouseService {
 		}
 		listResponse.put("strPartialOutstorDEC", strPartialOutstorDEC);
 
-	}
+		// E3：其他维修出库标准工时(EndoEye)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_ENDO");
+		BigDecimal strPartialOutstorENDO = null;
+		try {
+			strPartialOutstorENDO = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorENDO = new BigDecimal(4.25);
+		}
+		listResponse.put("strPartialOutstorENDO", strPartialOutstorENDO);
+
+		// E3：其他维修出库标准工时(周边)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_PREI");
+		BigDecimal strPartialOutstorPREI = null;
+		try {
+			strPartialOutstorPREI = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorPREI = new BigDecimal(0.84);
+		}
+		listResponse.put("strPartialOutstorPREI", strPartialOutstorPREI);
+
+		// E3：其他维修出库标准工时(中小修)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_MLIT");
+		BigDecimal strPartialOutstorMLIT = null;
+		try {
+			strPartialOutstorMLIT = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorMLIT = new BigDecimal(0.93);
+		}
+		listResponse.put("strPartialOutstorMLIT", strPartialOutstorMLIT);
+}
 
 	public List<PartialWarehouseEntity> waittingOutLine(PartialWarehouseMapper dao) {
 		// 待出库单
@@ -365,7 +394,7 @@ public class PartialWarehouseService {
 		if(receptStandardTime == null) receptStandardTime = BigDecimal.ZERO;
 
 		// 收货次数
-		Integer countRecept = dao.count(operatorID, "10");
+		Integer countRecept = dao.countProduction(operatorID, "10");
 		if(countRecept == null) countRecept  = 0;
 		
 		// 收货次数 * 搬箱移动时间
@@ -448,7 +477,7 @@ public class PartialWarehouseService {
 		// E1、NS 出库标准工时(分钟)
 		connd.setProduction_type(50);
 		actualTime = dao.searchSpentMins(connd);
-		Integer nsCount = dao.count(operatorID, "50");
+		Integer nsCount = dao.countProduction(operatorID, "50");
 		if(nsCount == null) nsCount = 0;
 		if (actualTime != null) {
 			standardTime = (BigDecimal)listResponse.get("strPartialOutstorNs");
@@ -463,7 +492,7 @@ public class PartialWarehouseService {
 		// E2、分解出库标准工时(分钟)
 		connd.setProduction_type(51);
 		actualTime = dao.searchSpentMins(connd);
-		Integer decCount = dao.count(operatorID, "51");
+		Integer decCount = dao.countProduction(operatorID, "51");
 		if(decCount == null) decCount = 0;
 		if (actualTime != null) {
 			standardTime = (BigDecimal)listResponse.get("strPartialOutstorDEC");
@@ -474,15 +503,18 @@ public class PartialWarehouseService {
 			entity.setDec_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}
 		
-		// E3、分解出库标准工时(分钟)
+		// E3、其他出库标准工时(分钟)
 		connd.setProduction_type(52);
 		actualTime = dao.searchSpentMins(connd);
+		List<Map<String, Integer>> otherCounts = dao.countProductionByLevel(operatorID);
+		int iStandardTimeE3 = 0;
+		
 		if (actualTime != null) {
-			// 标准时间等于实际时间
-			standardTime = new BigDecimal(actualTime);
-			
+//			standardTime = (BigDecimal)listResponse.get("strPartialOutstorDEC"); TODO
+//			standardTime = standardTime.multiply(new BigDecimal(iStandardTimeE3));
+//			totalStandardTime = totalStandardTime.add(standardTimeE3);
+
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
-			totalStandardTime = totalStandardTime.add(new BigDecimal(actualTime));
 			entity.setOther_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
 		}
 

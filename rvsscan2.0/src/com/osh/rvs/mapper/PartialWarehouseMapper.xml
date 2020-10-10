@@ -368,7 +368,7 @@
 	]]>
 	</select>
 	
-	<select id="count" resultType="int" parameterType="string">
+	<select id="countProduction" resultType="int" parameterType="string">
 	<![CDATA[
 		SELECT
 			COUNT(1)
@@ -384,7 +384,28 @@
 			finish_time IS NOT NULL
 	]]>
 	</select>
-	
+
+	<select id="countProductionByLevel" resultType="map" parameterType="string">
+	<![CDATA[
+		SELECT
+			cast(level div 10 as unsigned) as level10, cast(COUNT(1) as unsigned) as cnt
+		FROM
+			fact_production_feature fpf
+		JOIN material ma
+			ON fpf.material_id = ma.material_id
+		WHERE
+			operator_id = #{operator_id} 
+		AND 
+			production_type = 52
+ 		AND
+ 			action_time >= CURRENT_DATE
+ 		AND
+ 			finish_time IS NOT NULL
+		GROUP BY
+			ma.level div 10;
+	]]>
+	</select>
+
 	<select id="searchCurrentCollectCaseStandardTime" resultType="BigDecimal" parameterType="string">
 	<![CDATA[
 	SELECT
