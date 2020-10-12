@@ -27,6 +27,7 @@ public class PartialWarehouseEntity implements Serializable {
 	private Integer overtime_flg;
 	private Integer production_types;
 	private String stanardtime;
+	private Integer level;
 
 	public String getKey() {
 		return key;
@@ -162,6 +163,14 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setStanardtime(String stanardtime) {
 		this.stanardtime = stanardtime;
+	}
+
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
 	}
 
 }

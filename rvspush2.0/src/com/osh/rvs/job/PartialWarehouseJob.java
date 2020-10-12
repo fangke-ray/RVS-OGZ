@@ -883,6 +883,35 @@ public class PartialWarehouseJob implements Job {
 		}
 		listResponse.put("strPartialOutstorDEC", strPartialOutstorDEC);
 		
+		// E3：其他维修出库标准工时(EndoEye)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_ENDO");
+		BigDecimal strPartialOutstorENDO = null;
+		try {
+			strPartialOutstorENDO = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorENDO = new BigDecimal(4.25);
+		}
+		listResponse.put("strPartialOutstorENDO", strPartialOutstorENDO);
+
+		// E3：其他维修出库标准工时(周边)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_PREI");
+		BigDecimal strPartialOutstorPREI = null;
+		try {
+			strPartialOutstorPREI = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorPREI = new BigDecimal(0.84);
+		}
+		listResponse.put("strPartialOutstorPREI", strPartialOutstorPREI);
+
+		// E3：其他维修出库标准工时(中小修)
+		value = userDefineCodesMapper.getValue("PARTIAL_OUTSTOR_MLIT");
+		BigDecimal strPartialOutstorMLIT = null;
+		try {
+			strPartialOutstorMLIT = new BigDecimal(value);
+		} catch (Exception e) {
+			strPartialOutstorMLIT = new BigDecimal(0.93);
+		}
+		listResponse.put("strPartialOutstorMLIT", strPartialOutstorMLIT);
 
 		return listResponse;
 	}
@@ -939,7 +968,13 @@ public class PartialWarehouseJob implements Job {
 
 			// 作业结束时间
 			Date finishTime = entity.getFinish_time();
-
+			
+			Integer level10  = null;
+			if (productionType == 52){
+				Integer level= entity.getLevel();
+				level10 = level / 10;
+			}
+			
 			// 行索引
 			int rowIndex = i + 1;
 
@@ -1012,15 +1047,31 @@ public class PartialWarehouseJob implements Job {
 			} else if (productionType == 51) {// E2：分解工程出库
 				cell.setCellValue(userDefineMap.get("strPartialOutstorDEC").doubleValue());
 			} else if (productionType == 52) {// E3：其他维修出库
-				cell.setCellValue(MIDDLE_LINE);
+				//TODO
+				if(level10 == 5){//其他维修出库标准工时(周边维修工程)
+					cell.setCellValue(userDefineMap.get("strPartialOutstorPREI").doubleValue());
+				} else if(level10 == 9){//其他维修出库标准工时(中小修工程)
+					cell.setCellValue(userDefineMap.get("strPartialOutstorMLIT").doubleValue());
+				} else if (level10 == 0){//其他维修出库标准工时( 外科硬镜修理工程)
+					cell.setCellValue(userDefineMap.get("strPartialOutstorENDO").doubleValue());
+				} else {
+					cell.setCellValue(MIDDLE_LINE);
+				}
 			}
 			cell.setCellStyle(styleMap.get("alignRightStyle"));
 			entity.setStanardtime(CopyByPoi.getStringCellValue((XSSFCell) cell));
 
 			// 能率
 			cell = row.createCell(++colIndex);
-			if (productionType == 99 || productionType == 52) {// O：其它，E3：其他维修出库
+			if (productionType == 99) {// O：其它
 				cell.setCellValue(1);
+			} else if (productionType == 52) {//E3：其他维修出库
+				//周边维修工程,中小修工程,外科硬镜修理工程
+				if(level10 == 5 || level10 == 9 || level10 == 0){
+					cell.setCellFormula("IFERROR(IF(G" + rowNum + "=\"\",\"\",(G" + rowNum + "/" + "F" + rowNum + ")),\"一\")");
+				}else {
+					cell.setCellValue(1);
+				}
 			} else {
 				cell.setCellFormula("IFERROR(IF(G" + rowNum + "=\"\",\"\",(G" + rowNum + "/" + "F" + rowNum + ")),\"一\")");
 			}
@@ -1797,7 +1848,7 @@ public class PartialWarehouseJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 		// today.set(Calendar.YEAR, 2018);
-		today.set(Calendar.MONTH, 4);
+		today.set(Calendar.MONTH, 9);
 		today.set(Calendar.DATE, 31);
 
 		// 取得数据库连接

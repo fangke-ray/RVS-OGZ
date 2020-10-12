@@ -80,7 +80,7 @@ public interface PartialWarehouseMapper {
 	 * 
 	 * @return
 	 */
-	public List<Map<String, Integer>> countProductionByLevel(@Param("operator_id") String operator_id);
+	public List<PartialWarehouseEntity> countProductionByLevel(@Param("operator_id") String operator_id);
 
 	/**
 	 * 当前作业零件出入库拆盒工时标准

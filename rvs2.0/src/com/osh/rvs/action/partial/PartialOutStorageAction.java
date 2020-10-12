@@ -109,8 +109,28 @@ public class PartialOutStorageAction extends BaseAction {
 					// 分解
 					callbackResponse.put("leagal_overline", code);
 				} else{
+					String code = "";
+					Integer level = factProductionFeatureEntity.getLevel();
+					Integer level10 = level / 10;
+					if(level10 == 5){//其他维修出库标准工时(周边维修工程)
+						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_PREI", conn);
+						if(CommonStringUtil.isEmpty(code)){
+							code = "0.84";
+						}
+					} else if (level10 == 9){//其他维修出库标准工时(中小修工程)
+						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_MLIT", conn);
+						if(CommonStringUtil.isEmpty(code)){
+							code = "0.93";
+						}
+					} else if (level10 == 0){//其他维修出库标准工时( 外科硬镜修理工程)
+						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_ENDO", conn);
+						if(CommonStringUtil.isEmpty(code)){
+							code = "4.25";
+						}
+					}
+					
 					// 其他出库
-					callbackResponse.put("leagal_overline", "");
+					callbackResponse.put("leagal_overline", code);
 				}
 
 				// 作业经过时间

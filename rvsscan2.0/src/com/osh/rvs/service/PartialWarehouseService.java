@@ -117,7 +117,18 @@ public class PartialWarehouseService {
 					} else if ("51".equals(productionType)) {// E2：分解工程出库
 						totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorDEC"));
 					} else if ("52".equals(productionType)) {//E3：其他维修出库 TODO
-						totalStandardTime = totalStandardTime.add(new BigDecimal(0));
+						Integer level= entity.getLevel();
+						Integer level10 = level / 10;
+						
+						if(level10 == 5){//其他维修出库标准工时(周边维修工程)
+							totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorPREI"));
+						} else if(level10 == 9){//其他维修出库标准工时(中小修工程)
+							totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorMLIT"));
+						} else if (level10 == 0){//其他维修出库标准工时( 外科硬镜修理工程)
+							totalStandardTime = totalStandardTime.add((BigDecimal)listResponse.get("strPartialOutstorENDO"));
+						} else {
+							totalStandardTime = totalStandardTime.add(new BigDecimal(0));
+						}
 					} else if("20".equals(productionType)){//B1：核对+上架
 						totalStandardTime = dao.searchCurrentCollectAndOnShelfStandardTime(factPfKey);
 						//零件出入库拆盒工时标准
@@ -506,13 +517,35 @@ public class PartialWarehouseService {
 		// E3、其他出库标准工时(分钟)
 		connd.setProduction_type(52);
 		actualTime = dao.searchSpentMins(connd);
-		List<Map<String, Integer>> otherCounts = dao.countProductionByLevel(operatorID);
-		int iStandardTimeE3 = 0;
+		List<PartialWarehouseEntity> otherCounts = dao.countProductionByLevel(operatorID);
 		
 		if (actualTime != null) {
-//			standardTime = (BigDecimal)listResponse.get("strPartialOutstorDEC"); TODO
-//			standardTime = standardTime.multiply(new BigDecimal(iStandardTimeE3));
-//			totalStandardTime = totalStandardTime.add(standardTimeE3);
+			standardTime = BigDecimal.ZERO;
+			//周边维修工程标准工时
+			BigDecimal e3PrelStandardTime = (BigDecimal)listResponse.get("strPartialOutstorPREI");
+			//中小修标准工时
+			BigDecimal e3MiltStandardTime = (BigDecimal)listResponse.get("strPartialOutstorMLIT");
+			//外科硬镜修理工程标准工时
+			BigDecimal e3EndoStandardTime = (BigDecimal)listResponse.get("strPartialOutstorENDO");
+			
+			for(PartialWarehouseEntity other : otherCounts){
+				//周边维修工程
+				Integer level10 = other.getLevel();
+				Integer cnt= other.getCnt();
+				
+				if(level10 == 5){
+					//周边维修工程标准工时 * 数量
+					standardTime = standardTime.add(e3PrelStandardTime.multiply(new BigDecimal(cnt)));
+				} else if (level10 == 9){//中小修工程
+					//中小修工程标准工时 * 数量
+					standardTime = standardTime.add(e3MiltStandardTime.multiply(new BigDecimal(cnt)));
+				} else if (level10 == 0){//外科硬镜修理工程
+					//外科硬镜修理工程标准工时 * 数量
+					standardTime = standardTime.add(e3EndoStandardTime.multiply(new BigDecimal(cnt)));
+				}
+			}
+			
+			totalStandardTime = totalStandardTime.add(standardTime);
 
 			totalActualTime = totalActualTime.add(new BigDecimal(actualTime));
 			entity.setOther_outline_percent(calculatePercent(standardTime, new BigDecimal(actualTime)));
