@@ -142,6 +142,9 @@ public class PartialWarehouseEntity implements Serializable {
 
 	private String warehouse_no;
 	private String fact_pf_key;
+	
+	private Integer level;
+	private Integer cnt;
 
 	public Integer getProduction_type() {
 		return production_type;
@@ -437,6 +440,22 @@ public class PartialWarehouseEntity implements Serializable {
 
 	public void setOther_outline_percent(Integer other_outline_percent) {
 		this.other_outline_percent = other_outline_percent;
+	}
+
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+
+	public Integer getCnt() {
+		return cnt;
+	}
+
+	public void setCnt(Integer cnt) {
+		this.cnt = cnt;
 	}
 
 }

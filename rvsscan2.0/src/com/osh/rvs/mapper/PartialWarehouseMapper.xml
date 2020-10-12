@@ -34,17 +34,22 @@
 		    fpf.production_type,
 		    pw.warehouse_no,
 		    pw.`key`,
-		    fpf.material_id
+		    fpf.material_id,
+		    material.level
 		FROM
 		    fact_production_feature fpf
-		LEFT JOIN
-			partial_warehouse pw
-		ON
-			pw.key = fpf.partial_warehouse_key
 		JOIN
 			operator
 		ON 
 			fpf.operator_id = operator.operator_id
+		LEFT JOIN
+			partial_warehouse pw
+		ON
+			pw.key = fpf.partial_warehouse_key
+		LEFT JOIN
+			material
+		ON
+			fpf.material_id = material.material_id
 		WHERE
 			fpf.finish_time IS NULL
 		AND
@@ -385,10 +390,10 @@
 	]]>
 	</select>
 
-	<select id="countProductionByLevel" resultType="map" parameterType="string">
+	<select id="countProductionByLevel" resultType="PartialWarehouseEntity" parameterType="string">
 	<![CDATA[
 		SELECT
-			cast(level div 10 as unsigned) as level10, cast(COUNT(1) as unsigned) as cnt
+			cast(level div 10 as unsigned) as level, cast(COUNT(1) as unsigned) as cnt
 		FROM
 			fact_production_feature fpf
 		JOIN material ma
