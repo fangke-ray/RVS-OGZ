@@ -173,7 +173,7 @@ public class DayWorkTotalToMonthJob implements Job {
 			while (true) {
 				String st = df.format(cal.getTime());
 
-				File destDir = new File("d:\\com\\" + cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1));
+				File destDir = new File("E:\\com\\" + cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1));
 				if (!destDir.exists()) {
 					destDir.mkdirs();
 				}
@@ -283,7 +283,8 @@ public class DayWorkTotalToMonthJob implements Job {
 	}
 
 	private void monthlyFilePack(SqlSession conn, Calendar monthStart) {
-		String descBaseDir = "E://RVS_BACKUP";
+		String BACKUP_DISK = PathConsts.BASE_PATH.substring(0, 1);
+		String descBaseDir = BACKUP_DISK + "://RVS_BACKUP";
 		String monthString = DateUtil.toString(monthStart.getTime(), "YYYYMM");
 
 		copyDirectory(PathConsts.BASE_PATH + PathConsts.REPORT + "//accept//" + monthString , 
@@ -310,7 +311,7 @@ public class DayWorkTotalToMonthJob implements Job {
 		copyDirectory(PathConsts.BASE_PATH + PathConsts.REPORT + "//kpi_process//" + monthString , 
 				descBaseDir + "//RPT//" + monthString + "//工时//");
 
-		copyDirectoryThursday("D://sqlDump//", 
+		copyDirectoryThursday("E://sqlDump//", 
 				descBaseDir + "//DB//" + monthString, monthStart);
 	}
 
@@ -1277,7 +1278,7 @@ public class DayWorkTotalToMonthJob implements Job {
 		Calendar today = Calendar.getInstance();
 
 //		today.set(Calendar.YEAR, 2019);
-//		today.set(Calendar.MONTH, Calendar.JANUARY);
+		today.set(Calendar.MONTH, Calendar.JULY);
 		today.set(Calendar.DATE, 1);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
@@ -1298,7 +1299,7 @@ public class DayWorkTotalToMonthJob implements Job {
 		PathConsts.PCS = "\\Pcs";
 
 		DayWorkTotalToMonthJob job = new DayWorkTotalToMonthJob();
-		job.makeStatistics(false, today, conn);
+		job.makeStatistics(true, today, conn);
 		// job.monthlyFilePack(conn, today);
 		// job.clearSap(connManager);
 

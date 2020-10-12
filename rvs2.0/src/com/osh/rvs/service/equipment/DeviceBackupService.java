@@ -35,6 +35,7 @@ import com.osh.rvs.mapper.master.DevicesManageMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.FileUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
@@ -94,9 +95,9 @@ public class DeviceBackupService {
 			if (devicesManageEntity.getDevices_manage_id().equals(cond.getManage_id())) {
 				continue;
 			}
-			if (devicesManageEntity.getBorrowed() == 1) { // 正在借用中
-				devicesManageEntity = dmMapper.getByKey(devicesManageEntity.getDevices_manage_id());
-			}
+//			if (devicesManageEntity.getBorrowed() == 1) { // 正在借用中
+//				devicesManageEntity = dmMapper.getByKey(devicesManageEntity.getDevices_manage_id());
+//			}
 			boolean isSameLine = false;
 			if (cond.getLine_name() == null && devicesManageEntity.getLine_name() == null) {
 				isSameLine = true;

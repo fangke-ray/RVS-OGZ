@@ -43,7 +43,7 @@ import framework.huiqing.common.util.copy.DateUtil;
 public class DailyKpiSheetsJob implements Job {
 
 	public static Logger _log = Logger.getLogger("DailyWorkSheetsJob");
-	public static final BigDecimal DIVISOR_HUNDRED = new BigDecimal(100);
+	private static final BigDecimal DIVISOR_HUNDRED = new BigDecimal(100);
 
 	private static DailyKpiSheetsJob instance = new DailyKpiSheetsJob();
 

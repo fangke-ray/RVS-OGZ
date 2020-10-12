@@ -11,6 +11,7 @@
 				LEVEL,
 				OCCUR_TIME,
 				MATERIAL_ID,
+				SERIAL_NO,
 				REASON,
 				SECTION_ID,
 				LINE_ID,
@@ -20,6 +21,7 @@
 				#{level},
 				current_timestamp,
 				#{material_id},
+				#{serial_no},
 				#{reason},
 				#{section_id},
 				coalesce(#{line_id}, 0),
@@ -310,7 +312,7 @@
 			LEFT JOIN model mdl ON m.model_id = mdl.model_id
 			LEFT JOIN operator o ON am.operator_id = o.operator_id
 			LEFT JOIN section s ON am.section_id = s.section_id
-			JOIN line l ON am.line_id = l.line_id
+			LEFT JOIN line l ON am.line_id = l.line_id
 			LEFT JOIN `position` p ON am.position_id = p.position_id
 LEFT JOIN
 alarm_messsage_sendation ams

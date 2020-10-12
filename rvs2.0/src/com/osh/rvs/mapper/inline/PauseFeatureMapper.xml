@@ -18,7 +18,7 @@
 	<![CDATA[ 
 		UPDATE `pause_feature` SET
 			FINISHER_ID = #{finisher_id},
-			COMMENTS = #{comments},
+			COMMENTS = coalesce(#{comments}, COMMENTS),
 			PAUSE_FINISH_TIME = current_timestamp
 		WHERE OPERATOR_ID = #{operator_id}
 			AND PAUSE_START_TIME = #{pause_start_time};
