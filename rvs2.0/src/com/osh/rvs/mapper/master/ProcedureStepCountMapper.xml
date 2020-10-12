@@ -13,10 +13,13 @@
 			psc.`position_id`,
 			pos.process_code,
 			pos.`name` as position_name,
-			px,
-			psc.`client_address`
+			psc.px,
+			psc.`client_address`,
+			upd.name as updated_by,
+			psc.updated_time
 		FROM procedure_step_count psc
 		JOIN position pos ON psc.`position_id` = pos.`position_id`
+		JOIN operator upd ON psc.updated_by = upd.`operator_id`
 		]]>
 		<where>
 			<if test="procedure_step_count_id!= null and procedure_step_count_id!= '' ">
@@ -32,7 +35,12 @@
 				AND pos.`process_code` = #{process_code}
 			</if>
 			<if test="px!= null and px!= '' ">
-				AND px = #{px}
+				AND (psc.`px` = #{px} OR psc.`px` = 0)
+			</if>
+			<if test="relation_id!= null and relation_id!= '' ">
+				AND EXISTS (SELECT 1 FROM `procedure_step_of_model` 
+					WHERE `procedure_step_count_id` = psc.`procedure_step_count_id` 
+					AND relation_type = 1 AND relation_id = #{relation_id})
 			</if>
 		</where> 
 		<![CDATA[ 
@@ -43,9 +51,9 @@
 	<insert id="insertProcedureStepCount" parameterType="ProcedureStepCountEntity">
 		<![CDATA[ 
 		INSERT INTO `procedure_step_count` 
-			(NAME, `position_id`, `px`) 
+			(NAME, `position_id`, `px`, `updated_by`) 
 		VALUES 
-			(#{name}, #{position_id}, #{px});
+			(#{name}, #{position_id}, #{px}, #{updated_by});
 		]]>
 	</insert>
 
@@ -55,7 +63,8 @@
 		SET
 		`name` = #{name},
 		`position_id` = #{position_id},
-		`px` = #{px}
+		`px` = #{px},
+		`updated_by` = #{updated_by}
 		WHERE `procedure_step_count_id` = #{procedure_step_count_id};
 		]]>
 	</update>
@@ -83,12 +92,14 @@
 			psm.`relation_type`,
 			psm.`relation_id`,
 			psm.`step_times`,
-			rela.name as model_name
+			rela.name as model_name,
+			rela.category_name,
+			psc.`client_address`
 		FROM procedure_step_of_model psm
 		JOIN procedure_step_count psc ON psc.`procedure_step_count_id` = psm.`procedure_step_count_id`
 		]]>
 		<if test="relation_type == null or relation_type eq 1">
-			JOIN model rela ON psm.`relation_id` = rela.model_id
+			JOIN v_model rela ON psm.`relation_id` = rela.model_id
 		</if>
 		<![CDATA[ 
 		]]>
@@ -135,8 +146,6 @@
 		<![CDATA[ 
 		DELETE FROM procedure_step_of_model
 		WHERE `procedure_step_count_id` = #{procedure_step_count_id}
-		AND `relation_type` = #{relation_type}
-		AND `step_times` = #{step_times}
 		;
 		]]>
 	</delete>

@@ -52,6 +52,7 @@ import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.QualityTipService;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
 import com.osh.rvs.service.inline.PositionPanelService;
+import com.osh.rvs.service.master.ProcedureStepCountService;
 import com.osh.rvs.service.product.ProductService;
 
 import framework.huiqing.action.BaseAction;
@@ -897,7 +898,7 @@ public class PositionPanelAction extends BaseAction {
 
 			// 检查对应辅助是否完成
 			service.checkSupporting(workingPf.getMaterial_id(), workingPf.getPosition_id(), infoes, conn);
-	
+
 			// 检查工程检查票是否全填写
 			service.checkPcsEmpty(req.getParameter("pcs_inputs"), infoes);
 
@@ -907,8 +908,8 @@ public class PositionPanelAction extends BaseAction {
 			// 检查使用组件
 			service.checkAccessary(workingPf, infoes, conn);
 
-			if (process_code.equals("431")
-					&& "1".equals(user.getPx())) {
+			// 如果是有计次的工位。判断计次
+			if (ProcedureStepCountService.getCountPositionSet(conn).contains(workingPf.getPosition_id())) {
 				service.getProcedureStepCountMessage(workingPf.getMaterial_id(), 
 						user, listResponse, infoes, conn);
 			}

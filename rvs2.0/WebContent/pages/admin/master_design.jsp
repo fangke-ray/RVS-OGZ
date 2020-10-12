@@ -78,6 +78,7 @@ $(function() {
 				        <a href="adminmenu.do#position">工位信息管理</a><br>
 				        <a href="adminmenu.do#process_assign_template">流水线流程模板管理</a><br>
 				        <a href="adminmenu.do#operator">用户信息管理</a><br>
+				        <a href="adminmenu.do#procedure_step_count">作业步骤计数管理</a><br>
 				    </div>
 				    <h3 style="padding-left:30px;">系统信息管理</h3>
 				    <div>

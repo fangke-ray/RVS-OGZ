@@ -951,7 +951,7 @@ public class PositionPanelService {
 				&& pf.getPosition_id().equals("00000000036")
 				&& "1".equals(user.getPx())) {
 			ProcedureStepCountService pscService = new ProcedureStepCountService(); 
-			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), conn);
+			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), user.getPx(), conn);
 			if (recieveFrom != null && recieveFrom.endsWith("Exception")) {
 				
 			}
@@ -967,8 +967,11 @@ public class PositionPanelService {
 	 * @throws Exception 
 	 */
 	public void getProcedureStepCountMessage(String material_id, LoginData user, Map<String, Object> listResponse, List<MsgInfo> infoes, SqlSessionManager conn) throws Exception {
+		MaterialService mService = new MaterialService();
+		MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, material_id);
+
 		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
-		String recvMessage = pscService.finishProcedureStepCount();
+		String recvMessage = pscService.finishProcedureStepCount(mEntity.getModel_id(), user.getPosition_id(), user.getPx(), conn);
 		if (recvMessage != null && recvMessage.startsWith("getCount:")) {
 			String rec = recvMessage.substring("getCount:".length());
 			String[] se = rec.split(">>");
@@ -987,8 +990,6 @@ public class PositionPanelService {
 					String message = "当前维修对象作业[KE-45胶水涂布次数2]应当进行 " + se[0] + " 次，实际记录 " + se[1] + " 次。";
 					listResponse.put("procedure_step_count_message", message);
 					AlarmMesssageService amService = new AlarmMesssageService();
-					MaterialService mService = new MaterialService();
-					MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, material_id);
 					amService.createPscAlarmMessage(material_id, mEntity.getSorc_no(), message, user, conn);
 				}
 			} else {

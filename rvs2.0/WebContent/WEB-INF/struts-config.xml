@@ -42,6 +42,7 @@
 		<form-bean name="QualityTipForm" type="com.osh.rvs.form.master.QualityTipForm"></form-bean>
 
 		<form-bean name="brandForm" type="com.osh.rvs.form.master.BrandForm" />
+		<form-bean name="procedureStepCountForm" type="com.osh.rvs.form.master.ProcedureStepCountForm" />
 
 		<form-bean name="materialForm" type="com.osh.rvs.form.data.MaterialForm" />
 		<form-bean name="productionFeatureForm" type="com.osh.rvs.form.data.ProductionFeatureForm" />
@@ -174,7 +175,7 @@
 			<forward name="success" path="/pages/admin/operator.jsp" />
 		</action>
 
-		<action path="/procedureStepCount" type="com.osh.rvs.action.master.ProcedureStepCountAction" name="operatorForm"
+		<action path="/procedureStepCount" type="com.osh.rvs.action.master.ProcedureStepCountAction" name="procedureStepCountForm"
 			scope="request" parameter="method" validate="false">
 			<forward name="init" path="/pages/admin/procedure_step_count.jsp" />
 			<forward name="success" path="/pages/admin/procedure_step_count.jsp" />
