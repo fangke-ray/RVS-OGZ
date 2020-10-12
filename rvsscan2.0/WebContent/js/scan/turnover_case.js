@@ -122,10 +122,14 @@ var roll = function () {
 					model_font_size = " longer_model";
 				}
 				showHtml += '<div class="shipping-material" style="opacity:.2;">' +
-							'<div class="ui-widget-header">' + material.wip_location + '</div>' +
+							(material.kind == 2 
+							? ('<div class="ui-state-error">') 
+							: ('<div class="ui-widget-header">')
+							)  + material.wip_location + '</div>' +
 							'<div class="td-content' + model_font_size + '">' + model_name + '</div>' +
 							'<div class="td-content">' + material.serial_no + '</div>' +
-							'<div class="td-content">' + material.bound_out_ocm + '</div>' +
+							'<div class="td-content">' + material.bound_out_ocm +
+							(material.kind == 2	? ' <span>返还</span>' : '') + '</div>' +
 						'</div>';
 				mCnt++;
 			}

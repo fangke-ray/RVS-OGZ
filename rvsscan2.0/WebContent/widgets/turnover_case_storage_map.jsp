@@ -1,12 +1,12 @@
 <%@ page language="java" pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" isELIgnored="false"%>
 <style>
 .wip-table td.wip-storage {
-	outline: 1px solid green;
+	outline: 2px solid green;
 	box-shadow : 1px 1px 1px 1px green;
 }
 
 .wip-table td.wip-shipping {
-	outline: 1px solid blue;
+	outline: 2px solid blue;
 	box-shadow : 1px 1px 1px 1px blue;
 }
 </style>

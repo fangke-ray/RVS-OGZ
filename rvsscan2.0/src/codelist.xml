@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿﻿<?xml version="1.0" encoding="UTF-8"?>
 <codelist-config>
 	<codelist name="category_kind">
 		<value code="1">粗镜</value>
@@ -190,7 +190,46 @@
 		<value code="2">▲</value>
 		<value code="3">★</value>
 	</codelist>
-	
+
+	<codelist name="material_direct_ocm">
+		<value code="1">OCM-SH RC</value>
+		<value code="11">上海</value>
+		<value code="12">江苏</value>
+		<value code="13">浙江</value>
+		<value code="14">安徽</value>
+		<value code="15">福建</value>
+		<value code="16">江西</value>
+		<value code="2">OCM-BJ RC</value>
+		<value code="21">新疆</value>
+		<value code="22">青海</value>
+		<value code="23">甘肃</value>
+		<value code="24">宁夏</value>
+		<value code="25">陕西</value>
+		<value code="26">山西</value>
+		<value code="27">河南</value>
+		<value code="61">北京</value>
+		<value code="62">天津</value>
+		<value code="63">河北</value>
+		<value code="64">山东</value>
+		<value code="65">内蒙古</value>
+		<value code="3">OCM-GZ RC</value>
+		<value code="31">湖南</value>
+		<value code="32">湖北</value>
+		<value code="33">广东</value>
+		<value code="34">广西</value>
+		<value code="35">重庆</value>
+		<value code="36">四川</value>
+		<value code="37">贵州</value>
+		<value code="38">云南</value>
+		<value code="39">西藏</value>
+		<value code="70">海南</value>
+		<value code="4">OCM-SY RC</value>
+		<value code="41">辽宁</value>
+		<value code="42">吉林</value>
+		<value code="43">黑龙江</value>
+		<value code="80">备品中心</value>
+	</codelist>
+
 	<codelist name="fact_production_type">
 		<value code="10">A：收货</value>
 		<value code="11">A：收货</value>

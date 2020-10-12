@@ -8,6 +8,7 @@
 		ma.omr_notifi_no as sorc_no,
 		mdl.name as model_name,
 		ma.serial_no,
+		ma.break_back_flg as kind,
 		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm,
 		tcs.storage_time <= date_add(current_date, interval -2 month) as wip_overceed,
 		CASE

@@ -86,6 +86,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	.shipping-material div:nth-child(3) {
 		border-bottom: 1px dashed gray;
 	}
+	.shipping-material div:last-child > span{
+		position: absolute;
+		color: red;
+		font-size:12px;
+		border: 1px solid red;
+		transform: rotate(35deg);
+		transform-origin: right middle;
+	}
 </style>
 				<div id="listarea" style="position:absolute;top: 26px;right:5px;">
 					<table class="condform" id="label_table" style="margin-top: 15px; margin-bottom: 15px;font-size:15px;">
