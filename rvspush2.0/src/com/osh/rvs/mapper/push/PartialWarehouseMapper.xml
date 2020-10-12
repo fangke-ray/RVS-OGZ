@@ -16,7 +16,8 @@
 		    operator.name AS operator_name,
 		    operator.operator_id,
 		    operator.job_no,
-		    COALESCE(pw.warehouse_no,material.omr_notifi_no) AS warehouse_no
+		    COALESCE(pw.warehouse_no,material.omr_notifi_no) AS warehouse_no,
+		    material.level
 		FROM
 			fact_production_feature fpf
 		JOIN
