@@ -185,7 +185,7 @@ public class PartialOutStorageService {
 		// 1分钟
 		BigDecimal oneMinute = new BigDecimal(60000);
 
-		BigDecimal spent = diff.divide(oneMinute, RoundingMode.UP);
+		BigDecimal spent = diff.divide(oneMinute, 2, RoundingMode.HALF_UP);
 
 		return spent.toString();
 	}

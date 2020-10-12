@@ -4,6 +4,9 @@ var p_time = 0;
 var oInterval, ttInterval;
 // 定时处理间隔（1分钟）
 var iInterval = 60000;
+// 定时处理间隔（1秒）
+var iIntervalSecond = 1000;
+
 // 取到的标准作业时间
 var leagal_overline;
 
@@ -200,10 +203,56 @@ var ctime=function(){
 	}
 };
 
+var _secondTime=function(){
+	p_time++;
+	var spendTime = p_time - 1;
+	if(spendTime<0){
+		spendTime = 0;
+	}
+
+	$("#dtl_process_time label").text(secondFormat(spendTime));
+
+	var rate = parseInt((p_time + 1) / leagal_overline * 100);
+	if (rate == 99) return;
+	if (rate >= 100) rate = 99;
+	var liquid = $("#p_rate div");
+	liquid.animate({width : rate + "%"}, iIntervalSecond, "linear");
+	if (rate > 80) {
+		liquid.removeClass("tube-green");
+		if (rate > 95) {
+			liquid.removeClass("tube-yellow");
+			liquid.addClass("tube-orange");
+		} else {
+			liquid.addClass("tube-yellow");
+		}
+	} else {
+		liquid.addClass("tube-green");
+	}
+};
+
 var minuteFormat =function(iminute) {
 	if (!iminute) return "-";
 	var hours = parseInt(iminute / 60);
 	var minutes = iminute % 60;
 
 	return fillZero(hours, 2) + ":" + fillZero(minutes, 2);
+}
+
+var _secondFormat = function(fminute) {
+	if (!fminute && fminute != 0) return "-";
+	if (fminute == -1) return "-";
+	var iminute = parseInt(fminute);
+	var hours = parseInt(fminute / 60);
+	var minutes = iminute % 60;
+	var seconds = parseInt((fminute - iminute) * 60);
+
+	return fillZero(hours, 2) + ":" + fillZero(minutes, 2) + ":" + fillZero(seconds, 2);
+}
+
+var secondFormat = function(fsecond) {
+    var hours = Math.floor( fsecond / 3600); 
+    var minutes = Math.floor((fsecond - hours * 3600) / 60); 
+    var seconds = fsecond - hours * 3600 - minutes * 60;
+    
+    return fillZero(hours, 2) + ":" + fillZero(minutes, 2) + ":" + fillZero(seconds, 2);
 }

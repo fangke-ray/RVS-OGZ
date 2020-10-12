@@ -186,22 +186,22 @@ function setRate(factProductionFeature,leagalOverline,spent_mins){
 	$("#partial_details").show();
 	//开始时间
 	$("#partial_details td:eq(1)").text(factProductionFeature.action_time);
-	leagal_overline = leagalOverline;
 	
-	var frate = parseInt(spent_mins / leagal_overline * 100);
+	p_time = Math.floor(spent_mins * 60);//秒
+	leagal_overline = Math.floor(leagalOverline * 60);
+	
+	var frate = parseInt(p_time / leagal_overline * 100);
 	if (frate > 99) {
 		frate = 99;
 	}
 	$("#p_rate").html("<div class='tube-liquid tube-green' style='width:"+ frate +"%;text-align:right;'></div>");
 	
-	p_time = spent_mins;
-	
 	//作业标准时间
-	$("#partial_details td:eq(3)").text(minuteFormat(leagalOverline));
-	ctime();
+	$("#partial_details td:eq(3)").text(_secondFormat(leagalOverline));
+	_secondTime();
 	clearInterval(oInterval);
 	oInterval = null;
-	oInterval = setInterval(ctime,iInterval);
+	oInterval = setInterval(_secondTime,iIntervalSecond);
 };
 
 function list (listdata, rowNum) {
