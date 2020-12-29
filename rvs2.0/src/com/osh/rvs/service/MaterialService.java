@@ -768,6 +768,7 @@ public class MaterialService {
 			defaultCell.setBorderTop(HSSFCellStyle.BORDER_THIN);//上边框
 			defaultCell.setBorderRight(HSSFCellStyle.BORDER_THIN);//右边框
 			defaultCell.setFont(fontYH);
+			defaultCell.setDataFormat(book.createDataFormat().getFormat("@")); 
 
 			HSSFCellStyle highlightCell = book.createCellStyle(); // 亮色
 			highlightCell.setBorderBottom(HSSFCellStyle.BORDER_THIN); //下边框
@@ -803,21 +804,28 @@ public class MaterialService {
 			listSheet.setDefaultColumnStyle(14, defaultCell);
 			listSheet.setDefaultColumnStyle(15, defaultCell);
 			listSheet.setDefaultColumnStyle(16, defaultCell);
+			listSheet.setDefaultColumnStyle(17, defaultCell);
 
 			for (int i=0; i < lResultForm.size(); i++) {
 				MaterialForm resultForm = lResultForm.get(i);
 				row = listSheet.createRow(i+1);
+
+				int colIdx = 0;
+
 				// int excelRowNum = row.getRowNum();
-				HSSFCell cell = row.createCell(0, HSSFCell.CELL_TYPE_STRING);
+				HSSFCell cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(i+1);
 
-				cell = row.createCell(1, HSSFCell.CELL_TYPE_STRING);
-				cell.setCellValue("'" + resultForm.getSorc_no());
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
+				cell.setCellValue(resultForm.getMaterial_id());
 
-				cell = row.createCell(2, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
+				cell.setCellValue(resultForm.getSorc_no());
+
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getModel_name());
 
-				cell = row.createCell(3, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				String sLevel = resultForm.getLevel();
 				if (!levels.containsKey(sLevel)) {
 					levels.put(sLevel, CodeListUtils.getValue("material_level", sLevel, " - "));
@@ -825,10 +833,10 @@ public class MaterialService {
 				sLevel = levels.get(sLevel);
 				cell.setCellValue(sLevel);
 
-				cell = row.createCell(4, HSSFCell.CELL_TYPE_STRING);
-				cell.setCellValue("'" + resultForm.getSerial_no());
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
+				cell.setCellValue(resultForm.getSerial_no());
 
-				cell = row.createCell(5, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				String sOcm = resultForm.getOcm();
 				if (!ocms.containsKey(sOcm)) {
 					ocms.put(sOcm, CodeListUtils.getValue("material_ocm", sOcm, " - "));
@@ -836,48 +844,48 @@ public class MaterialService {
 				sOcm = ocms.get(sOcm);
 				cell.setCellValue(sOcm);
 
-				cell = row.createCell(6, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getSection_name());
 
-				cell = row.createCell(7, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getProcessing_position());
 
-				cell = row.createCell(8, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getProcessing_position2());
 
-				cell = row.createCell(9, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				String sReceptionTime = resultForm.getReception_time();
 				if (sReceptionTime != null && sReceptionTime.length() > 10)
 					sReceptionTime = sReceptionTime.substring(0, 10);
 				cell.setCellValue(sReceptionTime);
 
-				cell = row.createCell(10, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getAgreed_date());
 
-				cell = row.createCell(11, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getScheduled_date());
 
-				cell = row.createCell(12, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				if("9999-12-31".equals(resultForm.getScheduled_date_end())){
 					cell.setCellValue("另行通知");
 				}else{
 					cell.setCellValue(resultForm.getScheduled_date_end());
 				}
 
-				cell = row.createCell(13, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getOutline_time());
 
-				cell = row.createCell(14, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getPartial_order_date());
 
-				cell = row.createCell(15, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				if("9999-12-31".equals(resultForm.getArrival_plan_date())){
 					cell.setCellValue("未定");
 				}else{
 					cell.setCellValue(resultForm.getArrival_plan_date());
 				}
 
-				cell = row.createCell(16, HSSFCell.CELL_TYPE_STRING);
+				cell = row.createCell(colIdx++, HSSFCell.CELL_TYPE_STRING);
 				cell.setCellValue(resultForm.getIs_late());
 			}
 			// 保存文件
