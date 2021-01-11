@@ -108,6 +108,8 @@
 
 		<typeAlias alias="ProcedureStepCountEntity" type="com.osh.rvs.bean.master.ProcedureStepCountEntity"/>
 
+
+		<typeAlias alias="NewPhenomenonEntity" type="com.osh.rvs.bean.manage.NewPhenomenonEntity"/>
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">
@@ -227,5 +229,7 @@
 
 		<mapper resource="com/osh/rvs/mapper/manufact/ProductMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/ProcedureStepCountMapper.xml"/>
+
+		<mapper resource="com/osh/rvs/mapper/manage/NewPhenomenonMapper.xml"/>
 	</mappers>
 </configuration> 

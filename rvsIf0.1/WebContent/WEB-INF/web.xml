@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+  <display-name>NFM2RVS Interface</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+		<welcome-file>/axis2-web/index.jsp</welcome-file>
+	</welcome-file-list>
+	<servlet>
+		<display-name>Apache-Axis Servlet</display-name>
+		<servlet-name>AxisServlet</servlet-name>
+		<servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>/servlet/AxisServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>*.jws</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>shipping</servlet-name>
+		<servlet-class>com.osh.rvsif.shipping.ShippingTrigger</servlet-class>
+	  <init-param>
+	    <description>服务地址</description>
+	    <param-name>REMOTE_SHIPPING_SERVER</param-name>
+	    <param-value>http://10.220.4.83:8001/sap/bc/srt/xip/sap/yrvs004/800/rvs004/rvs004</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>访问用户名</description>
+	    <param-name>USER_NAME</param-name>
+	    <param-value>rvs_if</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>访问密码</description>
+	    <param-name>PASSWORD</param-name>
+	    <param-value>abc123</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>完成标记</description>
+	    <param-name>OK</param-name>
+	    <param-value>Y</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>确认标记</description>
+	    <param-name>SUCCESS</param-name>
+	    <param-value>S</param-value>
+	  </init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>shipping</servlet-name>
+		<url-pattern>/shipping/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>rehandle</servlet-name>
+		<servlet-class>com.osh.rvsif.rehandle.RehandleTrigger</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>rehandle</servlet-name>
+		<url-pattern>/rehandle/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>phenomenon</servlet-name>
+		<servlet-class>com.osh.rvsif.phenomenon.SendNewPhenomenonTrigger</servlet-class>
+	  <init-param>
+	    <description>服务地址</description>
+	    <param-name>REMOTE_NEW_PHENON_SERVER</param-name>
+	    <param-value>http://vsappop-sh04.cna.olympus.global:50000/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=RVS&amp;receiverParty=&amp;receiverService=&amp;interface=RVS005_RVS2SFDC_Syn_Out&amp;interfaceNamespace=http%3A%2F%2Fcna.olympus.global%2Frvs%2FRVS005</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>访问用户名</description>
+	    <param-name>USER_NAME</param-name>
+	    <param-value>SFDC_WSUSER</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>访问密码</description>
+	    <param-name>PASSWORD</param-name>
+	    <param-value>pop12345</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>完成标记</description>
+	    <param-name>OK</param-name>
+	    <param-value>Y</param-value>
+	  </init-param>
+	  <init-param>
+	    <description>确认标记</description>
+	    <param-name>SUCCESS</param-name>
+	    <param-value>S</param-value>
+	  </init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>phenomenon</servlet-name>
+		<url-pattern>/phenomenon/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>console</servlet-name>
+		<servlet-class>com.osh.rvs.servlet.ConsoleServlet</servlet-class>
+	</servlet> 
+	<servlet-mapping>
+		<servlet-name>console</servlet-name>
+		<url-pattern>/console</url-pattern>
+	</servlet-mapping>
+
+	<!-- <servlet>
+		<display-name>Apache-Axis Admin Servlet Web Admin</display-name>
+		<servlet-name>AxisAdminServlet</servlet-name>
+		<servlet-class>org.apache.axis2.transport.http.AxisAdminServlet</servlet-class>
+		<load-on-startup>100</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AxisAdminServlet</servlet-name>
+		<url-pattern>/axis2-admin/*</url-pattern>
+	</servlet-mapping> -->
+</web-app>

@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<codelist-config>
+	<codelist name="if_reception_rc_code">
+		<value code="2">CM21</value>
+		<value code="1">CM22</value>
+		<value code="3">CM23</value>
+		<value code="4">CM24</value>
+	</codelist>
+
+	<codelist name="if_reception_repair_method">
+		<value code="1">流水线</value>
+		<value code="2">单元</value>
+	</codelist>
+
+	<codelist name="if_reception_ocm_rank">
+		<value code="1">A</value>
+		<value code="201">AW</value>
+		<value code="2">B</value>
+		<value code="202">BW</value>
+		<value code="3">C</value>
+		<value code="203">CW</value>
+		<value code="304">D1</value>
+		<value code="314">D2</value>
+		<value code="324">D3</value>
+		<value code="394">DW</value>
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<value code="205">EW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="if_reception_osh_rank">
+		<value code="91">D1</value>
+		<value code="92">D2</value>
+		<value code="93">D3</value>
+		<value code="99">DW</value>
+		<value code="56">E1</value>
+		<value code="57">E2</value>
+		<value code="59">EW</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="if_reception_osh_processing_rank">
+		<value code="1">S1</value>
+		<value code="2">S2</value>
+		<value code="3">S3</value>
+		<value code="6">A</value>
+		<value code="7">B</value>
+		<value code="8">C</value>
+		<value code="9">D</value>
+		<value code="10">E</value>
+		<value code="96">M1</value>
+		<value code="97">M2</value>
+		<value code="98">M3</value>
+	</codelist>
+
+	<codelist name="if_part_order_append_reason">
+		<value code="2">E</value>
+		<value code="3">Q</value>
+		<value code="4">D</value>
+		<value code="5">N</value>
+		<value code="6">FX</value>
+		<value code="7">BL</value>
+		<value code="8">LJ</value>
+		<value code="10">ZZ</value>
+		<value code="11">YZ</value>
+	</codelist>
+	
+	<codelist name="if_part_order_currency">
+		<value code="1">USD</value>
+		<value code="2">RMB</value>
+		<value code="3">EUR</value>		
+	</codelist>
+	
+	<codelist name="if_sorc_code">
+		<value code="33">CT33</value>
+		<value code="34">CT34</value>
+	</codelist>
+	
+</codelist-config>

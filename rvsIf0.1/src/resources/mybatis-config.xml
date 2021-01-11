@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties />
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="true" />
+		<setting name="defaultExecutorType" value="SIMPLE" />
+	</settings>
+	<typeAliases>
+		<typeAlias alias="IfSapMessageEntity" type="com.osh.rvsif.common.bean.IfSapMessageEntity" />
+		<typeAlias alias="IfSapMessageContentEntity" type="com.osh.rvsif.common.bean.IfSapMessageContentEntity" />
+		<typeAlias alias="NewPhenomenonEntity" type="com.osh.rvsif.phenomenon.bean.NewPhenomenonEntity"/>
+	</typeAliases>
+	<typeHandlers />
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<!--property name="url" value="jdbc:mysql://localhost:3306/rv_tmp?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8" />
+				<property name="username" value="dbma" /-->
+				<property name="url" value="jdbc:mysql://10.220.130.100:3306/rv_tmp?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8" />
+				<property name="username" value="apaccess" />
+				<property name="password" value="FEDur7s#" />
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource="com/osh/rvsif/common/CommonMapper.xml"/>
+		<mapper resource="com/osh/rvsif/common/mapper/IfSapMessageMapper.xml" />
+		<mapper resource="com/osh/rvsif/common/mapper/IfSapMessageContentMapper.xml" />
+
+		<mapper resource="com/osh/rvsif/phenomenon/mapper/NewPhenomenonMapper.xml" />
+	</mappers>
+
+</configuration> 

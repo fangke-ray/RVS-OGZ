@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvsif.common.mapper.IfSapMessageMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<insert id="insert" parameterType="IfSapMessageEntity">
+		<![CDATA[ 
+		INSERT INTO if_sap_message (
+				forward,
+				kind,
+				response_message,
+				check_status
+		) VALUES (
+			#{forward}, 
+			#{kind}, 
+			#{response_message}, 
+			#{check_status}
+		);
+		]]>
+	</insert>
+	
+	<update id="update" parameterType="IfSapMessageEntity">
+		<![CDATA[ 
+			UPDATE if_sap_message SET 
+				response_message = #{response_message},
+				check_status = #{check_status} 
+			WHERE if_sap_message_key = #{if_sap_message_key}
+		]]>
+	</update>
+</mapper>

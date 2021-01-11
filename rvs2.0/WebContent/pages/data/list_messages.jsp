@@ -22,6 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/data/list_messages.js"></script>
+<script type="text/javascript" src="js/manage/nogood_phenomenon_detail.js"></script>
 <title>警报信息查询</title>
 </head>
 <body class="outer" style="align: center;">
@@ -42,7 +43,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div style="width: 1012px; float: left;">
 				<div id="body-mdl" class="dwidth-middleright" style="margin: auto;">
 	<div style="margin:auto;">
-	
+
 <div id="searcharea" class="dwidth-middleright">
 	<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser">
 		<span class="areatitle">检索条件</span>
@@ -101,6 +102,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div id="listpager"></div>
 </div>
 
+<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase" style="padding-top:4px;margin-top:24px;">
+	<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all " id="nongood_new_phenomenonbutton" value="不良新现象报告" role="button" aria-disabled="false" style="float:right;right:1px">
+</div>
+
 <div id="detail_dialog">
 </div>
 
@@ -115,21 +120,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div class="referchooser ui-widget-content" tabindex="-1" id="referchooser_model">
 	<table>
 		<tr>
-			<td width="50%">过滤字:<input type="text" tabindex="-1"/></td>	
+			<td width="50%">过滤字:<input type="text" tabindex="-1"/></td>
 			<td width="50%" align="right"><input type="button" class="ui-button" style="float:right;" value="清空"/></td>
 		</tr>
 	</table>
-	
+
 	<table class="subform"><%=request.getAttribute("mReferChooser")%></table>
 </div>
 <div class="referchooser ui-widget-content" tabindex="-1" id="referchooser_operator">
 	<table>
 		<tr>
-			<td width="50%">过滤字:<input type="text" tabindex="-1"/></td>	
+			<td width="50%">过滤字:<input type="text" tabindex="-1"/></td>
 			<td width="50%" align="right"><input type="button" class="ui-button" style="float:right;" value="清空"/></td>
 		</tr>
 	</table>
-	
+
 	<table class="subform"><%=request.getAttribute("oReferChooser")%></table>
 </div>
 </body>

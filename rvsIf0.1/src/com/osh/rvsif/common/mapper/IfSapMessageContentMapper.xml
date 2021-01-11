@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvsif.common.mapper.IfSapMessageContentMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<insert id="insert" parameterType="IfSapMessageContentEntity">
+		<![CDATA[ 
+		INSERT INTO if_sap_message_content (
+			if_sap_message_key,
+			seq,
+			content,
+			resolved
+		) VALUES (
+			#{if_sap_message_key},
+			#{seq}, 
+			#{content}, 
+			#{resolved}
+		);
+		]]>
+	</insert>
+
+	<update id="update" parameterType="IfSapMessageContentEntity">
+		<![CDATA[ 
+			UPDATE if_sap_message_content SET resolved = #{resolved},invalid_message = #{invalid_message} WHERE if_sap_message_key = #{if_sap_message_key} and seq = #{seq};
+		]]>
+	</update>
+</mapper>

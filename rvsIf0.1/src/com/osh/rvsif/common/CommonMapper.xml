@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvsif.common.CommonMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="getLastInsertID" resultType="String">
+		<![CDATA[ 
+		SELECT LAST_INSERT_ID();
+		]]>
+	</select>
+
+	<select id="selectMaterialByOmrNotifiNoForSchedule" resultType="map" parameterType="String">
+		<![CDATA[ 
+		SELECT coalesce(level, ocm_rank) as level, fix_type, scheduled_expedited FROM material where omr_notifi_no = #{omr_notifi_no} and break_back_flg = 0;
+		]]>
+	</select>
+
+	<select id="addWorkdays" resultType="java.util.Date">
+		<![CDATA[ 
+		SELECT f_addworkdays(#{date}, #{interval}) FROM DUAL;
+		]]>
+	</select>
+
+</mapper>

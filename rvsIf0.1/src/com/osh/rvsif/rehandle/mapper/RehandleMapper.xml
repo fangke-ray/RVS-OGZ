@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osh.rvsif.rehandle.mapper.RehandleMapper">
+
+	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
+		</cache -->
+
+	<select id="searchKindByKey" resultType="String" parameterType="String">
+		<![CDATA[
+			SELECT kind
+			FROM if_sap_message
+			WHERE if_sap_message_key = #{if_sap_message_key}
+		]]>
+	</select>
+
+	<select id="searchContentByKey" resultType="RehandleEntity" parameterType="String">
+		<![CDATA[
+			SELECT if_sap_message_key,
+				seq,
+				content
+			FROM if_sap_message_content
+			WHERE if_sap_message_key = #{if_sap_message_key}
+				AND seq = #{seq}
+		]]>
+	</select>
+
+	<update id="updateContent" parameterType="RehandleEntity">
+		<![CDATA[ 
+			UPDATE if_sap_message_content SET
+				content = #{content},
+				resolved = #{resolved},
+				invalid_message = #{invalid_message} 
+			WHERE if_sap_message_key = #{if_sap_message_key}
+				AND seq = #{seq}
+		]]>
+	</update>
+</mapper>

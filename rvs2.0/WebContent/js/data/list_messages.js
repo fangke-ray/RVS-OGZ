@@ -105,6 +105,16 @@ $(function() {
 
 });
 
+$(function() {
+	// 不良新现象登记
+	$("#nongood_new_phenomenonbutton").click(function() {
+		var rowid = $("#list").jqGrid('getGridParam', 'selrow');
+		if (rowid == null) {return;}
+		var rowData = $("#list").jqGrid('getRowData', rowid);
+		if (typeof(popNewPhenomenon) === "function") popNewPhenomenon(rowData.id, true);
+	})
+});
+
 var showDetail = function(alarm_messsage_id){
 
 	popMessageDetail(alarm_messsage_id, true);
@@ -129,6 +139,7 @@ function search_handleComplete(xhrobj, textStatus) {
 			lOptions = resInfo.lOptions;
 			rOptions = resInfo.rOptions;
 			
+
 			if ($("#gbox_list").length > 0) {
 				$("#list").jqGrid().clearGridData();
 				$("#list").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [{current : false}]);
@@ -162,18 +173,22 @@ function search_handleComplete(xhrobj, textStatus) {
 					pager : "#listpager",
 					viewrecords : true,
 					caption : modelname + "一览",
+					onSelectRow: enablebuttons, 
 					ondblClickRow : function(rid, iRow, iCol, e) {
 						var data = $("#list").getRowData(rid);
 						var alarm_messsage_id = data["id"];
 						showDetail(alarm_messsage_id);
 					},
 					// multiselect : true, 
+					// multiselect : true,
 					gridview : true, // Speed up
 					pagerpos : 'right',
 					pgbuttons : true,
 					pginput : false,
 					recordpos : 'left',
 					viewsortcols : [true, 'vertical', true]
+					viewsortcols : [true, 'vertical', true],
+					gridComplete: enablebuttons
 				});
 				// $("#list").gridResize({minWidth:1248,maxWidth:1248,minHeight:200,
 				// maxHeight:900});
@@ -185,3 +200,17 @@ function search_handleComplete(xhrobj, textStatus) {
 	};
 };
 
+var enablebuttons = function() {
+	var rowid = $("#list").jqGrid("getGridParam", "selrow");
+	var $buttons = $("#defectiveAnalysisbutton, #nongood_new_phenomenonbutton");
+	if (rowid == null) {
+		$buttons.disable();
+	} else {
+		var rowdata = $("#list").getRowData(rowid);
+		if(rowdata.reason != 1 && rowdata.reason != 5) {
+			$buttons.disable();
+		} else {
+			$buttons.enable();
+		}
+	}
+}
