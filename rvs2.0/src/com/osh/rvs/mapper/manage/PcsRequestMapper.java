@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.osh.rvs.bean.data.MaterialEntity;
+import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.PcsRequestEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 
@@ -22,8 +23,7 @@ public interface PcsRequestMapper {
 	/** 查询 */
 	public List<PcsRequestEntity> searchPcsRequests(PcsRequestEntity condition);
 
-	/** 取得修改依赖 */
-	public PcsRequestEntity disbandPcsRequest(String pcs_request_key);
+	
 
 	/** 取得测试用工位 */
 	public List<PositionEntity> getTestOflines(String line_id);
@@ -47,4 +47,14 @@ public interface PcsRequestMapper {
 	public List<PcsRequestEntity> checkMaterialAssignAsOld(String material_id);
 
 	public List<PcsRequestEntity> getFixHistoryOfMaterial(String material_id);
+
+
+	public List<PcsInputLimitEntity> getLimitByFileName(PcsInputLimitEntity entity);
+
+	public List<PcsInputLimitEntity> countLimitByFileNameOfTypeCode(String type_code);
+
+	public int insertLimit(PcsInputLimitEntity entity);
+
+	public int deleteLimitByFileName(PcsInputLimitEntity entity);
+
 }

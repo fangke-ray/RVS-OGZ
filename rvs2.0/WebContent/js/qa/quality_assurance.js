@@ -612,7 +612,7 @@ var treatStart = function(resInfo) {
 
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses, true, $("#passbutton").length > 0);
+		pcsO.generate(resInfo.pcses, true, $("#passbutton").length > 0, resInfo.pcs_limits);
 	}
 
 	if (resInfo.peripheralData && resInfo.peripheralData.length > 0) {
@@ -902,7 +902,18 @@ var makeStepDialog = function(jBreakDialog) {
 						comments : $("#edit_comments").val()
 					}
 					
-					hasPcs && pcsO.valuePcs(data, true);
+					var invalid = false;
+					if (hasPcs) {
+						invalid = pcsO.valuePcs(data, true);
+					}
+					if (invalid) {
+						var $invalidInputs = $("#pcs_contents input:text.invalid");
+						if ($invalidInputs.length > 0) {
+							jBreakDialog.dialog("close");
+							errorPop("存在不符合输入范围的输入项，请检查改正或暂时删除后再实行中断。", $invalidInputs.eq(0));
+							return;
+						}
+					}
 					
 					if (parseInt($("#break_reason").val()) > 70 && $("#pcs_contents input").length > 0) {
 						if ($('div#errstring').length == 0) {

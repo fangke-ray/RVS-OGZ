@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.apache.struts.upload.FormFile;
 import com.jacob.com.Dispatch;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
+import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.PcsRequestEntity;
@@ -843,5 +845,244 @@ public class PcsRequestService {
 		if (pcs_request_key == null)
 			return null;
 		else return pcs_request_key.replaceAll("^0*([^0].*)$", "$1");
+	}
+
+	public List<PcsRequestForm> getFileList(ActionForm form, SqlSession conn) {
+		PcsRequestEntity entity = new PcsRequestEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);	
+
+		List<PcsRequestForm> fileList = new ArrayList<PcsRequestForm>();
+
+		// 取得路径
+		Integer lineType = entity.getLine_type();
+		String sLineType = "" + lineType;
+		String folder = "";
+
+		Map<String, String> folderTypes = PcsUtils.getFolderTypes();
+		String fr = folderTypes.get(sLineType);
+		if (fr != null) {
+			folder = fr.replaceAll("\n", "/");
+		}
+
+		PcsRequestMapper mapper = conn.getMapper(PcsRequestMapper.class);
+		List<PcsInputLimitEntity> lCountLimit = mapper.countLimitByFileNameOfTypeCode(sLineType);
+
+		// 取得路径下文档
+		File filepath = new File(PathConsts.BASE_PATH + PathConsts.PCS_TEMPLATE + "//excel//" + folder);
+
+		if (filepath.exists() && filepath.isDirectory()) {
+			// 如果选定型号
+			if (entity.getTarget_model_id() != null) {
+				ModelMapper mdlMapper = conn.getMapper(ModelMapper.class);
+				ModelEntity mb = mdlMapper.getModelByID(entity.getTarget_model_id());
+
+				String fileName = PcsUtils.getFileName(PcsUtils.getFolderTypes().get(sLineType), mb);
+				if (fileName != null) {
+					if (entity.getFile_name() != null && fileName.indexOf(entity.getFile_name()) < 0) {
+					} else {
+						File file = new File(fileName);
+						if (file.exists()) {
+							PcsRequestForm fileForm = new PcsRequestForm();
+							String dfileName = cropExt(file.getName());
+							fileForm.setFile_name(dfileName + ".xls");
+							fileForm.setImport_time(DateUtil.toString(new Date(file.lastModified()), DateUtil.DATE_PATTERN));
+
+							dfileName = getFileNamePacked(dfileName);
+							for (PcsInputLimitEntity count : lCountLimit) {
+								if (count.getPacked_file_name().equals(dfileName)) {
+									fileForm.setItems("" + count.getCnt());
+									break;
+								}
+							}
+							
+							fileList.add(fileForm);
+						}
+					}
+				}
+			} else {
+				Map<String, String> fileNameCountMap = new HashMap<String, String>(); 
+				for (PcsInputLimitEntity count : lCountLimit) {
+					fileNameCountMap.put(count.getPacked_file_name(), "" + count.getCnt());
+				}
+
+				for (File file : filepath.listFiles()) {
+					if (!file.isFile()) continue;
+					if (entity.getFile_name() != null && file.getName().indexOf(entity.getFile_name()) < 0) continue;
+
+					PcsRequestForm fileForm = new PcsRequestForm();
+					fileForm.setFile_name(file.getName());
+					fileForm.setImport_time(DateUtil.toString(new Date(file.lastModified()), DateUtil.DATE_PATTERN));
+
+					fileForm.setItems(fileNameCountMap.get(cropExt(file.getName())));
+					fileList.add(fileForm);
+				}
+			}
+		}
+
+		// 取得分类下已配置
+
+		
+		return fileList;
+	}
+
+	/**
+	 * 取得Html文件内容
+	 * 
+	 * @param form
+	 * @param lResponseResult 
+	 * @param conn
+	 * @return
+	 */
+	public String getPcsInputs(ActionForm form, Map<String, Object> lResponseResult, SqlSession conn) {
+
+		PcsRequestEntity entity = new PcsRequestEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);	
+
+		// 取得路径
+		Integer lineType = entity.getLine_type();
+		String sLineType = "" + lineType;
+		String folder = "";
+
+		Map<String, String> folderTypes = PcsUtils.getFolderTypes();
+		String fr = folderTypes.get(sLineType);
+		if (fr != null) {
+			folder = fr.replaceAll("\n", "/");
+		}
+
+		// 取得路径下文档
+		String xmlFileName = cropExt(entity.getFile_name());
+		lResponseResult.put("file_name", xmlFileName);
+		File filepath = new File(PathConsts.BASE_PATH + PathConsts.PCS_TEMPLATE + "/xml/" + folder + "/" + xmlFileName + ".html");
+		if (!filepath.exists()) return null;
+
+		String packed = null;
+
+		packed = getFileNamePacked(xmlFileName);
+//		} catch (IOException ioe) {
+//			return null;
+//		}
+
+		PcsRequestMapper mapper = conn.getMapper(PcsRequestMapper.class);
+		PcsInputLimitEntity lentity = new PcsInputLimitEntity();
+		lentity.setType_code("" + entity.getLine_type());
+		lentity.setPacked_file_name(packed);
+		List<PcsInputLimitEntity> tags = mapper.getLimitByFileName(lentity);
+
+		String xmlContent = PcsUtils.getXmlContentStringFromFile(filepath);
+		xmlContent = PcsUtils.getInputsContent(xmlContent, tags);
+
+		return xmlContent;
+	}
+
+	private Map<String, String> packedMap = new HashMap<String, String>();
+	private String getFileNamePacked(String xmlFileName) {
+		if (xmlFileName.length() <= 127) return xmlFileName;
+
+		if (packedMap.containsKey(xmlFileName)) return packedMap.get(xmlFileName);
+
+		StringBuffer sb = new StringBuffer("");
+
+		int charCombine = 0;
+
+		for (int i=0; i < xmlFileName.length(); i++) {
+			switch (i%3) {
+			case 0: sb.append(xmlFileName.charAt(i)); break;
+			case 1: charCombine = ((int) xmlFileName.charAt(i)) % 256; break;
+			case 2: charCombine += ((int) xmlFileName.charAt(i)) % 256 * 256;
+				sb.append((char) charCombine);
+				break;
+			}
+		}
+
+		if (sb.length() > 127) {
+			return getFileNamePacked(sb.toString());
+		}
+
+		packedMap.put(xmlFileName, sb.toString());
+		return sb.toString();
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//
+//		GZIPOutputStream gos = new GZIPOutputStream(bos);
+//		gos.write(xmlFileName.getBytes(RvsConsts.UTF_8));
+//		return bos.toString(RvsConsts.UTF_8);
+	}
+
+	/**
+	 * 更新输入限制
+	 * 
+	 * @param form
+	 * @param parameterMap
+	 * @param msgInfos
+	 * @param conn
+	 * @throws IOException 
+	 */
+	public void setPcsInputLimits(ActionForm form,
+			Map<String, String[]> parameterMap, List<MsgInfo> msgInfos,
+			SqlSessionManager conn) throws IOException {
+
+		PcsRequestEntity entity = new PcsRequestEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);	
+
+		List<PcsInputLimitEntity> pcsInputLimitEntities = new AutofillArrayList<PcsInputLimitEntity>(PcsInputLimitEntity.class);
+		Pattern p = Pattern.compile("(\\w+)\\[(\\d+)\\].(\\w+)");
+
+		// 整理提交数据
+		for (String parameterKey : parameterMap.keySet()) {
+			Matcher m = p.matcher(parameterKey);
+			if (m.find()) {
+				String group = m.group(1);
+				if ("pil_tag".equals(group)) {
+					String column = m.group(3);
+					int icounts = Integer.parseInt(m.group(2));
+					String[] value = parameterMap.get(parameterKey);
+
+					// TODO 全
+					if ("tag_code".equals(column)) {
+						pcsInputLimitEntities.get(icounts).setTag_code(value[0]);
+					} else if ("lower_limit".equals(column)) {
+						if (!isEmpty(value[0])) {
+							pcsInputLimitEntities.get(icounts).setLower_limit(new BigDecimal(value[0]));
+						}
+					} else if ("upper_limit".equals(column)) {
+						if (!isEmpty(value[0])) {
+							pcsInputLimitEntities.get(icounts).setUpper_limit(new BigDecimal(value[0]));
+						}
+					} else if ("allow_pass".equals(column)) {
+						if ("0".equals(value[0])) {
+							pcsInputLimitEntities.get(icounts).setAllow_pass(false);
+						} else {
+							pcsInputLimitEntities.get(icounts).setAllow_pass(true);
+						}
+					}
+				}
+			}
+		}
+
+		// 取得路径
+		Integer lineType = entity.getLine_type();
+		String sLineType = "" + lineType;
+
+		String packed = null;
+		packed = getFileNamePacked(entity.getFile_name());
+
+		try {
+			PcsRequestMapper mapper = conn.getMapper(PcsRequestMapper.class);
+			PcsInputLimitEntity dentity = new PcsInputLimitEntity();
+			dentity.setType_code(sLineType);
+			dentity.setPacked_file_name(packed);
+			mapper.deleteLimitByFileName(dentity);
+
+			for (PcsInputLimitEntity lentity : pcsInputLimitEntities) {
+				lentity.setType_code(sLineType);
+				lentity.setPacked_file_name(packed);
+				mapper.insertLimit(lentity);
+			}
+		} catch(Exception e) {
+			MsgInfo info = new MsgInfo();
+			info.setErrmsg("更新失败，产生信息" + e.getMessage() + "，请检查原文件文档的标签是否有异常。");
+			msgInfos.add(info);
+			conn.rollback();
+		}
+
 	}
 }

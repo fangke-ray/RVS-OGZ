@@ -110,6 +110,9 @@
 
 
 		<typeAlias alias="NewPhenomenonEntity" type="com.osh.rvs.bean.manage.NewPhenomenonEntity"/>
+
+		<typeAlias alias="PcsInputLimitEntity" type="com.osh.rvs.bean.manage.PcsInputLimitEntity"/>
+
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">

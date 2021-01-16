@@ -31,8 +31,17 @@ var makeBreakDialog = function(jBreakDialog) {
 						serial_no : $("#material_details td:eq(5)").text()
 					}
 
+					var invalid = false;
 					if (hasPcs) {
-						pcsO.valuePcs(data, true);
+						invalid = pcsO.valuePcs(data, true);
+					}
+					if (invalid) {
+						var $invalidInputs = $("#pcs_contents input:text.invalid");
+						if ($invalidInputs.length > 0) {
+							jBreakDialog.dialog("close");
+							errorPop("存在不符合输入范围的输入项，请检查改正或暂时删除后再实行中断。", $invalidInputs.eq(0));
+							return;
+						}
 					}
 
 					// Ajax提交
@@ -267,7 +276,7 @@ var treatPause = function(resInfo) {
 
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses, true);
+			pcsO.generate(resInfo.pcses, true, false, resInfo.pcs_limits);
 		}
 	}
 
@@ -304,7 +313,7 @@ var treatStart = function(resInfo) {
 
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses, true);
+		pcsO.generate(resInfo.pcses, true, false, resInfo.pcs_limits);
 	}
 	$("#scanner_inputer").focus();
 }
@@ -719,11 +728,18 @@ var doFinish=function(){
 	}
 
 	if (empty) {
-		warningConfirm("存在没有填的工程检查票选项，可以就这样提交吗？"
-		, function(){doFinishPost(data)}
-		, function(){
-			$('div#errstring').dialog("close");
-		});
+		var warningMessage = "";
+		var $invalidInputs = $("#pcs_contents input:text.invalid");
+		if ($invalidInputs.length > 0) {
+			errorPop("存在不符合输入范围的输入项，请检查改正后再完成本工位作业。", $invalidInputs.eq(0));
+			return;
+		} else {
+			warningConfirm("存在没有填的工程检查票选项，可以就这样提交吗？"
+			, function(){doFinishPost(data)}
+			, function(){
+				$('div#errstring').dialog("close");
+			});
+		}
 	}
 
 	if (!empty) {

@@ -44,7 +44,18 @@ var makeBreakDialog = function(jBreakDialog) {
 						comments : $("#edit_comments").val()
 					}
 
-					hasPcs && pcsO.valuePcs(data, true);
+					var invalid = false;
+					if (hasPcs) {
+						invalid = pcsO.valuePcs(data, true);
+					}
+					if (invalid) {
+						var $invalidInputs = $("#pcs_contents input:text.invalid");
+						if ($invalidInputs.length > 0) {
+							jBreakDialog.dialog("close");
+							errorPop("存在不符合输入范围的输入项，请检查改正或暂时删除后再实行中断。", $invalidInputs.eq(0));
+							return;
+						}
+					}
 
 					if (parseInt($("#break_reason").val()) > 70 && $("#pcs_contents input").length > 0) {
 						if ($('div#errstring').length == 0) {
@@ -314,7 +325,7 @@ var douse_complete = function(xhrobj) {
 	treatUsesnout(xhrobj);
 	// 工程检查票
 	if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-		pcsO.generate(resInfo.pcses, true);
+		pcsO.generate(resInfo.pcses, true, false, resInfo.pcsLimits);
 		pcsO.loadCache();
 	}
 }
@@ -537,7 +548,7 @@ var treatPause = function(resInfo) {
 		if (resInfo.workstauts != 5) {
 			// 工程检查票
 			if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-				pcsO.generate(resInfo.pcses, true);
+				pcsO.generate(resInfo.pcses, true, false, resInfo.pcsLimits);
 			}
 		}
 
@@ -652,7 +663,7 @@ var treatStart = function(resInfo) {
 	} else {
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses, true);
+			pcsO.generate(resInfo.pcses, true, false, resInfo.pcsLimits);
 		};
 
 		if ($("#usesnoutarea").length > 0) getUsesnout(resInfo.mform.material_id);
@@ -1474,7 +1485,12 @@ var doFinish=function(){
 	}
 
 	if (empty) {
-		errorPop("请填写完所有的工程检查票选项后，再完成本工位作业。");
+		var $invalidInputs = $("#pcs_contents input:text.invalid");
+		if ($invalidInputs.length > 0) {
+			errorPop("存在不符合输入范围的输入项，请检查改正后再完成本工位作业。", $invalidInputs.eq(0));
+		} else {
+			errorPop("请填写完所有的工程检查票选项后，再完成本工位作业。");
+		}
 	}
 
 	if (!empty) {

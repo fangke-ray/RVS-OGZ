@@ -50,6 +50,8 @@ public class PcsRequestForm extends ActionForm {
 	@BeanField(title = "更改描述", name = "change_detail")
 	private String change_detail;
 
+	private String items;
+
 	/** file property */
     private FormFile file;
 
@@ -180,5 +182,13 @@ public class PcsRequestForm extends ActionForm {
 	}
 	public void setTarget_model_id(String target_model_id) {
 		this.target_model_id = target_model_id;
+	}
+
+	public String getItems() {
+		return items;
+	}
+
+	public void setItems(String items) {
+		this.items = items;
 	}
 }

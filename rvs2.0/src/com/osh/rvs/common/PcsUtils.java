@@ -31,6 +31,7 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
+import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.PcsRequestEntity;
 import com.osh.rvs.mapper.data.MaterialMapper;
@@ -190,6 +191,7 @@ public class PcsUtils {
 		}
 		return "99";
 	}
+
 	private static String toPartCode(String name) {
 		String ret = "";
 		for (byte b : name.getBytes()) {
@@ -217,19 +219,33 @@ public class PcsUtils {
 	 * 取得工程检查票格式
 	 * @param lineName 工程名
 	 * @param modelName 型号名
-	 * @param categoryName 机种名
+	 * @param modelEntity 型号实体
+	 * @param checkHistory 检查改废定履历
+	 * @param material_id 维修品ID
+	 * @param limits 输入项限
 	 * @param conn 
 	 * @return
 	 */
 	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, SqlSession conn) {
-		return getXmlContents(lineName, modelName, modelEntity, false, null, conn);
-	}
-	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, String material_id, SqlSession conn) {
-		return getXmlContents(lineName, modelName, modelEntity, false, material_id, conn);
+		return getXmlContents(lineName, modelName, modelEntity, false, null, null, conn);
 	}
 	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, 
-			boolean checkHistory,
-			String material_id, SqlSession conn) {
+			Map<String, Map<String, PcsInputLimitEntity>> limits, SqlSession conn) {
+		return getXmlContents(lineName, modelName, modelEntity, false, null, limits, conn);
+	}
+	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, String material_id, SqlSession conn) {
+		return getXmlContents(lineName, modelName, modelEntity, false, material_id, null, conn);
+	}
+	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, String material_id, 
+			Map<String, Map<String, PcsInputLimitEntity>> limits, SqlSession conn) {
+		return getXmlContents(lineName, modelName, modelEntity, false, material_id, limits, conn);
+	}
+	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, 
+			boolean checkHistory, String material_id, SqlSession conn) {
+		return getXmlContents(lineName, modelName, modelEntity, checkHistory, material_id, null, conn);
+	}
+	public static Map<String, String> getXmlContents(String lineName, String modelName, ModelEntity modelEntity, 
+			boolean checkHistory, String material_id, Map<String, Map<String, PcsInputLimitEntity>> limits, SqlSession conn) {
 		logger.info("getXmlContents for line=" + lineName + " modelName=" + modelName);
 
 		Map<String, String> ret = new LinkedHashMap<String, String>();
@@ -244,8 +260,10 @@ public class PcsUtils {
 
 		List<PcsRequestEntity> lM = null;
 		List<PcsRequestEntity> lH = null;
+		PcsRequestMapper prMapper = null;
+
 		if (material_id != null) {
-			PcsRequestMapper prMapper = conn.getMapper(PcsRequestMapper.class);
+			prMapper = conn.getMapper(PcsRequestMapper.class);
 			lM = prMapper.checkMaterialAssignAsOld(material_id);
 
 			// 如果参照历史,取得指定机型的修改履历
@@ -256,9 +274,12 @@ public class PcsUtils {
 
 		for (String pace : lineBinder.keySet()) {
 			String filename = null;
+			String folderTypesKey = null;
+			if (material_id != null || limits != null) {
+				folderTypesKey = getFolderTypesKey(lineName, pace, folderTypes);
+			}
 			// 如果因改废订而指定了
 			if (material_id != null) {
-				String folderTypesKey = getFolderTypesKey(lineName, pace, folderTypes);
 
 				for (PcsRequestEntity pre : lM) {
 					Integer lineType = pre.getLine_type();
@@ -311,29 +332,44 @@ public class PcsUtils {
 			}
 			if (filename != null) {
 				File xmlfile = new File(filename);
+				String content = null;
 				if (xmlfile.exists()) {
 					if (xmlfile.isFile()) {
-						BufferedReader input = null;
-						try {
-							input = new BufferedReader(new InputStreamReader(new FileInputStream(xmlfile),"UTF-8"));
-							StringBuffer buffer = new StringBuffer();
-							String text;
+						content = getXmlContentStringFromFile(xmlfile);
 
-							while ((text = input.readLine()) != null)
-								buffer.append(text);
+						if (!CommonStringUtil.isEmpty(content)) {
+							ret.put(lineName + ("".equals(pace) ? "" : ("-"  + pace)), content);
+						}
+					}
+				}
 
-							System.out.println(buffer.length());
-							String content = buffer.toString();
-							if (!CommonStringUtil.isEmpty(content)) {
-								ret.put(lineName + ("".equals(pace) ? "" : ("-"  + pace)), content);
+				// 取的上下线
+				if (limits != null) {
+					if (!filename.endsWith("old.html")) { // 不处理旧
+						if (!CommonStringUtil.isEmpty(content)
+								&& (content.indexOf("scope=\"E\" type=\"I\"") + content.indexOf("scope=\"L\" type=\"I\"") > 0)) {
+							String[] pathSplitter = filename.split("\\\\");
+							String packedFilename = pathSplitter[pathSplitter.length - 1].split("\\.")[0];
+							// String packedFilename = filename.replaceAll("^.*\\\\([^\\\\]+)\\\\.html$", "$1");
+							if (prMapper == null) {
+								prMapper = conn.getMapper(PcsRequestMapper.class);
 							}
-						} catch (IOException ioException) {
-						} finally {
-							try {
-								input.close();
-							} catch (IOException e) {
+							PcsInputLimitEntity limitEntity = new PcsInputLimitEntity();
+							limitEntity.setType_code(folderTypesKey);
+							limitEntity.setPacked_file_name(packedFilename);
+							List<PcsInputLimitEntity> llist = prMapper.getLimitByFileName(limitEntity);
+
+							if (llist.size() > 0) {
+								Map<String, PcsInputLimitEntity> lMap = new HashMap<String, PcsInputLimitEntity>();
+								for (PcsInputLimitEntity pil : llist) {
+									String tag_code = pil.getTag_code();
+									pil.setPacked_file_name(null); pil.setTag_code(null);
+									pil.setType_code(null);
+
+									lMap.put(tag_code, pil);
+								}
+								limits.put(lineName + ("".equals(pace) ? "" : ("-"  + pace)), lMap);
 							}
-							input = null;
 						}
 					}
 				}
@@ -341,6 +377,29 @@ public class PcsUtils {
 		}
 
 		return ret;
+	}
+
+	public static String getXmlContentStringFromFile(File xmlfile) {
+		BufferedReader input = null;
+		try {
+			input = new BufferedReader(new InputStreamReader(new FileInputStream(xmlfile),"UTF-8"));
+			StringBuffer buffer = new StringBuffer();
+			String text;
+
+			while ((text = input.readLine()) != null)
+				buffer.append(text);
+
+			System.out.println(buffer.length());
+			return buffer.toString();
+		} catch (IOException ioException) {
+			return null;
+		} finally {
+			try {
+				input.close();
+			} catch (IOException e) {
+			}
+			input = null;
+		}
 	}
 
 	private static String getPackName(String packkind, ModelEntity modelEntity) {
@@ -3425,6 +3484,38 @@ public class PcsUtils {
 			}
 		}
 		return null;
+	}
+	public static String getInputsContent(String xmlContent, List<PcsInputLimitEntity> tags) {
+		if (tags != null) {
+			for (PcsInputLimitEntity tag : tags) {
+				String tagSrcRegx = "<pcinput pcid=\"@#" + tag.getTag_code() + "00\" scope=\"[EL]\" type=\"I\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"00\"/>";
+				String tagContent = "";
+				if (!tag.getAllow_pass()) {
+					tagContent = "<pil_tag key=\"" + tag.getTag_code() + "\" allow_pass=\"no\">";
+				} else {
+					tagContent = "<pil_tag key=\"" + tag.getTag_code() + "\">";
+				}
+				if (tag.getLower_limit() == null) {
+					tagContent += "<input class=\"pil_lower\">";
+				} else {
+					tagContent += "<input class=\"pil_lower\" value=\"" + tag.getLower_limit().toPlainString().replaceAll("\\.?0+$", "") + "\">";
+				}
+				tagContent += "～";
+				if (tag.getUpper_limit() == null) {
+					tagContent += "<input class=\"pil_upper\">";
+				} else {
+					tagContent += "<input class=\"pil_upper\" value=\"" + tag.getUpper_limit().toPlainString().replaceAll("\\.?0+$", "") + "\">";
+				}
+				tagContent += "</pil_tag>";
+
+				xmlContent = xmlContent.replaceAll(tagSrcRegx, tagContent);
+			}
+		}
+
+		xmlContent = xmlContent
+				.replaceAll("<pcinput pcid=\"@#([EL]I\\d{5})00\" scope=\"[EL]\" type=\"I\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"00\"/>", 
+						"<pil_tag key=\"$1\"><input class=\"pil_lower\">～<input class=\"pil_upper\"></pil_tag>");
+		return xmlContent;
 	}
 
 }

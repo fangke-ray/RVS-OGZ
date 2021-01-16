@@ -166,7 +166,18 @@ var makeBreakDialog = function(jBreakDialog) {
 	var submitBreak = function(){
 		b_request.wip_location = wip_location;
 
-		hasPcs && pcsO.valuePcs(b_request, true);
+		var invalid = false;
+		if (hasPcs) {
+			invalid = pcsO.valuePcs(b_request, true);
+		}
+		if (invalid) {
+			var $invalidInputs = $("#pcs_contents input:text.invalid");
+			if ($invalidInputs.length > 0) {
+				jBreakDialog.dialog("close");
+				errorPop("存在不符合输入范围的输入项，请检查改正或暂时删除后再实行中断。", $invalidInputs.eq(0));
+				return;
+			}
+		}
 
 		// Ajax提交
 		$.ajax({
@@ -612,7 +623,7 @@ var getPeripharalInfo = function(resInfo) {
 	} else {
 		// 工程检查票
 		if (resInfo.pcses && resInfo.pcses.length > 0 && hasPcs) {
-			pcsO.generate(resInfo.pcses, true);
+			pcsO.generate(resInfo.pcses, true, false, resInfo.pcs_limits);
 		}
 	};
 }
@@ -748,9 +759,14 @@ var doFinish=function(){
 
 		if (hasPcs) {
 			var empty = pcsO.valuePcs(data);
+
 			if (empty) {
-				errorPop("请填写完所有的工程检查票选项后，再完成本工位作业。");
-				return;
+				var $invalidInputs = $("#pcs_contents input:text.invalid");
+				if ($invalidInputs.length > 0) {
+					errorPop("存在不符合输入范围的输入项，请检查改正后再完成本工位作业。", $invalidInputs.eq(0));
+				} else {
+					errorPop("请填写完所有的工程检查票选项后，再完成本工位作业。");
+				}
 			}
 		}
 

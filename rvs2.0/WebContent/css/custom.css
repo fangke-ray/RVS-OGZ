@@ -241,7 +241,9 @@ label.errorarea-single {
 	border-bottom: 1px solid;
 	/* width: 120px; */
 }
-
+.pcs_content input[type=text].invalid {
+	color:red;
+}
 /* 工程检查票输入域 */
 .pcs_content textarea {
 	background:transparent;

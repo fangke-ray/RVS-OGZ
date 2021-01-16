@@ -1057,6 +1057,16 @@
 			<forward name="init" path="/pages/pda/pda_turnover_case_shipping.jsp" />
 		</action>
 
+		<!-- 工程检查票输入值标准 -->
+		<action path="/pcs_input_limit"
+				type="com.osh.rvs.action.manage.PcsInputLimitAction"
+				name="PcsRequestForm"
+				parameter="method"
+				scope="request"
+				validate="false">
+				<forward name="init" path="/pages/admin/pcs_input_limit.jsp"/>
+				<forward name="success" path="/pages/admin/pcs_input_limit.jsp"/>
+		</action>
 
 		<!-- 不良新现象  -->
 		<action path="/new_phenomenon"

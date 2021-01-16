@@ -269,4 +269,65 @@
 		]]>
 	</select>
 
+
+	<select id="getLimitByFileName" resultType="PcsInputLimitEntity" parameterType="PcsInputLimitEntity">
+		<![CDATA[ 
+			SELECT `pil`.`type_code`,
+			    `pil`.`packed_file_name`,
+			    `pil`.`tag_code`,
+			    `pil`.`lower_limit`,
+			    `pil`.`upper_limit`,
+			    `pil`.`allow_pass`
+			FROM `pcs_input_limit` pil
+			WHERE
+			`pil`.`type_code` = #{type_code}
+			AND
+			`pil`.`packed_file_name` = #{packed_file_name}
+			;
+		]]>
+	</select>
+
+	<select id="countLimitByFileNameOfTypeCode" resultType="PcsInputLimitEntity" parameterType="String">
+		<![CDATA[ 
+			SELECT 
+			    `pil`.`packed_file_name`,
+			    COUNT(1) as cnt
+			FROM `pcs_input_limit` pil
+			WHERE
+			`pil`.`type_code` = #{type_code}
+			GROUP BY
+			`pil`.`packed_file_name`
+			;
+		]]>
+	</select>
+
+
+	<insert id="insertLimit" parameterType="PcsInputLimitEntity">
+		<![CDATA[ 
+			INSERT INTO `pcs_input_limit`
+			(`type_code`,
+			`packed_file_name`,
+			`tag_code`,
+			`lower_limit`,
+			`upper_limit`,
+			`allow_pass`)
+			VALUES
+			(#{type_code},
+			#{packed_file_name},
+			#{tag_code},
+			#{lower_limit},
+			#{upper_limit},
+			#{allow_pass});
+		]]>
+	</insert>
+
+	<delete id="deleteLimitByFileName" parameterType="PcsInputLimitEntity">
+		<![CDATA[ 
+		DELETE FROM `pcs_input_limit`
+		WHERE `type_code` = #{type_code}
+		AND `packed_file_name` = #{packed_file_name};
+		]]>
+	</delete>
+
+
 </mapper>

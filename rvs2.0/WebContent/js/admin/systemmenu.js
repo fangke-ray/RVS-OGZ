@@ -21,6 +21,7 @@ links['#system_image_manage'] = "system_image_manage.do";
 links['#quality_tip'] = "quality_tip.do";
 links['#user_define_codes'] = "user_define_codes.do";
 links['#procedure_step_count'] = "procedureStepCount.do";
+links['#pcs_input_limit'] = "pcs_input_limit.do";
 
 // links['#pcs_request'] = "pcs_request.do";
 

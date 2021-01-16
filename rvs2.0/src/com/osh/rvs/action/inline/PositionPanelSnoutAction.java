@@ -27,6 +27,7 @@ import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
+import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
@@ -542,8 +543,11 @@ public class PositionPanelSnoutAction extends BaseAction {
 			processCode = "812";
 		}
 
+		Map<String, Map<String, PcsInputLimitEntity>> limits = new HashMap<String, Map<String, PcsInputLimitEntity>>();
+		listResponse.put("pcsLimits", limits);
+
 		for (String showLine : showLines) {
-			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, pf.getModel_name(), null, conn);
+			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, pf.getModel_name(), null, limits, conn);
 
 			Map<String, String> fileTemplSolo = new HashMap<String, String>();
 			for (String key : fileTempl.keySet()) {

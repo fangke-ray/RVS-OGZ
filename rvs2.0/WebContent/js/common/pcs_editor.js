@@ -10,10 +10,41 @@ var pcsO = {
 		if (isBreak == undefined) isBreak = false;
 		var pcs_values = {};
 		var pcs_comments = {};
-		this.$pcs_contents.find("input").each(function(){
+		this.$pcs_contents.find("input")
+			.removeClass("invalid")
+			.each(function(){
 			if (this.type == "text") {
-				if (!isBreak || this.value)
+				if (!isBreak || this.value) {
 					pcs_values[this.name] = this.value;
+					var allow_pass = this.getAttribute("allow_pass");
+					if (allow_pass && this.value != null) {
+
+						this.value = this.value.trim();
+						if (isNaN(this.value)) {
+							if (allow_pass === "false") {
+								$(this).addClass("invalid");
+							}
+						} else {
+							var lower_limit = this.getAttribute("lower_limit");
+							var upper_limit = this.getAttribute("upper_limit");
+	
+							if (lower_limit != null) {
+								lower_limit = parseFloat(lower_limit);
+								if (parseFloat(this.value) < lower_limit) {
+									$(this).addClass("invalid");
+								}
+							}
+	
+							if (upper_limit != null) {
+								upper_limit = parseFloat(upper_limit);
+								if (parseFloat(this.value) > upper_limit) {
+									$(this).addClass("invalid");
+								}
+							}
+						}
+
+					}
+				}
 			} else {
 				if (this.className == "i_total_hidden") {
 					if (!isBreak && this.value != "0")
@@ -73,7 +104,11 @@ var pcsO = {
 
 		data.pcs_inputs = Json_to_String(pcs_values);
 		data.pcs_comments = Json_to_String(pcs_comments);
-	
+
+		if (this.$pcs_contents.find("input.invalid").length > 0) {
+			return true;
+		}
+
 		for (var v in pcs_values) {
 			if (!pcsO.forQa || pcsO.$container.find("input[name='"+v+"']").parents("#pcs_content_0").length > 0)
 				if (pcs_values[v] == null || pcs_values[v] == "") return true;
@@ -121,7 +156,7 @@ var pcsO = {
 
 		pcsO.filling = false;
 	},
-	generate : function(pcses, forPosition, isLeader) {
+	generate : function(pcses, forPosition, isLeader, limits) {
 		pcsO.forPosition = forPosition;
 		var tabs = "";
 		var tabscount = 0;
@@ -206,6 +241,33 @@ var pcsO = {
 		if (forPosition) {
 			this.$pcs_contents.find("input,textarea").change(pcsO.saveCache);
 			this.$pcs_contents.find("switcher").not("[other],[rcd]").click(pcsO.saveCache);
+		}
+
+		// 输入项上下限
+		if (limits) {
+			for(var docName in limits) {
+				var page_for = this.$pcs_pages.children("label[title=\"" + docName + "\"]").attr("for").replace("pcs_page_", "pcs_content_");
+
+				if (page_for) {
+					var $content = $("#" + page_for);
+					for (var inputkey in limits[docName]) {
+						var $inp_tag = $content.find("input:text[name=\"" + inputkey + "\"]");
+						var title = "输入条件：";
+						var pil = limits[docName][inputkey];
+						if (pil.lower_limit != null) {
+							title += "≥" + pil.lower_limit + "。";
+						}
+						if (pil.upper_limit != null) {
+							title += "≤" + pil.upper_limit + "。";
+						}
+						if (!pil.allow_pass) {
+							title += "必须输入一个数值。";
+						}
+						pil.title = title;
+						$inp_tag.attr(pil);
+					}
+				}
+			}
 		}
 	},
 	_checkEMs : function($EMs, EmName){
