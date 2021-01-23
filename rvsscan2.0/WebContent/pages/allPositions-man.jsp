@@ -35,7 +35,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 				<div class="posi" id="posi_006_9" style="left: 170px; top: 40px;">006</div>
 
-				<div class="posi" id="posi_007_9" style="left: 210px; top: 40px;">007</div>
+				<!--div class="posi" id="posi_007_9" style="left: 210px; top: 40px;">007</div-->
 
 				<div class="posi" id="posi_008_9" style="left: 250px; top: 40px;">008</div>
 
@@ -66,8 +66,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="position gridX7 gridY1" for="posi_006_9">006<br>QC2</div>
 					<div class="position-f gridX7 gridFY1" for="posi_006_9"></div>
 
-					<div class="position gridX8 gridY1" for="posi_007_9">007<br>QC3</div>
-					<div class="position-f gridX8 gridFY1" for="posi_007_9"></div>
+					<!--div class="position gridX8 gridY1" for="posi_007_9">007<br>QC3</div>
+					<div class="position-f gridX8 gridFY1" for="posi_007_9"></div-->
 
 					<div class="position gridX9 gridY1" for="posi_008_9">008<br>QA</div>
 					<div class="position-f gridX9 gridFY1" for="posi_008_9"></div>
