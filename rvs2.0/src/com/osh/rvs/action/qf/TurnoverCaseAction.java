@@ -390,8 +390,11 @@ public class TurnoverCaseAction extends BaseAction {
 		// 刷新等待维修品以及推车信息
 		// 查询预计的入库位信息
 		try {
-			List<String> nextLocations = service.getEmptyLocations("0", 10, false, conn);
-			List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
+			List<String> nextLocations = new ArrayList<String>();
+			List<String> nextEndoeyeLocations = new ArrayList<String>();
+
+			service.getEmptyLocations("0", nextLocations, 10, false, conn, false);
+			// List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
 
 			calbackResponse.put("nextLocations", nextLocations);
 			calbackResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);

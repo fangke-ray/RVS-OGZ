@@ -51,13 +51,13 @@
 <td location="A 30">30</td>
 <td location="A 31">31</td>
 <td location="A 32">32</td>
-<td location="A 33">07</td>
-<td location="A 34">08</td>
-<td location="A 35">09</td>
-<td location="A 36">10</td>
-<td location="A 37">11</td>
-<td location="A 38">12</td>
-<td location="A 39">13</td>
+<td location="A 33">33</td>
+<td location="A 34">34</td>
+<td location="A 35">35</td>
+<td location="A 36">36</td>
+<td location="A 37">37</td>
+<td location="A 38">38</td>
+<td location="A 39">39</td>
 				</tr>
 			</table>
 		</div>
@@ -66,31 +66,73 @@
 			<div class="ui-widget-header" style="text-align: center;">A2货架</div>
 			<table class="condform wip-table">
 				<tr>
-<td location="A201">01</td>
-<td location="A202">02</td>
-<td location="A203">03</td>
-<td location="A204">04</td>
-<td location="A205">05</td>
-<td location="A206">06</td>
-<td location="A207">07</td>
+<td location="A 40">40</td>
+<td location="A 41">41</td>
+<td location="A 42">42</td>
+<td location="A 43">43</td>
+<td location="A 44">44</td>
+<td location="A 45">45</td>
+<td location="A 46">46</td>
 				</tr>
 				<tr>
-<td location="A208">08</td>
-<td location="A209">09</td>
-<td location="A210">10</td>
-<td location="A211">11</td>
-<td location="A212">12</td>
-<td location="A213">13</td>
-<td location="A214">14</td>
+<td location="A 47">47</td>
+<td location="A 48">48</td>
+<td location="A 49">49</td>
+<td location="A 50">50</td>
+<td location="A 51">51</td>
+<td location="A 52">52</td>
+<td location="A 53">53</td>
 				</tr>
 				<tr>
-<td location="A215">02</td>
-<td location="A216">03</td>
-<td location="A217">04</td>
-<td location="A218">05</td>
-<td location="A219">06</td>
-<td location="A220">07</td>
-<td location="A221">08</td>
+<td location="A 54">54</td>
+<td location="A 55">55</td>
+<td location="A 56">56</td>
+<td location="A 57">57</td>
+<td location="A 58">58</td>
+<td location="A 59">59</td>
+<td location="A 60">60</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 5px 15px 0; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">A3货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="A 61">61</td>
+<td location="A 62">62</td>
+<td location="A 63">63</td>
+<td location="A 64">64</td>
+<td location="A 65">65</td>
+<td location="A 66">66</td>
+<td location="A 67">67</td>
+<td location="A 68">68</td>
+<td location="A 69">69</td>
+<td location="A 70">70</td>
+				</tr>
+				<tr>
+<td location="A 71">71</td>
+<td location="A 72">72</td>
+<td location="A 73">73</td>
+<td location="A 74">74</td>
+<td location="A 75">75</td>
+<td location="A 76">76</td>
+<td location="A 77">77</td>
+<td location="A 78">78</td>
+<td location="A 79">79</td>
+<td location="A 80">80</td>
+				</tr>
+				<tr>
+<td location="A 81">81</td>
+<td location="A 82">82</td>
+<td location="A 83">83</td>
+<td location="A 84">84</td>
+<td location="A 85">85</td>
+<td location="A 86">86</td>
+<td location="A 87">87</td>
+<td location="A 88">88</td>
+<td location="A 89">89</td>
+<td location="A 90">90</td>
 				</tr>
 			</table>
 		</div>
@@ -730,31 +772,31 @@
 			<div class="" style="background-color:#087b10;color: #ffffff;font-weight: bold;text-align: center;">H2货架</div>
 			<table class="condform wip-table">
 				<tr>
-<td location="H201">01</td>
-<td location="H202">02</td>
-<td location="H203">03</td>
-<td location="H204">04</td>
-<td location="H205">05</td>
-<td location="H206">06</td>
-<td location="H207">07</td>
+<td location="H 79">79</td>
+<td location="H 80">80</td>
+<td location="H 81">81</td>
+<td location="H 82">82</td>
+<td location="H 83">83</td>
+<td location="H 84">84</td>
+<td location="H 85">85</td>
 				</tr>
 				<tr>
-<td location="H208">08</td>
-<td location="H209">09</td>
-<td location="H210">10</td>
-<td location="H211">11</td>
-<td location="H212">12</td>
-<td location="H213">13</td>
-<td location="H214">14</td>
+<td location="H 86">86</td>
+<td location="H 87">87</td>
+<td location="H 88">88</td>
+<td location="H 89">89</td>
+<td location="H 90">90</td>
+<td location="H 91">91</td>
+<td location="H 92">92</td>
 				</tr>
 				<tr>
-<td location="H215">15</td>
-<td location="H216">16</td>
-<td location="H217">17</td>
-<td location="H218">18</td>
-<td location="H219">19</td>
-<td location="H220">20</td>
-<td location="H221">21</td>
+<td location="H 93">93</td>
+<td location="H 94">94</td>
+<td location="H 95">95</td>
+<td location="H 96">96</td>
+<td location="H 97">97</td>
+<td location="H 98">98</td>
+<td location="H 99">99</td>
 				</tr>
 			</table>
 		</div>

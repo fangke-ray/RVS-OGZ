@@ -91,7 +91,7 @@ var tcLoadShow = function(xhrObj) {
 				}
 			});
 
-		tcReset($to_trolley, resInfo);
+		tcReset($to_trolley, true, resInfo);
 
 		$to_trolley.dialog({
 			title : "通箱堆放移动设置",
@@ -107,13 +107,13 @@ var tcLoadShow = function(xhrObj) {
 	});
 }
 
-var tcReset = function($to_trolley, resInfo){
+var tcReset = function($to_trolley, first, resInfo){
 	$to_trolley.find("#tc2t_waitings").html(getIdleMaterialList(resInfo.idleMaterialList));
 
 	tcCache.nextLocations = resInfo.nextLocations;
 	tcCache.nextEndoeyeLocations = resInfo.nextEndoeyeLocations;
 
-	setTrolleys($to_trolley.find("#tc2t_trolleys"), resInfo.trolleyStacks);
+	setTrolleys($to_trolley.find("#tc2t_trolleys"), resInfo.trolleyStacks, first);
 }
 
 var dragMaterial = null;
@@ -186,14 +186,15 @@ var changeInitial = function() {
 	}
 }
 
-var setTrolleys = function($trolleys, trolleyStacks) {
+var setTrolleys = function($trolleys, trolleyStacks, first) {
 	$trolleys.html("");
 
+	if (first) {
 	$trolleys.attr("draggable", false)
-		.bind("dragover", function(e){
+		.on("dragover", function(e){
 			e.preventDefault();
 		})
-		.bind("drop", function(e){
+		.on("drop", function(e){
 			if (e.target.className === "trolley_stock" || e.target.className === "material") {
 				var $trolley_stock = $(e.target);
 				if (e.target.className === "material") {
@@ -259,7 +260,7 @@ var setTrolleys = function($trolleys, trolleyStacks) {
 				e.preventDefault();
 			}
 		})
-		.bind("dragstart", ".material", function(){
+		.on("dragstart", ".material", function(){
 			dragMaterial = event.target.getAttribute("material_id");
 			dragFrom = "trolley";
 		}).on("dblclick", ".material", function(evt){
@@ -285,6 +286,7 @@ var setTrolleys = function($trolleys, trolleyStacks) {
 
 			setTcLocations();
 		});
+	}
 
 	var $troSelHtml = $("<div id='trolley_sel'><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>");
 	$trolleys.append($troSelHtml);
@@ -417,5 +419,5 @@ var doAssignLocation_callback = function(xhrObj) {
 
 	if (resInfo.retMessage) infoPop(resInfo.retMessage);
 
-	tcReset($("#to_trolley"), resInfo);
+	tcReset($("#to_trolley"), false, resInfo);
 }

@@ -362,7 +362,7 @@ public class AcceptanceAction extends BaseAction {
 	}
 
 	/**
-	 * 取得维修对象一览信息
+	 * 取得待入库维修对象/空闲的通箱库位一览信息
 	 * @param mapping ActionMapping
 	 * @param form 表单
 	 * @param req 页面请求
@@ -383,8 +383,11 @@ public class AcceptanceAction extends BaseAction {
 
 		// 查询预计的入库位信息
 		try {
-			List<String> nextLocations = service.getEmptyLocations("0", 10, false, conn);
-			List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
+			List<String> nextLocations = new ArrayList<String>();
+			List<String> nextEndoeyeLocations = new ArrayList<String>();
+
+			service.getEmptyLocations("0", nextLocations, 10, false, conn, false);
+			// List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
 
 			listResponse.put("nextLocations", nextLocations);
 			listResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);

@@ -204,7 +204,7 @@ LIMIT 1;
 	WHERE ma.outline_time is null
 		and break_back_flg = 0
 		and fix_type in (1, 2)
-		and kind < 7 
+		and kind < 6 -- [ < 7 ]
 		and exists (select 1 from production_feature where material_id = ma.material_id)
 		and not exists
 		(
@@ -257,63 +257,38 @@ LIMIT 1;
 		]]>
 	</update>
 
-	<select id="getMostSpacialShelf" resultType="String" parameterType="int">
+
+	<select id="getSpaceInShelf" resultType="String" parameterType="String">
 		<![CDATA[ 
-	SELECT shelf from
-	(SELECT shelf, sum(material_id is null) as cnt FROM turnover_case_storage
-		]]>
-	<where>
-		<if test="kind neq 06">
-			AND shelf not in ('H', 'H2')
-		</if>
-		<if test="kind eq 06">
-			AND shelf in ('H', 'H2')
-		</if>
-	</where>
-		<![CDATA[ 
-	group by shelf
-	order by cnt desc, shelf
-	limit 1) a
-	;
+			select
+			location 
+            from turnover_case_storage 
+            where shelf = #{shelf}
+            and material_id is null
 		]]>
 	</select>
 
-	<select id="getFirstSpaceInShelf" resultType="String" parameterType="String">
+	<select id="countNowStorageEmpty" resultType="TurnoverCaseEntity" parameterType="String">
 		<![CDATA[ 
-		SELECT location 
-		FROM turnover_case_storage
-		WHERE material_id is null
-		and shelf = #{shelf}
+			select distinct base.shelf, coalesce(a.cnt, 0) as `execute`, a.location
+			from turnover_case_storage base
+			left join (select
+			shelf, count(1) as cnt, max(location) as location from turnover_case_storage 
+			where material_id is null
 		]]>
-		<if test="location != null and location != ''">
-			AND location > #{location}
-		</if>
-		<![CDATA[
-		AND layer != 0 
-		limit 1;
-		]]>
-	</select>
 
-	<select id="getFirstSpaceShelf" resultType="String" parameterType="String">
-		<![CDATA[ 
-	Select shelf from turnover_case_storage 
-		]]>
-	<where>
-		material_id is null
 		<if test="kind neq '06'">
-			AND shelf not in ('H', 'H2')
+			AND shelf not in ('Z', 'Z2')
 		</if>
 		<if test="kind eq '06'">
-			AND shelf in ('H', 'H2')
+			AND shelf in ('Z', 'Z2')
 		</if>
-		<if test="shelf != null">
-			AND shelf > #{shelf}
-		</if>
-		AND layer != 0
-	</where>
+
 		<![CDATA[ 
-	limit 1
-	;
+			group by shelf) a
+			on base.shelf = a.shelf
+			order by base.shelf
+			;
 		]]>
 	</select>
 

@@ -164,9 +164,21 @@ public class PartialOutStorageAction extends BaseAction {
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
+		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
-		partialOutStorageService.scan(factProductionFeatureForm, conn, req, errors);
+		ProductionFeatureEntity workingPf = positionPanelService.getWorkingPf(user, conn);
+		if (workingPf != null) {
+			MsgInfo e = new MsgInfo();
+			e.setComponentid("operator_id");
+			e.setErrcode("info.factwork.workingRemain");
+			e.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.factwork.workingRemain", workingPf.getProcess_code() + "工位"));
+			errors.add(e);
+		} else {
+			FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
+
+			partialOutStorageService.scan(factProductionFeatureForm, conn, req, errors);
+
+		}
 
 		/* 检查错误时报告错误信息 */
 		callbackResponse.put("errors", errors);

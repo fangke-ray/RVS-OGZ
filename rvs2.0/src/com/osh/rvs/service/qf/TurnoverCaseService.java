@@ -319,10 +319,10 @@ public class TurnoverCaseService {
 
 	private static final String TYPE_SHELF = "SHELF";
 	private static final String TYPE_LOCATION = "LOCATION";
-	private static final String TYPE_NORMAL_LAYER = "NORMAL_LAYER";
+//	private static final String TYPE_NORMAL_LAYER = "NORMAL_LAYER";
 
-	private static Map<String, Map<String, String>> locationNormalSets = new HashMap<String, Map<String, String>>();
-	private static Map<String, Map<String, String>> locationEndoeyeSets = new HashMap<String, Map<String, String>>();
+	private static Map<String, List<TurnoverCaseEntity>> locationNormalSets = new HashMap<String, List<TurnoverCaseEntity>>();
+	private static Map<String, List<TurnoverCaseEntity>> locationEndoeyeSets = new HashMap<String, List<TurnoverCaseEntity>>();
 
 	/**
 	 * 连续取得空置的通箱库位
@@ -334,50 +334,13 @@ public class TurnoverCaseService {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<String> getEmptyLocations(String kind, int count, boolean realPutin,
-			SqlSession conn) throws Exception {
-		List<String> ret = new ArrayList<String>();
-
-		String locationStart = null;
-		String shelf = null;
-		for (int i = 0; i < count; i++) {
-			locationStart = getEmptyLocation(kind, locationStart, shelf, ret, conn, false);
-			shelf = locationStart.substring(0, 2).trim();
-			if (ret.size() == count) {
-				break;
-			}
-		}
-		if (ret.size() > count) {
-			ret.remove(ret.size() - 1);
-		}
-
-		// 重定位
-		if (realPutin) {
-			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
-			Map<String, String> locationSetsToday = null;
-			
-			if (!kind.equals("06")) {
-				locationSetsToday = locationNormalSets.get(todayString);
-				locationSetsToday.put(TYPE_SHELF, ret.get(0).substring(0, 2).trim());
-				locationSetsToday.put(TYPE_LOCATION, ret.get(0));
-			} else {
-				locationSetsToday = locationEndoeyeSets.get(todayString);
-				locationSetsToday.put(TYPE_SHELF, ret.get(0).substring(0, 2).trim());
-				locationSetsToday.put(TYPE_LOCATION, ret.get(0));
-			}
-		}
-
-		return ret;
-	}
-
-	public String getEmptyLocation(String kind, String locationStart, String shelf, List<String> ret, SqlSession conn, boolean bHitAgain) throws Exception {
-
-		// 按照起始位置取得自动位置
-		String assignLocation = null;
+	public void getEmptyLocations(String kind, List<String> ret, int count, boolean realPutin,
+			SqlSession conn, boolean bHitAgain) throws Exception {
+//		List<String> ret = new ArrayList<String>();
 
 		boolean isEndoeye = kind.equals("06");
 
-		Map<String, Map<String, String>> locationSets = null;
+		Map<String, List<TurnoverCaseEntity>> locationSets = null;
 
 		if (isEndoeye) {
 			locationSets = locationEndoeyeSets;
@@ -388,96 +351,107 @@ public class TurnoverCaseService {
 		synchronized (locationSets) {
 			String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
 			if (!locationSets.containsKey(todayString)) {
-				Map<String, String> locationSetsToday = getLocationSetsToday(kind, null, conn);
+				List<TurnoverCaseEntity> locationSetsToday = getLocationSetsToday(kind, conn);
 				locationSets.put(todayString, locationSetsToday);
-
-				// 当日取得时，初始定位提供
-				locationStart = locationSetsToday.get(TYPE_LOCATION);
-				ret.add(locationStart); // 起始位置
 			}
 
-			Map<String, String> locationSetsToday = locationSets.get(todayString);
+			List<TurnoverCaseEntity> locationSetsToday = locationSets.get(todayString);
 
-			if (locationStart == null || shelf == null) {
-				locationStart = locationSetsToday.get(TYPE_LOCATION);
-				shelf = locationSetsToday.get(TYPE_SHELF);
-			}
-			
-			if (isEndoeye) {
-				assignLocation = getLocation(locationStart, shelf, "1", conn);
-			} else {
-				assignLocation = getLocation(locationStart, shelf, locationSetsToday.get(TYPE_NORMAL_LAYER), conn);
+			for (TurnoverCaseEntity shelf : locationSetsToday) {
+				if (shelf.getLocation() != null) {
+					List<String> retShelf = getEmptyLocation(shelf.getShelf(), conn);
+					ret.addAll(retShelf);
+					if (ret.size() > count) {
+						break;
+					}
+				}
 			}
 
-			if (assignLocation == null) {
+			if (ret.size() < count) {
 				if (bHitAgain) {
 					throw new Exception("递归安排也无法找到库位！");
 				}
 				// 重新计算空余位置并且递归安排
-				locationSetsToday = getLocationSetsToday(kind, shelf, conn);
-				locationSets.get(todayString).putAll(locationSetsToday);
-
-				// 找不到时，由Exception跳出递归
-				locationStart = locationSetsToday.get(TYPE_LOCATION);
-				ret.add(locationStart); // 起始位置
-
-				String restartLocation = getEmptyLocation(kind, locationSetsToday.get(TYPE_LOCATION), locationSetsToday.get(TYPE_SHELF), 
-						ret, conn, true);
-
-				ret.add(restartLocation);
-				return restartLocation;
+				getEmptyLocations(kind, ret, count, realPutin, conn, true);
 			}
 		}
-
-		ret.add(assignLocation);
-		return assignLocation;
 	}
 
-	private Map<String, String> getLocationSetsToday(String kind, String shelf, SqlSession conn) throws Exception {
-		Map<String, String> result = new HashMap<String, String>();
+	private List<TurnoverCaseEntity> getLocationSetsToday(String kind, SqlSession conn) throws Exception {
 		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
 
 		if (kind == null || (!kind.equals("06"))) {
-			// 取得非Endoeye
-			String mostSpacialShelf = mapper.getFirstSpaceShelf("01", shelf); 
+			List<TurnoverCaseEntity> storageEmptyList = mapper.countNowStorageEmpty();
+			int length = storageEmptyList.size();
 
-			String startLocation = null;
-			if (mostSpacialShelf == null) {
-				if (shelf != null) {
-					mostSpacialShelf = mapper.getFirstSpaceShelf("01", null);
+			if (length > 3) {
+				TurnoverCaseEntity deepClone = new TurnoverCaseEntity();
+				deepClone.setShelf(storageEmptyList.get(0).getShelf());
+				deepClone.setExecute(storageEmptyList.get(0).getExecute());
+				storageEmptyList.add(deepClone);
+
+				deepClone = new TurnoverCaseEntity();
+				deepClone.setShelf(storageEmptyList.get(1).getShelf());
+				deepClone.setExecute(storageEmptyList.get(1).getExecute());
+				storageEmptyList.add(deepClone);
+
+				int maxEmptyCnt = 0; int maxCursor = -1;
+				for (int i = 0 ;i < length; i++) {
+					int iCnt = storageEmptyList.get(i).getExecute() + storageEmptyList.get(i+1).getExecute() + storageEmptyList.get(i+2).getExecute() ;
+					if (iCnt > maxEmptyCnt) {
+						maxEmptyCnt = iCnt;
+						maxCursor = i;
+					}
 				}
 
-				if (mostSpacialShelf == null) {
-					throw new Exception("通箱（非Endoeye）库位满了！");
+				storageEmptyList.remove(length); storageEmptyList.remove(length);
+				for (int i = 0; i < maxCursor; i++) {
+					storageEmptyList.add(storageEmptyList.remove(0));
 				}
-			} else {
-				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
-				result.put(TYPE_NORMAL_LAYER, "1");
+
 			}
-			result.put(TYPE_SHELF, mostSpacialShelf);
-			result.put(TYPE_LOCATION, startLocation);
+
+			return storageEmptyList;
+
+//			// 取得非Endoeye
+//			String mostSpacialShelf = mapper.getFirstSpaceShelf("01", shelf); 
+//
+//			String startLocation = null;
+//			if (mostSpacialShelf == null) {
+//				if (shelf != null) {
+//					mostSpacialShelf = mapper.getFirstSpaceShelf("01", null);
+//				}
+//
+//				if (mostSpacialShelf == null) {
+//					throw new Exception("通箱（非Endoeye）库位满了！");
+//				}
+//			} else {
+//				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
+//				result.put(TYPE_NORMAL_LAYER, "1");
+//			}
+//			result.put(TYPE_SHELF, mostSpacialShelf);
+//			result.put(TYPE_LOCATION, startLocation);
 		}
 
 		if (kind == null || kind.equals("06")) {
-			// 取得Endoeye
-			String mostSpacialShelf = mapper.getMostSpacialShelf(06, null);
-			String startLocation = null;
-			if (mostSpacialShelf == null) {
-				throw new Exception("通箱（Endoeye）库位满了！");
-			} else {
-				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
-			}
-			result.put(TYPE_SHELF, mostSpacialShelf);
-			result.put(TYPE_LOCATION, startLocation);
+//			// 取得Endoeye
+//			String mostSpacialShelf = mapper.getMostSpacialShelf(06, null);
+//			String startLocation = null;
+//			if (mostSpacialShelf == null) {
+//				throw new Exception("通箱（Endoeye）库位满了！");
+//			} else {
+//				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
+//			}
+//			result.put(TYPE_SHELF, mostSpacialShelf);
+//			result.put(TYPE_LOCATION, startLocation);
 		}
 
-		return result;
+		return new ArrayList<TurnoverCaseEntity>();
 	}
 
-	private String getLocation(String locationStart, String shelf, String layer,
-			SqlSession conn) {
+	private List<String> getEmptyLocation(String shelf, SqlSession conn) {
 		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
-		return mapper.getFirstSpaceInShelf(shelf, null, locationStart); // (shelf, layer, locationStart)
+		return mapper.getSpaceInShelf(shelf); // (shelf, layer, locationStart)
 	}
 
 	/**
@@ -540,6 +514,7 @@ public class TurnoverCaseService {
 		}		
 
 		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
 
 		for (TurnoverCaseEntity tcEntity : list) {
 			// 判断库位是否已分配
@@ -547,6 +522,7 @@ public class TurnoverCaseService {
 			if (entity != null) {
 				tcEntity.setExecute(0);
 				mapper.putin(tcEntity);
+				checkLocationInDailyPlan(todayString, tcEntity.getLocation(), conn);
 
 				// 清除推车
 				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
@@ -559,11 +535,13 @@ public class TurnoverCaseService {
 			// 已经占用的重新分配并且加入提示
 			if (tcEntity.getExecute() == null) {
 				MaterialEntity mBean = mService.loadSimpleMaterialDetailEntity(conn, tcEntity.getMaterial_id());
-				List<String> emptyLocations = getEmptyLocations(mBean.getKind(), 1, true, conn);
+				List<String> emptyLocations = new ArrayList<String>();
+				getEmptyLocations(mBean.getKind(), emptyLocations, 1, true, conn, false);
 				tcEntity.setExecute(0);
 				String orgLocation = tcEntity.getLocation();
 				tcEntity.setLocation(emptyLocations.get(0));
 				mapper.putin(tcEntity);
+				checkLocationInDailyPlan(todayString, tcEntity.getLocation(), conn);
 
 				retMessage += "维修品" + (mBean.getSorc_no() == null ? "" : mBean.getSorc_no()) 
 						+ "(" + mBean.getModel_name() + " " + mBean.getSerial_no() + ")"
@@ -575,5 +553,27 @@ public class TurnoverCaseService {
 		}
 
 		return retMessage;
+	}
+
+	private void checkLocationInDailyPlan(String todayString, String location, SqlSession conn) {
+		try {
+			if (!locationNormalSets.containsKey(todayString)) {
+				List<TurnoverCaseEntity> locationSetsToday = getLocationSetsToday(null, conn);
+				locationNormalSets.put(todayString, locationSetsToday);
+			}
+
+			List<TurnoverCaseEntity> todayList = locationNormalSets.get(todayString);
+			for (TurnoverCaseEntity tcEntity : todayList) {
+				if (location.equals(tcEntity.getLocation())) {
+					tcEntity.setLocation(null);
+					break;
+				}
+			}
+
+			// locationEndoeyeSets
+			
+		} catch (Exception e) {
+			
+		}
 	}
 }

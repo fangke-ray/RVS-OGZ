@@ -75,7 +75,7 @@ function search_handleComplete(xhrobj, textStatus) {
 		currentPos = 0;
 	}
 
-	var all_count = $("#storages td").length + 100;
+	var all_count = $("#storages td").length;
 
 	var labels = $("#label_table label");
 	

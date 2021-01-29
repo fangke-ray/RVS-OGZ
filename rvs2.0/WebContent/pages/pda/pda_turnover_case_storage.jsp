@@ -140,7 +140,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		if (location) {
 			$("#moveButton").removeClass("button-unuse");
 			countdown = 5;
-			var $chosen = $(".plan_list tbody tr[location="+location+"]").detach();
+			var $chosen = $(".plan_list tbody tr[location='"+location+"']").detach();
 			$chosen.addClass("chosen");
 			$(".plan_list tbody").prepend($chosen);
 			$("#putinButton").text("入库 ("+ countdown +"s)");
@@ -187,7 +187,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="clear"></div>
 		</div>
 		<div class="bottom" style="height: 26px; padding-top: 6px;">
-			<input type="text" id="txt_location" name="location" style="float:left;background:transparent;border:0;height:15px; color:transparent;width:50px;"/>
+			<input type="text" id="txt_location" name="location" style="float:left;background:transparent;border:0;height:15px; color:transparent;width:50px;ime-mode: disabled;"/>
 <% if (TC_MOVE_FROM == null) { %>
 			<div class="button button-small button-unuse" id="moveButton" style="float:right;margin-right:20px;">移库</div>
 			<div class="button button-small" id="putinButton" style="float:right;margin-right:20px;" onClick="handlePutin();">入库</div>
@@ -206,6 +206,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<select id="change_shelf" name="shelf">
 						<option value="A" ${(shelf eq 'A' ? 'selected' : '' )}>A 货架</option>
 						<option value="A2" ${(shelf eq 'A2' ? 'selected' : '' )}>A2 货架</option>
+						<option value="A3" ${(shelf eq 'A3' ? 'selected' : '' )}>A3 货架</option>
 						<option value="B" ${(shelf eq 'B' ? 'selected' : '' )}>B 货架</option>
 						<option value="C" ${(shelf eq 'C' ? 'selected' : '' )}>C 货架</option>
 						<option value="D" ${(shelf eq 'D' ? 'selected' : '' )}>D 货架</option>
