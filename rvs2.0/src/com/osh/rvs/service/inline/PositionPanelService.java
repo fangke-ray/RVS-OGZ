@@ -39,6 +39,7 @@ import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
 import com.osh.rvs.bean.inline.PutinBalanceBound;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.inline.WaitingEntity;
+import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.PathConsts;
@@ -719,8 +720,11 @@ public class PositionPanelService {
 			}
 		}
 
+		Map<String, Map<String, PcsInputLimitEntity>> limits = new HashMap<String, Map<String, PcsInputLimitEntity>>();
+		listResponse.put("pcsLimits", limits);
+
 		for (String showLine : showLines) {
-			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, conn);
+			Map<String, String> fileTempl = PcsUtils.getXmlContents(showLine, mform.getModel_name(), null, material_id, limits, conn);
 
 			if ("NS 工程".equals(showLine)) filterSolo(fileTempl, material_id, conn);
 			if ("总组工程".equals(showLine)) MaterialService.filterLight(fileTempl, material_id, mform.getLevel(), conn);
@@ -729,6 +733,16 @@ public class PositionPanelService {
 					mform.getModel_name(), mform.getSerial_no(), mform.getLevel(), pf.getProcess_code(), isLeader ? sline_id : null, conn);
 			fileHtml = RvsUtils.reverseLinkedMap(fileHtml);
 			pcses.add(fileHtml);
+		}
+
+		// 中小修时不限制强制输入数值
+		if ("00000000054".equals(sline_id) && limits.size() > 0) {
+			for (String pcsPage : limits.keySet()) {
+				Map<String, PcsInputLimitEntity> limitOfPage = limits.get(pcsPage);
+				for (String tag : limitOfPage.keySet()) {
+					limitOfPage.get(tag).setAllow_pass(true);
+				}
+			}
 		}
 
 		listResponse.put("pcses", pcses);

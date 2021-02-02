@@ -72,6 +72,22 @@ font-size:15px;
 <td wipid="0-G4">4</td>
 <td wipid="0-G5">5</td>
 </tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+<td wipid="0-H1">1</td>
+<td wipid="0-H2">2</td>
+<td wipid="0-H3">3</td>
+<td wipid="0-H4">4</td>
+<td wipid="0-H5">5</td>
+</tr>
+<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+<td wipid="0-I1">1</td>
+<td wipid="0-I2">2</td>
+<td wipid="0-I3">3</td>
+<td wipid="0-I4">4</td>
+<td wipid="0-I5">5</td>
+</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -132,6 +148,22 @@ font-size:15px;
 					<td wipid="1-G3">3</td>
 					<td wipid="1-G4">4</td>
 					<td wipid="1-G5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="1-H1">1</td>
+					<td wipid="1-H2">2</td>
+					<td wipid="1-H3">3</td>
+					<td wipid="1-H4">4</td>
+					<td wipid="1-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="1-I1">1</td>
+					<td wipid="1-I2">2</td>
+					<td wipid="1-I3">3</td>
+					<td wipid="1-I4">4</td>
+					<td wipid="1-I5">5</td>
 				</tr>
 			</table>
 		</div>
@@ -194,6 +226,22 @@ font-size:15px;
 					<td wipid="2-G4">4</td>
 					<td wipid="2-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="2-H1">1</td>
+					<td wipid="2-H2">2</td>
+					<td wipid="2-H3">3</td>
+					<td wipid="2-H4">4</td>
+					<td wipid="2-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="2-I1">1</td>
+					<td wipid="2-I2">2</td>
+					<td wipid="2-I3">3</td>
+					<td wipid="2-I4">4</td>
+					<td wipid="2-I5">5</td>
+				</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -255,6 +303,22 @@ font-size:15px;
 					<td wipid="3-G4">4</td>
 					<td wipid="3-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="3-H1">1</td>
+					<td wipid="3-H2">2</td>
+					<td wipid="3-H3">3</td>
+					<td wipid="3-H4">4</td>
+					<td wipid="3-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="3-I1">1</td>
+					<td wipid="3-I2">2</td>
+					<td wipid="3-I3">3</td>
+					<td wipid="3-I4">4</td>
+					<td wipid="3-I5">5</td>
+				</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -315,6 +379,22 @@ font-size:15px;
 					<td wipid="4-G3">3</td>
 					<td wipid="4-G4">4</td>
 					<td wipid="4-G5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="4-H1">1</td>
+					<td wipid="4-H2">2</td>
+					<td wipid="4-H3">3</td>
+					<td wipid="4-H4">4</td>
+					<td wipid="4-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="4-I1">1</td>
+					<td wipid="4-I2">2</td>
+					<td wipid="4-I3">3</td>
+					<td wipid="4-I4">4</td>
+					<td wipid="4-I5">5</td>
 				</tr>
 
 		</table>
@@ -379,6 +459,22 @@ font-size:15px;
 					<td wipid="5-G4">4</td>
 					<td wipid="5-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="5-H1">1</td>
+					<td wipid="5-H2">2</td>
+					<td wipid="5-H3">3</td>
+					<td wipid="5-H4">4</td>
+					<td wipid="5-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="5-I1">1</td>
+					<td wipid="5-I2">2</td>
+					<td wipid="5-I3">3</td>
+					<td wipid="5-I4">4</td>
+					<td wipid="5-I5">5</td>
+				</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -439,6 +535,22 @@ font-size:15px;
 					<td wipid="6-G3">3</td>
 					<td wipid="6-G4">4</td>
 					<td wipid="6-G5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="6-H1">1</td>
+					<td wipid="6-H2">2</td>
+					<td wipid="6-H3">3</td>
+					<td wipid="6-H4">4</td>
+					<td wipid="6-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="6-I1">1</td>
+					<td wipid="6-I2">2</td>
+					<td wipid="6-I3">3</td>
+					<td wipid="6-I4">4</td>
+					<td wipid="6-I5">5</td>
 				</tr>
 			</table>
 		</div>
@@ -503,6 +615,22 @@ font-size:15px;
 					<td wipid="7-G4">4</td>
 					<td wipid="7-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="7-H1">1</td>
+					<td wipid="7-H2">2</td>
+					<td wipid="7-H3">3</td>
+					<td wipid="7-H4">4</td>
+					<td wipid="7-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="7-I1">1</td>
+					<td wipid="7-I2">2</td>
+					<td wipid="7-I3">3</td>
+					<td wipid="7-I4">4</td>
+					<td wipid="7-I5">5</td>
+				</tr>
 </table>
 		</div>
 		<div class="cage">
@@ -563,6 +691,22 @@ font-size:15px;
 					<td wipid="8-G3">3</td>
 					<td wipid="8-G4">4</td>
 					<td wipid="8-G5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="8-H1">1</td>
+					<td wipid="8-H2">2</td>
+					<td wipid="8-H3">3</td>
+					<td wipid="8-H4">4</td>
+					<td wipid="8-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="8-I1">1</td>
+					<td wipid="8-I2">2</td>
+					<td wipid="8-I3">3</td>
+					<td wipid="8-I4">4</td>
+					<td wipid="8-I5">5</td>
 				</tr>
 			</table>
 		</div>
@@ -626,6 +770,22 @@ font-size:15px;
 					<td wipid="9-G4">4</td>
 					<td wipid="9-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="9-H1">1</td>
+					<td wipid="9-H2">2</td>
+					<td wipid="9-H3">3</td>
+					<td wipid="9-H4">4</td>
+					<td wipid="9-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="9-I1">1</td>
+					<td wipid="9-I2">2</td>
+					<td wipid="9-I3">3</td>
+					<td wipid="9-I4">4</td>
+					<td wipid="9-I5">5</td>
+				</tr>
 			</table>
 		</div>
 
@@ -688,6 +848,22 @@ font-size:15px;
 					<td wipid="10-G4">4</td>
 					<td wipid="10-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="10-H1">1</td>
+					<td wipid="10-H2">2</td>
+					<td wipid="10-H3">3</td>
+					<td wipid="10-H4">4</td>
+					<td wipid="10-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="10-I1">1</td>
+					<td wipid="10-I2">2</td>
+					<td wipid="10-I3">3</td>
+					<td wipid="10-I4">4</td>
+					<td wipid="10-I5">5</td>
+				</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -749,6 +925,22 @@ font-size:15px;
 					<td wipid="11-G4">4</td>
 					<td wipid="11-G5">5</td>
 				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="11-H1">1</td>
+					<td wipid="11-H2">2</td>
+					<td wipid="11-H3">3</td>
+					<td wipid="11-H4">4</td>
+					<td wipid="11-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="11-I1">1</td>
+					<td wipid="11-I2">2</td>
+					<td wipid="11-I3">3</td>
+					<td wipid="11-I4">4</td>
+					<td wipid="11-I5">5</td>
+				</tr>
 			</table>
 		</div>
 		<div class="cage">
@@ -809,6 +1001,22 @@ font-size:15px;
 					<td wipid="12-G3">3</td>
 					<td wipid="12-G4">4</td>
 					<td wipid="12-G5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｈ</th>
+					<td wipid="12-H1">1</td>
+					<td wipid="12-H2">2</td>
+					<td wipid="12-H3">3</td>
+					<td wipid="12-H4">4</td>
+					<td wipid="12-H5">5</td>
+				</tr>
+				<tr>
+					<th class="ui-state-default" style="width: 14px;">Ｉ</th>
+					<td wipid="12-I1">1</td>
+					<td wipid="12-I2">2</td>
+					<td wipid="12-I3">3</td>
+					<td wipid="12-I4">4</td>
+					<td wipid="12-I5">5</td>
 				</tr>
 			</table>
 		</div>

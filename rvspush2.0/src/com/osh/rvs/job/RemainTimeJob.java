@@ -141,17 +141,17 @@ public class RemainTimeJob implements Job {
 
 			conn.commit();
 
-			// 触发FSE同步
-			try {
-				URL url = new URL("http://localhost:8080/fseBridge/trigger/upd_rmn/"+now.getTimeInMillis()+"/push");
-				url.getQuery();
-				URLConnection urlconn = url.openConnection();
-				urlconn.setReadTimeout(1); // 不等返回
-				urlconn.connect();
-				urlconn.getContentType(); // 这个就能触发
-			} catch (Exception e) {
-				_log.error("Failed", e);
-			}
+//			// 触发FSE同步
+//			try {
+//				URL url = new URL("http://localhost:8080/fseBridge/trigger/upd_rmn/"+now.getTimeInMillis()+"/push");
+//				url.getQuery();
+//				URLConnection urlconn = url.openConnection();
+//				urlconn.setReadTimeout(1); // 不等返回
+//				urlconn.connect();
+//				urlconn.getContentType(); // 这个就能触发
+//			} catch (Exception e) {
+//				_log.error("Failed", e);
+//			}
 		} catch(Exception e) {
 			_log.error(e.getMessage(), e);
 			if (conn != null && conn.isManagedSessionStarted()) {

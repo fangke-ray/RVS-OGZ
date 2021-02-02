@@ -271,7 +271,10 @@ public class ProductService {
 						newEntity.setPace(0);
 						newEntity.setRework(0);
 
-						setInline(waiting.getMaterial_id(), user.getSection_id(), "00000000228", conn); // TODO 228
+						ModelService mdlService = new ModelService();
+						ModelForm mdlEntity = mdlService.getDetail(waiting.getModel_id(), conn);
+						String pat_id = mdlEntity.getDefault_pat_id();
+						setInline(waiting.getMaterial_id(), user.getSection_id(), pat_id, conn); // pat_id = 228?
 
 						productionFeature.add(newEntity);
 						count = 1;

@@ -36,8 +36,8 @@ public class PartialWarehouseService {
 		BigDecimal bdPartialReceptMoveCost = (BigDecimal)listResponse.get("bdPartialReceptMoveCost");
 
 
-		// 00000000197:高雁梅,00000000198:叶昭杏
-		String[] operatorIDs = { "00000000197", "00000000198" };
+		// 00000000197:高雁梅,00000000198:叶昭杏,00000010266:董春姨
+		String[] operatorIDs = { "00000000197", "00000000198", "00000010266" };
 
 		// 当前进度
 		List<PartialWarehouseEntity> list = new ArrayList<PartialWarehouseEntity>();
@@ -84,6 +84,8 @@ public class PartialWarehouseService {
 					entity.setOperator_name("高雁梅");
 				} else if (operatorID.equals("00000000198")) {
 					entity.setOperator_name("叶昭杏");
+				} else if (operatorID.equals("00000010266")) {
+					entity.setOperator_name("董春姨");
 				}
 				list.add(entity);
 			} else {
