@@ -94,12 +94,28 @@ public class GlobalProgressService {
 
 		//WIP在修 普通内镜
 		StringBuffer serie15 = new StringBuffer();
-		if(wipOnLineRepairOther < Integer.valueOf(wipOnlineRepairDown) || wipOnLineRepairOther > Integer.valueOf(wipOnlineRepairUp)){
+		int upLever = Integer.valueOf(wipOnlineRepairUp);
+		int maxYAxis = 100;
+
+		if(wipOnLineRepairOther > upLever){
+			maxYAxis = wipOnLineRepairOther;
 			serie15.append("[{color:'#EAC100',y:" + wipOnLineRepairOther + "}]"); //WIP在修 其他
 		}else{
-			serie15.append("[" + wipOnLineRepairOther + "]");
+			maxYAxis = upLever;
+			if (wipOnLineRepairOther < Integer.valueOf(wipOnlineRepairDown)) {
+				serie15.append("[{color:'#EAC100',y:" + wipOnLineRepairOther + "}]"); //WIP在修 其他
+			} else {
+				serie15.append("[" + wipOnLineRepairOther + "]");
+			}
 		}
 		ret.put("serie15", serie15.toString());
+
+		if (maxYAxis < 100) {
+			maxYAxis = 100;
+		} else {
+			maxYAxis = ((maxYAxis / 20) + 1) * 20;
+		}
+		ret.put("maxYAxis", "" + maxYAxis);
 
 //		StringBuffer series12 = new StringBuffer();
 //		series12.append("[" + dao.getTodayRecieveResult() + ","); 	//到货台数

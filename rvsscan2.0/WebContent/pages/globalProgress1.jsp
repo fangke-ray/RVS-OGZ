@@ -180,6 +180,7 @@ var iamready = function() {
 			},
             min:0,
             minRange:100,
+            max:${maxYAxis},
             tickInterval:20,
             plotLines:[{
             	id:'plot-line-1',
@@ -476,19 +477,25 @@ var iamready = function() {
 				var resInfo = null;
 				try {
 					eval("resInfo=" + xhrobj.responseText);
-					eval("chart1.series[0].setData(" + resInfo.serie11 + ", false)");
+					eval("chart1.series[0].setData(" + resInfo.serie11 + ", false);");
 					eval("chart1.series[1].setData(" + resInfo.serie101 + ")");
-					eval("chart3.series[0].setData(" + resInfo.serie15 + ", false)");
-					eval("chart3.series[1].setData(" + resInfo.serie14 + ", false)");
-					eval("chart3.series[2].setData(" + resInfo.serie13 + ", false)");
-					eval("chart3.series[3].setData(" + resInfo.serie17 + ", false)");
-					eval("chart3.series[4].setData(" + resInfo.serie16 + ")");
-					eval("chart4.series[0].setData(" + resInfo.serie24 + ", false)");
-					eval("chart4.series[1].setData(" + resInfo.serie25 + ", false)");
-					eval("chart4.series[2].setData(" + resInfo.serie22 + ", false)");
-					eval("chart4.series[3].setData(" + resInfo.serie23 + ", false)");
-					eval("chart4.series[4].setData(" + resInfo.serie21 + ")");
+					eval("chart3.series[0].setData(" + resInfo.serie15 + ", false); " + 
+						"chart3.series[1].setData(" + resInfo.serie14 + ", false); " +
+						"chart3.series[2].setData(" + resInfo.serie13 + ", false); " +
+						"chart3.series[3].setData(" + resInfo.serie17 + ", false); " +
+						"chart3.series[4].setData(" + resInfo.serie16 + ");");
+					eval("chart4.series[0].setData(" + resInfo.serie24 + ", false); " + 
+						"chart4.series[1].setData(" + resInfo.serie25 + ", false); " + 
+						"chart4.series[2].setData(" + resInfo.serie22 + ", false); " + 
+						"chart4.series[3].setData(" + resInfo.serie23 + ", false); " + 
+						"chart4.series[4].setData(" + resInfo.serie21 + ");");
 					eval("chart5.series[0].setData(" + resInfo.serie31 + ")");
+
+					var neoMax = parseInt(resInfo.maxYAxis);
+					var oldMax = chart3.yAxis[0].max;
+					if (neoMax && (neoMax != oldMax)) {
+						chart3.yAxis[0].setExtremes(0, neoMax);
+					}
 				} catch(e) {
 				}
 			}

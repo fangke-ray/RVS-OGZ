@@ -62,6 +62,8 @@ public class GlobalProgressAction extends BaseAction {
 		req.setAttribute("period_name", series.get("period_name"));
 		req.setAttribute("serie31", series.get("serie31"));
 
+		req.setAttribute("maxYAxis", series.get("maxYAxis"));
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 
@@ -106,6 +108,8 @@ public class GlobalProgressAction extends BaseAction {
 		listResponse.put("serie25", series.get("serie25"));
 		listResponse.put("period_name", series.get("period_name"));
 		listResponse.put("serie31", series.get("serie31"));
+
+		listResponse.put("maxYAxis", series.get("maxYAxis"));
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);
