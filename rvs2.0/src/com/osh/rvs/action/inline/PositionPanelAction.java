@@ -42,6 +42,7 @@ import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultPageService;
@@ -208,6 +209,13 @@ public class PositionPanelAction extends BaseAction {
 			if (matchforward(arrSpecialForward, "arm") != null) {
 				req.setAttribute("input_arm", true);
 			}
+		}
+
+		if (ProcedureStepCountService.getCountPositionSet(conn).contains(position_id)) {
+			// 启动计数按钮
+			req.setAttribute("count_pos", true);
+		} else {
+			req.setAttribute("count_pos", false);
 		}
 
 		log.info("PositionPanelAction.init end");
@@ -548,6 +556,11 @@ public class PositionPanelAction extends BaseAction {
 			bfService.finishPauseFeature(material_id, user.getSection_id(), user.getPosition_id(), user.getOperator_id(), conn);
 
 			service.getProccessingData(listResponse, material_id, waitingPf, user, true, conn);
+			// 如果是有计次的工位。判断计次
+			if (ProcedureStepCountService.getCountPositionSet(conn).contains(waitingPf.getPosition_id())) {
+				MaterialForm mform = (MaterialForm) listResponse.get("mform");
+				service.getProcedureStepCount(mform, waitingPf, user, conn);
+			}
 
 			// 判断是否有特殊页面效果
 			String special_forwards = PathConsts.POSITION_SETTINGS.getProperty("page." + process_code);
@@ -813,7 +826,13 @@ public class PositionPanelAction extends BaseAction {
 	
 					// 根据作业信息生成新的等待作业信息－－无开始时间，说明进行非直接工步操作，回到等待区，可由他人接手
 					pfService.pauseToNext(workingPf, conn);
-	
+
+					// 如果是有计次的工位。判断计次
+					if (ProcedureStepCountService.getCountPositionSet(conn).contains(workingPf.getPosition_id())) {
+						service.getProcedureStepCountMessage(workingPf.getMaterial_id(), 
+								user, listResponse, errors, false, workingPf, conn);
+					}
+
 					// 通知 TODO
 				} else if (iReason <= 30) { // 不良中断
 					// 作业信息状态改为，中断
@@ -827,6 +846,12 @@ public class PositionPanelAction extends BaseAction {
 					// 根据作业信息生成新的中断作业信息
 					pfService.breakToNext(workingPf, conn);
 	
+					// 如果是有计次的工位。判断计次
+					if (ProcedureStepCountService.getCountPositionSet(conn).contains(workingPf.getPosition_id())) {
+						service.getProcedureStepCountMessage(workingPf.getMaterial_id(), 
+								user, listResponse, errors, false, workingPf, conn);
+					}
+
 					// 通知 TODO
 	
 				} else {
@@ -911,7 +936,7 @@ public class PositionPanelAction extends BaseAction {
 			// 如果是有计次的工位。判断计次
 			if (ProcedureStepCountService.getCountPositionSet(conn).contains(workingPf.getPosition_id())) {
 				service.getProcedureStepCountMessage(workingPf.getMaterial_id(), 
-						user, listResponse, infoes, conn);
+						user, listResponse, infoes, true, workingPf, conn);
 			}
 
 //			MaterialService ms = new MaterialService();

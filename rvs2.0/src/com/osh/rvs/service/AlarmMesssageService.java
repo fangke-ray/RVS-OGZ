@@ -520,6 +520,15 @@ public class AlarmMesssageService {
 			}
 			break;
 		}
+		case RvsConsts.WARNING_REASON_PROCEDURE_OVERSET : { // 计数超过
+			String comment = dao.getAlarmMesssageContent(alarm_messsage_id);
+			if (comment != null) {
+				form.setComment(comment);
+			} else {
+				form.setComment("(不明)");
+			}
+			break;
+		}
 		}
 
 		form.setLevel(CodeListUtils.getValue("alarm_level", form.getLevel()));

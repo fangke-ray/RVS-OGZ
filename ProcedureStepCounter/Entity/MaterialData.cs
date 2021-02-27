@@ -27,5 +27,6 @@ namespace ProcedureStepCounter.Entity
 		public string model_name { get; set; }
 		public string serial_no { get; set; }
 		public Dictionary<string, string> set_times_map { get; set; }
+		public Dictionary<string, string> counted_times_map { get; set; }
 	}
 }

@@ -4,7 +4,7 @@ var modelname = "作业步骤计次";
 var servicePath="procedureStepCount.do"
 
 $(function(){
-	$("input.ui-button").button();
+	$("input.ui-button, a.ui-button").button();
 	$("#cond_px, #input_px").select2Buttons();
 	/*为每一个匹配的元素的特定事件绑定一个事件处理函数*/
 	$("#searcharea span.ui-icon").bind("click", function() {
@@ -430,4 +430,34 @@ var update_handleComplete = function(xhrobj, textStatus) {
 		// 切回一览画面
 		showList();
 	}
+}
+
+var showDelete = function(rid){
+	// 读取修改行
+	var rowData = $("#list").getRowData(rid);
+	var data = {
+		"procedure_step_count_id" : rowData.procedure_step_count_id
+	}
+
+	warningConfirm("确认要删除此条作业步骤计次[" + rowData.name  +"]吗？", 
+		function() {
+
+			// Ajax提交
+			$.ajax({
+				beforeSend : ajaxRequestType,
+				async : true,
+				url : servicePath + '?method=dodelete',
+				cache : false,
+				data : data,
+				type : "post",
+				dataType : "json",
+				success : ajaxSuccessCheck,
+				error : ajaxError,
+				complete : update_handleComplete
+			});
+		}, 
+		function(){
+			$("#editbutton").enable();
+		}, "删除确认"
+	);
 }

@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
+import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.ProcedureStepCountEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.SocketCommunitcator;
@@ -34,6 +35,7 @@ import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
+import framework.huiqing.common.util.message.ApplicationMessage;
 import framework.huiqing.common.util.validator.Validators;
 
 public class ProcedureStepCountService {
@@ -83,6 +85,7 @@ public class ProcedureStepCountService {
 			for (ProcedureStepCountEntity entity : list) {
 				if (!client_ip.equals(entity.getClient_address())) {
 					// 更新客户端地址
+					entity.setClient_address(client_ip);
 					mapper.updateClientAddress(entity);
 				}
 
@@ -95,16 +98,34 @@ public class ProcedureStepCountService {
 		}
 	}
 
+	public List<ProcedureStepCountEntity> getProcedureStepCountOfModel(String model_id, ProductionFeatureEntity pf, String px, 
+			SqlSession conn) {
+		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
+		ProcedureStepCountEntity entity = new ProcedureStepCountEntity();
+		entity.setRelation_type(RELATION_TYPE_MODEL);
+		entity.setRelation_id(model_id);
+		entity.setPosition_id(pf.getPosition_id());
+		if ("1".equals(px)) {
+			entity.setPx(1);
+		} else if ("2".equals(px)) {
+			entity.setPx(2);
+		}
+		return mapper.searchProcedureStepOfModel(entity);
+		
+		
+	}
+
 	/**
 	 * 开始计数
 	 * 
 	 * @param mform
 	 * @param position_id
+	 * @param operate_result 
 	 * @param conn
 	 * @return
 	 */
 	public String startProcedureStepCount(MaterialForm mform,
-			String position_id, String px, SqlSession conn) {
+			String position_id, String px, ProductionFeatureEntity pf, SqlSession conn) {
 
 		SocketCommunitcator scUtil = new SocketCommunitcator();
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -115,16 +136,8 @@ public class ProcedureStepCountService {
 
 		// 取得要实现的计数信息
 		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
-		ProcedureStepCountEntity entity = new ProcedureStepCountEntity();
-		entity.setRelation_type(RELATION_TYPE_MODEL);
-		entity.setRelation_id(mform.getModel_id());
-		entity.setPosition_id(position_id);
-		if ("1".equals(px)) {
-			entity.setPx(1);
-		} else if ("2".equals(px)) {
-			entity.setPx(2);
-		}
-		List<ProcedureStepCountEntity> list = mapper.searchProcedureStepOfModel(entity);
+
+		List<ProcedureStepCountEntity> list = getProcedureStepCountOfModel(mform.getModel_id(), pf, px, conn);
 
 		if (list.size() == 0) {
 			return "NotSetException";
@@ -143,6 +156,62 @@ public class ProcedureStepCountService {
 		}
 
 		map.put("set_times_map", setTimesMap);
+
+		if (pf.getOperate_result() > 0) {
+			// 取得前次
+			ProcedureStepCountEntity pfEntity = new ProcedureStepCountEntity();
+			pfEntity.setMaterial_id(mform.getMaterial_id());
+			pfEntity.setPosition_id(position_id);
+			pfEntity.setRework(pf.getRework());
+
+			Map<String, String> countedTimesMap = new HashMap<String, String>();
+
+			List<ProcedureStepCountEntity> listCounted = mapper.getMaterialCountedInPosition(pfEntity);
+			for (ProcedureStepCountEntity pscEntity : listCounted) {
+				countedTimesMap.put(pscEntity.getProcedure_step_count_id(), "" + pscEntity.getStep_times());
+			}
+			map.put("counted_times_map", countedTimesMap);
+		}
+
+		return scUtil.clientSendMessage(client_address, 50023, "In:" + JSON.encode(map));
+	}
+
+	/**
+	 * 从最后取得数开始计数
+	 * 
+	 * @param mform
+	 * @param position_id
+	 * @param operate_result 
+	 * @param conn
+	 * @return
+	 */
+	public String startProcedureStepCountContinue(MaterialEntity mentity,
+			Map<String, ProcedureStepCountEntity> setTimesEntityMap, Map<String, String> decodedRec, SqlSession conn) {
+
+		SocketCommunitcator scUtil = new SocketCommunitcator();
+		Map<String, Object> map = new HashMap<String, Object>();
+		// 放置维修品信息
+		map.put("omr_notifi_no", mentity.getSorc_no());
+		map.put("model_name", mentity.getModel_name());
+		map.put("serial_no", mentity.getSerial_no());
+
+		// 取得要实现的计数信息
+		Map<String, String> setTimesMap = new HashMap<String, String>();
+
+		String client_address = null;
+
+		for (String id : setTimesEntityMap.keySet()) {
+			if(client_address == null) client_address = setTimesEntityMap.get(id).getClient_address();
+			// 各计数的计数标准
+			setTimesMap.put(id, "" + setTimesEntityMap.get(id).getStep_times());
+		}
+
+		// 返回要实现的计数信息
+		map.put("set_times_map", setTimesMap);
+
+		// 就是前次
+		map.put("counted_times_map", decodedRec);
+
 		return scUtil.clientSendMessage(client_address, 50023, "In:" + JSON.encode(map));
 	}
 
@@ -272,7 +341,7 @@ public class ProcedureStepCountService {
 	 * @throws Exception
 	 */
 	public void confirmFinish(Map<String, String> decodedRec,
-			String material_id, LoginData user,
+			String material_id, LoginData user, List<ProcedureStepCountEntity> standardlist,
 			Map<String, Object> listResponse, List<MsgInfo> infoes,
 			SqlSessionManager conn) throws Exception {
 		Map<String, ProcedureStepCountEntity> setTimesMap = new HashMap<String, ProcedureStepCountEntity>();
@@ -280,24 +349,12 @@ public class ProcedureStepCountService {
 		MaterialService mService = new MaterialService();
 		MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, material_id);
 
-		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
-		ProcedureStepCountEntity entity = new ProcedureStepCountEntity();
-		entity.setRelation_type(RELATION_TYPE_MODEL); // TODO
-		entity.setRelation_id(mEntity.getModel_id());
-		entity.setPosition_id(user.getPosition_id());
-		if ("1".equals(user.getPx())) {
-			entity.setPx(1);
-		} else if ("2".equals(user.getPx())) {
-			entity.setPx(2);
-		}
-		
-		List<ProcedureStepCountEntity> list = mapper.searchProcedureStepOfModel(entity);
-
-		for (ProcedureStepCountEntity pscEntity : list) {
+		for (ProcedureStepCountEntity pscEntity : standardlist) {
 			setTimesMap.put(pscEntity.getProcedure_step_count_id(), pscEntity);
 		}
 
-		String alarmMessageContents = "";
+		boolean leak = false;
+		String warningContents = "";
 
 		for (String key : decodedRec.keySet()) {
 			if (setTimesMap.containsKey(key)) {
@@ -308,11 +365,17 @@ public class ProcedureStepCountService {
 
 					if (actualTimes < setTimes) {
 						MsgInfo info = new MsgInfo();
-						info.setErrmsg("当前维修对象作业[" + setTimesMap.get(key).getName() + "]应当进行 " + setTimes + " 次，实际记录 " + actualTimes + " 次。请操作达到计数。");
+						info.setErrcode("info.inline.procedureStep.leakCounting");
+						info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.inline.procedureStep.leakCounting", setTimesMap.get(key).getName(), setTimes, actualTimes));
+						
+						// info.setErrmsg("当前维修对象作业[" + setTimesMap.get(key).getName() + "]应当进行 " + setTimes + " 次，实际记录 " + actualTimes + " 次。请操作达到计数。");
 						infoes.add(info);
 						_log.info(info.getErrmsg());
+//						alarmMessageContents += info.getErrmsg();
+						leak = true;
 					} else if (actualTimes > setTimes) {
-						alarmMessageContents += "当前维修对象作业[" + setTimesMap.get(key).getName() + "]应当进行 " + setTimes + " 次，实际已经记录了 " + actualTimes + " 次。";
+						warningContents += ApplicationMessage.WARNING_MESSAGES.getMessage("info.inline.procedureStep.overCounting", setTimesMap.get(key).getName(), setTimes, actualTimes);
+						// alarmMessageContents += "当前维修对象作业[" + setTimesMap.get(key).getName() + "]应当进行 " + setTimes + " 次，实际已经记录了 " + actualTimes + " 次。";
 					}
 
 				} catch (NumberFormatException e) {
@@ -320,13 +383,17 @@ public class ProcedureStepCountService {
 			}
 		}
 
-		if (alarmMessageContents.length() > 0) {
-			listResponse.put("procedure_step_count_message", alarmMessageContents);
+		if (warningContents.length() > 0) {
+			listResponse.put("procedure_step_count_message", warningContents);
 			AlarmMesssageService amService = new AlarmMesssageService();
-			amService.createPscAlarmMessage(material_id, mEntity.getSorc_no(), alarmMessageContents, user, conn);
-			_log.info(alarmMessageContents);
+			amService.createPscAlarmMessage(material_id, mEntity.getSorc_no(), warningContents, user, conn);
+			_log.info(warningContents);
 		}
 
+		// 如果计数错误则继续计数
+		if (leak) {
+			startProcedureStepCountContinue(mEntity, setTimesMap, decodedRec, conn);
+		}
 	}
 
 	/**
@@ -493,5 +560,55 @@ public class ProcedureStepCountService {
 
 		// 等待重新记录集合
 		countPositionSet = null;
+	}
+
+	public void dodelete(ActionForm form,
+			HttpSession session, SqlSessionManager conn) {
+		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
+
+		ProcedureStepCountEntity updateBean = new ProcedureStepCountEntity();
+		BeanUtil.copyToBean(form, updateBean, CopyOptions.COPYOPTIONS_NOEMPTY);
+
+		mapper.deleteProcedureStepCount(updateBean);
+		mapper.deleteProcedureStepOfModel(updateBean);
+	}
+
+	/**
+	 * 维修品中断时临时记录计数
+	 * 
+	 * @param decodedRec
+	 * @param material_id
+	 * @param user
+	 * @param conn
+	 */
+	public void recordBreak(Map<String, String> decodedRec, String material_id, Integer rework,
+			LoginData user, SqlSessionManager conn) {
+		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
+
+		for (String key : decodedRec.keySet()) {
+			int actualTimes = 0;
+			try {
+				actualTimes = Integer.parseInt(decodedRec.get(key));
+			} catch (NumberFormatException e) {
+			}
+
+			if (actualTimes == 0) continue;
+
+			int px = 0;
+			if ("1".equals(user.getPx())) {
+				px = 1;
+			} else if ("2".equals(px)) {
+				px = 2;
+			}
+
+			ProcedureStepCountEntity entity = new ProcedureStepCountEntity();
+			entity.setProcedure_step_count_id(key);
+			entity.setStep_times(actualTimes);
+			entity.setMaterial_id(material_id);
+			entity.setPx(px);
+			entity.setRework(rework);
+
+			mapper.insertProcedureStepRecord(entity);
+		}
 	}
 }

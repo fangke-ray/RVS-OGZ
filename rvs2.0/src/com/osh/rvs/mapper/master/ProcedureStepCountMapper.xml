@@ -150,4 +150,31 @@
 		]]>
 	</delete>
 
+	<select id="getMaterialCountedInPosition" resultType="ProcedureStepCountEntity" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		SELECT rcd.procedure_step_count_id, step_times 
+		FROM procedure_step_count_record rcd
+		join procedure_step_count psc
+			on rcd.procedure_step_count_id = psc.procedure_step_count_id
+		where material_id = #{material_id}
+			and rework = #{rework}
+			and position_id = #{position_id}
+		;
+		]]>
+	</select>
+
+	<insert id="insertProcedureStepRecord" parameterType="ProcedureStepCountEntity">
+		<![CDATA[ 
+		REPLACE INTO `procedure_step_count_record`
+			(`material_id`,
+			`procedure_step_count_id`,
+			`rework`,
+			`step_times`)
+		VALUES
+			(#{material_id},
+			#{procedure_step_count_id},
+			#{rework},
+			#{step_times});
+		]]>
+	</insert>
 </mapper>

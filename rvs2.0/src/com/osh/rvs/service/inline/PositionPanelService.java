@@ -42,10 +42,12 @@ import com.osh.rvs.bean.inline.WaitingEntity;
 import com.osh.rvs.bean.manage.PcsInputLimitEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
 import com.osh.rvs.bean.master.PositionEntity;
+import com.osh.rvs.bean.master.ProcedureStepCountEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
+import com.osh.rvs.form.master.ProcedureStepCountForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.infect.CheckUnqualifiedRecordMapper;
@@ -959,13 +961,30 @@ public class PositionPanelService {
 				httpclient.shutdown();
 			}
 		}
+	}
 
-		// 作业步骤计次(临时)
-		if (pf.getOperate_result() == 0
-				&& pf.getPosition_id().equals("00000000036")
-				&& "1".equals(user.getPx())) {
-			ProcedureStepCountService pscService = new ProcedureStepCountService(); 
-			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), user.getPx(), conn);
+	/**
+	 * 作业步骤计次启功
+	 * 
+	 * @param mform
+	 * @param pf
+	 * @param user
+	 * @param conn
+	 */
+	public void getProcedureStepCount(MaterialForm mform, ProductionFeatureEntity pf,
+			LoginData user, SqlSession conn){
+
+		// 作业步骤计次
+		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
+
+		ProcedureStepCountForm pscForm = new ProcedureStepCountForm();
+		pscForm.setPosition_id(user.getPosition_id());
+		pscForm.setPx(user.getPx());
+
+		List<ProcedureStepCountForm> l = pscService.search(pscForm, conn);
+
+		if (l.size() > 0) {
+			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), user.getPx(), pf, conn);
 			if (recieveFrom != null && recieveFrom.endsWith("Exception")) {
 				
 			}
@@ -973,18 +992,29 @@ public class PositionPanelService {
 	}
 
 	/**
+	 * 	/**
 	 * 判断作业步骤次数计数
 	 * 
+	 * @param material_id 
+	 * @param user
 	 * @param listResponse
 	 * @param infoes
+	 * @param isFinish 工位完成
+	 * @param pf 
 	 * @param conn
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void getProcedureStepCountMessage(String material_id, LoginData user, Map<String, Object> listResponse, List<MsgInfo> infoes, SqlSessionManager conn) throws Exception {
+	public void getProcedureStepCountMessage(String material_id, LoginData user, Map<String, Object> listResponse, List<MsgInfo> infoes,
+			boolean isFinish, ProductionFeatureEntity pf, SqlSessionManager conn) throws Exception {
+		// 判断是要计数的机型
+		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
+
 		MaterialService mService = new MaterialService();
 		MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, material_id);
 
-		ProcedureStepCountService pscService = new ProcedureStepCountService(); 
+		List<ProcedureStepCountEntity> lisr = pscService.getProcedureStepCountOfModel(mEntity.getModel_id(), pf, user.getPx(), conn);
+		if (lisr == null || lisr.size() == 0) return;
+
 		String recvMessage = pscService.finishProcedureStepCount(mEntity.getModel_id(), user.getPosition_id(), user.getPx(), conn);
 		if (recvMessage != null && recvMessage.startsWith("getCount:")) {
 			String rec = recvMessage.substring("getCount:".length());
@@ -1010,14 +1040,22 @@ public class PositionPanelService {
 				try {
 					Map<String, String> decodedRec = JSON.decode(rec, Map.class);
 
-					pscService.confirmFinish(decodedRec, material_id, user, listResponse, infoes, conn);
+					if (isFinish) {
+						pscService.confirmFinish(decodedRec, material_id, user, lisr, listResponse, infoes, conn);
+					} else {
+						pscService.recordBreak(decodedRec, material_id, pf.getRework(), user, conn);
+					}
 
 				} catch (Exception e) {
 					listResponse.put("procedure_step_count_message", e.getMessage());
 				}
 			}
 		} else {
-			listResponse.put("procedure_step_count_message", "没有开始作业计数。");
+			MsgInfo meq = new MsgInfo();
+			meq.setErrcode("info.inline.procedureStep.notCounting");
+			meq.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.inline.procedureStep.notCounting"));
+			infoes.add(meq);
+//			listResponse.put("procedure_step_count_message", "没有开始作业计数。");
 		}
 	}
 

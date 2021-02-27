@@ -24,6 +24,9 @@ public class ProcedureStepCountEntity implements Serializable {
 
 	private String client_address;
 
+	private String material_id;
+	private Integer rework;
+
 	/** 最后更新人 */
 	private String updated_by;
 	/** 最后更新时间 */
@@ -112,6 +115,18 @@ public class ProcedureStepCountEntity implements Serializable {
 	}
 	public void setCategory_name(String category_name) {
 		this.category_name = category_name;
+	}
+	public String getMaterial_id() {
+		return material_id;
+	}
+	public void setMaterial_id(String material_id) {
+		this.material_id = material_id;
+	}
+	public Integer getRework() {
+		return rework;
+	}
+	public void setRework(Integer rework) {
+		this.rework = rework;
 	}
 
 }

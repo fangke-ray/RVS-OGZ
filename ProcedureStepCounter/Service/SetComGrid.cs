@@ -33,25 +33,26 @@ namespace ProcedureStepCounter.Service
 
 			grid.Columns[2].HeaderText = "标准次数";
 			grid.Columns[2].Width=115;
-			grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			grid.Columns[3].HeaderText = "最近计数";
 			grid.Columns[3].Width=115;
-			grid.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			grid.Columns[4].HeaderText = "端口";
 			grid.Columns[4].Width=100;
-			grid.Columns[4].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[4].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			grid.Columns[5].HeaderText = "波特率";
 			grid.Columns[5].Width=100;
-			grid.Columns[5].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[5].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			grid.Columns[6].HeaderText = "连接";
 			grid.Columns[6].Width=80;
-			grid.Columns[6].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[6].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			grid.Columns[7].Visible = false;
+			grid.Columns[8].Visible = false;
 		}
 
 		public static void InitSetDataGridColumnHeader(DataGridView grid) {
@@ -66,12 +67,12 @@ namespace ProcedureStepCounter.Service
 
 			grid.Columns[2].HeaderText = "端口";
 			grid.Columns[2].Width=60;
-			grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			grid.Columns[2].DefaultCellStyle.BackColor = System.Drawing.Color.Aqua;
 
 			grid.Columns[3].HeaderText = "波特率";
 			grid.Columns[3].Width=68;
-			grid.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;  
+			grid.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			grid.Columns[3].DefaultCellStyle.BackColor = System.Drawing.Color.Aqua;
 
 			grid.Columns[4].HeaderText = "地址号";

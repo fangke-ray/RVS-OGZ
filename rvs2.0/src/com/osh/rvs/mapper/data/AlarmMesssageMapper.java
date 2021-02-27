@@ -54,4 +54,6 @@ public interface AlarmMesssageMapper {
 	public List<AlarmMesssageEntity> searchUnreadRateByOperatorId(@Param("operator_id") String operator_id);
 
 	public void createAlarmMesssageContent(AlarmMesssageEntity amEntity);
+
+	public String getAlarmMesssageContent(String alarm_messsage_id);
 }

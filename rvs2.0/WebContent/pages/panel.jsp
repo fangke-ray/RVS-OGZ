@@ -190,10 +190,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.8.536</p>
+								<p id="nee">2.9.540</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2021年1月22日</p>
+								<p>2021年3月2日</p>
 							</div>
 						</div>
 <%
@@ -202,7 +202,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison_content">
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
-								<p>21/1/22 2.9.536 更新</p>
+								<p>21/3/2 2.9.540 更新</p>
+								<p>在线作业/管理：工作步骤计次工具正式版上线。</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>21/1/22 2.8.536 更新</p>
 								<p>受理/物料/出货：通箱出入库管理上线。</p>
 								<p>物料：零件出货（其它）工时设置。</p>
 								<p>--------------------------------------</p>

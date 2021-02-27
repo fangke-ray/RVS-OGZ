@@ -28,10 +28,15 @@ namespace ProcedureStepCounter.Service
 			showFinishCount = new GetFromForm(mF.getCount);
 			mainForm = mF;
 		}
+
+		/**
+		 * 建立本机监听
+		 * 
+		 */
 		public void ListenMethod()
 		{
 			try {
-			Console.WriteLine("hello world!");
+
 			//新建一个套接字Socket即创建Socket
 			//Socket（AddressFamily.InterNetwork， SocketType.Stream， ProtocolType.Tcp）
 			// 这一行创建了一个套接字， 它的3个参数分别代表地址族、 套接字类型和协议。
@@ -51,7 +56,7 @@ namespace ProcedureStepCounter.Service
 			//服务端通过listenfd.Listen（0） 开启监听， 等待客户端连接。
 			// 参数backlog指定队列中最多可容纳等待接受的连接数， 0表示不限制
 			listenfd.Listen(0);
-			Console.WriteLine("[服务器]启动成功");
+			System.Diagnostics.Debug.WriteLine("[服务器]启动成功");
 
 			while(true) {
 				//Accept
@@ -62,7 +67,7 @@ namespace ProcedureStepCounter.Service
 				// 它有一个监听Socket（例子中的listenfd） 用来接收（Accept） 客户端的连接，
 				// 对每个客户端来说还有一个专门的Socket（例子中的 connfd） 用来处理该客户端的数据
 				Socket connfd = listenfd.Accept();
-				Console.WriteLine("[服务器]Accept");
+				System.Diagnostics.Debug.WriteLine("[服务器]Accept");
 
 				IPEndPoint netPoint = connfd.RemoteEndPoint as IPEndPoint;
 				IPAddress clientIp = netPoint.Address;
@@ -84,7 +89,7 @@ namespace ProcedureStepCounter.Service
 			string receiveStr = "";
 			while(true)
 			{
-				try{
+				try {
 					// Recv
 					// 服务器通过connfd.Receive接收客户端数据， Receive也是阻塞方法， 没有收到客户端数据时，
 					// 程序将卡在Receive处， 而不会往下执行。 Receive带有一个byte[]类型的参数，
@@ -98,9 +103,9 @@ namespace ProcedureStepCounter.Service
 					}
 					string str = System.Text.Encoding.UTF8.GetString(readBuff, 0, length);
 
-					Console.WriteLine("[服务器接收]" + str);
+					System.Diagnostics.Debug.WriteLine("[服务器接收]" + str);
 					receiveStr += str;
-				} catch(Exception e) {
+				} catch {
 					socketServer.Close();
 					break;
 				}

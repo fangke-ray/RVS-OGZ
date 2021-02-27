@@ -172,6 +172,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="clear areaencloser"></div>
 			</div>
 
+<%
+	Boolean count_pos = (Boolean) request.getAttribute("count_pos");
+%>
+
 			<div class="dwidth-full">
 				<div id="storagearea" style="float: left;">
 					<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
@@ -237,6 +241,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="stepbutton" value="正常中断" role="button" aria-disabled="false" style="float: right; right: 2px;">
 							<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="pausebutton" value="暂停" role="button" aria-disabled="false" style="float: right; right: 2px;">
 							<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="continuebutton" value="重开" role="button" aria-disabled="false" style="float: right; right: 2px;">
+<% if (count_pos) { %>
+							<input type="button" value="触发作业步骤计数" class="ui-button" id="cntbutton" style="float: left; left: 2px;"/>
+							<script type="text/javascript" src="js/common/procedure_step_trigger.js"></script>
+<% } %>
 						</div>
 					</div>
 

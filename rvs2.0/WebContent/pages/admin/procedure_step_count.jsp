@@ -64,8 +64,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 			</table>
 			<div style="height:44px">
-				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="testbutton" value="测试Socket" role="button" aria-disabled="false" style="float:right;right:2px">
-				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="取消" role="button" aria-disabled="false" style="float:right;right:2px">
+				<a href="/docs/ProcedureStepCounter.exe" class="ui-button" style="float:right;right:2px;font-size: 14px;">下载客户端(ver.2)</a>
+				<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="取消" role="button" aria-disabled="false" style="float:right;right:2px">
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="searchbutton" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
 			</div>
 		</form>

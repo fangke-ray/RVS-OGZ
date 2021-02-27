@@ -24,4 +24,8 @@ public interface ProcedureStepCountMapper {
 
 	public int deleteProcedureStepOfModel(ProcedureStepCountEntity entity);
 
+	public List<ProcedureStepCountEntity> getMaterialCountedInPosition(
+			ProcedureStepCountEntity pfEntity);
+
+	public int insertProcedureStepRecord(ProcedureStepCountEntity entity);
 }

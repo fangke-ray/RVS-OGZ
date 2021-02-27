@@ -1,7 +1,7 @@
 ﻿/*
  * 由SharpDevelop创建。
  * 用户： Ray.G
- * 日期: 2019-12-30
+ * 日期: 2019-12-20
  * 时间: 14:05
  * 
  * 要改变这种模板请点击 工具|选项|代码编写|编辑标准头文件
@@ -31,6 +31,7 @@ namespace ProcedureStepCounter.Entity
 		public int pbs { get; set; }
 		public string connect_status { get; set; }
 		public string address_code { get; set; }
+		public int counted { get; set; }
 
 		// int parity_bits; // 校验位
 	}

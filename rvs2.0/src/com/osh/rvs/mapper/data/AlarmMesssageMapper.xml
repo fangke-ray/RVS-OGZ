@@ -518,4 +518,12 @@ ORDER BY occur_time DESC;
 		]]>
 	</insert>
 
+	<select id="getAlarmMesssageContent" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT `give_message` FROM
+		`alarm_messsage_content`
+		WHERE
+		`alarm_messsage_id` = #{alarm_messsage_id};
+		]]>
+	</select>
 </mapper>
