@@ -526,7 +526,7 @@ var loadFile = function(){
 				 					           	// $process_dialog.dialog('close');
 												$("#search_target_model").val("").trigger("change");
 												$("#search_target_model_id").val("");
-					                            findit();
+												findit();
 											}
 										});										
 									});
@@ -635,20 +635,7 @@ var importFile = function(keys){
 					success: ajaxSuccessCheck,
 					error: ajaxError,
 					complete: function(xhrObj){
-						$("#confirm_message").html("已经成功导入系统并生效！");
-						$("#confirm_message").dialog({
-							title : "导入完成",
-							width : 'auto',
-							show : "blind",
-							height : 'auto' ,
-							resizable : false,
-							modal : true,
-							minHeight : 200,
-							buttons : {
-								"确认":function(){
-									$("#confirm_message").dialog('close');
-							}}
-						});
+						infoPop("已经成功导入系统并生效！", null, "导入完成");
 						findit();
 					}
 				});

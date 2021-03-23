@@ -661,6 +661,12 @@
 		<value code="1">新建(新机型)</value>
 		<value code="2">改图</value>
 		<value code="3">新建(替代)</value>
+	</codelist>
+
+	<codelist name="pcs_request_change_mean_sa">
+		<value code="1">新建(新机型)</value>
+		<value code="2">改图</value>
+		<value code="3">新建(替代)</value>
 		<value code="4">格式调整</value>
 	</codelist>
 	
