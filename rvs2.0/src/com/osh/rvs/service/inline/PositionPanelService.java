@@ -1515,13 +1515,13 @@ public class PositionPanelService {
 				errors.add(msgInfo);
 			}
 		} else if (scanMaterial.getScheduled_date().compareTo(firstMaterial.getScheduled_date()) != 0) {
-			// 同意优先
-			MsgInfo msgInfo = new MsgInfo();
-			msgInfo.setComponentid("material_id");
-			msgInfo.setErrcode("info.linework.agreedDateFirst");
-			msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.agreedDateFirst"
-					, firstMaterial.getSorc_no()));
-			errors.add(msgInfo);
+//			// 同意优先
+//			MsgInfo msgInfo = new MsgInfo();
+//			msgInfo.setComponentid("material_id");
+//			msgInfo.setErrcode("info.linework.agreedDateFirst");
+//			msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.linework.agreedDateFirst"
+//					, firstMaterial.getSorc_no()));
+//			errors.add(msgInfo);
 		}
 	}
 

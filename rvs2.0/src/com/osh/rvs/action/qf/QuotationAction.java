@@ -316,7 +316,7 @@ public class QuotationAction extends BaseAction {
 
 		// 新开始作业时，判定
 		if (errors.size() == 0 && waitingPf.getOperate_result() == 0){
-			ppService.checkAgreeDateForQuotate(material_id, user, errors, conn);
+			// ppService.checkAgreeDateForQuotate(material_id, user, errors, conn);
 		}
 
 //		// 直送报价
