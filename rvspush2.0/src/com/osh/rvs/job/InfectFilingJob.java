@@ -1,7 +1,5 @@
 package com.osh.rvs.job;
 
-import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -33,7 +31,6 @@ import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.entity.CheckedFileStorageEntity;
-import com.osh.rvs.entity.PeriodsEntity;
 import com.osh.rvs.entity.PositionEntity;
 import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.mapper.statistics.InfectMapper;
@@ -45,10 +42,8 @@ import framework.huiqing.common.util.copy.DateUtil;
 public class InfectFilingJob implements Job {
 
 	public static Logger _log = Logger.getLogger("InfectWarningJob");
-	// 按照日期的所在点检周期信息
-	private static Map<String, PeriodsEntity> periodsOfDate = new HashMap<String, PeriodsEntity>();
 
-	protected static JSON json = new JSON();
+	private static JSON json = new JSON();
 	static {
 		json.setSuppressNull(true);
 	}
@@ -68,6 +63,8 @@ public class InfectFilingJob implements Job {
 
 		try {
 			conn.startManagedSession(false);
+			// 清理全部待点检记录
+			clearCheckStatusWait(conn);
 			makeOfMonth(today, madeSet, conn);
 			int month = today.get(Calendar.MONTH);
 			if (month == Calendar.APRIL || month == Calendar.OCTOBER) {
@@ -111,13 +108,15 @@ public class InfectFilingJob implements Job {
 		Calendar today = Calendar.getInstance();
 
 		today.set(Calendar.YEAR, 2019);
-		today.set(Calendar.MONTH, Calendar.APRIL);
-		today.set(Calendar.DATE, 1);
+		today.set(Calendar.MONTH, Calendar.DECEMBER);
+		today.set(Calendar.DATE, 2);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
 		today.set(Calendar.MINUTE, 0);
 		today.set(Calendar.SECOND, 0);
 		today.set(Calendar.MILLISECOND, 0);
+
+		MAKE_URL = "http://localhost:8080/rvsG2/filingdownload.do?method=make";
 
 //		String destPath = "E:\\rvsG\\Infections\\151P";
 //
@@ -139,12 +138,13 @@ public class InfectFilingJob implements Job {
 		InfectFilingJob job = new InfectFilingJob();
 		try {
 			conn.startManagedSession(false);
-			// job.makeOfMonth(today, conn);
+			job.clearCheckStatusWait(conn);
+			job.makeOfMonth(today, madeSet, conn);
 			int month = today.get(Calendar.MONTH);
-			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
-				job.makeOfPeriod(today, madeSet, conn);
-				job.makeOfJig(today, madeSet, conn);
-			}
+//			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
+//				job.makeOfPeriod(today, madeSet, conn);
+//				job.makeOfJig(today, madeSet, conn);
+//			}
 			conn.commit();
 			job.collect2ShareDir(today, madeSet);
 		} catch (Exception e) {
@@ -162,7 +162,8 @@ public class InfectFilingJob implements Job {
 	}
 
 	private void collect2ShareDir(Calendar adjustDate, Set<String> madeSet) {
-		String descBaseDir = "E://RVS_BACKUP//INFECT//";
+		String BACKUP_DISK = PathConsts.BASE_PATH.substring(0, 1);
+		String descBaseDir = BACKUP_DISK + "://RVS_BACKUP//INFECT//";
 		Calendar collectMonth = Calendar.getInstance();
 		collectMonth.setTime(adjustDate.getTime());
 		collectMonth.add(Calendar.MONTH, -1);
@@ -192,6 +193,12 @@ public class InfectFilingJob implements Job {
 		}
 	}
 
+	private void clearCheckStatusWait(SqlSessionManager conn) {
+		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
+		ifMapper.removeCheckStatusWait();
+	}
+
+
 	private void makeOfPeriod(Calendar adjustDate, Set<String> madeSet, SqlSessionManager conn) {
 		InfectMapper ifMapper = conn.getMapper(InfectMapper.class);
 		// 期开始终了时间
@@ -216,11 +223,11 @@ public class InfectFilingJob implements Job {
 
 		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 
-		// 单独归档
-		List<Map<String, Object>> retSingle = ifMapper.getSingleOfPeriod(dPeriodStart, dPeriodNextPeriod);
-
 		// 重复文件
 		Set<String> fileNames = new HashSet<String>();
+
+		// 单独归档
+		List<Map<String, Object>> retSingle = ifMapper.getSingleOfPeriod(dPeriodStart, dPeriodNextPeriod);
 
 		for (Map<String, Object> ret : retSingle) {
 			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
@@ -261,21 +268,13 @@ public class InfectFilingJob implements Job {
 			sPosition = "" + device.get("section_id") + "|" + device.get("position_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
 			if (!devicesOfPosition.containsKey(sPosition)) {
-				if(!isEmpty(comparePosition)) {
-					devicesOfPosition.put(comparePosition, current);
-					fileNameOfPosition.put(comparePosition, "" + sFileName);
-				}
 				current = new ArrayList<String>();
 				comparePosition = sPosition;
-			}
-			sFileName = "" + device.get("sheet_file_name");
-			current.add("" + device.get("devices_manage_id"));
-		}
-		if (!devicesOfPosition.containsKey(sPosition)) {
-			if(!isEmpty(comparePosition)) {
+				sFileName = "" + device.get("sheet_file_name");
 				devicesOfPosition.put(comparePosition, current);
 				fileNameOfPosition.put(comparePosition, "" + sFileName);
 			}
+			current.add("" + device.get("devices_manage_id"));
 		}
 
 		_log.info("devicesOfPosition:" + devicesOfPosition.size());
@@ -326,21 +325,13 @@ public class InfectFilingJob implements Job {
 			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
 			if (!devicesOfLine.containsKey(sLine)) {
-				if(!isEmpty(compareLine)) {
-					devicesOfLine.put(compareLine, current);
-					fileNameOfLine.put(compareLine, "" + sFileName);
-				}
 				current = new ArrayList<String>();
 				compareLine = sLine;
-			}
-			sFileName = "" + device.get("sheet_file_name");
-			current.add("" + device.get("devices_manage_id"));
-		}
-		if (!devicesOfLine.containsKey(sLine)) {
-			if(!isEmpty(compareLine)) {
+				sFileName = "" + device.get("sheet_file_name");
 				devicesOfLine.put(compareLine, current);
 				fileNameOfLine.put(compareLine, "" + sFileName);
 			}
+			current.add("" + device.get("devices_manage_id"));
 		}
 
 		_log.info("devicesOfLine:" + devicesOfLine.size());
@@ -454,21 +445,13 @@ public class InfectFilingJob implements Job {
 			Object oSpecialized = device.get("specialized");
 			if (oSpecialized != null) sPosition += ("|" + oSpecialized);
 			if (!devicesOfPosition.containsKey(sPosition)) {
-				if(!isEmpty(comparePosition)) {
-					devicesOfPosition.put(comparePosition, current);
-					fileNameOfPosition.put(comparePosition, "" + sFileName);
-				}
 				current = new ArrayList<String>();
 				comparePosition = sPosition;
-			}
-			sFileName = "" + device.get("sheet_file_name");
-			current.add("" + device.get("devices_manage_id"));
-		}
-		if (!devicesOfPosition.containsKey(sPosition)) {
-			if(!isEmpty(comparePosition)) {
+				sFileName = "" + device.get("sheet_file_name");
 				devicesOfPosition.put(comparePosition, current);
 				fileNameOfPosition.put(comparePosition, "" + sFileName);
 			}
+			current.add("" + device.get("devices_manage_id"));
 		}
 
 		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
@@ -527,29 +510,21 @@ public class InfectFilingJob implements Job {
 		Map<String, String> fileNameOfLine = new HashMap<String, String>();
 		current = new ArrayList<String>();
 		String sLine = "";
+
 		for (Map<String, Object> device : retOnLine) {
 			sLine = "" + device.get("section_id") + "|" + device.get("line_id") + "|"
 					+ device.get("check_file_manage_id") + "|" + device.get("check_manage_code");
 			Object oSpecialized = device.get("specialized");
 			if (oSpecialized != null) sLine += ("|" + oSpecialized);
 			if (!devicesOfLine.containsKey(sLine)) {
-				if(!isEmpty(compareLine)) {
-					devicesOfLine.put(compareLine, current);
-					fileNameOfLine.put(compareLine, "" + sFileName);
-				}
 				current = new ArrayList<String>();
 				compareLine = sLine;
-			}
-			sFileName = "" + device.get("sheet_file_name");
-			current.add("" + device.get("devices_manage_id"));
-		}
-		if (!devicesOfLine.containsKey(sLine)) {
-			if(!isEmpty(compareLine)) {
+				sFileName = "" + device.get("sheet_file_name");
 				devicesOfLine.put(compareLine, current);
 				fileNameOfLine.put(compareLine, "" + sFileName);
 			}
+			current.add("" + device.get("devices_manage_id"));
 		}
-
 		_log.info("devicesOfLine:" + devicesOfLine.size());
 		for (String iLine : devicesOfLine.keySet()) {
 			List<String> lDevices = devicesOfLine.get(iLine);
@@ -732,7 +707,7 @@ public class InfectFilingJob implements Job {
 		return sRet;
 	}
 
-	private static final String MAKE_URL = "http://localhost:8080/rvs/filingdownload.do?method=make";
+	private static String MAKE_URL = "http://localhost:8080/rvs/filingdownload.do?method=make"; // rvsG2
 	// 单独归档
 	@SuppressWarnings("static-access")
 	private void makeFileSingle(CheckedFileStorageEntity checked_file_storage) throws IOException {
@@ -769,7 +744,7 @@ public class InfectFilingJob implements Job {
 		// 要求主工程建立文件
 		try {
 			String encodedEntity = java.net.URLEncoder.encode(json.encode(checked_file_storage), "UTF-8");
-			String encodedDeviceList = json.encode(lDevices);
+			String encodedDeviceList = java.net.URLEncoder.encode(json.encode(lDevices), "UTF-8");
 			String destUrl = MAKE_URL + "&entity="+
 					encodedEntity+"&encodedDeviceList=" + encodedDeviceList;
 			_log.info("destUrl=" + destUrl);
