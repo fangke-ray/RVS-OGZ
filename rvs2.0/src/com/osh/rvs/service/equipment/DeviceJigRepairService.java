@@ -69,19 +69,23 @@ public class DeviceJigRepairService {
 
 			// 计算合计和节省
 			if (entity.getPrice() != null) {
-				BigDecimal bdTotalPrice = entity.getPrice().multiply(new BigDecimal(entity.getQuantity()));
+				Integer quantity = entity.getQuantity();
+				if (quantity == null) {
+					quantity = 1;
+				}
+				BigDecimal bdTotalPrice = entity.getPrice().multiply(new BigDecimal(quantity));
 				resForm.setTotal_price(bdTotalPrice.toPlainString());
 
-				countAll += entity.getQuantity();
+				countAll += quantity;
 				costAll = costAll.add(bdTotalPrice);
 				if (objectType == null || objectType == 9) {
-					countOth += entity.getQuantity();
+					countOth += quantity;
 					costOth = costOth.add(bdTotalPrice);
 				} else if (objectType == 1) {
-					countDev += entity.getQuantity();
+					countDev += quantity;
 					costDev = costDev.add(bdTotalPrice);
 				} else if (objectType == 2) {
-					countJig += entity.getQuantity();
+					countJig += quantity;
 					costJig = costJig.add(bdTotalPrice);
 				}
 

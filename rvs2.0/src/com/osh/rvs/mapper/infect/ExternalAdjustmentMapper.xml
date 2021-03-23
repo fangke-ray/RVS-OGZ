@@ -139,6 +139,16 @@
 				AND ea.institution_name LIKE CONCAT('%',#{institution_name},'%')
 			]]>
 		</if>
+		<if test="idle_flg eq -1">
+			<![CDATA[
+				AND ea.idle_flg=0
+			]]>
+		</if>
+		<if test="idle_flg eq 1">
+			<![CDATA[
+				AND ea.idle_flg=1
+			]]>
+		</if>
 		<![CDATA[
 			ORDER BY ea.checked_date
 				
@@ -321,7 +331,7 @@
 				ea.object_type,
 				coalesce(dm.manage_code, tm.manage_code) as manage_code,
 				coalesce(dt.name, tm.jig_name) as name,
-				dm.brand_id,
+				coalesce(dm.brand_id, jig_brand_id) as brand_id,
 				b.name as brand,
 				coalesce(dm.model_name, tm.jig_no) as model_name,
 				dm.products_code,
@@ -333,6 +343,7 @@
 				ea.check_cost,
 				ea.organization_type,
 				ea.institution_name,
+				ea.idle_flg,
 				ea.comment,
 				ea.checking_flg
 			FROM 	
@@ -374,6 +385,7 @@
 				check_cost=#{check_cost},
 				organization_type=#{organization_type},
 				institution_name=#{institution_name},
+				idle_flg=#{idle_flg},
 				comment=#{comment}
 		]]>
 		<if test="brand_id!=null and brand_id!=''">

@@ -53,6 +53,7 @@ $(function(){
         $("#search_organization_type").data("post",$("#search_organization_type").val());//校验单位
         $("#search_institution_name").data("post",$("#search_institution_name").val());//校验机构名称
         $("#hidden_search_brand_id").data("post",$("#hidden_search_brand_id").val());//厂
+        $("#search_idle_flg").data("post",$("#search_idle_flg > input:checked").val());//闲置状态
         findit();
         $("#tocheck").disable();
         $("#stop").disable();
@@ -307,6 +308,7 @@ var reset=function(){
     $("#search_institution_name").data("post","").val("");//校验机构名称
 	$("#search_brand_id").val("");
     $("#hidden_search_brand_id").data("post","").val("");//厂
+    $("#search_idle_flg").data("post","").children().eq(0).attr("check", true).trigger("change");// 闲置状态
 }
 
 //检索函数
@@ -327,7 +329,8 @@ var findit=function(){
         "effect_interval":$("#search_effect_interval").data("post"),
         "organization_type":$("#search_organization_type").data("post"),
         "institution_name":$("#search_institution_name").data("post"),
-        "brand_id" : $("#hidden_search_brand_id").data("post")
+        "brand_id" : $("#hidden_search_brand_id").data("post"),
+        "idle_flg" : $("#search_idle_flg").data("post")
     };
     
     $.ajax({
@@ -450,13 +453,14 @@ var list=function(datalist){
                       if(checking_flg==1){//校验中
                             pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("wait");
                       }else{
-                           if(idle_flg==1){//闲置
-                                pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("spare");
-                           }else if(isover==1){//过期需校验
+                           if(isover==1){//过期需校验
                                 pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("require_check");
                            }else if(isover==2){
                            		pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("close_to_check");
                            }
+                      }
+                      if(idle_flg==1){//闲置
+		                   pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx > 3 && idx < 8}).addClass("spare");
                       }
                 }
                 enableButton();
@@ -635,19 +639,25 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
             // 共通出错信息框
             treatBackMessages("", resInfo.errors);
         } else {
-        	$("#updateForm label").text("");
+        	$("#updateForm label").not("[for]").text("");
         	
             $("#detail_label_manage_code").text(resInfo.finished.manage_code);//管理编号
             $("#detail_label_name").text(resInfo.finished.name);//品名
             $("#detail_label_brand").text(resInfo.finished.brand);//厂商
             $("#text_update_brand").val(resInfo.finished.brand);//厂商
-            $("#hidden_update_brand_id").val(resInfo.finished.brand_id);//厂商
+            var brand_id = resInfo.finished.brand_id || "";
+            $("#hidden_update_brand_id").val(brand_id);//厂商
             if (resInfo.finished.object_type == 1 || checking_flg==1) {
 	            $("#detail_label_brand").show();//厂商
 	            $("#text_update_brand, #hidden_update_brand_id").hide();//厂商
             } else {
 	            $("#detail_label_brand").hide();//厂商
 	            $("#text_update_brand, #hidden_update_brand_id").show();//厂商
+            }
+            if (brand_id) {
+            	$("#label_brand_update_button").show();
+            } else {
+            	$("#label_brand_update_button").hide();
             }
             $("#detail_label_model_name").text(resInfo.finished.model_name);//型号
             $("#detail_label_products_code").text(resInfo.finished.products_code);//出厂编号
@@ -677,9 +687,11 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
             $("#update_organization_type").val(resInfo.finished.organization_type).trigger("change");//校验单位
 
             $("#update_check_cost").val(resInfo.finished.check_cost);//校验费用
-            
-            
+
+            $("#update_idle_flg input[value=" + resInfo.finished.idle_flg + "]").attr("checked", true).trigger("change"); // 闲置
+
             $("#update_institution_name").val(resInfo.finished.institution_name);//校验机构名称
+            
             $("#update_comment").val(resInfo.finished.comment);//备注
             
 
@@ -716,6 +728,7 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
 			            			"institution_name": $("#update_institution_name").val(),//校验机构名称
 			            			"comment":$("#update_comment").val(),//备注
 			            			"checking_flg":checking_flg,//校验状态
+	                                "idle_flg" : $("#update_idle_flg input:checked").val(),
 			            			"object_type":resInfo.finished.object_type
 				            	 };
 		            		}else{
@@ -727,6 +740,7 @@ var searchDetailById_handleComplete=function(xhrobj, textStatus){
 			            			"institution_name": $("#update_institution_name").val(),
 			            			"comment":$("#update_comment").val(),
 			            			"checking_flg":checking_flg,
+	                                "idle_flg" : $("#update_idle_flg input:checked").val(),
 			            			"object_type":resInfo.finished.object_type
 				            	 };
 		            		}

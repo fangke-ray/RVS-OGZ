@@ -140,8 +140,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="td-content">
 										<input type="text" id="search_institution_name" class="ui-widget-content">
 									</td>
-									<td class="ui-state-default td-title"></td>
-									<td class="td-content"></td>
+									<td class="ui-state-default td-title">闲置状态</td>
+									<td class="td-content">
+										<div id="search_idle_flg" class="ui-buttonset">
+											<input type="radio" name="idle_flg" id="search_idle_flg_all" class="ui-widget-content ui-helper-hidden-accessible" value="0" checked><label for="search_idle_flg_all" aria-pressed="false">(全部)</label>
+											<input type="radio" name="idle_flg" id="search_idle_flg_y" class="ui-widget-content ui-helper-hidden-accessible" value="-1"><label for="search_idle_flg_y" aria-pressed="false">非闲置</label>
+											<input type="radio" name="idle_flg" id="search_idle_flg_n" class="ui-widget-content ui-helper-hidden-accessible" value="1"><label for="search_idle_flg_n" aria-pressed="false">闲置</label>
+										</div>
+									</td>
 								</tr>	
 							</tbody>
 						</table>
@@ -385,6 +391,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<td class="ui-state-default td-title">校验机构名称</td>
 									<td class="td-content">
 										<input type="text" id="update_institution_name"  class="ui-widget-content" size="30"></input>
+									</td>
+								</tr>
+								<tr>
+									<td class="ui-state-default td-title">闲置状态</td>
+									<td  class="td-content">
+										<div id="update_idle_flg" class="ui-buttonset">
+											<input type="radio" name="idle_flg" id="update_idle_flg_y" class="ui-widget-content ui-helper-hidden-accessible" value="0"><label for="update_idle_flg_y" aria-pressed="false">非闲置</label>
+											<input type="radio" name="idle_flg" id="update_idle_flg_n" class="ui-widget-content ui-helper-hidden-accessible" value="1"><label for="update_idle_flg_n" aria-pressed="false">闲置</label>
+										</div>
 									</td>
 								</tr>
 								<tr>
