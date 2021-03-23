@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.inline.MaterialProcessEntity;
 import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
@@ -32,7 +33,9 @@ import com.osh.rvs.bean.master.SectionEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.RedirectRes;
 import com.osh.rvs.form.master.OperatorForm;
+import com.osh.rvs.mapper.inline.MaterialProcessMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
+import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.PositionService;
@@ -215,13 +218,21 @@ public class LoginAction extends BaseAction {
 			if (workingPf.getSection_id() != null && "00000000001".equals(workingPf.getSection_id())) {
 				Set<String> dividePositions = PositionService.getDividePositions(conn);
 				if (dividePositions.contains(now_position)) {
-					MaterialService mservice = new MaterialService();
-					MaterialEntity mEntity = mservice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
-					if (mEntity.getQuotation_first() == 1) {
+					MaterialProcessMapper mapper = conn.getMapper(MaterialProcessMapper.class);
+					MaterialProcessEntity mpEntity = mapper.loadMaterialProcessOfLine(workingPf.getMaterial_id(), workingPf.getLine_id());
+					if (mpEntity == null || mpEntity.getPx() == null) {
+					} else if (mpEntity.getPx() == 1) {
 						loginData.setPx("2");
 					} else {
 						loginData.setPx("1");
 					}
+//					MaterialService mservice = new MaterialService();
+//					MaterialEntity mEntity = mservice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
+//					if (mEntity.getQuotation_first() == 1) {
+//						loginData.setPx("2");
+//					} else {
+//						loginData.setPx("1");
+//					}
 				}
 			}
 

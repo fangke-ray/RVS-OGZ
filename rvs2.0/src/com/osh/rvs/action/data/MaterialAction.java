@@ -980,14 +980,18 @@ public class MaterialAction extends BaseAction {
 
 		String material_id = req.getParameter("material_id");
 		String position_id = req.getParameter("position_id");
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		String line_id = req.getParameter("line_id");
+		if (line_id == null) {
+			line_id = user.getLine_id();
+		}
 
-		MaterialService mService = new MaterialService();
-		mService.pxExchange(material_id, conn);
+		MaterialProcessService mpService = new MaterialProcessService();
+		mpService.pxExchange(material_id, line_id, conn);
 
 		if (position_id != null) {
-			// 取得用户信息
-			HttpSession session = req.getSession();
-			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 			String section_id = user.getSection_id();
 

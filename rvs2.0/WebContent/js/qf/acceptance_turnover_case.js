@@ -123,29 +123,57 @@ var getIdleMaterialList = function(idleMaterialList){
 	if (idleMaterialList.length == 0) {
 		return "";
 	}
-	var currModelName = "Not A Model";
+//	var currModelName = "Not A Model";
 	var retHtml = "";
-	initials = [];
+	initials = ['尾数 0', '尾数 1', '尾数 2', '尾数 3', '尾数 4', '尾数 5', '尾数 6', '尾数 7', '尾数 8', '尾数 9'];
+	var terminalArrays = {};
+
 	for (var imIdx in idleMaterialList) {
 		var idleMaterial = idleMaterialList[imIdx];
-		if (currModelName !== idleMaterial.model_name) {
-			if (currModelName !== "Not A Model") {
-				retHtml += "</div>";
-			}
-			currModelName = idleMaterial.model_name;
+//		if (currModelName !== idleMaterial.model_name) {
+//			if (currModelName !== "Not A Model") {
+//				retHtml += "</div>";
+//			}
+//			currModelName = idleMaterial.model_name;
 
-			var begins = currModelName.charAt(0);
-			if (initials.indexOf(begins) < 0) {
-				initials.push(begins);
-			}
-			retHtml += "<div class='model_group'><span class='model_name'>" + currModelName + "</span>";
+//			var begins = currModelName.charAt(0);
+//			if (initials.indexOf(begins) < 0) {
+//				initials.push(begins);
+//			}
+//			retHtml += "<div class='model_group'><span class='model_name'>" + currModelName + "</span>";
+//		}
+
+		var terminalChar = idleMaterial.serial_no.charAt(idleMaterial.serial_no.length - 1);
+		if (terminalArrays[terminalChar] == null) {
+			terminalArrays[terminalChar] = [];
 		}
-		retHtml += "<div class='material' " + (idleMaterial.execute == 6 ? "model_kind='E' " : "")
-			+ "material_id='" + idleMaterial.material_id + "' draggable=true>" 
-			+ (idleMaterial.omr_notifi_no || "-") 
-			+ "<br><span class='serial_no'>" + idleMaterial.serial_no + "</span></div>";
+		terminalArrays[terminalChar].push(idleMaterial);
 	}
-	retHtml += "</div>";
+
+	for (var i = 0; i < 10; i++) {
+		if (terminalArrays[i] != null) {
+			retHtml += "<div class='model_group'><span class='model_name'>尾数 " + i + "</span>";
+
+			var terminalArr = terminalArrays[i];
+			terminalArr.sort(function(a,b) {
+				var aSer = a.serial_no.charAt(a.serial_no.length - 2);
+				var bSer = b.serial_no.charAt(b.serial_no.length - 2);
+				return aSer - bSer;
+			});
+			for(j = 0, len=terminalArr.length; j < len; j++) {
+    			var idleMaterial = terminalArr[j];
+
+				retHtml += "<div class='material' " + (idleMaterial.execute == 6 ? "model_kind='E' " : "")
+					+ "material_id='" + idleMaterial.material_id + "' draggable=true>" 
+					+ "<span class='serial_no'>" + idleMaterial.model_name + "</span><br>"
+					+ (idleMaterial.omr_notifi_no || "-") 
+					+ " <span class='serial_no'>" + idleMaterial.serial_no + "</span></div>";
+    		}
+
+			retHtml += "</div>";
+		}
+	}
+			
 
 	var iniHtml = "";
 	for (var iIni in initials) {
@@ -169,7 +197,7 @@ var changeInitial = function() {
 	var firstScrollTopTarget = null;
 	for (var iMn in $modelName) {
 		var modelSpan = $modelName[iMn];
-		if (modelSpan.innerText && modelSpan.innerText.charAt(0) === initialVal) {
+		if (modelSpan.innerText && modelSpan.innerText === initialVal) {
 			var positionTop = $modelName.eq(iMn).position().top;
 			if (positionTop < 16) {
 				if (firstScrollTopTarget == null) firstScrollTopTarget = nowScrollTop + positionTop;

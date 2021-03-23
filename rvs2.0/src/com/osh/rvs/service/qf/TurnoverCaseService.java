@@ -517,15 +517,22 @@ public class TurnoverCaseService {
 		String todayString = DateUtil.toString(new Date(), DateUtil.DATE_PATTERN);
 
 		for (TurnoverCaseEntity tcEntity : list) {
-			// 判断库位是否已分配
-			TurnoverCaseEntity entity = mapper.checkEmpty(tcEntity.getLocation());
-			if (entity != null) {
-				tcEntity.setExecute(0);
-				mapper.putin(tcEntity);
-				checkLocationInDailyPlan(todayString, tcEntity.getLocation(), conn);
+			// 判断维修品是否已经分配或入库
+			TurnoverCaseEntity maEntity = new TurnoverCaseEntity();
+			maEntity.setMaterial_id(tcEntity.getMaterial_id());
+			if (mapper.searchTurnoverCase(maEntity).size() > 0) {
+				tcEntity.setExecute(-1);
+			} else {
+				// 判断库位是否已分配
+				TurnoverCaseEntity entity = mapper.checkEmpty(tcEntity.getLocation());
+				if (entity != null) {
+					tcEntity.setExecute(0);
+					mapper.putin(tcEntity);
+					checkLocationInDailyPlan(todayString, tcEntity.getLocation(), conn);
 
-				// 清除推车
-				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
+					// 清除推车
+					mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
+				}
 			}
 		}
 
@@ -547,6 +554,14 @@ public class TurnoverCaseService {
 						+ "(" + mBean.getModel_name() + " " + mBean.getSerial_no() + ")"
 						+ "原先分配的[" + orgLocation + "]库位已被分配，另行分配到[" + tcEntity.getLocation() + "]。\n";
 
+				// 清除推车
+				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
+			} else if (tcEntity.getExecute() == -1) {
+				MaterialEntity mBean = mService.loadSimpleMaterialDetailEntity(conn, tcEntity.getMaterial_id());
+
+				retMessage += "维修品" + (mBean.getSorc_no() == null ? "" : mBean.getSorc_no()) 
+						+ "(" + mBean.getModel_name() + " " + mBean.getSerial_no() + ")"
+						+ "可能已经被其他用户完成分配。建议重新开启分配窗口操作。\n";
 				// 清除推车
 				mapper.clearTrolleyStacks(tcEntity.getMaterial_id());
 			}

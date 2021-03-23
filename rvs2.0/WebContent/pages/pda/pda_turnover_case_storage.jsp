@@ -139,7 +139,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	function countDownSubmit(location) {
 		if (location) {
 			$("#moveButton").removeClass("button-unuse");
-			countdown = 5;
+			countdown = 1;
 			var $chosen = $(".plan_list tbody tr[location='"+location+"']").detach();
 			$chosen.addClass("chosen");
 			$(".plan_list tbody").prepend($chosen);

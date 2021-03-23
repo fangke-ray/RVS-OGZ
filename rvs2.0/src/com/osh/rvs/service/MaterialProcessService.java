@@ -127,6 +127,11 @@ public class MaterialProcessService {
 		return map;
 	}
 
+	public void pxExchange(String material_id, String line_id, SqlSessionManager conn) {
+		MaterialProcessMapper mapper = conn.getMapper(MaterialProcessMapper.class);
+		mapper.updatePx(material_id, line_id);
+	}
+
 	public static int IDX_COM_FINISH = 0;
 	public static int IDX_DEC_FINISH = 1;
 	public static int IDX_DEC_FINISH_S1 = 0;

@@ -115,6 +115,9 @@
 			<if test="position_id!= null and position_id!= '' ">
 				AND psc.`position_id` = #{position_id}
 			</if>
+			<if test="px!= null and px!= '' ">
+				AND (psc.`px` = #{px} OR psc.`px` = 0)
+			</if>
 		</where> 
 		<![CDATA[ 
 		ORDER BY model_name;

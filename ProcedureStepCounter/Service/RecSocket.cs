@@ -127,5 +127,21 @@ namespace ProcedureStepCounter.Service
 				socketServer.Close();
 			}
 		}
+
+		public static string[] GetLocalIps() {
+		    //解析主机名称或IP地址的system.net.iphostentry实例。
+		    string hostname = Dns.GetHostName();
+	        IPHostEntry localhost = Dns.GetHostEntry(hostname);
+	        if (localhost != null)
+	        {
+	        	string[] localIps = new string[localhost.AddressList.Length];
+	        	for (int idx = 0; idx < localhost.AddressList.Length; idx++)
+	            {
+	            	localIps[idx] = localhost.AddressList[idx].MapToIPv4().ToString();
+	            }
+	        return localIps;
+	        }
+	        return null;
+		}
 	}
 }

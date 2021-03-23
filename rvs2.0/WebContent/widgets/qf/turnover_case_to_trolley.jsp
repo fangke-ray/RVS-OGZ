@@ -33,11 +33,12 @@
 #turnover_case_to_trolley .material {
 	border: 1px;
 	background-color:lightcyan;
-	width : 10em;
+	width : 12.5em;
 	height : 3em;
 	margin-right: 0.8em;
 	margin-bottom: 0.2em;
 	text-align:center;
+	overflow-x: clip;
 }
 #tc2t_waitings .material {
 	float:left;
@@ -52,6 +53,7 @@
 	background-color:darkcyan;
 	color:white;
 	padding: 0 0.5em;
+	white-space: nowrap;
 }
 #tc2t_waitings .material.warehouse span {
 	background-color: #2E5C5C;
