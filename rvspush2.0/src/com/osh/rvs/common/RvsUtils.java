@@ -349,11 +349,18 @@ public class RvsUtils {
 	}
 	public static Collection<InternetAddress> getMailIas(String property,
 			SqlSession conn, String line_id, Integer department, List<String> senderIds) {
+		OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
+		return getMailIas(property, oMapper, line_id, RvsConsts.DEPART_REPAIR, senderIds);
+	}
+	public static Collection<InternetAddress> getMailIas(String property,
+			OperatorMapper oMapper) {
+		return getMailIas(property, oMapper, null, RvsConsts.DEPART_REPAIR, null);
+	}
+	public static Collection<InternetAddress> getMailIas(String property,
+			OperatorMapper oMapper, String line_id, Integer department, List<String> senderIds) {
 		List<InternetAddress> ias = new ArrayList<InternetAddress>();
 
 		// 找到所有经理以上人员
-		OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
-
 		String propertyTo = PathConsts.MAIL_CONFIG.getProperty(property);
 		if (isEmpty(propertyTo)) {
 			return null;

@@ -36,9 +36,9 @@ import framework.huiqing.common.util.copy.DateUtil;
 
 public class InfectWarningJob implements Job {
 
-	private static final String TITLE_JIG = "以下治具未被点检已经超期，请确认！\n"
+	private static final String TITLE_JIG = "以下专用工具未被点检已经超期，请确认！\n"
 			+ "序号\t管理编号\t所在课室\t使用工位\n";
-	private static final String TITLE_DEV = "以下设备未被点检已经超期，请确认！\n"
+	private static final String TITLE_DEV = "以下设备或一般工具未被点检已经超期，请确认！\n"
 			+ "序号\t管理编号\t所在课室\t使用工位\n";
 	private static final String TITLE_E = "以下校验品即将超期或已经超期未送校验，请确认！\n"
 			+ "序号\t管理编号\t品名\t型号\t过期日期\t校验机构名称\n";
@@ -162,9 +162,9 @@ public class InfectWarningJob implements Job {
 				if (neo.getStartOfMonth().equals(old.getStartOfMonth())) {
 					neo.setExpireOfMonth(old.getExpireOfMonth());
 				}
-				if (neo.getStartOfHMonth().equals(old.getStartOfHMonth())) {
-					neo.setExpireOfHMonth(old.getExpireOfHMonth());
-				}
+//				if (neo.getStartOfHMonth().equals(old.getStartOfHMonth())) {
+//					neo.setExpireOfHMonth(old.getExpireOfHMonth());
+//				}
 				if (neo.getStartOfHbp().equals(old.getStartOfHbp())) {
 					neo.setExpireOfHbp(old.getExpireOfHbp());
 				}
@@ -208,19 +208,19 @@ public class InfectWarningJob implements Job {
 				expireDate = hMapper.addWorkdays(cond);
 				neo.setExpireOfMonthOfJig(expireDate);
 			}
-			if (neo.getExpireOfHMonth() == null) {
-
-				// 半月3天宽限
-				if (neo.getStartOfMonth().equals(neo.getStartOfHMonth())) {
-					neo.setExpireOfHMonth(neo.getExpireOfMonth());
-				} else {
-					Date expireDate = new Date(neo.getStartOfHMonth().getTime() - 1);
-					cond.put("date", expireDate);
-					cond.put("interval", 4);
-					expireDate = hMapper.addWorkdays(cond);
-					neo.setExpireOfHMonth(expireDate);
-				}
-			}
+//			if (neo.getExpireOfHMonth() == null) {
+//
+//				// 半月3天宽限
+//				if (neo.getStartOfMonth().equals(neo.getStartOfHMonth())) {
+//					neo.setExpireOfHMonth(neo.getExpireOfMonth());
+//				} else {
+//					Date expireDate = new Date(neo.getStartOfHMonth().getTime() - 1);
+//					cond.put("date", expireDate);
+//					cond.put("interval", 4);
+//					expireDate = hMapper.addWorkdays(cond);
+//					neo.setExpireOfHMonth(expireDate);
+//				}
+//			}
 
 			if (neo.getExpireOfHbp() == null) {
 				Date expireDate = new Date(neo.getStartOfHbp().getTime() - 1);
@@ -260,7 +260,7 @@ public class InfectWarningJob implements Job {
 	
 				_log.info("未点检治具(Arrival Next) Count: " + expiredInfects.size());
 
-				unchecked2Mail(TITLE_JIG, "超过时限未点检治具一览", expiredInfects, omapper);
+				unchecked2Mail(TITLE_JIG, "超过时限未点检专用工具一览", expiredInfects, omapper);
 			}
 
 			Map<String, Object> periodsMap = new HashMap<String, Object> ();
@@ -311,26 +311,26 @@ public class InfectWarningJob implements Job {
 			if (curManager == null || !man.equals(curManager)) {
 				if (curManager == null) {
 					curManager = man;
-					continue;
+				} else {
+					OperatorEntity manager = omapper.getOperatorByID(curManager);
+					curManager = man;
+					i=0;
+
+					if (isEmpty(manager.getEmail())) {
+						_log.error("管理者无邮件地址!");
+					} else {
+						Collection<InternetAddress> toIas = new ArrayList<InternetAddress>();
+						toIas.add(new InternetAddress( manager.getEmail(), manager.getName()));
+
+						Collection<InternetAddress> ccIas = RvsUtils.getMailIas("infect.unchecked.cc", omapper);
+
+						// 邮件
+						_log.info(materails4Mail);
+						MailUtils.sendMail(toIas, ccIas, mailTitle,  materails4Mail);
+
+						materails4Mail = contentTitle;
+					}
 				}
-				OperatorEntity manager = omapper.getOperatorByID(curManager);
-				curManager = man;
-				i=0;
-
-				if (isEmpty(manager.getEmail())) {
-					_log.error("管理者无邮件地址!");
-					continue;
-				}
-				Collection<InternetAddress> toIas = new ArrayList<InternetAddress>();
-				toIas.add(new InternetAddress( manager.getEmail(), manager.getName()));
-
-				Collection<InternetAddress> ccIas = RvsUtils.getMailIas("infect.unchecked.cc", null);
-
-				// 邮件
-				_log.info(materails4Mail);
-				MailUtils.sendMail(toIas, ccIas, mailTitle,  materails4Mail);
-
-				materails4Mail = contentTitle;
 			}
 			String sline = "" + (i+1) + "##spare##"
 					+ (String)expiredInfect.get("manage_code") + "##spare##"
@@ -339,6 +339,22 @@ public class InfectWarningJob implements Job {
 					;
 			materails4Mail += sline.replaceAll("##spare##", "\t") + "\n" ;
 			i++;
+		}
+		if (curManager != null) {
+			OperatorEntity manager = omapper.getOperatorByID(curManager);
+
+			if (isEmpty(manager.getEmail())) {
+				_log.error("管理者无邮件地址!");
+			} else {
+				Collection<InternetAddress> toIas = new ArrayList<InternetAddress>();
+				toIas.add(new InternetAddress( manager.getEmail(), manager.getName()));
+
+				Collection<InternetAddress> ccIas = RvsUtils.getMailIas("infect.unchecked.cc", omapper);
+
+				// 邮件
+				_log.info(materails4Mail);
+				MailUtils.sendMail(toIas, ccIas, mailTitle,  materails4Mail);
+			}
 		}
 	}
 	/**
@@ -360,6 +376,9 @@ public class InfectWarningJob implements Job {
 			List<Map<String, Object>> expiredInfects = mapper.getExpiredExternals();
 
 			_log.info("过期未交付校验品(Arrival Next) Count: " + expiredInfects.size());
+			if (expiredInfects.size() == 0) {
+				return;
+			}
 
 			String materails4Mail = TITLE_E;
 
