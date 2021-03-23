@@ -62,7 +62,7 @@ $(function() {
 		$("#cond_process_code").val("").data("post", "");
 	});
 
-	$("select").select2Buttons();
+	$("#body-mdl select").select2Buttons();
 
 	findit();
 });

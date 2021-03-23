@@ -67,7 +67,7 @@ pil_tag > checkbox[value="0"] {
 <title>工程检查票输入值标准设定</title>
 </head>
 <body class="outer">
-<div class="width-middleright" style="align:center;margin:auto;margin-top:16px;">
+<div class="width-middleright" style="align:center;margin:auto;">
 
 
 <div id="searcharea">

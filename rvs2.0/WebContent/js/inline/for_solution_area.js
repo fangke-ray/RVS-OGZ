@@ -223,7 +223,7 @@ $(function() {
 		}
 	});
 
-	$("select").select2Buttons();
+	$("#body-mdl select").select2Buttons();
 
 	$("#show_process").click(function(){
 		if (this.checked) {

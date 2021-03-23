@@ -61,7 +61,7 @@ $(function() {
 		showPcsRequest(pcs_request_key);
 	});
 
-	$("select").select2Buttons();
+	$("#body-mdl select").select2Buttons();
 	setReferChooser($("#search_target_model_id"), $("#model_refer"));
 
 	initGrid();
@@ -165,9 +165,16 @@ var showPageForEdit_handleComplete = function(xhrObj) {
 	$pcs_content.find(".pil_lower,.pil_upper")
 		.attr("required", true);
 
+	var keyExists = {};
 	$pil_tags.each(function(idx, ele){
 		var $ele = $(ele);
 
+		var tag_code = $ele.attr("key");
+		if (keyExists[tag_code] == null) {
+			keyExists[tag_code] = 1;
+		} else {
+			keyExists[tag_code]++;
+		}
 		var not_allow_pass =  $ele.attr("allow_pass") && $ele.attr("allow_pass") === "no";
 
 		if (not_allow_pass) {
@@ -178,6 +185,13 @@ var showPageForEdit_handleComplete = function(xhrObj) {
 	}).children("checkbox").click(function(){
 		$(this).attr("value", 1-$(this).attr("value"));
 	});
+
+	var duplWarnMessage = "";
+	for (var tag_code in keyExists) {
+		if (keyExists[tag_code] > 1) {
+			duplWarnMessage += "存在重复的输入标签：" + tag_code + "，出现" + keyExists[tag_code] + "处。<br>";
+		}
+	}
 
 	$("#pcs_content_container").dialog({
 		title : "工程检查表输入项目",
@@ -247,6 +261,11 @@ var showPageForEdit_handleComplete = function(xhrObj) {
 		}
 		}
 	});
+
+	if (duplWarnMessage) {
+		duplWarnMessage += "建议修改模板后，再输入限制值。";
+		errorPop(duplWarnMessage);
+	}
 }
 
 var doSetLimits = function(postData) {

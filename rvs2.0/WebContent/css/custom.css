@@ -89,6 +89,10 @@ div.areabase {
 	valign: center;
 }
 
+#headarea {
+	user-select: none;
+}
+
 /* 宽度设定-全宽容器  */
 div.width-full {
 	width: 1278px;
@@ -1025,7 +1029,7 @@ width: 2.1em;
 	resize:none;
 	border:0;
 	padding:4px;
-	overflow:hidden;
+	overflow-x:hidden;
 }
 #comments_sidebar ul{
 	list-style: none;
@@ -1072,4 +1076,19 @@ width: 2.1em;
 }
 #comments_sidebar .tip_page img{
 	max-width:100%;
+}
+.ui-datepicker .ui-datepicker-title .ui-datepicker-year,
+.ui-datepicker .ui-datepicker-title select.ui-datepicker-month {
+	font-size:16px;
+	color: #ffffff;
+	font-weight: bold;
+	border:0;
+	background-color:transparent;
+	width:3.5em;
+	appearance: none;
+	text-align: center;
+}
+.ui-datepicker .ui-datepicker-title select > option {
+	font-size:10px;
+	text-align: center;
 }

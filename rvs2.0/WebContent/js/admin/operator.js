@@ -80,7 +80,7 @@ $(function() {
 		$(this).addClass("ui-state-active");
 	});
 
-	$("select").select2Buttons();
+	$("#body-mdl select").select2Buttons();
 	$("#work_count_flg_set").buttonset();
 
 	$("#img_job_no").bind("error", function(){

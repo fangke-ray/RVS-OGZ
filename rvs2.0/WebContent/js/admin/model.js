@@ -84,7 +84,7 @@ $(function() {
 		
 	});
 
-	$("select").select2Buttons();
+	$("#body-mdl select").select2Buttons();
 
 	findit();
 });
