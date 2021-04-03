@@ -246,7 +246,9 @@ var pcsO = {
 		// 输入项上下限
 		if (limits) {
 			for(var docName in limits) {
-				var page_for = this.$pcs_pages.children("label[title=\"" + docName + "\"]").attr("for").replace("pcs_page_", "pcs_content_");
+				var page_obj = this.$pcs_pages.children("label[title=\"" + docName + "\"]");
+				if (page_obj.length == 0) continue;
+				var page_for = page_obj.attr("for").replace("pcs_page_", "pcs_content_");
 
 				if (page_for) {
 					var $content = $("#" + page_for);

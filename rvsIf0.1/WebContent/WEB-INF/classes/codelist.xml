@@ -68,7 +68,6 @@
 		<value code="8">LJ</value>
 		<value code="10">ZZ</value>
 		<value code="11">YZ</value>
-		<value code="12">TS</value>
 	</codelist>
 	
 	<codelist name="if_part_order_currency">

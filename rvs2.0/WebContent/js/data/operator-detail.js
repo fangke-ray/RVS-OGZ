@@ -136,8 +136,8 @@ var fixleakpause = function() {
 	});
 };
 
-function opd_initGrid() {
-	$("#operator_detail_list").jqGrid({
+function opd_initGrid($grid) {
+	$grid.jqGrid({
 		toppager : true,
 		data : [],
 		height : 461,
@@ -352,7 +352,24 @@ function exportReport() {
 var initDetailView = function() {
 	$("input.ui-button").button();
 	$("#reportbutton").click(exportReport);
-	opd_initGrid();
+	var $grid = $("#operator_detail_list");
+	if ($grid.jqGrid) {
+		opd_initGrid($grid);
+	} else {
+		loadCss(
+		"css/ui.jqgrid.css",
+		function() {
+		loadJs(
+		"js/jquery.jqGrid.min.js",
+		function() {
+			loadJs(
+			"js/i18n/grid.locale-cn.js",
+			function() {
+				opd_initGrid($grid);
+			});
+		});
+		});
+	}
 }
 
 $(function() {

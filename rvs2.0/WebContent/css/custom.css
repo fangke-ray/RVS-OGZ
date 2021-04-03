@@ -1085,8 +1085,10 @@ width: 2.1em;
 	border:0;
 	background-color:transparent;
 	width:3.5em;
-	appearance: none;
+	height:1.44em;
 	text-align: center;
+	-moz-appearance: none;
+	appearance: none;
 }
 .ui-datepicker .ui-datepicker-title select > option {
 	font-size:10px;

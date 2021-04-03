@@ -67,7 +67,14 @@ public class PcsRequestAction extends BaseAction {
 		req.setAttribute("hLineTypeEo", hLineTypeEo);
 
 		// h_change_means_eo
-		req.setAttribute("lChangeMean", CodeListUtils.getSelectOptions("pcs_request_change_mean", null, "(全部)", false));
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+		if (user.getJob_no() != null && user.getJob_no().toUpperCase().startsWith("RR")) {
+			req.setAttribute("lChangeMean", CodeListUtils.getSelectOptions("pcs_request_change_mean_sa", null, "(全部)", false));
+		} else {
+			req.setAttribute("lChangeMean", CodeListUtils.getSelectOptions("pcs_request_change_mean", null, "(全部)", false));
+		}
 		req.setAttribute("hChangeMeansEo", CodeListUtils.getGridOptions("pcs_request_change_mean"));
 
 		// 型号列表

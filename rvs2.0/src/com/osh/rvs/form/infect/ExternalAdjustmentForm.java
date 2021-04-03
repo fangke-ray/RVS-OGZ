@@ -24,7 +24,7 @@ public class ExternalAdjustmentForm extends ActionForm implements Serializable {
 	 */
 	private static final long serialVersionUID = -4387043459446934121L;
 
-	@BeanField(title = "点检管理ID", name = "devices_manage_id", type = FieldType.String,primaryKey = true, notNull = true)
+	@BeanField(title = "点检表管理ID", name = "devices_manage_id", type = FieldType.String,primaryKey = true, notNull = true)
 	private String devices_manage_id;// 点检表管理ID
 
 	@BeanField(title = "校验日期", name = "checked_date", type = FieldType.Date, notNull = true)

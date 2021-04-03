@@ -97,6 +97,7 @@ public class XlsUtil {
 			ComThread.InitSTA();
 
 			filename = file;
+			
 			xl = new ActiveXComponent("Excel.Application");
 			xl.setProperty("Visible", new Variant(f));
 			xl.setProperty("DisplayAlerts", new Variant(false));
@@ -104,6 +105,7 @@ public class XlsUtil {
 			workbook = Dispatch.invoke(workbooks, "Open", Dispatch.Method,
 					new Object[] { filename, new Variant(false), new Variant(readonly) },// 是否以只读方式打开
 					new int[1]).toDispatch();
+			logger.info(file + " Opened");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw e;
@@ -116,8 +118,13 @@ public class XlsUtil {
 	}
 	public void SaveCloseExcel(boolean f, boolean release) {
 		try {
+
 			Dispatch.call(workbook, "Save");
+
+//			workbook.safeRelease();
+
 			Dispatch.call(workbook, "Close", new Variant(f));
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -206,9 +213,13 @@ public class XlsUtil {
 			Dispatch.invoke(workbook, "SaveAs", Dispatch.Method, new Object[] { target, new Variant(57),
 					new Variant(false), new Variant(57), new Variant(57), new Variant(false), new Variant(true),
 					new Variant(57), new Variant(true), new Variant(true), new Variant(true) }, new int[1]);
+
+//			workbook.safeRelease();
+
 			Variant f = new Variant(false);
 			Dispatch.call(workbook, "Close", f);
 			xl.invoke("Quit", new Variant[] {});
+
 		} catch (Exception e) {
 			logger.error("========Error:文档转换失败：" + e.getMessage());
 			//SaveCloseExcel(false); // TEST TODO

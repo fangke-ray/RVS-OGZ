@@ -450,7 +450,9 @@ var list=function(datalist){
                       var isover=rowData.isover;
                       var checking_flg=rowData.checking_flg;
                       var idle_flg=rowData.idle_flg;
-                      if(checking_flg==1){//校验中
+                      if(idle_flg==1){//闲置
+                            pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("spare");
+                      } else if(checking_flg==1){//校验中
                             pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("wait");
                       }else{
                            if(isover==1){//过期需校验
@@ -458,9 +460,6 @@ var list=function(datalist){
                            }else if(isover==2){
                            		pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx <= 3 || idx > 10}).addClass("close_to_check");
                            }
-                      }
-                      if(idle_flg==1){//闲置
-		                   pill.find("tr#" +IDS[i] +" td").filter(function(idx,elm){return idx > 3 && idx < 8}).addClass("spare");
                       }
                 }
                 enableButton();
