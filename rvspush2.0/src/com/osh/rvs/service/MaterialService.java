@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 
-import org.apache.catalina.websocket.MessageInbound;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -24,14 +23,13 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.AlarmMesssageEntity;
 import com.osh.rvs.entity.AlarmMesssageSendationEntity;
-import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.MaterialEntity;
 import com.osh.rvs.entity.OperatorEntity;
-import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.mapper.push.AlarmMesssageMapper;
 import com.osh.rvs.mapper.push.CommonMapper;
 import com.osh.rvs.mapper.push.MaterialMapper;
 import com.osh.rvs.mapper.push.OperatorMapper;
+import com.osh.rvs.servlet.OperatorMessageServletEndPoint;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.CodeListUtils;
@@ -105,12 +103,15 @@ public class MaterialService {
 				conn.commit();
 				_log.info("Committed！");
 
-				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+				Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
 
 				for (String leaderId : leaderTriggerSet) {
-					MessageInbound mInbound = bMap.get(leaderId); 
-					if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-						((OperatorMessageInbound)mInbound).newMessage();
+					Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(leaderId); 
+					if (mInbound != null) {
+						for (String endpointKey : mInbound.keySet()) {
+							mInbound.get(endpointKey).newMessage();
+						}
+					}
 				}
 			}
 

@@ -24,6 +24,7 @@ import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.mapper.push.AlarmMesssageMapper;
 import com.osh.rvs.mapper.push.CommonMapper;
 import com.osh.rvs.mapper.push.OperatorMapper;
+import com.osh.rvs.servlet.OperatorMessageServletEndPoint;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.copy.DateUtil;
@@ -96,12 +97,15 @@ public class PositionStandardTimeQueue implements Runnable {
 						connManager.commit();
 						connManager.close();
 
-						Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+						Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
 
 						for (String leaderId : leaderTriggerSet) {
-							MessageInbound mInbound = bMap.get(leaderId); 
-							if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-								((OperatorMessageInbound)mInbound).newMessage();
+							Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(leaderId); 
+							if (mInbound != null) {
+								for (String endpointKey : mInbound.keySet()) {
+									mInbound.get(endpointKey).newMessage();
+								}
+							}
 						}
 					}
 					connManager = null;

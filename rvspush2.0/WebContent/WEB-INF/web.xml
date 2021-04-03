@@ -8,14 +8,14 @@
 	<display-name>Repair Visualization System Message Sender</display-name>
 
 	<!-- Standard Action Servlet Configuration -->
-	<servlet>
+	<!--servlet>
 		<servlet-name>positionws</servlet-name>
 		<servlet-class>com.osh.rvs.servlet.PositionPanelWsServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>positionws</servlet-name>
 		<url-pattern>/position</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping-->
 
 	<servlet>
 	  <description>文件系统目录使用设置</description>
@@ -84,14 +84,14 @@
  	</servlet-mapping>
 
 	<!-- Standard Action Servlet Configuration -->
-	<servlet>
+	<!--servlet>
 		<servlet-name>operatorws</servlet-name>
 		<servlet-class>com.osh.rvs.servlet.OperatorMessageWsServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>operatorws</servlet-name>
 		<url-pattern>/operator</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping-->
 
 	<servlet>
 		<servlet-name>trigger</servlet-name>

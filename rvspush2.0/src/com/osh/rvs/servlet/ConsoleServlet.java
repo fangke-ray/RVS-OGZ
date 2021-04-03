@@ -61,8 +61,10 @@ public class ConsoleServlet extends HttpServlet {
 			}
 		}
 
-		int opCount = BoundMaps.getMessageBoundMap().size();
-		int psCount = BoundMaps.getPositionBoundMap().size();
+		int opCount = OperatorMessageServletEndPoint.getClients().size();
+		int psCount = PositionPanelServletEndPoint.getClients().size();
+//		int opCount = BoundMaps.getMessageBoundMap().size();
+//		int psCount = BoundMaps.getPositionBoundMap().size();
 		String alarmClocks = PositionStandardTimeQueue.getQueue();
 
 		resObj.put("opCount", "" + opCount);

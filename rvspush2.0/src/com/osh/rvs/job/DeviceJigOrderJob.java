@@ -35,6 +35,7 @@ import com.osh.rvs.mapper.push.DeviceJigOrderMapper;
 import com.osh.rvs.mapper.push.DevicesTypeMapper;
 import com.osh.rvs.mapper.push.OperatorMapper;
 import com.osh.rvs.mapper.push.PostMessageMapper;
+import com.osh.rvs.servlet.OperatorMessageServletEndPoint;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.copy.DateUtil;
@@ -358,14 +359,16 @@ public class DeviceJigOrderJob implements Job {
 			
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
-				
-				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
-				
-				//通知经理
+
+				Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
+				//通知设备管理员
 				for (OperatorEntity op : receiverList) {
-					MessageInbound mInbound = bMap.get(op.getOperator_id()); 
-					if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-						((OperatorMessageInbound)mInbound).newMessage();
+					Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(op.getOperator_id()); 
+					if (mInbound != null) {
+						for (String endpointKey : mInbound.keySet()) {
+							mInbound.get(endpointKey).newMessage();
+						}
+					}
 				}
 				
 				log.info("Committed！");
@@ -439,13 +442,15 @@ public class DeviceJigOrderJob implements Job {
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
 				
-				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
-				
+				Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
 				//通知设备管理员
 				for (OperatorEntity op : receiverList) {
-					MessageInbound mInbound = bMap.get(op.getOperator_id()); 
-					if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-						((OperatorMessageInbound)mInbound).newMessage();
+					Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(op.getOperator_id()); 
+					if (mInbound != null) {
+						for (String endpointKey : mInbound.keySet()) {
+							mInbound.get(endpointKey).newMessage();
+						}
+					}
 				}
 				
 				log.info("Committed！");
@@ -529,12 +534,15 @@ public class DeviceJigOrderJob implements Job {
 			
 			if (conn != null && conn.isManagedSessionStarted()) {
 				conn.commit();
-				
-				Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
-				MessageInbound mInbound = bMap.get(applicatorId); 
-				if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-					((OperatorMessageInbound)mInbound).newMessage();
-				
+
+				Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
+				Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(applicatorId); 
+				if (mInbound != null) {
+					for (String endpointKey : mInbound.keySet()) {
+						mInbound.get(endpointKey).newMessage();
+					}
+				}
+
 				log.info("Committed！");
 			}
 		} catch (Exception e) {

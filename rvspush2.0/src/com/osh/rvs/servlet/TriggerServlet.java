@@ -4,8 +4,10 @@ import static framework.huiqing.common.util.CommonStringUtil.fillChar;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
@@ -14,7 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.websocket.MessageInbound;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.TransactionIsolationLevel;
@@ -26,6 +27,8 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.MaterialEntity;
+import com.osh.rvs.entity.OperatorEntity;
+import com.osh.rvs.entity.PositionEntity;
 import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.inbound.PositionPanelInbound;
 import com.osh.rvs.job.DailyKpiJob;
@@ -218,11 +221,14 @@ public class TriggerServlet extends HttpServlet {
 			Thread.sleep(4000);
 		} catch (InterruptedException e) {
 		}
-		Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+		Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
 		for (String operator_id : operator_ids) {
-			MessageInbound mInbound = bMap.get(operator_id); 
-			if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-				((OperatorMessageInbound)mInbound).newMessage();
+			Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(operator_id); 
+			if (mInbound != null) {
+				for (String endpointKey : mInbound.keySet()) {
+					mInbound.get(endpointKey).newMessage();
+				}
+			}
 		}
 	}
 
@@ -355,39 +361,48 @@ public class TriggerServlet extends HttpServlet {
 //			}
 //		}
 
-		// 通知使用该工位的页面
-		Map<String, MessageInbound> map = BoundMaps.getPositionBoundMap();
-		synchronized(map) {
-			for (String positionKey : map.keySet()) {
-				MessageInbound inbound = map.get(positionKey);
-				if (inbound == null) {
-					log.warn("对" + positionKey + "的连接不存在了");
-				} else {
-					((PositionPanelInbound) inbound).refreshWaiting(section_id, position_id);
-				}
-			}
-		}
-
-//		if (light_assigned_operator_ids != null) {
-//			map = BoundMaps.getMessageBoundMap();
-//			synchronized(map) {
-//				for (String operatorKey : map.keySet()) {
-//					if (light_assigned_operator_ids.contains(operatorKey)) {
-//						MessageInbound inbound = map.get(operatorKey);
-//						if (inbound == null) {
-//							log.warn("对" + operatorKey + "的连接不存在了");
-//						} else {
-//							((OperatorMessageInbound) inbound).refreshLightWaiting();
-//						}
-//					}
-//				}
-//			}
-//		}
 
 		// 仕挂量检查
 		TriggerPositionService service = new TriggerPositionService();
 
-		service.checkOverLine(position_id, section_id, material_id);
+		List<String> oList = new ArrayList<String>();
+		service.checkOverLine(position_id, section_id, material_id, oList);
+
+		if (oList.size() > 0) {
+			// 通知线长，经理
+			Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
+			synchronized(mesClients) {
+				for (String operatorId : oList) {
+					for (String operatorKey : mesClients.keySet()) {
+						if (operatorId.equals(operatorKey)) {
+							Map<String, OperatorMessageServletEndPoint> mInbound = mesClients.get(operatorKey);
+							if (mInbound == null || mInbound.isEmpty()) {
+								log.warn("对" + operatorKey + "的连接不存在了");
+							} else {
+								for (String endpointKey : mInbound.keySet()) {
+									mInbound.get(endpointKey).newMessage();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// ====================以上人员信息通知==================以下工位信息通知===============================
+
+		// 通知使用该工位的页面
+		Map<String, PositionPanelServletEndPoint> posClients = PositionPanelServletEndPoint.getClients();
+		synchronized(posClients) {
+			for (String positionKey : posClients.keySet()) {
+				PositionPanelServletEndPoint inbound = posClients.get(positionKey);
+				if (inbound == null) {
+					log.warn("对" + positionKey + "的连接不存在了");
+				} else {
+					inbound.refreshWaiting(section_id, position_id, null);
+				}
+			}
+		}
 	}
 
 	private void start(String... parameters) throws IOException {
@@ -404,14 +419,14 @@ public class TriggerServlet extends HttpServlet {
 		String material_id = parameters[2];
 
 		// 通知使用该工位的页面
-		Map<String, MessageInbound> map = BoundMaps.getPositionBoundMap();
-		synchronized(map) {
-			for (String positionKey : map.keySet()) {
-				MessageInbound inbound = map.get(positionKey);
+		Map<String, PositionPanelServletEndPoint> posClients = PositionPanelServletEndPoint.getClients();
+		synchronized(posClients) {
+			for (String positionKey : posClients.keySet()) {
+				PositionPanelServletEndPoint inbound = posClients.get(positionKey);
 				if (inbound == null) {
 					log.warn("对" + positionKey + "的连接不存在了");
 				} else {
-					((PositionPanelInbound) inbound).refreshWaiting(section_id, position_id);
+					inbound.refreshWaiting(section_id, position_id, null);
 				}
 			}
 		}
@@ -420,18 +435,21 @@ public class TriggerServlet extends HttpServlet {
 	private void finish(String... parameters) throws IOException {
 		String position_id = parameters[2];
 		String section_id = "";
+		String operator_id = "";
 		if (parameters.length > 3)
 			section_id = parameters[3];
+		if (parameters.length > 4)
+			operator_id = parameters[4];
 
 		// 通知使用该工位的页面
-		Map<String, MessageInbound> map = BoundMaps.getPositionBoundMap();
-		synchronized(map) {
-			for (String positionKey : map.keySet()) {
-				MessageInbound inbound = map.get(positionKey);
+		Map<String, PositionPanelServletEndPoint> posClients = PositionPanelServletEndPoint.getClients();
+		synchronized(posClients) {
+			for (String positionKey : posClients.keySet()) {
+				PositionPanelServletEndPoint inbound = posClients.get(positionKey);
 				if (inbound == null) {
 					log.warn("对" + positionKey + "的连接不存在了");
 				} else {
-					((PositionPanelInbound) inbound).refreshWaiting(section_id, position_id);
+					inbound.refreshWaiting(section_id, position_id, operator_id);
 				}
 			}
 		}

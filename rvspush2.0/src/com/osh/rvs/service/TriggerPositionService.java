@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
-import org.apache.catalina.websocket.MessageInbound;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -19,12 +18,11 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.entity.AlarmMesssageEntity;
 import com.osh.rvs.entity.AlarmMesssageSendationEntity;
-import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.PositionEntity;
-import com.osh.rvs.inbound.OperatorMessageInbound;
 import com.osh.rvs.mapper.push.AlarmMesssageMapper;
 import com.osh.rvs.mapper.push.CommonMapper;
 import com.osh.rvs.mapper.push.PositionMapper;
+import com.osh.rvs.servlet.OperatorMessageServletEndPoint;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 
@@ -32,10 +30,7 @@ public class TriggerPositionService {
 
 	public static Logger _log = Logger.getLogger("PositionJob");
 
-	public void checkOverLine(String position_id, String section_id) {
-		checkOverLine(position_id, section_id, null);
-	}
-	public void checkOverLine(String position_id, String section_id, String material_id) {
+	public void checkOverLine(String position_id, String section_id, String material_id, List<String> oList) {
 
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 
@@ -70,7 +65,7 @@ public class TriggerPositionService {
 				if (ifactwaitingflow > iwaitingflow) {
 					String content = overAlert(section_id, position_id, "", pBean, ifactwaitingflow, iwaitingflow, conn);
 					if (content != null) {
-						sendMail(section_id, position_id, pBean, content, conn);
+						sendMail(section_id, position_id, pBean, content, oList, conn);
 					}
 				}
 //			} else if (pBean.getLight_division_flg() == 1) {
@@ -145,7 +140,7 @@ public class TriggerPositionService {
 	}
 
 	private void sendMail(String section_id, String position_id, PositionEntity pBean, 
-			String mailContent, SqlSessionManager conn) throws Exception {
+			String mailContent, List<String> oList, SqlSessionManager conn) throws Exception {
 
 		AlarmMesssageMapper amDao = conn.getMapper(AlarmMesssageMapper.class);
 		String lineId = pBean.getLine_id();
@@ -166,16 +161,14 @@ public class TriggerPositionService {
 		Collection<InternetAddress> toIas = RvsUtils.getMailIas("over.alert.to", conn, lineId, senderIds);
 		Collection<InternetAddress> ccIas = RvsUtils.getMailIas("over.alert.cc", conn, lineId, senderIds);
 
-		Map<String, MessageInbound> bMap = BoundMaps.getMessageBoundMap();
+		Map<String, Map<String, OperatorMessageServletEndPoint>> mesClients = OperatorMessageServletEndPoint.getClients();
 
 		for (String operatorId : senderIds) {
 			AlarmMesssageSendationEntity amsBean = new AlarmMesssageSendationEntity();
 			amsBean.setAlarm_messsage_id(alarmmessage_id);
 			amsBean.setSendation_id(operatorId);
 			amDao.createAlarmMessageSendation(amsBean);
-			MessageInbound mInbound = bMap.get(operatorId); 
-			if (mInbound != null && mInbound instanceof OperatorMessageInbound) 
-				((OperatorMessageInbound)mInbound).newMessage();
+			oList.add(operatorId);
 		}
 
 		// TODO 课shi
