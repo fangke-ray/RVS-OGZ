@@ -357,8 +357,9 @@ public class DayWorkTotalToMonthJob implements Job {
 			List<Map<String, Object>> operatorProcessInMonth = odao.searchOperatorProcessInMonth(monthStart.getTime());
 
 			// 月报文件名
+			String bussinessYear = RvsUtils.getFYBussinessYearString(monthStart);
 			String monthName = DateUtil.toString(monthStart.getTime(), "MM月");
-			String cacheFilename = "月度有效工时统计比率表" + monthName + "汇总(" + RvsUtils.getBussinessHalfYearString(monthStart) + ").xls";
+			String cacheFilename = "月度有效工时统计比率表" + monthName + "汇总(" + bussinessYear + ").xls";
 			// 建立月报文件
 			String template_path =  PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "月度有效工时统计比率表模板-"+weekBeanSize+"周.xls";
 			// String template_path =  "D:\\rvs\\ReportTemplates\\" + "月度有效工时统计比率表模板-"+weekBeanSize+"周.xls";

@@ -237,7 +237,33 @@ public class RvsUtils {
 			return getBussinessYearString(date) + "A";
 		}
 	}
-	
+
+	/**
+	 * 新年度规则（FY格式）
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static String getFYBussinessYearString(Calendar date) {
+		int adjustYear = date.get(Calendar.YEAR);
+		int adjustMonth = date.get(Calendar.MONTH);
+		
+		if (adjustMonth >= Calendar.APRIL) {
+			adjustYear++;
+		}
+		return "FY" + adjustYear;
+	}
+
+	public static String getFYBussinessHalfYearString(Calendar date) {
+		int adjustMonth = date.get(Calendar.MONTH);
+		
+		if (adjustMonth < 3 || adjustMonth >= 9) {
+			return getFYBussinessYearString(date) + " 2H";
+		} else {
+			return getFYBussinessYearString(date) + " 1H";
+		}
+	}
+
 	/**
 	* 取得半期起始时间
 	*/

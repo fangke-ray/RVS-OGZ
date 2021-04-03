@@ -274,8 +274,8 @@ public class DailyKpiSheetsJob implements Job {
 			weekend.add(Calendar.DATE, -1);
 
 			// 取得时期,生产计划
-			String periodS = RvsUtils.getBussinessHalfYearString(weekstart);
-			String period = RvsUtils.getBussinessHalfYearString(weekend);
+			String periodS = RvsUtils.getFYBussinessHalfYearString(weekstart);
+			String period = RvsUtils.getFYBussinessHalfYearString(weekend);
 			row = sheet.getRow(55);
 			cell = row.getCell(1);
 			if (periodS.equals(period)) {
@@ -385,7 +385,8 @@ public class DailyKpiSheetsJob implements Job {
 		Collection<InternetAddress> ccIas = RvsUtils.getMailIas("daily.kpi.cc", conn);
 
 		String subject = PathConsts.MAIL_CONFIG.getProperty("daily.kpi.title") + todayString;
-		String content = PathConsts.MAIL_CONFIG.getProperty("daily.kpi.content").replaceAll("{0}", todayString);
+		String content = RvsUtils.getProperty(PathConsts.MAIL_CONFIG, "daily.kpi.content", todayString);
+
 		MailUtils.sendMultipartMail(toIas, ccIas, subject, content, destPdfpath);
 	}
 
