@@ -661,6 +661,16 @@ public class RvsUtils {
 		return (adjustYear - 1867) + "P";
 	}
 
+	public static String getBussinessHalfYearString(Calendar date) {
+		int adjustMonth = date.get(Calendar.MONTH);
+		
+		if (adjustMonth < 3 || adjustMonth >= 9) {
+			return getBussinessYearString(date) + "B";
+		} else {
+			return getBussinessYearString(date) + "A";
+		}
+	}
+
 	public static int getBussinessYearStringRever(String bussinessYearString) {
 
 		int iBussinessYear = 0;
@@ -671,6 +681,18 @@ public class RvsUtils {
 		} catch(Exception e) {
 		}
 		return iBussinessYear + 1867;
+	}
+
+	public static Calendar BUSS_CALENDAR = Calendar.getInstance();
+	static {
+		BUSS_CALENDAR.set(2021, Calendar.APRIL, 1);
+	}
+	public static String getTestBussinessYearString(Calendar date) {
+		if (date.compareTo(BUSS_CALENDAR) < 0) {
+			return getBussinessYearString(date);
+		} else {
+			return getFYBussinessYearString(date);
+		}
 	}
 
 	/**
@@ -687,6 +709,16 @@ public class RvsUtils {
 			adjustYear++;
 		}
 		return "FY" + adjustYear;
+	}
+
+	public static String getFYBussinessHalfYearString(Calendar date) {
+		int adjustMonth = date.get(Calendar.MONTH);
+		
+		if (adjustMonth < 3 || adjustMonth >= 9) {
+			return getFYBussinessYearString(date) + " 2H";
+		} else {
+			return getFYBussinessYearString(date) + " 1H";
+		}
 	}
 
 	/**
@@ -732,16 +764,6 @@ public class RvsUtils {
 			sMonth = "04";
 		}
 		return adjustYear + "/" + sMonth + "/01";
-	}
-
-	public static String getBussinessHalfYearString(Calendar date) {
-		int adjustMonth = date.get(Calendar.MONTH);
-		
-		if (adjustMonth < 3 || adjustMonth >= 9) {
-			return getBussinessYearString(date) + "B";
-		} else {
-			return getBussinessYearString(date) + "A";
-		}
 	}
 
 	public static Integer getYearByBussinessHalfYearStringAndMonth(String halfYearString, int month) {

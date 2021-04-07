@@ -118,7 +118,7 @@ public class CheckResultFileService {
 		String cacheFilename =  cfsEntity.getStorage_file_name() + today.getTime();
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM") + "\\" + cacheFilename + ext;
 		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
-				RvsUtils.getBussinessYearString(adjustCal) + "\\" +
+				RvsUtils.getFYBussinessYearString(adjustCal) + "\\" +
 				cfmEntity.getCheck_manage_code();
 		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
 
@@ -149,7 +149,7 @@ public class CheckResultFileService {
 				int pageZoom = cacheXls.getPageZoom();
 
 				// 取得本期
-				String bperiod = RvsUtils.getBussinessYearString(adjustCal);
+				String bperiod = RvsUtils.getFYBussinessYearString(adjustCal);
 
 				// 工程
 				String line_id = cfsEntity.getLine_id();
@@ -1395,7 +1395,7 @@ public class CheckResultFileService {
 			return;
 		}
 		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
-				RvsUtils.getBussinessYearString(adjustCal) + "\\QF0601-5";
+				RvsUtils.getFYBussinessYearString(adjustCal) + "\\QF0601-5";
 		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
 
 		String line_id = cfsEntity.getLine_id();
@@ -1407,7 +1407,7 @@ public class CheckResultFileService {
 			cacheXls.SelectActiveSheet();
 
 			// 取得本期
-			String bperiod = RvsUtils.getBussinessYearString(adjustCal);
+			String bperiod = RvsUtils.getFYBussinessYearString(adjustCal);
 
 			String sLineName = "";
 			LineMapper lMapper = conn.getMapper(LineMapper.class);

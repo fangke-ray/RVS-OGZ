@@ -130,7 +130,7 @@ public class CheckResultFilingService {
 			   Calendar filingDate=Calendar.getInstance();
 			   filingDate.setTime(resultFilingEntity.getFiling_date());//获取点检表归档日期
 			   //点检表归档日期转成SORC财年
-			   String strFilingDate = RvsUtils.getBussinessYearString(filingDate);
+			   String strFilingDate = RvsUtils.getTestBussinessYearString(filingDate);
 
 			   //对应类型是日常+归档周期是周月
 			   if (!"00000000000".equals(resultFilingEntity.getCheck_file_manage_id())) {
@@ -246,20 +246,23 @@ public class CheckResultFilingService {
     * @param checkResultFilingForm
     * @param errors
     */
-   public void uploadSchedule(FormFile file,CheckResultFilingForm checkResultFilingForm){
-	    //将点检表归档日期转化成期年-147P
-	    String filingDate = checkResultFilingForm.getFiling_date();
-	    Date date = DateUtil.toDate(filingDate,DateUtil.DATE_PATTERN);
-	    Calendar calendar=Calendar.getInstance();
-	    calendar.setTime(date);
-	   
-	    //期年-如147P
-	    String workPeriod = RvsUtils.getBussinessYearString(calendar);
-	   	
+	public void uploadSchedule(FormFile file,
+			CheckResultFilingForm checkResultFilingForm) {
+		// 将点检表归档日期转化成期年-147P
+		String filingDate = checkResultFilingForm.getFiling_date();
+		Date date = DateUtil.toDate(filingDate, DateUtil.DATE_PATTERN);
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+
+		// 期年-如147P/FY2021
+		String workPeriod = RvsUtils.getTestBussinessYearString(calendar);
+
 		FileOutputStream fileOutput;
 
-		//存放路径：D://rvs/Infections/147P/QR-B31002-24
-		String tempfilename = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" + workPeriod +"\\"+checkResultFilingForm.getCheck_manage_code();
+		// 存放路径：D://rvs/Infections/147P/QR-B31002-24
+		String tempfilename = PathConsts.BASE_PATH + PathConsts.INFECTIONS
+				+ "\\" + workPeriod + "\\"
+				+ checkResultFilingForm.getCheck_manage_code();
 
 		File fMonthPath = new File(tempfilename);
 		if (!fMonthPath.exists()) {
@@ -267,7 +270,7 @@ public class CheckResultFilingService {
 		}
 		fMonthPath = null;
 
-		tempfilename += "\\"+file.getFileName();
+		tempfilename += "\\" + file.getFileName();
 		log.info("FileName:" + tempfilename);
 		try {
 			fileOutput = new FileOutputStream(tempfilename);
@@ -279,7 +282,7 @@ public class CheckResultFilingService {
 		} catch (IOException e) {
 			log.error("IO:" + e.getMessage());
 		}
-   }
+	}
    
    
    /**

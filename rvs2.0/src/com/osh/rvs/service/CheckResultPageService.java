@@ -1112,10 +1112,17 @@ public class CheckResultPageService {
 
 			PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 			PositionEntity position = pMapper.getPositionByID(position_id);
+			if (position != null) {
 
-			retContent = retContent.replaceAll("#LINE#", position.getLine_name())
-					.replaceAll("#POSITION#", position.getProcess_code())
-					.replaceAll("#periodc#", RvsUtils.getBussinessYearString(adjustCal).replaceAll("P", ""));
+				retContent = retContent.replaceAll("#LINE#", position.getLine_name())
+						.replaceAll("#POSITION#", position.getProcess_code())
+						.replaceAll("#periodc#", RvsUtils.getTestBussinessYearString(adjustCal).replaceAll("P", ""));
+
+			} else {
+				retContent = retContent.replaceAll("#LINE#", "关联的工位已经不存在，请尽快通知管理员调整！")
+						.replaceAll("#POSITION#", "关联的工位已经不存在，请尽快通知管理员调整！")
+						.replaceAll("#periodc#", RvsUtils.getTestBussinessYearString(adjustCal).replaceAll("P", ""));
+			}
 
 			CheckResultEntity cond = new CheckResultEntity();
 			// 取得各月点检人
@@ -1631,7 +1638,7 @@ public class CheckResultPageService {
 		Date today = adjustCal.getTime();
 
 		// 取得本期
-		String bperiod = RvsUtils.getBussinessYearString(adjustCal);
+		String bperiod = RvsUtils.getTestBussinessYearString(adjustCal);
 
 		// 取得点检表信息
 		CheckFileManageMapper cfmMapper = conn.getMapper(CheckFileManageMapper.class);
@@ -1982,9 +1989,6 @@ public class CheckResultPageService {
 
 		if (retContent.indexOf("<useStart") >= 0) {
 			Calendar calUse = Calendar.getInstance();
-			Calendar calThreeMonthBefore = Calendar.getInstance();
-			calThreeMonthBefore.setTimeInMillis(adjustCal.getTimeInMillis());
-			calThreeMonthBefore.add(Calendar.MONTH, 3);
 //			calThreeMonthBefore.add(Calendar.DATE, -1);
 
 			if (dmEntity.getImport_date()!=null) {
@@ -2009,12 +2013,24 @@ public class CheckResultPageService {
 					}
 				}
 
+				int waringPeriod = period / 8;
+				if (waringPeriod == 0) waringPeriod = 1;
+				Calendar calThreeMonthBefore = Calendar.getInstance();
+				calThreeMonthBefore.setTimeInMillis(adjustCal.getTimeInMillis());
+				calThreeMonthBefore.add(Calendar.MONTH, waringPeriod);
+
+				Calendar calWeekBefore = Calendar.getInstance();
+				calWeekBefore.setTimeInMillis(adjustCal.getTimeInMillis());
+				calWeekBefore.add(Calendar.DATE, 8);
+
 				calUse.add(Calendar.MONTH, period);
 				calUse.add(Calendar.DATE, -1);
 
 				String useEndTag = "";
 				if (calUse.before(adjustCal)) {
 					useEndTag = "<span class='useEnd' expire='1'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
+				} else if (calUse.before(calWeekBefore)) {
+					useEndTag = "<span class='useEnd' expire='5'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
 				} else if (calUse.before(calThreeMonthBefore)) {
 					useEndTag = "<span class='useEnd' expire='0'>" + DateUtil.toString(calUse.getTime(), "yyyy年 M月 d日") + "</span>";
 				} else {
@@ -2945,14 +2961,14 @@ public class CheckResultPageService {
 		String sUpperLimitFrom = null;
 		String sLowerLimitFrom = null;
 
-		if (groupCount >= 3)
-			sUpperLimit = mInputData.group(3);
 		if (groupCount >= 4)
-			sLowerLimit = mInputData.group(4);
+			sUpperLimit = mInputData.group(4);
 		if (groupCount >= 5)
-			sUpperLimitFrom = mInputData.group(5);
+			sLowerLimit = mInputData.group(5);
 		if (groupCount >= 6)
-			sLowerLimitFrom = mInputData.group(6);
+			sUpperLimitFrom = mInputData.group(6);
+		if (groupCount >= 7)
+			sLowerLimitFrom = mInputData.group(7);
 
 		if (!isEmpty(sUpperLimit)) {
 			otherCo += sUpperLimit + " ";
