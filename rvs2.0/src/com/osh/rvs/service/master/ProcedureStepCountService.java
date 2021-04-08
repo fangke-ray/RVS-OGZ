@@ -238,97 +238,6 @@ public class ProcedureStepCountService {
 		return scUtil.clientSendMessage(list.get(0).getClient_address(), 50023, "Out:");
 	}
 
-	public void test1(Map<String, Object> listResponse) throws InterruptedException {
-
-		SocketCommunitcator scUtil = new SocketCommunitcator();
-		Map<String, String> map = new HashMap<String, String>();
-
-		map.put("omr_notifi_no", "TEST1_单号");
-		map.put("model_name", "TEST1_型号");
-		map.put("serial_no", "TEST1_序列");
-		map.put("set_times", "7");
-		String recv = scUtil.clientSendMessage("10.220.126.181", 50023, "In:" + JSON.encode(map));
-
-		Thread.sleep(10000);
-
-		recv = scUtil.clientSendMessage("10.220.126.181", 50023, "Out:" + JSON.encode(map));
-		_log.info(recv);
-		listResponse.put("recv", recv);
-	}
-
-	public void test2(Map<String, Object> listResponse, SqlSession conn) throws InterruptedException {
-
-		String IP_ADDR = "10.220.126.181"; // 10.220.126.181 // 127.0.0.1
-
-		SocketCommunitcator scUtil = new SocketCommunitcator();
-		Map<String, Object> map = new HashMap<String, Object>();
-
-		MaterialService mService = new MaterialService();
-		MaterialEntity mEntity = mService.loadSimpleMaterialDetailEntity(conn, "00000143411");
-
-		ProcedureStepCountMapper mapper = conn.getMapper(ProcedureStepCountMapper.class);
-		ProcedureStepCountEntity entity = new ProcedureStepCountEntity();
-//		entity.setProcedure_step_count_id("00000000001"); // TODO
-		entity.setRelation_type(RELATION_TYPE_MODEL); // TODO
-		entity.setRelation_id(mEntity.getModel_id());
-		entity.setPosition_id("00000000036");
-		List<ProcedureStepCountEntity> list = mapper.searchProcedureStepOfModel(entity);
-
-		Map<String, String> setTimesMap = new HashMap<String, String>();
-		Map<String, String> nameMap = new HashMap<String, String>();
-		for (ProcedureStepCountEntity pscEntity : list) {
-			setTimesMap.put(pscEntity.getProcedure_step_count_id(), "" + pscEntity.getStep_times());
-			nameMap.put(pscEntity.getProcedure_step_count_id(), "" + pscEntity.getName());
-			if (pscEntity.getProcedure_step_count_id().equals("00000000001")) {
-				map.put("set_times", "" + list.get(0).getStep_times()); // old version
-			}
-		}
-
-		map.put("omr_notifi_no", "10161844");
-		map.put("model_name", "GIF-XP260");
-		map.put("serial_no", "TEST2_序列");
-
-		map.put("set_times", "7");
-		map.put("set_times_map", setTimesMap);
-
-		String recv = scUtil.clientSendMessage(IP_ADDR, 50023, "In:" + JSON.encode(map));
-
-		Thread.sleep(20000);
-
-		recv = scUtil.clientSendMessage(IP_ADDR, 50023, "Out:" + JSON.encode(map));
-
-		_log.info(recv);
-		String rec = recv.substring("getCount:".length());
-		Map<String, String> decodedRec = JSON.decode(rec, Map.class);
-		for (String key : decodedRec.keySet()) {
-			if (setTimesMap.containsKey(key)) {
-				int setTimes = 0, actualTimes = 0;
-				try {
-					setTimes = Integer.parseInt(setTimesMap.get(key)); 
-					actualTimes = Integer.parseInt(decodedRec.get(key));
-
-					if (actualTimes < setTimes) {
-						MsgInfo info = new MsgInfo();
-						info.setErrmsg("当前维修对象作业[" + nameMap.get(key) + "]应当进行 " + setTimes + " 次，实际记录 " + actualTimes + "次。请操作达到计数。");
-						_log.info(info.getErrmsg());
-					} else if (actualTimes < setTimes) {
-						String message = "当前维修对象作业[" + nameMap.get(key) + "]应当进行 " + setTimes + " 次，实际记录 " + actualTimes + "次。";
-						listResponse.put("procedure_step_count_message", message);
-						AlarmMesssageService amService = new AlarmMesssageService();
-						mEntity = mService.loadSimpleMaterialDetailEntity(conn, "00000143411");
-//						LoginData user = new LoginData();
-//						amService.createPscAlarmMessage("00000143411", mEntity.getSorc_no(), message, user, conn);
-						_log.info(message);
-					}
-
-				} catch (NumberFormatException e) {
-				}
-			}
-		}
-
-		listResponse.put("recv", recv);
-	}
-
 	/**
 	 * 反映计数况情况
 	 * 
@@ -392,7 +301,8 @@ public class ProcedureStepCountService {
 
 		// 如果计数错误则继续计数
 		if (leak) {
-			startProcedureStepCountContinue(mEntity, setTimesMap, decodedRec, conn);
+			String pscString = startProcedureStepCountContinue(mEntity, setTimesMap, decodedRec, conn);
+			_log.info(pscString);
 		}
 	}
 

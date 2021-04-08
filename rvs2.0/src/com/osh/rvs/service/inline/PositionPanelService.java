@@ -986,7 +986,7 @@ public class PositionPanelService {
 		if (l.size() > 0) {
 			String recieveFrom = pscService.startProcedureStepCount(mform, user.getPosition_id(), user.getPx(), pf, conn);
 			if (recieveFrom != null && recieveFrom.endsWith("Exception")) {
-				
+				_log.error(recieveFrom);
 			}
 		}
 	}
