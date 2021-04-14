@@ -48,6 +48,10 @@ $(function() {
 	checkedPosition = $("#positions").find("input:checked").val();
 	checkedSection = $("#sections").find("input:checked").val();
 	checkedLine = $("#lines").find("input:checked").val();
+
+	$("#pwdDateMessage").click(function(evt){
+		window.location.href = "password.do";
+	});
 });
 
 var changePosition_complete = function(xhrobj) {

@@ -8,6 +8,8 @@
 package com.osh.rvs.action;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import com.osh.rvs.service.inline.PositionPanelService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
 
@@ -55,6 +58,27 @@ public class PanelAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PanelAction.init start");
+
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+		Date pwdDate = user.getPwd_date();
+		String pwdDateMessage = null;
+		if (pwdDate != null) {
+			Calendar pwdCal = Calendar.getInstance();
+			pwdCal.setTime(pwdDate);
+			Calendar valveCal = Calendar.getInstance();
+			valveCal.add(Calendar.DATE, -180);
+			if (valveCal.after(pwdCal)) {
+				pwdDateMessage = ApplicationMessage.WARNING_MESSAGES.getMessage("info.password.timeoutPassword",
+						DateUtil.toString(pwdDate, DateUtil.ISO_DATE_PATTERN), 180);
+			}
+		} else {
+			pwdDateMessage = ApplicationMessage.WARNING_MESSAGES.getMessage("info.password.initPassword");
+		}
+		if (pwdDateMessage != null) {
+			req.setAttribute("pwdDateMessage", pwdDateMessage);
+		}
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

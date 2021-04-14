@@ -3,6 +3,7 @@ package com.osh.rvs.action;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +23,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
-import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialProcessEntity;
 import com.osh.rvs.bean.master.LineEntity;
@@ -31,12 +31,11 @@ import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.SectionEntity;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.RedirectRes;
 import com.osh.rvs.form.master.OperatorForm;
 import com.osh.rvs.mapper.inline.MaterialProcessMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
-import com.osh.rvs.service.MaterialProcessService;
-import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.OperatorService;
 import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.RoleService;
@@ -116,7 +115,7 @@ public class LoginAction extends BaseAction {
 		}
 
 		// 建立会话用户信息
-		Map<String, String> roles = makeSession((OperatorForm)form, req.getSession(), res, errors, conn);
+		Map<String, String> roles = makeSession((OperatorForm)form, req, res, errors, conn);
 
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
@@ -259,7 +258,20 @@ public class LoginAction extends BaseAction {
 	 * @param errorsDto
 	 * @return 是否多角色
 	 */
-	public Map<String, String> makeSession(OperatorForm operator, HttpSession session, HttpServletResponse res, List<MsgInfo> errors, SqlSession conn) {
+	public Map<String, String> makeSession(OperatorForm operator, HttpServletRequest req, HttpServletResponse res, List<MsgInfo> errors, SqlSession conn) {
+
+		HttpSession session = req.getSession();
+
+		String clientIp = RvsUtils.getClientIp(req);
+		// 锁定
+		if (OperatorService.checkBruteForce(clientIp)) {
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("job_no");
+			error.setErrcode("login.bruteForce");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.bruteForce"));
+			errors.add(error);
+			return null;
+		}
 
 		// 表单复制到数据对象
 		OperatorEntity conditionBean = new OperatorEntity();
@@ -282,24 +294,48 @@ public class LoginAction extends BaseAction {
 				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.invalidUser"));
 				errors.add(error);
 				return null;
+			} else {
 			}
 		}
 
 		// 按工号密码查询
-		String password = operator.getPwd();
-		password = CryptTool.encrypttoStr(password);
+		long lNow = new Date().getTime();
+		String decPassword = RvsUtils._decPwd(operator.getPwd(), lNow);
+
+		String password = CryptTool.encrypttoStr(decPassword);
 		password = CryptTool.encrypttoStr(password + conditionBean.getJob_no().toUpperCase());
 		conditionBean.setPwd(password);
 		LoginData loginData = dao.searchLoginOperator(conditionBean);
 
 		// 密码不匹配
 		if (loginData == null) {
-			MsgInfo error = new MsgInfo();
-			error.setComponentid("pwd");
-			error.setErrcode("login.invalidPassword");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.invalidPassword"));
-			errors.add(error);
-			return null;
+			// 可能重拾超时
+
+			try {
+				password = RvsUtils._decPwd(operator.getPwd(), lNow - 600000); // 按10分钟前 
+				if (!decPassword.equals(password)) {
+					password = CryptTool.encrypttoStr(password);
+					password = CryptTool.encrypttoStr(password + conditionBean.getJob_no().toUpperCase());
+					conditionBean.setPwd(password);
+					loginData = dao.searchLoginOperator(conditionBean);
+				}
+			}catch (Exception e) {
+			}
+
+			if (loginData == null) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("pwd");
+				error.setErrcode("login.invalidPassword");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.invalidPassword"));
+				errors.add(error);
+
+				// 设定记录
+				log.info("BruteForce clientIp:" + clientIp);
+				OperatorService.recordBruteForce(clientIp);
+				OperatorService.setIpRecorder(clientIp, operator.getJob_no());
+
+				return null;
+			}
 		}
 
 		if (RvsConsts.DEPART_REPAIR.equals(loginData.getDepartment())) {
@@ -437,7 +473,7 @@ public class LoginAction extends BaseAction {
 			req.setAttribute("isRecept", false);
 
 			// 建立会话用户信息
-			List<Integer> privacies = pdaMakeSession(operator, req.getSession(), errors, conn);
+			List<Integer> privacies = pdaMakeSession(operator, req, errors, conn);
 			if (privacies != null) {
 				if (privacies.contains(RvsConsts.PRIVACY_FACT_MATERIAL)) {
 					req.setAttribute("isFact", true);
@@ -499,7 +535,7 @@ public class LoginAction extends BaseAction {
 	 * @param errorsDto
 	 * @return 权限集
 	 */
-	public List<Integer> pdaMakeSession(OperatorForm operator, HttpSession session, List<MsgInfo> errors, SqlSession conn) {
+	public List<Integer> pdaMakeSession(OperatorForm operator, HttpServletRequest req, List<MsgInfo> errors, SqlSession conn) {
 
 		// 表单复制到数据对象
 		OperatorEntity conditionBean = new OperatorEntity();
@@ -507,6 +543,17 @@ public class LoginAction extends BaseAction {
 		conditionBean.setJob_no(operator.getJob_no());
 
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
+
+		String clientIp = RvsUtils.getClientIp(req);
+		// 锁定
+		if (OperatorService.checkBruteForce(clientIp)) {
+			MsgInfo error = new MsgInfo();
+			error.setComponentid("job_no");
+			error.setErrcode("login.bruteForce");
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.bruteForce"));
+			errors.add(error);
+			return null;
+		}
 
 		// 从数据库中查询记录
 		if ("000".equals(conditionBean.getJob_no()) || "superadmin".equalsIgnoreCase(conditionBean.getJob_no())
@@ -540,6 +587,12 @@ public class LoginAction extends BaseAction {
 			error.setErrcode("login.invalidPassword");
 			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("login.invalidPassword"));
 			errors.add(error);
+
+			// 设定记录
+			log.info("BruteForce clientIp:" + clientIp);
+			OperatorService.recordBruteForce(clientIp);
+			OperatorService.setIpRecorder(clientIp, operator.getJob_no());
+
 			return null;
 		}
 
@@ -565,8 +618,8 @@ public class LoginAction extends BaseAction {
 			loginData.setLines(linesList);
 
 			// 用户信息保存在会话中
-			session.setAttribute(RvsConsts.SESSION_USER, loginData);
-			session.setAttribute("user_name", loginData.getName());
+			req.getSession().setAttribute(RvsConsts.SESSION_USER, loginData);
+			req.getSession().setAttribute("user_name", loginData.getName());
 			return loginData.getPrivacies();
 		}
 		return null;

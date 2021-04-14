@@ -85,8 +85,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tbody>
 			</table>
 			<div style="height:44px">
-				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="清除" role="button" aria-disabled="false" style="float:right;right:2px">
+				<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="清除" role="button" aria-disabled="false" style="float:right;right:2px">
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="searchbutton" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
+				<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" id="bfBreakButton" value="登录锁定" role="button" aria-disabled="false" style="float:right;right:10px">
 				<input type="hidden" id="rkGo" value="${rkGo}"/>
 			</div>
 		</form>
@@ -135,6 +136,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">
 						<input type="text" name="job_no" alt="工号" id="input_job_no" maxlength="8" class="ui-widget-content">
 						<label id="input_label_job_no"></label>
+					</td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">初始密码</td>
+					<td class="td-content">
+						<label id="input_label_password">0011a$Df</label>
 					</td>
 				</tr>
 				<tr>

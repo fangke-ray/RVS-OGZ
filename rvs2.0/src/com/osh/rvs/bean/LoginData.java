@@ -1,6 +1,7 @@
 package com.osh.rvs.bean;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.osh.rvs.bean.master.LineEntity;
@@ -31,6 +32,8 @@ public class LoginData extends BaseUserBean {
 	private String last_link;
 	private String working_role_id;
 	private Integer department;
+
+	private Date pwd_date;
 
 	// 流水线修理方式 全部=0 A线=1 B线=2
 	private String px = "0";
@@ -134,5 +137,11 @@ public class LoginData extends BaseUserBean {
 	}
 	public void setDepartment(Integer department) {
 		this.department = department;
+	}
+	public Date getPwd_date() {
+		return pwd_date;
+	}
+	public void setPwd_date(Date pwd_date) {
+		this.pwd_date = pwd_date;
 	}
 }

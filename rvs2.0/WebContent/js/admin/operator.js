@@ -68,6 +68,8 @@ $(function() {
 
 	});
 
+	$("#bfBreakButton").click(showBfBreak);
+
 	// 关联工位参照
 	setReferChooser($("#input_position"));
 
@@ -237,8 +239,9 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#editform tr").show();
 			$("#editbutton").val("修改");
 			$("#editbutton").enable();
-			$("#detailarea tr:has(#label_detail_updated_by)").hide();
-			$("#detailarea tr:has(#label_detail_updated_time)").hide();
+			$("#editarea tr:has(#input_label_password)").hide();
+//			$("#detailarea tr:has(#label_detail_updated_by)").hide();
+//			$("#detailarea tr:has(#label_detail_updated_time)").hide();
 			$(".errorarea-single").removeClass("errorarea-single");
 			// 默认画面变化 e
 		
@@ -406,9 +409,10 @@ var showAdd = function() {
 	$("#editarea span.areatitle").html("新建" + modelname);
 	$("#editarea").show();
 	$("#editform .condform tr:not(:has(input,textarea,select))").hide();
+	$("#editarea tr:has(#input_label_password)").show();
 	$("#editform input[type!='button'], #editform textarea").val("");
 	$("#editform select").val("").trigger("change"); // clear = , true
-	$("#editform label:not([radio])").html("");
+	$("#editform label:not([radio]):not(#input_label_password)").html("");
 	$("#editbutton").val("新建");
 	$("#editbutton").enable();
 	$(".errorarea-single").removeClass("errorarea-single");
@@ -546,14 +550,14 @@ var showEdit = function(rid) {
 	// 读取删除行
 	var rowData = $("#list").getRowData(rid);
 	var date = new Date();
-	var newpwd = "" + date.getFullYear() + (date.getMonth() + 1) + date.getDate();
+	var newpwd = "D@y" + date.getFullYear() + fillZero(date.getMonth() + 1) + fillZero(date.getDate());
 	var data = {
 		"id" : rowData.id,
 		"pwd" : newpwd,
 		"job_no" : rowData.job_no
 	}
 
-	warningConfirm("你要帮["+encodeText(rowData.name)+"]变更登录密码为："+newpwd+"吗？",
+	warningConfirm("你要帮["+encodeText(rowData.name)+"]变更登录密码为：“"+newpwd+"”吗？",
 		function() {
 			// Ajax提交
 			$.ajax({
@@ -571,3 +575,82 @@ var showEdit = function(rid) {
 		}, null, "重设密码"
 	);
 };
+
+var showBfBreak = function(){
+	// Ajax提交
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : servicePath + '?method=showBfBreak',
+		cache : false,
+		data : null,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : showBfBreak_handleComplete
+	});
+}
+var showBfBreak_handleComplete = function(xhrobj, textStatus){
+	var resInfo = $.parseJSON(xhrobj.responseText);
+	var bruteForceRecord = resInfo.bruteForceRecord;
+	if ($.isEmptyObject(bruteForceRecord)) {
+		warningConfirm("不存在被登录锁定的客户端。");
+		return;
+	}
+
+	var tbody = "";
+	for (var clientIp in bruteForceRecord) {
+		tbody += "<tr><td><input type='button' value='解除' class='ui-state-default ui-button'></td><td>" + clientIp + 
+				"</td><td>" + bruteForceRecord[clientIp] +
+				"</td></tr>"
+	}
+
+	var $dialog = $("#bf_break_dialog");
+	if ($dialog.length == 0) {
+		$("body").append("<div id='bf_break_dialog'>");
+		$dialog = $("#bf_break_dialog");
+	}
+
+	$dialog.html("<table border=1><thead><tr><th class='ui-state-default'>解除锁定</th><th class='ui-state-default'>客户端 IP</th><th class='ui-state-default'>试图访问账号</th><tr></thead>" +
+			"<tbody>" + tbody +	"<tbody></table>");
+	$dialog.find("input:button")
+		.button()
+		.click(function(){
+			var $tr = $(this).closest("tr");
+			var clientIp = $tr.children(":eq(1)").text();
+			// Ajax提交
+			$.ajax({
+				beforeSend : ajaxRequestType,
+				async : true,
+				url : servicePath + '?method=clearBfBreak',
+				cache : false,
+				data : {"clientIp":clientIp},
+				type : "post",
+				dataType : "json",
+				success : ajaxSuccessCheck,
+				error : ajaxError,
+				complete : function() {
+					$tr.remove();
+					if ($dialog.find("tbody > tr").length == 0) {
+						$dialog.dialog('close');
+					}
+				}
+			});
+		})
+	$dialog.hide();
+
+	$dialog.dialog({
+		title : "锁定的客户端列表",
+		width : 'auto',
+		height :  'auto',
+		show : "",
+		resizable : false,
+		modal : true,
+		buttons : {
+			"关闭":function(){
+				$dialog.dialog('close');
+			}
+		}
+	});
+}

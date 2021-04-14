@@ -15,7 +15,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		margin: auto;
 		padding: 15px;
 		position: relative;
-	 
+	 display: block;
 		/* Styles */
 		background: #fffaf6;
 		border-radius: 4px;
@@ -233,8 +233,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript">
 $(function() {
-	var jobno = $("#loginput input:text");
-	var jpwd = $("#loginput input:password");
+	var jobno = $("#loginput input:text:eq(0)");
+	var jpwd = $('<input type="password" name="password" value="" placeholder="" autocomplete="new-password">');
+	$("#loginarea label[for=password]").after(jpwd);
+
 	var handleComplete = function(xhrobj) {
 		var resInfo = null;
 		try {
@@ -285,7 +287,7 @@ $(function() {
 	$("#submitbutton").click(function() {
 		var data = {
 			job_no : jobno.val(),
-			pwd : jpwd.val()
+			pwd : _enc(jpwd.val())
 		}
 
 		// Ajax提交
@@ -313,6 +315,8 @@ $(function() {
 		}
 	});
 	jobno[0].focus();
+
+	loadJs("js/frontEnc.js");
 });
 
 </script>
@@ -333,21 +337,20 @@ $(function() {
 	}
 %>
 <div id="loginarea" style="position:relative;left: 155px;top: 375px;">
-	<form class="loginput" id="loginput">
+	<formOff class="loginput" id="loginput" autocomplete="off">
 	    <h1>登录系统</h1>
 	    <p class="float">
 	        <label for="login">工号</label>
-	        <input type="text" name="login" value="" placeholder="">
+	        <input type="text" name="login" value="" placeholder="" autocomplete="off">
 	    </p>
 	    <p class="float">
 	        <label for="password">密码</label>
-	        <input type="password" name="password" value="" placeholder="">
 	    </p>
 	    <p class="clear" style="height:30px;">
 	        <input type="button" class="loginput-button" name="submit" id="submitbutton" value="登录">
 	        <input type="reset" class="loginput-reset" name="clear" value="取消">
 	    </p>      
-	</form>
+	</formOff>
 </div>
 <div style="color: white; position: absolute; left: 1014px; top: 327px;">
 ${version}

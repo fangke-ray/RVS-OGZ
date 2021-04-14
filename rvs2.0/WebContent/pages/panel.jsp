@@ -62,6 +62,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 			<div style="width: 798px; float: left;">
 				<div id="body-mdl" class="dwidth-middle" style="margin: 0;">
+<%
+	String pwdDateMessage = (String)request.getAttribute("pwdDateMessage");
+	if (pwdDateMessage!=null) {
+%>
+	<div id="pwdDateMessage" class="ui-state-active" style="font-size: 16px;padding:1em;cursor:pointer;">
+		<%=pwdDateMessage%>
+	</div>
+<%
+	}
+%>
 					<div id="panelarea" class="dwidth-middle">
 <% 
 	LoginData user = (LoginData) request.getSession().getAttribute(RvsConsts.SESSION_USER);

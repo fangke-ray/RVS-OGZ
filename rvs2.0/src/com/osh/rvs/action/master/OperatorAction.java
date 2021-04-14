@@ -347,4 +347,32 @@ public class OperatorAction extends BaseAction {
 
 		log.info("OperatorAction.dogeneratepasswd end");
 	}
+
+	@Privacies(permit={2, 0})
+	public void showBfBreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
+		log.info("OperatorAction.showBfBreak start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+
+		callbackResponse.put("bruteForceRecord", OperatorService.getBruteForceRecordList());
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("OperatorAction.showBfBreak end");
+	}
+
+	@Privacies(permit={2, 0})
+	public void clearBfBreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
+		log.info("OperatorAction.clearBfBreak start");
+		// Ajax响应对象
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
+
+		OperatorService.clearBruteForceRecord(req.getParameter("clientIp"));
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, callbackResponse);
+
+		log.info("OperatorAction.clearBfBreak end");
+	}
 }

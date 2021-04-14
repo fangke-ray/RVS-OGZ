@@ -1,6 +1,8 @@
 package com.osh.rvs.service;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -221,8 +223,8 @@ public class OperatorService {
 	 */
 	public void insert(OperatorForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors)
 			throws Exception {
-		// 新建自动生成密码 TODO
-		form.setPwd("111111");
+		// 新建自动生成密码
+		form.setPwd("0011a$Df");
 
 		// 表单复制到数据对象
 		OperatorEntity insertBean = new OperatorEntity();
@@ -437,5 +439,62 @@ public class OperatorService {
 		}
 
 		return lst;
+	}
+
+	private static Map<String, List<Long>> BruteForceRecord = new HashMap<String, List<Long>>();
+	private static Map<String, String> IpRecorder = new HashMap<String, String>();
+	public static boolean checkBruteForce(String clientIp) {
+		if (!BruteForceRecord.containsKey(clientIp))
+			return false;
+
+		synchronized (BruteForceRecord) {
+			Long now = (new Date()).getTime();
+
+			List<Long> list = BruteForceRecord.get(clientIp);
+			for (int i = list.size() - 1; i >= 0; i--) {
+				Long l = list.get(i);
+				if (now - l > 3600000l) { // 3600000 1小时
+					list.remove(i);
+				}
+			}
+			return (list.size() >= 5);
+		}
+	}
+
+	public static void recordBruteForce(String clientIp) {
+		synchronized (BruteForceRecord) {
+			if (!BruteForceRecord.containsKey(clientIp)) {
+				BruteForceRecord.put(clientIp, new ArrayList<Long>());
+			}
+
+			BruteForceRecord.get(clientIp).add((new Date()).getTime());
+		}
+	}
+
+	public static void setIpRecorder(String clientIp, String job_no) {
+		synchronized (IpRecorder) {
+			IpRecorder.put(clientIp, job_no);
+		}
+	}
+
+	public static Map<String, String> getBruteForceRecordList() {
+		Map<String, String> retDict = new TreeMap<String, String>();
+		synchronized (BruteForceRecord) {
+			for (String clientIp : BruteForceRecord.keySet()) {
+				List<Long> list = BruteForceRecord.get(clientIp);
+				if (list.size() >= 5) {
+					String jobNo = IpRecorder.get(clientIp);
+					if (jobNo == null) jobNo = "(无记录)"; 
+					retDict.put(clientIp, jobNo);
+				}
+			}
+		}
+		return retDict;
+	}
+
+	public static void clearBruteForceRecord(String clientIp) {
+		synchronized (BruteForceRecord) {
+			BruteForceRecord.remove(clientIp);
+		}
 	}
 }
