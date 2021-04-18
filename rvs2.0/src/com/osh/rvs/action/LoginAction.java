@@ -195,6 +195,11 @@ public class LoginAction extends BaseAction {
 		contextMain.setAttribute("login_name", loginData.getName());
 		// contextMe.getContext("");
 		// ServletContext contextMain= contextMe.getContext("/rvs");
+
+		// 系统管理员的超时只有30分钟
+		if (RvsConsts.ROLE_SYSTEM.equals(loginData.getRole_id())) {
+			session.setMaxInactiveInterval(1800);
+		}
 	}
 
 	private ProductionFeatureEntity getWoringPf(LoginData loginData, SqlSession conn) {
@@ -386,8 +391,14 @@ public class LoginAction extends BaseAction {
 
 				// 用户信息保存在会话中
 				session.setAttribute(RvsConsts.SESSION_USER, loginData);
+
+				// 系统管理员的超时只有30分钟
+				if (RvsConsts.ROLE_SYSTEM.equals(loginData.getRole_id())) {
+					session.setMaxInactiveInterval(1800);
+				}
 			}
 		}
+
 		return null;
 	}
 
@@ -616,6 +627,11 @@ public class LoginAction extends BaseAction {
 				}
 			}
 			loginData.setLines(linesList);
+
+			// 系统管理员的超时只有30分钟
+			if (RvsConsts.ROLE_SYSTEM.equals(loginData.getRole_id())) {
+				req.getSession().setMaxInactiveInterval(1800);
+			}
 
 			// 用户信息保存在会话中
 			req.getSession().setAttribute(RvsConsts.SESSION_USER, loginData);

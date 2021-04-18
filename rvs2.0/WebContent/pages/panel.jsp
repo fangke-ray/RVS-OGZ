@@ -200,16 +200,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.9.540</p>
+								<p id="nee">2.10.551</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2021年3月2日</p>
+								<p>2021年4月16日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>21/4/16 2.10.551 更新</p>
+								<p>登录/密码：RVS系统安全等级提升要求实现</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>21/3/2 2.9.540 更新</p>
