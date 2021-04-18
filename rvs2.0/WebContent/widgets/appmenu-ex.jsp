@@ -151,11 +151,12 @@ var getPositionWork = function(position_id, px){
 <% if(links.get("文档管理")) { %>
 <div class="dwidth-left">
 <h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-accordion-icons" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>文档管理</h3>
-		<div class="ui-accordion-content ui-helper-reset ui-widget-content">
-		        <a href="filing.do">维修作业归档</a><br>
-		        <a href="operatorProduction.do?method=monthly">SORC 作业月报</a><br>
-		        <a href="weekly_kpi_data.do">周报功能</a><br>
-		        <a href="daily_work_sheet.do">工作记录表</a>
+	<div class="ui-accordion-content ui-helper-reset ui-widget-content">
+        <a href="filing.do">维修作业归档</a><br>
+        <a href="operatorProduction.do?method=monthly">SORC 作业月报</a><br>
+        <a href="weekly_kpi_data.do">周报功能</a><br>
+        <a href="daily_work_sheet.do">工作记录表</a><br>
+        <a href="process_inspect.do">作业监察</a>
 	</div>
 </div>
 <% } %>

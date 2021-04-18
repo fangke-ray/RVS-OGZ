@@ -386,6 +386,21 @@ public class OperatorService {
 	}
 	
 	//取得所有的操作人员
+	public String getAllOperatorName(int department, SqlSession conn){
+
+		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
+		OperatorEntity condition = new OperatorEntity();
+		condition.setDepartment(department);
+		List<OperatorNamedEntity> allOperator = dao.searchOperator(condition);
+
+		List<String[]> lst = getSetReferChooser(allOperator, true);
+
+		String pReferChooser = CodeListUtils.getReferChooser(lst);
+
+		return pReferChooser;
+	}
+
+	//取得所有的操作人员
 	public String getAllOperatorName(SqlSession conn){
 
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
@@ -397,7 +412,7 @@ public class OperatorService {
 
 		return pReferChooser;
 	}
-	
+
 	// 取得所有治具点检人员
 	public String getAllJigOperatorName(SqlSession conn) {
 
@@ -425,7 +440,7 @@ public class OperatorService {
 		for (OperatorNamedEntity operator : result) {
 			String[] p = new String[arraySize];
 			p[0] = operator.getOperator_id();
-			p[1] = operator.getName();
+			p[1] = operator.getName() + (operator.isDelete_flg() ? "(停用)" : "");
 			p[2] = operator.getRole_name();
 			if (withLine) {
 				if(CommonStringUtil.isEmpty(operator.getLine_name())){

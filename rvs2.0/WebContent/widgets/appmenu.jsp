@@ -22,7 +22,6 @@ var getChangeSet = function(xhrobj){
 	} catch (e) {
 		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
-	};	
 	};
 };
 
@@ -179,7 +178,8 @@ $(function() {
 		        <a href="filing.do">维修作业归档</a><br>
 		        <a href="operatorProduction.do?method=monthly">SORC 作业月报</a><br>
 		        <a href="weekly_kpi_data.do">周报功能</a><br>
-		        <a href="daily_work_sheet.do">工作记录表</a>
+		        <a href="daily_work_sheet.do">工作记录表</a><br>
+		        <a href="process_inspect.do">作业监察</a>
 	</div>
 <% } %>
 

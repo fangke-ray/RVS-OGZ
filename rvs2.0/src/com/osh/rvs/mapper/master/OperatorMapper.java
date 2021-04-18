@@ -83,7 +83,8 @@ public interface OperatorMapper {
 	public Date getPwdDate(String operator_id);
 
 	/**取得有权限的担当人 TODO getOperatorWithPrivacy **/
-	public List<OperatorNamedEntity> getOperatorWithPrivacy(int privacy_id);
+	public List<OperatorNamedEntity> getOperatorWithPrivacy(@Param("privacy_id") Integer privacy_id,
+			@Param("department") Integer department);
 
 	public List<OperatorEntity> getOperatorWithRole(String role_id);
 	

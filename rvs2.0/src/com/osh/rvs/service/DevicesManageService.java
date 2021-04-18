@@ -370,7 +370,7 @@ public class DevicesManageService {
 		List<String[]> lst = new ArrayList<String[]>();
 		OperatorMapper dao = conn.getMapper(OperatorMapper.class);
 		int privacy_id = RvsConsts.PRIVACY_DT_MANAGE;// 设备管理
-		List<OperatorNamedEntity> list = dao.getOperatorWithPrivacy(privacy_id);
+		List<OperatorNamedEntity> list = dao.getOperatorWithPrivacy(privacy_id, null);
 
 		lst = OperatorService.getSetReferChooser(list, true);
 

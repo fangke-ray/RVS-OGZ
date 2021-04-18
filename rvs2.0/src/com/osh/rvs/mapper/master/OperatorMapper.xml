@@ -354,6 +354,11 @@
 			    privacy_of_role pr ON ro.role_id = pr.role_id
 			        join
 			    privacy priv ON pr.privacy_id = priv.privacy_id
+		]]>
+			<if test="department!= null">
+				AND op.section_id in (select section_id from section where department = #{department})
+			</if>
+		<![CDATA[
 			where
 			    op.delete_flg = 0
 			        and priv.privacy_id = #{privacy_id}
@@ -375,6 +380,9 @@
 			    op.delete_flg = 0
 			        and priv.privacy_id = #{privacy_id}
 		]]>
+			<if test="department!= null">
+				AND op.section_id in (select section_id from section where department = #{department})
+			</if>
 			order by role_name
 	</select>
 

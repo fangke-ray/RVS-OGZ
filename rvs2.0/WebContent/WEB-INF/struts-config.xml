@@ -1068,6 +1068,17 @@
 				<forward name="success" path="/pages/admin/pcs_input_limit.jsp"/>
 		</action>
 
+		<!-- 作业监查 -->
+		<action path="/process_inspect"
+			type="com.osh.rvs.action.manage.ProcessInspectAction"
+			name="processInspectForm"
+			scope="request"
+			parameter="method"
+			validate="false">
+			<forward name="init" path="/pages/manage/process_inspect.jsp" />
+			<forward name="success" path="/pages/manage/process_inspect.jsp" />
+		</action>
+
 		<!-- 不良新现象  -->
 		<action path="/new_phenomenon"
 			type="com.osh.rvs.action.manage.NewPhenomenonAction"

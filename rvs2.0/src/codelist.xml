@@ -890,4 +890,12 @@
 		<value code="2">显微镜制造部</value>
 	</codelist>
 
+	<codelist name="inspect_perform_option">
+		<value code="1">技能提升</value>
+		<value code="2">作业监察</value>
+<!--
+		<value code="3">培训记录</value>
+-->
+	</codelist>
+
 </codelist-config>
