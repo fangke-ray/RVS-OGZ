@@ -54,7 +54,7 @@ public class SystemImageManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)
 			throws Exception {
 
@@ -79,7 +79,7 @@ public class SystemImageManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("SystemImageManageAction.search start");
@@ -110,6 +110,7 @@ public class SystemImageManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void importPic(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn) throws Exception{
 		log.info("SystemImageManageAction.importPic start");
 		
@@ -177,6 +178,7 @@ public class SystemImageManageAction extends BaseAction {
 	 * @param response 页面响应
 	 * @param conn 数据库会话
 	 */
+	@Privacies(permit={1, 0})
     public void doReplace(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn){
     	log.info("SystemImageManageAction.output start");
 

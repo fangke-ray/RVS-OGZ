@@ -46,7 +46,7 @@ public class HolidayAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("HolidayAction.init start");
@@ -66,7 +66,6 @@ public class HolidayAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
 	public void getHolidays(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("HolidayAction.getHolidays start");
@@ -102,7 +101,7 @@ public class HolidayAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("HolidayAction.doupdate start");
 		// Ajax响应对象
@@ -125,7 +124,7 @@ public class HolidayAction extends BaseAction {
 		log.info("HolidayAction.doupdate end");
 	}
 
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doFixScheduledDate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("HolidayAction.doFixScheduledDate start");
 		// Ajax响应对象

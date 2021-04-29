@@ -134,6 +134,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PartialAction.edit start");
 
@@ -212,6 +213,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doinsert start");
 		/* Ajax反馈对象 */
@@ -270,6 +272,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.dodelete start");
 		// 盛放错误信息
@@ -298,6 +301,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doupdate start");
 		// 盛放错误信息
@@ -363,6 +367,7 @@ public class PartialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void doupdatePartial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PartialAction.doupdatePartial start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();

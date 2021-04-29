@@ -18,6 +18,7 @@ import com.osh.rvs.form.master.PartialBussinessStandardForm;
 import com.osh.rvs.service.PartialBussinessStandardService;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 
 /**
@@ -73,6 +74,7 @@ public class PartialBussinessStandardAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void doUpdate(ActionMapping mapping, ActionForm form,
 			HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {

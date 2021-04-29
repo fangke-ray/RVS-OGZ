@@ -76,38 +76,6 @@ public class ProcedureStepCountAction extends BaseAction {
 	}
 
 	/**
-	 * 做测试
-	 * @param mapping ActionMapping
-	 * @param form 表单
-	 * @param req 页面请求
-	 * @param res 页面响应
-	 * @param conn 数据库会话
-	 * @throws Exception
-	 */
-	@Privacies(permit={1, 0})
-	public void test(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
-
-		_log.info("ProcedureStepCountAction.test start");
-		// Ajax回馈对象
-		Map<String, Object> listResponse = new HashMap<String, Object>();
-
-		// 检索条件表单合法性检查
-		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
-		List<MsgInfo> errors = v.validate();
-
-		ProcedureStepCountService service = new ProcedureStepCountService();
-		service.test2(listResponse, conn);
-
-		// 检查发生错误时报告错误信息
-		listResponse.put("errors", errors);
-
-		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
-
-		_log.info("ProcedureStepCountAction.test end");
-	}
-
-	/**
 	 * 作业步骤计数一览查询
 	 * @param mapping ActionMapping
 	 * @param form 表单

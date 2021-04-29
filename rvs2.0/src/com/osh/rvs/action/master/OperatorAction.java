@@ -53,7 +53,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorAction.init start");
@@ -103,7 +103,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorAction.search start");
@@ -141,7 +141,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void showedit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorAction.showedit start");
@@ -179,7 +179,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorAction.detail start");
@@ -217,7 +217,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 
 		log.info("OperatorAction.doinsert start");
@@ -254,7 +254,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("OperatorAction.doupdate start");
 		// Ajax响应对象
@@ -291,7 +291,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("OperatorAction.dodelete start");
 		// Ajax响应对象
@@ -324,7 +324,7 @@ public class OperatorAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void dogeneratepasswd(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("OperatorAction.dogeneratepasswd start");
 		// Ajax响应对象
@@ -348,7 +348,7 @@ public class OperatorAction extends BaseAction {
 		log.info("OperatorAction.dogeneratepasswd end");
 	}
 
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void showBfBreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("OperatorAction.showBfBreak start");
 		// Ajax响应对象
@@ -362,7 +362,7 @@ public class OperatorAction extends BaseAction {
 		log.info("OperatorAction.showBfBreak end");
 	}
 
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void clearBfBreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("OperatorAction.clearBfBreak start");
 		// Ajax响应对象

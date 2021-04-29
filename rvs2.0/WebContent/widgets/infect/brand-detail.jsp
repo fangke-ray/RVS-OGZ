@@ -12,6 +12,7 @@ var showBrandDetail = function(brand_id) {
 		},
 		url : "brand.do?method=search",
 		type : "post",
+		error : ajaxError,
 		complete : function(xhrobj, textStatus){
 			// 读取JSON
 			var resInfo = $.parseJSON(xhrobj.responseText);

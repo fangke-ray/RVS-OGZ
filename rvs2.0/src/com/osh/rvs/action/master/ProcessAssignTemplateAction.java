@@ -49,7 +49,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.init start");
@@ -72,7 +72,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void getPositions(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.getPositions start");
@@ -104,7 +104,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.search start");
@@ -141,7 +141,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.detail start");
@@ -185,7 +185,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.doinsert start");
@@ -224,7 +224,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("ProcessAssignTemplateAction.doupdate start");
 		// Ajax响应对象
@@ -260,7 +260,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("ProcessAssignTemplateAction.dodelete start");
 		// Ajax响应对象

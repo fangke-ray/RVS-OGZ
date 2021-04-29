@@ -80,6 +80,10 @@ public class PanelAction extends BaseAction {
 			req.setAttribute("pwdDateMessage", pwdDateMessage);
 		}
 
+		if (session.getAttribute("break_cb") != null) {
+			session.removeAttribute("break_cb");
+		}
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

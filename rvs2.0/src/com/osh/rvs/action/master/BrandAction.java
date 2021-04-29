@@ -16,9 +16,11 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.master.BrandEntity;
 import com.osh.rvs.form.master.BrandForm;
 import com.osh.rvs.service.BrandService;
+
 import org.apache.log4j.Logger;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -100,6 +102,7 @@ public class BrandAction extends BaseAction {
 	 * @param response
 	 * @param conn
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("BrandAction .doupdate start");
@@ -128,6 +131,7 @@ public class BrandAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("BrandAction.dodelete start");
@@ -156,6 +160,7 @@ public class BrandAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response,
 			SqlSessionManager conn) throws Exception {
 		log.info("BrandAction.doupdate start");

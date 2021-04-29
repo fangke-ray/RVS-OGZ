@@ -24,69 +24,56 @@ public class PositionPanel4Action extends PositionPanelAction {
 
 	Logger log = Logger.getLogger(getClass());
 
-	@Privacies(permit={1, 0})
 	public void jsinit(ActionMapping mapping, ActionForm form,
 			HttpServletRequest req, HttpServletResponse res, SqlSession conn)
 			throws Exception {
 		super.jsinit(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void doscan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.doscan(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.doendpause(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void dopause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.dopause(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.dobreak(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.dofinish(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={1, 0})
 	public void jsinitf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		super.jsinitf(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void doscanf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.doscanf(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void dofinishf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.dofinishf(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void checkProcess(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		super.checkProcess(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void doProcess(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.doProcess(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={0})
 	public void doPointOut(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		super.doPointOut(mapping, form, req, res, conn);
 	}
 
-	@Privacies(permit={1, 0})
 	public void makeReport(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		super.makeReport(mapping, form, req, res, conn);
 	}

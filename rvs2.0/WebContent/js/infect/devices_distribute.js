@@ -214,7 +214,7 @@ var showDetail=function(){
         height:660,
         modal:true,
         resizable:false,
-        title:"检查机器校正详细信息",
+        title:"设备・一般工具详细信息",
         buttons : { 
             "关闭" : function() { $(this).dialog("close")}
         }

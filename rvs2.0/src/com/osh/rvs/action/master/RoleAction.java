@@ -48,7 +48,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn)
 			throws Exception {
 
@@ -76,7 +76,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("RoleAction.search start");
@@ -113,7 +113,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("RoleAction.detail start");
@@ -151,7 +151,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 
 		log.info("RoleAction.doinsert start");
@@ -189,7 +189,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("RoleAction.doupdate start");
 		// Ajax响应对象
@@ -226,7 +226,7 @@ public class RoleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={3, 0})
+	@Privacies(permit={1, 0})
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("RoleAction.dodelete start");
 		// Ajax响应对象

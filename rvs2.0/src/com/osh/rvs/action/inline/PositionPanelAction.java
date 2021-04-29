@@ -86,7 +86,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void entrance(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelAction.entrance start");
@@ -122,7 +122,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelAction.init start");
@@ -239,7 +239,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinit(ActionMapping mapping, ActionForm form,
 			HttpServletRequest req, HttpServletResponse res, SqlSession conn)
 			throws Exception {
@@ -468,7 +468,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doscan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.scan start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -613,7 +613,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.doendpause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -676,7 +676,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dopause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.dopause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -746,7 +746,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.dobreak start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -896,7 +896,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.dofinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1052,7 +1052,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinitf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelAction.jsinitf start");
@@ -1102,7 +1102,7 @@ public class PositionPanelAction extends BaseAction {
 		log.info("PositionPanelAction.jsinitf end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doscanf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.scanf start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1145,7 +1145,7 @@ public class PositionPanelAction extends BaseAction {
 		log.info("PositionPanelAction.scanf end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinishf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.dofinishf start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1225,7 +1225,6 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
 	public void checkProcess(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("PositionPanelAction.checkProcess start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1269,7 +1268,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doProcess(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.doProcess start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1314,7 +1313,6 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
 	public void doPointOut(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.getNexts start");
 		Map<String, Object> jsonResponse = new HashMap<String, Object>();
@@ -1388,7 +1386,7 @@ public class PositionPanelAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={103, 104, 107, 108})
 	public void makeReport(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelAction.makeReport start");

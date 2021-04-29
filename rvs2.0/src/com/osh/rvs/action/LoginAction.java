@@ -75,6 +75,10 @@ public class LoginAction extends BaseAction {
 			}
 		}
 
+		if (req.getSession().getAttribute("break_cb") != null) {
+			req.getSession().removeAttribute("break_cb");
+		}
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

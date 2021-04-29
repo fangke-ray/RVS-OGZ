@@ -177,7 +177,7 @@ public class QualityTipAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={1, 0})
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("QualityTipAction.detail start");
 

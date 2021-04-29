@@ -49,6 +49,7 @@ public class CustomerAction extends BaseAction{
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn)throws Exception{
 		log.info("CustomerAction.init start");
 		
@@ -98,6 +99,7 @@ public class CustomerAction extends BaseAction{
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void doInsert(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CustomerAction.doInsert start");
 		// 对Ajax的响应
@@ -135,6 +137,7 @@ public class CustomerAction extends BaseAction{
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void doUpdate(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CustomerAction.doUpdate start");
 		
@@ -216,6 +219,7 @@ public class CustomerAction extends BaseAction{
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void doMerge(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CustomerAction.doMerge start");
 		// 对Ajax的响应
@@ -248,7 +252,6 @@ public class CustomerAction extends BaseAction{
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void getAutoComplete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("CustomerAction.getAutoComplete start"); // TODO CustomerAction
 		// Ajax回馈对象

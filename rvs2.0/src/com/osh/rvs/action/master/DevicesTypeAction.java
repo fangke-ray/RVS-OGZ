@@ -20,6 +20,7 @@ import com.osh.rvs.service.DevicesTypeService;
 import com.osh.rvs.service.UploadService;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -41,6 +42,7 @@ public class DevicesTypeAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 		log.info("DevicesTypeAction.init start");
@@ -96,6 +98,7 @@ public class DevicesTypeAction extends BaseAction {
 	 * @param response
 	 * @param conn
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("DevicesTypeAction.doupdate start");
@@ -129,6 +132,7 @@ public class DevicesTypeAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("DevicesTypeAction.dodelete start");
@@ -157,6 +161,7 @@ public class DevicesTypeAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response,
 			SqlSessionManager conn) throws Exception {
 		log.info("DevicesTypeAction.doupdate start");

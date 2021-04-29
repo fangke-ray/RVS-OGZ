@@ -290,6 +290,7 @@ public class ModelAction extends BaseAction {
 	 * @param res
 	 * @param conn
 	 */
+	@Privacies(permit={1, 0})
 	public void doUpdateAvaliableEndDate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn){
 		log.info("ModelAction.doUpdateAvaliableEndDate start");
 		// Ajax响应对象
@@ -324,6 +325,7 @@ public class ModelAction extends BaseAction {
 	 * @param res
 	 * @param conn
 	 */
+	@Privacies(permit={1, 0})
 	public void doInsertMoldeLevel(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn){
 		log.info("ModelAction.doInsertMoldeLevel start");
 		// Ajax响应对象
@@ -347,6 +349,7 @@ public class ModelAction extends BaseAction {
 	}
 	
 	/**
+	 * 机种更改时，更改可选等级
 	 * 
 	 * @param mapping
 	 * @param form
@@ -385,6 +388,7 @@ public class ModelAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit={1, 0})
 	public void doChangeEchelon(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn)throws Exception{
 		log.info("ModelAction.doChangeEchelon start");
 		

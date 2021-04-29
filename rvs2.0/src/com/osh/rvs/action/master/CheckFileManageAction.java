@@ -21,6 +21,7 @@ import com.osh.rvs.service.CheckFileManageService;
 import com.osh.rvs.service.DevicesTypeService;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
@@ -51,6 +52,7 @@ public class CheckFileManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void init(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse responsee,SqlSession conn)throws Exception{
 		log.info("CheckFileManageAction.init start");
 		
@@ -85,6 +87,7 @@ public class CheckFileManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void search(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSession conn)throws Exception{
 		log.info("CheckFileManageAction.search start");
 		
@@ -115,6 +118,7 @@ public class CheckFileManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doDelete(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CheckFileManageAction.doDelete start");
 		
@@ -148,6 +152,7 @@ public class CheckFileManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doInsert(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CheckFileManageAction.doInsert start");
 		
@@ -228,6 +233,7 @@ public class CheckFileManageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doUpdate(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("CheckFileManageAction.doUpdate start");
 		

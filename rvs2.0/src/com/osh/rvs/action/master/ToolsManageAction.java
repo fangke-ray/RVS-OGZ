@@ -61,7 +61,7 @@ public class ToolsManageAction extends BaseAction {
 	 *            数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124, 1, 0 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -109,6 +109,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("ToolsManageAction.search start");
@@ -140,6 +141,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("ToolsManageAction.doinsert start");
@@ -178,6 +180,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("ToolsManageAction.doupdate end");
@@ -211,6 +214,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSessionManager conn) throws Exception {
 		log.info("ToolsManageAction.dodelete end");
@@ -261,6 +265,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void doReplace(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response, SqlSessionManager conn)throws Exception{
 		log.info("ToolsManageAction.doReplace start");
 
@@ -324,6 +329,7 @@ public class ToolsManageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 124, 1, 0 })
 	public void dodeliver(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response, SqlSessionManager conn)throws Exception{
 		log.info("ToolsManageAction.dodeliver end");
 

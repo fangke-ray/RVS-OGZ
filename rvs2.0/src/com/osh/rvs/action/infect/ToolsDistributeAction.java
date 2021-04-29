@@ -45,7 +45,7 @@ public class ToolsDistributeAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 111 })
 	public void init(ActionMapping mapping, ActionForm form,HttpServletRequest req, HttpServletResponse res, SqlSession conn)throws Exception {
 
 		log.info("ToolsDistributeAction.init start");
