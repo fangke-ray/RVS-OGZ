@@ -45,7 +45,7 @@ public class PcsInputLimitAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 2, 0 })
+	@Privacies(permit = { 1, 104, 105 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PcsInputLimitAction.init start");
@@ -101,6 +101,7 @@ public class PcsInputLimitAction extends BaseAction {
 		log.info("PcsInputLimitAction.getPcsInputs end");
 	}
 
+	@Privacies(permit = { 1, 104, 105 })
 	public void doSetLimits(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsInputLimitAction.doSetLimits start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();

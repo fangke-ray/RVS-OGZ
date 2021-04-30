@@ -51,7 +51,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 2, 0 })
+	@Privacies(permit = { 1, 104, 105 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PcsRequestAction.init start");
@@ -99,6 +99,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104, 105 })
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("PcsRequestAction.search start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -123,6 +124,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104, 105 })
 	public void doCreate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsRequestAction.doCreate start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -198,6 +200,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104 })
 	public void makeTestPdf(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("PcsRequestAction.makeTestPdf " + req.getParameter("pcs_request_key") + " start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -236,6 +239,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104 })
 	public void doImport(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsRequestAction.doImport start");
 
@@ -263,6 +267,7 @@ public class PcsRequestAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104 })
 	public void doRemove(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsRequestAction.doRemove start");
 

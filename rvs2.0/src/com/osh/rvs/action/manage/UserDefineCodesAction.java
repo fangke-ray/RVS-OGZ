@@ -19,6 +19,7 @@ import com.osh.rvs.form.manage.UserDefineCodesForm;
 import com.osh.rvs.service.UserDefineCodesService;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
@@ -39,6 +40,7 @@ public class UserDefineCodesAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -87,6 +89,7 @@ public class UserDefineCodesAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 0 })
 	public void doUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse response,
 			SqlSessionManager conn) throws Exception {
 		log.info("UserDefineCodesAction.doUpdate start");

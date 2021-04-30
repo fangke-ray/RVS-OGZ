@@ -24,6 +24,7 @@ import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.manage.OperationStandardDocService;
 
 import framework.huiqing.action.BaseAction;
+import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
 import framework.huiqing.common.util.CommonStringUtil;
@@ -121,6 +122,7 @@ public class OperationStandardDocAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104, 105 })
 	public void doDelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("OperationStandardDocAction.doDelete start");
 
@@ -182,6 +184,7 @@ public class OperationStandardDocAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1, 104, 105 })
 	public void doCopy(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("OperationStandardDocAction.doCopy start");
 
@@ -243,6 +246,7 @@ public class OperationStandardDocAction extends BaseAction {
 		log.info("OperationStandardDocAction.getDetail end");
 	}
 
+	@Privacies(permit = { 1, 104, 105 })
 	public void doUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("OperationStandardDocAction.doUpdate start");
 

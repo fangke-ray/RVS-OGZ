@@ -52,7 +52,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 2, 0 })
+	@Privacies(permit = { 1 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PcsFixOrderAction.init start");
@@ -100,6 +100,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1 })
 	public void doCreate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doCreate start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -126,6 +127,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1 })
 	public void doFix(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doFix start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -161,6 +163,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1 })
 	public void doPcCreate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doPcCreate start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -187,7 +190,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 2, 0 })
+	@Privacies(permit = { 1 })
 	public void pcpage(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("PcsFixOrderAction.pcpage start");
@@ -221,6 +224,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
+	@Privacies(permit = { 1 })
 	public void doPcResolve(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doPcResolve start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
