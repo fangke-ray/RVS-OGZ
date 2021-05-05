@@ -50,7 +50,7 @@ public class ShippingAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 107 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -72,7 +72,7 @@ public class ShippingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ShippingAction.jsinit start");
@@ -140,7 +140,7 @@ public class ShippingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doscan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("ShippingAction.scan start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -193,7 +193,7 @@ public class ShippingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("ShippingAction.dofinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();

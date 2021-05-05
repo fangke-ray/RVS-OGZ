@@ -44,7 +44,7 @@ public class PeripheralInfectDeviceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -73,7 +73,7 @@ public class PeripheralInfectDeviceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124 })
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PeripheralInfectDeviceAction.search start");
@@ -100,7 +100,7 @@ public class PeripheralInfectDeviceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124 })
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response, SqlSession conn) throws Exception {
 		log.info("PeripheralInfectDeviceAction.detail start");
@@ -127,7 +127,7 @@ public class PeripheralInfectDeviceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124 })
 	public void doinsert(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -170,7 +170,7 @@ public class PeripheralInfectDeviceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 124 })
 	public void dodelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 		log.info("PeripheralInfectDeviceAction.dodelete start");

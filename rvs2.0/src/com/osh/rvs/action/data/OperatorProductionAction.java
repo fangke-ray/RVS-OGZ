@@ -54,7 +54,6 @@ public class OperatorProductionAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorProductionAction.init start");
@@ -77,7 +76,6 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.init end");
 	}
 
-	@Privacies(permit={1, 0})
 	public void monthly(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorProductionAction.monthly start");
@@ -88,7 +86,6 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.monthly end");
 	}
 
-	@Privacies(permit={1, 0})
 	public void initSearch(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorProductionAction.initSearch start");
@@ -110,7 +107,6 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.initSearch end");
 	}
 	
-	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("OperatorProductionAction.search start");
@@ -133,7 +129,6 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.search end");
 	}
 	
-	@Privacies(permit={1, 0})
 	public void getDetail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 
 		log.info("OperatorProductionAction.getDetail start");
@@ -165,7 +160,7 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.getDetail end");
 	}
 	
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106, 107})
 	public void dosavepause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("OperatorProductionAction.dosavepause start");
 		// Ajax回馈对象	
@@ -187,7 +182,7 @@ public class OperatorProductionAction extends BaseAction {
 		log.info("OperatorProductionAction.dosavepause end");
 	}
 	
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106, 107})
 	public void dosaveoverwork(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("OperatorProductionAction.dosaveoverwork start");
 		// Ajax回馈对象	
@@ -232,7 +227,7 @@ public class OperatorProductionAction extends BaseAction {
 	
 	
 	
-	/*@Privacies(permit={1, 0})
+	/*
 	public void dodeletepause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) {
 		log.info("OperatorProductionAction.getDetial dosavepause");
 		// Ajax回馈对象	

@@ -501,7 +501,7 @@ public class ServiceRepairManageAction extends BaseAction{
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={114, 0})
+	@Privacies(permit={106})
 	public void doActionBack(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response,SqlSessionManager conn)throws Exception{
 		log.info("ServiceRepairManageAction.doActionBack start");
 		//Ajax响应对象

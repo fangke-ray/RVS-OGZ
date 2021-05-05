@@ -61,7 +61,6 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -117,7 +116,6 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("AlarmMessageAction.search start");
@@ -140,6 +138,8 @@ public class AlarmMessageAction extends BaseAction {
 			listResponse.put("lOptions", CodeListUtils.getGridOptions("alarm_level"));
 
 			listResponse.put("rOptions", CodeListUtils.getGridOptions("alarm_reason"));
+
+			listResponse.put("stepOptions", CodeListUtils.getGridOptions("defective_step"));
 		}
 
 		// 检查发生错误时报告错误信息
@@ -160,7 +160,6 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 		log.info("AlarmMessageAction.detail start");
@@ -238,7 +237,6 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
 	public void detailInit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 		log.info("AlarmMessageAction.detailInit start");
@@ -278,7 +276,7 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={104,105,106})
 	public void doreleasebeak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("AlarmMessageAction.doreleasebeak start");
 
@@ -327,7 +325,7 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105,106})
 	public void dohold(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("AlarmMessageAction.dohold start");
 
@@ -378,7 +376,7 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={104,105,106})
 	public void docomment(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("AlarmMessageAction.docomment start");
 
@@ -408,7 +406,7 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={104,105,106})
 	public void dorework(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("AlarmMessageAction.dorework start");
 

@@ -299,7 +299,7 @@ public class HeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={1, 103, 104, 105, 106, 107, 123, 124})
 	public void doReadPostMessage(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 
 		log.info("HeaderAction.doReadPostMessage start");

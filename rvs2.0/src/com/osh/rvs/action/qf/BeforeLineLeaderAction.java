@@ -108,7 +108,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("BeforeLineLeaderAction.jsinit start");
@@ -147,7 +147,6 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void refresh(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("BeforeLineLeaderAction.refresh start");
@@ -174,7 +173,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void doexpedite(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("BeforeLineLeaderAction.doexpedite start");
 
@@ -208,7 +207,6 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void getwarning(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("LineLeaderAction.getwarning start");
 
@@ -241,7 +239,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106,107})
 	public void doupdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("BeforeLineLeaderAction.doupdate start");
 
@@ -280,7 +278,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={2, 0})
+	@Privacies(permit={111})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("BeforeLineLeaderAction.search start");
@@ -317,7 +315,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106, 107})
 	public void doJudge(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("BeforeLineLeaderAction.doJudge start");
 

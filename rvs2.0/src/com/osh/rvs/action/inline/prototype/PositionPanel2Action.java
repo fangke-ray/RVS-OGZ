@@ -18,8 +18,6 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.action.inline.PositionPanelAction;
 
-import framework.huiqing.action.Privacies;
-
 public class PositionPanel2Action extends PositionPanelAction {
 
 	Logger log = Logger.getLogger(getClass());

@@ -24,7 +24,6 @@ import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.SectionService;
 
 import framework.huiqing.action.BaseAction;
-import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
@@ -47,7 +46,6 @@ public class PositionProductionAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionProductionAction.init start");
@@ -71,7 +69,6 @@ public class PositionProductionAction extends BaseAction {
 		log.info("PositionProductionAction.init end");
 	}
 	
-	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionProductionAction.search start");
@@ -100,7 +97,6 @@ public class PositionProductionAction extends BaseAction {
 		log.info("PositionProductionAction.search end");
 	}
 	
-	@Privacies(permit={1, 0})
 	public void getDetail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("PositionProductionAction.getDetial start");
 		// Ajax回馈对象	

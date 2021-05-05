@@ -53,7 +53,7 @@ public class WipAction extends BaseAction {
 	 * @throws Exception
 	 */
 //	@ActionPrivacies(permit = { RvsPrivacy.FM_REVIEW })
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 111})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -99,7 +99,7 @@ public class WipAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 111 })
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 

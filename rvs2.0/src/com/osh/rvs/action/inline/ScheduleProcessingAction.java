@@ -69,7 +69,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={111})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.init start");
@@ -186,7 +186,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={111})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.search start");
@@ -238,7 +238,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={111})
 	public void searchSchedule(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.searchSchedule start");
@@ -265,7 +265,7 @@ public class ScheduleProcessingAction extends BaseAction {
 		log.info("ScheduleProcessingAction.searchSchedule end");
 	}
 
-	@Privacies(permit={1, 0})
+	@Privacies(permit={111})
 	public void searchOutSchedule(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.searchSchedule start");
@@ -301,7 +301,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void doupdateSchedule(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		
 		log.info("ScheduleProcessingAction.updateSchedule start");
@@ -342,7 +342,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void dodeleteSchedule(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		
 		log.info("ScheduleProcessingAction.deleteSchedule start");
@@ -466,7 +466,6 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void getwarning(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("ScheduleProcessingAction.getwarning start");
 
@@ -495,7 +494,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void capacity_setting(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("ScheduleProcessingAction.capacity_setting start");
 		
@@ -514,7 +513,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void daily_report(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.daily_report start");
@@ -534,7 +533,7 @@ public class ScheduleProcessingAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void getDayKpiOfWeek(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleProcessingAction.getDayKpiOfWeek start");

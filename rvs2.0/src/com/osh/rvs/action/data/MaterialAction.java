@@ -91,7 +91,6 @@ public class MaterialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialAction.init start");
@@ -153,7 +152,6 @@ public class MaterialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialAction.search start");
@@ -371,7 +369,7 @@ public class MaterialAction extends BaseAction {
 	 * @param res
 	 * @param conn
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void getPcsDetailFixer(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) {
 		log.info("MaterialAction.getPcsDetailFixer start");
 		// Ajax回馈对象
@@ -652,7 +650,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void dowritepcs(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("MaterialAction.dowritepcs start");
 
@@ -683,7 +681,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={1})
 	public void doFixPcs(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("MaterialAction.doFixPcs start");
 
@@ -704,7 +702,6 @@ public class MaterialAction extends BaseAction {
 		log.info("MaterialAction.doFixPcs end");
 	}
 
-	@Privacies(permit={1, 0})
 	public void getFlowchart(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("MaterialAction.getFlowchart start");
 
@@ -786,7 +783,6 @@ public class MaterialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void export(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("MaterialAction.export start");
 
@@ -935,7 +931,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={104,105,106})
 	public void doUpdateMaterialComment(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("MaterialAction.doUpdateMaterialComment start");
 
@@ -969,7 +965,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={104,105,106})
 	public void doPxExchange(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("MaterialAction.doPxExchange start");
 
@@ -1014,7 +1010,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={105})
 	public void doreccd(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 
 		log.info("MAterialAction.doreccd start");
@@ -1184,7 +1180,7 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={100})
+	@Privacies(permit={106,107})
 	public void doSetNewProductModel(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{ 
 		log.info("MaterialAction.doSetNewProductModel start");
 		// Ajax响应对象
@@ -1231,7 +1227,6 @@ public class MaterialAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void getForProductSerial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialAction.getForSerial start");

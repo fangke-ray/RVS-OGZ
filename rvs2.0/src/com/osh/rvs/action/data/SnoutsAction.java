@@ -44,7 +44,6 @@ public class SnoutsAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -65,7 +64,6 @@ public class SnoutsAction extends BaseAction {
 		log.info("SnoutAction.init end");
 	}
 
-	@Privacies(permit={1, 0})
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("SnoutsAction.search start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
@@ -86,7 +84,6 @@ public class SnoutsAction extends BaseAction {
 		log.info("SnoutsAction.search end");
 	}
 
-	@Privacies(permit = { 1, 0 })
 	public void detail(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 		log.info("SnoutsAction.detail start");
@@ -109,7 +106,7 @@ public class SnoutsAction extends BaseAction {
 		log.info("SnoutsAction.detail end");
 	}
 
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 106 })
 	public void doUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 		log.info("SnoutsAction.doUpdate start");
@@ -149,7 +146,7 @@ public class SnoutsAction extends BaseAction {
 		log.info("SnoutsAction.doUpdate end");
 	}
 
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 106 })
 	public void doDelete(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 		log.info("SnoutsAction.doDelete start");
@@ -180,7 +177,6 @@ public class SnoutsAction extends BaseAction {
 		log.info("SnoutsAction.doDelete end");
 	}
 
-	@Privacies(permit={1, 0})
 	public void searchSnoutsOnMonth(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception {
 		log.info("SnoutsAction.searchSnoutsOnMonth start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();

@@ -28,7 +28,6 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
 import com.osh.rvs.bean.inline.SoloProductionFeatureEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.ReverseResolution;
@@ -144,7 +143,6 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("QualityAssuranceAction.jsinit start");
@@ -356,7 +354,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doscan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QualityAssuranceAction.scan start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -484,7 +482,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dopcsfinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QualityAssuranceAction.dopcsfinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -565,7 +563,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QualityAssuranceAction.dofinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -623,15 +621,15 @@ public class QualityAssuranceAction extends BaseAction {
 			// 启动下个工位 就是出货
 			pfService.fingerNextPosition(workingPf.getMaterial_id(), workingPf, conn, triggerList);
 
-			conn.commit();
-
-			// FSE 数据同步
-			try{
-				FseBridgeUtil.toUpdateMaterial(workingPf.getMaterial_id(), "611");
-				FseBridgeUtil.toUpdateMaterialProcess(workingPf.getMaterial_id(), "611");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//			conn.commit();
+//
+//			// FSE 数据同步
+//			try{
+//				FseBridgeUtil.toUpdateMaterial(workingPf.getMaterial_id(), "611");
+//				FseBridgeUtil.toUpdateMaterialProcess(workingPf.getMaterial_id(), "611");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 
 			// 通知 SAP
 //			service.notifiSapShipping(workingPf.getMaterial_id());
@@ -695,7 +693,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doforbid(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QualityAssuranceAction.doforbid start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -797,7 +795,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dopause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelAction.dopause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -858,7 +856,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QualityAssuranceAction.doendpause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -928,7 +926,7 @@ public class QualityAssuranceAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		PositionPanelService positionPanelService = new PositionPanelService();
 

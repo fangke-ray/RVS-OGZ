@@ -247,7 +247,6 @@ public class DownloadAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
 	public void file(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("QualityAssuranceAction.file start");
 

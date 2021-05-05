@@ -47,7 +47,7 @@ public class SupportAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 106,107 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -68,7 +68,7 @@ public class SupportAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106,107})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("SupportAction.jsinit start");
@@ -143,7 +143,7 @@ public class SupportAction extends BaseAction {
 		log.info("SupportAction.jsinit end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={106,107})
 	public void dostart(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("SupportAction.dostart start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -210,7 +210,7 @@ public class SupportAction extends BaseAction {
 		log.info("SupportAction.dostart end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={106,107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("SupportAction.dofinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();

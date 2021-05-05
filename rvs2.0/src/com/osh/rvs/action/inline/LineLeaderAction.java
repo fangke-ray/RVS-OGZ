@@ -55,7 +55,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("LineLeaderAction.init start");
@@ -75,7 +75,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("LineLeaderAction.jsinit start");
@@ -145,7 +145,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void refreshList(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("LineLeaderAction.refreshList start");
@@ -183,7 +183,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void doexpedite(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("LineLeaderAction.doexpedite start");
 
@@ -217,7 +217,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void getwarning(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("LineLeaderAction.getwarning start");
 
@@ -250,7 +250,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void doleaderorder(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("LineLeaderAction.doleaderorder start");
 
@@ -306,7 +306,7 @@ public class LineLeaderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void doleaderreceive(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("LineLeaderAction.doleaderreceive start");
 
@@ -348,7 +348,7 @@ public class LineLeaderAction extends BaseAction {
 		log.info("LineLeaderAction.doleaderreceive end");
 	}
 
-	@Privacies(permit={1, 0})
+	@Privacies(permit={106})
 	public void refreshChart(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("LineLeaderAction.refreshChart start");
 

@@ -81,7 +81,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void entrance(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelSnoutAction.entrance start");
@@ -119,7 +119,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelSnoutAction.init start");
@@ -130,7 +130,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 		String section_id = user.getSection_id();
 		String position_id = user.getPosition_id();
-		String level = user.getPx();
+		// String level = user.getPx();
 
 		// 取得工位信息
 		req.setAttribute("position", service.getPositionMap(section_id, position_id, null, conn));
@@ -150,7 +150,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("PositionPanelSnoutAction.jsinit start");
@@ -313,7 +313,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 		log.info("PositionPanelSnoutAction.jsinit end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dostart(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.start start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -459,7 +459,6 @@ public class PositionPanelSnoutAction extends BaseAction {
 		log.info("PositionPanelSnoutAction.start end");
 	}
 
-	@Privacies(permit={0})
 	/**
 	 * 扫描件（先端来源/周边本体）
 	 * @param mapping
@@ -576,7 +575,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dopause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.dopause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -629,7 +628,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 		log.info("PositionPanelSnoutAction.dopause end");
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.doendpause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -679,7 +678,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.dobreak start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -802,7 +801,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 		}
 	}
 
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.dofinish start");
 		Map<String, Object> callBackResponse = new HashMap<String, Object>();
@@ -889,7 +888,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void getMaterialUse(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("PositionPanelSnoutAction.getMaterialUse start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -991,7 +990,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dousesnout(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.dousesnout start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1139,7 +1138,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dounusesnout(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("PositionPanelSnoutAction.dounusesnout start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -1236,7 +1235,6 @@ public class PositionPanelSnoutAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
 	public void getSerial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("PositionPanelSnoutAction.getSerial start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();

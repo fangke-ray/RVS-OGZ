@@ -44,7 +44,7 @@ public class TurnoverCaseAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 111 })
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -92,7 +92,7 @@ public class TurnoverCaseAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 100, 0 })
+	@Privacies(permit = { 111 })
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -122,7 +122,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.search end");
 	}
 
-	@Privacies(permit = { 100, 0 })
+	@Privacies(permit = { 111 })
 	public void getStoargeEmpty(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -146,7 +146,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.getStoargeEmpty end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doChangeLocation(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -167,7 +167,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doChangeLocation end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doWarehousing(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -189,7 +189,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doWarehousing end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doWarehousingPlanned(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -210,7 +210,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doWarehousingPlanned end");
 	}
 
-	@Privacies(permit = { 100, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void getWarehousingPlanList(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -234,7 +234,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.getWarehousingPlanList end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doStorage(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -256,7 +256,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doStorage end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doStoragePlanned(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -277,7 +277,6 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doStoragePlanned end");
 	}
 
-	@Privacies(permit = { 100, 0 })
 	public void getStoragePlanList(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -301,7 +300,6 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.getStoragePlanList end");
 	}
 
-	@Privacies(permit = { 100, 0 })
 	public void getIdleMaterialList(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSession conn) throws Exception {
 
@@ -325,7 +323,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.getIdleMaterialList end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doPutin(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -346,7 +344,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doPutin end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doTrolleyUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 
@@ -367,7 +365,7 @@ public class TurnoverCaseAction extends BaseAction {
 		log.info("TurnoverCaseAction.doTrolleyUpdate end");
 	}
 
-	@Privacies(permit = { 101, 109, 0 })
+	@Privacies(permit = { 103, 107 })
 	public void doAssignLocation(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
 

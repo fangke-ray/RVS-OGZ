@@ -21,7 +21,6 @@ import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
@@ -780,16 +779,16 @@ public class QuotationAction extends BaseAction {
 //				//删除维修对象独有修理流程
 //				materialProcessAssignMapper.deleteMaterialProcessAssign(entity.getMaterial_id());
 //			}
-
-			// 通知 TODO
-
-			// FSE 数据同步
-			try{
-				FseBridgeUtil.toUpdateMaterial(materialId, "qt" + workingPf.getProcess_code());
-				FseBridgeUtil.toUpdateMaterialProcess(materialId, "qt" + workingPf.getProcess_code());
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
+//
+//			// 通知 TODO
+//
+//			// FSE 数据同步
+//			try{
+//				FseBridgeUtil.toUpdateMaterial(materialId, "qt" + workingPf.getProcess_code());
+//				FseBridgeUtil.toUpdateMaterialProcess(materialId, "qt" + workingPf.getProcess_code());
+//			} catch (Exception e) {
+//				log.error(e.getMessage(), e);
+//			}
 		}
 
 		QuotationService qService = new QuotationService();

@@ -39,7 +39,6 @@ import com.osh.rvs.service.partial.MaterialPartialService;
 import com.osh.rvs.service.qf.MaterialFactService;
 
 import framework.huiqing.action.BaseAction;
-import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
@@ -368,7 +367,6 @@ public class MaterialFactAction extends BaseAction {
 	 * @throws Exception
 	 * @author 龚镭敏
 	 */
-	@Privacies(permit={2, 0})
 	public void getPa(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialFactAction.getPa start");
@@ -415,7 +413,6 @@ public class MaterialFactAction extends BaseAction {
 		log.info("MaterialFactAction.getPa end");
 
 	}
-	@Privacies(permit={2, 0})
 	public void getPaByMaterial(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("MaterialFactAction.getPaByMaterial start");
