@@ -1388,15 +1388,20 @@ public class CheckResultFileService {
 		String srcPath = PathConsts.BASE_PATH + PathConsts.DEVICEINFECTION + "\\QF0601-5专用工具定期清点保养记录.xls";
 		String cacheFilename =  cfsEntity.getStorage_file_name() + filingDate.getTime() + ext;
 		String cachePath = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(filingDate, "yyyyMM") + "\\" + cacheFilename;
+
+		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
+				RvsUtils.getTestBussinessYearString(adjustCal) + "\\QF0601-5";
+		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
+
+//		if (new File(targetFile).exists()) {
+//			return;
+//		}
 		try {
 			FileUtils.copyFile(new File(srcPath), new File(cachePath));
 		} catch (IOException e) {
 			_logger.error(e.getMessage(), e);
 			return;
 		}
-		String targetPath = PathConsts.BASE_PATH + PathConsts.INFECTIONS + "\\" +
-				RvsUtils.getFYBussinessYearString(adjustCal) + "\\QF0601-5";
-		String targetFile = targetPath + "\\" + cfsEntity.getStorage_file_name() + ".pdf";
 
 		String line_id = cfsEntity.getLine_id();
 		String position_id = cfsEntity.getPosition_id();
@@ -1407,7 +1412,7 @@ public class CheckResultFileService {
 			cacheXls.SelectActiveSheet();
 
 			// 取得本期
-			String bperiod = RvsUtils.getFYBussinessYearString(adjustCal);
+			String bperiod = RvsUtils.getTestBussinessYearString(adjustCal);
 
 			String sLineName = "";
 			LineMapper lMapper = conn.getMapper(LineMapper.class);
@@ -1645,16 +1650,23 @@ public class CheckResultFileService {
 					dusEntity.setSection_id(p_o[0]);
 					List<CheckResultEntity> upperStamp = crMapper.getJigUpperStamp(dusEntity);
 
+					if (upperStamp.size() == 0 && !"1".equals(dusEntity.getSection_id())) {
+						// 确定是不是还在翻修时的记录
+						dusEntity.setSection_id("1");
+						upperStamp = crMapper.getJigUpperStamp(dusEntity);
+					}
 					if (upperStamp.size() > 0) {
 						Date dConfirmDate = upperStamp.get(0).getCheck_confirm_time();
 						jobNo = upperStamp.get(0).getJob_no();
 
 						cell = cacheXls.getRange(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 2));
 						cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell);
-
 						cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 3), 
 								DateUtil.toString(dConfirmDate, "M-d"));
 						cacheXls.SetNumberFormatLocal(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 3), "m-d");
+					} else {
+						cacheXls.SetValue(XlsUtil.getExcelColCode(INSERT_START_COL_FOR_JIG + iAxis) + (iRowSign + 3), 
+								"/");
 					}
 					startCal.add(Calendar.MONTH, 1);
 				}

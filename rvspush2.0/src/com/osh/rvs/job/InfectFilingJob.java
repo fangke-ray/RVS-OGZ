@@ -107,9 +107,9 @@ public class InfectFilingJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 
-		today.set(Calendar.YEAR, 2019);
-		today.set(Calendar.MONTH, Calendar.DECEMBER);
-		today.set(Calendar.DATE, 2);
+		today.set(Calendar.YEAR, 2021);
+		today.set(Calendar.MONTH, Calendar.MAY);
+		today.set(Calendar.DATE, 3);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
 		today.set(Calendar.MINUTE, 0);
@@ -138,9 +138,9 @@ public class InfectFilingJob implements Job {
 		InfectFilingJob job = new InfectFilingJob();
 		try {
 			conn.startManagedSession(false);
-			job.clearCheckStatusWait(conn);
+//			job.clearCheckStatusWait(conn);
 			job.makeOfMonth(today, madeSet, conn);
-			int month = today.get(Calendar.MONTH);
+//			int month = today.get(Calendar.MONTH);
 //			if (month == Calendar.APRIL) { //  || month == Calendar.OCTOBER
 //				job.makeOfPeriod(today, madeSet, conn);
 //				job.makeOfJig(today, madeSet, conn);
@@ -167,8 +167,8 @@ public class InfectFilingJob implements Job {
 		Calendar collectMonth = Calendar.getInstance();
 		collectMonth.setTime(adjustDate.getTime());
 		collectMonth.add(Calendar.MONTH, -1);
-		String bussinessYearString = RvsUtils.getBussinessYearString(collectMonth);
-		String packPathString = descBaseDir + bussinessYearString + DateUtil.toString(collectMonth.getTime(), "MM月");
+		String bussinessYearString = RvsUtils.getFYBussinessYearString(collectMonth);
+		String packPathString = descBaseDir + bussinessYearString + "_" + DateUtil.toString(collectMonth.getTime(), "MM月");
 		File packPath = new File(packPathString);
 		if (!packPath.exists()) {
 			packPath.mkdirs();
@@ -214,7 +214,7 @@ public class InfectFilingJob implements Job {
 		periodStart.set(Calendar.DATE, 1);
 		periodStart.add(Calendar.YEAR, -1);
 
-		String sPeriod = RvsUtils.getBussinessYearString(periodStart); // 147P\QR-B31002-20
+		String sPeriod = RvsUtils.getFYBussinessYearString(periodStart); // 147P\QR-B31002-20
 
 		Date dPeriodStart = periodStart.getTime();
 		Date dPeriodNextPeriod = periodEnd.getTime();
@@ -289,7 +289,7 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dPeriodStart);
 			checked_file_storage.setFiling_date(dPeriodEnd);
-			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sProcessCode + "_" + sPeriod);
+			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sProcessCode);
 
 			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
 			String check_file_manage_id = "" + cutter[2];
@@ -346,7 +346,7 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dPeriodStart);
 			checked_file_storage.setFiling_date(dPeriodEnd);
-			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sLineName + "_" + sPeriod);
+			String storage_file_name = encodeFileNameAsFullchar(cutter[3] + "_" + sLineName);
 
 			storage_file_name = checkStroageFileName(storage_file_name, sPeriod, fileNames);
 			String check_file_manage_id = "" + cutter[2];
@@ -385,7 +385,7 @@ public class InfectFilingJob implements Job {
 		monthStart.setTimeInMillis(monthEnd.getTimeInMillis());
 		monthStart.set(Calendar.DATE, 1);
 
-		String sPeriod = RvsUtils.getBussinessYearString(monthStart); // 147P\QR-B31002-20
+		String sPeriod = RvsUtils.getFYBussinessYearString(monthStart); // 147P\QR-B31002-20
 		String sMonth = monthStart.get(Calendar.MONTH) + 1 + "月";
 
 		Date dMonthStart = monthStart.getTime();
@@ -410,7 +410,7 @@ public class InfectFilingJob implements Job {
 			checked_file_storage.setStart_record_date(dMonthStart);
 			checked_file_storage.setFiling_date(dMonthEnd);
 			String storage_file_name = checkStroageFileName
-					(ret.get("check_manage_code") + "_" + ret.get("manage_code"), sPeriod + sMonth, fileNames);
+					(ret.get("check_manage_code") + "_" + ret.get("manage_code"), sPeriod + "_" + sMonth, fileNames);
 
 			storage_file_name = encodeFileNameAsFullchar(storage_file_name);
 
@@ -474,9 +474,10 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dMonthStart);
 			checked_file_storage.setFiling_date(dMonthEnd);
-			String storage_file_name = cutter[3] + "_" + sProcessCode + "_" + sPeriod + sMonth;
+			String storage_file_name = cutter[3] + "_" + sProcessCode;
 			
-			storage_file_name = checkStroageFileName(encodeFileNameAsFullchar(storage_file_name), sPeriod, fileNames);
+			storage_file_name = checkStroageFileName(
+					encodeFileNameAsFullchar(storage_file_name), sPeriod + "_" + sMonth, fileNames);
 			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
 
 			String check_file_manage_id = "" + cutter[2];
@@ -537,8 +538,9 @@ public class InfectFilingJob implements Job {
 
 			checked_file_storage.setStart_record_date(dMonthStart);
 			checked_file_storage.setFiling_date(dMonthEnd);
-			String storage_file_name = cutter[3] + "_" + sLineName + "_" + sPeriod + sMonth;
-			storage_file_name = checkStroageFileName(encodeFileNameAsFullchar(storage_file_name), sPeriod, fileNames);
+			String storage_file_name = cutter[3] + "_" + sLineName;
+			storage_file_name = checkStroageFileName(
+					encodeFileNameAsFullchar(storage_file_name), sPeriod + "_" + sMonth, fileNames);
 			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
 
 			String check_file_manage_id = "" + cutter[2];
@@ -577,7 +579,7 @@ public class InfectFilingJob implements Job {
 		periodStart.set(Calendar.DATE, 1);
 		periodStart.add(Calendar.YEAR, -1);
 
-		String sPeriod = RvsUtils.getBussinessYearString(periodStart); // 147P\QR-B31002-20
+		String sPeriod = RvsUtils.getFYBussinessYearString(periodStart); // 147P\QR-B31002-20
 
 		Date dPeriodStart = periodStart.getTime();
 		Date dPeriodNextPeriod = periodEnd.getTime();
@@ -637,7 +639,7 @@ public class InfectFilingJob implements Job {
 			}
 
 			try {
-				makeFileJig(checked_file_storage, current_p_and_o, jigList);
+				makeFileJig(checked_file_storage, p_and_o_id, jigList);
 				madeSet.add("QF0601-5/" + storage_file_name);
 			} catch (IOException e) {
 				_log.error(e.getMessage(), e);
@@ -774,7 +776,7 @@ public class InfectFilingJob implements Job {
 		// 要求主工程建立文件
 		try {
 			String encodedEntity = java.net.URLEncoder.encode(json.encode(checked_file_storage), "UTF-8");
-			String encodedDeviceList = json.encode(lJigs);
+			String encodedDeviceList = java.net.URLEncoder.encode(json.encode(lJigs), "UTF-8");
 			String destUrl = MAKE_URL + "&entity="+
 					encodedEntity+"&encodedDeviceList=" + encodedDeviceList + "&sJigOperaterId=" + operator_id;
 			_log.info("destUrl=" + destUrl);

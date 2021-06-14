@@ -504,7 +504,7 @@ public class ScheduleService {
 		callbackResponse.put("weekstart", weekstart);
 
 		// 取得时期,生产计划
-		String period = RvsUtils.getBussinessHalfYearString(cal);
+		String period = RvsUtils.getFYBussinessHalfYearString(cal);
 		callbackResponse.put("period", period);
 
 		String pr = RvsUtils.getBussinessHalfStartDate(today);
