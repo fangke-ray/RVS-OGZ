@@ -18,7 +18,6 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.ProductionFeatureForm;
@@ -433,14 +432,14 @@ public class ProductionFeatureService {
 			} else {
 				nextPositions.add("00000000013");
 			}
-			if (isFact) {
-				// FSE 数据同步
-				try{
-					FseBridgeUtil.toUpdateMaterialProcess(material_id, "fr" + workingPf.getProcess_code());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+//			if (isFact) {
+//				// FSE 数据同步
+//				try{
+//					FseBridgeUtil.toUpdateMaterialProcess(material_id, "fr" + workingPf.getProcess_code());
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
 		} else if (RvsConsts.POSITION_QA.equals(position_id) || RvsConsts.POSITION_PERI_QA.equals(position_id)) { // 品保
 			nextPositions.add("00000000047");
 		} else if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { // 品保
@@ -513,24 +512,24 @@ public class ProductionFeatureService {
 				if (isFact) {
 
 					mpService.finishMaterialProcess(material_id, "00000000014", triggerList, conn);
-
-					// FSE 数据同步
-					try{
-						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+//
+//					// FSE 数据同步
+//					try{
+//						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
 				}
 			} else
 			if (!isLightFix && "00000000050".equals(position_id)) { // WKEOver TODO
 				if (isFact) {
 					mpService.finishMaterialProcess(material_id, "00000000050", triggerList, conn);
-					// FSE 数据同步
-					try{
-						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+//					// FSE 数据同步
+//					try{
+//						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
 				}
 			} else
 			if (!isLightFix && "00000000095".equals(position_id)) { // FEBDECOver TODO
@@ -562,12 +561,12 @@ public class ProductionFeatureService {
 					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
 					if (paMapper.getWorkedLine(material_id, "00000000013")) {
 						mpService.finishMaterialProcess(material_id, "00000000013", triggerList, conn);
-						// FSE 数据同步
-						try{
-							FseBridgeUtil.toUpdateMaterialProcess(material_id, "NS");
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+//						// FSE 数据同步
+//						try{
+//							FseBridgeUtil.toUpdateMaterialProcess(material_id, "NS");
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
 					}
 				}
 			} else
@@ -588,12 +587,12 @@ public class ProductionFeatureService {
 					if (paMapper.getWorkedLine(material_id, "00000000012")) {
 						mpService.finishMaterialProcess(material_id, "00000000012", triggerList, conn);
 
-						// FSE 数据同步
-						try{
-							FseBridgeUtil.toUpdateMaterialProcess(material_id, "DEC");
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+//						// FSE 数据同步
+//						try{
+//							FseBridgeUtil.toUpdateMaterialProcess(material_id, "DEC");
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
 					}
 				}
 //			} else

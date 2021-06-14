@@ -20,7 +20,6 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.mapper.CommonMapper;
@@ -206,13 +205,13 @@ public class WipService {
 		// 当前维修对象系统返还化
 		mbean.setBreak_back_flg(dao.getresystemcount(mbean));
 		dao.resystem(mbean);
-
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(material_id, "resystem");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterial(material_id, "resystem");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		// 新建返还后维修对象
 		CopyOptions cos = new CopyOptions();
@@ -241,13 +240,13 @@ public class WipService {
 			position_id = "00000000013";
 		}
 
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(new_material_id, "TODO");
-			// TODO Time
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterial(new_material_id, "TODO");
+//			// TODO Time
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		ProductionFeatureMapper pfDao = conn.getMapper(ProductionFeatureMapper.class);
 		ProductionFeatureEntity entity = new ProductionFeatureEntity();
@@ -349,14 +348,14 @@ public class WipService {
 		List<String> material_ids = new ArrayList<String>();
 		material_ids.add(material_id);
 		dao.changeSorc(material_ids);
-
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(material_id, "stop");
-			FseBridgeUtil.toUpdateMaterialProcess(material_id, "stop");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterial(material_id, "stop");
+//			FseBridgeUtil.toUpdateMaterialProcess(material_id, "stop");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		// 出货
 		ProductionFeatureMapper pfDao = conn.getMapper(ProductionFeatureMapper.class);

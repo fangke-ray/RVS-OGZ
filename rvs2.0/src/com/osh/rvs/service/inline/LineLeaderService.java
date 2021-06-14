@@ -25,7 +25,6 @@ import com.osh.rvs.bean.inline.PauseFeatureEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
@@ -491,13 +490,13 @@ public class LineLeaderService {
 //			//删除维修对象独有修理流程
 //			materialProcessAssignMapper.deleteMaterialProcessAssign(materialProcessAssignEntity.getMaterial_id());
 //		}
-		
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(entity.getMaterial_id(), "ll_update");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterial(entity.getMaterial_id(), "ll_update");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

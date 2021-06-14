@@ -11,7 +11,6 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.CustomerEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.CustomerForm;
@@ -51,7 +50,7 @@ public class CustomerService {
 			mapper.insertCustomer(condi);
 
 			customer_id = cmapper.getLastInsertID();
-			FseBridgeUtil.createCustomer(customer_id, customer_name, "" + ocm);
+//			FseBridgeUtil.createCustomer(customer_id, customer_name, "" + ocm);
 		}
 		return customer_id;
 	}

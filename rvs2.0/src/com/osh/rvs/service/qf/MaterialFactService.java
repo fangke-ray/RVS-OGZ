@@ -31,7 +31,6 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -294,13 +293,13 @@ public class MaterialFactService {
 
 		MaterialFactMapper dao = conn.getMapper(MaterialFactMapper.class);
 		dao.updateAgreedDate(entity);
-
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterialProcess(entity.getMaterial_id(), "agree");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterialProcess(entity.getMaterial_id(), "agree");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public void updateAgreedDateBySorc(String sorc_no, Date agreed_date, SqlSession conn) {
@@ -337,15 +336,15 @@ public class MaterialFactService {
 
 		MaterialService ms = new MaterialService();
 		ms.addInlinePlan(entity.getMaterial_id(), conn);
-
-		// FSE 数据同步
-		try{
-			conn.commit();
-			FseBridgeUtil.toUpdateMaterial(entity.getMaterial_id(), "200inline");
-			FseBridgeUtil.toUpdateMaterialProcess(entity.getMaterial_id(), "200inline");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			conn.commit();
+//			FseBridgeUtil.toUpdateMaterial(entity.getMaterial_id(), "200inline");
+//			FseBridgeUtil.toUpdateMaterialProcess(entity.getMaterial_id(), "200inline");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public void updateInline(MaterialFactEntity entity, Date[] scheduleAssignTimes, SqlSessionManager conn) throws Exception {
@@ -510,17 +509,17 @@ public class MaterialFactService {
 		for (MaterialFactEntity mfEntity : mfEntities) {
 			updateInline(mfEntity, scheduleAssignTimes, conn);
 		}
-
-		// FSE 数据同步
-		try{
-			conn.commit();
-			for (String material_id : material_ids) {
-				FseBridgeUtil.toUpdateMaterial(material_id, "200inline");
-				FseBridgeUtil.toUpdateMaterialProcess(material_id, "200inline");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			conn.commit();
+//			for (String material_id : material_ids) {
+//				FseBridgeUtil.toUpdateMaterial(material_id, "200inline");
+//				FseBridgeUtil.toUpdateMaterialProcess(material_id, "200inline");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public String createInlineReport(SqlSession conn) throws Exception {

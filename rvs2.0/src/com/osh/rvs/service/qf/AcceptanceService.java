@@ -18,7 +18,6 @@ import org.apache.struts.action.ActionForm;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
@@ -290,15 +289,15 @@ public class AcceptanceService {
 			MaterialMapper mDao = conn.getMapper(MaterialMapper.class);
 			mDao.updateMaterialReturn(ids);
 		}
-
-		// FSE 数据同步
-		try{
-			for (String id: ids) {
-				FseBridgeUtil.toUpdateMaterial(id, "br111");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//
+//		// FSE 数据同步
+//		try{
+//			for (String id: ids) {
+//				FseBridgeUtil.toUpdateMaterial(id, "br111");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -310,13 +309,13 @@ public class AcceptanceService {
 	public void updateFormalReception(String[] material_ids, SqlSessionManager conn) throws Exception {
 		AcceptanceMapper dao = conn.getMapper(AcceptanceMapper.class);
 		dao.updateFormalReception(material_ids);
-		try {
-		for (String material_id : material_ids) {
-			FseBridgeUtil.toUpdateMaterial(material_id, "111");
-			FseBridgeUtil.toUpdateMaterialProcess(material_id, "111");
-		}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//		for (String material_id : material_ids) {
+//			FseBridgeUtil.toUpdateMaterial(material_id, "111");
+//			FseBridgeUtil.toUpdateMaterialProcess(material_id, "111");
+//		}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 }

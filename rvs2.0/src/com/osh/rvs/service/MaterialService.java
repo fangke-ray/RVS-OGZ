@@ -46,7 +46,6 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
 import com.osh.rvs.bean.master.PcsFixOrderEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.ReportUtils;
@@ -285,12 +284,12 @@ public class MaterialService {
 		
 		MaterialMapper dao = conn.getMapper(MaterialMapper.class);
 		dao.updateMaterial(conditionBean);
-		// FSE 数据同步
-		try{
-			FseBridgeUtil.toUpdateMaterial(conditionBean.getMaterial_id(), "plan");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		// FSE 数据同步
+//		try{
+//			FseBridgeUtil.toUpdateMaterial(conditionBean.getMaterial_id(), "plan");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public void updateMaterialScheduledDate(ActionForm form, SqlSession conn) {
