@@ -56,6 +56,9 @@ public class AlarmMesssageForm extends ActionForm implements Serializable {
 
 	private List<Map<String, String>> sendations;
 
+	@BeanField(title = "对策进度", name = "defective_step", type = FieldType.Integer)
+	private String defective_step;
+
 	public String getLevel() {
 		return level;
 	}
@@ -242,5 +245,11 @@ public class AlarmMesssageForm extends ActionForm implements Serializable {
 	}
 	public void setDepartment(String department) {
 		this.department = department;
+	}
+	public String getDefective_step() {
+		return defective_step;
+	}
+	public void setDefective_step(String defective_step) {
+		this.defective_step = defective_step;
 	}
 }

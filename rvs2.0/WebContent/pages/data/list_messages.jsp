@@ -22,6 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/data/list_messages.js"></script>
+<script type="text/javascript" src="js/common/defective_analysis_detail.js"></script>
 <script type="text/javascript" src="js/manage/nogood_phenomenon_detail.js"></script>
 <title>警报信息查询</title>
 </head>
@@ -101,11 +102,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<table id="list"></table>
 	<div id="listpager"></div>
 </div>
-
-<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase" style="padding-top:4px;margin-top:24px;">
-	<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all " id="nongood_new_phenomenonbutton" value="不良新现象报告" role="button" aria-disabled="false" style="float:right;right:1px">
+<%
+Object editable = request.getAttribute("editable");
+if (editable != null) {
+%>
+<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase" style="padding-top:4px;">
+	<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all " id="defectiveAnalysisbutton" value="提出不良对策" role="button" aria-disabled="false" style="float:right;right:1px">
+	<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all " id="nongood_new_phenomenonbutton" value="不良新现象报告" role="button" aria-disabled="false" style="float:right;right:6px">
 </div>
-
+<%
+}	
+%>
 <div id="detail_dialog">
 </div>
 

@@ -55,7 +55,7 @@ public class ImageAction extends BaseAction {
 			if (confFile.exists()) {
 				UUID uuid = UUID.randomUUID();
 				tempfilename = uuid.toString().replaceAll("-", "");
-				String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "/" + tempfilename.substring(0,4) + "/" + tempfilename;
+				String targetPath = PathConsts.BASE_PATH + PathConsts.PHOTOS + "/upload/" + tempfilename.substring(0,4) + "/" + tempfilename;
 				FileUtils.copyFile(tempFilePath, targetPath+".jpg", true);
 				FileUtils.copyFile(tempFilePath, targetPath+"_fix.jpg", true);
 				service.getOriginalImageSize(confFile, jsonResponse, 800);
@@ -109,9 +109,7 @@ public class ImageAction extends BaseAction {
 		List<MsgInfo> msgs = new ArrayList<MsgInfo>();
 
 		ImageService service = new ImageService();
-		String retPath = service.resetImage(req, msgs);
-
-		jsonResponse.put("retPath", retPath);
+		String retPath = service.resetImage(req, msgs, jsonResponse);
 
 		// 检查发生错误时报告错误信息
 		jsonResponse.put("errors", msgs);
@@ -119,6 +117,25 @@ public class ImageAction extends BaseAction {
 		returnJsonResponse(res, jsonResponse);
 
 		logger.info("ImageAction.reset end");
+	}
+
+	public void rotate(ActionMapping mapping, ActionForm form, HttpServletRequest req,
+			HttpServletResponse res, SqlSession conn) throws Exception {
+		logger.info("ImageAction.rotate start");
+
+		// Ajax回馈对象
+		Map<String, Object> jsonResponse = new HashMap<String, Object>();
+		List<MsgInfo> msgs = new ArrayList<MsgInfo>();
+
+		ImageService service = new ImageService();
+		service.rotateImage(req, msgs);
+
+		// 检查发生错误时报告错误信息
+		jsonResponse.put("errors", msgs);
+		// 返回Json格式响应信息
+		returnJsonResponse(res, jsonResponse);
+
+		logger.info("ImageAction.rotate end");
 	}
 
 	public void test(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{

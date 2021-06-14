@@ -139,7 +139,8 @@ var getPositionWork = function(position_id, px){
 		        <a href="positionProduction.do">工位工时</a><br>
 		        <a href="operatorProduction.do">操作者工时</a><br>
 		        <a href="alarmMessage.do">警报</a><br>
-		        <a href="new_phenomenon.do">不良现象</a><br>
+		        <a href="defectiveAnalysis.do">不良对策</a><br>
+		        <a href="new_phenomenon.do">不良现象(DOJ)</a><br>
 	<% if(links.get("nsline")) { %>
 		        <a href="snouts.do">先端组件</a><br>
 	<% } %>

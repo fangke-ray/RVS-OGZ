@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.osh.rvs.mapper.manage.DefectiveAnalysisMapper">
+
+	<select id="count" resultType="Integer">
+	SELECT
+		COUNT(1)
+	FROM
+		defective_analysis da
+	WHERE
+		alarm_message_id = #{alarmMessageId}
+	</select>
+
+	<select id="search" resultType="DefectiveAnalysisSearchEntity" parameterType="DefectiveAnalysisSearchEntity">
+	SELECT
+		da.alarm_message_id,
+		material.omr_notifi_no,
+		model.name AS model_name,
+		da.defective_type,
+		da.step,
+		da.sponsor_date,
+		da.defective_phenomenon,
+		line.name AS line_name,
+		da.responsibility_of_ptl,
+		da.capa_risk,
+		da.rework_proceed,
+		da.cm_proc_confirmer_date,
+		da.cm_effect_confirmer_date
+	FROM
+		defective_analysis da
+	JOIN alarm_messsage am
+		ON
+			am.alarm_messsage_id = da.alarm_message_id
+	JOIN material material
+		ON
+			material.material_id = am.material_id
+	JOIN model model
+		ON
+			model.model_id = material.model_id
+	JOIN line line
+		ON
+			line.line_id = am.line_id
+	<where>
+		<if test="omr_notifi_no != null and omr_notifi_no != ''">
+			AND material.omr_notifi_no LIKE CONCAT('%', #{omr_notifi_no}, '%')
+		</if>
+		<if test="defective_type != null">
+			AND da.defective_type = #{defective_type}
+		</if>
+		<if test="step != null">
+			AND da.step = #{step}
+		</if>
+		<if test="sponsor_date_from != null and sponsor_date_from != ''">
+			AND da.sponsor_date >= #{sponsor_date_from}
+		</if>
+		<if test="sponsor_date_to != null and sponsor_date_to != ''">
+			<![CDATA[
+				AND da.sponsor_date < date_add(#{sponsor_date_to}, interval 1 day)
+			]]>
+		</if>
+		<if test="line_id != null">
+			ANd am.line_id = #{line_id}
+		</if>
+		<if test="responsibility_of_ptl != null">
+			AND da.responsibility_of_ptl = #{responsibility_of_ptl}
+		</if>
+		<if test="capa_risk != null">
+			AND da.capa_risk = #{capa_risk}
+		</if>
+		<if test="rework_proceed != null">
+			AND da.rework_proceed = #{rework_proceed}
+		</if>
+
+		<if test="cm_proc_confirmer_date_from != null and cm_proc_confirmer_date_from != ''">
+			AND da.cm_proc_confirmer_date >= #{cm_proc_confirmer_date_from}
+		</if>
+		<if test="cm_proc_confirmer_date_to != null and cm_proc_confirmer_date_to != ''">
+			<![CDATA[
+				AND da.cm_proc_confirmer_date < date_add(#{cm_proc_confirmer_date_to}, interval 1 day)
+			]]>
+		</if>
+	</where>
+	GROUP BY
+		da.alarm_message_id
+	</select>
+
+	<select id="findOneById" parameterType="String" resultType="DefectiveAnalysisSearchEntity">
+	SELECT
+	 am.alarm_messsage_id AS alarm_message_id
+	 , am.reason
+	 , material.reception_time
+	 , material.omr_notifi_no
+	 , model.name AS model_name
+	 , line.line_id
+	 , line.name AS line_name
+	 , material.serial_no
+	 , material.level
+	 , customer.name AS customer_name
+	 , da.defective_type
+	 , da.manage_code
+	 , Coalesce(da.step, -1) AS step
+	 , da.sponsor_operator_id
+	 , (SELECT name FROM operator WHERE operator_id = da.sponsor_operator_id) AS sponsor_operator_name
+	 , da.sponsor_date
+	 , da.defective_phenomenon
+	 , da.responsibility_of_line
+	 , da.phenomenon_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.phenomenon_confirmer_id) AS phenomenon_confirmer_name
+	 , da.phenomenon_confirmer_date
+	 , da.responsibility_of_ptl
+	 , da.cause_analysis
+	 , da.cause_analyst_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cause_analyst_id) AS cause_analyst_name
+	 , da.cause_analyst_date
+	 , da.cause_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cause_confirmer_id) AS cause_confirmer_name
+	 , da.cause_confirmer_date
+	 , da.capa_frequency
+	 , da.capa_major
+	 , da.capa_risk
+	 , da.append_part_order
+	 , da.partial_applyier_id
+	 , (SELECT name FROM operator WHERE operator_id = da.partial_applyier_id) AS partial_applyier_name
+	 , da.rework_proceed
+	 , da.countermeasures
+	 , da.cm_filer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_filer_id) AS cm_filer_name
+	 , da.cm_filer_date
+	 , da.cm_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_confirmer_id) AS cm_confirmer_name
+	 , da.cm_confirmer_date
+	 , da.cm_processor_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_processor_id) AS cm_processor_name
+	 , da.cm_processor_date
+	 , da.cm_proc_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_proc_confirmer_id) AS cm_proc_confirmer_name
+	 , da.cm_proc_confirmer_date
+	 , da.countermeasure_effects
+	 , da.cm_effect_verifier_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_effect_verifier_id) AS cm_effect_verifier_name
+	 , da.cm_effect_verifier_date
+	 , da.cm_effect_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = da.cm_effect_confirmer_id) AS cm_effect_confirmer_name
+	 , da.cm_effect_confirmer_date
+	 , dap.nongood_parts_situation
+	 , dap.receive_date
+	 , dap.stored_parts
+	 , dap.stored_parts_resolve
+	 , dap.occur_times
+	 , daq.defective_items
+	 , daq.involving
+	 , daq.involving_reason
+	 , daq.closing_judgment
+	 , daq.closing_judger_id
+	 , (SELECT name FROM operator WHERE operator_id = daq.closing_judger_id) AS closing_judger_name
+	 , daq.closing_judger_date
+	 , daq.closing_confirmer_id
+	 , (SELECT name FROM operator WHERE operator_id = daq.closing_confirmer_id) AS closing_confirmer_name
+	 , daq.closing_confirmer_date
+	FROM
+		alarm_messsage am
+	LEFT JOIN
+		defective_analysis da
+		ON
+			da.alarm_message_id = am.alarm_messsage_id
+	LEFT JOIN
+		defective_analysis_partial dap
+		ON
+			dap.alarm_message_id = da.alarm_message_id
+	LEFT JOIN
+		defective_analysis_qa daq
+		ON
+			daq.alarm_message_id = da.alarm_message_id
+	JOIN material material
+		ON
+			material.material_id = am.material_id
+	JOIN model model
+		ON
+			model.model_id = material.model_id
+	JOIN line line
+		ON
+			line.line_id = am.line_id
+	JOIN customer customer
+		ON
+			customer.customer_id = material.customer_id
+	WHERE
+		am.alarm_messsage_id = #{alarm_message_id}
+	</select>
+
+	<select id="findPhotoById" resultType="DefectiveAnalysisPhotoEntity" parameterType="String">
+	SELECT
+	  alarm_message_id
+	  , seq
+	  , for_step
+	  , file_uuid
+	FROM
+	  defective_analysis_photo
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	ORDER BY
+	  alarm_message_id
+	  , seq
+	  , for_step
+	</select>
+
+	<insert id="insert" parameterType="DefectiveAnalysisEntity">
+	<![CDATA[
+	INSERT
+		INTO defective_analysis(
+		  alarm_message_id
+		  , defective_type
+		  , manage_code
+		  , step
+		  , sponsor_operator_id
+		  , sponsor_date
+		  , defective_phenomenon
+		  , responsibility_of_line
+		  , phenomenon_confirmer_id
+		  , phenomenon_confirmer_date
+		  , responsibility_of_ptl
+		  , cause_analysis
+		  , cause_analyst_id
+		  , cause_analyst_date
+		  , cause_confirmer_id
+		  , cause_confirmer_date
+		  , capa_frequency
+		  , capa_major
+		  , capa_risk
+		  , append_part_order
+		  , partial_applyier_id
+		  , rework_proceed
+		  , countermeasures
+		  , cm_filer_id
+		  , cm_filer_date
+		  , cm_confirmer_id
+		  , cm_confirmer_date
+		  , cm_processor_id
+		  , cm_processor_date
+		  , cm_proc_confirmer_id
+		  , cm_proc_confirmer_date
+		  , countermeasure_effects
+		  , cm_effect_verifier_id
+		  , cm_effect_verifier_date
+		  , cm_effect_confirmer_id
+		  , cm_effect_confirmer_date
+		)
+		VALUES (
+		  #{alarm_message_id}
+		  , #{defective_type}
+		  , #{manage_code}
+		  , #{step}
+		  , #{sponsor_operator_id}
+		  , CURRENT_DATE()
+		  , #{defective_phenomenon}
+		  , #{responsibility_of_line}
+		  , #{phenomenon_confirmer_id}
+		  , #{phenomenon_confirmer_date}
+		  , #{responsibility_of_ptl}
+		  , #{cause_analysis}
+		  , #{cause_analyst_id}
+		  , #{cause_analyst_date}
+		  , #{cause_confirmer_id}
+		  , #{cause_confirmer_date}
+		  , #{capa_frequency}
+		  , #{capa_major}
+		  , #{capa_risk}
+		  , #{append_part_order}
+		  , #{partial_applyier_id}
+		  , #{rework_proceed}
+		  , #{countermeasures}
+		  , #{cm_filer_id}
+		  , #{cm_filer_date}
+		  , #{cm_confirmer_id}
+		  , #{cm_confirmer_date}
+		  , #{cm_processor_id}
+		  , #{cm_processor_date}
+		  , #{cm_proc_confirmer_id}
+		  , #{cm_proc_confirmer_date}
+		  , #{countermeasure_effects}
+		  , #{cm_effect_verifier_id}
+		  , #{cm_effect_verifier_date}
+		  , #{cm_effect_confirmer_id}
+		  , #{cm_effect_confirmer_date}
+		)
+	]]>
+	</insert>
+
+	<insert id="insertPartial" parameterType="DefectiveAnalysisPartialEntity">
+	INSERT
+		INTO defective_analysis_partial(
+		  alarm_message_id
+		  , nongood_parts_situation
+		  , receive_date
+		  , stored_parts
+		  , stored_parts_resolve
+		  , occur_times
+		)
+		VALUES (
+		  #{alarm_message_id}
+		  , #{nongood_parts_situation}
+		  , #{receive_date}
+		  , #{stored_parts}
+		  , #{stored_parts_resolve}
+		  , #{occur_times}
+		)
+	</insert>
+
+	<insert id="insertPhoto" parameterType="DefectiveAnalysisPhotoEntity">
+	INSERT
+		INTO defective_analysis_photo(
+			alarm_message_id
+			, seq
+			, for_step
+			, file_uuid)
+		VALUES (
+			#{alarm_message_id}
+			, #{seq}
+			, #{for_step}
+			, #{file_uuid}
+		)
+	</insert>
+
+	<insert id="insertQa" parameterType="DefectiveAnalysisQaEntity">
+	INSERT
+		INTO defective_analysis_qa(
+		  alarm_message_id
+		  , defective_items
+		  , involving
+		  , involving_reason
+		  , closing_judgment
+		  , closing_judger_id
+		  , closing_judger_date
+		  , closing_confirmer_id
+		  , closing_confirmer_date
+		)
+		VALUES (
+		  #{alarm_message_id}
+		  , #{defective_items}
+		  , #{involving}
+		  , #{involving_reason}
+		  , #{closing_judgment}
+		  , #{closing_judger_id}
+		  , #{closing_judger_date}
+		  , #{closing_confirmer_id}
+		  , #{closing_confirmer_date}
+		)
+	</insert>
+
+	<update id="update" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  defective_type = #{defective_type}
+	  , manage_code = #{manage_code}
+	  , step = #{step}
+	  , sponsor_operator_id = #{sponsor_operator_id}
+	  , sponsor_date = #{sponsor_date}
+	  , defective_phenomenon = #{defective_phenomenon}
+	  , responsibility_of_line = #{responsibility_of_line}
+	  , phenomenon_confirmer_id = #{phenomenon_confirmer_id}
+	  , phenomenon_confirmer_date = #{phenomenon_confirmer_date}
+	  , responsibility_of_ptl = #{responsibility_of_ptl}
+	  , cause_analysis = #{cause_analysis}
+	  , cause_analyst_id = #{cause_analyst_id}
+	  , cause_analyst_date = #{cause_analyst_date}
+	  , cause_confirmer_id = #{cause_confirmer_id}
+	  , cause_confirmer_date = #{cause_confirmer_date}
+	  , capa_frequency = #{capa_frequency}
+	  , capa_major = #{capa_major}
+	  , capa_risk = #{capa_risk}
+	  , append_part_order = #{append_part_order}
+	  , partial_applyier_id = #{partial_applyier_id}
+	  , rework_proceed = #{rework_proceed}
+	  , countermeasures = #{countermeasures}
+	  , cm_filer_id = #{cm_filer_id}
+	  , cm_filer_date = #{cm_filer_date}
+	  , cm_confirmer_id = #{cm_confirmer_id}
+	  , cm_confirmer_date = #{cm_confirmer_date}
+	  , cm_processor_id = #{cm_processor_id}
+	  , cm_processor_date = #{cm_processor_date}
+	  , cm_proc_confirmer_id = #{cm_proc_confirmer_id}
+	  , cm_proc_confirmer_date = #{cm_proc_confirmer_date}
+	  , countermeasure_effects = #{countermeasure_effects}
+	  , cm_effect_verifier_id = #{cm_effect_verifier_id}
+	  , cm_effect_verifier_date = #{cm_effect_verifier_date}
+	  , cm_effect_confirmer_id = #{cm_effect_confirmer_id}
+	  , cm_effect_confirmer_date = #{cm_effect_confirmer_date}
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updatePartial" parameterType="DefectiveAnalysisPartialEntity">
+	UPDATE defective_analysis_partial
+	<set>
+		<if test="nongood_parts_situation != null">
+			nongood_parts_situation = #{nongood_parts_situation},
+		</if>
+	  	<if test="receive_date != null">
+	  		receive_date = #{receive_date},
+	  	</if>
+	  	<if test="stored_parts != null">
+	  		stored_parts = #{stored_parts},
+	  	</if>
+	  	<if test="stored_parts_resolve != null">
+	  		stored_parts_resolve = #{stored_parts_resolve},
+	  	</if>
+	  	<if test="occur_times != null">
+	  		occur_times = #{occur_times},
+	  	</if>
+	</set>
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateQa" parameterType="DefectiveAnalysisQaEntity">
+	UPDATE defective_analysis_qa
+	<set>
+		<if test="defective_items != null">
+			defective_items = #{defective_items},
+		</if>
+		<if test="involving != null">
+			involving = #{involving},
+		</if>
+	  	<if test="involving_reason != null">
+	  		involving_reason = #{involving_reason},
+	  	</if>
+		<if test="closing_judgment != null">
+			closing_judgment = #{closing_judgment},
+		</if>
+		<if test="closing_judger_id != null">
+			closing_judger_id = #{closing_judger_id},
+	  		closing_judger_date = CURRENT_DATE(),
+		</if>
+		<if test="closing_confirmer_id != null">
+			closing_confirmer_id = #{closing_confirmer_id},
+			closing_confirmer_date = CURRENT_DATE(),
+		</if>
+	</set>
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<delete id="deletePhoto" parameterType="DefectiveAnalysisPhotoEntity">
+	DELETE FROM defective_analysis_photo
+	WHERE 
+		 alarm_message_id = #{alarm_message_id}
+	AND
+		for_step = #{for_step};
+	</delete>
+
+	<update id="updatePhoto" parameterType="DefectiveAnalysisPhotoEntity">
+	UPDATE defective_analysis_photo
+	SET
+	  file_uuid = #{file_uuid}
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	  and seq = #{seq}
+	  and for_step = #{for_step}
+	</update>
+
+	<update id="updateSponsor" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	<set>
+		<if test="manage_code != null">
+			manage_code = #{manage_code},
+		</if>
+	  	<if test="defective_phenomenon != null">
+	  		defective_phenomenon = #{defective_phenomenon},
+	  	</if>
+	  	<if test="responsibility_of_line != null">
+	  		responsibility_of_line = #{responsibility_of_line},
+	  	</if>
+		<if test="append_part_order != null">
+	  		append_part_order = #{append_part_order},
+		</if>
+	  	<if test="rework_proceed != null">
+	  		rework_proceed = #{rework_proceed},
+	  	</if>
+	</set>
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updatePhenomenonConfirmer" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	  ,phenomenon_confirmer_id = #{phenomenon_confirmer_id}
+	  , phenomenon_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCauseAnalysis" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	<set>
+		<if test="responsibility_of_line != null">
+			responsibility_of_line = #{responsibility_of_line},
+		</if>
+		<if test="append_part_order != null">
+			append_part_order = #{append_part_order},
+		</if>
+	  	<if test="rework_proceed != null">
+	  		rework_proceed = #{rework_proceed},
+	  	</if>
+
+	  	<if test="responsibility_of_ptl != null">
+			responsibility_of_ptl = #{responsibility_of_ptl},
+		</if>
+	    <if test="cause_analysis != null">
+	    	cause_analysis = #{cause_analysis},
+	    </if>
+	  	<if test="cause_analyst_id != null">
+	  		cause_analyst_id = #{cause_analyst_id},
+	  		cause_analyst_date = CURRENT_DATE(),
+	  	</if>
+	  	<if test="capa_frequency != null">
+	  		capa_frequency = #{capa_frequency},
+	  	</if>
+	  	<if test="capa_major != null">
+	  		capa_major = #{capa_major},
+	  	</if>
+	  	<if test="capa_risk != null">
+	  		capa_risk = #{capa_risk},
+	  	</if>
+	  	<if test="partial_applyier_id != null">
+	  		partial_applyier_id = #{partial_applyier_id},
+	  	</if>
+	</set>
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCauseConfirmer" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	  ,  cause_confirmer_id = #{cause_confirmer_id}
+	  , cause_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmFiler" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  countermeasures = #{countermeasures}
+	  , cm_filer_id = #{cm_filer_id}
+	  , cm_filer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmConfirmer" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	  ,cm_confirmer_id = #{cm_confirmer_id}
+	  , cm_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmProcessor" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  cm_processor_id = #{cm_processor_id}
+	  , cm_processor_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmProcConfirmer" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	  ,cm_proc_confirmer_id = #{cm_proc_confirmer_id}
+	  , cm_proc_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmEffectVerifier" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  countermeasure_effects = #{countermeasure_effects}
+	  , cm_effect_verifier_id = #{cm_effect_verifier_id}
+	  , cm_effect_verifier_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateCmEffectConfirmer" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	  , cm_effect_confirmer_id = #{cm_effect_confirmer_id}
+	  , cm_effect_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateClosingJudger" parameterType="DefectiveAnalysisQaEntity">
+	UPDATE defective_analysis_qa
+	SET
+	  closing_judgment = #{closing_judgment}
+	  , closing_judger_id = #{closing_judger_id}
+	  , closing_judger_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateClosingConfirmer" parameterType="DefectiveAnalysisQaEntity">
+	UPDATE defective_analysis_qa
+	SET
+	  closing_confirmer_id = #{closing_confirmer_id}
+	  , closing_confirmer_date = CURRENT_DATE()
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<update id="updateStep" parameterType="DefectiveAnalysisEntity">
+	UPDATE defective_analysis
+	SET
+	  step = #{step}
+	WHERE
+	  alarm_message_id = #{alarm_message_id}
+	</update>
+
+	<select id="getMaxManageCode" resultType="String" parameterType="DefectiveAnalysisEntity">
+		select max(manage_code) as manage_code
+		from defective_analysis
+		where manage_code like concat(#{manage_code},'___')
+	  	<if test="alarm_message_id != null">
+			<![CDATA[
+	  		AND alarm_message_id <> #{alarm_message_id}
+	  		]]>
+	  	</if>
+		and right(manage_code, 3) REGEXP '[0-9]{3}'
+	</select>
+
+	<select id="checkDuplicateManageCode" resultType="String" parameterType="String">
+		select alarm_message_id
+		from defective_analysis
+		where manage_code = #{manage_code}
+	</select>
+</mapper>

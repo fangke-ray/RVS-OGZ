@@ -95,7 +95,13 @@ public class AlarmMessageAction extends BaseAction {
 
 		Calendar today  =Calendar.getInstance();
 		int hour = today.get(Calendar.HOUR_OF_DAY); 
-		
+
+		if (user.getPrivacies().contains(RvsConsts.PRIVACY_LINE)
+				|| user.getPrivacies().contains(RvsConsts.PRIVACY_PROCESSING)
+				|| user.getPrivacies().contains(RvsConsts.PRIVACY_SCHEDULE)) {
+			req.setAttribute("editable", "yes");
+		}
+
 		if(hour < 10 ){
 			today.add(Calendar.DAY_OF_MONTH, -1);
 		}

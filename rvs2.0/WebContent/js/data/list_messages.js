@@ -6,6 +6,7 @@ var listdata = {};
 var servicePath = "alarmMessage.do";
 var lOptions = "";
 var rOptions = "";
+var stepOptions = "";
 
 var findit = function() {
 	var data = {
@@ -106,6 +107,15 @@ $(function() {
 });
 
 $(function() {
+	// 不良对策显示
+	$("#defectiveAnalysisbutton").click(function() {
+		var rowid = $("#list").jqGrid('getGridParam', 'selrow');
+		if (rowid == null) {return;}
+		var rowData = $("#list").jqGrid('getRowData', rowid);
+		afterResolve = "true";
+		popDefectiveAnalysis(rowData.id, true);
+	})
+
 	// 不良新现象登记
 	$("#nongood_new_phenomenonbutton").click(function() {
 		var rowid = $("#list").jqGrid('getGridParam', 'selrow');
@@ -138,7 +148,7 @@ function search_handleComplete(xhrobj, textStatus) {
 			listdata = resInfo.list;
 			lOptions = resInfo.lOptions;
 			rOptions = resInfo.rOptions;
-			
+			stepOptions = resInfo.stepOptions;
 
 			if ($("#gbox_list").length > 0) {
 				$("#list").jqGrid().clearGridData();
@@ -152,21 +162,22 @@ function search_handleComplete(xhrobj, textStatus) {
 					rowheight : 23,
 					datatype : "local",
 					colNames : ['','警报等级', '原因', '发生时间', '修理单号', (g_depa == 2 ? '制造品型号' : '维修对象型号'), '机身号/序列号',
-							'担当人', '课室', '工程', '工位', '处理人', '处理时间'],
+							'担当人', '课室', '工程', '工位', '处理人', '处理时间', '对策进度'],
 					colModel : [
 						{name:'id',index:'id', hidden: true, key: true},
 						{name:'level',index:'level', width:60, formatter:'select', editoptions:{value:lOptions}},
 						{name:'reason',index:'reason', width:60, formatter:'select', editoptions:{value:rOptions}},
 						{name:'occur_time',index:'occur_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}},
-						{name:'sorc_no',index:'sorc_no', width:95, hidden : (g_depa == 2)},
-						{name:'model_name',index:'model_id', width:125},
+						{name:'sorc_no',index:'sorc_no', width:65, hidden : (g_depa == 2)},
+						{name:'model_name',index:'model_id', width:95},
 						{name:'serial_no',index:'serial_no', width:65},
 						{name:'operator_name',index:'operator_name', width:60},
 						{name:'section_name',index:'section_name', width:35},
 						{name:'line_name',index:'line_name', width:65},
 						{name:'position_name',index:'position_name', width:55},
 						{name:'resolver_name',index:'resolver_id', width:50},
-						{name:'resolve_time',index:'resolve_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}}
+						{name:'resolve_time',index:'resolve_time', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d H:i:s',newformat:'m-d H:i'}},
+						{name:'defective_step',index:'defective_step', width:50, formatter:'select', editoptions:{value:stepOptions}}
 					],
 					rowNum : 50,
 					toppager : false,
@@ -179,14 +190,12 @@ function search_handleComplete(xhrobj, textStatus) {
 						var alarm_messsage_id = data["id"];
 						showDetail(alarm_messsage_id);
 					},
-					// multiselect : true, 
 					// multiselect : true,
 					gridview : true, // Speed up
 					pagerpos : 'right',
 					pgbuttons : true,
 					pginput : false,
 					recordpos : 'left',
-					viewsortcols : [true, 'vertical', true]
 					viewsortcols : [true, 'vertical', true],
 					gridComplete: enablebuttons
 				});
@@ -211,6 +220,9 @@ var enablebuttons = function() {
 			$buttons.disable();
 		} else {
 			$buttons.enable();
+			if (rowdata.defective_step != "") {
+				$("#defectiveAnalysisbutton").disable();
+			}
 		}
 	}
 }

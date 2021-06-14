@@ -38,7 +38,10 @@ public class AlarmMesssageEntity implements Serializable {
 
 	private String give_message;
 
+	private Integer kind;
 	// List<AlarmMesssageSendationEntity> sendation = new ArrayList
+
+	private Integer defective_step;
 
 	public String getAlarm_messsage_id() {
 		return alarm_messsage_id;
@@ -195,5 +198,18 @@ public class AlarmMesssageEntity implements Serializable {
 	}
 	public void setGive_message(String give_message) {
 		this.give_message = give_message;
+	}
+
+	public Integer getKind() {
+		return kind;
+	}
+	public void setKind(Integer kind) {
+		this.kind = kind;
+	}
+	public Integer getDefective_step() {
+		return defective_step;
+	}
+	public void setDefective_step(Integer defective_step) {
+		this.defective_step = defective_step;
 	}
 }

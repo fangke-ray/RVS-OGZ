@@ -28,7 +28,6 @@ import com.osh.rvs.bean.master.ModelEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
 import com.osh.rvs.bean.master.PositionEntity;
-import com.osh.rvs.common.FseBridgeUtil;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
@@ -401,102 +400,21 @@ public class AlarmMesssageService {
 
 		Integer amReason = entity.getReason();
 
+		form.setComment(getComments(entity, alarm_messsage_id, dao));
 		switch(amReason) {
-		case RvsConsts.WARNING_REASON_BREAK : {
-			// 取得原因
-			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
-			if (pauseEntity == null) {
-				pauseEntity = dao.getBreakOperatorMessage(entity.getOperator_id(), entity.getMaterial_id(), entity.getPosition_id());
-			}
-
-			if (pauseEntity != null) {
-				// 取得暂停信息里的记录
-				Integer iReason = pauseEntity.getReason();
-				// 不良理由
-				String sReason = null;
-				if (iReason != null && iReason < 10) {
-					sReason = CodeListUtils.getValue("break_reason", "0" + iReason);
-				} else {
-					sReason = PathConsts.POSITION_SETTINGS.getProperty("break."+ pauseEntity.getProcess_code() +"." + iReason);
-				}
-
-				// 备注信息
-				String sComments = pauseEntity.getComments();
-				if (CommonStringUtil.isEmpty(sComments)) {
-					form.setComment(sReason);
-				} else {
-					form.setComment(sReason + " : " + sComments);
-				}
-			} else {
-				form.setComment("(不明)");
-			}
-			break;
-		}
-		case RvsConsts.WARNING_REASON_INLINE_LATE : {
-			form.setComment("请确认是何原因还未投线。"); // TODO 请确认XXX(同意日期mom-dad)是何原因还未投线。
-			break;
-		} 
-		case RvsConsts.WARNING_REASON_QAFORBID : {
-			form.setComment("由于品保终检不合格被退回，请知晓并及时处理！");
-			break;
-		}
-		case RvsConsts.WARNING_REASON_PARTIAL_ON_POISTION : {
-			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位零件签收清点发生异常。请前去确认！");
-			break;
-		}
-		case RvsConsts.WARNING_REASON_INFECT_ERROR : {
-			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位发生点检错误。请前去确认！");
-			break;
-		}
-		case RvsConsts.WARNING_REASON_WAITING_OVERFLOW : {
-			// 取得等待区上线数
-			String overflow = "0";
-			String position_id = entity.getPosition_id();
-			if (position_id != null) {
-				overflow = RvsUtils.getWaitingflow(entity.getSection_id(), null, entity.getProcess_code());
-			}
-			form.setComment(entity.getSection_name() + "的" + entity.getProcess_code() + "工位的仕挂数已经超过" + overflow +
-					"，请知晓并及时处理！");
-			break;
-		}
-		case RvsConsts.WARNING_REASON_POSITION_OVERTIME : {
-			form.setComment("维修品在" + entity.getProcess_code() + "工位的实际作业时间已超出标准。请予以确认！");
-			break;
-		}
 		case RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE : {
-			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
-			form.setComment(amsEntity.getComment());
 			form.setOperator_name(null);
 			break;
 		}
 		case RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE : {// 能率未达成
-			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
-			form.setComment(amsEntity.getComment());
 			form.setOperator_name(null);
 			break;
 		}
-		case RvsConsts.WARNING_REASON_BREAK_SOLO : {// 能率未达成
+		case RvsConsts.WARNING_REASON_BREAK_SOLO : {// 中断（单元岗位）
 			// 取得原因
 			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
 
 			if (pauseEntity != null) {
-				// 取得暂停信息里的记录
-				Integer iReason = pauseEntity.getReason();
-				// 不良理由
-				String sReason = null;
-				if (iReason != null && iReason < 10) {
-					sReason = CodeListUtils.getValue("break_reason", "0" + iReason);
-				} else {
-					sReason = PathConsts.POSITION_SETTINGS.getProperty("break."+ pauseEntity.getProcess_code() +"." + iReason);
-				}
-
-				// 备注信息
-				String sComments = pauseEntity.getComments();
-				if (CommonStringUtil.isEmpty(sComments)) {
-					form.setComment(sReason);
-				} else {
-					form.setComment(sReason + " : " + sComments);
-				}
 	
 				// 取得独立工位对象信息
 				SoloProductionFeatureMapper spfMapper = conn.getMapper(SoloProductionFeatureMapper.class);
@@ -514,18 +432,8 @@ public class AlarmMesssageService {
 					form.setSerial_no("(不明)");
 				}
 			} else {
-				form.setComment("(不明)");
 				form.setModel_name("(不明)");
 				form.setSerial_no("(不明)");
-			}
-			break;
-		}
-		case RvsConsts.WARNING_REASON_PROCEDURE_OVERSET : { // 计数超过
-			String comment = dao.getAlarmMesssageContent(alarm_messsage_id);
-			if (comment != null) {
-				form.setComment(comment);
-			} else {
-				form.setComment("(不明)");
 			}
 			break;
 		}
@@ -547,6 +455,117 @@ public class AlarmMesssageService {
 		form.setSendations(sendationList);
 
 		return form;
+	}
+
+	/**
+	 * 取得各种警报的备注信息
+	 * @param entity
+	 * @param alarm_messsage_id
+	 * @param amReason
+	 * @param dao
+	 * @return
+	 */
+	public String getComments(AlarmMesssageEntity entity, String alarm_messsage_id,
+			AlarmMesssageMapper dao) {
+		switch(entity.getReason()) {
+		case RvsConsts.WARNING_REASON_BREAK : {
+			// 取得原因
+			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
+			if (pauseEntity == null) {
+				pauseEntity = dao.getBreakOperatorMessage(entity.getOperator_id(), entity.getMaterial_id(), entity.getPosition_id());
+			}
+
+			if (pauseEntity != null) {
+				// 取得暂停信息里的记录
+				Integer iReason = pauseEntity.getReason();
+				// 不良理由
+				String sReason = null;
+				if (iReason != null && iReason < 10) {
+					sReason = CodeListUtils.getValue("break_reason", "0" + iReason);
+				} else {
+					sReason = PathConsts.POSITION_SETTINGS.getProperty("break."+ pauseEntity.getProcess_code() +"." + iReason);
+				}
+
+				// 备注信息
+				String sComments = pauseEntity.getComments();
+				if (CommonStringUtil.isEmpty(sComments)) {
+					return sReason;
+				} else {
+					return sReason + " : " + sComments;
+				}
+			} else {
+				return "(不明)";
+			}
+		}
+		case RvsConsts.WARNING_REASON_INLINE_LATE : {
+			return "请确认是何原因还未投线。"; // TODO 请确认XXX(同意日期mom-dad)是何原因还未投线。
+		} 
+		case RvsConsts.WARNING_REASON_QAFORBID : {
+			return "由于品保终检不合格被退回，请知晓并及时处理！";
+		}
+		case RvsConsts.WARNING_REASON_PARTIAL_ON_POISTION : {
+			return entity.getSection_name() + "的" + entity.getProcess_code() + "工位零件签收清点发生异常。请前去确认！";
+		}
+		case RvsConsts.WARNING_REASON_INFECT_ERROR : {
+			return entity.getSection_name() + "的" + entity.getProcess_code() + "工位发生点检错误。请前去确认！";
+		}
+		case RvsConsts.WARNING_REASON_WAITING_OVERFLOW : {
+			// 取得等待区上线数
+			String overflow = "0";
+			String position_id = entity.getPosition_id();
+			if (position_id != null) {
+				overflow = RvsUtils.getWaitingflow(entity.getSection_id(), null, entity.getProcess_code());
+			}
+			return entity.getSection_name() + "的" + entity.getProcess_code() + "工位的仕挂数已经超过" + overflow +
+					"，请知晓并及时处理！";
+		}
+		case RvsConsts.WARNING_REASON_POSITION_OVERTIME : {
+			return "维修品在" + entity.getProcess_code() + "工位的实际作业时间已超出标准。请予以确认！";
+		}
+		case RvsConsts.WARNING_REASON_NOT_REACH_LOAD_RATE : {
+			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
+			return amsEntity.getComment();
+		}
+		case RvsConsts.WARNING_REASON_NOT_REACH_ENERGY_RATE : {// 能率未达成
+			AlarmMesssageSendationEntity amsEntity = dao.getBreakAlarmMessageBySendation(alarm_messsage_id, "0");
+			return amsEntity.getComment();
+		}
+		case RvsConsts.WARNING_REASON_BREAK_SOLO : {// 中断（单元岗位）
+			// 取得原因
+			PauseFeatureEntity pauseEntity = dao.getBreakOperatorMessageByID(alarm_messsage_id);
+
+			if (pauseEntity != null) {
+				// 取得暂停信息里的记录
+				Integer iReason = pauseEntity.getReason();
+				// 不良理由
+				String sReason = null;
+				if (iReason != null && iReason < 10) {
+					sReason = CodeListUtils.getValue("break_reason", "0" + iReason);
+				} else {
+					sReason = PathConsts.POSITION_SETTINGS.getProperty("break."+ pauseEntity.getProcess_code() +"." + iReason);
+				}
+
+				// 备注信息
+				String sComments = pauseEntity.getComments();
+				if (CommonStringUtil.isEmpty(sComments)) {
+					return sReason;
+				} else {
+					return sReason + " : " + sComments;
+				}
+			} else {
+				return "(不明)";
+			}
+		}
+		case RvsConsts.WARNING_REASON_PROCEDURE_OVERSET : { // 计数超过
+			String comment = dao.getAlarmMesssageContent(alarm_messsage_id);
+			if (comment != null) {
+				return comment;
+			} else {
+				return "(不明)";
+			}
+		}
+		}
+		return null;
 	}
 
 	/**
@@ -726,13 +745,13 @@ public class AlarmMesssageService {
 			MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 			entity = mMapper.getMaterialNamedEntityByKey(material_id);
 			mMapper.updateMaterialPat(material_id, pat_id);
-
-			// FSE 数据同步
-			try{
-				FseBridgeUtil.toUpdateMaterial(material_id, "rework");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//
+//			// FSE 数据同步
+//			try{
+//				FseBridgeUtil.toUpdateMaterial(material_id, "rework");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 
 			ProductionFeatureService featureService = new ProductionFeatureService();
 

@@ -11,7 +11,6 @@
 				LEVEL,
 				OCCUR_TIME,
 				MATERIAL_ID,
-				SERIAL_NO,
 				REASON,
 				SECTION_ID,
 				LINE_ID,
@@ -21,7 +20,6 @@
 				#{level},
 				current_timestamp,
 				#{material_id},
-				#{serial_no},
 				#{reason},
 				#{section_id},
 				coalesce(#{line_id}, 0),
@@ -118,12 +116,12 @@
 		<![CDATA[ 
 			SELECT `am`.material_id, `am`.alarm_messsage_id, `am`.`LEVEL`, `am`.OCCUR_TIME, `am`.REASON, 
 			m.omr_notifi_no as SORC_NO, 
-			`mdl`.name as MODEL_NAME, `m`.SERIAL_NO,
+			`mdl`.name as MODEL_NAME, `m`.SERIAL_NO, `mdl`.kind as kind,
 			  `l`.NAME as LINE_NAME, `p`.process_code, `p`.position_id, `am`.operator_id, `o`.name as OPERATOR_NAME, `s`.name as section_name, `p`.name as position_name
 			FROM alarm_messsage am
 			LEFT JOIN material m
 			  ON `am`.material_id = `m`.material_id
-			LEFT JOIN model mdl
+			LEFT JOIN v_model mdl
 			  ON `m`.model_id = `mdl`.model_id
 			LEFT JOIN line l
 			  ON `am`.line_id = `l`.line_id
@@ -306,7 +304,8 @@
 			  s.name as section_name, l.name as line_name, p.process_code,p.name AS position_name,
 			  min(ams.resolve_time) as resolve_time, group_concat(osd.name
                 order by resolve_time
-                separator ' ') as resolver_name
+                separator ' ') as resolver_name,
+              da.step as defective_step
 			FROM alarm_messsage am
 			LEFT JOIN material m ON am.material_id = m.material_id
 			LEFT JOIN model mdl ON m.model_id = mdl.model_id
@@ -321,6 +320,7 @@ AND ams.red_flg = 1
 LEFT join
 operator osd
 ON ams.sendation_id = osd.operator_id
+			LEFT JOIN `defective_analysis` da ON am.alarm_messsage_id = da.alarm_message_id
 		]]>
 		<where>
 			am.reason != 6

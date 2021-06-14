@@ -108,6 +108,11 @@
 
 		<typeAlias alias="ProcedureStepCountEntity" type="com.osh.rvs.bean.master.ProcedureStepCountEntity"/>
 
+		<typeAlias alias="DefectiveAnalysisEntity" type="com.osh.rvs.bean.manage.DefectiveAnalysisEntity"/>
+		<typeAlias alias="DefectiveAnalysisPartialEntity" type="com.osh.rvs.bean.manage.DefectiveAnalysisPartialEntity"/>
+		<typeAlias alias="DefectiveAnalysisQaEntity" type="com.osh.rvs.bean.manage.DefectiveAnalysisQaEntity"/>
+		<typeAlias alias="DefectiveAnalysisPhotoEntity" type="com.osh.rvs.bean.manage.DefectiveAnalysisPhotoEntity"/>
+		<typeAlias alias="DefectiveAnalysisSearchEntity" type="com.osh.rvs.bean.manage.DefectiveAnalysisSearchEntity"/>
 
 		<typeAlias alias="NewPhenomenonEntity" type="com.osh.rvs.bean.manage.NewPhenomenonEntity"/>
 
@@ -232,6 +237,8 @@
 
 		<mapper resource="com/osh/rvs/mapper/manufact/ProductMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/ProcedureStepCountMapper.xml"/>
+
+		<mapper resource="com/osh/rvs/mapper/manage/DefectiveAnalysisMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manage/NewPhenomenonMapper.xml"/>
 	</mappers>

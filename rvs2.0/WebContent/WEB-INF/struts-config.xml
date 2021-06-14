@@ -95,6 +95,8 @@
 		<form-bean name="deviceJigRepairRecordForm" type="com.osh.rvs.form.equipment.DeviceJigRepairRecordForm"></form-bean>
 
 		<form-bean name="OperationStandardDocForm" type="com.osh.rvs.form.manage.OperationStandardDocForm"></form-bean>
+
+		<form-bean name="defectiveAnalysisForm" type="com.osh.rvs.form.manage.DefectiveAnalysisForm" />
 		<form-bean name="newPhenomenonForm" type="com.osh.rvs.form.manage.NewPhenomenonForm"></form-bean>
 
 	</form-beans>
@@ -386,6 +388,14 @@
 			<forward name="detail" path="/widgets/message-detail.jsp" />
 			<forward name="init" path="/pages/data/list_messages.jsp" />
 			<forward name="success" path="/pages/data/list_messages.jsp" />
+		</action>
+
+		<!-- manage 不良对策 -->
+		<action path="/defectiveAnalysis" type="com.osh.rvs.action.manage.DefectiveAnalysisAction" parameter="method" validate="false" name="defectiveAnalysisForm" scope="request">
+			<forward name="detail" path="/widgets/manage/defective_analysis.jsp" />
+
+			<forward name="init" path="/pages/manage/list_defective_analysis.jsp" />
+			<forward name="success" path="/pages/manage/list_defective_analysis.jsp" />
 		</action>
 
 		<!-- qa 品保最终检验 -->

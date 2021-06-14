@@ -29,7 +29,7 @@
 		<value code="1">流水线</value>
 		<value code="2">非流水线</value>
 	</codelist>
-	
+
 	<codelist name="material_fix_type_manufact">
 		<value code="6">本体制造</value>
 		<value code="7">ARM制造</value>
@@ -41,7 +41,7 @@
 		<value code="2">QIS</value>
 		<!-- <value code="3">备品</value> -->
 	</codelist>
-	
+
 	<codelist name="material_break_back">
 		<value code="0">维修品</value>
 		<value code="1">转送给OSH</value>
@@ -49,18 +49,18 @@
 		<value code="3">备品</value>
 		<value code="4">RC品</value>
 	</codelist>
-	
+
 	<codelist name="material_direct">
 		<value code="1">直送</value>
 	</codelist>
-	
+
 	<codelist name="material_ocm">
 		<value code="3">OCM-GZ RC</value>
 		<value code="2">OCM-BJ RC</value>
 		<value code="1">OCM-SH RC</value>
 		<value code="4">OCM-SY RC</value>
 	</codelist>
-	
+
 	<codelist name="material_level">
 		<value code="1">S1</value>
 		<value code="2">S2</value>
@@ -147,7 +147,7 @@
 		<value code="2">B</value>
 		<value code="3">C</value>
 	</codelist>
-	
+
 	<codelist name="material_ocm_direct_rank">
 		<value code="1">A</value>
 		<value code="2">B</value>
@@ -289,21 +289,21 @@
 		<value code="2">▲</value>
 		<value code="3">★</value>
 	</codelist>
-	
+
 	<codelist name="bo_flg">
 		<value code="0">无BO</value>
 		<value code="1">有BO</value>
 		<value code="2">BO解决</value>
 		<value code="9">订购中</value>
 	</codelist>
-	
+
 	<codelist name="service_free_flg">
 		<value code="1">有偿</value>
 		<value code="2">无偿</value>
 		<value code="3">部分有偿</value>
 		<value code="9">待定</value>
 	</codelist>
-	
+
 	<codelist name="qa_material_service_repair">
 		<value code="1">保修期内不良</value>
 		<value code="2">QIS不良品</value>
@@ -336,7 +336,7 @@
 	<codelist name="value_currency">
 		<value code="1">USD</value>
 		<value code="2">RMB</value>
-		<value code="3">EUR</value>		
+		<value code="3">EUR</value>
 	</codelist>
 
 	<codelist name="disinfection_manage_no">
@@ -467,7 +467,7 @@
 		<value code="9">保修期内返品</value>
 		<value code="10">最终检查不良</value>
 	</codelist>
-	
+
 	<codelist name="partial_spec_kind">
 		<value code="1">小零件</value>
 		<value code="3">长零件</value>
@@ -517,7 +517,7 @@
 		<value code="3">非自责</value>
 		<value code="9">其他</value>
 	</codelist>
-	
+
 	<codelist name="identification">
 		<value code="1">SORC-WH</value>
 		<value code="2">OGZ</value>
@@ -531,7 +531,7 @@
 		<value code="2">定期</value>
 		<value code="9">使用前</value>
 	</codelist>
-	
+
 	<codelist name="file_cycle_type">
 		<value code="7">日/月</value>
 		<value code="6">周/月</value>
@@ -571,21 +571,21 @@
 		<value code="2">观察</value>
 		<value code="3">有影响，需停线确认波及范围</value>
 	</codelist>
-	
+
 	<codelist name="position_handle">
 		<value code="1">自由借用</value>
 		<value code="5">申请借用</value>
 		<value code="2">手工作业</value>
 		<value code="3">暂停工位</value>
 		<value code="4">使用消耗备品</value>
-	</codelist>	
-	
+	</codelist>
+
 	<codelist name="object_handle">
 		<value code="1">废弃</value>
 		<value code="2">维修</value>
 		<value code="3">更换</value>
 	</codelist>
-	
+
 	<codelist name="object_final_handle_result">
 		<value code="1">废弃</value>
 		<value code="2">维修</value>
@@ -598,7 +598,7 @@
 		<value code="1">A</value>
 		<value code="2">B</value>
 	</codelist>
-	
+
 	<codelist name="devices_status">
 		<value code="1">使用中</value>
 		<value code="2">损坏</value>
@@ -606,21 +606,21 @@
 		<value code="4">保管中</value>
 		<value code="5">周边点检使用中</value>
 	</codelist>
-	
+
 	<codelist name="checked_status">
 		<value code="0"></value>
 		<value code="1">○</value>
 		<value code="2">×</value>
 		<value code="3">△</value>
 		<value code="4">●</value>
-	</codelist>	
-	
+	</codelist>
+
 	<codelist name="effect_interval">
 		<value code="6">6 个月</value>
 		<value code="12">12 个月</value>
 		<value code="24">24 个月</value>
 	</codelist>
-	
+
 	<codelist name="organization_type">
 		<value code="1">校验机构</value>
 		<value code="2">国内厂商校验</value>
@@ -669,14 +669,14 @@
 		<value code="3">新建(替代)</value>
 		<value code="4">格式调整</value>
 	</codelist>
-	
+
 	<codelist name="account_type">
 		<value code="1">直接工作帐号</value>
 		<value code="2">其他帐号</value>
 		<value code="3">培训帐号</value>
 		<value code="4">超级员工</value>
 	</codelist>
-	
+
 	<codelist name="checked_file_storage_branch">
 		<value code="1">点检记录</value>
 		<value code="2">附表</value>
@@ -728,7 +728,7 @@
 		<value code="1">即时</value>
 		<value code="2">定点</value>
 	</codelist>
-	
+
 	<codelist name="fact_production_type">
 		<value code="10">A：收货</value>
 		<value code="11">A：收货</value>
@@ -830,12 +830,12 @@
 		<value code="2">经销商</value>
 		<value code="3">维修商</value>
 	</codelist>
-	
+
 	<codelist name="device_spare_type">
 		<value code="1">消耗备品</value>
 		<value code="2">备件</value>
 	</codelist>
-	
+
 	<codelist name="device_spare_adjust_all_reason_type">
 		<value code="01">登记管理</value>
 		<value code="02">取消管理</value>
@@ -888,6 +888,66 @@
 	<codelist name="department">
 		<value code="1">内视镜修理部</value>
 		<value code="2">显微镜制造部</value>
+	</codelist>
+
+	<!-- 不良对策 -->
+	<codelist name="defective_type">
+		<value code="1">最终检查不良</value>
+		<value code="2">新品零件不良</value>
+		<value code="3">工程内发现</value>
+		<value code="4">工程内不良</value>
+	</codelist>
+
+	<codelist name="defective_step">
+		<value code="0">不良提出</value>
+		<value code="1">原因分析</value>
+		<value code="2">对策立案</value>
+		<value code="3">对策待实现</value>
+		<value code="4">对策待确认</value>
+		<value code="5">委托关闭判断</value>
+		<value code="9">关闭</value>
+	</codelist>
+
+	<codelist name="defective_responsibility_of_line">
+		<value code="1">生产</value>
+		<value code="2">无异常</value>
+		<value code="3">其它</value>
+	</codelist>
+
+	<codelist name="defective_responsibility_of_ptl">
+		<value code="LJ">零件不良</value>
+		<value code="BL">操作责任</value>
+		<value code="FX">构造不稳定</value>
+		<value code="BP">BOM异常</value>
+	</codelist>
+
+	<codelist name="defective_capa_frequency">
+		<value code="9">频繁</value>
+		<value code="7">可能性高</value>
+		<value code="5">时时</value>
+		<value code="3">偶尔</value>
+		<value code="1">极少发生</value>
+	</codelist>
+
+	<codelist name="defective_capa_major">
+		<value code="9">致命</value>
+		<value code="7">重大</value>
+		<value code="5">中等</value>
+		<value code="3">轻度</value>
+		<value code="1">轻微</value>
+	</codelist>
+
+	<codelist name="defective_capa_risk">
+		<value code="1">A</value>
+		<value code="2">B</value>
+		<value code="3">C</value>
+		<value code="4">D</value>
+	</codelist>
+
+	<codelist name="defective_stored_parts_resolve">
+		<value code="1">废弃处理</value>
+		<value code="2">修复后使用</value>
+		<value code="3">无需修复（用于备品）</value>
 	</codelist>
 
 	<codelist name="inspect_perform_option">
