@@ -38,6 +38,7 @@ import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.XssShieldUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
+import framework.huiqing.server.CheckXssHttpServletRequest;
 
 public class BaseAction extends DispatchAction {
 
@@ -92,11 +93,17 @@ public class BaseAction extends DispatchAction {
 			strMethod = "init";
 		}
 
-		// Xss攻击排除
-		if (form != null && form instanceof ActionForm) {
-			BeanUtil.checkPostXss(form);
-		} else {
-			checkRequestParamsXss(req);
+		boolean updatable = strMethod.startsWith("do");
+
+		if (updatable) {
+			// Xss攻击排除
+			if (form != null && form instanceof ActionForm) {
+				BeanUtil.checkPostXss(form);
+			} else {
+				if (checkRequestParamsXss(req)) {
+					req = new CheckXssHttpServletRequest(req);
+				}
+			}
 		}
 
 		// 得到Session
@@ -106,7 +113,7 @@ public class BaseAction extends DispatchAction {
 		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
 
 		// 以方法开头带do来判断是否会写DB,提供不同的DB连接
-		if (strMethod.startsWith("do")) {
+		if (updatable) {
 			// 有向DB写操作的场合
 			SqlSessionManager conn = SqlSessionManager.newInstance(factory);
 
@@ -222,23 +229,25 @@ public class BaseAction extends DispatchAction {
 	 * 无form定义时，修改reqParameter
 	 * @param req
 	 */
-	private void checkRequestParamsXss(HttpServletRequest req) {
+	private boolean checkRequestParamsXss(HttpServletRequest req) {
 		Map<String, String[]> parameterMap = req.getParameterMap();
-//		boolean needShield = false;
+		boolean needShield = false;
 		for (String key : parameterMap.keySet()) {
+			if (BaseConst.METHOD.equals(key)) continue;
+
 			String[] vals = parameterMap.get(key);
-			if (vals.length > 1) {
+			if (vals.length >= 1) {
 				String val = vals[0];
 				if (val != null && val.length() > 16) {
 					String dVal = XssShieldUtil.stripXss(val);
 					if (!val.equals(dVal)) {
-//						needShield = true;
-						vals[0] = dVal;
-						parameterMap.put(key, vals);
+						needShield = true;
+						return needShield;
 					}
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
