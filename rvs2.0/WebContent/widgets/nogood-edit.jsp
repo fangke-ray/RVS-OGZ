@@ -22,14 +22,19 @@ var nogoodJs = function(){
 		$("#nogoodbtns input:button").mouseleave(function() {
 			$("#nogoodspns span").hide();
 		});
+		var refreshWorks = function(){
+			if (typeof(refreshList) === "function" && $("#nogoodclosebtn:visible").val() === "解除中断") refreshList();
+			if (typeof(refreshMes) === "function") refreshMes();
+			if ($(".ui-jqgrid-title:eq(0)").text() === "警告信息一览") findit();
+		}
 		$("#nogoodclosebtn, #nogoodoperatebtn").click(function(){
-
+			var buttonId = this.id;
 			if ($("#nogoodform").valid()) {
 				if ($("#break_message_level").val() == 2 && $("#planned_listarea").length > 0) {
 					edit_schedule_popMaterialDetail(selectedMaterial.material_id, $("#break_message_level").val() ,true);
 				} else {
 					if ($("#break_message_level").val() == 2) {
-						warningConfirm("请暂且到计划管理页面处理该警报。");
+						warningConfirm("请暂且到 SA 管理页面处理该警报。");
 						$("#nogood_treat").dialog("close");
 					} else {
 						var data = {
@@ -50,10 +55,20 @@ var nogoodJs = function(){
 							success : ajaxSuccessCheck,
 							error : ajaxError,
 							complete : function() {
-								if (typeof(refreshList) === "function" && $("#nogoodclosebtn:visible").val() === "解除中断") refreshList();
+
+								if (buttonId === "nogoodclosebtn" && $("#defective_next_check:checked").length > 0) {
+
+									if (typeof popDefectiveAnalysis === "undefined") {
+										loadJs("js/common/defective_analysis_detail.js", function(){
+											popDefectiveAnalysis(data.alarm_messsage_id, true, refreshWorks);
+										});
+									} else {
+										popDefectiveAnalysis(data.alarm_messsage_id, true, refreshWorks);
+									}
+								} else {
+									refreshWorks();
+								}
 								$("#nogood_treat").dialog("close");
-								if (typeof(refreshMes) === "function") refreshMes();
-								if ($(".ui-jqgrid-title:eq(0)").text() === "警告信息一览") findit();
 							}
 						});
 					}
@@ -85,6 +100,13 @@ var nogoodJs = function(){
 			if ($("#nogoodform").valid()) {
 				$("#nogoodfixbtn").attr("checked", true);
 				selectedMaterial.comment = $("#nogood_comment").val();
+
+				if ($("#defective_next_check:checked").length > 0) {
+					selectedMaterial.defective_next = true;
+					if (typeof popDefectiveAnalysis === "undefined") {
+						loadJs("js/common/defective_analysis_detail.js");
+					}
+				}
 				process_resign();
 				$("#nogood_treat").dialog("close");
 			}
@@ -189,6 +211,8 @@ var nogoodJs = function(){
 							}
 
 							$("#nogood_comment_other").html(otherCommentHtml);
+
+							defectNextEntach(resInfo.waiting_analysis);
 						}
 					} catch(e) {
 						

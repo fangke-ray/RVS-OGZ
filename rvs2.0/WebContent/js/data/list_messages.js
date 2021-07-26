@@ -113,7 +113,7 @@ $(function() {
 		if (rowid == null) {return;}
 		var rowData = $("#list").jqGrid('getRowData', rowid);
 		afterResolve = "true";
-		popDefectiveAnalysis(rowData.id, true);
+		popDefectiveAnalysis(rowData.id, true, null, openPowerCheck);
 	})
 
 	// 不良新现象登记
@@ -124,6 +124,13 @@ $(function() {
 		if (typeof(popNewPhenomenon) === "function") popNewPhenomenon(rowData.id, true);
 	})
 });
+
+var openPowerCheck = function(){
+	if($("#detail\\.manage_code").is(":hidden")) {
+		defective_analysis_detail_dlg.dialog("close");
+		errorPop("您没有相应工程的权限。");
+	}
+}
 
 var showDetail = function(alarm_messsage_id){
 
@@ -212,6 +219,10 @@ function search_handleComplete(xhrobj, textStatus) {
 var enablebuttons = function() {
 	var rowid = $("#list").jqGrid("getGridParam", "selrow");
 	var $buttons = $("#defectiveAnalysisbutton, #nongood_new_phenomenonbutton");
+	if (g_depa == 2) {
+		$buttons.disable();
+		return;
+	}
 	if (rowid == null) {
 		$buttons.disable();
 	} else {

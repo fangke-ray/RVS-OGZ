@@ -40,8 +40,12 @@ var findit = function() {
 };
 
 var g_depa = 0;
+var tmon = null;
 
 $(function() {
+	tmon = new Date();
+	tmon.setMonth(tmon.getMonth() - 1);
+	tmon = tmon.getTime();
 
 	g_depa = $("#department").val();
 
@@ -145,22 +149,32 @@ function search_handleComplete(xhrobj, textStatus) {
 					width : 992,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['','维修单号', '型号', '不良分类', '对策进度', '不良提出日', '不良现象',
-							'工程', '责任区分', '风险大小', '返工', '对策实施确认日', '对策效果确认日'],
+					colNames : ['','维修单号', '型号', '管理编号', '不良分类', '对策进度', '不良<br>提出日', '不良现象',
+							'工程', '责任<br>区分', '风险<br>大小', '返工', '对策实施<br>确认日', '对策效果<br>确认日'],
 					colModel : [
 						{name:'alarm_message_id',index:'alarm_message_id', hidden: true, key: true},
-						{name:'omr_notifi_no',index:'omr_notifi_no', width:60},
+						{name:'omr_notifi_no',index:'omr_notifi_no', width:40},
 						{name:'model_name',index:'model_name', width:60},
-						{name:'defective_type',index:'defective_type', width:60, formatter:'select', editoptions:{value: typeOptions}},
-						{name:'step',index:'step', width:50, align:'center', formatter:'select', editoptions:{value: stepOptions}},
-						{name:'sponsor_date',index:'sponsor_date', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}},
-						{name:'defective_phenomenon',index:'defective_phenomenon', width:60},
-						{name:'line_name',index:'line_name', width:65},
-						{name:'responsibility_of_ptl',index:'responsibility_of_ptl', width:65, formatter:'select', editoptions: {value: ptlOptions}},
-						{name:'capa_risk',index:'position_name', width:55, formatter:'select', editoptions: {value: riskOptions}},
-						{name:'rework_proceed',index:'rework_proceed', width:50, formatter:'select', editoptions: {value: reworkOptions}},
-						{name:'cm_proc_confirmer_date',index:'cm_proc_confirmer_date', width:60, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}},
-						{name:'cm_effect_confirmer_date',index:'cm_effect_confirmer_date', width:60, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}}
+						{name:'manage_code',index:'manage_code', width:75},
+						{name:'defective_type',index:'defective_type', hidden: true},
+						{name:'step',index:'step', width:35, align:'center', formatter:'select', editoptions:{value: stepOptions}},
+						{name:'sponsor_date',index:'sponsor_date', width:35, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
+						{name:'defective_phenomenon',index:'defective_phenomenon', width:85, formatter: function(data){
+							if (!data) return "";
+							if (data.length > 2 && data.match(/^{.*}$/)) {
+								var decode = data.replace(/&quot;/g, "\"");
+								var lco = $.parseJSON(decode);
+								return lco["0"];
+							} else {
+								return data;
+							}
+						}},
+						{name:'line_name',index:'line_name', width:45},
+						{name:'responsibility_of_ptl',index:'responsibility_of_ptl', align:'center', width:35, formatter:'select', editoptions: {value: ptlOptions}},
+						{name:'capa_risk',index:'capa_risk', width:35, align:'center', formatter:'select', editoptions: {value: riskOptions}},
+						{name:'rework_proceed',index:'rework_proceed', width:30, align:'center',  formatter:'select', editoptions: {value: reworkOptions}},
+						{name:'cm_proc_confirmer_date',index:'cm_proc_confirmer_date', width:35, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}},
+						{name:'cm_effect_confirmer_date',index:'cm_effect_confirmer_date', width:35, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}}
 					],
 					rowNum : 50,
 					toppager : false,
@@ -178,7 +192,34 @@ function search_handleComplete(xhrobj, textStatus) {
 					pgbuttons : true,
 					pginput : false,
 					recordpos : 'left',
-					viewsortcols : [true, 'vertical', true]
+					viewsortcols : [true, 'vertical', true],
+					gridComplete : function(){
+						var jthis = $("#list");
+						var dataIds = jthis.getDataIDs();
+						var length = dataIds.length;
+						for (var i = 0; i < length; i++) {
+							var rowdata = jthis.jqGrid('getRowData', dataIds[i]);
+							if (rowdata.step == "4") {
+								if (rowdata.cm_proc_confirmer_date && rowdata.cm_proc_confirmer_date.length > 2 ) {
+									var cm_proc_confirmer_date = null;
+									for (var igridlist = 0; igridlist < listdata.length; igridlist++) {
+										var gridvalue = listdata[igridlist];
+								
+										if (gridvalue["alarm_message_id"] == dataIds[i]) {
+											cm_proc_confirmer_date = gridvalue["cm_proc_confirmer_date"];
+											break;
+										}
+									}
+									if (cm_proc_confirmer_date) {
+										if (new Date(cm_proc_confirmer_date).getTime() < tmon) {
+											jthis.find("tr#" + dataIds[i] + " td[aria\\-describedby='list_cm_proc_confirmer_date']")
+												.css("background-color", "orange");
+										}
+									}
+								}
+							}
+						}
+					}
 				});
 				// $("#list").gridResize({minWidth:1248,maxWidth:1248,minHeight:200,
 				// maxHeight:900});

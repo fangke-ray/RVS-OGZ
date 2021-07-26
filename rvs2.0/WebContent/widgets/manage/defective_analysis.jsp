@@ -2,9 +2,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <style>
-#defective_analysis_detail_content textarea.mm_type {
-	width:618px; height: 120px;
+#defective_analysis_detail_content textarea {
+	width:618px;
     resize: vertical;
+}
+#defective_analysis_detail_content textarea.mm_type {
+	height: 120px;
 }
 #defective_analysis_detail_content div.imageLoader {
 	width:618px; height: 128px;
@@ -60,6 +63,9 @@
 #defective_analysis_detail_content div.typeSwitcher.typePicture {
 	background-color:gold;
 }
+#defective_analysis_detail_content div.imageLoader > div > img {
+	cursor:pointer;
+}
 </style>
 
 <script type="text/javascript">
@@ -114,7 +120,7 @@ var defectiveJs = function(){
 
 	var $select2buttonGrp = $("#detail\\.defective_type, #detail\\.step, #detail\\.responsibility_of_line, "
 		+ "#detail\\.responsibility_of_ptl, #detail\\.rework_proceed, #detail\\.involving,"
-		+ "#detail\\.capa_frequency, #detail\\.capa_major, #detail\\.capa_risk, #detail\\.stored_parts_resolve");
+		+ "#detail\\.capa_frequency, #detail\\.capa_major, #detail\\.capa_risk, #detail\\.stored_parts_resolve, #detail\\.partial_applyier_id");
 
 	var popServicePath = "defectiveAnalysis.do";
 
@@ -164,6 +170,11 @@ var defectiveJs = function(){
 				"closing_judgment": $("#detail\\.closing_judgment").val()
 			};
 
+			// 需要追加订购
+			if ($("#detail\\.partial_applyier_id").val() == "1") {
+				data["partial_applyier_id"] = "111";
+			}
+
 			var photoIndex = 0;
 
 			var $defective_phenomenon = $("#detail\\.defective_phenomenon");
@@ -171,12 +182,42 @@ var defectiveJs = function(){
 				if ($defective_phenomenon.is(":visible")) {
 					data["defective_phenomenon"] = $defective_phenomenon.val();
 				} else {
+					var defective_phenomenon_obj = {};
 					$defective_phenomenon.next(".imageLoader").children("div[photo_uuid]").each(function(iPh, ePh){
 						data['photo[' + photoIndex + '].seq'] = iPh;
 						data['photo[' + photoIndex + '].for_step'] = 0;
 						data['photo[' + photoIndex + '].file_uuid'] = ePh.getAttribute("photo_uuid");
+						var $inp = $(ePh).children("input");
+
+						if ($inp.length > 0) {
+							defective_phenomenon_obj[photoIndex] = $inp.val();
+						}
 						photoIndex++;
 					})
+					console.log(defective_phenomenon_obj);
+					data["defective_phenomenon"] = Json_to_String(defective_phenomenon_obj);
+				}
+			}
+
+			var $cause_analysis = $("#detail\\.cause_analysis");
+			if ($cause_analysis.length > 0) {
+				if ($cause_analysis.is(":visible")) {
+					data["cause_analysis"] = $cause_analysis.val();
+				} else {
+					var cause_analysis_obj = {};
+					$cause_analysis.next(".imageLoader").children("div[photo_uuid]").each(function(iPh, ePh){
+						data['photo[' + photoIndex + '].seq'] = iPh;
+						data['photo[' + photoIndex + '].for_step'] = 1;
+						data['photo[' + photoIndex + '].file_uuid'] = ePh.getAttribute("photo_uuid");
+						var $inp = $(ePh).children("input");
+
+						if ($inp.length > 0) {
+							cause_analysis_obj[photoIndex] = $inp.val();
+						}
+						photoIndex++;
+					})
+					console.log(cause_analysis_obj);
+					data["cause_analysis"] = Json_to_String(cause_analysis_obj);
 				}
 			}
 
@@ -215,8 +256,7 @@ var defectiveJs = function(){
 			var $trNewMaterialDismissId = $("#detail\\.tr_nongood_parts_situation_disp,"
 					+"#detail\\.tr_receive_date, "
 					+"#detail\\.tr_stored_parts, "
-					+"#detail\\.tr_stored_parts_resolve, "
-					+"#detial\\.tr_defective_items ");
+					+"#detail\\.tr_stored_parts_resolve ");
 
 			if ($(this).val() == 4) {
 
@@ -303,8 +343,14 @@ var defectiveJs = function(){
 						$("#detail\\.step").val(resInfo.alarm.step);
 						$("#detail\\.step_disp").text(resInfo.alarm.step_disp);
 
-						$("#detail\\.defective_phenomenon").val(resInfo.alarm.defective_phenomenon);
-						$("#detail\\.defective_phenomenon_disp").html(decodeText(resInfo.alarm.defective_phenomenon));
+						var defective_phenomenon = resInfo.alarm.defective_phenomenon;
+						if (defective_phenomenon && defective_phenomenon.match(/^{.*}$/)) {
+							$("#detail\\.defective_phenomenon").data("comments", resInfo.alarm.defective_phenomenon);
+							$("#detail\\.defective_phenomenon_disp").data("comments", resInfo.alarm.defective_phenomenon);
+						} else {
+							$("#detail\\.defective_phenomenon").val(resInfo.alarm.defective_phenomenon);
+							$("#detail\\.defective_phenomenon_disp").html(decodeText(resInfo.alarm.defective_phenomenon));
+						}
 
 						$("#detail\\.responsibility_of_line").val(resInfo.alarm.responsibility_of_line);
 						$("#detail\\.responsibility_of_line_disp").text(resInfo.alarm.responsibility_of_line_disp);
@@ -312,8 +358,14 @@ var defectiveJs = function(){
 						$("#detail\\.responsibility_of_ptl").val(resInfo.alarm.responsibility_of_ptl);
 						$("#detail\\.responsibility_of_ptl_disp").text(resInfo.alarm.responsibility_of_ptl_disp);
 
-						$("#detail\\.cause_analysis").val(resInfo.alarm.cause_analysis);
-						$("#detail\\.cause_analysis_disp").html(decodeText(resInfo.alarm.cause_analysis));
+						var cause_analysis = resInfo.alarm.cause_analysis;
+						if (cause_analysis && cause_analysis.match(/^{.*}$/)) {
+							$("#detail\\.cause_analysis").data("comments", resInfo.alarm.cause_analysis);
+							$("#detail\\.cause_analysis_disp").data("comments", resInfo.alarm.cause_analysis);
+						} else {
+							$("#detail\\.cause_analysis").val(resInfo.alarm.cause_analysis);
+							$("#detail\\.cause_analysis_disp").html(decodeText(resInfo.alarm.cause_analysis));
+						}
 
 						$("#detail\\.capa_frequency").val(resInfo.alarm.capa_frequency);
 						$("#detail\\.capa_frequency_disp").text(resInfo.alarm.capa_frequency_disp);
@@ -328,6 +380,9 @@ var defectiveJs = function(){
 						$("#detail\\.append_part_order_disp").text(resInfo.alarm.append_part_order);
 
 						$("#detail\\.partial_applyier_name").text(resInfo.alarm.partial_applyier_name);
+						if (resInfo.alarm.partial_applyier_name) {
+							$("#detail\\.partial_applyier_name").prevAll().hide();
+						}
 
 						$("#detail\\.rework_proceed").val(resInfo.alarm.rework_proceed);
 						$("#detail\\.rework_proceed_disp").text(resInfo.alarm.rework_proceed_disp);
@@ -350,10 +405,16 @@ var defectiveJs = function(){
 						$("#detail\\.stored_parts_resolve").val(resInfo.alarm.stored_parts_resolve);
 						$("#detail\\.stored_parts_resolve_disp").text(resInfo.alarm.stored_parts_resolve_disp);
 
+						$("#detail\\.material_partial_order").text(resInfo.alarm.omr_notifi_no);
 						$("#detail\\.occur_times").val(resInfo.alarm.occur_times);
-						$("#detail\\.occur_times_disp").text(resInfo.alarm.occur_times);
+						if (resInfo.alarm.occur_times) {
+							$("#detail\\.occur_times_disp").text(resInfo.alarm.omr_notifi_no + "/" + resInfo.alarm.occur_times);
+						} else {
+							$("#detail\\.occur_times_disp").text("");
+						}
 
 						$("#detail\\.defective_items").val(resInfo.alarm.defective_items);
+						$("#detail\\.defective_items_disp").text(resInfo.alarm.defective_items);
 
 						$("#detail\\.involving").val(resInfo.alarm.involving);
 						$("#detail\\.involving_disp").text(resInfo.alarm.involving_disp);
@@ -407,6 +468,12 @@ var defectiveJs = function(){
 						if (resInfo.photo_list && resInfo.photo_list.length) {
 							showPhotoList(resInfo.photo_list);
 						}
+
+						var pageLen = $("#defective_analysis_detail_infoes > input:radio").length;
+						if (pageLen > 1) {
+							setTimeout(switchStepPage ,100 + 70 * pageLen);
+						}
+						
 					}
 				} catch(e) {
 
@@ -415,6 +482,17 @@ var defectiveJs = function(){
 		});
 	}; // $(function()
 } // defectiveJs
+
+var switchStepPage = function(){
+	var $toSwitch = $("#defective_analysis_detail_content")
+						.find("select,input:text,textarea").not("[disabled]").eq(0)
+						.closest(".defective_analysis_detail_tabcontent");
+	if ($toSwitch.length > 0) {
+		$("#defective_analysis_detail_infoes > #" + $toSwitch.attr("for")).trigger("click");
+	} else {
+		$("#defective_analysis_detail_infoes > input:radio:eq(-1)").trigger("click");
+	}
+}
 
 var showPhotoList = function(photo_list){
 	var kinshasa = {};
@@ -429,13 +507,18 @@ var showPhotoList = function(photo_list){
 	if (kinshasa[0] && kinshasa[0].length) {
 		setPhotoStepList("defective_phenomenon", kinshasa[0]);
 	}
+	if (kinshasa[1] && kinshasa[1].length) {
+		setPhotoStepList("cause_analysis", kinshasa[1]);
+	}
 }
 
 var setPhotoStepList = function(position, photo_list) {
 	var $input = $("#detail\\." + position);
 	var $disp = $("#detail\\." + position + "_disp");
+
 	if ($disp.length) {
-		var comment = $disp.text();
+
+		var comment = $disp.data("comments");
 		var commentTarget = {};
 		if (comment) {
 			try {
@@ -447,24 +530,36 @@ var setPhotoStepList = function(position, photo_list) {
 		var photoHtml = '<div class="imageLoader" style="display: block;">';
 		for (var i in photo_list) {
 			photoHtml += '<div><img src="' + photo_editor_functions.getPathByPhotoUuid(photo_list[i]) + '">' + 
-				'<input type="text" ' + (commentTarget[i] || "") + ' disabled></div>';
+				'<input type="text" value="' + (commentTarget[i] || "") + '" disabled></div>';
 		}
 		photoHtml += '</div>';
 
 		$disp.html(photoHtml);
 	} else if ($input.length) {
+
+		var comment = $input.data("comments");
+		var commentTarget = {};
+		if (comment) {
+			try {
+				commentTarget = $.parseJSON(comment);
+			} catch(e) {
+			}
+		}
+
 		var $typeSwitcher = $input.prev();
 		$typeSwitcher.text("图文").addClass("typePicture");
 		$typeSwitcher.next().hide()
 						.next().show();
 
 		var $addCom = $input.next(".imageLoader").children(".il_add");
-		console.log($addCom);
+//		console.log($addCom);
 		for (var i in photo_list) {
+			console.log("photo_list idx = " + i);
 			var $addTarget = $("<div photo_uuid=''><img src=''></img><input type='text'><div class='rm_img ui-icon ui-icon-close'></div></div>");
 			$addCom.before($addTarget);
 			$addTarget.attr("photo_uuid", photo_list[i]);
-			$addTarget.children("img").attr("src", photo_editor_functions.getPathByPhotoUuid(photo_list[i]));
+			$addTarget.children("img").attr("src", photo_editor_functions.getPathByPhotoUuid(photo_list[i]))
+				.next("input:text").val(commentTarget[i]);
 			console.log($addTarget);
 		}
 	}
@@ -563,16 +658,10 @@ if (!$.validator) {
 		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_cause" role="button"><label for="defective_analysis_detail_infoes_cause" title="">原因分析</label>
 <% } %>
 <% if (step >= 2) {%>
-		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_filer" role="button"><label for="defective_analysis_detail_infoes_filer">对策立案</label>
-<% } %>
-<% if (step >= 3) {%>
-		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_processor" role="button"><label for="defective_analysis_detail_infoes_processor">对策实施</label>
-<% } %>
-<% if (step >= 4) {%>
-		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_processor_confirm" role="button"><label for="defective_analysis_detail_infoes_processor_confirm">对策实施确认</label>
+		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_filer" role="button"><label for="defective_analysis_detail_infoes_filer">对策</label>
 <% } %>
 <% if (typeFlag == 1 && step >= 5) {%>
-		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_effect" role="button"><label for="defective_analysis_detail_infoes_effect">委托关闭判断</label>
+		<input type="radio" name="defective_analysis_detail_infoes" class="ui-button ui-corner-up" id="defective_analysis_detail_infoes_effect" role="button"><label for="defective_analysis_detail_infoes_effect">关闭判断</label>
 <% } %>
 	</div>
 
@@ -633,16 +722,6 @@ if (!$.validator) {
 							</td>
 						</tr>
 						<tr <% if (typeFlag == 1 && step == 0 && powerId == 3) {%> style="display: none;" <% } %>>
-							<td class="ui-state-default td-title">返工对应</td>
-							<td class="td-content" colspan="3">
-<% if (step <= 2 && powerId == 1) { %>
-								<select name="detail.rework_proceed" id="detail.rework_proceed" class="ui-widget-content">${defectiveReworkProceedOptions}</select>
-<% } else { %>
-								<span id="detail.rework_proceed_disp"></span>
-<% } %>
-							</td>
-						</tr>
-						<tr <% if (typeFlag == 1 && step == 0 && powerId == 3) {%> style="display: none;" <% } %>>
 							<td class="ui-state-default td-title">更换零件对应</td>
 							<td class="td-content" colspan="3">
 <% if (step <= 2 && powerId == 1) {%>
@@ -652,6 +731,17 @@ if (!$.validator) {
 <% } %>
 							</td>
 						</tr>
+						<tr <% if (typeFlag == 1 && step == 0 && powerId == 3) {%> style="display: none;" <% } %>>
+							<td class="ui-state-default td-title">返工对应</td>
+							<td class="td-content" colspan="3">
+<% if (step <= 2 && powerId == 1) { %>
+								<select name="detail.rework_proceed" id="detail.rework_proceed" class="ui-widget-content">${defectiveReworkProceedOptions}</select>
+<% } else { %>
+								<span id="detail.rework_proceed_disp"></span>
+<% } %>
+							</td>
+						</tr>
+<!--
 						<tr id="detail.tr_nongood_parts_situation_disp" <% if (typeFlag == 1 && step == 0 && powerId == 3) {%> style="display: none;" <% } %>>
 							<td class="ui-state-default td-title">不良零件情况</td>
 							<td class="td-content" colspan="3">
@@ -662,7 +752,7 @@ if (!$.validator) {
 <% } %>
 							</td>
 						</tr>
-
+-->
 						<tr id="detail.tr_receive_date" <% if (typeFlag == 1 && step == 0 && powerId == 3) {%> style="display: none;" <% } %>>
 							<td class="ui-state-default td-title">领取日期</td>
 							<td class="td-content" colspan="3">
@@ -700,7 +790,7 @@ if (!$.validator) {
 <% if (powerId == 3 && step == 0) { %>
 								<input type="text" id="detail.defective_items" class="ui-widget-content"style=" width:618px;">
 <% } else { %>
-								<span id="detail.defective_items"></span>
+								<span id="detail.defective_items_disp"></span>
 <% } %>
 							</td>
 						</tr>
@@ -798,16 +888,22 @@ if (!$.validator) {
 							</td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">零件定单次数</td>
+							<td class="ui-state-default td-title">零件定单号</td>
 							<td class="td-content">
 <% if (powerId ==7) { %>
-								<input type="text" id="detail.occur_times" name="detail.occur_times" class="ui-widget-content">
+								<span id="detail.material_partial_order"></span> / <input type="text" id="detail.occur_times" name="detail.occur_times" style="width:2em;" class="ui-widget-content">
 <% } else { %>
 								<span id="detail.occur_times_disp"></span>
 <% } %>
 							</td>
 							<td class="ui-state-default td-title">追加订购者</td>
 							<td class="td-content">
+<% if (powerId ==7) { %>
+								<select id="detail.partial_applyier_id" name="detail.partial_applyier_id">
+									<option value="0">不追加</option>
+									<option value="1">已追加</option>
+								</select>
+<% } %>								
 								<span id="detail.partial_applyier_name"></span>
 							</td>
 						</tr>
@@ -817,8 +913,6 @@ if (!$.validator) {
 								<span id="detail.cause_analyst_name"></span>
 								<span id="detail.cause_analyst_date"></span>
 							</td>
-						</tr>
-						<tr>
 							<td class="ui-state-default td-title">原因确认者</td>
 							<td class="td-content">
 								<span id="detail.cause_confirmer_name"></span>
@@ -840,7 +934,8 @@ if (!$.validator) {
 							<td class="ui-state-default td-title">对策</td>
 							<td class="td-content" colspan="3">
 <% if (step == 2 && powerId == 5) { %>
-								<textarea name="detail.countermeasures" class="mm_type" photo="3" id="detail.countermeasures"></textarea>
+								<!-- class="mm_type" photo="3" -->
+								<textarea name="detail.countermeasures" id="detail.countermeasures"></textarea>
 <% } else { %>
 								<div id="detail.countermeasures_disp"></div>
 <% } %>
@@ -850,70 +945,32 @@ if (!$.validator) {
 							<td class="ui-state-default td-title">对策立案者</td>
 							<td class="td-content">
 								<span id="detail.cm_filer_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策立案日</td>
-							<td class="td-content">
 								<span id="detail.cm_filer_date"></span>
 							</td>
-						</tr>
-						<tr>
 							<td class="ui-state-default td-title">对策确认者</td>
 							<td class="td-content">
 								<span id="detail.cm_confirmer_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策确认日</td>
-							<td class="td-content">
 								<span id="detail.cm_confirmer_date"></span>
 							</td>
 						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-
-	<div class="ui-widget-content defective_analysis_detail_tabcontent" for="defective_analysis_detail_infoes_processor" style="width:100%;text-align:left;display:none;">
-		<div id="defective_analysis_detail_processor_area" style="margin-top:22px;margin-left:9px;">
-			<div class="ui-widget-content dwidth-middle">
-				<table class="condform">
-					<tbody>
 						<tr>
 							<td class="ui-state-default td-title">对策实施者</td>
 							<td class="td-content">
 								<span id="detail.cm_processor_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策实施日</td>
-							<td class="td-content">
 								<span id="detail.cm_processor_date"></span>
 							</td>
-						</tr>
-						<tr>
 							<td class="ui-state-default td-title">对策实施确认者</td>
 							<td class="td-content">
 								<span id="detail.cm_proc_confirmer_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策实施确认日</td>
-							<td class="td-content">
 								<span id="detail.cm_proc_confirmer_date"></span>
 							</td>
 						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-
-	<div class="ui-widget-content defective_analysis_detail_tabcontent" for="defective_analysis_detail_infoes_processor_confirm" style="width:100%;text-align:left;display:none;">
-		<div id="defective_analysis_detail_processor_confirm_area" style="margin-top:22px;margin-left:9px;">
-
-			<div class="ui-widget-content dwidth-middle">
-				<table class="condform">
-					<tbody>
 						<tr>
 							<td class="ui-state-default td-title">对策效果</td>
 							<td class="td-content" colspan="3">
 <% if (step == 4 && powerId == 1) { %>
-								<textarea name="detail.countermeasure_effects" class="mm_type" photo="3" id="detail.countermeasure_effects"></textarea>
+								 <!-- class="mm_type" photo="3" -->
+								<textarea name="detail.countermeasure_effects" id="detail.countermeasure_effects"></textarea>
 <% } else { %>
 								<div id="detail.countermeasure_effects_disp"></div>
 <% } %>
@@ -923,19 +980,11 @@ if (!$.validator) {
 							<td class="ui-state-default td-title">对策效果验证者</td>
 							<td class="td-content">
 								<span id="detail.cm_effect_verifier_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策效果验证日</td>
-							<td class="td-content">
 								<span id="detail.cm_effect_verifier_date"></span>
 							</td>
-						</tr>
-						<tr>
 							<td class="ui-state-default td-title">对策效果确认者</td>
 							<td class="td-content">
 								<span id="detail.cm_effect_confirmer_name"></span>
-							</td>
-							<td class="ui-state-default td-title">对策效果确认日</td>
-							<td class="td-content">
 								<span id="detail.cm_effect_confirmer_date"></span>
 							</td>
 						</tr>
@@ -945,6 +994,7 @@ if (!$.validator) {
 		</div>
 	</div>
 
+<% if (typeFlag == 1) {%>
 	<div class="ui-widget-content defective_analysis_detail_tabcontent" for="defective_analysis_detail_infoes_effect" style="width:100%;text-align:left;display:none;">
 		<div id="defective_analysis_detail_effect_area" style="margin-top:22px;margin-left:9px;">
 			<div class="ui-widget-content dwidth-middle">
@@ -966,8 +1016,6 @@ if (!$.validator) {
 								<span id="detail.closing_judger_name"></span>
 								<span id="detail.closing_judger_date"></span>
 							</td>
-						</tr>
-						<tr>
 							<td class="ui-state-default td-title">关闭确认者</td>
 							<td class="td-content">
 								<span id="detail.closing_confirmer_name"></span>
@@ -979,11 +1027,19 @@ if (!$.validator) {
 			</div>
 		</div>
 	</div>
+<% } %>
+
 	<div class="clear areaencloser"></div>
 	<div style="text-align: right">
-		<% if (powerId != 0) { %>
-		<input type="button" id="okButton" class="ui-button" value="确认">
-		<% } %>
+		<% if (powerId != 0) {
+			if (powerId == 2 || powerId == 4 || powerId == 6 || powerId == 8) { %>
+			<input type="button" id="okButton" class="ui-button" value="确认">
+		<% 	} else if (step == 3) { %>
+			<input type="button" id="okButton" class="ui-button" value="对策实施">
+		<% 	} else { %>
+			<input type="button" id="okButton" class="ui-button" value="登录">
+		<%	}
+		} %>
 		<input type="button" id="cancelButton" class="ui-button" value="取消">
 	</div>
 </div>

@@ -1094,3 +1094,14 @@ width: 2.1em;
 	font-size:10px;
 	text-align: center;
 }
+#defective_next_check {
+	display:none;
+}
+#defective_next_check + label {
+	color:gray;
+	text-decoration-line: line-through;
+}
+#defective_next_check:checked + label {
+	color:gold;
+	text-decoration-line: unset;
+}

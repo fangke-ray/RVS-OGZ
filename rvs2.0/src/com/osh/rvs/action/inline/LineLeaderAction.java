@@ -24,10 +24,13 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.manage.DefectiveAnalysisSearchEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
+import com.osh.rvs.form.data.AlarmMesssageForm;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.inline.LineLeaderService;
+import com.osh.rvs.service.manage.DefectiveAnalysisService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -221,22 +224,32 @@ public class LineLeaderAction extends BaseAction {
 	public void getwarning(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		log.info("LineLeaderAction.getwarning start");
 
-		Map<String, Object> listResponse = new HashMap<String, Object>();
+		Map<String, Object> callbackResponse = new HashMap<String, Object>();
 
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 		// 检查发生错误时报告错误信息
-		listResponse.put("errors", new ArrayList<MsgInfo>());
+		callbackResponse.put("errors", new ArrayList<MsgInfo>());
 
 		String material_id = req.getParameter("material_id");
 		String position_id = req.getParameter("position_id");
 
-		listResponse.put("warning", service.getWarning(material_id, user.getOperator_id(), position_id, conn));
+		AlarmMesssageForm warningForm = service.getWarning(material_id, user.getOperator_id(), position_id, conn);
+		callbackResponse.put("warning", warningForm);
+
+		if (user.getDepartment() == RvsConsts.DEPART_REPAIR) {
+			// 查看是否有不良对策
+			DefectiveAnalysisService daService = new DefectiveAnalysisService();
+			DefectiveAnalysisSearchEntity daEntity = daService.findEntityById(warningForm.getId(), conn);
+			if (daEntity == null || (daEntity.getStep() != null && daEntity.getStep() < 0)) {
+				callbackResponse.put("waiting_analysis", true);
+			}
+		}
 
 		// 返回Json格式响应信息
-		returnJsonResponse(res, listResponse);
+		returnJsonResponse(res, callbackResponse);
 
 		log.info("LineLeaderAction.getwarning end");
 	}

@@ -11,7 +11,7 @@
 		$.ajax({
 			beforeSend : ajaxRequestType,
 			async : false,
-			url : 'alarmMessage.do?method=detailInit',
+			url : 'alarmMessage.do?method=detailInit&readonly=true',
 			cache : false,
 			data : {alarm_messsage_id : $("#message-detail_id").val()},
 			type : "post",

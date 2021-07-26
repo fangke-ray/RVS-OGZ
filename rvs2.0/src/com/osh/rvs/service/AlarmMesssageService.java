@@ -173,7 +173,7 @@ public class AlarmMesssageService {
 	 * @param conn 数据库连接
 	 * @throws Exception 
 	 */
-	public void createDefectsAlarmMessage(ProductionFeatureEntity workingPf, Integer department, String line_id, SqlSessionManager conn) throws Exception {
+	public String createDefectsAlarmMessage(ProductionFeatureEntity workingPf, Integer department, String line_id, SqlSessionManager conn) throws Exception {
 		String material_id = workingPf.getMaterial_id();
 
 		AlarmMesssageEntity amEntity = new AlarmMesssageEntity();
@@ -253,6 +253,8 @@ public class AlarmMesssageService {
 			sendation.setSendation_id(scheduler.getOperator_id());
 			dao.createAlarmMessageSendation(sendation);
 		}
+
+		return amId;
 	}
 
 	/**

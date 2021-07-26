@@ -32,6 +32,7 @@ import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.DateUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
+import framework.huiqing.common.util.validator.RequiredValidator;
 import framework.huiqing.common.util.validator.Validators;
 
 /**
@@ -80,11 +81,8 @@ public class DefectiveAnalysisAction extends BaseAction {
 		req.setAttribute("lOptions", lOptions);
 
 		Calendar today  =Calendar.getInstance();
-		int hour = today.get(Calendar.HOUR_OF_DAY);
 
-		if(hour < 10 ){
-			today.add(Calendar.DAY_OF_MONTH, -1);
-		}
+		today.add(Calendar.DAY_OF_MONTH, -40);
 
 		req.setAttribute("today", DateUtil.toString(today.getTime(), DateUtil.DATE_PATTERN));
 		// 迁移到页面
@@ -176,7 +174,7 @@ public class DefectiveAnalysisAction extends BaseAction {
 					entity.setDefective_type(service.getDefectiveTypeByBreakType(alarm_message_id, conn));
 				}
 			}
-			Integer powerId = service.setupPowerId(user, afterResolve != null, alarm_message_id, entity);
+			Integer powerId = service.setupPowerId(user, "true".equals(afterResolve), alarm_message_id, entity);
 
 			req.setAttribute("defectivePowerId", powerId);
 
@@ -276,7 +274,7 @@ public class DefectiveAnalysisAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit= {103, 104, 105, 106, 121})
+	@Privacies(permit= {103, 104, 105, 106, 121, 107})
 	public void doCommit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 
 		log.info("DefectiveAnalysisAction.doCommit start");
@@ -304,14 +302,18 @@ public class DefectiveAnalysisAction extends BaseAction {
 				}
 			}
 			Integer powerId = service.setupPowerId(user, false, alarm_message_id, entity);
+			Integer step = null;
 
 			if (powerId != DefectiveAnalysisService.POWERID_READONLY) {
-				service.maintain(form, req.getParameterMap(), conn, powerId, Integer.valueOf(user.getOperator_id()), errors);
+				step = service.maintain(form, req.getParameterMap(), entity, conn, powerId, Integer.valueOf(user.getOperator_id()), errors);
 			} else {
 				MsgInfo error = new MsgInfo();
 				error.setErrcode("privacy.noPrivacy");
 				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("privacy.noPrivacy"));
 				errors.add(error);
+			}
+			if (errors.size() == 0) {
+				service.postMessage(alarm_message_id, step, conn);
 			}
 		}
 
@@ -328,8 +330,8 @@ public class DefectiveAnalysisAction extends BaseAction {
 		// 检查发生错误时报告错误信息
 		// 检索条件表单合法性检查
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
-		v.required("alarm_message_id");
-		v.required("defective_type");
+		v.add("alarm_message_id", new RequiredValidator("不良标识"));
+		v.add("defective_type", new RequiredValidator("不良分类"));
 		List<MsgInfo> errors = v.validate();
 
 		// 检查发生错误时报告错误信息

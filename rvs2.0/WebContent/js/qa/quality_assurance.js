@@ -313,7 +313,7 @@ var doForbid = function(type) {
 	}
 
 	if (empty) {
-		errorPop("工程检查票存在没有点检的选项，不能检测通过。");
+		errorPop("工程检查票存在没有点检的选项。");
 	} else {
 		warningConfirm("请确定是否当前维修对象未通过品保，这将会使其退回经理处要求返工。",function(){
 			$.ajax({
@@ -326,7 +326,7 @@ var doForbid = function(type) {
 				dataType : "json",
 				success : ajaxSuccessCheck,
 				error : ajaxError,
-				complete : function() {
+				complete : function(xhrobj) {
 
 					hasPcs && pcsO.clearCache();
 
@@ -335,7 +335,13 @@ var doForbid = function(type) {
 					$("#scanner_container").show();
 					$("#devicearea").hide();
 					$("#pcsarea").hide();
-					doInit();
+
+					var resInfo = $.parseJSON(xhrobj.responseText);
+					if (resInfo.alarm_messsage_id) {
+						popDefectiveAnalysis(resInfo.alarm_messsage_id, true, doInit);
+					} else {
+						doInit();
+					}
 				}
 			});
 		});

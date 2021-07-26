@@ -1,6 +1,6 @@
 var defective_analysis_detail_dlg;
 var afterResolve = "false";
-var popDefectiveAnalysis = function(message_id, is_modal, close_function){
+var popDefectiveAnalysis = function(message_id, is_modal, close_function, open_function){
 	if (is_modal == null) is_modal = true;
 
 	var this_dialog = $("#defective_analysis");
@@ -14,6 +14,7 @@ var popDefectiveAnalysis = function(message_id, is_modal, close_function){
 	this_dialog.hide();
 	// 导入详细画面
 	this_dialog.load("defectiveAnalysis.do?method=detail&afterResolve="+ afterResolve +"&alarm_message_id=" + message_id , function(responseText, textStatus, XMLHttpRequest) {
+
 		this_dialog.dialog({
 //			position : [400, 20],
 			title : "不良对策详细画面",
@@ -23,7 +24,11 @@ var popDefectiveAnalysis = function(message_id, is_modal, close_function){
 			resizable : false,
 			modal : is_modal,
 			buttons : null
-		}).on( "dialogbeforeclose", close_function);
+		}).off( "dialogbeforeclose" ).on( "dialogbeforeclose", close_function);
+
+		if (typeof open_function === "function") {
+			open_function();
+		}
 	});
 	defective_analysis_detail_dlg = this_dialog;
 

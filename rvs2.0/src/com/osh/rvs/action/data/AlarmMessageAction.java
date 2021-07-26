@@ -19,6 +19,7 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.AlarmMesssageSendationEntity;
 import com.osh.rvs.bean.inline.ForSolutionAreaEntity;
+import com.osh.rvs.bean.manage.DefectiveAnalysisSearchEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.AlarmMesssageForm;
@@ -32,6 +33,7 @@ import com.osh.rvs.service.SectionService;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
 import com.osh.rvs.service.inline.LineLeaderService;
 import com.osh.rvs.service.inline.ScheduleService;
+import com.osh.rvs.service.manage.DefectiveAnalysisService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
@@ -262,6 +264,28 @@ public class AlarmMessageAction extends BaseAction {
 
 			AlarmMesssageForm resform = service.getWarning(alarm_messsage_id, conn);
 			callbackResponse.put("alarm", resform);
+
+			// 取得用户信息
+			HttpSession session = req.getSession();
+			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+			if (user.getDepartment() == RvsConsts.DEPART_REPAIR) {
+				if (req.getParameter("readonly") == null) {
+					// 判断是否要处理对策
+					switch (resform.getReason()) {
+					case "异常中断" :
+					case ("" + RvsConsts.WARNING_REASON_QAFORBID):
+					case ("" + RvsConsts.WARNING_REASON_BREAK):
+						// 查看是否有不良对策
+						DefectiveAnalysisService daService = new DefectiveAnalysisService();
+						DefectiveAnalysisSearchEntity daEntity = daService.findEntityById(alarm_messsage_id, conn);
+						if (daEntity == null || (daEntity.getStep() != null && daEntity.getStep() < 0)) {
+							callbackResponse.put("waiting_analysis", true);
+						}
+						break;
+					}
+				}
+			}
 		}
 
 		// 检查发生错误时报告错误信息
@@ -282,7 +306,7 @@ public class AlarmMessageAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={104,105,106})
+	@Privacies(permit={103,104,105,106})
 	public void doreleasebeak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("AlarmMessageAction.doreleasebeak start");
 

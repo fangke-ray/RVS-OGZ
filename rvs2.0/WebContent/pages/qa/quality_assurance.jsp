@@ -32,6 +32,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/common/pcs_editor.js?v=446"></script>
 <script type="text/javascript" src="js/qa/quality_assurance.js?v=504"></script>
+<script type="text/javascript" src="js/common/defective_analysis_detail.js"></script>
 
 <title>${qs_position_name}</title>
 <%

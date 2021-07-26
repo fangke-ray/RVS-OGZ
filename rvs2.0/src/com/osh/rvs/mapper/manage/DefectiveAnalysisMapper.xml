@@ -16,6 +16,7 @@
 		da.alarm_message_id,
 		material.omr_notifi_no,
 		model.name AS model_name,
+		da.manage_code,
 		da.defective_type,
 		da.step,
 		da.sponsor_date,
@@ -82,6 +83,8 @@
 	</where>
 	GROUP BY
 		da.alarm_message_id
+	ORDER BY
+		sponsor_date
 	</select>
 
 	<select id="findOneById" parameterType="String" resultType="DefectiveAnalysisSearchEntity">
@@ -353,7 +356,7 @@
 	  , manage_code = #{manage_code}
 	  , step = #{step}
 	  , sponsor_operator_id = #{sponsor_operator_id}
-	  , sponsor_date = #{sponsor_date}
+	  , sponsor_date = coalesce(sponsor_date, #{sponsor_date})
 	  , defective_phenomenon = #{defective_phenomenon}
 	  , responsibility_of_line = #{responsibility_of_line}
 	  , phenomenon_confirmer_id = #{phenomenon_confirmer_id}

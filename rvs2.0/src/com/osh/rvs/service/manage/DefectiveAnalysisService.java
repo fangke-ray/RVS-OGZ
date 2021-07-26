@@ -24,6 +24,7 @@ import com.osh.rvs.bean.manage.DefectiveAnalysisPartialEntity;
 import com.osh.rvs.bean.manage.DefectiveAnalysisPhotoEntity;
 import com.osh.rvs.bean.manage.DefectiveAnalysisQaEntity;
 import com.osh.rvs.bean.manage.DefectiveAnalysisSearchEntity;
+import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.manage.DefectiveAnalysisForm;
@@ -186,11 +187,13 @@ public class DefectiveAnalysisService {
 	 * 创建处理
 	 * @param form
 	 * @param paramMap 
+	 * @param orgEntity 
 	 * @param conn
 	 * @return
 	 * @throws Exception
 	 */
-	public String maintain(ActionForm form, Map<String, String[]> paramMap, SqlSessionManager conn, Integer powerId, Integer userId, List<MsgInfo> errors) throws Exception {
+	public Integer maintain(ActionForm form, Map<String, String[]> paramMap, DefectiveAnalysisSearchEntity orgEntity, 
+			SqlSessionManager conn, Integer powerId, Integer userId, List<MsgInfo> errors) throws Exception {
 
 		DefectiveAnalysisMapper dao = conn.getMapper(DefectiveAnalysisMapper.class);
 
@@ -203,23 +206,23 @@ public class DefectiveAnalysisService {
 		switch (dbEntity.getStep()) {
 		case STEP_POINTOUT:
 			// 不良提出
-			maintainStep0(bean, powerId, alarmMessageId, userId, dao, errors);
+			maintainStep0(bean, powerId, alarmMessageId, userId, orgEntity, dao, errors);
 			break;
 		case STEP_ANALYSIS:
 			// 原因分析
-			maintainStep1(bean, powerId, alarmMessageId, userId, dao);
+			maintainStep1(bean, powerId, alarmMessageId, userId, orgEntity, dao, errors);
 			break;
 		case STEP_CASED:
 			// 对策立案
-			maintainStep2(bean, powerId, alarmMessageId, userId, dao);
+			maintainStep2(bean, powerId, alarmMessageId, userId, orgEntity, dao, errors);
 			break;
 		case STEP_REALIZING:
 			// 对策待实施
-			maintainStep3(bean, powerId, alarmMessageId, userId, dao);
+			maintainStep3(bean, powerId, alarmMessageId, userId, orgEntity, dao, errors);
 			break;
 		case STEP_CONFIRM:
 			// 对策效果待确认
-			maintainStep4(bean, powerId, alarmMessageId, userId, dao);
+			maintainStep4(bean, powerId, alarmMessageId, userId, orgEntity, dao, errors);
 			break;
 		case STEP_FINAL:
 			// 委托关闭判断
@@ -234,8 +237,51 @@ public class DefectiveAnalysisService {
 			photoLoadStep(paramMap, powerId, alarmMessageId, dbEntity.getStep(), bean.getDefective_type(), dao);
 		}
 
-		return alarmMessageId;
+		return dbEntity.getStep();
 	}
+
+
+	/**
+	 * 处理通知
+	 *  
+	 * @param alarm_message_id
+	 * @param step
+	 * @param conn
+	 */
+	public void postMessage(String alarm_message_id, Integer step,
+			SqlSessionManager conn) {
+		switch (step) {
+		case STEP_POINTOUT:
+			// 不良提出
+
+			// 通知上级经理 TODO
+			// 通知技术人员 TODO
+			// 如有零件相关通知现品线长 TODO
+
+			// 通知技术人员 TODO
+
+			break;
+		case STEP_ANALYSIS:
+			// 原因分析
+			// 通知技术经理 TODO
+			break;
+		case STEP_CASED:
+			// 对策立案
+			// 通知技术经理 TODO
+			break;
+		case STEP_REALIZING:
+			// 对策待实施
+			// 通知上级经理 TODO
+			break;
+		case STEP_CONFIRM:
+			// 对策效果待确认
+			// 通知上级经理 TODO
+			break;
+		case STEP_FINAL:
+		default:
+		}
+	}
+
 
 	/**
 	 * 上传或加载图片
@@ -257,7 +303,7 @@ public class DefectiveAnalysisService {
 					return;
 				}
 			} else {
-				if (powerId != POWERID_LINELEADER && powerId != POWERID_LINEMANAGER && powerId != POWERID_QA_MANAGER) {
+				if (powerId != POWERID_LINELEADER) {
 					return;
 				}
 			}
@@ -348,12 +394,13 @@ public class DefectiveAnalysisService {
 	 * @param powerId
 	 * @param alarmMessageId
 	 * @param userId
+	 * @param orgEntity 
 	 * @param dao
 	 * @param errors 
 	 * @return
 	 * @throws Exception
 	 */
-	private void maintainStep0(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisMapper dao, 
+	private void maintainStep0(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisSearchEntity orgEntity, DefectiveAnalysisMapper dao, 
 			List<MsgInfo> errors) throws Exception {
 
 		boolean isExist = false;
@@ -401,6 +448,12 @@ public class DefectiveAnalysisService {
 					entity.setDefective_phenomenon(bean.getDefective_phenomenon());
 
 					dao.updateSponsor(entity);
+
+					DefectiveAnalysisQaEntity qaEntity = new DefectiveAnalysisQaEntity();
+					qaEntity.setAlarm_message_id(alarmMessageId);
+					qaEntity.setDefective_items(bean.getDefective_items());
+
+					dao.updateQa(qaEntity);
 				} else {
 					// insert
 					DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
@@ -413,7 +466,8 @@ public class DefectiveAnalysisService {
 					// 不良现象
 					entity.setDefective_phenomenon(bean.getDefective_phenomenon());
 
-					entity.setRework_proceed(0);
+					// QA 必定要返工
+					entity.setRework_proceed(1);
 
 					dao.insert(entity);
 
@@ -462,13 +516,23 @@ public class DefectiveAnalysisService {
 
 					dao.updatePartial(partialEntity);
 				} else if (powerId == POWERID_LINEMANAGER || powerId == POWERID_QA_MANAGER) {
-					// 工程上级 执行 不良提出确认
-					DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
-					entity.setAlarm_message_id(alarmMessageId);
-					entity.setStep(STEP_ANALYSIS); // 原因分析
-					entity.setPhenomenon_confirmer_id(userId);
 
-					dao.updatePhenomenonConfirmer(entity);
+					if (isEmpty(orgEntity.getDefective_phenomenon())) {
+						MsgInfo e = new MsgInfo();
+						e.setComponentid("defective_phenomenon");
+						e.setErrcode("validator.required");
+						e.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "不良现象"));
+						// 没有提交故障现象
+						errors.add(e);
+					} else {
+						// 工程上级 执行 不良提出确认
+						DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
+						entity.setAlarm_message_id(alarmMessageId);
+						entity.setStep(STEP_ANALYSIS); // 原因分析
+						entity.setPhenomenon_confirmer_id(userId);
+
+						dao.updatePhenomenonConfirmer(entity);
+					}
 				}
 			} else {
 				// insert 不良分析对策
@@ -508,11 +572,14 @@ public class DefectiveAnalysisService {
 	 * @param powerId
 	 * @param alarmMessageId
 	 * @param userId
+	 * @param orgEntity 
 	 * @param dao
+	 * @param errors 
 	 * @return
 	 * @throws Exception
 	 */
-	private Integer maintainStep1(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisMapper dao) throws Exception {
+	private Integer maintainStep1(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId,
+			DefectiveAnalysisSearchEntity orgEntity, DefectiveAnalysisMapper dao, List<MsgInfo> errors) throws Exception {
 		if (powerId == POWERID_LINELEADER) {
 			// 工程担当
 
@@ -592,7 +659,11 @@ public class DefectiveAnalysisService {
 			DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
 			entity.setAlarm_message_id(alarmMessageId);
 			// 追加订购者
-			entity.setPartial_applyier_id(userId);
+			if (bean.getPartial_applyier_id() != null) {
+				entity.setPartial_applyier_id(userId);
+			} else {
+				entity.setPartial_applyier_id(0);
+			}
 
 			dao.updateCauseAnalysis(entity);
 
@@ -610,17 +681,25 @@ public class DefectiveAnalysisService {
 		} else if (powerId == POWERID_TECH_MANAGER) {
 			// 技术上级
 			// 执行 原因分析确认
+			if (isEmpty(orgEntity.getCause_analysis())) {
+				MsgInfo e = new MsgInfo();
+				e.setComponentid("cause_analysis");
+				e.setErrcode("validator.required");
+				e.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "原因分析"));
+				// 没有提交故障现象
+				errors.add(e);
+			} else {
+				// *************
+				// update 不良分析对策
+				// *************
+				DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
 
-			// *************
-			// update 不良分析对策
-			// *************
-			DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
+				entity.setAlarm_message_id(alarmMessageId);
+				entity.setCause_confirmer_id(userId);
+				entity.setStep(STEP_CASED); // 对策立案
 
-			entity.setAlarm_message_id(alarmMessageId);
-			entity.setCause_confirmer_id(userId);
-			entity.setStep(STEP_CASED); // 对策立案
-
-			dao.updateCauseConfirmer(entity);
+				dao.updateCauseConfirmer(entity);
+			}
 		}
 		return null;
 	}
@@ -631,11 +710,14 @@ public class DefectiveAnalysisService {
 	 * @param powerId
 	 * @param alarmMessageId
 	 * @param userId
+	 * @param orgEntity 
 	 * @param dao
+	 * @param errors 
 	 * @return
 	 * @throws Exception
 	 */
-	private Integer maintainStep2(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisMapper dao) throws Exception {
+	private Integer maintainStep2(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId,
+			DefectiveAnalysisSearchEntity orgEntity, DefectiveAnalysisMapper dao, List<MsgInfo> errors) throws Exception {
 
 		if (powerId == POWERID_LINELEADER) {
 			// 工程担当
@@ -728,11 +810,14 @@ public class DefectiveAnalysisService {
 	 * @param powerId
 	 * @param alarmMessageId
 	 * @param userId
+	 * @param orgEntity 
 	 * @param dao
+	 * @param errors 
 	 * @return
 	 * @throws Exception
 	 */
-	private Integer maintainStep3(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisMapper dao) throws Exception {
+	private Integer maintainStep3(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId,
+			DefectiveAnalysisSearchEntity orgEntity, DefectiveAnalysisMapper dao, List<MsgInfo> errors) throws Exception {
 
 		if (powerId == POWERID_LINELEADER) {
 			// 工程担当
@@ -749,14 +834,23 @@ public class DefectiveAnalysisService {
 			// 工程上级
 			// 执行 对策实施确认
 
-			// update 不良分析对策
-			DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
+			if (isEmpty(orgEntity.getCountermeasures())) {
+				MsgInfo e = new MsgInfo();
+				e.setComponentid("countermeasures");
+				e.setErrcode("validator.required");
+				e.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "对策"));
+				// 没有提交故障现象
+				errors.add(e);
+			} else {
+				// update 不良分析对策
+				DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
 
-			entity.setAlarm_message_id(alarmMessageId);
-			entity.setCm_proc_confirmer_id(userId);
-			entity.setStep(STEP_CONFIRM); // 对策效果待确认
+				entity.setAlarm_message_id(alarmMessageId);
+				entity.setCm_proc_confirmer_id(userId);
+				entity.setStep(STEP_CONFIRM); // 对策效果待确认
 
-			dao.updateCmProcConfirmer(entity);
+				dao.updateCmProcConfirmer(entity);
+			}
 		}
 
 		return null;
@@ -768,12 +862,14 @@ public class DefectiveAnalysisService {
 	 * @param powerId
 	 * @param alarmMessageId
 	 * @param userId
+	 * @param orgEntity 
 	 * @param dao
+	 * @param errors 
 	 * @return
 	 * @throws Exception
 	 */
-	private Integer maintainStep4(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId, DefectiveAnalysisMapper dao) throws Exception {
-
+	private Integer maintainStep4(DefectiveAnalysisForm bean, Integer powerId, String alarmMessageId, Integer userId,
+			DefectiveAnalysisSearchEntity orgEntity, DefectiveAnalysisMapper dao, List<MsgInfo> errors) throws Exception {
 
 		if (powerId == POWERID_LINELEADER) {
 			// 工程担当
@@ -790,20 +886,29 @@ public class DefectiveAnalysisService {
 			// 工程上级
 			// 执行 对策效果确认
 
-			// update 不良分析对策
-			DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
-
-			entity.setAlarm_message_id(alarmMessageId);
-			entity.setCm_effect_confirmer_id(userId);
-			if (bean.getDefective_type().equals(DEFECTIVE_TYPE_QA)) {
-				// 不良分类 = 1：最终检查不良品
-				entity.setStep(STEP_FINAL);
+			if (isEmpty(orgEntity.getCountermeasure_effects())) {
+				MsgInfo e = new MsgInfo();
+				e.setComponentid("countermeasure_effects");
+				e.setErrcode("validator.required");
+				e.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required", "对策效果确认"));
+				// 没有提交故障现象
+				errors.add(e);
 			} else {
-				// 不良分类 = 非最终，其他3类
-				entity.setStep(STEP_CLOSED); // 关闭
-			}
+				// update 不良分析对策
+				DefectiveAnalysisEntity entity = new DefectiveAnalysisEntity();
 
-			dao.updateCmEffectConfirmer(entity);
+				entity.setAlarm_message_id(alarmMessageId);
+				entity.setCm_effect_confirmer_id(userId);
+				if (orgEntity.getDefective_type().equals(DEFECTIVE_TYPE_QA)) {
+					// 不良分类 = 1：最终检查不良品
+					entity.setStep(STEP_FINAL);
+				} else {
+					// 不良分类 = 非最终，其他3类
+					entity.setStep(STEP_CLOSED); // 关闭
+				}
+
+				dao.updateCmEffectConfirmer(entity);
+			}
 		}
 
 		return null;
@@ -861,7 +966,7 @@ public class DefectiveAnalysisService {
 	 * @param isAfterResolve 
 	 * @param alarm_message_id
 	 * @param entity
-	 * @return
+	 * @return PowerId
 	 * @throws Exception
 	 */
 	public Integer setupPowerId(LoginData user, boolean isAfterResolve, String alarm_message_id, DefectiveAnalysisSearchEntity entity) throws Exception {
@@ -878,42 +983,72 @@ public class DefectiveAnalysisService {
 		// 系统管理员处理
 		if (roleId.equals(RvsConsts.ROLE_SYSTEM)) {
 			if (isAfterResolve) {
-				roleId = RvsConsts.ROLE_LINELEADER;
+				if (entity.getDefective_type() != null && entity.getDefective_type() == DEFECTIVE_TYPE_QA) {
+					roleId = RvsConsts.ROLE_QAER;
+				} else {
+					roleId = RvsConsts.ROLE_LINELEADER;
+				}
 			} else {
 				roleId = RvsConsts.ROLE_MANAGER;
 			}
 		}
 
+		Integer alarm_message_line_id = entity.getLine_id();
+		List<Integer> userPrivacies = user.getPrivacies();
+
 		// 建立操作
-		if (user.getPrivacies().contains(RvsConsts.PRIVACY_LINE)
-				&& entity.getStep() == STEP_NOTYET) {
-			if (entity.getSponsor_operator_id() == null || entity.getSponsor_operator_id().equals(userId)) {
-				entity.setStep(STEP_POINTOUT);
-				return POWERID_LINELEADER;
+		if (entity.getSponsor_operator_id() == null || entity.getSponsor_operator_id().equals(userId)) {
+			if (entity.getDefective_type() != null && entity.getDefective_type() == DEFECTIVE_TYPE_QA) {
+				if (entity.getStep() == STEP_NOTYET) {
+					boolean inQaLine = false;
+					for (LineEntity line : user.getLines()) {
+						if (line.getLine_id().equals("00000000015")) {
+							inQaLine = true;
+							break;
+						}
+					}
+
+					if (inQaLine && userPrivacies.contains(RvsConsts.PRIVACY_POSITION)) {
+						entity.setStep(STEP_POINTOUT);
+						return POWERID_QA_PROCESSOR;
+					}
+				}
+			} else {
+				if (userPrivacies.contains(RvsConsts.PRIVACY_LINE)
+						&& entity.getStep() == STEP_NOTYET) {
+					if (!(roleId.equals(RvsConsts.ROLE_LINELEADER) && lineId != alarm_message_line_id)) {
+						entity.setStep(STEP_POINTOUT);
+						return POWERID_LINELEADER;
+					}
+				}
 			}
 		}
-
-		Integer alarm_message_line_id = entity.getLine_id();
 
 		// 对策处理全部完成
 		if (entity.getStep() == STEP_CLOSED) return POWERID_READONLY;
 
-		if (sectionId.equals("00000000001") && roleId.equals(RvsConsts.ROLE_LINELEADER) && lineId == alarm_message_line_id) {
+		boolean isManager = userPrivacies.contains(RvsConsts.PRIVACY_PROCESSING);
+		boolean isResponsor = userPrivacies.contains(RvsConsts.PRIVACY_LINE);
+		
+		if (sectionId.equals("00000000001") && roleId.equals(RvsConsts.ROLE_LINELEADER) && 
+				(lineId == alarm_message_line_id || alarm_message_line_id == 15)) {
 			// 工程担当
-			if (entity.getDefective_type() == DEFECTIVE_TYPE_QA) {
+			if (entity.getDefective_type() == DEFECTIVE_TYPE_QA
+					&& (entity.getStep() == STEP_POINTOUT || entity.getStep() == STEP_NOTYET)) {
 				// 最终不良检查
 				return POWERID_READONLY;
 			}
 
-			if ((entity.getStep() == STEP_POINTOUT || entity.getStep() == STEP_ANALYSIS || entity.getStep() == STEP_CASED)
+			if (alarm_message_line_id != 15 && 
+					(entity.getStep() == STEP_POINTOUT || entity.getStep() == STEP_ANALYSIS || entity.getStep() == STEP_CASED)
 					&& (entity.getSponsor_operator_id() == null || entity.getSponsor_operator_id().equals(userId))) {
 				return POWERID_LINELEADER;
-			} else if (entity.getStep() == STEP_REALIZING && (entity.getCm_processor_id() == null || entity.getCm_proc_confirmer_id().equals(userId))) {
+			} else if (entity.getStep() == STEP_REALIZING && (entity.getCm_processor_id() == null || entity.getCm_processor_id().equals(userId))) {
 				return POWERID_LINELEADER;
 			} else if (entity.getStep() == STEP_CONFIRM && (entity.getCm_effect_verifier_id() == null || entity.getCm_effect_verifier_id().equals(userId))) {
 				return POWERID_LINELEADER;
 			}
-		} else if (sectionId.equals("00000000001") && roleId.equals(RvsConsts.ROLE_MANAGER)) {
+		} else if (sectionId.equals("00000000001") && isManager) {
 			// 工程上级
 			if ((entity.getStep() == STEP_POINTOUT) && (entity.getPhenomenon_confirmer_id() == null || entity.getPhenomenon_confirmer_id().equals(userId))) {
 				return POWERID_LINEMANAGER;
@@ -934,7 +1069,7 @@ public class DefectiveAnalysisService {
 					&& (entity.getSponsor_operator_id() == null || entity.getSponsor_operator_id().equals(userId))) {
 				return POWERID_QA_PROCESSOR;
 			}
-		} else if (sectionId.equals("00000000007") && roleId.equals(RvsConsts.ROLE_LINELEADER)) {
+		} else if (sectionId.equals("00000000007") && isResponsor) {
 			// 品保上级
 			if (entity.getStep() == STEP_POINTOUT && entity.getSponsor_operator_id() != null
 					&& (entity.getPhenomenon_confirmer_id() == null || entity.getPhenomenon_confirmer_id().equals(userId))) {
@@ -958,7 +1093,7 @@ public class DefectiveAnalysisService {
 					&& (entity.getCm_filer_id() == null || entity.getCm_filer_id().equals(userId))) {
 				return POWERID_TECHNOLOGY;
 			}
-		} else if (sectionId.equals("00000000011") && roleId.equals(RvsConsts.ROLE_LINELEADER)) {
+		} else if (sectionId.equals("00000000011") && isResponsor) {
 			// 技术上级
 			if (entity.getStep() == STEP_ANALYSIS && entity.getCause_analyst_id() != null
 					&& (entity.getCause_confirmer_id() == null || entity.getCause_confirmer_id().equals(userId))) {
@@ -971,7 +1106,7 @@ public class DefectiveAnalysisService {
 		} else if (roleId.equals(RvsConsts.ROLE_FACTINLINE)) {
 			// 零件订购担当
 			if ((entity.getStep() == STEP_ANALYSIS || entity.getStep() == STEP_CASED)
-					&&  entity.getPartial_applyier_id() == null || entity.getPartial_applyier_id().equals(userId)) {
+					&& (entity.getPartial_applyier_id() == null || entity.getPartial_applyier_id().equals(userId))) {
 				return POWERID_FACTOR;
 			}
 		} else if (sectionId.equals("00000000002") && roleId.equals(RvsConsts.ROLE_MANAGER)) {
