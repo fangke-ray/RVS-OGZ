@@ -797,6 +797,389 @@ cursor :pointer;
 				</tr>
 			</table>
 		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">I 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="I 01">01</td>
+<td location="I 02">02</td>
+<td location="I 03">03</td>
+<td location="I 04">04</td>
+<td location="I 05">05</td>
+<td location="I 06">06</td>
+<td location="I 07">07</td>
+				</tr>
+				<tr>
+<td location="I 08">08</td>
+<td location="I 09">09</td>
+<td location="I 10">10</td>
+<td location="I 11">11</td>
+<td location="I 12">12</td>
+<td location="I 13">13</td>
+<td location="I 14">14</td>
+				</tr>
+				<tr>
+<td location="I 15">15</td>
+<td location="I 16">16</td>
+<td location="I 17">17</td>
+<td location="I 18">18</td>
+<td location="I 19">19</td>
+<td location="I 20">20</td>
+<td location="I 21">21</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">J 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="J 01">01</td>
+<td location="J 02">02</td>
+<td location="J 03">03</td>
+<td location="J 04">04</td>
+<td location="J 05">05</td>
+<td location="J 06">06</td>
+<td location="J 07">07</td>
+<td location="J 08">08</td>
+<td location="J 09">09</td>
+<td location="J 10">10</td>
+<td location="J 11">11</td>
+<td location="J 12">12</td>
+<td location="J 13">13</td>
+				</tr>
+				<tr>
+<td location="J 14">14</td>
+<td location="J 15">15</td>
+<td location="J 16">16</td>
+<td location="J 17">17</td>
+<td location="J 18">18</td>
+<td location="J 19">19</td>
+<td location="J 20">20</td>
+<td location="J 21">21</td>
+<td location="J 22">22</td>
+<td location="J 23">23</td>
+<td location="J 24">24</td>
+<td location="J 25">25</td>
+<td location="J 26">26</td>
+				</tr>
+				<tr>
+<td location="J 27">27</td>
+<td location="J 28">28</td>
+<td location="J 29">28</td>
+<td location="J 30">30</td>
+<td location="J 31">31</td>
+<td location="J 32">32</td>
+<td location="J 33">33</td>
+<td location="J 34">34</td>
+<td location="J 35">35</td>
+<td location="J 36">36</td>
+<td location="J 37">37</td>
+<td location="J 38">38</td>
+<td location="J 39">39</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">K 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="K 01">01</td>
+<td location="K 02">02</td>
+<td location="K 03">03</td>
+<td location="K 04">04</td>
+<td location="K 05">05</td>
+<td location="K 06">06</td>
+<td location="K 07">07</td>
+<td location="K 08">08</td>
+<td location="K 09">09</td>
+<td location="K 10">10</td>
+<td location="K 11">11</td>
+<td location="K 12">12</td>
+<td location="K 13">13</td>
+				</tr>
+				<tr>
+<td location="K 14">14</td>
+<td location="K 15">15</td>
+<td location="K 16">16</td>
+<td location="K 17">17</td>
+<td location="K 18">18</td>
+<td location="K 19">19</td>
+<td location="K 20">20</td>
+<td location="K 21">21</td>
+<td location="K 22">22</td>
+<td location="K 23">23</td>
+<td location="K 24">24</td>
+<td location="K 25">25</td>
+<td location="K 26">26</td>
+				</tr>
+				<tr>
+<td location="K 27">27</td>
+<td location="K 28">28</td>
+<td location="K 29">28</td>
+<td location="K 30">30</td>
+<td location="K 31">31</td>
+<td location="K 32">32</td>
+<td location="K 33">33</td>
+<td location="K 34">34</td>
+<td location="K 35">35</td>
+<td location="K 36">36</td>
+<td location="K 37">37</td>
+<td location="K 38">38</td>
+<td location="K 39">39</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">L 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="L 01">01</td>
+<td location="L 02">02</td>
+<td location="L 03">03</td>
+<td location="L 04">04</td>
+<td location="L 05">05</td>
+<td location="L 06">06</td>
+<td location="L 07">07</td>
+<td location="L 08">08</td>
+<td location="L 09">09</td>
+<td location="L 10">10</td>
+<td location="L 11">11</td>
+<td location="L 12">12</td>
+<td location="L 13">13</td>
+				</tr>
+				<tr>
+<td location="L 14">14</td>
+<td location="L 15">15</td>
+<td location="L 16">16</td>
+<td location="L 17">17</td>
+<td location="L 18">18</td>
+<td location="L 19">19</td>
+<td location="L 20">20</td>
+<td location="L 21">21</td>
+<td location="L 22">22</td>
+<td location="L 23">23</td>
+<td location="L 24">24</td>
+<td location="L 25">25</td>
+<td location="L 26">26</td>
+				</tr>
+				<tr>
+<td location="L 27">27</td>
+<td location="L 28">28</td>
+<td location="L 29">28</td>
+<td location="L 30">30</td>
+<td location="L 31">31</td>
+<td location="L 32">32</td>
+<td location="L 33">33</td>
+<td location="L 34">34</td>
+<td location="L 35">35</td>
+<td location="L 36">36</td>
+<td location="L 37">37</td>
+<td location="L 38">38</td>
+<td location="L 39">39</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">M 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="M 01">01</td>
+<td location="M 02">02</td>
+<td location="M 03">03</td>
+<td location="M 04">04</td>
+<td location="M 05">05</td>
+<td location="M 06">06</td>
+<td location="M 07">07</td>
+<td location="M 08">08</td>
+<td location="M 09">09</td>
+<td location="M 10">10</td>
+				</tr>
+				<tr>
+<td location="M 11">11</td>
+<td location="M 12">12</td>
+<td location="M 13">13</td>
+<td location="M 14">14</td>
+<td location="M 15">15</td>
+<td location="M 16">16</td>
+<td location="M 17">17</td>
+<td location="M 18">18</td>
+<td location="M 19">19</td>
+<td location="M 20">20</td>
+				</tr>
+				<tr>
+<td location="M 21">21</td>
+<td location="M 22">22</td>
+<td location="M 23">23</td>
+<td location="M 24">24</td>
+<td location="M 25">25</td>
+<td location="M 26">26</td>
+<td location="M 27">27</td>
+<td location="M 28">28</td>
+<td location="M 29">28</td>
+<td location="M 30">30</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">N 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="N 01">01</td>
+<td location="N 02">02</td>
+<td location="N 03">03</td>
+<td location="N 04">04</td>
+<td location="N 05">05</td>
+<td location="N 06">06</td>
+<td location="N 07">07</td>
+<td location="N 08">08</td>
+<td location="N 09">09</td>
+<td location="N 10">10</td>
+<td location="N 11">11</td>
+<td location="N 12">12</td>
+<td location="N 13">13</td>
+				</tr>
+				<tr>
+<td location="N 14">14</td>
+<td location="N 15">15</td>
+<td location="N 16">16</td>
+<td location="N 17">17</td>
+<td location="N 18">18</td>
+<td location="N 19">19</td>
+<td location="N 20">20</td>
+<td location="N 21">21</td>
+<td location="N 22">22</td>
+<td location="N 23">23</td>
+<td location="N 24">24</td>
+<td location="N 25">25</td>
+<td location="N 26">26</td>
+				</tr>
+				<tr>
+<td location="N 27">27</td>
+<td location="N 28">28</td>
+<td location="N 29">28</td>
+<td location="N 30">30</td>
+<td location="N 31">31</td>
+<td location="N 32">32</td>
+<td location="N 33">33</td>
+<td location="N 34">34</td>
+<td location="N 35">35</td>
+<td location="N 36">36</td>
+<td location="N 37">37</td>
+<td location="N 38">38</td>
+<td location="N 39">39</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">O 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="O 01">01</td>
+<td location="O 02">02</td>
+<td location="O 03">03</td>
+<td location="O 04">04</td>
+<td location="O 05">05</td>
+<td location="O 06">06</td>
+<td location="O 07">07</td>
+<td location="O 08">08</td>
+<td location="O 09">09</td>
+<td location="O 10">10</td>
+<td location="O 11">11</td>
+<td location="O 12">12</td>
+<td location="O 13">13</td>
+				</tr>
+				<tr>
+<td location="O 14">14</td>
+<td location="O 15">15</td>
+<td location="O 16">16</td>
+<td location="O 17">17</td>
+<td location="O 18">18</td>
+<td location="O 19">19</td>
+<td location="O 20">20</td>
+<td location="O 21">21</td>
+<td location="O 22">22</td>
+<td location="O 23">23</td>
+<td location="O 24">24</td>
+<td location="O 25">25</td>
+<td location="O 26">26</td>
+				</tr>
+				<tr>
+<td location="O 27">27</td>
+<td location="O 28">28</td>
+<td location="O 29">28</td>
+<td location="O 30">30</td>
+<td location="O 31">31</td>
+<td location="O 32">32</td>
+<td location="O 33">33</td>
+<td location="O 34">34</td>
+<td location="O 35">35</td>
+<td location="O 36">36</td>
+<td location="O 37">37</td>
+<td location="O 38">38</td>
+<td location="O 39">39</td>
+				</tr>
+			</table>
+		</div>
+
+		<div style="margin: 15px; float: left;">
+			<div class="ui-widget-header" style="text-align: center;">P 货架</div>
+			<table class="condform wip-table">
+				<tr>
+<td location="P 01">01</td>
+<td location="P 02">02</td>
+<td location="P 03">03</td>
+<td location="P 04">04</td>
+<td location="P 05">05</td>
+<td location="P 06">06</td>
+<td location="P 07">07</td>
+<td location="P 08">08</td>
+<td location="P 09">09</td>
+<td location="P 10">10</td>
+<td location="P 11">11</td>
+<td location="P 12">12</td>
+<td location="P 13">13</td>
+				</tr>
+				<tr>
+<td location="P 14">14</td>
+<td location="P 15">15</td>
+<td location="P 16">16</td>
+<td location="P 17">17</td>
+<td location="P 18">18</td>
+<td location="P 19">19</td>
+<td location="P 20">20</td>
+<td location="P 21">21</td>
+<td location="P 22">22</td>
+<td location="P 23">23</td>
+<td location="P 24">24</td>
+<td location="P 25">25</td>
+<td location="P 26">26</td>
+				</tr>
+				<tr>
+<td location="P 27">27</td>
+<td location="P 28">28</td>
+<td location="P 29">28</td>
+<td location="P 30">30</td>
+<td location="P 31">31</td>
+<td location="P 32">32</td>
+<td location="P 33">33</td>
+<td location="P 34">34</td>
+<td location="P 35">35</td>
+<td location="P 36">36</td>
+<td location="P 37">37</td>
+<td location="P 38">38</td>
+<td location="P 39">39</td>
+				</tr>
+			</table>
+		</div>
+
 		<div class="clear"></div>
+
 	</div>
 	<div class="clear areaencloser"></div>

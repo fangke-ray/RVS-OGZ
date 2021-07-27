@@ -128,6 +128,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<option value="G" ${(shelf eq 'G' ? 'selected' : '' )}>G 货架</option>
 						<option value="H" ${(shelf eq 'H' ? 'selected' : '' )}>H 货架</option>
 						<option value="H2" ${(shelf eq 'H2' ? 'selected' : '' )}>H2 货架</option>
+						<option value="I" ${(shelf eq 'I' ? 'selected' : '' )}>I 货架</option>
+						<option value="J" ${(shelf eq 'J' ? 'selected' : '' )}>J 货架</option>
+						<option value="K" ${(shelf eq 'K' ? 'selected' : '' )}>K 货架</option>
+						<option value="L" ${(shelf eq 'L' ? 'selected' : '' )}>L 货架</option>
+						<option value="M" ${(shelf eq 'M' ? 'selected' : '' )}>M 货架</option>
+						<option value="N" ${(shelf eq 'N' ? 'selected' : '' )}>N 货架</option>
+						<option value="O" ${(shelf eq 'O' ? 'selected' : '' )}>O 货架</option>
+						<option value="P" ${(shelf eq 'P' ? 'selected' : '' )}>P 货架</option>
 					</select>
 					</th>
 					${(waitCount > 0) ? "<th class=\"td-title\" id=\"next_shelf\">◣</th>" : ""}
