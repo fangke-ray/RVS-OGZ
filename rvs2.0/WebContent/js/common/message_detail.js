@@ -105,7 +105,30 @@ var getWarningComplete = function(xhrobj, rowData, callback, break_message_level
 		},
 		buttons : {}
 	});
+
+	defectNextEntach(resInfo.waiting_analysis);
+
+
 	$this_dialog.show();
+}
+
+var defectNextEntach = function(waiting_analysis){
+	var $titlebar = $("#nogood_treat").prev(".ui-dialog-titlebar");
+	if ($titlebar.length == 0) {
+		if ($("#nogood_treat").length > 0) {
+			setTimeout(function(){defectNextEntach(waiting_analysis)}, 300);
+		}
+		return;
+	}
+	if (waiting_analysis) {
+		if ($titlebar.children("#defective_next").length == 0) {
+			$titlebar.append('<div id="defective_next" style="padding-top: 5px;margin-left:12em;"><input id="defective_next_check" checked type="checkbox"><label for="defective_next_check">处理完成后开启不良对策</label></div>');
+		} else {
+			$("#defective_next_check").attr("checked", true).trigger("change");
+		}
+	} else {
+		$("#defective_next").remove();
+	}
 }
 
 /*

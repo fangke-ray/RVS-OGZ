@@ -747,7 +747,7 @@ public class QualityAssuranceAction extends BaseAction {
 	
 				// 通知
 				AlarmMesssageService amService = new AlarmMesssageService();
-				amService.createDefectsAlarmMessage(workingPf, user.getDepartment(), user.getLine_id(), conn);
+				String amId = amService.createDefectsAlarmMessage(workingPf, user.getDepartment(), user.getLine_id(), conn);
 
 //			} else if ("2".equals(material.getFix_type())) {
 //				workingPf.setOperate_result(0);
