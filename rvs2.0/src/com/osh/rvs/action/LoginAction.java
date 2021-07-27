@@ -328,6 +328,15 @@ public class LoginAction extends BaseAction {
 					conditionBean.setPwd(password);
 					loginData = dao.searchLoginOperator(conditionBean);
 				}
+				if (loginData == null) {
+					password = RvsUtils._decPwd(operator.getPwd(), lNow + 600000); // 按10分钟后 
+					if (!decPassword.equals(password)) {
+						password = CryptTool.encrypttoStr(password);
+						password = CryptTool.encrypttoStr(password + conditionBean.getJob_no().toUpperCase());
+						conditionBean.setPwd(password);
+						loginData = dao.searchLoginOperator(conditionBean);
+					}
+				}
 			}catch (Exception e) {
 			}
 

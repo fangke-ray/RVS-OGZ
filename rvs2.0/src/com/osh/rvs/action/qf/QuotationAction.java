@@ -117,7 +117,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
+	@Privacies(permit={107})
 	public void jsinit(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("QuotationAction.jsinit start");
@@ -294,7 +294,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doscan(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.scan start");
 		Map<String, Object> detailResponse = new HashMap<String, Object>();
@@ -414,7 +414,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dopause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.dopause start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -469,7 +469,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dobreak(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.dobreak start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();
@@ -637,7 +637,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void doendpause(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.doendpause start");
 		Map<String, Object> callbackResponse = new HashMap<String, Object>();
@@ -695,7 +695,7 @@ public class QuotationAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={0})
+	@Privacies(permit={107})
 	public void dofinish(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception{
 		log.info("QuotationAction.dofinish start");
 		Map<String, Object> listResponse = new HashMap<String, Object>();

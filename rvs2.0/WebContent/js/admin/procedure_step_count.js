@@ -439,7 +439,7 @@ var showDelete = function(rid){
 		"procedure_step_count_id" : rowData.procedure_step_count_id
 	}
 
-	warningConfirm("确认要删除此条作业步骤计次[" + rowData.name  +"]吗？", 
+	warningConfirm("确认要删除此条作业步骤计次[" + encodeText(rowData.name)  +"]吗？", 
 		function() {
 
 			// Ajax提交

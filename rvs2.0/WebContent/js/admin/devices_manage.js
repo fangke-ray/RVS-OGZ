@@ -1099,7 +1099,7 @@ var showAdd = function(add_method, entity){
     /*确认*/	
 	$("#confirebutton").click(function(){
 	  if ($("#add_form").valid()) {
-		warningConfirm("是否新建管理编号为"+$("#add_manage_code").val()+", 品名为"+$("#add_name").val()+"的设备工具?", 
+		warningConfirm("是否新建管理编号为"+$("#add_manage_code").val()+", 品名为"+encodeText($("#add_name").val())+"的设备工具?", 
 			function() {
 	            var data={
 			        "manage_code": $("#add_manage_code").val(),
@@ -1313,7 +1313,7 @@ var showEdit = function(){
 	$("#updatebutton").click(function(){
 	  if ($("#update_form").valid()) {
         $("#dialog_confrim").html("");
-		warningConfirm("是否修改管理编号为"+$("#update_manage_code").val()+",品名为"+$("#update_name").val()+"的设备工具？", 
+		warningConfirm("是否修改管理编号为"+$("#update_manage_code").val()+",品名为"+encodeText($("#update_name").val())+"的设备工具？", 
 			function(){
 				var data={
 					"compare_status":rowData.status==$("#update_status").val(),
@@ -1363,7 +1363,7 @@ var showEdit = function(){
 
 	/*确认删除*/
 	$("#delbutton").click(function(){
-		warningConfirm("确认删除管理编号为"+$("#update_manage_code").val()+",品名为"+$("#update_name").val()+"的设备工具？", 
+		warningConfirm("确认删除管理编号为"+$("#update_manage_code").val()+",品名为"+encodeText($("#update_name").val())+"的设备工具？", 
 			function() {
                  var data={
                     "devices_manage_id": $("#hidden_devices_manage_id").val()

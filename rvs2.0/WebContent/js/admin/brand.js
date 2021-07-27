@@ -169,7 +169,7 @@ var showAdd = function() {
 		if ($("#editform").valid()) {
 			$("#editbutton").disable();
 
-			warningConfirm("确认要新建该厂商["+$("#edit_name").val()+"]记录吗？", function() {
+			warningConfirm("确认要新建该厂商["+encodeText($("#edit_name").val())+"]记录吗？", function() {
 				var data={
 					"name":$("#edit_name").val(),
 					"business_relationship":$("#edit_business_relationship").val(),
@@ -261,7 +261,7 @@ var showEdit = function() {
 		if ($("#editform").valid()) {
 			$("#editbutton").disable();
 
-			warningConfirm("确认要修改该厂商["+$("#edit_name").val()+"]记录吗？", 
+			warningConfirm("确认要修改该厂商["+encodeText($("#edit_name")).val()+"]记录吗？", 
 				function() {
 					var data={
 					"name":$("#edit_name").val(),

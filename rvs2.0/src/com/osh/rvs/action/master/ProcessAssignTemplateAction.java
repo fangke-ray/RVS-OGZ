@@ -72,7 +72,6 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={1, 0})
 	public void getPositions(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.getPositions start");

@@ -90,7 +90,7 @@ jQuery.extend({
 				}						
             }catch(e)
 			{
-				jQuery.handleError(s, xml, null, e);
+				// jQuery.handleError(s, xml, null, e);
 			}
             if ( xml || isTimeout == "timeout") 
 			{				
@@ -110,12 +110,12 @@ jQuery.extend({
                         // Fire the global callback
                         if( s.global )
                             jQuery.event.trigger( "ajaxSuccess", [xml, s] );
-                    } else
-                        jQuery.handleError(s, xml, status);
+                    } // else
+                        // jQuery.handleError(s, xml, status);
                 } catch(e) 
 				{
                     status = "error";
-                    jQuery.handleError(s, xml, status, e);
+                    // jQuery.handleError(s, xml, status, e);
                 }
 
                 // The request was completed
@@ -140,7 +140,7 @@ jQuery.extend({
 											
 				} catch(e) 
 				{
-					jQuery.handleError(s, xml, null, e);
+					// jQuery.handleError(s, xml, null, e);
 				}									
 
 			}, 100)
@@ -176,7 +176,7 @@ jQuery.extend({
 
         } catch(e) 
 		{			
-            jQuery.handleError(s, xml, null, e);
+            // jQuery.handleError(s, xml, null, e);
         }
         if(window.attachEvent){
             document.getElementById(frameId).attachEvent('onload', uploadCallback);

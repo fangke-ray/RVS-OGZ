@@ -172,7 +172,7 @@ var check_file_manage_list=function(listdata){
 var showDelete=function(rid){
     var rowData = $("#check_file_manage_list").getRowData(rid);
 
-	warningConfirm("删除不能恢复。确认要删除["+rowData.check_manage_code+"]的记录吗？", 
+	warningConfirm("删除不能恢复。确认要删除["+encodeText(rowData.check_manage_code)+"]的记录吗？", 
 		function() {
 			var data={
 				"check_file_manage_id":rowData.check_file_manage_id

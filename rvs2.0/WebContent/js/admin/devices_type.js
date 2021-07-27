@@ -188,7 +188,7 @@ var showAdd = function() {
 	$("#editbutton").click(function() {
 		if ($("#editform").valid()) {
 
-		warningConfirm("确认要新建该条设备工具品名为["+$("#edit_name").val()+"]记录吗？", function() {
+		warningConfirm("确认要新建该条设备工具品名为["+encodeText($("#edit_name").val())+"]记录吗？", function() {
 			var data = {
 				"name" : $("#edit_name").val(),
 				"specialized":$("#edit_specialized").val(),
@@ -299,7 +299,7 @@ var showEdit = function() {
 	$("#editbutton").unbind("click");
 	$("#editbutton").click(function() {
 		if ($("#editform").valid()) {
-			warningConfirm("确认要修改设备工具品名为["+$("#edit_name").val()+"]记录吗？", 
+			warningConfirm("确认要修改设备工具品名为["+encodeText($("#edit_name").val())+"]记录吗？", 
 				function() {
 					var data={
 						"name":$("#edit_name").val(),

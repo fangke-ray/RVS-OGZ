@@ -72,7 +72,7 @@ public class ScheduleAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit={104, 105})
+	@Privacies(permit={104, 105, 106})
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleAction.init start");
@@ -136,7 +136,7 @@ public class ScheduleAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit={104, 105})
+	@Privacies(permit={104, 105, 106})
 	public void searchBoth(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ScheduleAction.searchBoth start");

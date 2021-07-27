@@ -74,7 +74,7 @@ public class PartialBussinessStandardAction extends BaseAction {
 	 * @param conn
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1, 0 })
+	@Privacies(permit = { 103, 1, 0 })
 	public void doUpdate(ActionMapping mapping, ActionForm form,
 			HttpServletRequest req, HttpServletResponse res,
 			SqlSessionManager conn) throws Exception {
