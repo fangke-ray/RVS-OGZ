@@ -19,7 +19,7 @@ text-shadow: 0 0 5px #FFFFFF;color:white;font-size: 24px;font-family: Georgia;
 }
 </style>
 	<div class="areabase">
-		<img src="images/logo-rvs.png" style="margin-top: 7px; float: left"></img> <!-- -->
+		<img src="images/logo-rvs.png?v=2021" style="margin-top: 7px; float: left"></img> <!-- -->
 		<div>
 			<div style="height:29px;line-height:42px;float:right;margin-right: 8px;">
 				<span style="color:white;font-size:18px;" id="moduleName"></span>

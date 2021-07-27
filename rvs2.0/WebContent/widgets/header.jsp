@@ -70,7 +70,7 @@ background-size: 10px 60px;*/
 </style>
 
 	<div class="areabase">
-		<img src="images/logo-rvs.png" style="margin-top: 7px; float: left"></img>
+		<img src="images/logo-rvs.png?v=2021" style="margin-top: 7px; float: left"></img>
 		<div>
 			<div class="menulink icon-switch">退出</div>
 			<div class="menulink icon-home">首页
