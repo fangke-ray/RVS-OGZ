@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
-	license agreements. See the NOTICE file distributed with this work for additional 
-	information regarding copyright ownership. The ASF licenses this file to 
-	You under the Apache License, Version 2.0 (the "License"); you may not use 
-	this file except in compliance with the License. You may obtain a copy of 
-	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-	by applicable law or agreed to in writing, software distributed under the 
-	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-	OF ANY KIND, either express or implied. See the License for the specific 
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor
+	license agreements. See the NOTICE file distributed with this work for additional
+	information regarding copyright ownership. The ASF licenses this file to
+	You under the Apache License, Version 2.0 (the "License"); you may not use
+	this file except in compliance with the License. You may obtain a copy of
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required
+	by applicable law or agreed to in writing, software distributed under the
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+	OF ANY KIND, either express or implied. See the License for the specific
 	language governing permissions and limitations under the License. -->
 
 <!DOCTYPE struts-config PUBLIC
@@ -82,7 +82,7 @@
 		<form-bean name="PeripheralInfectDeviceForm" type="com.osh.rvs.form.infect.PeripheralInfectDeviceForm"></form-bean>
 		<form-bean name="WeeklyKpiDataForm" type="com.osh.rvs.form.report.WeeklyKpiDataForm"></form-bean>
 		<form-bean name="GlueMixingForm" type="com.osh.rvs.form.inline.GlueMixingForm"></form-bean>
-		
+
 		<form-bean name="PartialBussinessStandardForm" type="com.osh.rvs.form.master.PartialBussinessStandardForm"></form-bean>
 		<form-bean name="dryingOvenDeviceForm" type="com.osh.rvs.form.infect.DryingOvenDeviceForm"></form-bean>
 		<form-bean name="FactProductionFeatureForm" type="com.osh.rvs.form.partial.FactProductionFeatureForm"></form-bean>
@@ -97,6 +97,8 @@
 		<form-bean name="OperationStandardDocForm" type="com.osh.rvs.form.manage.OperationStandardDocForm"></form-bean>
 
 		<form-bean name="defectiveAnalysisForm" type="com.osh.rvs.form.manage.DefectiveAnalysisForm" />
+		<form-bean name="processInspectForm" type="com.osh.rvs.form.manage.ProcessInspectForm" />
+
 		<form-bean name="newPhenomenonForm" type="com.osh.rvs.form.manage.NewPhenomenonForm"></form-bean>
 
 	</form-beans>
@@ -105,7 +107,7 @@
 	<!-- ========================================= Global Exception Definitions -->
 
 	<global-exceptions>
-		<!-- sample exception handler <exception key="expired.password" type="app.ExpiredPasswordException" 
+		<!-- sample exception handler <exception key="expired.password" type="app.ExpiredPasswordException"
 			path="/changePassword.jsp"/> end sample -->
 	</global-exceptions>
 
@@ -129,6 +131,10 @@
 			<forward name="success" path="/category.do" />
 			<forward name="pda_init" path="/pages/pda/pda_login.jsp" />
 			<forward name="pda_menu" path="/pages/pda/pda_menu.jsp" />
+		</action>
+
+		<action path="/break" type="com.osh.rvs.action.BreakAction" name="operatorForm"
+			scope="request" parameter="method" validate="false">
 		</action>
 
 		<action path="/category" type="com.osh.rvs.action.master.CategoryAction" name="categoryForm"
@@ -316,18 +322,18 @@
 			<forward name="init-man" path="/pages/data/list_products-page.jsp" />
 			<forward name="success" path="/pages/data/list_materials-page.jsp" />
 		</action>
- 		
+
 		<!-- partial 订购零件 -->
 		<action path="/materialPartial" type="com.osh.rvs.action.partial.MaterialPartialAction" parameter="method" validate="false" name="materialPartialForm" scope="request">
 			<forward name="init" path="/pages/partial/bo_partial.jsp" />
 			<forward name="success" path="/pages/partial/bo_partial.jsp" />
 			<forward name="detail" path="/widgets/material_partial-detail.jsp" />
 		</action>
- 
+
 		<!-- inline 维修进度 -->
-		<action path="/materialProcess" type="com.osh.rvs.action.inline.MaterialProcessAction" parameter="method" validate="false" name="materialProcessForm" scope="request"> 
+		<action path="/materialProcess" type="com.osh.rvs.action.inline.MaterialProcessAction" parameter="method" validate="false" name="materialProcessForm" scope="request">
 		</action>
-		
+
 		<!-- qf 投线 -->
 		<action path="/materialFact" type="com.osh.rvs.action.qf.MaterialFactAction" parameter="method" validate="false" name="materialFactForm" scope="request">
 			<forward name="init" path="/pages/qf/fact_material.jsp" />
@@ -350,9 +356,9 @@
 			<forward name="init" path="/pages/inline/schedule_processing.jsp" />
 			<forward name="success" path="/pages/inline/schedule_processing.jsp" />
 			<forward name="product" path="/pages/inline/schedule_product.jsp" />
-			
+
 			<forward name="capacity_setting" path="/widgets/manage/capacity_setting.jsp"/>
-			
+
 			<forward name="daily_report" path="/widgets/report/daily_report.jsp" />
 		</action>
 		<!-- data 作业 -->
@@ -415,37 +421,40 @@
 			<forward name="init" path="/pages/inline/support.jsp" />
 			<forward name="success" path="/pages/inline/support.jsp" />
 		</action>
- 
+
 		<!-- qf 报价线长 -->
 		<action path="/beforeLineLeader" type="com.osh.rvs.action.qf.BeforeLineLeaderAction" parameter="method" name="materialForm" scope="request" validate="false">
 			<forward name="init" path="/pages/qf/before_line_leader.jsp" />
 			<forward name="success" path="/pages/qf/before_line_leader.jsp" />
 		</action>
- 
+
 		<!-- qf 出货 -->
 		<action path="/shipping" type="com.osh.rvs.action.qf.ShippingAction" parameter="method" validate="false">
 			<forward name="init" path="/pages/qf/shipping.jsp" />
 			<forward name="success" path="/pages/qf/shipping.jsp" />
 		</action>
- 
+
 		<!-- report 归档 -->
 		<action path="/filing" type="com.osh.rvs.action.report.FilingAction" parameter="method" validate="false" name="materialForm" scope="request">
 			<forward name="init" path="/pages/report/filing.jsp" />
 			<forward name="success" path="/pages/report/filing.jsp" />
 		</action>
- 
+
 		<!-- data 先端组件 -->
 		<action path="/snouts" type="com.osh.rvs.action.data.SnoutsAction" name="snoutForm" parameter="method" validate="false" scope="request">
 			<forward name="init" path="/pages/data/list_snouts.jsp" />
 			<forward name="success" path="/pages/data/list_snouts.jsp" />
 			<forward name="detail" path="/widgets/snout-detail.jsp" />
 		</action>
- 
+
 		<!-- =========Common -->
 		<action path="/upload" type="com.osh.rvs.action.UploadAction" name="uploadForm" parameter="method" validate="false" scope="request">
 		</action>
 
 		<action path="/download" type="com.osh.rvs.action.DownloadAction" parameter="method" validate="false">
+		</action>
+
+		<action path="/pcsdown" type="com.osh.rvs.action.PcsDownloadAction" parameter="method" validate="false">
 		</action>
 
 		<action path="/header" type="com.osh.rvs.action.HeaderAction" parameter="method" validate="false">
@@ -496,7 +505,7 @@
 			<forward name="init" path="/pages/password.jsp" />
 			<forward name="success" path="/pages/password.jsp" />
 		</action>
- 
+
 		<action path="/widget" type="com.osh.rvs.action.WidgetAction" parameter="method" validate="false">
 			<forward name="init" path="/widgets/panel.jsp" />
 			<forward name="breakoperator" path="/widgets/break-operator.jsp" />
@@ -514,11 +523,11 @@
 		</action>
 
 		<!-- rvs 二期Start -->
-		
+
 		<!-- data 出检结果 -->
-		<action path="/qaResult" 
+		<action path="/qaResult"
 		              type="com.osh.rvs.action.data.QaResultAction"
-		              parameter="method" 
+		              parameter="method"
 		              name="qaResultForm"
 		              scope="request"
 		              validate="false">
@@ -536,14 +545,14 @@
 				<forward name="init" path="/pages/qa/service_repair_manage.jsp" />
 		</action>
 
-		<action path="/partial" type="com.osh.rvs.action.master.PartialAction" 
+		<action path="/partial" type="com.osh.rvs.action.master.PartialAction"
 				parameter="method"
 				scope="request"
 				name="partialForm"
 				validate="false">
 			<forward name="init" path="/pages/admin/partial.jsp" />
 		</action>
-		
+
 		<action path="/partialManage" type="org.apache.struts.actions.ForwardAction" parameter="/pages/partial/partial-page.jsp" validate="false">
 		</action>
 
@@ -566,7 +575,7 @@
 		</action>
 
 		<!-- qa 返品QIS判定 -->
-		<action path="/service_repair_referee" 
+		<action path="/service_repair_referee"
 				type="com.osh.rvs.action.qa.ServiceRepairRefereeAction"
 				parameter="method"
 				scope="request"
@@ -576,7 +585,7 @@
 		</action>
 
 		<!-- report 工作记录表 -->
-		<action path="/daily_work_sheet" 
+		<action path="/daily_work_sheet"
 				type="com.osh.rvs.action.report.DailyWorkSheetAction"
 				parameter="method"
 				scope="request"
@@ -585,7 +594,7 @@
 		</action>
 
 		<!-- data 工程检查票模板 -->
-		<action path="/pcsTemplate" 
+		<action path="/pcsTemplate"
 				type="com.osh.rvs.action.data.PcsTemplateAction"
 				parameter="method"
 				scope="request"
@@ -604,19 +613,19 @@
 			parameter="method"
 			name="forSolutionAreaForm"
 			scope="request"
-			validate="false">			
-			<forward name="init" path="/pages/inline/for_solution_area.jsp"></forward>		
+			validate="false">
+			<forward name="init" path="/pages/inline/for_solution_area.jsp"></forward>
 		</action>
 
 		<action path="/pcsManage" type="org.apache.struts.actions.ForwardAction" parameter="/pages/manage/pcsfix-page.jsp" validate="false">
 		</action>
 
 		<!-- common 入 -->
-		<action path="/imageUpload" 
-				type="com.osh.rvs.action.ImageAction" 
-				name="uploadForm" 
-				parameter="method" 
-				validate="false" 
+		<action path="/imageUpload"
+				type="com.osh.rvs.action.ImageAction"
+				name="uploadForm"
+				parameter="method"
+				validate="false"
 				scope="request">
 		</action>
 
@@ -626,39 +635,39 @@
 				parameter="method"
 				name="devicesTypeForm"
 				scope="request"
-				validate="false">			
-				<forward name="init" path="/pages/admin/devices_type.jsp"></forward>	
-				<forward name="success" path="/pages/admin/devices_type.jsp"></forward>		
+				validate="false">
+				<forward name="init" path="/pages/admin/devices_type.jsp"></forward>
+				<forward name="success" path="/pages/admin/devices_type.jsp"></forward>
 		</action>
-		
+
 		<!--设备工具管理 -->
 		<action path="/devices_manage"
 				type="com.osh.rvs.action.master.DevicesManageAction"
 				parameter="method"
 				name="devicesManageForm"
 				scope="request"
-				validate="false">			
-				<forward name="init" path="/pages/admin/devices_manage.jsp"></forward>	
-				<forward name="success" path="/pages/admin/devices_manage.jsp"></forward>		
+				validate="false">
+				<forward name="init" path="/pages/admin/devices_manage.jsp"></forward>
+				<forward name="success" path="/pages/admin/devices_manage.jsp"></forward>
 		</action>
-		
+
 		<!-- 点检表管理 -->
 		<action path="/check_file_manage"
 				type="com.osh.rvs.action.master.CheckFileManageAction"
 				name="CheckFileManageForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/admin/check_file_manage.jsp"></forward>
 		</action>
-		
+
 
 		<!-- 点检不合格记录 -->
 		<action path="/check_unqualified_record"
 				type="com.osh.rvs.action.infect.CheckUnqualifiedRecordAction"
 				name="CheckUnqualifiedRecordForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/check_unqualified_record.jsp"></forward>
 		</action>
@@ -668,7 +677,7 @@
 				type="com.osh.rvs.action.master.ToolsManageAction"
 				name="toolsManageForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/admin/tools_manage.jsp"></forward>
 		</action>
@@ -678,7 +687,7 @@
 				type="com.osh.rvs.action.infect.DailyCheckResultAction"
 				name="DailyCheckResultForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/daily_check_result.jsp"></forward>
 		</action>
@@ -688,7 +697,7 @@
 				type="com.osh.rvs.action.infect.ToolsCheckResultAction"
 				name="ToolsCheckResultForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/tools_check_result.jsp"></forward>
 		</action>
@@ -698,7 +707,7 @@
 				type="com.osh.rvs.action.infect.DeviceRegularlyCheckResultAction"
 				name="DeviceRegularlyCheckResultForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/device_regularly_check_result.jsp"></forward>
 		</action>
@@ -708,7 +717,7 @@
 				type="com.osh.rvs.action.infect.ToolsDistributeAction"
 				name="ToolsDistributeForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/tools_distribute.jsp"></forward>
 		</action>
@@ -718,7 +727,7 @@
 				type="com.osh.rvs.action.infect.DevicesDistributeAction"
 				name="devicesManageForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/devices_distribute.jsp"></forward>
 		</action>
@@ -728,7 +737,7 @@
 				type="com.osh.rvs.action.infect.UsageCheckAction"
 				name="UsageCheckForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/usage_check.jsp"></forward>
 		</action>
@@ -737,7 +746,7 @@
 				type="com.osh.rvs.action.infect.ExternalAdjustmentAction"
 				name="ExternalAdjustmentForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/external_adjustment.jsp"></forward>
 		</action>
@@ -747,7 +756,7 @@
 				type="com.osh.rvs.action.infect.CheckResultFilingAction"
 				name="CheckResultFilingForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/check_result_filing.jsp"></forward>
 		</action>
@@ -761,7 +770,7 @@
 				type="com.osh.rvs.action.infect.TorsionDeviceAction"
 				name="TorsionDeviceForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/torsion_device.jsp"></forward>
 		</action>
@@ -781,11 +790,11 @@
 				type="com.osh.rvs.action.master.CustomerAction"
 				name="customerForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/admin/customer.jsp"></forward>
 		</action>
-		
+
 		<!--系统图片管理 -->
 		<action path="/system_image_manage"
 				type="com.osh.rvs.action.master.SystemImageManageAction"
@@ -806,7 +815,7 @@
 				<forward name="init" path="/pages/admin/pcs_request.jsp"/>
 				<forward name="success" path="/pages/admin/pcs_request.jsp"/>
 		</action>
-		
+
 		<!-- 维修对象独有修理流程 -->
 		<action path="/material_process_assign"
 				type="com.osh.rvs.action.inline.MaterialProcessAssignAction"
@@ -825,7 +834,7 @@
 				<forward name="init" path="/pages/admin/quality_tip.jsp"/>
 				<forward name="success" path="/pages/admin/quality_tip.jsp"/>
 		</action>
-		
+
 		<!--周报KPI-->
 		<action path="/weekly_kpi_data"
 				type="com.osh.rvs.action.report.WeeklyKpiDataAction"
@@ -835,7 +844,7 @@
 				validate="false">
 				<forward name="init" path="/pages/report/weekly_kpi_data.jsp"/>
 		</action>
-		
+
 		<!-- 胶水调制 -->
 		<action path="/glue_fixing"
 				type="com.osh.rvs.action.inline.GlueMixingAction"
@@ -852,8 +861,8 @@
 				scope="request"
 				parameter="method"
 				validate="false">
-				<forward name="init" path="/pages/admin/brand.jsp"></forward>	
-				<forward name="success" path="/pages/admin/brand.jsp"></forward>		
+				<forward name="init" path="/pages/admin/brand.jsp"></forward>
+				<forward name="success" path="/pages/admin/brand.jsp"></forward>
 		</action>
 
 		<!-- 周边设备点检关系 -->
@@ -861,7 +870,7 @@
 				type="com.osh.rvs.action.infect.PeripheralInfectDeviceAction"
 				name="PeripheralInfectDeviceForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/infect/peripheral_infect_device.jsp"></forward>
 		</action>
@@ -878,15 +887,15 @@
 		</action>
 
 		<!-- 烘箱管理 -->
-		<action path="/drying_oven_device" 
-				type="com.osh.rvs.action.infect.DryingOvenDeviceAction" 
+		<action path="/drying_oven_device"
+				type="com.osh.rvs.action.infect.DryingOvenDeviceAction"
 				name="dryingOvenDeviceForm"
 				parameter="method"
 				scope="request"
 				validate="false">
 			   <forward name="init" path="/widgets/infect/drying_oven_device.jsp" />
 		</action>
-		
+
 		<!-- 现品作业信息 -->
 		<action path="/fact_production_feature"
 				type="com.osh.rvs.action.partial.FactProductionFeatureAction"
@@ -896,7 +905,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/fact_production_feature.jsp"/>
 		</action>
-		
+
 		<!-- 零件收货 -->
 		<action path="/partial_recept"
 				type="com.osh.rvs.action.partial.PartialReceptAction"
@@ -906,7 +915,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_recept.jsp"/>
 		</action>
-		
+
 		<!-- 零件核对 -->
 		<action path="/partial_collation"
 				type="com.osh.rvs.action.partial.PartialCollationAction"
@@ -916,7 +925,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_collation.jsp"/>
 		</action>
-		
+
 		<!-- 零件分装 -->
 		<action path="/partial_unpack"
 				type="com.osh.rvs.action.partial.PartialUnpackAction"
@@ -926,7 +935,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_unpack.jsp"/>
 		</action>
-		
+
 		<!-- 零件上架 -->
 		<action path="/partial_on_shelf"
 				type="com.osh.rvs.action.partial.PartialOnShelfAction"
@@ -936,7 +945,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_on_shelf.jsp"/>
 		</action>
-		
+
 		<!-- 零件出库 -->
 		<action path="/partial_out_storage"
 				type="com.osh.rvs.action.partial.PartialOutStorageAction"
@@ -946,7 +955,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_out_storage.jsp"/>
 		</action>
-		
+
 		<!-- 零件其他 -->
 		<action path="/partial_other"
 				type="com.osh.rvs.action.partial.PartialOtherAction"
@@ -956,7 +965,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_other.jsp"/>
 		</action>
-		
+
 		<!-- 零件入库单管理 -->
 		<action path="/partial_warehouse"
 				type="com.osh.rvs.action.partial.PartialWarehouseAction"
@@ -966,7 +975,7 @@
 				validate="false">
 				<forward name="init" path="/pages/partial/partial_warehouse.jsp"/>
 		</action>
-		
+
 		<!-- 设备工具备品管理 -->
 		<action path="/device_spare"
 				type="com.osh.rvs.action.equipment.DeviceSpareAction"
@@ -985,7 +994,7 @@
 				parameter="method"
 				validate="false">
 		</action>
-		
+
 		<!-- 设备工具治具订购报价 -->
 		<action path="/device_jig_quotation"
 				type="com.osh.rvs.action.equipment.DeviceJigQuotationAction"
@@ -1042,7 +1051,7 @@
 				type="com.osh.rvs.action.qf.TurnoverCaseAction"
 				name="TurnoverCaseForm"
 				parameter="method"
-		        validate="false" 
+		        validate="false"
 				scope="request">
 				<forward name="init" path="/pages/qf/turnover_case.jsp"></forward>
 		</action>
@@ -1087,6 +1096,7 @@
 			validate="false">
 			<forward name="init" path="/pages/manage/process_inspect.jsp" />
 			<forward name="success" path="/pages/manage/process_inspect.jsp" />
+			<forward name="detail" path="/pages/manage/process_inspect_detail.jsp" />
 		</action>
 
 		<!-- 不良新现象  -->

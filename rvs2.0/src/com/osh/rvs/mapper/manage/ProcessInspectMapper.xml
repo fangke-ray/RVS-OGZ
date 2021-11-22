@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.osh.rvs.mapper.manage.ProcessInspectMapper">
+
+	<select id="search" resultType="ProcessInspectSearchEntity" parameterType="ProcessInspectSearchEntity">
+	SELECT
+		pis.process_inspect_key,
+		pis.perform_option,
+		line.name AS line_name,
+		pia.process_name,
+		operator.name AS operator_name,
+		inspector.name AS inspector_name,
+		pis.inspect_date,
+		model.name AS model_name,
+		pis.serial_no
+	FROM
+		process_inspect_summary pis
+	LEFT JOIN
+		line line
+		ON
+			line.line_id = pis.line_id
+	LEFT JOIN
+		(SELECT
+			achieve.process_inspect_key,
+			GROUP_CONCAT(
+				DISTINCT achieve.process_name
+				ORDER BY process_name
+                SEPARATOR ' ') AS process_name
+        FROM
+        	process_inspect_achievement achieve
+        GROUP BY achieve.process_inspect_key
+		) AS pia
+		ON
+			pia.process_inspect_key = pis.process_inspect_key
+	LEFT JOIN
+		model model
+		ON
+			model.model_id = pis.model_id
+	LEFT JOIN
+		operator operator
+		ON
+			operator.operator_id = pis.operator_id
+	LEFT JOIN
+		operator inspector
+		ON
+			inspector.operator_id = pis.inspector_id
+	<where>
+
+		<if test="line_id != null">
+			ANd pis.line_id = #{line_id}
+		</if>
+
+		<if test="inspect_date_from != null and inspect_date_from != ''">
+			AND pis.inspect_date >= #{inspect_date_from}
+		</if>
+		<if test="inspect_date_to != null and inspect_date_to != ''">
+			<![CDATA[
+				AND pis.inspect_date < date_add(#{inspect_date_to}, interval 1 day)
+			]]>
+		</if>
+		<if test="operator_id != null">
+			AND pis.operator_id = #{operator_id}
+		</if>
+		<if test="inspector_id != null">
+			AND pis.inspector_id = #{inspector_id}
+		</if>
+		<if test="unqualified != null">
+			<choose>
+				<when test="unqualified == 1">
+					EXISTS (
+						SELECT 1 FROM process_inspect_achievement achi
+						WHERE
+							achi.process_inspect_key = pis.process_inspect_key
+							AND achi.unqualified_content IS NOT NULL)
+				</when>
+				<otherwise>
+					NOT EXISTS (
+						SELECT 1 FROM process_inspect_achievement achi
+						WHERE
+							achi.process_inspect_key = pis.process_inspect_key
+							AND achi.unqualified_content IS NOT NULL)
+				</otherwise>
+			</choose>
+		</if>
+		<if test="model_id != null and model_id != ''">
+			AND pis.model_id = #{model_id}
+		</if>
+		<if test="serial_no != null and serial_no != ''">
+			AND pis.serial_no = #{serial_no}
+		</if>
+		<if test="file_type != null">
+			AND pis.file_type = #{file_type}
+		</if>
+		<if test="process_name != null and process_name != ''">
+       		AND EXISTS (
+       			SELECT 1 FROM process_inspect_achievement tmp1
+        		WHERE
+        			tmp1.process_inspect_key = pia.process_inspect_key
+        			AND tmp1.process_name = #{process_name})
+		</if>
+	</where>
+
+	</select>
+
+	<select id="countAchievementType" resultType="Integer">
+	SELECT
+		COUNT(DISTINCT process_name) AS cnt
+	FROM
+		process_inspect_achievement
+	WHERE
+		process_inspect_key = #{processInspectKey}
+	</select>
+
+	<select id="findSummaryByKey" parameterType="String" resultType="ProcessInspectSummaryEntity">
+	SELECT
+	    pis.process_inspect_key
+	  , pis.file_type
+	  , pis.perform_option
+	  , pis.filing_date
+	  , pis.line_id
+	  , line.name AS line_name
+	  , pis.operator_id
+	  , (SELECT name FROM operator WHERE operator_id = pis.operator_id) AS operator_name
+	  , pis.inspector_id
+	  , (SELECT name FROM operator WHERE operator_id = pis.inspector_id) AS inspector_name
+	  , pis.inspect_date
+	  , pis.model_id
+	  , model.name AS model_name
+	  , pis.serial_no
+	  , pis.process_seconds
+	  , pis.standard_seconds
+	  , pis.situation
+	  , pis.countermeasures
+	  , pis.conclusion
+	FROM
+	  process_inspect_summary pis
+	LEFT JOIN
+		line line
+		ON
+			line.line_id = pis.line_id
+	LEFT JOIN
+		model model
+		ON
+			model.model_id = pis.model_id
+	WHERE
+	  process_inspect_key = #{process_inspect_key}
+	</select>
+
+	<select id="findAchievementByKey" resultType="ProcessInspectAchievementEntity" parameterType="String">
+	SELECT
+	  process_inspect_key
+	  , process_name
+	  , line_seq
+	  , inspect_item
+	  , need_check
+	  , inspect_content
+	  , rowspan
+	  , unqualified_content
+	  , unqualified_treatment
+	  , unqualified_treat_date
+	FROM
+	  process_inspect_achievement
+	WHERE
+	  process_inspect_key = #{processInspectKey}
+	ORDER BY
+	  process_inspect_key
+	  , process_name
+	  , line_seq
+	</select>
+
+	<insert id="insertSummary" parameterType="ProcessInspectSummaryEntity" useGeneratedKeys="true" keyProperty="process_inspect_key">
+		INSERT
+			INTO process_inspect_summary(
+			    file_type
+			  , perform_option
+			  , filing_date
+			  , line_id
+			  , operator_id
+			  , inspector_id
+			  , inspect_date
+			  , model_id
+			  , serial_no
+			  , process_seconds
+			  , standard_seconds
+			  , situation
+			  , countermeasures
+			  , conclusion
+			)
+			VALUES (
+			    #{file_type}
+			  , #{perform_option}
+			  , #{filing_date}
+			  , #{line_id}
+			  , #{operator_id}
+			  , #{inspector_id}
+			  , #{inspect_date}
+			  , #{model_id}
+			  , #{serial_no}
+			  , #{process_seconds}
+			  , #{standard_seconds}
+			  , #{situation}
+			  , #{countermeasures}
+			  , #{conclusion}
+			)
+	</insert>
+
+	<insert id="insertAchievement" parameterType="ProcessInspectAchievementEntity">
+	INSERT
+		INTO process_inspect_achievement(
+		  process_inspect_key
+		  , process_name
+		  , line_seq
+		  , inspect_item
+		  , need_check
+		  , inspect_content
+		  , rowspan
+		  , unqualified_content
+		  , unqualified_treatment
+		  , unqualified_treat_date
+		)
+		VALUES (
+		  #{process_inspect_key}
+		  , #{process_name}
+		  , #{line_seq}
+		  , #{inspect_item}
+		  , #{need_check}
+		  , #{inspect_content}
+		  , #{rowspan}
+		  , #{unqualified_content}
+		  , #{unqualified_treatment}
+		  , #{unqualified_treat_date}
+		)
+	</insert>
+
+	<delete id="deleteSummary">
+	DELETE FROM
+		process_inspect_summary
+	WHERE
+		process_inspect_key = #{processInspectKey}
+	</delete>
+
+	<delete id="deleteAchievementByKey">
+	DELETE FROM
+		process_inspect_achievement
+	WHERE
+		process_inspect_key = #{processInspectKey}
+	</delete>
+
+	<delete id="deleteAchievementByName">
+	DELETE FROM
+		process_inspect_achievement
+	WHERE
+		process_inspect_key = #{processInspectKey}
+		AND process_name = #{processName}
+	</delete>
+</mapper>

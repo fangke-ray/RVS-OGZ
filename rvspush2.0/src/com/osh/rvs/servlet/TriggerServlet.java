@@ -25,17 +25,13 @@ import com.osh.rvs.common.MailUtils;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
-import com.osh.rvs.entity.BoundMaps;
 import com.osh.rvs.entity.MaterialEntity;
-import com.osh.rvs.entity.OperatorEntity;
-import com.osh.rvs.entity.PositionEntity;
-import com.osh.rvs.inbound.OperatorMessageInbound;
-import com.osh.rvs.inbound.PositionPanelInbound;
 import com.osh.rvs.job.DailyKpiJob;
 import com.osh.rvs.job.DailyWorkSheetsJob;
 import com.osh.rvs.job.DeviceJigOrderJob;
 import com.osh.rvs.job.PositionStandardTimeQueue;
 import com.osh.rvs.mapper.push.PositionMapper;
+import com.osh.rvs.service.DefectNotcieService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PackageFilingService;
 import com.osh.rvs.service.ProductionFeatureService;
@@ -92,6 +88,9 @@ public class TriggerServlet extends HttpServlet {
 
 	/** 作业日报表签章 **/
 	private static final String METHOD_DAILY_REPORT_RESPOND = "daily_report_respond";
+
+	/** 作业日报表签章 **/
+	private static final String METHOD_DEFECT_NOTICE = "defect_notice";
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse arg1) throws ServletException, IOException {
@@ -183,6 +182,13 @@ public class TriggerServlet extends HttpServlet {
 			} else if (METHOD_DAILY_REPORT_RESPOND.equals(method)) {
 				PackageFilingService pfService = new PackageFilingService();
 				pfService.respond(target, object);
+			} else if (METHOD_DEFECT_NOTICE.equals(method)) {
+				DefectNotcieService pnService = new DefectNotcieService();
+				String confirm_step = null;
+				if (parameters.length >= 6) {
+					confirm_step = parameters[5];
+				}
+				pnService.post(target, object, parameters[4], confirm_step);
 			}
 		}
 	}

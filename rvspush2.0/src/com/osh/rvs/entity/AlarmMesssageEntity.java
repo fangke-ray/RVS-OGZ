@@ -35,6 +35,10 @@ public class AlarmMesssageEntity implements Serializable {
 	private String comment;
 	private String sendation_id;
 
+	private String manage_code;
+	private Integer defective_type;
+	private String defective_phenomenon;
+
 	// List<AlarmMesssageSendationEntity> sendation = new ArrayList
 
 	public String getAlarm_messsage_id() {
@@ -186,5 +190,23 @@ public class AlarmMesssageEntity implements Serializable {
 	}
 	public void setSendation_id(String sendation_id) {
 		this.sendation_id = sendation_id;
+	}
+	public String getManage_code() {
+		return manage_code;
+	}
+	public void setManage_code(String manage_code) {
+		this.manage_code = manage_code;
+	}
+	public Integer getDefective_type() {
+		return defective_type;
+	}
+	public void setDefective_type(Integer defective_type) {
+		this.defective_type = defective_type;
+	}
+	public String getDefective_phenomenon() {
+		return defective_phenomenon;
+	}
+	public void setDefective_phenomenon(String defective_phenomenon) {
+		this.defective_phenomenon = defective_phenomenon;
 	}
 }

@@ -1,6 +1,7 @@
 package com.osh.rvs.form.manage;
 
 import org.apache.struts.action.ActionForm;
+import org.apache.struts.upload.FormFile;
 
 import framework.huiqing.bean.annotation.BeanField;
 import framework.huiqing.bean.annotation.FieldType;
@@ -11,47 +12,73 @@ public class ProcessInspectForm extends ActionForm {
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = -7978201807580739478L;
+
 	@BeanField(title = "Key", name = "process_inspect_key", primaryKey = true, length = 11)
 	private String process_inspect_key;
+
+	@BeanField(title="可解析文件", name="file_type", type=FieldType.Integer, notNull = true)
+	private String file_type;
+
 	@BeanField(title = "实施选项", name = "perform_option", type=FieldType.Integer, notNull = true)
 	private String perform_option;
+
+	private String perform_option_name;
+
 	@BeanField(title = "归档日期", name = "filing_date", type=FieldType.Date)
 	private String filing_date;
-	@BeanField(title = "工程", name = "line_id", length = 11)
+
+	@BeanField(title = "工程", name = "line_id", type=FieldType.String, length = 11)
 	private String line_id;
-	@BeanField(title = "工程名", name = "line_name")
+
+	@BeanField(title = "工程名", name = "line_name", type=FieldType.String)
 	private String line_name;
-	@BeanField(title = "操作者", name = "operator_id", length = 11)
+
+	@BeanField(title = "操作者", name = "operator_id", type=FieldType.String, length = 11)
 	private String operator_id;
 	@BeanField(title = "操作者", name = "operator_name")
 	private String operator_name;
-	@BeanField(title = "监察者", name = "inspector_id", length = 11)
+	@BeanField(title = "监察者", name = "inspector_id", type=FieldType.String, length = 11)
 	private String inspector_id;
-	@BeanField(title = "监察者", name = "inspector_name")
+	@BeanField(title = "监察者", name = "inspector_name", type=FieldType.String)
 	private String inspector_name;
 	@BeanField(title = "监察日", name = "inspect_date", type=FieldType.Date)
 	private String inspect_date;
-	@BeanField(title = "监察日起", name = "inspect_date_start", type=FieldType.Date)
-	private String inspect_date_start;
-	@BeanField(title = "监察日止", name = "inspect_date_end", type=FieldType.Date)
-	private String inspect_date_end;
-	@BeanField(title = "型号 ID", name = "model_id", length = 11)
+
+	private String inspect_date_from;
+
+	private String inspect_date_to;
+
+	@BeanField(title = "型号 ID", name = "model_id", type=FieldType.String, length = 11)
 	private String model_id;
-	@BeanField(title = "型号名", name = "model_name")
+	@BeanField(title = "型号名", name = "model_name", type=FieldType.String)
 	private String model_name;
-	@BeanField(title = "机身号", name = "serial_no", length = 20)
+	@BeanField(title = "机身号", name = "serial_no", type=FieldType.String, length = 20)
 	private String serial_no;
-	@BeanField(title = "作业时间", name = "process_seconds", type=FieldType.UDouble, length = 4, scale = 1)
+	@BeanField(title = "作业时间", name = "process_seconds", type=FieldType.UDouble, length=4, scale=1)
 	private String process_seconds;
-	@BeanField(title = "标准时间", name = "standard_seconds", type=FieldType.UDouble, length = 4, scale = 1)
+	@BeanField(title = "标准时间", name = "standard_seconds", type=FieldType.UDouble, length=4, scale=1)
 	private String standard_seconds;
 
-	@BeanField(title = "监查情况", name = "situation", length = 11)
+	@BeanField(title = "监查情况", name = "situation", type=FieldType.String)
 	private String situation;
-	@BeanField(title = "实施对策", name = "countermeasures", length = 11)
+	@BeanField(title = "实施对策", name = "countermeasures", type=FieldType.String)
 	private String countermeasures;
-	@BeanField(title = "结果", name = "conclusion", length = 11)
+	@BeanField(title = "结果", name = "conclusion", type=FieldType.String)
 	private String conclusion;
+
+	// 检索条件：不合格？
+	@BeanField(title = "不合格", name = "unqualified", type=FieldType.Integer, length = 1)
+	private String unqualified;
+
+	// 汇总报表文件
+	private FormFile uploadSummaryFile;
+
+	@BeanField(title = "作业名", name="process_name", type=FieldType.String, length=32)
+	private String process_name;
+
+	// 监查实绩表文件
+	private FormFile uploadAchievementFile;
+
 	public String getProcess_inspect_key() {
 		return process_inspect_key;
 	}
@@ -112,18 +139,6 @@ public class ProcessInspectForm extends ActionForm {
 	public void setInspect_date(String inspect_date) {
 		this.inspect_date = inspect_date;
 	}
-	public String getInspect_date_start() {
-		return inspect_date_start;
-	}
-	public void setInspect_date_start(String inspect_date_start) {
-		this.inspect_date_start = inspect_date_start;
-	}
-	public String getInspect_date_end() {
-		return inspect_date_end;
-	}
-	public void setInspect_date_end(String inspect_date_end) {
-		this.inspect_date_end = inspect_date_end;
-	}
 	public String getModel_id() {
 		return model_id;
 	}
@@ -172,5 +187,53 @@ public class ProcessInspectForm extends ActionForm {
 	public void setConclusion(String conclusion) {
 		this.conclusion = conclusion;
 	}
+	public FormFile getUploadSummaryFile() {
+		return uploadSummaryFile;
+	}
+	public void setUploadSummaryFile(FormFile uploadSummaryFile) {
+		this.uploadSummaryFile = uploadSummaryFile;
+	}
 
+	public String getFile_type() {
+		return file_type;
+	}
+	public void setFile_type(String file_type) {
+		this.file_type = file_type;
+	}
+	public FormFile getUploadAchievementFile() {
+		return uploadAchievementFile;
+	}
+	public void setUploadAchievementFile(FormFile uploadAchievementFile) {
+		this.uploadAchievementFile = uploadAchievementFile;
+	}
+	public String getProcess_name() {
+		return process_name;
+	}
+	public void setProcess_name(String process_name) {
+		this.process_name = process_name;
+	}
+	public String getPerform_option_name() {
+		return perform_option_name;
+	}
+	public void setPerform_option_name(String perform_option_name) {
+		this.perform_option_name = perform_option_name;
+	}
+	public String getInspect_date_from() {
+		return inspect_date_from;
+	}
+	public void setInspect_date_from(String inspect_date_from) {
+		this.inspect_date_from = inspect_date_from;
+	}
+	public String getInspect_date_to() {
+		return inspect_date_to;
+	}
+	public void setInspect_date_to(String inspect_date_to) {
+		this.inspect_date_to = inspect_date_to;
+	}
+	public String getUnqualified() {
+		return unqualified;
+	}
+	public void setUnqualified(String unqualified) {
+		this.unqualified = unqualified;
+	}
 }

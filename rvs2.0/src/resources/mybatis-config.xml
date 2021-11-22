@@ -68,7 +68,7 @@
 		<typeAlias alias="JigCheckResultEntity" type="com.osh.rvs.bean.infect.JigCheckResultEntity"/>
 		<typeAlias alias="ExternalAdjustmentEntity" type="com.osh.rvs.bean.infect.ExternalAdjustmentEntity"/>
 		<typeAlias alias="CheckResultFilingEntity" type="com.osh.rvs.bean.infect.CheckResultFilingEntity"/>
-		
+
 		<typeAlias alias="TorsionDeviceEntity" type="com.osh.rvs.bean.infect.TorsionDeviceEntity"/>
 		<typeAlias alias="ElectricIronDeviceEntity" type="com.osh.rvs.bean.infect.ElectricIronDeviceEntity"/>
 		<typeAlias alias="CheckUnqualifiedRecordEntity" type="com.osh.rvs.bean.infect.CheckUnqualifiedRecordEntity"/>
@@ -82,7 +82,7 @@
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.qa.ServiceRepairManageEntity"/>
 		<typeAlias alias="TurnoverCaseEntity" type="com.osh.rvs.bean.qf.TurnoverCaseEntity"/>
 		<typeAlias alias="WeeklyKpiDataEntity" type="com.osh.rvs.bean.report.WeeklyKpiDataEntity"/>
-		
+
 		<typeAlias alias="PartialBussinessStandardEntity" type="com.osh.rvs.bean.master.PartialBussinessStandardEntity"/>
 		<typeAlias alias="PeripheralInfectDeviceEntity" type="com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity"/>
 		<typeAlias alias="DryingOvenDeviceEntity" type="com.osh.rvs.bean.infect.DryingOvenDeviceEntity"/>
@@ -117,6 +117,10 @@
 		<typeAlias alias="NewPhenomenonEntity" type="com.osh.rvs.bean.manage.NewPhenomenonEntity"/>
 
 		<typeAlias alias="PcsInputLimitEntity" type="com.osh.rvs.bean.manage.PcsInputLimitEntity"/>
+
+		<typeAlias alias="ProcessInspectAchievementEntity" type="com.osh.rvs.bean.manage.ProcessInspectAchievementEntity" />
+		<typeAlias alias="ProcessInspectSearchEntity" type="com.osh.rvs.bean.manage.ProcessInspectSearchEntity" />
+		<typeAlias alias="ProcessInspectSummaryEntity" type="com.osh.rvs.bean.manage.ProcessInspectSummaryEntity" />
 
 	</typeAliases>
 	<typeHandlers />
@@ -214,7 +218,7 @@
 		<mapper resource="com/osh/rvs/mapper/master/GlueMixingTypeMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/inline/GlueMixingProcessMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/inline/GlueMixingProcessPaceMapper.xml"/>
-		
+
 		<mapper resource="com/osh/rvs/mapper/master/PartialBussinessStandardMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/PartialUnpackMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/FactProductionFeatureMapper.xml"/>
@@ -223,7 +227,7 @@
 		<mapper resource="com/osh/rvs/mapper/partial/FactPartialWarehouseMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/FactProductionCommentMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/partial/PartialWarehouseDnMapper.xml"/>
-		
+
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceSpareAdjustMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/equipment/DeviceJigOrderMapper.xml"/>
@@ -241,5 +245,7 @@
 		<mapper resource="com/osh/rvs/mapper/manage/DefectiveAnalysisMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manage/NewPhenomenonMapper.xml"/>
+
+		<mapper resource="com/osh/rvs/mapper/manage/ProcessInspectMapper.xml"/>
 	</mappers>
 </configuration> 

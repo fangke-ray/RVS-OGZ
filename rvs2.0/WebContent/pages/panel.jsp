@@ -214,6 +214,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<p>--------------------------------------</p>
 								<p>21/7/26 2.12.561 更新</p>
 								<p>在线作业/管理：不良对策功能上线</p>
+								<p>在线作业/管理：作业监察功能上线</p>
 							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>

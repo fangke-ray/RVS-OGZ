@@ -380,4 +380,31 @@
 			am.occur_time < #{occur_time_end}
 	]]>
 	</select>
+
+
+	<select id="getDefectiveAnalysisByAlarmMessageId" parameterType="String" resultType="AlarmMesssageEntity">
+	<![CDATA[
+	SELECT
+		material.material_id,
+		da.alarm_message_id,
+		material.omr_notifi_no as sorc_no,
+		da.manage_code,
+		da.defective_type,
+		da.defective_phenomenon,
+		line.name AS line_name,
+		da.sponsor_operator_id as operator_id
+	FROM
+		defective_analysis da
+	JOIN alarm_messsage am
+		ON
+			am.alarm_messsage_id = da.alarm_message_id
+	JOIN material material
+		ON
+			material.material_id = am.material_id
+	JOIN line line
+		ON
+			line.line_id = am.line_id
+	WHERE da.alarm_message_id = #{alarm_messsage_id};
+	]]>
+	</select>
 </mapper>

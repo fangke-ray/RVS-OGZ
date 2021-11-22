@@ -45,4 +45,6 @@ public interface AlarmMesssageMapper {
 	public int countAlarmMessageIntimeArea(@Param("reason") Integer warningReason, @Param("occur_time_start") Date occur_time_start, @Param("occur_time_end") Date occur_time_end);
 	
 	public List<AlarmMesssageEntity> searchAlarmMessageSend(@Param("reason") Integer reason,@Param("operator_id") String operator_id,@Param("occur_time_start") Date occur_time_start, @Param("occur_time_end") Date occur_time_end);
+
+	public AlarmMesssageEntity getDefectiveAnalysisByAlarmMessageId(String alarm_messsage_id);
 }
