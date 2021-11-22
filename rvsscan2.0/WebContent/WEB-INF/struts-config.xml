@@ -182,7 +182,7 @@
 			<forward name="init" path="/pages/lineTimeSpace.jsp" />
 			<forward name="init_dec" path="/pages/lineTimeSpace_dec.jsp" />
 			<forward name="init_ns" path="/pages/lineTimeSpace_ns.jsp" />
-			<forward name="init_bx" path="/pages/lineTimeSpace_bx_7.jsp" />
+			<forward name="init_bx" path="/pages/lineTimeSpace_bx_8.jsp" />
 			<!--forward name="init_bx" path="/pages/lineTimeSpace_bx.jsp" /-->
 		</action>
 

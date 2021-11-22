@@ -16,7 +16,7 @@ import com.osh.rvs.mapper.LineLeaderMapper;
 import com.osh.rvs.mapper.LineTimespaceMapper;
 
 public class LineTimespaceService {
-	private static final Object BX_END_POS = "007"; // "007"
+	private static final Object BX_END_POS = "008"; // "007"
 	private static Map<String, String> TYPES = new HashMap<String, String>();
 	static {
 		TYPES.put("TJF", "JF");

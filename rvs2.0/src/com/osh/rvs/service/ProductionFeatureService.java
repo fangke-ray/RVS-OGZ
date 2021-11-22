@@ -678,6 +678,8 @@ public class ProductionFeatureService {
 			if (ret_position_id.indexOf("[") < 0) {
 				PositionEntity position = ps.getPositionByID(ret_position_id);
 
+				if (position == null) continue;
+
 				// 判断切线
 				if (isFact && 
 					dividePositions.contains(position.getPosition_id())) {
