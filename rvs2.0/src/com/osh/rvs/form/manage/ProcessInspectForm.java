@@ -78,6 +78,9 @@ public class ProcessInspectForm extends ActionForm {
 
 	// 监查实绩表文件
 	private FormFile uploadAchievementFile;
+	
+	@BeanField(title = "盖章标记", name="confirm_flg", type=FieldType.Integer, length=1)
+	private String confirm_flg;
 
 	public String getProcess_inspect_key() {
 		return process_inspect_key;
@@ -235,5 +238,11 @@ public class ProcessInspectForm extends ActionForm {
 	}
 	public void setUnqualified(String unqualified) {
 		this.unqualified = unqualified;
+	}
+	public String getConfirm_flg() {
+		return confirm_flg;
+	}
+	public void setConfirm_flg(String confirm_flg) {
+		this.confirm_flg = confirm_flg;
 	}
 }

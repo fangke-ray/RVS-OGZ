@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper  namespace="com.osh.rvs.mapper.manage.ProcessInspectConfirmMapper">
+
+	<select id="searchAll" parameterType="string" resultType="ProcessInspectConfirmEntity">
+	<![CDATA[
+		SELECT
+			pic.process_inspect_key,
+			pic.process_name,
+			pic.sign_manager_id,
+			pic.sign_manager_date,
+			manager_op.job_no AS manager_job_no,
+			pic.sign_minister_id,
+			pic.sign_minister_date,
+			minister_op.job_no AS minister_job_no
+		FROM
+			process_inspect_confirm pic
+		LEFT JOIN
+			operator manager_op ON manager_op.operator_id = pic.sign_manager_id
+		LEFT JOIN
+			operator minister_op ON minister_op.operator_id = pic.sign_minister_id
+		WHERE
+			pic.process_inspect_key = #{process_inspect_key}
+	]]>
+	</select>
+
+	<select id="getProcessInspectConfirmByKey" parameterType="string" resultType="ProcessInspectConfirmEntity">
+	<![CDATA[
+		SELECT
+			process_inspect_key,
+			process_name,
+			sign_manager_id,
+			sign_manager_date,
+			sign_minister_id,
+			sign_minister_date
+		FROM
+			process_inspect_confirm
+		WHERE
+			process_inspect_key = #{process_inspect_key}
+		AND
+			process_name = #{process_name}
+	]]>
+	</select>
+
+	<insert id="insert" parameterType="ProcessInspectConfirmEntity">
+	<![CDATA[
+		INSERT INTO process_inspect_confirm
+		(
+			process_inspect_key,
+			process_name,
+			sign_manager_id,
+			sign_manager_date,
+			sign_minister_id,
+			sign_minister_date
+		)
+		VALUES
+		(
+			#{process_inspect_key},
+			#{process_name},
+			#{sign_manager_id},
+			#{sign_manager_date},
+			#{sign_minister_id},
+			#{sign_minister_date}
+		)
+	]]>
+	</insert>
+	
+	<update id="update" parameterType="ProcessInspectConfirmEntity">
+	<![CDATA[
+		UPDATE
+			process_inspect_confirm
+		SET
+			sign_manager_id = #{sign_manager_id},
+			sign_manager_date = #{sign_manager_date},
+			sign_minister_id = #{sign_minister_id},
+			sign_minister_date = #{sign_minister_date}
+		WHERE
+			process_inspect_key = #{process_inspect_key} AND process_name = #{process_name}
+	]]>
+	</update>
+	
+	<delete id="deleteConfirmByKey" parameterType="string">
+	<![CDATA[
+		DELETE FROM process_inspect_confirm WHERE process_inspect_key = #{process_inspect_key}
+	]]>
+	</delete>	
+	
+	<delete id="deleteConfirmByName" parameterType="string">
+	<![CDATA[
+		DELETE FROM process_inspect_confirm WHERE process_inspect_key = #{process_inspect_key} AND process_name = #{process_name}
+	]]>
+	</delete>
+</mapper>

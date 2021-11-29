@@ -121,6 +121,7 @@
 		<typeAlias alias="ProcessInspectAchievementEntity" type="com.osh.rvs.bean.manage.ProcessInspectAchievementEntity" />
 		<typeAlias alias="ProcessInspectSearchEntity" type="com.osh.rvs.bean.manage.ProcessInspectSearchEntity" />
 		<typeAlias alias="ProcessInspectSummaryEntity" type="com.osh.rvs.bean.manage.ProcessInspectSummaryEntity" />
+		<typeAlias alias="ProcessInspectConfirmEntity" type="com.osh.rvs.bean.manage.ProcessInspectConfirmEntity" />
 
 	</typeAliases>
 	<typeHandlers />
@@ -247,5 +248,6 @@
 		<mapper resource="com/osh/rvs/mapper/manage/NewPhenomenonMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manage/ProcessInspectMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/manage/ProcessInspectConfirmMapper.xml"/>
 	</mappers>
 </configuration> 

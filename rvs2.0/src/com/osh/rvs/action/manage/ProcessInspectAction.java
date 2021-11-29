@@ -24,11 +24,13 @@ import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.manage.ProcessInspectAchievementForm;
+import com.osh.rvs.form.manage.ProcessInspectConfirmForm;
 import com.osh.rvs.form.manage.ProcessInspectForm;
 import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.LineService;
 import com.osh.rvs.service.ModelService;
 import com.osh.rvs.service.OperatorService;
+import com.osh.rvs.service.manage.ProcessInspectConfirmService;
 import com.osh.rvs.service.manage.ProcessInspectService;
 
 import framework.huiqing.action.BaseAction;
@@ -44,6 +46,7 @@ public class ProcessInspectAction extends BaseAction {
 	private Logger _log = Logger.getLogger(getClass());
 
 	private ProcessInspectService service = new ProcessInspectService();
+	private ProcessInspectConfirmService confirmService = new ProcessInspectConfirmService();
 
 	/**
 	 * 作业监察 页面初始化
@@ -66,6 +69,10 @@ public class ProcessInspectAction extends BaseAction {
 
 		if (user.getPrivacies().contains(RvsConsts.PRIVACY_LINE)) {
 			req.setAttribute("enableEdit", true);
+		}
+		
+		if(user.getRole_id().equals(RvsConsts.ROLE_MANAGER)){
+			req.setAttribute("signEdit", true);
 		}
 
 		LineService lineService = new LineService();
@@ -162,9 +169,14 @@ public class ProcessInspectAction extends BaseAction {
 			// 取得用户信息
 			HttpSession session = req.getSession();
 			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+			req.setAttribute("jobNo", user.getJob_no());
 
 			if (user.getPrivacies().contains(RvsConsts.PRIVACY_LINE)) {
 				req.setAttribute("enableEdit", true);
+			}
+			
+			if(user.getRole_id().equals(RvsConsts.ROLE_MANAGER)){
+				req.setAttribute("signEdit", true);
 			}
 
 			actionForward = mapping.findForward("detail");
@@ -200,10 +212,14 @@ public class ProcessInspectAction extends BaseAction {
 			ProcessInspectForm summary = service.findSummaryByKey(data.getProcess_inspect_key(), conn, errors);
 
 			Map<String, List<ProcessInspectAchievementForm>> details = service.findAchievementByKey(data.getProcess_inspect_key(), conn, errors);
+			
+			// 作业监察确认
+			List<ProcessInspectConfirmForm> confirmList = confirmService.searchAll(data.getProcess_inspect_key(), conn);
 
 			// 查询结果放入Ajax响应对象
 			listResponse.put("header", summary);
 			listResponse.put("details", details);
+			listResponse.put("confirmList", confirmList);
 		}
 
 		// 检查发生错误时报告错误信息
@@ -467,5 +483,36 @@ public class ProcessInspectAction extends BaseAction {
 		returnJsonResponse(res, listResponse);
 
 		_log.info("ProcessInspectAction.doRemove end");
+	}
+	
+	/**
+	 * 删除作业监察实绩
+	 * @param mapping
+	 * @param form
+	 * @param req
+	 * @param res
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void doDeleteAchievement(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res,SqlSessionManager conn) throws Exception {
+		_log.info("ProcessInspectAction.doDeleteAchievement start");
+		
+		Map<String, Object> listResponse = new HashMap<String, Object>();
+		
+		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_PASSEMPTY);
+		v.add("process_inspect_key", v.required("Key"));
+		v.add("process_name", v.required("作业名"));
+		
+		List<MsgInfo> errors = v.validate();
+		if(errors.size() == 0){
+			service.deleteAchievement(form, conn);
+		}
+		
+		listResponse.put("errors", errors);
+
+		// 返回Json格式响应信息
+		returnJsonResponse(res, listResponse);
+		
+		_log.info("ProcessInspectAction.doDeleteAchievement end");
 	}
 }

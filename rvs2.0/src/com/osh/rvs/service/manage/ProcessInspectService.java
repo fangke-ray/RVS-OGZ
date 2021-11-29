@@ -45,6 +45,7 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.manage.ProcessInspectAchievementForm;
 import com.osh.rvs.form.manage.ProcessInspectForm;
 import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.mapper.manage.ProcessInspectConfirmMapper;
 import com.osh.rvs.mapper.manage.ProcessInspectMapper;
 import com.osh.rvs.mapper.master.LineMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
@@ -587,10 +588,13 @@ public class ProcessInspectService {
 	public void removeAll(String processInspectKey, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 
 		ProcessInspectMapper dao = conn.getMapper(ProcessInspectMapper.class);
+		ProcessInspectConfirmMapper confirmDao = conn.getMapper(ProcessInspectConfirmMapper.class);
 
 		dao.deleteSummary(processInspectKey);
 
 		dao.deleteAchievementByKey(processInspectKey);
+		
+		confirmDao.deleteConfirmByKey(processInspectKey);
 
 		String dirPath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\process_inspect\\" + processInspectKey;
 		File dir = new File(dirPath);
@@ -955,5 +959,52 @@ public class ProcessInspectService {
 		os.write(buffer);
 		os.flush();
 		os.close();
+	}
+	
+	
+	/**
+	 * 删除作业监察实绩
+	 * @param form
+	 * @param conn
+	 * @throws Exception
+	 */
+	public void deleteAchievement(ActionForm form,SqlSessionManager conn) throws Exception {
+		ProcessInspectMapper processInspectMapper = conn.getMapper(ProcessInspectMapper.class);
+		ProcessInspectConfirmMapper processInspectConfirmMapper = conn.getMapper(ProcessInspectConfirmMapper.class);
+		
+		//拷贝数据
+		ProcessInspectAchievementEntity entity = new ProcessInspectAchievementEntity();
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		
+		//监察作业KEY
+		String processInspectKey = entity.getProcess_inspect_key();
+		//作业名称
+		String processName = entity.getProcess_name();
+		
+		//删除作业监察实绩
+		processInspectMapper.deleteAchievementByName(processInspectKey, processName);
+		//删除作业确认
+		processInspectConfirmMapper.deleteConfirmByName(processInspectKey, processName);
+		
+		//删除文件
+		String dirPath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\process_inspect\\" + processInspectKey;
+		File dir = new File(dirPath);
+		
+		//判断目录是否存在
+		if(dir.isDirectory()){
+			final String achievementFileName = String.format("QE0701-2 作业检查实绩表(%s)",processName);
+			
+			//获取所有文件
+			File[] list = dir.listFiles();
+			for (File f : list) {
+				String fileName = f.getName();
+				fileName = fileName.substring(0, fileName.lastIndexOf("."));
+
+				if(fileName.equals(achievementFileName)){
+					f.delete();
+					logger.info("Delete File:" + f.getAbsolutePath());
+				}
+			}
+		}
 	}
 }

@@ -100,6 +100,7 @@
 		<form-bean name="processInspectForm" type="com.osh.rvs.form.manage.ProcessInspectForm" />
 
 		<form-bean name="newPhenomenonForm" type="com.osh.rvs.form.manage.NewPhenomenonForm"></form-bean>
+		<form-bean name="ProcessInspectConfirmForm" type="com.osh.rvs.form.manage.ProcessInspectConfirmForm"></form-bean>
 
 	</form-beans>
 
@@ -1097,6 +1098,15 @@
 			<forward name="init" path="/pages/manage/process_inspect.jsp" />
 			<forward name="success" path="/pages/manage/process_inspect.jsp" />
 			<forward name="detail" path="/pages/manage/process_inspect_detail.jsp" />
+		</action>
+		
+		<!-- 作业监察确认 -->
+		<action path="/process_inspect_confirm"
+				type="com.osh.rvs.action.manage.ProcessInspectConfirmAction"
+				name="ProcessInspectConfirmForm"
+				scope="request"
+				parameter="method"
+				validate="false">
 		</action>
 
 		<!-- 不良新现象  -->

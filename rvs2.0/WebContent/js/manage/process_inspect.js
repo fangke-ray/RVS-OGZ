@@ -59,11 +59,16 @@ $(function() {
 		$("#inspect_date_from").val("").data("post", "");
 		$("#inspect_date_to").val("").data("post", "");
 		$("#operator_id").val("").trigger("change").data("post", "");
+		$("#operator_name").val("");
 		$("#inspector_id").val("").trigger("change").data("post", "");
+		$("#inspector_name").val("");
 		$("#search_unqualified_set").data("post", "");
+		$("#search_unqualified_set input:eq(0)").attr("checked", "checked").trigger("change");
 		$("#model_id").val("").trigger("change").data("post", "");
+		$("#txt_modelname").val("");
 		$("#serial_no").val("").trigger("change").data("post", "");
-		$("#search_file_type_set").trigger("change").data("post", "");
+		$("#search_file_type_set").data("post", "");
+		$("#search_file_type_set input:eq(0)").attr("checked", "checked").trigger("change");
 	});
 
 	findit();
@@ -146,7 +151,7 @@ function search_handleComplete(xhrobj, textStatus) {
 					width : 992,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['','实施选项', '工程名', '作业名', '操作者', '监察者', '监察日', '型号', '机身号'],
+					colNames : ['','实施选项', '工程名', '作业名', '操作者', '监察者', '监察日', '型号', '机身号','待确认'],
 					colModel : [
 						{name:'process_inspect_key',index:'process_inspect_key', hidden: true, key: true},
 						{name:'perform_option',index:'perform_option', width:40, formatter:'select', editoptions:{value: performOptions}},
@@ -156,7 +161,8 @@ function search_handleComplete(xhrobj, textStatus) {
 						{name:'inspector_name',index:'inspector_name', width:40},
 						{name:'inspect_date',index:'inspect_date', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'y-m-d'}},
 						{name:'model_name',index:'model_name', width:70},
-						{name:'serial_no',index:'serial_no', width:40}
+						{name:'serial_no',index:'serial_no', width:40},
+						{name:'confirm_flg',index:'confirm_flg', width:30, align:'center',formatter:'select', editoptions:{value: "0:是;1:"}}
 					],
 					rowNum : 50,
 					toppager : false,
@@ -257,7 +263,12 @@ var showDetail = function(process_inspect_key) {
 			height :  'auto',
 			resizable : false,
 			modal : true,
-			buttons : null
+			buttons : null,
+			close:function(){
+				if($("#hide_sign_edit").val()=="true"){
+					findit();
+				}
+			}
 		});
 	});
 	this_dialog.show();

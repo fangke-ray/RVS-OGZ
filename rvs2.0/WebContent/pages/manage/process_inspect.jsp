@@ -128,6 +128,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div id="listpager"></div>
 </div>
 
+<input type="hidden" id="hide_sign_edit" value="${signEdit}">
+
 <% if(enableEdit != null) { %>
 <div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase" style="padding-top:4px;">
 		<%

@@ -40,6 +40,8 @@ public class ProcessInspectSearchEntity implements Serializable{
 	private Integer file_type;
 
 	private Integer perform_option;
+	
+	private Integer confirm_flg;
 
 	public String getProcess_inspect_key() {
 		return process_inspect_key;
@@ -177,5 +179,12 @@ public class ProcessInspectSearchEntity implements Serializable{
 		this.model_id = model_id;
 	}
 
+	public Integer getConfirm_flg() {
+		return confirm_flg;
+	}
+
+	public void setConfirm_flg(Integer confirm_flg) {
+		this.confirm_flg = confirm_flg;
+	}
 
 }

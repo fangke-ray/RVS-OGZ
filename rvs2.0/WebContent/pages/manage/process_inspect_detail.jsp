@@ -7,6 +7,9 @@ var defectiveJs = function(){
 	var popServicePath = "process_inspect.do";;
 
 	{ // $(function()
+		//global variable
+		var confirmMap = new Map();
+			
 		$("#nogoodform").validate({
 			rules : {
 				comment : {
@@ -29,45 +32,61 @@ var defectiveJs = function(){
 			var rowid = $("#list").jqGrid('getGridParam', 'selrow');
 			if (rowid == null) {return;}
 
-			var rowData = $("#list").jqGrid('getRowData', rowid);
-
-			var data = {
-				"process_inspect_key": $("#header\\.process_inspect_key").val()
-			};
-
-			// Ajax提交
-			$.ajax({
-				beforeSend : ajaxRequestType,
-				async : true,
-				url : servicePath + '?method=doRemove',
-				cache : false,
-				data : data,
-				type : "post",
-				dataType : "json",
-				success : ajaxSuccessCheck,
-				error : ajaxError,
-				complete : function(xhrObj, textStatus) {
-					var resInfo = $.parseJSON(xhrObj.responseText);
-					try {
-
-						if (resInfo.errors.length > 0) {
-							// 共通出错信息框
-							treatBackMessages("#searcharea", resInfo.errors);
-						} else {
-							$("#detail_dialog").dialog('close');
-
-							if (typeof(refreshList) === "function") refreshList();
-							if (typeof(findit) === "function") findit();
-						}
-					} catch (e) {
-						alert("name: " + e.name + " message: " + e.message + " lineNumber: "
-								+ e.lineNumber + " fileName: " + e.fileName);
-					};
+			var delFlg = false;
+			
+			for (let [key, item] of confirmMap.entries()) {
+				if(item == null 
+						|| item == "" 
+						|| item.sign_manager_id == null 
+						|| item.sign_manager_id == "" 
+						|| item.sign_minister_id == null 
+						|| item.sign_minister_id == ""){
+					delFlg = true;
+					break;
 				}
-			});
-		});
-		$(".deleteAchievementButton").click(function() {
-			// TODO
+			}
+
+			if(!delFlg){
+				infoPop("所有作业监查经理和部长已确认不能删除。");
+			} else {
+				warningConfirm("确认要删除所有作业监查记录吗？",function(){
+					var data = {
+						"process_inspect_key": $("#header\\.process_inspect_key").val()
+					};
+					
+					// Ajax提交
+					$.ajax({
+						beforeSend : ajaxRequestType,
+						async : true,
+						url : servicePath + '?method=doRemove',
+						cache : false,
+						data : data,
+						type : "post",
+						dataType : "json",
+						success : ajaxSuccessCheck,
+						error : ajaxError,
+						complete : function(xhrObj, textStatus) {
+							var resInfo = $.parseJSON(xhrObj.responseText);
+							try {
+
+								if (resInfo.errors.length > 0) {
+									// 共通出错信息框
+									treatBackMessages("#searcharea", resInfo.errors);
+								} else {
+									$("#detail_dialog").dialog('close');
+
+									if (typeof(refreshList) === "function") refreshList();
+									if (typeof(findit) === "function") findit();
+								}
+							} catch (e) {
+								alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+										+ e.lineNumber + " fileName: " + e.fileName);
+							};
+						}
+					});
+				},function(){
+				});
+			}
 		});
 
 		$("#closeButton").click(function() {
@@ -108,12 +127,18 @@ var defectiveJs = function(){
 						$("#header\\.serial_no").text(resInfo.header.serial_no);
 						$("#header\\.process_seconds").text(resInfo.header.process_seconds);
 						$("#header\\.standard_seconds").text(resInfo.header.standard_seconds);
-						console.log(resInfo.header.situation);
 						$("#header\\.situation").html(decBr(resInfo.header.situation));
 						$("#header\\.countermeasures").html(decBr(resInfo.header.countermeasures));
 						$("#header\\.conclusion").html(decBr(resInfo.header.conclusion));
 					}
 
+					//作业监察确认
+					var confirmList = resInfo.confirmList;
+					for(var ii in confirmList){
+						var item = confirmList[ii];
+						confirmMap.set(item.process_name,item);
+					}
+					
 					var idx = 0;
 					if (resInfo.details) {
 						$.each(resInfo.details, function(key, val) {
@@ -123,7 +148,79 @@ var defectiveJs = function(){
 							} else {
 								$("#process_inspect_detail_infoes_detail" + idx + "_label > span").text(key);
 							}
-
+							
+							if(confirmMap.has(key)){
+								var processInspectConfirm = confirmMap.get(key);
+								
+								//经理印
+								if(processInspectConfirm.sign_manager_id){//已盖章
+									$("#confirm_sign_manager_id" + idx).hide();
+									var imgUrl = "http://" + document.location.hostname + "/images/sign/" + processInspectConfirm.manager_job_no + "?_s=" + new Date().getTime();
+									$("#confirm_sign_manager_id_pic" + idx).attr("src", imgUrl).show();
+								} else {
+									$("#confirm_sign_manager_id" + idx).show();
+									$("#confirm_sign_manager_id_pic" + idx).hide();
+								}
+								
+								//部长印
+								if(processInspectConfirm.sign_minister_id){//已盖章
+									$("#confirm_sign_minister_id" + idx).hide();
+									var imgUrl = "http://" + document.location.hostname + "/images/sign/" + processInspectConfirm.minister_job_no + "?_s=" + new Date().getTime();
+									$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show();
+								} else {
+									$("#confirm_sign_minister_id" + idx).show();
+									$("#confirm_sign_minister_id_pic" + idx).hide();
+								}
+							} else {
+								confirmMap.set(key,"");
+								
+								$("#confirm_sign_manager_id" + idx).show();
+								$("#confirm_sign_minister_id" + idx).show();
+								$("#confirm_sign_manager_id_pic" + idx).hide();
+								$("#confirm_sign_minister_id_pic" + idx).hide();
+							}
+							
+							$("#confirm_sign_manager_id" + idx).prop("idx",idx)
+							.click(function(){
+								var data = {
+									"process_inspect_key" : $("#header\\.process_inspect_key").val(),
+									"process_name" : key,
+									"idx" : this.idx,
+									"process_flg" : "1"
+								};
+								doInspectConfirm(data);
+							});
+							
+							$("#confirm_sign_minister_id" + idx).prop("idx",idx)
+							.click(function(){
+								var data = {
+									"process_inspect_key" : $("#header\\.process_inspect_key").val(),
+									"process_name" : key,
+									"idx" : this.idx,
+									"process_flg" : "2"
+								};
+								doInspectConfirm(data);
+							});
+							
+							$("#deleteAchievementButton"+ idx).prop("idx",idx)
+							.click(function() {
+								var _this= this;
+								var confirm = confirmMap.get(key);
+								if(confirm && confirm.sign_manager_id && confirm.sign_minister_id){
+									infoPop("经理和部长已确认不能删除。");
+								} else {
+									warningConfirm("确认要删除【" + key + "】记录吗？",function(){
+										var data = {
+											"process_inspect_key" : $("#header\\.process_inspect_key").val(),
+											"process_name" : key,
+											"idx" : _this.idx,
+										};
+										deleteAchievement(data);
+									},function(){
+									});
+								}
+							});
+							
 							var gridId = "process_inspect_detail_infoes_detail" + idx + "_list";
 							$("#" + gridId).jqGrid({
 									toppager : true,
@@ -182,18 +279,90 @@ var defectiveJs = function(){
 									}
 								});
 							idx++;
-						})
+						});
 					}
-					$("#process_inspect_detail_content input.ui-button").button();
-					$("#process_inspect_detail_infoes, #distributions").buttonset();
 				} catch(e) {
 					alert("name: " + e.name + "\n message: " + e.message + "\n lineNumber: "
 							+ e.lineNumber + "\n fileName: " + e.fileName);
 				}
 			}
 		});
+		
+		function doInspectConfirm(postData){
+			var idx = postData.idx;
+			delete postData.idx;
+			
+			$.ajax({
+				beforeSend : ajaxRequestType,
+				async : false,
+				url : 'process_inspect_confirm.do?method=doSign',
+				cache : false,
+				data : postData,
+				type : "post",
+				dataType : "json",
+				success : ajaxSuccessCheck,
+				error : ajaxError,
+				complete : function(xhjobj) {
+					var resInfo = null;
+					try {
+						eval("resInfo=" + xhjobj.responseText);
+						
+						if (resInfo.errors.length > 0) {
+							// 共通出错信息框
+							treatBackMessages(null, resInfo.errors);
+						} else {
+							var imgUrl = "http://" + document.location.hostname + "/images/sign/" +  $("#header\\.job_no").val() + "?_s=" + new Date().getTime();
+							
+							if(postData.process_flg == 1){
+								$("#confirm_sign_manager_id" + idx).hide();
+								$("#confirm_sign_manager_id_pic" + idx).attr("src",imgUrl).show();
+							} else {
+								$("#confirm_sign_minister_id" + idx).hide();
+								$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show();
+							}
+						}
+					}catch(e) {
+					}
+				}
+			});
+		}
+		
+		function deleteAchievement(postData){
+			var idx = postData.idx;
+			delete postData.idx;
+			
+			$.ajax({
+				beforeSend : ajaxRequestType,
+				async : false,
+				url : popServicePath + '?method=doDeleteAchievement',
+				cache : false,
+				data : postData,
+				type : "post",
+				dataType : "json",
+				success : ajaxSuccessCheck,
+				error : ajaxError,
+				complete : function(xhjobj) {
+					var resInfo = null;
+					try {
+						eval("resInfo=" + xhjobj.responseText);
+						if (resInfo.errors.length > 0) {
+							// 共通出错信息框
+							treatBackMessages(null, resInfo.errors);
+						} else {
+							$("#process_inspect_detail_infoes_detail" + idx).remove();
+							$("#process_inspect_detail_infoes_detail"+ idx + "_label").remove();
+							$("#process_inspect_detail_detail" + idx + "_area").parent().remove();
+							$("#process_inspect_detail_infoes input:radio").last().trigger("click");
+							
+							if (typeof(findit) === "function") findit();
+							infoPop("【" + postData.process_name + "】记录已删除。");
+						}
+					}catch(e) {
+					}
+				}
+			});
+		}
 
-		$("input.ui-button").button();
 	}; // $(function()
 } // defectiveJs
 
@@ -216,12 +385,14 @@ if (!$.validator) {
 
 <%
 	Boolean enableEdit = (Boolean)request.getAttribute("enableEdit");
+	Boolean signEdit = (Boolean)request.getAttribute("signEdit");
 	Integer cnt = (Integer)request.getAttribute("achiCnt");
 %>
 <div id="process_inspect_detail_content" style="float:left;margin:auto;">
 	<div style="height:44px;width:100%;" id="process_inspect_detail_infoes" class="dwidth-middle">
 
 		<input type="hidden" id="header.process_inspect_key" name="header.process_inspect_key" value="${process_inspect_key}">
+		<input type="hidden" id="header.job_no" name="header.job_no" value="${jobNo}">
 
 		<input type="radio" name="process_inspect_detail_infoes" class="ui-button ui-corner-up" id="process_inspect_detail_infoes_summary" role="button" checked>
 		<label for="process_inspect_detail_infoes_summary" title="">汇总</label>
@@ -321,11 +492,35 @@ if (!$.validator) {
 	%>
 	<div class="ui-widget-content process_inspect_detail_tabcontent" for="process_inspect_detail_infoes_detail<%=idx %>" style="width:100%;text-align:left;display:none;">
 		<div id="process_inspect_detail_detail<%=idx %>_area" style="margin-top:22px;margin-left:9px;">
+			<div class="ui-widget-content" style="margin-bottom:20px;">
+				<table class="condform">
+					<tbody>
+						<tr style="height: 38px;">
+							<td class="ui-state-default td-title">经理印</td>
+							<td class="td-content">
+<% if(signEdit != null) { %>
+								<input type="button" id="confirm_sign_manager_id<%=idx %>" class="ui-button" value="盖章" style="display: none;">
+<% } %>
+								<img id="confirm_sign_manager_id_pic<%=idx %>" style="display: none"></img>
+							</td>
+							<td class="ui-state-default td-title">部长印</td>
+							<td class="td-content">
+<% if(signEdit != null) { %>
+								<input type="button" id="confirm_sign_minister_id<%=idx %>" class="ui-button" value="盖章" style="display: none;">
+<% } %>
+								<img id="confirm_sign_minister_id_pic<%=idx %>" style="display: none"></img>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 			<div class="ui-widget-content dwidth-middle">
 				<table id="process_inspect_detail_infoes_detail<%=idx %>_list"></table>
 			</div>
 <% if(enableEdit != null) { %>
-		<input type="button" class="deleteAchievementButton" class="ui-button" value="删除实绩表">
+			<div style="margin:4px 0;">
+				<input type="button" id="deleteAchievementButton<%=idx %>" class="ui-button" value="删除实绩表">
+			</div>
 <% } %>
 		</div>
 	</div>

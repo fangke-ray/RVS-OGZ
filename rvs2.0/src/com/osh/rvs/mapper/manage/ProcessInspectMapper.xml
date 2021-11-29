@@ -12,7 +12,19 @@
 		inspector.name AS inspector_name,
 		pis.inspect_date,
 		model.name AS model_name,
-		pis.serial_no
+		pis.serial_no,
+		NOT EXISTS (SELECT
+						1 
+	                FROM
+						process_inspect_achievement pia
+					LEFT JOIN
+						process_inspect_confirm pic
+					ON
+						pia.process_inspect_key = pic.process_inspect_key AND pia.process_name = pic.process_name
+					WHERE 
+						pia.process_inspect_key = pis.process_inspect_key
+					AND 
+						(pic.sign_manager_id IS NULL OR pic.sign_minister_id IS null)) AS confirm_flg
 	FROM
 		process_inspect_summary pis
 	LEFT JOIN
