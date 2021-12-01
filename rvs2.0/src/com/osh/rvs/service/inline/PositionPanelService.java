@@ -1165,25 +1165,27 @@ public class PositionPanelService {
 			Map<String,String> map = new LinkedHashMap<String,String>();
 			map.put("B006", "B006");	
 			map.put("B007", "B007");
+			map.put("酒精喷洒", "酒精喷洒");
 			String ret = "<span class=\"device_manage_select\"><select class=\"manager_no\" code=\"ER12102\">" + CodeListUtils.getSelectOptions(map, "", null, false) + "</select></span>"
 					+ "<span class=\"device_manage_item ui-state-default\">消毒设备管理No. 选择: </span>";
-
-			// 高温高压 B075	B076
-			map = new LinkedHashMap<String,String>();
-			map.put("B075", "B075");	
-			map.put("B076", "B076");
-			ret += "<span class=\"device_manage_select\"><select class=\"manager_no\" code=\"ER12101\">" + CodeListUtils.getSelectOptions(map, "", null, false) + "</select></span>"
-					+ "<span class=\"device_manage_item ui-state-default\">高温高压设备管理No. 选择: </span>";
 
 			return ret;
 		} else if ("00000000011".equals(position_id)) {
 			// 灭菌
 			Map<String,String> map = new LinkedHashMap<String,String>();
-			map.put("1号", "1号");	
-			map.put("2号", "2号");
+			map.put("EOG 1号", "EOG 1号");	
+			map.put("EOG 2号", "EOG 2号");
+			map.put("B075", "B075");	
+			map.put("B076", "B076");
 
 			String ret = "<span class=\"device_manage_select\"><select class=\"manager_no\" code=\"ER13101\">" + CodeListUtils.getSelectOptions(map, "", null, false) + "</select></span>"
 					+ "<span class=\"device_manage_item ui-state-default\">灭菌设备管理No. 选择: </span>";
+
+//			// 高温高压 B075	B076
+//			map = new LinkedHashMap<String,String>();
+//			ret += "<span class=\"device_manage_select\"><select class=\"manager_no\" code=\"ER13102\">" + CodeListUtils.getSelectOptions(map, "", null, false) + "</select></span>"
+//					+ "<span class=\"device_manage_item ui-state-default\">高温高压设备管理No. 选择: </span>";
+
 			return ret;
 		}
 		return null;

@@ -97,7 +97,7 @@ public class DailyWorkSheetsJob implements Job {
 		try{
 			acceptAndDisinfectAndSterilize(today,conn);
 		}catch(Exception e){
-			_log.error("inline:" + e.getMessage());
+			_log.error("acceptAnd:" + e.getMessage());
 		}
 		
 		try{
@@ -230,7 +230,7 @@ public class DailyWorkSheetsJob implements Job {
 				
 				//设置分页区域
 				sheet.setRowBreak(28);
-				sheet.setColumnBreak(13);
+				sheet.setColumnBreak(14);
 				
 				if(length > 17){
 					//需要复制的页数(不包含第一页)
@@ -249,14 +249,15 @@ public class DailyWorkSheetsJob implements Job {
 						HSSFRow fromRow = null;
 						HSSFRow toRow = null;
 						
-						int lastRowNum = sheet.getLastRowNum()+1;//最后一行索引+1
+						int lastRowNum = (29 * (j+1));//最后一行索引+1
 						
 						//复制普通单元格
-						for(int index = 0;index <= 28; index++){
+						for(int index = 0;index < 29; index++){
 							int dex = lastRowNum + index;
 							fromRow = sheet.getRow(index);
 							toRow = sheet.createRow(dex);
-							CopyByPoi.copyRow(fromRow, toRow,  work,true);
+							if (fromRow != null)
+								CopyByPoi.copyRow(fromRow, toRow,  work,true);
 						}
 						
 						//复制合并单元格
@@ -267,7 +268,7 @@ public class DailyWorkSheetsJob implements Job {
 							int firstCol = cellRangeAddress.getFirstColumn();
 							int lastCol = cellRangeAddress.getLastColumn();
 							
-							CellRangeAddress  region = new CellRangeAddress(firstRow +lastRowNum, lastRow+lastRowNum, firstCol, lastCol);
+							CellRangeAddress region = new CellRangeAddress(firstRow +lastRowNum, lastRow+lastRowNum, firstCol, lastCol);
 							sheet.addMergedRegion(region);
 						}
 						
@@ -294,13 +295,59 @@ public class DailyWorkSheetsJob implements Job {
 								
 								patriarch = sheet.createDrawingPatriarch();
 								patriarch.createPicture(anchor,work.addPicture(picture.getPictureData().getData(), HSSFWorkbook.PICTURE_TYPE_PNG));
+							} else if(shape instanceof HSSFTextbox){	//文本框
+								HSSFTextbox textBox = (HSSFTextbox)shape;
+								HSSFRichTextString str =  textBox.getString();//文字
+								int lineStyle = textBox.getLineStyle();
+								
+								int dx1 = textBox.getAnchor().getDx1();
+								int dy1 = textBox.getAnchor().getDy1();
+								//int dx2 = textBox.getAnchor().getDx2();
+								int dy2 = textBox.getAnchor().getDy2();
+								int row1 = anchor.getRow1();
+								short col1 = anchor.getCol1();
+								int row2 = anchor.getRow2();
+								short col2 = anchor.getCol2();
+								anchor = new HSSFClientAnchor(dx1, dy1, 1023, dy2, col1, row1+lastRowNum, col2, row2+lastRowNum);
+								
+								textBox = patriarch.createTextbox(anchor);
+								textBox.setLineStyle(lineStyle);
+								textBox.setNoFill(true);
+								textBox.setString(str);
+							} else if(shape instanceof HSSFSimpleShape){//简单图形
+								HSSFSimpleShape simpleShape = (HSSFSimpleShape)shape;
+								int shapeType = simpleShape.getShapeType();
+								int lineStyle = simpleShape.getLineStyle();
+
+								HSSFRichTextString str =  simpleShape.getString();//文字
+
+								int dx1 = simpleShape.getAnchor().getDx1();
+								int dy1 = simpleShape.getAnchor().getDy1();
+								if(dy1 > 255) dy1 = 255;
+								int dx2 = simpleShape.getAnchor().getDx2();
+								int dy2 = simpleShape.getAnchor().getDy2();
+								int row1 = anchor.getRow1();
+								short col1 = anchor.getCol1();
+								int row2 = anchor.getRow2();
+								short col2 = anchor.getCol2();
+								anchor = new HSSFClientAnchor(dx1, dy1, dx2, dy2, col1, row1+lastRowNum, col2, row2+lastRowNum);
+								
+								simpleShape = patriarch.createSimpleShape(anchor);
+								simpleShape.setShapeType(shapeType);
+								simpleShape.setLineStyle(lineStyle);
+
+								if (str != null && str.length() > 0) {
+									simpleShape.setString(str);
+								}
+							} else {
+								System.out.println("whoareyou");
 							}
 						}
-						sheet.setRowBreak(sheet.getLastRowNum());
+						sheet.setRowBreak(lastRowNum - 1 + 29);
 					}
 				}
 				//重新设置打印区域
-				work.setPrintArea(0, 0, 13, 0, sheet.getLastRowNum());
+				work.setPrintArea(0, 0, 14, 0, sheet.getLastRowNum());
 				sheet.setPrintGridlines(false);
 				
 				//往Excel填充数据
@@ -309,10 +356,18 @@ public class DailyWorkSheetsJob implements Job {
 					
 					Integer breakBackFlg = entity.getBreak_back_flg();
 					
-					int iRow = i/17 * 12 + 6 + i;
+					int iRow = i / 17 * 12 + 6 + i;
 					HSSFRow  row = sheet.getRow(iRow);
-					
-					row.getCell(0).setCellValue(DateUtil.toString(entity.getAccept_finish_time(),"HH:mm"));//时间
+
+					HSSFCell cell0 = row.getCell(0);
+					if (cell0 == null) {
+						cell0 = row.createCell(0);
+						cell0.setCellValue("iRow " +iRow + ">>" + i);
+						continue;
+					}
+					cell0
+						.setCellValue(DateUtil.toString(
+								entity.getAccept_finish_time(),"HH:mm"));//时间
 					
 					String operator_name = PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + entity.getAccept_job_no();
 					insertImage(work,sheet,1,iRow,operator_name);//担当
@@ -326,37 +381,58 @@ public class DailyWorkSheetsJob implements Job {
 						@SuppressWarnings("unchecked")
 						Map<String, String> input_pcs = JSON.decode(pcs_inputs, Map.class);
 						String manageNO = input_pcs.get("ER12101");
-						if ("B075".equals(manageNO)) {
-							row.getCell(5).setCellValue("√");
-						} else if("B076".equals(manageNO)){
-							row.getCell(6).setCellValue("√");
+						if (manageNO != null) {
+							switch (manageNO) {
+							case "B006" :
+								row.getCell(5).setCellValue("√");
+								break;
+							case "B007" :
+								row.getCell(6).setCellValue("√");
+								break;
+							case "酒精喷洒" :
+								row.getCell(7).setCellValue("√");
+								break;
+							}
 						}
-						
-						manageNO = input_pcs.get("ER12102");
-						if ("B006".equals(manageNO)) {
-							row.getCell(7).setCellValue("√");
-						} else if("B007".equals(manageNO)){
-							row.getCell(8).setCellValue("√");
-						}
+
+//						manageNO = input_pcs.get("ER12102");
+//						if ("B006".equals(manageNO)) {
+//							row.getCell(7).setCellValue("√");
+//						} else if("B007".equals(manageNO)){
+//							row.getCell(8).setCellValue("√");
+//						}
 						
 						manageNO = input_pcs.get("ER13101");
-						if ("1号".equals(manageNO)) {
-							row.getCell(9).setCellValue("√");
-						} else if("2号".equals(manageNO)){
-							row.getCell(10).setCellValue("√");
+						if (manageNO != null) {
+							switch (manageNO) {
+							case "1号" :
+							case "EOG 1号" :
+								row.getCell(8).setCellValue("√");
+								break;
+							case "2号" :
+							case "EOG 2号" :
+								row.getCell(9).setCellValue("√");
+								break;
+							case "B075" :
+								row.getCell(10).setCellValue("√");
+								break;
+							case "B076" :
+								row.getCell(11).setCellValue("√");
+								break;
+							}
 						}
 					} 
 					
-					row.getCell(11).setCellValue(DateUtil.toString(entity.getDisinfect_finish_time(),"HH:mm"));//时间
+					row.getCell(12).setCellValue(DateUtil.toString(entity.getDisinfect_finish_time(),"HH:mm"));//时间
 					
 					operator_name = PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + entity.getDisinfect_job_no();
-					insertImage(work,sheet,12,iRow,operator_name);//担当
+					insertImage(work,sheet,13,iRow,operator_name);//担当
 					
 					//备注
 					if (breakBackFlg == 3) {
-						row.getCell(13).setCellValue("备品");
+						row.getCell(14).setCellValue("备品");
 					} else if(breakBackFlg == 4) {
-						row.getCell(13).setCellValue("RC品");
+						row.getCell(14).setCellValue("RC品");
 					}
 				}
 				
@@ -546,8 +622,8 @@ public class DailyWorkSheetsJob implements Job {
 		List<MaterialEntity> listBeans = service.getShippingTodayMaterialDetail(DateUtil.toString(calendar.getTime(),DateUtil.DATE_PATTERN),conn);
 		
 		int length = listBeans.size();
-		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "MS0101-16内镜出货记录表.xls";
-		String cacheFilename = "MS0101-16出货记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
+		String path = PathConsts.BASE_PATH + PathConsts.REPORT_TEMPLATE + "\\" + "MS0101-16 内视镜修理部内镜出货记录表.xls";
+		String cacheFilename = "MS0101-16 内视镜修理部内镜出货记录表-" + DateUtil.toString(calendar.getTime(), "yyyy-MM-dd") + ".xls";
 		String cachePath = PathConsts.BASE_PATH + PathConsts.REPORT + "\\shipping\\"+ DateUtil.toString(calendar.getTime(), "yyyyMM") + "\\" + cacheFilename;
 		
 		InputStream in = null;
@@ -588,7 +664,7 @@ public class DailyWorkSheetsJob implements Job {
 						HSSFRow fromRow = null;
 						HSSFRow toRow = null;
 						
-						int lastRowNum = sheet.getLastRowNum()+1;//最后一行索引+1
+						int lastRowNum = 37 * (j + 1);//最后一行索引+1
 						
 						//复制普通单元格
 						for(int index = 0;index <= 36; index++){
@@ -649,7 +725,7 @@ public class DailyWorkSheetsJob implements Job {
 					int iRow = i/27 * 10 + 5 + i;
 					HSSFRow  row = sheet.getRow(iRow);
 					
-					row.getCell(0).setCellValue(DateUtil.toString(entity.getFinish_time(),"HH:mm"));//时间
+					row.getCell(0).setCellValue(DateUtil.toString(entity.getFinish_time(),DateUtil.DATE_TIME_PATTERN));//时间 -> DATE_TIME_PATTERN
 					
 					row.getCell(1).setCellValue(entity.getOmr_notifi_no());//通知单
 					
@@ -683,7 +759,11 @@ public class DailyWorkSheetsJob implements Job {
 			}
 		}
 
-		shippingRegist(calendar, listBeans);
+		try {
+			shippingRegist(calendar, listBeans);
+		} catch (Exception e) {
+			_log.error(e.getMessage(), e);
+		}
 	}
 
 	private static final String CUSTOMOR_SELF = "Olympus社内";
