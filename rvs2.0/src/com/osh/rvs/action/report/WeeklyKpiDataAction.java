@@ -26,6 +26,7 @@ import org.apache.struts.upload.FormFile;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.UploadForm;
 import com.osh.rvs.form.report.WeeklyKpiDataForm;
 import com.osh.rvs.service.report.WeeklyKpiDataService;
@@ -96,7 +97,7 @@ public class WeeklyKpiDataAction extends BaseAction{
 		}
 		
 		String uploadDate = req.getParameter("date");
-		uploadDate = new String(uploadDate.getBytes("iso-8859-1"), "utf-8");
+		uploadDate = new String(RvsUtils.charUrlEncode(uploadDate));
 		String weekly_of_year = req.getParameter("weekly_of_year");
 		if(CommonStringUtil.isEmpty(weekly_of_year)) {
 			weekly_of_year ="";

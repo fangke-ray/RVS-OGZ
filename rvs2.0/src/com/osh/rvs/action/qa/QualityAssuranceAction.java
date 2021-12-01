@@ -646,7 +646,7 @@ public class QualityAssuranceAction extends BaseAction {
 //			if (mBean.getFix_type() == 1) {
 				// conn.commit();
 				try {
-					URL url = new URL("http://localhost:8080/rvs/download.do?method=file&material_id=" + workingPf.getMaterial_id());
+					URL url = new URL("http://localhost:8080/rvs/pcsdown.do?method=file&material_id=" + workingPf.getMaterial_id());
 					url.getQuery();
 					URLConnection urlconn = url.openConnection();
 					urlconn.setReadTimeout(1); // 不等返回
@@ -758,6 +758,8 @@ public class QualityAssuranceAction extends BaseAction {
 //				// 当单元时返回等待区
 //				pfdao.insertProductionFeature(workingPf);
 //			}
+
+				listResponse.put("alarm_messsage_id", amId);
 
 			// 推送邮件
 			// 通知

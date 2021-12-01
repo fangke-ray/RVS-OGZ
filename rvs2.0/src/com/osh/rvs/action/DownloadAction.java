@@ -14,6 +14,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.common.PathConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.data.MaterialForm;
@@ -21,7 +22,6 @@ import com.osh.rvs.service.DownloadService;
 import com.osh.rvs.service.qa.QualityAssuranceService;
 
 import framework.huiqing.action.BaseAction;
-import framework.huiqing.action.Privacies;
 import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.DateUtil;
 
@@ -71,10 +71,13 @@ public class DownloadAction extends BaseAction {
 			contentType = DownloadService.CONTENT_TYPE_ZIP;
 		}
 		String strFileName = "";
+		if (!CommonStringUtil.isEmpty(fileName)) {
+			fileName = RvsUtils.charRecorgnize(fileName);
+		}
 		if (CommonStringUtil.isEmpty(filePath)) {
-			filePath = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+			filePath = fileName;
 		} else {
-			filePath = new String(filePath.getBytes("iso-8859-1"),"UTF-8");
+			filePath = RvsUtils.charRecorgnize(filePath);
 		}
 
 		strFileName = filePath.replaceAll(".*-(\\d{4}\\-\\d{2})\\-\\d{2}.*", "$1").replaceAll("-", "");
@@ -169,7 +172,7 @@ public class DownloadAction extends BaseAction {
 			filePath = PathConsts.BASE_PATH + PathConsts.PROPERTIES + "\\" + filePath;
 		}
 
-		service.writeFile(res, contentType, fileName, filePath);
+		service.writeFile(res, contentType, RvsUtils.charUrlEncode(fileName), filePath);
 
 		logger.info("DownloadAction.download end");
 		return null;

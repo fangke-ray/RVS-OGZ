@@ -856,15 +856,15 @@ public class MaterialAction extends BaseAction {
 
 		String contentType = DownloadService.CONTENT_TYPE_ZIP;
 		if (CommonStringUtil.isEmpty(fileName)) {
-			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+			fileName = RvsUtils.charRecorgnize(req.getParameter("filePath")); // new String(fileName.getBytes("iso-8859-1"),"UTF-8");
 		}else{
-			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+			fileName = RvsUtils.charRecorgnize(fileName);
 		}
 
 		String filePath = "";
 		filePath = PathConsts.BASE_PATH + PathConsts.PCS+"\\_monthly\\"+fileName;
 
-		 res.setHeader( "Content-Disposition", "attachment;filename=" + new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );
+		res.setHeader( "Content-Disposition", "attachment;filename=" + RvsUtils.charUrlEncode(fileName)); // 
 		res.setContentType(contentType);
 		File file = new File(filePath);
 		InputStream is = new BufferedInputStream(new FileInputStream(file));

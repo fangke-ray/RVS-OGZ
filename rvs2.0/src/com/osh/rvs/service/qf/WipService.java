@@ -300,7 +300,7 @@ public class WipService {
 
 				// 推送归档
 				try {
-					URL url = new URL("http://localhost:8080/rvs/download.do?method=file&material_id=" + material_id);
+					URL url = new URL("http://localhost:8080/rvs/pcsdown.do?method=file&material_id=" + material_id);
 					url.getQuery();
 					URLConnection urlconn = url.openConnection();
 					urlconn.setReadTimeout(1); // 不等返回

@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.TemplateReportUtils;
 import com.osh.rvs.form.data.MonthFilesDownloadForm;
 import com.osh.rvs.form.data.OperatorProductionForm;
@@ -284,7 +285,7 @@ public class OperatorProductionAction extends BaseAction {
 	public void export(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 		String filePath = req.getParameter("filePath");
 		String addition = req.getParameter("addition");
-		String fileName = new String(("工作日报一览"+addition+".xls").getBytes("gbk"),"iso-8859-1");
+		String fileName = RvsUtils.charUrlEncode("工作日报一览"+addition+".xls");
 		
 		DownloadService dservice = new DownloadService();
 		dservice.writeFile(res, DownloadService.CONTENT_TYPE_EXCEL, fileName, filePath);
@@ -336,15 +337,15 @@ public class OperatorProductionAction extends BaseAction {
 
 		String contentType = "";
 		if (CommonStringUtil.isEmpty(fileName)) {
-			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+			fileName = "empty.file";
 		}else{
-			fileName = new String(fileName.getBytes("iso-8859-1"),"UTF-8");
+			fileName = RvsUtils.charRecorgnize(fileName); // RvsUtils.charEncode(
 		}
 		
 		String filePath = "";
 		filePath = PathConsts.BASE_PATH + PathConsts.REPORT+"\\works\\"+fileName;
 
-		 res.setHeader( "Content-Disposition", "attachment;filename=" + new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );  
+		res.setHeader( "Content-Disposition", "attachment;filename=" + RvsUtils.charUrlEncode(fileName)); // new String( fileName.getBytes("gb2312"), "ISO8859-1" ) );  
 		res.setContentType(contentType);
 		File file = new File(filePath);
 		InputStream is = new BufferedInputStream(new FileInputStream(file));

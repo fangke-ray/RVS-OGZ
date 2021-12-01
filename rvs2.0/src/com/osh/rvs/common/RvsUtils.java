@@ -3,8 +3,10 @@ package com.osh.rvs.common;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1356,5 +1358,92 @@ public class RvsUtils {
 			return ipArr[0];
 		}
 		return ip;
+	}
+
+//	private static String bytes2Text(byte[] bytes) {
+//		String byteStr = "";
+//		for (byte b : bytes) {
+//			byteStr += (b + ",");
+//		}
+//		return byteStr;
+//	}
+	public static Integer SYS_ENC_TYPE = null;
+	public static String charRecorgnize(String tsring) {
+		if (tsring == null)
+			return null;		
+
+		try {
+			if (SYS_ENC_TYPE == null || SYS_ENC_TYPE == 1) {
+				byte[] readSys = tsring.getBytes();
+
+				byte[] readIso = tsring.getBytes("ISO8859-1");
+
+				if (Arrays.equals(readSys, readIso)) {
+					SYS_ENC_TYPE = 1;
+					logger.info("SYS_ENC_TYPE = ISO8859-1;");
+					return tsring;
+				} else {
+					byte[] readUtf = tsring.getBytes("UTF-8");
+					if (Arrays.equals(readSys, readUtf)) {
+						SYS_ENC_TYPE = 4;
+						logger.info("SYS_ENC_TYPE = UTF-8;");
+						return tsring;
+					} else {
+
+						byte[] readGb2312 = tsring.getBytes("gb2312");
+						if (Arrays.equals(readSys, readGb2312)) {
+							SYS_ENC_TYPE = 2;
+							logger.info("SYS_ENC_TYPE = gb2312;");
+						}
+						byte[] readGbk = tsring.getBytes("gbk");
+						if (Arrays.equals(readSys, readGbk)) {
+							SYS_ENC_TYPE = 3;
+							logger.info("SYS_ENC_TYPE = gbk;");
+						}
+
+						return new String(tsring.getBytes("ISO8859-1"), "UTF-8");
+					}
+				}
+			}
+
+			if (SYS_ENC_TYPE == null) {
+				return new String(tsring.getBytes("gb2312"), "ISO8859-1");
+			} else
+			if (SYS_ENC_TYPE == 1) {
+				return tsring;
+			} else
+			if (SYS_ENC_TYPE == 2) {
+				return new String(tsring.getBytes("ISO8859-1"), "UTF-8");
+			} else
+			if (SYS_ENC_TYPE == 3) {
+				return new String(tsring.getBytes("ISO8859-1"), "UTF-8");
+			} else
+			if (SYS_ENC_TYPE == 4) {
+				return tsring;
+			} else {
+				return new String(tsring.getBytes("gb2312"), "ISO8859-1");
+			}
+		} catch (UnsupportedEncodingException e) {
+			SYS_ENC_TYPE = null;
+			try {
+				return new String(tsring.getBytes("gb2312"), "ISO8859-1");
+			} catch (UnsupportedEncodingException e1) {
+				return tsring;
+			}
+		}
+	}
+	public static String charUrlEncode(String tsring) {
+		if (tsring == null)
+			return null;
+
+		try {
+			return java.net.URLEncoder.encode(tsring, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			 try {
+				return new String(tsring.getBytes("gb2312"), "ISO8859-1" );
+			} catch (UnsupportedEncodingException e1) {
+				return tsring;
+			}
+		}
 	}
 }

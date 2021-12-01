@@ -102,7 +102,7 @@ function initMonthFilesGrid(listName, listdata){
 /*下载*/
 function downExcel(file_name) {
 	if ($("iframe").length > 0) {
-		$("iframe").attr("src","operatorProduction.do?method=output&fileName="+ file_name);
+		$("iframe").attr("src","operatorProduction.do?method=output&fileName="+ encodeURI(file_name));
 	} else {
 		var iframe = document.createElement("iframe");
         iframe.src = "operatorProduction.do?method=output&fileName="+ file_name;

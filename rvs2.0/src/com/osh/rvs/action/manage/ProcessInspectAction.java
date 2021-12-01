@@ -22,6 +22,7 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.manage.ProcessInspectAchievementEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.common.ZipUtility;
 import com.osh.rvs.form.manage.ProcessInspectAchievementForm;
 import com.osh.rvs.form.manage.ProcessInspectConfirmForm;
@@ -443,7 +444,7 @@ public class ProcessInspectAction extends BaseAction {
 
 		service.outputFile(res,
 				DownloadService.CONTENT_TYPE_ZIP,
-				new String(fileName.getBytes("iso-8859-1"),"UTF-8"),
+				RvsUtils.charUrlEncode(fileName),
 				filePath);
 
 		log.info("ProcessInspectAction.output end");

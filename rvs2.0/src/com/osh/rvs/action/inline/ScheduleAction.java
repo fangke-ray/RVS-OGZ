@@ -30,6 +30,7 @@ import com.osh.rvs.common.ReportMetaData;
 import com.osh.rvs.common.ReportUtils;
 import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.inline.ScheduleForm;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.DownloadService;
@@ -531,7 +532,7 @@ public class ScheduleAction extends BaseAction {
 		Date today = new Date();
 		String folder = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM");
 
-		String fileName = new String("维修对象一览.xls".getBytes("gbk"),"iso-8859-1");
+		String fileName = RvsUtils.charUrlEncode("维修对象一览.xls");
 		
 		DownloadService dservice = new DownloadService();
 		dservice.writeFile(res, DownloadService.CONTENT_TYPE_EXCEL, fileName, folder + "\\" + filePath);
@@ -542,7 +543,7 @@ public class ScheduleAction extends BaseAction {
 		Date today = new Date();
 		String folder = PathConsts.BASE_PATH + PathConsts.LOAD_TEMP + "\\" + DateUtil.toString(today, "yyyyMM");
 
-		String fileName = new String(("排入计划一览.xls").getBytes("gbk"),"iso-8859-1");
+		String fileName = RvsUtils.charUrlEncode("排入计划一览.xls");
 
 		DownloadService dservice = new DownloadService();
 		dservice.writeFile(res, DownloadService.CONTENT_TYPE_EXCEL, fileName, folder + "\\" + filePath);

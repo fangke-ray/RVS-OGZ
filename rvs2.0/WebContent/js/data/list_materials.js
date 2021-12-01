@@ -106,10 +106,10 @@ var downResult = function() {
 			eval("resInfo=" + xhjObject.responseText);
 			if (resInfo && resInfo.filePath) {
 				if ($("iframe").length > 0) {
-					$("iframe").attr("src", "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=维修对象一览.xls");
+					$("iframe").attr("src", "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=%E7%BB%B4%E4%BF%AE%E5%AF%B9%E8%B1%A1%E4%B8%80%E8%A7%88.xls"); // 维修对象一览
 				} else {
 					var iframe = document.createElement("iframe");
-		            iframe.src = "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=维修对象一览.xls";
+		            iframe.src = "download.do"+"?method=output&filePath=" + resInfo.filePath + "&fileName=%E7%BB%B4%E4%BF%AE%E5%AF%B9%E8%B1%A1%E4%B8%80%E8%A7%88.xls";
 		            iframe.style.display = "none";
 		            document.body.appendChild(iframe);
 				}

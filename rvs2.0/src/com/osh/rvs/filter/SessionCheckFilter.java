@@ -40,23 +40,24 @@ public class SessionCheckFilter implements Filter {
 		String path = req.getServletPath();
 
 		// 登录事件除外 TODO consts AND 对外接口
-		if (path != null && (path.contains("/login") || path.contains("/logout") || path.contains("_interface.do"))) {
-			chain.doFilter(request, response);
-			return;
-		}
-		if (path != null && path.contains("/download")) {
-			String method = req.getParameter("method");
-			if ("file".equals(method) || "savePdf".equals(method) || "saveRPdf".equals(method)) {
+		if (path != null) {
+			if ((path.contains("/login") || path.contains("/logout") || path.contains("_interface.do"))) {
 				chain.doFilter(request, response);
 				return;
-			}
-		} else
-		if (path != null && path.contains("/filingdownload")) {
-			if ("make".equals(req.getParameter("method"))) {
-				chain.doFilter(request, response);
-				return;
+			} else	if (path.contains("/download") || path.contains("/pcsdown")) {
+				String method = req.getParameter("method");
+				if ("file".equals(method) || "savePdf".equals(method) || "saveRPdf".equals(method)) {
+					chain.doFilter(request, response);
+					return;
+				}
+			} else	if (path.contains("/filingdownload")) {
+				if ("make".equals(req.getParameter("method"))) {
+					chain.doFilter(request, response);
+					return;
+				}
 			}
 		}
+
 		HttpSession session = req.getSession();
 
 		if (session.getAttribute(RvsConsts.SESSION_USER) != null) {

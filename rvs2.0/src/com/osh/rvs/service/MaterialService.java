@@ -1092,7 +1092,7 @@ public class MaterialService {
 		MaterialEntity mBean = dao.getMaterialEntityByKey(material_id);
 		if (mBean.getOutline_time() != null) {
 			try {
-				URL url = new URL("http://localhost:8080/rvs/download.do?method=file&material_id=" + material_id);
+				URL url = new URL("http://localhost:8080/rvs/pcsdown.do?method=file&material_id=" + material_id);
 				url.getQuery();
 				URLConnection urlconn = url.openConnection();
 				urlconn.setReadTimeout(1); // 不等返回
