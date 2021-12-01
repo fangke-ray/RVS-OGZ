@@ -49,6 +49,7 @@ import com.osh.rvs.entity.OperatorEntity;
 import com.osh.rvs.mapper.push.HolidayMapper;
 import com.osh.rvs.mapper.push.MaterialMapper;
 import com.osh.rvs.mapper.push.OperatorMapper;
+import com.osh.rvs.mapper.push.PositionMapper;
 import com.osh.rvs.mapper.push.ProductionFeatureMapper;
 
 import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
@@ -112,6 +113,8 @@ public class DayWorkTotalToMonthJob implements Job {
 		monthStart.set(Calendar.SECOND, 0);
 		monthStart.set(Calendar.MILLISECOND, 0);
 
+		_log.info("isMonthly:" + isMonthly);
+
 		// 日常判定当日是否有作业
 		if (!isMonthly) {
 			ProductionFeatureMapper pfMapper = conn.getMapper(ProductionFeatureMapper.class);
@@ -149,6 +152,7 @@ public class DayWorkTotalToMonthJob implements Job {
 	 * 
 	 */
 	private void monthlyPcsPack(SqlSession conn) {
+		_log.info("monthlyPcsPack start.");
 
 		try {
 			Connection connection = conn.getConnection();
@@ -183,7 +187,7 @@ public class DayWorkTotalToMonthJob implements Job {
 					break;
 				}
 
-				String bussinessPack = RvsUtils.getBussinessYearString(cal) + "-" + DateUtil.toString(cal.getTime(), "MM");
+				String bussinessPack = RvsUtils.getFYBussinessYearString(cal) + "-" + DateUtil.toString(cal.getTime(), "MM");
 				
 				cal.add(Calendar.MONTH, 1);
 				cal.set(Calendar.DATE, 1);
@@ -283,6 +287,8 @@ public class DayWorkTotalToMonthJob implements Job {
 	}
 
 	private void monthlyFilePack(SqlSession conn, Calendar monthStart) {
+		_log.info("monthlyFilePack start.");
+
 		String BACKUP_DISK = PathConsts.BASE_PATH.substring(0, 1);
 		String descBaseDir = BACKUP_DISK + "://RVS_BACKUP";
 		String monthString = DateUtil.toString(monthStart.getTime(), "YYYYMM");
@@ -371,7 +377,14 @@ public class DayWorkTotalToMonthJob implements Job {
 			book = new HSSFWorkbook(fs);
 
 			// 一览列表生成
-			HSSFSheet listSheet = book.getSheet(C_SHEET_LIST);
+			int idxS = book.getSheetIndex(C_SHEET_LIST);
+			HSSFSheet listSheet = book.getSheetAt(idxS);
+			HSSFSheet listManufactSheet = book.cloneSheet(idxS);
+			book.setSheetName(idxS + 1, C_SHEET_LIST + "制造");
+
+			PositionMapper pdao = conn.getMapper(PositionMapper.class);
+			List<String> lSectionNames = pdao.getSectionNames(RvsConsts.DEPART_MANUFACT);
+
 			HSSFRow row = null;
 
 			HSSFCellStyle defaultCell = book.createCellStyle();
@@ -395,28 +408,26 @@ public class DayWorkTotalToMonthJob implements Job {
 			highlightCell.setFillForegroundColor(HSSFColor.LIGHT_BLUE.index);
 			highlightCell.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 
-			listSheet.setDefaultColumnStyle(0, defaultCell);
-			listSheet.setDefaultColumnStyle(1, defaultCell);
-			listSheet.setDefaultColumnStyle(2, defaultCell);
-			listSheet.setDefaultColumnStyle(3, defaultCell);
-			listSheet.setDefaultColumnStyle(4, defaultCell);
-			listSheet.setDefaultColumnStyle(5, defaultCell);
-			listSheet.setDefaultColumnStyle(6, defaultCell);
-			listSheet.setDefaultColumnStyle(7, defaultCell);
-			listSheet.setDefaultColumnStyle(8, defaultCell);
-			listSheet.setDefaultColumnStyle(9, defaultCell);
-			listSheet.setDefaultColumnStyle(10, defaultCell);
-			listSheet.setDefaultColumnStyle(11, defaultCell);
-			listSheet.setDefaultColumnStyle(12, defaultCell);
-			listSheet.setDefaultColumnStyle(13, defaultCell);
+			for (int ist = 0; ist < 14 ; ist++) {
+				listSheet.setDefaultColumnStyle(ist, defaultCell);
+				listManufactSheet.setDefaultColumnStyle(ist, defaultCell);
+			}
 
 			Map<String, String> readCursor = new HashMap<String, String>();
+			int iRow = 0, iRowProduct = 0;
 			for (int i = 0; i < operatorProcessInMonth.size(); i++) {
 				Map<String, Object> operatorProcess = operatorProcessInMonth.get(i);
 				Map<String, Object> next_operatorProcess = null;
 				if (i + 1 < operatorProcessInMonth.size()) next_operatorProcess = operatorProcessInMonth.get(i + 1);
 				// _log.info(operatorProcess.get("action_date"));
-				row = listSheet.createRow(i+1);
+				String sname = "" + operatorProcess.get("sname");
+				if (lSectionNames.contains(sname)) {
+					iRowProduct ++;
+					row = listManufactSheet.createRow(iRowProduct);
+				} else {
+					iRow ++;
+					row = listSheet.createRow(iRow);
+				}
 
 				createRowCells(row, operatorProcess, next_operatorProcess, factWork, operatorOnJobno, readCursor, weekBeans, commentCell, highlightCell);
 			}
@@ -626,6 +637,10 @@ public class DayWorkTotalToMonthJob implements Job {
 				book.removeSheetAt(0); // 中小修修理
 				book.removeSheetAt(0); // 品保课
 			}
+
+			listSheet.createFreezePane(0, 1);
+			listManufactSheet.createFreezePane(0, 1);
+
 			// 保存文件
 			FileOutputStream fileOut = new FileOutputStream(destPath);
 			book.write(fileOut);
@@ -1447,7 +1462,7 @@ public class DayWorkTotalToMonthJob implements Job {
 
 		while (pace.before(nextMonth)) {
 			if (pace.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
-				File lfile = new File(srcDir + DateUtil.toString(pace.getTime(), "MMdd"));
+				File lfile = new File(srcDir + DateUtil.toString(pace.getTime(), "MMdd") + ".sql");
 				_log.info("sqlDump:" + lfile.getAbsolutePath());
 				if (lfile.exists()) {
 					try {

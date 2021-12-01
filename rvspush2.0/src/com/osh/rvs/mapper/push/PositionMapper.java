@@ -22,4 +22,6 @@ public interface PositionMapper {
 
 	public String getLineWithSectionByID(@Param(value = "section_id") String section_id, @Param(value = "line_id") String line_id);
 
+	public List<String> getSectionNames(int department);
+
 }

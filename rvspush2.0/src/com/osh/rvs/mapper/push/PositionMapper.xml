@@ -36,6 +36,10 @@
 		]]>
 	</select>
 
+	<select id="checkSentByRootReason" parameterType="String" resultType="int">
+		select count(1) from post_message where reason = #{reason} and root_post_message_id = #{root_post_message_id};
+	</select>
+
 	<select id="searchPosition" resultType="PositionEntity">
 		<![CDATA[ 
 		SELECT POSITION_ID,
