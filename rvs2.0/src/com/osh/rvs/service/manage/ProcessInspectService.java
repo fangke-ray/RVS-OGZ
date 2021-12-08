@@ -354,17 +354,33 @@ public class ProcessInspectService {
 	 * 读取汇总文件
 	 *
 	 * @param tempfilename
+	 * @param process_name 
 	 * @param conn
 	 * @param errors
 	 * @return
 	 */
-	public List<ProcessInspectAchievementEntity> readAchievementFile(String tempfilename, ProcessInspectForm data, SqlSession conn, List<MsgInfo> errors) {
+	public List<ProcessInspectAchievementEntity> readAchievementFile(String tempfilename, String process_name, 
+			ProcessInspectForm data, SqlSession conn, List<MsgInfo> errors) {
 
 		List<ProcessInspectAchievementEntity> entitys = new ArrayList<>();
 
 		final String title = "作业监查实绩表";
+
+		final String context = "作业名";
+
 		final String inspectItemColName = "监查项目";
+		final String inspectNeedCheckColName = "检查";
+		final String inspectNeedCheckColNameAlt = "监查";
+		final String inspectInspectContent = "监查内容";
+		final String inspectUnqualifiedContent = "不合格内容";
+		final String inspectUnqualifiedTreatment = "不合格处理内容";
+		final String inspectUnqualifiedTreatDate = "不合格内容完成日";
+		final String inspectUnqualifiedTreatDateAbbr = "完成日";
+
 		String processName = "";
+
+											
+		// 检查	监查内容									不合格内容				确认印		不合格处理内容				完成日	确认印
 
 		InputStream in = null;
 
@@ -372,17 +388,27 @@ public class ProcessInspectService {
 			in = new FileInputStream(tempfilename);// 读取文件
 			HSSFWorkbook work = new HSSFWorkbook(in);// 创建Excel
 			HSSFSheet sheet = work.getSheetAt(0);// 获取Sheet
+			if (!isEmpty(process_name)) {
+				processName = process_name;
+				HSSFSheet sheetByProcessName = work.getSheet(processName);
+				if (sheetByProcessName != null) {
+					sheet = sheetByProcessName;
+				}
+			} else {
+				processName = sheet.getSheetName();
+			}
 
 			boolean isTargetFile = false;
 			int recordRow = 0;
-			int recordCol = 0;
-			processName = sheet.getSheetName();
+			int[] recordCol = {-1,-1,-1,-1,-1,-1};
 
 			List<CellRangeAddress> ranges = getCombineCells(sheet);
 
 			for (int iRow = 1; iRow <= sheet.getLastRowNum(); iRow++) {
 
 				HSSFRow row = sheet.getRow(iRow);
+				boolean hitTitle = false;
+				boolean hitContext = false;
 				if (row != null) {
 
 					int maxCellNo = row.getLastCellNum();
@@ -395,14 +421,31 @@ public class ProcessInspectService {
 						if (!isTargetFile) {
 							continue;
 						}
+						if (cellValue.equals(context)) {
+							hitContext = true;
+						} else 	if (hitContext && !isEmpty(cellValue)) {
+							processName = cellValue;
+							hitContext = false;
+						}
 
 						if (cellValue.equals(inspectItemColName)) {
 							recordRow = iRow + 1;
-							recordCol = idx;
-							break;
+							recordCol[0] = idx;
+							hitTitle = true;
+						} else {
+							switch(cellValue) {
+							case inspectNeedCheckColName : recordCol[1] = idx; break;
+							case inspectNeedCheckColNameAlt : recordCol[1] = idx; break;
+							case inspectInspectContent : recordCol[2] = idx; break;
+							case inspectUnqualifiedContent : recordCol[3] = idx; break;
+							case inspectUnqualifiedTreatment : recordCol[4] = idx; break;
+							case inspectUnqualifiedTreatDate : recordCol[5] = idx; break;
+							case inspectUnqualifiedTreatDateAbbr : recordCol[5] = idx; break; 
+							}
 						}
 					}
 				}
+				if (hitTitle) break;
 			}
 
 			if (!isTargetFile) {
@@ -415,7 +458,6 @@ public class ProcessInspectService {
 					ProcessInspectAchievementEntity entity = new ProcessInspectAchievementEntity();
 
 					String cellValue = "";
-					int iCol = recordCol;
 
 					// key
 					entity.setProcess_inspect_key(data.getProcess_inspect_key());
@@ -429,14 +471,14 @@ public class ProcessInspectService {
 					entity.setLine_seq(iRow - recordRow + 1);
 
 					// 监查项目
-					cellValue = getCellStringValue(row.getCell(iCol++));
+					cellValue = getCellStringValue(row.getCell(recordCol[0]));
 					if (isEmpty(cellValue)) {
 						continue;
 					}
 					entity.setInspect_item(cellValue);
 
 					// 监查
-					cellValue = getCellStringValue(row.getCell(iCol++));
+					cellValue = getCellStringValue(row.getCell(recordCol[1]));
 					if (!isEmpty(cellValue)) {
 						entity.setNeed_check(1);
 					} else {
@@ -444,40 +486,38 @@ public class ProcessInspectService {
 					}
 
 					// 监查内容
-					CellRangeAddress range = checkCombineCell(ranges, iRow, iCol, false);
+					CellRangeAddress range = checkCombineCell(ranges, iRow, recordCol[2], false);
 					if (range == null) {
 						entity.setRowspan(1);
 					} else {
 						entity.setRowspan(0);
 					}
 
-					cellValue = getCellStringValue(row.getCell(iCol++));
+					cellValue = getCellStringValue(row.getCell(recordCol[2]));
 					entity.setInspect_content(cellValue);
 
 					// 不合格内容
-					cellValue = getCellStringValue(row.getCell(iCol++));
+					cellValue = getCellStringValue(row.getCell(recordCol[3]));
 					if (!isEmpty(cellValue) && !cellValue.trim().equals("无")) {
 						entity.setUnqualified_content(cellValue);
 					}
 
 					// 确认印
-					iCol++;
 
 					// 不合格处理内容
-					cellValue = getCellStringValue(row.getCell(iCol++));
+					cellValue = getCellStringValue(row.getCell(recordCol[4]));
 					if (!isEmpty(cellValue)) {
 						entity.setUnqualified_treatment(cellValue);
 					}
 
 					// 不合格内容完成日
-					if (row.getCell(iCol).getCellType() != HSSFCell.CELL_TYPE_BLANK) {
-						cellValue = getCellStringValue(row.getCell(iCol));
+					if (recordCol[5] > 0 && row.getCell(recordCol[5]).getCellType() != HSSFCell.CELL_TYPE_BLANK) {
+						cellValue = getCellStringValue(row.getCell(recordCol[5]));
 						if (!isEmpty(cellValue)) {
-							Date cellDateValue = HSSFDateUtil.getJavaDate(row.getCell(iCol).getNumericCellValue());
+							Date cellDateValue = HSSFDateUtil.getJavaDate(row.getCell(recordCol[6]).getNumericCellValue());
 							entity.setUnqualified_treat_date(cellDateValue);
 						}
 					}
-					iCol++;
 
 					entitys.add(entity);
 				}

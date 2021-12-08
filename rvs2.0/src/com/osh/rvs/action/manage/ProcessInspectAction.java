@@ -370,7 +370,7 @@ public class ProcessInspectAction extends BaseAction {
 		if (errors.size() == 0) {
 			if (tempfilename.endsWith(".xls")) {
 				// 读取分析Excel文件
-				List<ProcessInspectAchievementEntity> entitys = service.readAchievementFile(tempfilename, data, conn, errors);
+				List<ProcessInspectAchievementEntity> entitys = service.readAchievementFile(tempfilename, data.getProcess_name(), data, conn, errors);
 				if (entitys == null && errors.size() == 0) {
 					MsgInfo error = new MsgInfo();
 					error.setErrcode("file.invalidFormat");
