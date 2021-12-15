@@ -482,6 +482,10 @@ public class ProcessInspectService {
 					if (!isEmpty(cellValue)) {
 						entity.setNeed_check(1);
 					} else {
+//						HSSFCellStyle styleOfNeedCheck = row.getCell(recordCol[1]).getCellStyle();
+//						TODO POI 版本取不了BorderDiagonal
+//						final class 无法获取ExtendedFormatRecord
+//						未来（模板化以后）需要升级或者通过jacob取得<Border ss:Position="DiagonalRight"/>
 						entity.setNeed_check(0);
 					}
 

@@ -1,7 +1,7 @@
 package com.osh.rvs.action.manage;
 
-import static com.osh.rvs.service.UploadService.*;
-import static framework.huiqing.common.util.CommonStringUtil.*;
+import static com.osh.rvs.service.UploadService.toXls2003;
+import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -10,6 +10,7 @@
 		pia.process_name,
 		operator.name AS operator_name,
 		inspector.name AS inspector_name,
+		inspector.job_no AS inspector_job_no,
 		pis.inspect_date,
 		model.name AS model_name,
 		pis.serial_no,
@@ -134,7 +135,8 @@
 	  , pis.operator_id
 	  , (SELECT name FROM operator WHERE operator_id = pis.operator_id) AS operator_name
 	  , pis.inspector_id
-	  , (SELECT name FROM operator WHERE operator_id = pis.inspector_id) AS inspector_name
+	  , inspector_op.name AS inspector_name
+	  , inspector_op.job_no AS inspector_job_no
 	  , pis.inspect_date
 	  , pis.model_id
 	  , model.name AS model_name
@@ -146,14 +148,18 @@
 	  , pis.conclusion
 	FROM
 	  process_inspect_summary pis
+	JOIN
+		model model
+		ON
+			model.model_id = pis.model_id
+	LEFT JOIN
+		operator inspector_op
+		ON
+			inspector_op.operator_id = pis.inspector_id
 	LEFT JOIN
 		line line
 		ON
 			line.line_id = pis.line_id
-	LEFT JOIN
-		model model
-		ON
-			model.model_id = pis.model_id
 	WHERE
 	  process_inspect_key = #{process_inspect_key}
 	</select>

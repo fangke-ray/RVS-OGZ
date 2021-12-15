@@ -257,7 +257,7 @@ var showDetail = function(process_inspect_key) {
 	this_dialog.load(servicePath + "?method=detail&process_inspect_key=" + process_inspect_key , function(responseText, textStatus, XMLHttpRequest) {
 		this_dialog.dialog({
 			title : "作业监查详细画面",
-			position : [400, 20],
+			// position : [400, 20],
 			width : 'auto',
 			show : null,
 			height :  'auto',

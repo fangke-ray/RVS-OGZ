@@ -41,6 +41,8 @@ public class ProcessInspectForm extends ActionForm {
 	private String inspector_id;
 	@BeanField(title = "监察者", name = "inspector_name", type=FieldType.String)
 	private String inspector_name;
+	@BeanField(title = "监察者", name = "inspector_job_no", type=FieldType.String)
+	private String inspector_job_no;
 	@BeanField(title = "监察日", name = "inspect_date", type=FieldType.Date)
 	private String inspect_date;
 
@@ -244,5 +246,11 @@ public class ProcessInspectForm extends ActionForm {
 	}
 	public void setConfirm_flg(String confirm_flg) {
 		this.confirm_flg = confirm_flg;
+	}
+	public String getInspector_job_no() {
+		return inspector_job_no;
+	}
+	public void setInspector_job_no(String inspector_job_no) {
+		this.inspector_job_no = inspector_job_no;
 	}
 }

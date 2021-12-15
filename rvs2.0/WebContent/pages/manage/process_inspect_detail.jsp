@@ -1,6 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
+<style>
+div.dwidth-1024: {width:992px;}
+</style>
 <script type="text/javascript">
 var defectiveJs = function(){
 
@@ -138,9 +141,10 @@ var defectiveJs = function(){
 						var item = confirmList[ii];
 						confirmMap.set(item.process_name,item);
 					}
-					
+
 					var idx = 0;
 					if (resInfo.details) {
+						var imgInsUrl = "/images/sign/" +  resInfo.header.inspector_job_no + "?_s=" + (new Date()).getTime();
 						$.each(resInfo.details, function(key, val) {
 
 							if ($("#process_inspect_detail_infoes_detail" + idx + "_label > span").length == 0) {
@@ -156,28 +160,32 @@ var defectiveJs = function(){
 								if(processInspectConfirm.sign_manager_id){//已盖章
 									$("#confirm_sign_manager_id" + idx).hide();
 									var imgUrl = "http://" + document.location.hostname + "/images/sign/" + processInspectConfirm.manager_job_no + "?_s=" + new Date().getTime();
-									$("#confirm_sign_manager_id_pic" + idx).attr("src", imgUrl).show();
+									$("#confirm_sign_manager_id_pic" + idx).attr("src", imgUrl).show()
+										.next().text(processInspectConfirm.sign_manager_date).show();
 								} else {
 									$("#confirm_sign_manager_id" + idx).show();
-									$("#confirm_sign_manager_id_pic" + idx).hide();
+									$("#confirm_sign_manager_id_pic" + idx).hide()
+										.next().text("").hide();
 								}
 								
 								//部长印
 								if(processInspectConfirm.sign_minister_id){//已盖章
 									$("#confirm_sign_minister_id" + idx).hide();
 									var imgUrl = "http://" + document.location.hostname + "/images/sign/" + processInspectConfirm.minister_job_no + "?_s=" + new Date().getTime();
-									$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show();
+									$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show()
+										.next().text(processInspectConfirm.sign_minister_date).show();
 								} else {
 									$("#confirm_sign_minister_id" + idx).show();
-									$("#confirm_sign_minister_id_pic" + idx).hide();
+									$("#confirm_sign_minister_id_pic" + idx).hide()
+										.next().text("").hide();
 								}
 							} else {
 								confirmMap.set(key,"");
 								
 								$("#confirm_sign_manager_id" + idx).show();
 								$("#confirm_sign_minister_id" + idx).show();
-								$("#confirm_sign_manager_id_pic" + idx).hide();
-								$("#confirm_sign_minister_id_pic" + idx).hide();
+								$("#confirm_sign_manager_id_pic" + idx).hide().next().hide();
+								$("#confirm_sign_minister_id_pic" + idx).hide().next().hide();
 							}
 							
 							$("#confirm_sign_manager_id" + idx).prop("idx",idx)
@@ -230,7 +238,7 @@ var defectiveJs = function(){
 						            autowidth:true,
 									rowheight : 23,
 									datatype : "local",
-									colNames : ['', '监查项目', '检查', '监查内容', '不合格内容', '不合格处理内容', '完成日'],
+									colNames : ['', '监查项目', '检查', '监查内容', '不合格内容', '确认', '不合格处理内容', '完成日'],
 									colModel : [
 										{name: 'rowspan', index: 'rowspan', hidden: true, sortable:false},
 										{name:'inspect_item',index:'inspect_item', width:200, sortable:false},
@@ -240,6 +248,9 @@ var defectiveJs = function(){
 		                                        return "id=\'" + gridId + "_inspectContent" + rowId + "\'";
 		                                    }, sortable:false},
 										{name:'unqualified_content',index:'unqualified_content', width:120, sortable:false},
+											{name:'sign',index:'sign', width:70, sortable:false, formatter:function(v, col, data){
+											return (data["need_check"] == "1") ? ("<img src='" + imgInsUrl + "'>") : "";
+										}},
 										{name:'unqualified_treatment',index:'unqualified_treatment', width:120, sortable:false},
 										{name:'unqualified_treat_date',index:'unqualified_treat_date', width:50, align:'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}, sortable:false}
 									],
@@ -282,7 +293,7 @@ var defectiveJs = function(){
 						});
 					}
 				} catch(e) {
-					alert("name: " + e.name + "\n message: " + e.message + "\n lineNumber: "
+					console.log("name: " + e.name + "\n message: " + e.message + "\n lineNumber: "
 							+ e.lineNumber + "\n fileName: " + e.fileName);
 				}
 			}
@@ -311,14 +322,18 @@ var defectiveJs = function(){
 							// 共通出错信息框
 							treatBackMessages(null, resInfo.errors);
 						} else {
-							var imgUrl = "http://" + document.location.hostname + "/images/sign/" +  $("#header\\.job_no").val() + "?_s=" + new Date().getTime();
-							
+							var today = new Date();
+							var imgUrl = "http://" + document.location.hostname + "/images/sign/" +  $("#header\\.job_no").val() + "?_s=" + today.getTime();
+
+							var todayText = today.getFullYear() + "-" + mdTextOfDate(today);
 							if(postData.process_flg == 1){
 								$("#confirm_sign_manager_id" + idx).hide();
-								$("#confirm_sign_manager_id_pic" + idx).attr("src",imgUrl).show();
+								$("#confirm_sign_manager_id_pic" + idx).attr("src",imgUrl).show()
+									.next().text(todayText).show();
 							} else {
 								$("#confirm_sign_minister_id" + idx).hide();
-								$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show();
+								$("#confirm_sign_minister_id_pic" + idx).attr("src", imgUrl).show()
+									.next().text(todayText).show();
 							}
 						}
 					}catch(e) {
@@ -389,7 +404,7 @@ if (!$.validator) {
 	Integer cnt = (Integer)request.getAttribute("achiCnt");
 %>
 <div id="process_inspect_detail_content" style="float:left;margin:auto;">
-	<div style="height:44px;width:100%;" id="process_inspect_detail_infoes" class="dwidth-middle">
+	<div style="height:44px;" id="process_inspect_detail_infoes" class="dwidth-1024">
 
 		<input type="hidden" id="header.process_inspect_key" name="header.process_inspect_key" value="${process_inspect_key}">
 		<input type="hidden" id="header.job_no" name="header.job_no" value="${jobNo}">
@@ -406,9 +421,9 @@ if (!$.validator) {
 		%>
 	</div>
 
-	<div class="ui-widget-content process_inspect_detail_tabcontent" for="process_inspect_detail_infoes_summary" style="width:100%;text-align:left;">
-		<div id="process_inspect_detail_summary_area" style="margin-top:22px;margin-left:9px;">
-			<div class="ui-widget-content dwidth-middle">
+	<div class="ui-widget-content process_inspect_detail_tabcontent" for="process_inspect_detail_infoes_summary" style="text-align:left;">
+		<div id="process_inspect_detail_summary_area" style="margin:22px 9px;">
+			<div class="ui-widget-content dwidth-1024">
 				<table class="condform">
 					<tbody>
 						<tr>
@@ -490,8 +505,8 @@ if (!$.validator) {
 	<%
 		for (int idx = 0; idx < cnt; idx++) {
 	%>
-	<div class="ui-widget-content process_inspect_detail_tabcontent" for="process_inspect_detail_infoes_detail<%=idx %>" style="width:100%;text-align:left;display:none;">
-		<div id="process_inspect_detail_detail<%=idx %>_area" style="margin-top:22px;margin-left:9px;">
+	<div class="ui-widget-content process_inspect_detail_tabcontent" for="process_inspect_detail_infoes_detail<%=idx %>" style="text-align:left;display:none;">
+		<div id="process_inspect_detail_detail<%=idx %>_area" style="margin:22px 9px;">
 			<div class="ui-widget-content" style="margin-bottom:20px;">
 				<table class="condform">
 					<tbody>
@@ -502,6 +517,7 @@ if (!$.validator) {
 								<input type="button" id="confirm_sign_manager_id<%=idx %>" class="ui-button" value="盖章" style="display: none;">
 <% } %>
 								<img id="confirm_sign_manager_id_pic<%=idx %>" style="display: none"></img>
+								<span></span>
 							</td>
 							<td class="ui-state-default td-title">部长印</td>
 							<td class="td-content">
@@ -509,12 +525,13 @@ if (!$.validator) {
 								<input type="button" id="confirm_sign_minister_id<%=idx %>" class="ui-button" value="盖章" style="display: none;">
 <% } %>
 								<img id="confirm_sign_minister_id_pic<%=idx %>" style="display: none"></img>
+								<span></span>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-			<div class="ui-widget-content dwidth-middle">
+			<div class="ui-widget-content dwidth-1024">
 				<table id="process_inspect_detail_infoes_detail<%=idx %>_list"></table>
 			</div>
 <% if(enableEdit != null) { %>

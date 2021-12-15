@@ -28,6 +28,7 @@ public class ProcessInspectSummaryEntity implements Serializable{
 	private String inspector_id;
 	// 监察者
 	private String inspector_name;
+	private String inspector_job_no;
 	// 监察日
 	private Date inspect_date;
 	// 监察日起
@@ -185,5 +186,11 @@ public class ProcessInspectSummaryEntity implements Serializable{
 
 	public void setInspector_name(String inspector_name) {
 		this.inspector_name = inspector_name;
+	}
+	public String getInspector_job_no() {
+		return inspector_job_no;
+	}
+	public void setInspector_job_no(String inspector_job_no) {
+		this.inspector_job_no = inspector_job_no;
 	}
 }
