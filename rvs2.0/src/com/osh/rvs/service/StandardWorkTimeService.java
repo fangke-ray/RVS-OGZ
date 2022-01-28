@@ -77,8 +77,8 @@ public class StandardWorkTimeService {
 		if ("1".equals(level)) {
 			for (int i = lines.size() - 1; i >= 0; i--) {
 				PositionEntity position = lines.get(i);
-				for (int j = 0; j < ProcessAssignService.S1PASSES.length; j++) {
-					if (ProcessAssignService.S1PASSES[j] == Integer.parseInt(position.getPosition_id())) {
+				for (int j = 0; j < PositionService.getS1PASSES().length; j++) {
+					if (PositionService.getS1PASSES()[j].equals(position.getPosition_id())) {
 						lines.remove(i);
 						break;
 					}

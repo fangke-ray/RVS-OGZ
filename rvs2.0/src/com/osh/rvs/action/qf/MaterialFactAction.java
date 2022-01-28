@@ -79,7 +79,7 @@ public class MaterialFactAction extends BaseAction {
 
 		// 获得维修流程选项
 		ProcessAssignService paService = new ProcessAssignService();
-		String paOptions = paService.getOptions(null, conn);
+		String paOptions = paService.getOptions(null, 1, conn);
 		req.getSession().setAttribute("paOptions", paOptions);
 
 		// 取得登录用户权限

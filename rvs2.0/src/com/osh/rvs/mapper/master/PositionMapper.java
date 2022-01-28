@@ -26,5 +26,9 @@ public interface PositionMapper {
 
 	public List<String> getDividePositions();
 
+	public void setPositionRevision(String process_code);
+
 	public List<PositionEntity> getSpecialPagePositions();
+
+	public List<PositionEntity> getInlineKindPositions();
 }

@@ -19,7 +19,7 @@ public interface ProcessAssignMapper {
 
 	/** search all 
 	 * @param fixType */
-	public List<ProcessAssignTemplateEntity> getAllProcessAssignTemplate(Integer fixType);
+	public List<ProcessAssignTemplateEntity> getAllProcessAssignTemplate(@Param("fix_type") Integer fixType);
 
 	public ProcessAssignTemplateEntity getProcessAssignTemplateByID(String processAssignTemplate_id);
 
@@ -33,6 +33,8 @@ public interface ProcessAssignMapper {
 	public int insertProcessAssign(ProcessAssignEntity processAssignTemplate) throws Exception;
 	public void deleteProcessAssignByTemplateID(String processAssignTemplate_id) throws Exception;
 	public List<Map<String, String>> getInlinePositions();
+	public List<Map<String, String>> getExpandPositions();
+
 	public List<Map<String, String>> getPositionsOfLine(String line_id);
 
 	public ProcessAssignEntity getProcessAssign(@Param("process_assign_template_id") String template_id, @Param("position_id") String trigger_position_id);

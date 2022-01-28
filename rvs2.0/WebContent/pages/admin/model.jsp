@@ -46,6 +46,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	font-weight: bold;
 	color: #ffffff;
 }
+#category_default.mismatch {
+	color:lightgray;
+	text-decoration-line: line-through;
+	text-decoration-color: black;
+}
 </style>
 <body>
 
@@ -159,7 +164,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content"><input type="text" alt="接眼类别" name="ocular_type" id="input_ocular_type" maxlength="16" class="ui-widget-content"></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">默认流程</td>
+					<td class="ui-state-default td-title">默认流程<br><span id="category_default"></span></td>
 					<td class="td-content"  colspan="3"><select name="default_pat_id" alt="默认流程" id="input_default_pat_id" class="ui-widget-content">${patOptions}</select></td>
 				</tr>
 				<tr>

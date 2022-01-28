@@ -10,14 +10,16 @@
 		SELECT POSITION_ID,
 			NAME,
 			LINE_ID,
-			LINE_NAME,
+			(select NAME from LINE where line_id = POSITION.line_id) as LINE_NAME,
 			PROCESS_CODE,
 			UPDATED_BY,
 			UPDATED_TIME,
+			special_page,
+			kind,
 			light_worktime_rate,
 			light_division_flg
-		FROM V_POSITION
-		WHERE DELETE_FLG = 0
+		FROM POSITION
+		WHERE DELETE_FLG <> 1
 		AND POSITION_ID = #{position_id};
 		]]>
 	</select>
@@ -29,10 +31,11 @@
 			LINE_ID,
 			LINE_NAME,
 			PROCESS_CODE,
+			DELETE_FLG,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM V_POSITION
-		WHERE DELETE_FLG = 0
+		WHERE DELETE_FLG in (0, 2)
 		ORDER BY PROCESS_CODE;
 		]]>
 	</select>
@@ -49,7 +52,7 @@
 		FROM V_POSITION
 		]]>
 		<where>
-			DELETE_FLG = 0
+			DELETE_FLG in (0, 2)
 			<if test="position_id!= null and position_id!= '' ">
 				AND POSITION_ID = #{position_id}
 			</if>
@@ -64,7 +67,7 @@
 			</if>
 		</where> 
 		<![CDATA[ 
-		ORDER BY PROCESS_CODE, UPDATED_TIME DESC;
+		ORDER BY PROCESS_CODE, DELETE_FLG, UPDATED_TIME DESC;
 		]]>
 	</select>
 
@@ -83,9 +86,9 @@
 	<insert id="insertPosition" parameterType="PositionEntity">
 		<![CDATA[ 
 		INSERT INTO POSITION 
-			(NAME, LINE_ID, PROCESS_CODE, UPDATED_BY, UPDATED_TIME,light_worktime_rate,light_division_flg) 
+			(NAME, LINE_ID, PROCESS_CODE, UPDATED_BY, UPDATED_TIME, SPECIAL_PAGE, kind, light_worktime_rate,light_division_flg,delete_flg) 
 		VALUES 
-			(#{name}, #{line_id}, #{process_code}, #{updated_by}, current_timestamp,#{light_worktime_rate},#{light_division_flg});
+			(#{name}, #{line_id}, #{process_code}, #{updated_by}, current_timestamp, #{special_page}, #{kind}, #{light_worktime_rate},#{light_division_flg},#{delete_flg});
 		]]>
 	</insert>
 
@@ -95,6 +98,8 @@
 			LINE_ID = #{line_id},
 			UPDATED_BY = #{updated_by},
 			UPDATED_TIME = current_timestamp,
+			SPECIAL_PAGE = #{special_page},
+			KIND = #{kind},
 			light_worktime_rate = #{light_worktime_rate},
 			light_division_flg = #{light_division_flg}
 		WHERE POSITION_ID = #{position_id};
@@ -119,12 +124,30 @@
 		]]>
 	</select>
 
+	<update id="setPositionRevision" parameterType="String">
+		<![CDATA[ 
+		UPDATE POSITION 
+			SET delete_flg = 0
+		WHERE PROCESS_CODE = #{process_code}
+		AND delete_flg = 2;
+		]]>
+	</update>
+
 	<select id="getSpecialPagePositions" resultType="PositionEntity" parameterType="String">
 		<![CDATA[ 
 		SELECT POSITION_ID, special_page
 		FROM POSITION
 		WHERE DELETE_FLG = 0
 		AND special_page is not null;
+		]]>
+	</select>
+
+	<select id="getInlineKindPositions" resultType="PositionEntity" parameterType="String">
+		<![CDATA[ 
+		SELECT POSITION_ID, kind
+		FROM POSITION
+		WHERE DELETE_FLG = 0
+		AND kind is not null;
 		]]>
 	</select>
 

@@ -101,9 +101,17 @@ $(function() {
 		// 保存检索条件
 		$("#cond_id").data("post", $("#cond_id").val());
 		$("#cond_name").data("post", $("#cond_name").val());
+		$("#cond_fix_type").data("post", $("#cond_fix_type").val());
 
 		// 查询
 		findit();
+	});
+
+	$("#resetbutton").click(function() {
+		// 保存检索条件
+		$("#cond_id").val("").data("post", "");
+		$("#cond_name").val("").data("post", "");
+		$("#cond_fix_type").val("").data("post", "").trigger("change");
 	});
 
 	// Ajax提交
@@ -159,11 +167,12 @@ var search_handleComplete = function(xhrobj, textStatus) {
 					width : gridWidthMiddleRight,
 					rowheight: 23,
 					datatype: "local",
-					colNames:['', 'id', '工序指派模板名称', '最后更新人','最后更新时间'],
+					colNames:['', 'id', '工序指派模板名称', '模板用途', '最后更新人','最后更新时间'],
 					colModel:[
 						{name:'myac', width:48, fixed:true, sortable:false, resize:false, formatter:'actions', formatoptions:{keys:true, editbutton:false}},
 						{name:'id',index:'id', hidden:true},
 						{name:'name',index:'name', width:100},
+						{name:'fix_type',index:'fix_type', width:40, align:'center', formatter:'select', editoptions:{value:$("#kGroupOptions").val()}},
 						{name:'updated_by',index:'updated_by', width:60},
 						{name:'updated_time',index:'updated_time', width:80}
 					],
@@ -222,7 +231,7 @@ function new_handleComplete(xhrobj, textStatus) {
 }
 
 function insert() {
-	var data = {name : $("#edit_name").val()};
+	var data = {name : $("#edit_name").val(), fix_type: $("#edit_fix_type").val()};
 
 	var iAvariPos = 0;
 	$(".pos").each(function(i, item) {
@@ -256,7 +265,8 @@ function insert() {
 
 function update() {
 	var data = {"id" : $("#label_edit_id").text(),
-	name : $("#edit_name").val()};
+	name : $("#edit_name").val(),
+	fix_type : $("#edit_fix_type").val()};
 
 	var iAvariPos = 0;
 	$(".pos").each(function(i, item) {
@@ -289,7 +299,8 @@ function update() {
 }
 var findit = function() {
 	var data = {"id" : $("#cond_id").data("post"),
-			"name" : $("#cond_name").data("post")};
+			"name" : $("#cond_name").data("post"),
+			"fix_type" : $("#cond_fix_type").data("post")};
 
 
 	// Ajax提交
@@ -331,6 +342,7 @@ var showAdd = function() {
 
 	$("#label_edit_id").text(" -");
 	$("#edit_name").val("");
+	$("#edit_fix_type").val("").trigger("change");
 	$("#base").flowchart("reset");
 
 	$("#editform").validate({
@@ -365,6 +377,7 @@ function showedit_handleComplete(xhrobj, textStatus) {
 
 			$("#label_edit_id").text(resInfo.templateForm.id);
 			$("#edit_name").val(resInfo.templateForm.name);
+			$("#edit_fix_type").val(resInfo.templateForm.fix_type).trigger("change");
 
 			$("#base").flowchart("fill", resInfo.processAssigns);
 

@@ -70,7 +70,7 @@ public class ModelAction extends BaseAction {
 		req.setAttribute("cOptions", cOptions);
 
 		ProcessAssignService paSevice = new ProcessAssignService();
-		req.setAttribute("patOptions", paSevice.getOptions("(型号无特有流程)", conn));
+		req.setAttribute("patOptions", paSevice.getOptions("(型号无特有流程)", 9, conn));
 
 		actionForward = mapping.findForward(FW_INIT);
 
@@ -140,11 +140,13 @@ public class ModelAction extends BaseAction {
 		if (errors.size() == 0) {
 			// 查询记录
 			ModelForm resultForm = service.getDetail(form, conn, errors);
-			 List<ModelForm> responseList=service.searchAbolishOfModelLevel(form, conn);
+			List<ModelForm> responseList=service.searchAbolishOfModelLevel(form, conn);
 			if (resultForm != null) {
 				// 查询结果放入Ajax响应对象
 				listResponse.put("modelForm", resultForm);
 				listResponse.put("responseList", responseList);
+				CategoryService cService = new CategoryService();
+				listResponse.put("categoryForm", cService.getDetail(resultForm, conn, errors));
 			}
 		}
 

@@ -157,12 +157,8 @@
 			ocular_type=#{ocular_type},
 			item_code = #{item_code},
 			description = #{description},
-		]]>
-		<if test="default_pat_id!=null and default_pat_id!=''">
-		<![CDATA[ 
 			default_pat_id = #{default_pat_id},
 		]]>
-		</if>
 		<if test="selectable!=null and selectable==1">
 			SELECTABLE = 1
 		</if>

@@ -15,8 +15,13 @@ public class ProcessAssignTemplateForm extends ActionForm {
 	@BeanField(title = "修理流程模板 ID", name = "process_assign_template_id", primaryKey = true, length = 11)
 	private String id;
 	/** 修理流程模板名 */
-	@BeanField(title = "修理流程模板名", name = "name", length = 30)
+	@BeanField(title = "修理流程模板名", name = "name", notNull = true, length = 30)
 	private String name;
+
+	/** 修理流程类别 */
+	@BeanField(title = "修理流程用途", name = "fix_type", notNull = true, type = FieldType.Integer)
+	private String fix_type;
+
 	/** 最后更新人 */
 	@BeanField(title = "最后更新人", name = "updated_by")
 	private String updated_by;
@@ -96,5 +101,13 @@ public class ProcessAssignTemplateForm extends ActionForm {
 
 	public void setProcessAssigns(List<ProcessAssignForm> processAssigns) {
 		this.processAssigns = processAssigns;
+	}
+
+	public String getFix_type() {
+		return fix_type;
+	}
+
+	public void setFix_type(String fix_type) {
+		this.fix_type = fix_type;
 	}
 }

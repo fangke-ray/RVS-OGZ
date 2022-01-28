@@ -188,9 +188,7 @@ public class CategoryService {
 		BeanUtil.copyToBean(form, coditionBean, null);
 		String category_id = coditionBean.getCategory_id();
 
-		// 从数据库中查询记录
-		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
-		CategoryEntity cb = dao.getCategoryByID(category_id);
+		CategoryEntity cb = getDetail(category_id, conn);
 
 		if (cb == null) {
 			// 检索不到的情况下
@@ -208,6 +206,14 @@ public class CategoryService {
 			BeanUtil.copyToForm(cb, cf, null);
 			return cf;
 		}
+	}
+
+	public CategoryEntity getDetail(String category_id, SqlSession conn) {
+
+		// 从数据库中查询记录
+		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
+		return dao.getCategoryByID(category_id);
+
 	}
 
 	/**

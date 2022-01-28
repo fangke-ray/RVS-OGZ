@@ -27,6 +27,7 @@ import com.osh.rvs.service.PositionService;
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.validator.Validators;
 
@@ -57,6 +58,9 @@ public class PositionAction extends BaseAction {
 		// 取得下拉框信息
 		String lOptions = lservice.getAllOptions(conn);
 		req.setAttribute("lOptions", lOptions);
+
+		req.setAttribute("spOptions", CodeListUtils.getSelectOptions("position_spec", null, ""));
+		req.setAttribute("ikOptions", CodeListUtils.getSelectOptions("position_inline_kind", null, ""));
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

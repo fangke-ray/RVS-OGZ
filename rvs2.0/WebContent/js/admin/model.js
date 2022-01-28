@@ -305,7 +305,18 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#input_ocular_type").val(resInfo.modelForm.ocular_type);
 			$("#input_item_code").val(resInfo.modelForm.item_code);
 			$("#input_description").val(resInfo.modelForm.description);
-			$("#input_default_pat_id").val(fillZero(resInfo.modelForm.default_pat_id, 11)).trigger("change");
+
+			var category_default_pat_id = resInfo.categoryForm.default_pat_id;
+			var model_default_pat_id = fillZero(resInfo.modelForm.default_pat_id, 11);
+			if (category_default_pat_id == model_default_pat_id) {
+				$("#input_default_pat_id").val("").trigger("change");
+			} else {
+				$("#input_default_pat_id").val(model_default_pat_id).trigger("change");
+			}
+			$("#category_default").attr("category_id", resInfo.categoryForm.id)
+				.removeClass("mismatch")
+				.html("<br>" + resInfo.categoryForm.name 
+					+ "<br>默认流程：<br>" + $("#input_default_pat_id > option[value='" + category_default_pat_id + "']").text());
 
 			if(resInfo.modelForm.selectable==1){
 				$("#selectable_yes").attr("checked", "checked").trigger("change");
@@ -348,7 +359,7 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 						"description":$("#input_description").val()
 					};
 					var input_default_pat_id = $("#input_default_pat_id").val();
-					if (input_default_pat_id) data.default_pat_id = input_default_pat_id;
+					data.default_pat_id = input_default_pat_id;
 
 					warningConfirm("确认要修改记录吗？", function() {
 						// Ajax提交
@@ -438,6 +449,7 @@ var showAdd = function() {
 	$("#editform input[type!='button'][type!='radio'], #editform textarea").val("");
 	$("#input_category_id").unbind("change", postCategoryChange);//
 	$("#editform select").val("").trigger("change");
+	$("#category_default").attr("category_id", "").removeClass("mismatch").text("");
 	$("#editform label").not("[for]").html("");
 	$("#editbutton").val("新建");
 	$("#editbutton").enable();
@@ -479,7 +491,7 @@ var showAdd = function() {
 				"description":$("#input_description").val()
 			};
 			var input_default_pat_id = $("#input_default_pat_id").val();
-			if (input_default_pat_id) data.default_pat_id = input_default_pat_id;
+			data.default_pat_id = input_default_pat_id;
 
 			// Ajax提交
 			$.ajax({
@@ -911,6 +923,11 @@ var postCategoryChange = function(){
         error : ajaxError,
         complete : change_Complete
     });
+    if (data.category_id == $("#category_default").attr("category_id")) {
+    	$("#category_default").removeClass("mismatch");
+    } else {
+    	$("#category_default").addClass("mismatch");
+    }
 };
 var change_category = function(){
 	$("#input_category_id").unbind("change", postCategoryChange);

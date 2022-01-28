@@ -88,12 +88,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</label></td>
 				</tr>
 				<tr>
+					<td class="ui-state-default td-title">报价默认流程</td>
+					<td class="td-content" style="width:660px;"><select name="default_quote_pat_id" alt="报价默认流程" id="input_default_quote_pat_id" class="ui-widget-content">${patQuoteOptions}</select></td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">默认流程</td>
 					<td class="td-content" style="width:660px;"><select name="default_pat_id" alt="默认流程" id="input_default_pat_id" class="ui-widget-content">${patOptions}</select></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">默认流程(中小修)</td>
 					<td class="td-content" style="width:660px;"><select name="default_cell_pat_id" alt="默认流程" id="input_default_cell_pat_id" class="ui-widget-content">${patOptions}</select></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">最终检查工位</td>
+					<td class="td-content" style="width:660px;"><select name="qa_position_id" alt="最终检查工位" id="input_qa_position_id" class="ui-widget-content">${qaOptions}</select></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">最后更新人</td>

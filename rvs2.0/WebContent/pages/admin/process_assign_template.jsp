@@ -41,11 +41,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<tr>
 					<td class="ui-state-default td-title">模板名称</td>
 					<td class="td-content"><input type="text" name="name" alt="模板名称" id="cond_name" maxlength="50" class="ui-widget-content"></td>
-					<td class="ui-state-default td-title"></td>
-					<td class="td-content"></td>
+					<td class="ui-state-default td-title">流程用途</td>
+					<td class="td-content"><select name="fix_type" id="cond_fix_type" class="ui-widget-content">${kOptions}</select></td>
 				</tr>
 			</table>
 			<div style="height:44px">
+				<input type="hidden" id="kGroupOptions" value="${kGo}"/>
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="resetbutton" value="清除" role="button" aria-disabled="false" style="float:right;right:2px">
 				<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="searchbutton" value="检索" role="button" aria-disabled="false" style="float:right;right:2px">
 			</div>
@@ -74,6 +75,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content"><label id="label_edit_id"></td>
 					<td class="ui-state-default td-title">模板名称</td>
 					<td class="td-content"><input type="text" name="name" alt="模板名称" id="edit_name" maxlength="50" class="ui-widget-content"></td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">流程用途</td>
+					<td class="td-content" colspan="3"><select name="fix_type" id="edit_fix_type" class="ui-widget-content">${kOptions}</select></td>
 				</tr>
 			</table>
 			<div id="base">

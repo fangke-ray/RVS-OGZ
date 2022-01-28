@@ -28,6 +28,7 @@ import com.osh.rvs.service.ProcessAssignService;
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.action.Privacies;
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.validator.Validators;
 
@@ -53,6 +54,12 @@ public class ProcessAssignTemplateAction extends BaseAction {
 	public void init(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSession conn) throws Exception{
 
 		log.info("ProcessAssignTemplateAction.init start");
+
+		// 取得用途下拉框信息
+		String kOptions = CodeListUtils.getSelectOptions("process_assign_kind", null, "", false);
+		req.setAttribute("kOptions", kOptions);
+		String kGo = CodeListUtils.getGridOptions("process_assign_kind");
+		req.setAttribute("kGo", kGo);
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
@@ -80,7 +87,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
 		// 执行检索
-		List<Map<String, String>> positions = service.getInlinePositions(conn);
+		List<Map<String, String>> positions = service.getExpandPositions(conn);
 
 		// 查询结果放入Ajax响应对象
 		listResponse.put("list", positions);
@@ -201,7 +208,7 @@ public class ProcessAssignTemplateAction extends BaseAction {
 		if (errors.size() == 0) {
 			// 执行插入
 			service.insert(form, parameterMap, req.getSession(), conn, errors);
-			String paOptions = service.getOptions("", conn);
+			String paOptions = service.getOptions("", 9, conn);
 			callbackResponse.put("paOptions", paOptions);
 		}
 

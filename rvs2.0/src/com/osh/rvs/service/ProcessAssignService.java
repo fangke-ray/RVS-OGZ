@@ -38,27 +38,6 @@ public class ProcessAssignService {
 
 	private static Map<String, Boolean> hasNsMap = new HashMap<String, Boolean>(); 
 
-	/** S1等级时越过的工位 */
-	public static Integer[] S1PASSES = new Integer[0];
-	static {
-		String sS1pass = PathConsts.POSITION_SETTINGS.getProperty("s1pass");
-		if (sS1pass != null) {
-			String[] passProcessCodes = sS1pass.split(",");
-			int iPassProcessCodeslength = passProcessCodes.length;
-			S1PASSES = new Integer[iPassProcessCodeslength];
-
-			try {
-				for (int i = 0; i < iPassProcessCodeslength; i++) {
-					String sPosition_id = ReverseResolution.getPositionByProcessCode(passProcessCodes[i], null);
-					S1PASSES[i] = Integer.parseInt(sPosition_id);
-				}
-			} catch (Exception e) {
-				logger.error("错误的s1pass配置：" + e.getMessage());
-				S1PASSES = new Integer[0];
-			}
-		}
-	}
-
 	public void insert(ProductionFeatureEntity entity, SqlSession conn) {
 		ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
 		dao.insertProductionFeature(entity);
@@ -227,6 +206,21 @@ public class ProcessAssignService {
 		// 从数据库中查询记录
 		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
 		List<Map<String, String>> lResultBean = dao.getInlinePositions();
+		return lResultBean;
+	}
+
+	public List<Map<String, String>> getExpandPositions(SqlSession conn) {
+
+		// 从数据库中查询记录
+		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
+		List<Map<String, String>> lResultBean = dao.getExpandPositions();
+
+		for (Map<String, String> position : lResultBean) {
+			String process_code = position.get("process_code");
+			if (process_code != null) {
+				position.put("text",  process_code + "\n" + position.get("text"));
+			}
+		}
 		return lResultBean;
 	}
 

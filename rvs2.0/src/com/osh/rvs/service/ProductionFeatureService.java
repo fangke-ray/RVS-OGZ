@@ -1,6 +1,7 @@
 package com.osh.rvs.service;
 
 import static framework.huiqing.common.util.CommonStringUtil.joinBy;
+import static framework.huiqing.common.util.CommonStringUtil.fillChar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -233,8 +234,8 @@ public class ProductionFeatureService {
 			// 判断发动的工程是否有完成
 			boolean passed = false;
 			if (mEntity.getLevel() == 1) {
-				for (int j = 0; j < ProcessAssignService.S1PASSES.length; j++) {
-					if (ProcessAssignService.S1PASSES[j] == Integer.parseInt(position_id)) {
+				for (int j = 0; j < PositionService.getS1PASSES().length; j++) {
+					if (PositionService.getS1PASSES()[j].equals(fillChar(position_id, '0', 11, true))) {
 						passed = true; break;
 					}
 				}
@@ -388,7 +389,9 @@ public class ProductionFeatureService {
 		MaterialProcessService mpService = new MaterialProcessService();
 		
 		String position_id = workingPf.getPosition_id();
-		
+		List<String> partOrderPoses  = PositionService.getPositionsBySpecialPage("part_order", conn);
+		List<String> qualityAssurancePoses  = PositionService.getPositionsBySpecialPage("qualityAssurance", conn);
+
 		// 发动工位
 		List<String> nextPositions = new ArrayList<String>();
 
@@ -424,26 +427,18 @@ public class ProductionFeatureService {
 
 		// 固定流程工位 (有特殊界面的不列在内)
 		if ("00000000010".equals(position_id) || "00000000011".equals(position_id)) { // 消毒灭菌
-			String modelKind = mEntity.getKind();
-			if (modelKind.equals("06")) {
-				nextPositions.add("00000000096"); // 568
-			} else if (modelKind.equals("07")) {
-				nextPositions.add("00000000064"); // 181
+			String category_id = mEntity.getCategory_id();
+			CategoryService cService = new CategoryService();
+			String quote_pat_id = cService.getDetail(category_id, conn).getDefault_quote_pat_id();
+			paProxy = new ProcessAssignProxy(material_id, quote_pat_id, "00000000001", isLightFix, conn);
+		} else if (qualityAssurancePoses.contains(position_id)) { // 品保
+			if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { 
+				nextPositions.add(RvsConsts.POSITION_PRODUCT_SHIPPING);
 			} else {
-				nextPositions.add("00000000013");
+				nextPositions.add("00000000047");
 			}
-//			if (isFact) {
-//				// FSE 数据同步
-//				try{
-//					FseBridgeUtil.toUpdateMaterialProcess(material_id, "fr" + workingPf.getProcess_code());
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-		} else if (RvsConsts.POSITION_QA.equals(position_id) || RvsConsts.POSITION_PERI_QA.equals(position_id)) { // 品保
-			nextPositions.add("00000000047");
-		} else if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { // 品保
-			nextPositions.add(RvsConsts.POSITION_PRODUCT_SHIPPING);
+//		} else if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { // 品保
+//			
 		} else if ("00000000015".equals(position_id)) { // 图像检查
 			if (mEntity.getBreak_back_flg() != null && mEntity.getBreak_back_flg() == 2) { // 未修理返还
 				nextPositions.add("00000000047"); // 出货
@@ -496,9 +491,7 @@ public class ProductionFeatureService {
 					ret.add("[内镜分解库位：" + materiaIncase.get("shelf_name") + "]");
 				}
 			} else
-			if ("00000000020".equals(position_id) || "00000000078".equals(position_id) || 
-					"00000000093".equals(position_id)
-					|| "00000000097".equals(position_id)) { // 零件订购
+			if (partOrderPoses.contains(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
 				if (isFact) {
 					MaterialPartialService mptlService = new MaterialPartialService();
@@ -506,32 +499,25 @@ public class ProductionFeatureService {
 				}
 			} else
 
-			if (!isLightFix && 
-					"00000000041".equals(position_id)
-				) { // 总组Over TODO
-				if (isFact) {
-
-					mpService.finishMaterialProcess(material_id, "00000000014", triggerList, conn);
+//			if (!isLightFix && 
+//					"00000000041".equals(position_id)
+//				) { // 总组Over TODO
+//				if (isFact) {
 //
+//					mpService.finishMaterialProcess(material_id, "00000000014", triggerList, conn);
+//				}
+//			} else
+//			if (!isLightFix && "00000000050".equals(position_id)) { // WKEOver TODO
+//				if (isFact) {
+//					mpService.finishMaterialProcess(material_id, "00000000050", triggerList, conn);
 //					// FSE 数据同步
 //					try{
 //						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
 //					} catch (Exception e) {
 //						e.printStackTrace();
 //					}
-				}
-			} else
-			if (!isLightFix && "00000000050".equals(position_id)) { // WKEOver TODO
-				if (isFact) {
-					mpService.finishMaterialProcess(material_id, "00000000050", triggerList, conn);
-//					// FSE 数据同步
-//					try{
-//						FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-				}
-			} else
+//				}
+//			} else
 			if (!isLightFix && "00000000095".equals(position_id)) { // FEBDECOver TODO
 				if (isFact) {
 					// 检查本工程是否都完成
@@ -541,20 +527,20 @@ public class ProductionFeatureService {
 					}
 				}
 			} else
-			if (!isLightFix && "00000000045".equals(position_id)) { // FEBCOMOver TODO
-				if (isFact) {
-					// 检查本工程是否都完成
-					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
-					if (paMapper.getWorkedLine(material_id, "00000000061")) {
-						mpService.finishMaterialProcess(material_id, "00000000061", triggerList, conn);
-					}
-				}
-			} else
-			if (!isLightFix && "00000000063".equals(position_id)) { // PERIOver TODO
-				if (isFact) {
-					mpService.finishMaterialProcess(material_id, "00000000070", triggerList, conn);
-				}
-			} else
+//			if (!isLightFix && "00000000045".equals(position_id)) { // FEBCOMOver TODO
+//				if (isFact) {
+//					// 检查本工程是否都完成
+//					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
+//					if (paMapper.getWorkedLine(material_id, "00000000061")) {
+//						mpService.finishMaterialProcess(material_id, "00000000061", triggerList, conn);
+//					}
+//				}
+//			} else
+//			if (!isLightFix && "00000000063".equals(position_id)) { // PERIOver TODO
+//				if (isFact) {
+//					mpService.finishMaterialProcess(material_id, "00000000070", triggerList, conn);
+//				}
+//			} else
 			if (!isLightFix && ("00000000031".equals(position_id) || "00000000085".equals(position_id))) { 
 				if (isFact) {
 					// 检查本工程是否都完成 // NSOver TODO
@@ -615,22 +601,55 @@ public class ProductionFeatureService {
 			}
 
 			 // 维修流程参照
-			 getNext(paProxy, material_id, pat_id, position_id, mEntity.getLevel(), nextPositions);
-
-			 if (nextPositions.size() == 1 && RvsConsts.POSITION_QA.equals(nextPositions.get(0))) fixed = true;
-			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PERI_QA.equals(nextPositions.get(0))) fixed = true;
-			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PRODUCT_QA.equals(nextPositions.get(0))) {
-				fixed = true;
-				// MF1Over
-				if (isFact) {
-					// 检查本工程是否都完成
-					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
-					if (paMapper.getWorkedLine(material_id, "00000000101")) {
-						mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
+			boolean reachEnd = getNext(paProxy, material_id, pat_id, position_id, mEntity.getLevel(), nextPositions);
+			reachEnd = reachEnd && (mEntity.getInline_time() != null);
+			if (reachEnd) { // 最终检查流程
+				CategoryService cService = new CategoryService();
+				String qa_position_id = cService.getDetail(mEntity.getCategory_id(), conn).getQa_position_id();
+				if (qa_position_id == null) {
+					qa_position_id = RvsConsts.POSITION_QA;
+					nextPositions.clear();
+					nextPositions.add(qa_position_id);
+					if (isFact) {
+						if (qa_position_id == RvsConsts.POSITION_PRODUCT_QA) {
+							// MF1Over
+							// 检查本工程是否都完成
+							ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
+							if (paMapper.getWorkedLine(material_id, "00000000101")) {
+								mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
+							}
+						} else {
+							PositionService posService = new PositionService();
+							String line_id = posService.getPositionEntityByKey(position_id, conn).getLine_id();
+							if (line_id != null) {
+								// 检查本工程是否都完成
+								ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
+								if (paMapper.getWorkedLine(material_id, line_id)) {
+									mpService.finishMaterialProcess(material_id, line_id, triggerList, conn);
+								}
+							}
+						}
 					}
 				}
-			 }
-			 else fixed = false;
+				fixed = true;
+			} else {
+				fixed = false;
+			}
+
+//			 if (nextPositions.size() == 1 && RvsConsts.POSITION_QA.equals(nextPositions.get(0))) fixed = true;
+//			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PERI_QA.equals(nextPositions.get(0))) fixed = true;
+//			 else if (nextPositions.size() == 1 && RvsConsts.POSITION_PRODUCT_QA.equals(nextPositions.get(0))) {
+//				fixed = true;
+//				// MF1Over
+//				if (isFact) {
+//					// 检查本工程是否都完成
+//					ProcessAssignMapper paMapper = conn.getMapper(ProcessAssignMapper.class);
+//					if (paMapper.getWorkedLine(material_id, "00000000101")) {
+//						mpService.finishMaterialProcess(material_id, "00000000101", triggerList, conn);
+//					}
+//				}
+//			 }
+//			 else fixed = false;
 
 //			if (isLightFix && isFact) {
 //				// 小修理
@@ -716,9 +735,11 @@ public class ProductionFeatureService {
 		fingerPosition(mEntity, fixed, workingPf, conn, pfDao, paProxy, null, triggerList);
 	}
 
-	public void getNext(ProcessAssignProxy paProxy, String material_id, String pat_id, String position_id, Integer level, List<String> nextPositions) {
+	public boolean getNext(ProcessAssignProxy paProxy, String material_id, String pat_id, String position_id, Integer level, List<String> nextPositions) {
 		// 得到下一个工位
 		List<PositionEntity> nextPositionsByPat = paProxy.getNextPositions(position_id);
+
+		boolean reachEnd = false;
 
 		String this_position_id = null;
 		if (nextPositionsByPat.size() > 0) {
@@ -730,18 +751,19 @@ public class ProductionFeatureService {
 			this_position_id = RvsConsts.PROCESS_ASSIGN_LINE_END + "";
 			// 用它自身的Line_id区分
 			ProcessAssignEntity pa = paProxy.getProcessAssign(position_id);
-			if (pa == null) return; // 未设流程时
+			if (pa == null) return true; // 未设流程时
 			String line_id = pa.getLine_id();
 			if ((RvsConsts.PROCESS_ASSIGN_LINE_BASE + "").equals(line_id)) {
 				if (paProxy.getFinishedByLine(line_id)) {
-					if (RvsUtils.isPeripheral(level)) {
-						nextPositions.add(RvsConsts.POSITION_PERI_QA);
-					} else if (level == 0) {
-						nextPositions.add(RvsConsts.POSITION_PRODUCT_QA);
-					} else {
-						// 并且是主流程时，611工位
-						nextPositions.add(RvsConsts.POSITION_QA);
-					}
+					reachEnd = true;
+//					if (RvsUtils.isPeripheral(level)) {
+//						nextPositions.add(RvsConsts.POSITION_PERI_QA);
+//					} else if (level == 0) {
+//						nextPositions.add(RvsConsts.POSITION_PRODUCT_QA);
+//					} else {
+//						// 并且是主流程时，611工位
+//						nextPositions.add(RvsConsts.POSITION_QA);
+//					}
 				}
 			} else {
 				// 并且不是主流程时，
@@ -749,7 +771,7 @@ public class ProductionFeatureService {
 				// 所在流程判断是否全部完成
 				if (paProxy.getFinishedByLine(line_id)) {
 					// 如果所在流程全部完成，触发流程的下一个工位
-					getNext(paProxy, material_id, pat_id, line_id, level, nextPositions);
+					reachEnd = getNext(paProxy, material_id, pat_id, line_id, level, nextPositions);
 				}
 			}
 		} else {
@@ -773,14 +795,16 @@ public class ProductionFeatureService {
 			int lNextPositions = nextPositions.size();
 			for (int i = lNextPositions - 1; i >= 0; i--) {
 				String nextPosition = nextPositions.get(i);
-				for (int j = 0; j < ProcessAssignService.S1PASSES.length; j++) {
-					if (ProcessAssignService.S1PASSES[j] == Integer.parseInt(nextPosition)) {
+				for (int j = 0; j < PositionService.getS1PASSES().length; j++) {
+					if (PositionService.getS1PASSES()[j].equals(fillChar(nextPosition, '0', 11, true))) {
 						nextPositions.remove(i);
 						break;
 					}
 				}
 			}
 		}
+
+		return reachEnd;
 	}
 
 	public void getPrev(ProcessAssignProxy paProxy, String material_id, String pat_id, String position_id, Integer level, List<String> prevPositions) {
@@ -825,9 +849,9 @@ public class ProductionFeatureService {
 		if (level == 1 && !"00000000008".equals(pat_id) && !"00000000009".equals(pat_id)) {
 			int lNextPositions = prevPositions.size();
 			for (int i = lNextPositions - 1; i >= 0; i--) {
-				String nextPosition = prevPositions.get(i);
-				for (int j = 0; j < ProcessAssignService.S1PASSES.length; j++) {
-					if (ProcessAssignService.S1PASSES[j] == Integer.parseInt(nextPosition)) {
+				String prevPosition = prevPositions.get(i);
+				for (int j = 0; j < PositionService.getS1PASSES().length; j++) {
+					if (PositionService.getS1PASSES()[j].equals(fillChar(prevPosition, '0', 11, true))) {
 						prevPositions.remove(i);
 						break;
 					}

@@ -522,6 +522,8 @@ public class PcsUtils {
 				// 本作业对象中有替换成功的项目
 				boolean hasCurrent = false;
 
+				// ================= 已填项目 start ======================
+
 				// 线长对象
 				if (lpcs !=null && lpcs.size() > 0) {
 					for (ProductionFeatureEntity pf : lpcs) {
@@ -546,6 +548,12 @@ public class PcsUtils {
 							process_code = "(3|4)\\d{2}";
 						} else if("00000000101".equals(line_id)) {
 							process_code = "0\\d{2}";
+						} else if("00000000201".equals(line_id)) {
+							process_code = "(2|3|4)\\d{2}";
+						} else if("00000000202".equals(line_id)) {
+							process_code = "(2|3|4)\\d{2}";
+						} else if("00000000203".equals(line_id)) {
+							process_code = "(2|3|4)\\d{2}";
 						}
 
 						Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");
@@ -1919,6 +1927,10 @@ public class PcsUtils {
 				XlsUtil xls = new XlsUtil(cachePath);
 				xls.SelectActiveSheet();
 
+				// 查找多工位标签
+				Map<String, List<String>> multiPosMap = new HashMap<String, List<String>>();
+				checkMultiPosMap(xls, multiPosMap);
+
 				// 全体对象
 				// GI
 				//xls.Replace("@#GI???????", target);
@@ -1983,6 +1995,7 @@ public class PcsUtils {
 
 						String process_code = ""; // TODO 强制判断
 						String process_code2 = null; // TODO 强制判断
+						String process_code3 = null; // TODO 强制判断
 						if("00000000012".equals(line_id)) {
 							process_code = "2??";
 						} else if("00000000013".equals(line_id)) {
@@ -2000,11 +2013,24 @@ public class PcsUtils {
 							process_code2 = "4??";
 						} else if("00000000101".equals(line_id)) {
 							process_code = "0??";
+						} else if("00000000201".equals(line_id)) {
+							process_code = "2??";
+							process_code2 = "3??";
+							process_code3 = "4??";
+						} else if("00000000202".equals(line_id)) {
+							process_code = "2??";
+							process_code2 = "3??";
+							process_code3 = "4??";
+						} else if("00000000203".equals(line_id)) {
+							process_code = "2??";
+							process_code2 = "3??";
+							process_code3 = "4??";
 						}
 
 						// 判断有本工号的标签
 						if (xls.Hit("@#E?" + process_code + "????") 
 								|| (process_code2 != null && (xls.Hit("@#E?" + process_code2 + "????"))) 
+								|| (process_code3 != null && (xls.Hit("@#E?" + process_code3 + "????"))) 
 								|| xls.Hit("@#L????????")) {
 
 							String sPcs_inputs = pf.getPcs_inputs();
@@ -2025,82 +2051,99 @@ public class PcsUtils {
 									char sIype = pcid.charAt(1);
 
 									if (!"".equals(sInput)) {
-										switch (sIype) {
-										
-										case 'I': {
-											// 输入：I
-											if (!CommonStringUtil.isEmpty(sInput)) {
-												xls.Replace("@#"+pcid+"??", sInput);
-											}
-											break;
-										}
-										case 'R': {
-											// 单选：R
-											if (!CommonStringUtil.isEmpty(sInput)) {
-												xls.Replace("@#"+pcid+sInput, CHECKED);
-												xls.Replace("@#"+pcid+"??", UNCHECKED);
-											}
-											break;
-										}
-										case 'M': {
-											// 合格确认：M
-											if ("1".equals(sInput)) {
-												xls.Replace("@#"+pcid+"??", CHECKED);
-											} else if ("-1".equals(sInput)) {
-												Dispatch cell = xls.Locate("@#"+pcid+"??");
-												if (cell != null) {
-													XlsUtil.SetCellBackGroundColor(cell, "255");
-													Dispatch font = xls.GetCellFont(cell);
-													Dispatch.put(font, "Color", "16777215"); // FFFFFF
+										boolean hit = xls.Hit("@#" + pcid + "??");
+										if (hit) {
+											bReplacedAtPosition = true;
+
+
+											switch (sIype) {
+											
+											case 'I': {
+												// 输入：I
+												if (!CommonStringUtil.isEmpty(sInput)) {
+													xls.Replace("@#"+pcid+"??", sInput);
 												}
-												xls.Replace("@#"+pcid+"??", FORBIDDEN);
+												break;
 											}
-											xls.Replace("@#"+pcid+"??", NOCARE);
-											break;
-										}
-										case 'N': {
-											// 签章：N
-											if ("1".equals(sInput)) {
-												// 按钮
-												Dispatch cell = xls.Locate("@#"+pcid+"??");
-												if (cell != null) {
-													xls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + pf.getJob_no().toUpperCase(),
-															cell);
+											case 'R': {
+												// 单选：R
+												if (!CommonStringUtil.isEmpty(sInput)) {
+													xls.Replace("@#"+pcid+sInput, CHECKED);
+													xls.Replace("@#"+pcid+"??", UNCHECKED);
 												}
-												xls.Replace("@#"+pcid+"??", ""); // sign
-												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
-												if (dateCell != null) {
-													xls.SetNumberFormatLocal(dateCell, "m-d;@");
-													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
-												}
-											} else if ("-1".equals(sInput)) { 
-												// 不做
-												// if 611
-												if (pcid.indexOf("N611") >= 0) {
+												break;
+											}
+											case 'M': {
+												// 合格确认：M
+												if ("1".equals(sInput)) {
+													xls.Replace("@#"+pcid+"??", CHECKED);
+												} else if ("-1".equals(sInput)) {
 													Dispatch cell = xls.Locate("@#"+pcid+"??");
-													if (cell != null)  XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
-													cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
-													if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
-												} else {
-													xls.Replace("@#"+pcid+"??", NOCARE);
+													if (cell != null) {
+														XlsUtil.SetCellBackGroundColor(cell, "255");
+														Dispatch font = xls.GetCellFont(cell);
+														Dispatch.put(font, "Color", "16777215"); // FFFFFF
+													}
+													xls.Replace("@#"+pcid+"??", FORBIDDEN);
 												}
-												Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
-												if (dateCell != null) {
-													xls.SetNumberFormatLocal(dateCell, "m-d;@");
-													xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+												xls.Replace("@#"+pcid+"??", NOCARE);
+												break;
+											}
+											case 'N': {
+												// 签章：N
+												if ("1".equals(sInput)) {
+													// 按钮
+													Dispatch cell = xls.Locate("@#"+pcid+"??");
+													if (cell != null) {
+														xls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + pf.getJob_no().toUpperCase(),
+																cell);
+													}
+													xls.Replace("@#"+pcid+"??", ""); // sign
+													Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+													if (dateCell != null) {
+														xls.SetNumberFormatLocal(dateCell, "m-d;@");
+														xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+													}
+												} else if ("-1".equals(sInput)) { 
+													// 不做
+													// if 611
+													if (pcid.indexOf("N611") >= 0) {
+														Dispatch cell = xls.Locate("@#"+pcid+"??");
+														if (cell != null)  XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+														cell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+														if (cell != null) XlsUtil.SetCellBackGroundColor(cell, "12566463"); // BFBFBF;
+													} else {
+														xls.Replace("@#"+pcid+"??", NOCARE);
+													}
+													Dispatch dateCell = xls.Locate("@#"+pcid.replaceAll("EN", "ED").replaceAll("LN", "LD")+"??");
+													if (dateCell != null) {
+														xls.SetNumberFormatLocal(dateCell, "m-d;@");
+														xls.SetValue(dateCell, DateUtil.toString(pf.getFinish_time(), "MM-dd"));
+													}
+												}
+												break;
+											}
+											case 'P': {
+												// 通过：P
+												if ("1".equals(sInput)) {
+													xls.Replace("@#"+pcid+"??", "PASS");
+												} else if ("-1".equals(sInput)) {
+													xls.Replace("@#"+pcid+"??", "FAil");
+												}
+												break;
+											}
+											}
+
+
+											// 删除复工位标签
+											if (multiPosMap.containsKey(pcid)) {
+												for (String multiId : multiPosMap.get(pcid)) {
+													xls.Replace("@#"+multiId+"??", "");
+													if (sIype == 'N') {
+														xls.Replace("@#"+multiId.substring(0,1)+"D" + multiId.substring(2) + "??", "");
+													}
 												}
 											}
-											break;
-										}
-										case 'P': {
-											// 通过：P
-											if ("1".equals(sInput)) {
-												xls.Replace("@#"+pcid+"??", "PASS");
-											} else if ("-1".equals(sInput)) {
-												xls.Replace("@#"+pcid+"??", "FAil");
-											}
-											break;
-										}
 										}
 									}
 								}
@@ -2142,8 +2185,11 @@ public class PcsUtils {
 					// 判断有本工号的标签
 //					if (xls.Hit("@#E?" + process_code + "????") ||
 //							("400".equals(process_code) && pcsName.startsWith("总")) ) {
-					
-					if (xls.Hit("@#E?" + process_code + "????")) {
+					boolean hit = false; // !checkedOverAllProcessCode.equals(process_code);
+					if (!hit) {
+						hit = xls.Hit("@#E?" + process_code + "????");
+					}
+					if (hit) {
 	
 						// 如果有本工位的标签，进行替换
 						bReplacedAtPosition = true;
@@ -2268,6 +2314,16 @@ public class PcsUtils {
 									}
 									break;
 								}
+								}
+
+								// 删除复工位标签
+								if (multiPosMap.containsKey(pcid)) {
+									for (String multiId : multiPosMap.get(pcid)) {
+										xls.Replace("@#"+multiId+"??", "");
+										if (sIype == 'N') {
+											xls.Replace("@#"+multiId.substring(0,1)+"D" + multiId.substring(2) + "??", "");
+										}
+									}
 								}
 							}
 	
@@ -2587,7 +2643,10 @@ public class PcsUtils {
 				}
 
 				for (SoloProductionFeatureEntity pf : pfEntities) {
-					// 工位号 
+					// 工位号
+//					String process_code = pf.getProcess_code();
+//					String checkedOverAllProcessCode = checkOverAllExcel(process_code);
+
 					if (xls.Hit("@#E?" + "???" + "????")) {
 	
 						// 如果有本工位的标签，进行替换
@@ -2763,6 +2822,46 @@ public class PcsUtils {
 		}
 	}
 
+	public static void checkMultiPosMap(XlsUtil xls,
+			Map<String, List<String>> multiPosMap) {
+		Dispatch cell = xls.Locate("@#?????????@#?????????");
+		String FoundValue = null;
+		String firstFoundValue = null;
+		if (cell != null) {
+			FoundValue = Dispatch.get(cell, "Value").toString();
+			firstFoundValue = FoundValue;
+		}
+
+		Pattern pTags = Pattern.compile("(@#[EL][NIR]\\d{7}){2,}");
+
+		while (FoundValue != null) {
+
+			Matcher mTags = pTags.matcher(FoundValue);
+			while(mTags.find()) {
+				String tags = mTags.group();
+				int idx = 0;
+				List<String> tagList = new ArrayList<String>();
+				while (idx < tags.length()) {
+					tagList.add(tags.substring(idx+=2, idx+=7));
+					idx+=2;
+				}
+				for (int i = 0; i< tagList.size(); i++) {
+					List<String> tagListOther = new ArrayList<String>();
+					tagListOther.addAll(tagList);
+					tagListOther.remove(i);
+					multiPosMap.put(tagList.get(i), tagListOther);
+				}
+			}
+
+			cell = xls.LocateNext(cell);
+			if (cell == null) {
+				FoundValue = null;
+			} else {
+				FoundValue = Dispatch.get(cell, "Value").toString();
+				if (firstFoundValue.equals(FoundValue)) break;
+			}
+		}
+	}
 	/**
 	 * @param srcPcses 相关工程检查票文件 key 显示名 value 文件本地路径
 	 * @param modelName
@@ -2908,6 +3007,12 @@ public class PcsUtils {
 						process_code = "(3|4)\\d{2}";
 					} else if("00000000101".equals(line_id)) {
 						process_code = "0\\d{2}";
+					} else if("00000000201".equals(line_id)) {
+						process_code = "(2|3|4)\\d{2}";
+					} else if("00000000202".equals(line_id)) {
+						process_code = "(2|3|4)\\d{2}";
+					} else if("00000000203".equals(line_id)) {
+						process_code = "(2|3|4)\\d{2}";
 					}
 
 					Pattern pProcessCode = Pattern.compile("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"E\" type=\"\\w\" position=\"" + process_code + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>");

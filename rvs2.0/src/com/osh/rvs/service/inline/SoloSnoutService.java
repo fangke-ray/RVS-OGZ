@@ -211,6 +211,24 @@ public class SoloSnoutService {
 		
 	}
 
+	public SoloProductionFeatureEntity checkWorkingPfServiceRepair(String operator_id, String position_id, SqlSession conn) {
+		SoloProductionFeatureMapper dao = conn.getMapper(SoloProductionFeatureMapper.class);
+		SoloProductionFeatureEntity pfBean = new SoloProductionFeatureEntity();
+		pfBean.setOperator_id(operator_id);
+		pfBean.setPosition_id(position_id);
+		pfBean.setAction_time_null(0);
+		pfBean.setFinish_time_null(1);
+		pfBean.setUsed(0);
+
+		// 判断是否有在进行中的组装对象
+		List<SoloProductionFeatureEntity> result = dao.searchSoloProductionFeature(pfBean);
+		if (result != null && result.size() > 0) {
+			return result.get(0);
+		} else {
+			return null;
+		}
+	}
+
 	public String getSnoutPcs(String serial_no, String model_name, SqlSession conn) {
 
 		String showLine = "NS 工程";

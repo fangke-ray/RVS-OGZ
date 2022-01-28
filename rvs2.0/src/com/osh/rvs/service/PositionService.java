@@ -10,16 +10,20 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionManager;
+import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.master.PositionEntity;
+import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.PositionForm;
 import com.osh.rvs.mapper.master.PositionMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
+import framework.huiqing.common.mybatis.SqlSessionFactorySingletonHolder;
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.copy.CopyOptions;
@@ -28,7 +32,50 @@ import framework.huiqing.common.util.message.ApplicationMessage;
 public class PositionService {
 
 	private static Set<String> dividePositions = null;
+	private static Map<String, PositionEntity> positionEntityCache = new HashMap<String, PositionEntity>();
 	private static Map<String, String> specialPagePositions = null;
+	public static void clearCaches() {
+		dividePositions = null;
+		specialPagePositions = null;
+		positionEntityCache.clear();
+		ReverseResolution.positionRever.clear();
+		S1PASSES = null;
+	}
+
+	/** S1等级时越过的工位 */
+	private static String[] S1PASSES = null;
+	static {
+		resetS1Passes();
+	}
+
+	private static void resetS1Passes(){
+		SqlSessionFactory factory = SqlSessionFactorySingletonHolder.getInstance().getFactory();
+		SqlSession conn = factory.openSession(TransactionIsolationLevel.READ_COMMITTED);
+
+		try {
+			PositionMapper dao = conn.getMapper(PositionMapper.class);
+
+			List<PositionEntity> inlineKindPositions = dao.getInlineKindPositions();
+			List<String> position_ids = new ArrayList<String>();
+			for (PositionEntity inlineKindPosition : inlineKindPositions) {
+				if ("s1_pass".equals(inlineKindPosition.getKind())) {
+					position_ids.add(inlineKindPosition.getPosition_id());
+				}
+			}
+			S1PASSES = position_ids.toArray(new String[position_ids.size()]);
+		} catch (Exception e) {
+			// logger.error("错误的s1pass配置：" + e.getMessage());
+			S1PASSES = new String[0];
+		} finally {
+			conn.close();
+			conn = null;
+		}
+	}
+	public static String[] getS1PASSES() {
+		if (S1PASSES == null)
+			resetS1Passes();
+		return S1PASSES;
+	}
 
 	/**
 	 * 检索记录列表
@@ -78,7 +125,7 @@ public class PositionService {
 			MsgInfo error = new MsgInfo();
 			error.setComponentid("position_id");
 			error.setErrcode("dbaccess.recordNotExist");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", "角色"));
+			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.recordNotExist", "工位"));
 			errors.add(error);
 			return null;
 		} else {
@@ -102,15 +149,40 @@ public class PositionService {
 		PositionMapper dao = conn.getMapper(PositionMapper.class);
 		// 表单复制到数据对象
 		PositionEntity conditionBean = new PositionEntity();
-		BeanUtil.copyToBean(positionForm, conditionBean, (new CopyOptions()).include("id", "process_code"));
-		List<PositionEntity> resultBean = dao.searchPosition(conditionBean);
-		if (resultBean != null && resultBean.size() > 0 && !resultBean.get(0).getPosition_id().equals(conditionBean.getPosition_id())) {
-			MsgInfo error = new MsgInfo();
-			error.setComponentid("process_code");
-			error.setErrcode("dbaccess.columnNotUnique");
-			error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "进度代码",
-					conditionBean.getProcess_code(), "工位"));
-			errors.add(error);
+		BeanUtil.copyToBean(positionForm, conditionBean, (new CopyOptions()).include("id", "process_code", "delete_flg"));
+
+		if (conditionBean.getProcess_code() != null) {
+			if (!conditionBean.getProcess_code().matches("[0-9][0-9A-Z][0-9A-Z]")) {
+				MsgInfo error = new MsgInfo();
+				error.setComponentid("process_code");
+				error.setErrcode("validator.invalidParam.invalidCode");
+				error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.invalidParam.invalidCode", "进度代码"));
+				errors.add(error);
+			} else {
+				List<PositionEntity> resultBean = dao.searchPosition(conditionBean);
+				if (resultBean != null && resultBean.size() > 0) {
+					if (resultBean.size() == 1 && !resultBean.get(0).getPosition_id().equals(conditionBean.getPosition_id())) {
+						if (conditionBean.getDelete_flg() != null && conditionBean.getDelete_flg() == 2) {
+							// 确定要建立临时工位
+						} else {
+							// 有一个同名时，确定是否建立临时工位
+							MsgInfo error = new MsgInfo();
+							error.setComponentid("process_code");
+							error.setErrcode("info.master.position.columnNotUniqueSetTemp");
+							error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.master.position.columnNotUniqueSetTemp",
+									conditionBean.getProcess_code()));
+							errors.add(error);
+						}
+					} else if (resultBean.size() > 1) {
+						MsgInfo error = new MsgInfo();
+						error.setComponentid("process_code");
+						error.setErrcode("dbaccess.columnNotUnique");
+						error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("dbaccess.columnNotUnique", "进度代码",
+								conditionBean.getProcess_code(), "工位"));
+						errors.add(error);
+					}
+				}
+			}
 		}
 	}
 
@@ -138,8 +210,7 @@ public class PositionService {
 		PositionMapper dao = conn.getMapper(PositionMapper.class);
 		dao.insertPosition(insertBean);
 
-		dividePositions = null;
-		specialPagePositions = null;
+		clearCaches();
 	}
 
 	/**
@@ -166,8 +237,7 @@ public class PositionService {
 		PositionMapper dao = conn.getMapper(PositionMapper.class);
 		dao.updatePosition(updateBean);
 
-		dividePositions = null;
-		specialPagePositions = null;
+		clearCaches();
 	}
 
 	/**
@@ -183,13 +253,24 @@ public class PositionService {
 		PositionEntity deleteBean = new PositionEntity();
 		BeanUtil.copyToBean(form, deleteBean, null);
 
+		// 取的删除前信息
+		PositionMapper dao = conn.getMapper(PositionMapper.class);
+		deleteBean = dao.getPositionByID(deleteBean.getPosition_id());
+
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		deleteBean.setUpdated_by(user.getOperator_id());
 
 		// 在数据库中逻辑删除记录
-		PositionMapper dao = conn.getMapper(PositionMapper.class);
 		dao.deletePosition(deleteBean);
-		dividePositions = null;
+
+		PositionEntity condBean = new PositionEntity();
+		condBean.setProcess_code(deleteBean.getProcess_code());
+		List<PositionEntity> resultBeans = dao.searchPosition(condBean);
+		if (resultBeans.size() > 0) {
+			dao.setPositionRevision(deleteBean.getProcess_code());
+		}
+
+		clearCaches();
 	}
 
 	/**
@@ -211,9 +292,12 @@ public class PositionService {
 	 * @return
 	 */
 	public String getOptions(SqlSession conn) {
-		return getOptions(null, conn);
+		return getOptions(null, false,  conn);
 	}
 	public String getOptions(Integer department, SqlSession conn) {
+		return getOptions(department, false,  conn);
+	}
+	public String getOptions(Integer department, boolean showTemp, SqlSession conn) {
 		List<String[]> lst = new ArrayList<String[]>();
 		
 		List<PositionEntity> allPosition = this.getAllPosition(conn);
@@ -221,6 +305,9 @@ public class PositionService {
 		for (PositionEntity position: allPosition) {
 			if (RvsConsts.DEPART_MANUFACT.equals(department)) {
 				if (position.getProcess_code().charAt(0) != '0') continue;
+			}
+			if (!showTemp && position.getDelete_flg() != 0) {
+				continue;
 			}
 			String[] p = new String[3];
 			p[0] = position.getPosition_id();
@@ -242,8 +329,12 @@ public class PositionService {
 	 */
 	public PositionEntity getPositionEntityByKey(String position_id, SqlSession conn) {
 		// 从数据库中查询记录
+		if (positionEntityCache.containsKey(position_id)) {
+			return positionEntityCache.get(position_id);
+		}
 		PositionMapper dao = conn.getMapper(PositionMapper.class);
 		PositionEntity resultBean = dao.getPositionByID(position_id);
+		positionEntityCache.put(position_id, resultBean);
 		return resultBean;
 	}
 
@@ -291,6 +382,42 @@ public class PositionService {
 			}
 		}
 		return specialPagePositions.get(position_id);
+	}
+
+	public static List<String> getPositionsBySpecialPage(String special_page, SqlSession conn) {
+		if (special_page == null) return null;
+
+		List<String> ret = new ArrayList<String>();
+		if (specialPagePositions == null) {
+			specialPagePositions = new HashMap<String, String>();
+			PositionMapper mapper = conn.getMapper(PositionMapper.class);
+			List<PositionEntity> l = mapper.getSpecialPagePositions();
+			for (PositionEntity pos : l) {
+				specialPagePositions.put(pos.getPosition_id(), pos.getSpecial_page());
+			}
+		}
+		for (String position_id : specialPagePositions.keySet()) {
+			if (special_page.equals(specialPagePositions.get(position_id))) {
+				ret.add(position_id);
+			}
+		}
+		if (ret.size() == 0) {
+			return null;
+		}
+		return ret;
+	}
+
+	public static String getPositionOptionsBySpecialPage(String special_page, SqlSession conn) {
+		if (special_page == null) return null;
+
+		List<String> ret = getPositionsBySpecialPage(special_page, conn);
+		PositionService thisService = new PositionService();
+		String retString = "";
+		for (String position_id : ret) {
+			PositionEntity entity = thisService.getPositionEntityByKey(position_id, conn);
+			retString += "<option value=\"" + position_id + "\">" + entity.getProcess_code() + " " + entity.getName() + "</option>";
+		}
+		return retString;
 	}
 
 	public boolean checkPositionKind(String kind,

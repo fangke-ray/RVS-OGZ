@@ -22,6 +22,7 @@ import org.apache.struts.action.ActionMapping;
 
 import com.osh.rvs.form.master.CategoryForm;
 import com.osh.rvs.service.CategoryService;
+import com.osh.rvs.service.PositionService;
 import com.osh.rvs.service.ProcessAssignService;
 
 import framework.huiqing.action.BaseAction;
@@ -60,7 +61,13 @@ public class CategoryAction extends BaseAction {
 		req.setAttribute("kOptions", kOptions);
 
 		ProcessAssignService paSevice = new ProcessAssignService();
-		req.setAttribute("patOptions", paSevice.getOptions("(不选)", conn));
+		req.setAttribute("patOptions", paSevice.getOptions("(不选)", 9, conn));
+		req.setAttribute("patQuoteOptions", paSevice.getOptions("(不选)", 3, conn));
+
+		String qaPositions = PositionService.getPositionOptionsBySpecialPage("qualityAssurance", conn);
+		if (qaPositions != null) {
+			req.setAttribute("qaOptions", qaPositions);
+		}
 
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);

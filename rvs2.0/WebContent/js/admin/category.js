@@ -58,7 +58,7 @@ $(function() {
 		$("#cond_kind").data("post", "");
 	});
 
-	$("#cond_kind,#input_kind,#input_default_pat_id,#input_default_cell_pat_id").select2Buttons();
+	$("#cond_kind,#input_kind,#input_default_pat_id,#input_default_cell_pat_id,#input_default_quote_pat_id,#input_qa_position_id").select2Buttons();
 
 	findit();
 });
@@ -213,8 +213,11 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#label_edit_id").text(resInfo.categoryForm.id);
 			$("#input_name").val(encodeText(resInfo.categoryForm.name));
 			$("#input_kind").val(resInfo.categoryForm.kind).trigger("change");
-			$("#input_default_pat_id").val(resInfo.categoryForm.default_pat_id).trigger("change");
+			$("#input_default_quote_pat_id").val(resInfo.categoryForm.default_quote_pat_id).trigger("change");
 			$("#input_default_cell_pat_id").val(resInfo.categoryForm.default_cell_pat_id).trigger("change");
+			$("#input_default_pat_id").val(resInfo.categoryForm.default_pat_id).trigger("change");
+			$("#input_qa_position_id").val(resInfo.categoryForm.qa_position_id).trigger("change");
+
 			$("#label_edit_updated_by").text(resInfo.categoryForm.updated_by);
 			$("#label_edit_updated_time").text(resInfo.categoryForm.updated_time);
 
@@ -239,8 +242,10 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 					var data = {
 						"id" : $("#label_edit_id").text(),
 						"kind" : $("#input_kind").val(),
+						"default_quote_pat_id" : $("#input_default_quote_pat_id").val(),
 						"default_pat_id" : $("#input_default_pat_id").val(),
 						"default_cell_pat_id" : $("#input_default_cell_pat_id").val(),
+						"qa_position_id" : $("#input_qa_position_id").val(),
 						"name" : $("#input_name").val()
 					}
 
@@ -347,11 +352,13 @@ var showAdd = function() {
 			// 新建画面输入项提交给后台
 			var postdata = {
 				"kind" : $("#input_kind").val(),
-				"default_pat_id" : $("#input_default_pat_id").val(),
+				"default_quote_pat_id" : $("#input_default_quote_pat_id").val(),
 				"default_cell_pat_id" : $("#input_default_cell_pat_id").val(),
+				"default_pat_id" : $("#input_default_pat_id").val(),
+				"qa_position_id" : $("#input_qa_position_id").val(),
 				"name" : $("#input_name").val()
 			}
-	
+
 			// Ajax提交
 			$.ajax({
 				beforeSend : ajaxRequestType,

@@ -29,6 +29,10 @@ public class CategoryForm extends ActionForm {
 	private String default_pat_id;
 	@BeanField(title = "单元默认流程 ID", name = "default_cell_pat_id", length = 11)
 	private String default_cell_pat_id;
+	@BeanField(title = "报价默认流程 ID", name = "default_quote_pat_id", length = 11)
+	private String default_quote_pat_id;
+	@BeanField(title = "默认终检工位 ID", name = "qa_position_id", length = 11)
+	private String qa_position_id;
 
 	/**
 	 * 取得维修对象机种 ID
@@ -124,6 +128,22 @@ public class CategoryForm extends ActionForm {
 
 	public void setDefault_cell_pat_id(String default_cell_pat_id) {
 		this.default_cell_pat_id = default_cell_pat_id;
+	}
+
+	public String getDefault_quote_pat_id() {
+		return default_quote_pat_id;
+	}
+
+	public void setDefault_quote_pat_id(String default_quote_pat_id) {
+		this.default_quote_pat_id = default_quote_pat_id;
+	}
+
+	public String getQa_position_id() {
+		return qa_position_id;
+	}
+
+	public void setQa_position_id(String qa_position_id) {
+		this.qa_position_id = qa_position_id;
 	}
 
 }

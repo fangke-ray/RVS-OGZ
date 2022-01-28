@@ -18,7 +18,7 @@ public class PositionEntity implements Serializable {
 	/** 进度代码 */
 	private String process_code;
 	/** 删除类别 */
-	private boolean delete_flg = false;
+	private Integer delete_flg = 0;
 	/** 最后更新人 */
 	private String updated_by;
 	/** 最后更新时间 */
@@ -30,7 +30,11 @@ public class PositionEntity implements Serializable {
 	/** 独立小修理工位标记 **/
 	private Integer light_division_flg;
 
+	/** 特殊工位页面 */
 	private String special_page;
+
+	/** 线内划分 */
+	private String kind;
 
 	/**
 	 * 取得工位 ID
@@ -75,7 +79,7 @@ public class PositionEntity implements Serializable {
 	 * 
 	 * @return delete_flg 删除标记
 	 */
-	public boolean isDelete_flg() {
+	public Integer getDelete_flg() {
 		return delete_flg;
 	}
 
@@ -85,7 +89,7 @@ public class PositionEntity implements Serializable {
 	 * @param delete_flg
 	 *            删除标记
 	 */
-	public void setDelete_flg(boolean delete_flg) {
+	public void setDelete_flg(Integer delete_flg) {
 		this.delete_flg = delete_flg;
 	}
 
@@ -187,5 +191,13 @@ public class PositionEntity implements Serializable {
 
 	public void setSpecial_page(String special_page) {
 		this.special_page = special_page;
+	}
+
+	public String getKind() {
+		return kind;
+	}
+
+	public void setKind(String kind) {
+		this.kind = kind;
 	}
 }

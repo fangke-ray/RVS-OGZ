@@ -9,6 +9,7 @@
 		<![CDATA[ 
 		SELECT PROCESS_ASSIGN_TEMPLATE_ID,
 			NAME,
+			FIX_TYPE,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM PROCESS_ASSIGN_TEMPLATE
@@ -21,16 +22,20 @@
 		<![CDATA[ 
 		SELECT PROCESS_ASSIGN_TEMPLATE_ID,
 			NAME,
+			FIX_TYPE,
 			UPDATED_BY,
 			UPDATED_TIME
 		FROM PROCESS_ASSIGN_TEMPLATE
 		WHERE DELETE_FLG = 0
 		]]>
-		<if test="fix_type==null">
+		<if test="fix_type==1">
 		AND fix_type in (1, 2)
 		</if>
-		<if test="fix_type!=null">
+		<if test="fix_type==3 or fix_type==6">
 		AND fix_type = #{fix_type}
+		</if>
+		<if test="fix_type==9">
+		AND fix_type in (1, 2, 6)
 		</if>
 		<![CDATA[ 
 		ORDER BY PROCESS_ASSIGN_TEMPLATE_ID ASC;
@@ -41,6 +46,7 @@
 		<![CDATA[ 
 		SELECT PROCESS_ASSIGN_TEMPLATE_ID,
 			pr.NAME,
+			pr.FIX_TYPE,
 			op.NAME AS UPDATED_BY,
 			pr.UPDATED_TIME
 		FROM PROCESS_ASSIGN_TEMPLATE pr
@@ -51,12 +57,14 @@
 		]]>
 		<where>
 			pr.DELETE_FLG = 0
-			AND fix_type in (1, 2)
 			<if test="process_assign_template_id!= null and process_assign_template_id!= '' ">
 				AND pr.PROCESS_ASSIGN_TEMPLATE_ID = #{process_assign_template_id}
 			</if>
 			<if test="name!=null and name!='' ">
 				AND pr.NAME LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="fix_type!=null">
+				AND fix_type = #{fix_type}
 			</if>
 		</where> 
 		<![CDATA[ 
@@ -67,15 +75,16 @@
 	<insert id="insertProcessAssignTemplate" parameterType="ProcessAssignTemplateEntity">
 		<![CDATA[ 
 		INSERT INTO PROCESS_ASSIGN_TEMPLATE 
-			(NAME, UPDATED_BY, UPDATED_TIME) 
+			(NAME, FIX_TYPE, UPDATED_BY, UPDATED_TIME) 
 		VALUES 
-			(#{name}, #{updated_by}, current_timestamp);
+			(#{name}, #{fix_type}, #{updated_by}, current_timestamp);
 		]]>
 	</insert>
 
 	<update id="updateProcessAssignTemplate" parameterType="ProcessAssignTemplateEntity">
 		<![CDATA[ 
 		UPDATE PROCESS_ASSIGN_TEMPLATE SET NAME = #{name},
+			FIX_TYPE = #{fix_type},
 			UPDATED_BY = #{updated_by},
 			UPDATED_TIME = current_timestamp
 		WHERE PROCESS_ASSIGN_TEMPLATE_ID = #{process_assign_template_id};
@@ -149,6 +158,21 @@
 		JOIN LINE l
 			ON `p`.LINE_ID = `l`.LINE_ID
 			AND `l`.INLINE_FLG = 1
+		WHERE `p`.DELETE_FLG = 0
+		ORDER BY `p`.PROCESS_CODE;
+		]]>
+	</select>
+
+	<select id="getExpandPositions" resultType="map">
+		<![CDATA[ 
+		SELECT `p`.POSITION_ID as value,
+			`p`.process_code,
+			`p`.NAME as text,
+			`l`.NAME as plbl
+		FROM POSITION p
+		JOIN LINE l
+			ON `p`.LINE_ID = `l`.LINE_ID
+			AND (`l`.INLINE_FLG = 1 OR left(`p`.process_code, 1) = '1')
 		WHERE `p`.DELETE_FLG = 0
 		ORDER BY `p`.PROCESS_CODE;
 		]]>

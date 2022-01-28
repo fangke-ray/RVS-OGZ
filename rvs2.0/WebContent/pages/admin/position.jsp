@@ -81,14 +81,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<form id="editform" method="POST" onsubmit="return false;">
 			<table class="condform">
 				<tr>
-					<td class="ui-state-default td-title">所属工程</td>
-					<td class="td-content">
+					<td class="ui-state-default td-title" rowspan=2>所属工程</td>
+					<td class="td-content" rowspan=2>
 						<select name="line_id" alt="所属工程" id="input_line_id" class="ui-widget-content">
 							<%=request.getAttribute("lOptions")%>
 						</select>
 					</td>
-				</tr>
-				<tr>
 					<td class="ui-state-default td-title">工位 ID</td>
 					<td class="td-content"><label id="label_edit_id"> - </label></td>
 				</tr>
@@ -104,12 +102,24 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content">
 						<input type="text" alt="工位名称" name="name" id="input_name" maxlength="20" class="ui-widget-content">
 					</td>
-				</tr>
-				<tr>
 					<td class="ui-state-default td-title">进行分线的工位</td>
 					<td class="td-content" id="input_light_division_flg"></td>
 				</tr>
 				<tr>
+					<td class="ui-state-default td-title">特殊工位页面</td>
+					<td class="td-content" colspan=3>
+						<select name="special_page" alt="特殊工位页面" id="input_special_page" class="ui-widget-content">
+							<%=request.getAttribute("spOptions")%>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">线内划分</td>
+					<td class="td-content">
+						<select name="kind" alt="线内划分" id="input_kind" class="ui-widget-content">
+							<%=request.getAttribute("ikOptions")%>
+						</select>
+					</td>
 					<td class="ui-state-default td-title">最后更新时间</td>
 					<td class="td-content"><label id="label_edit_updated_time"></label></td>
 				</tr>

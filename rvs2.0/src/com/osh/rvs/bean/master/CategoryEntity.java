@@ -17,6 +17,8 @@ public class CategoryEntity implements Serializable {
 	/** 默认流程 ID */
 	private String default_pat_id;
 	private String default_cell_pat_id;
+	private String default_quote_pat_id;
+	private String qa_position_id;
 	/** 删除类别 */
 	private boolean delete_flg = false;
 	/** 最后更新人 */
@@ -147,5 +149,21 @@ public class CategoryEntity implements Serializable {
 
 	public void setDefault_cell_pat_id(String default_cell_pat_id) {
 		this.default_cell_pat_id = default_cell_pat_id;
+	}
+
+	public String getDefault_quote_pat_id() {
+		return default_quote_pat_id;
+	}
+
+	public void setDefault_quote_pat_id(String default_quote_pat_id) {
+		this.default_quote_pat_id = default_quote_pat_id;
+	}
+
+	public String getQa_position_id() {
+		return qa_position_id;
+	}
+
+	public void setQa_position_id(String qa_position_id) {
+		this.qa_position_id = qa_position_id;
 	}
 }

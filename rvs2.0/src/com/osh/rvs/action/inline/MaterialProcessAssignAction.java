@@ -72,7 +72,7 @@ public class MaterialProcessAssignAction extends BaseAction {
 		
 		//在线工位
 		ProcessAssignService processAssignService = new ProcessAssignService();
-		List<Map<String, String>> positions = processAssignService.getInlinePositions(conn);
+		List<Map<String, String>> positions = processAssignService.getExpandPositions(conn);
 		for (Map<String, String> position : positions) {
 			String process_code = position.get("process_code");
 			if (process_code != null) {

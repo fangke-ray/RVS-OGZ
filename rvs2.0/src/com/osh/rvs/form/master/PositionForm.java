@@ -25,6 +25,14 @@ public class PositionForm extends ActionForm {
 	/** 进度代码 */
 	@BeanField(title = "进度代码", name = "process_code", notNull = true, length = 3)
 	private String process_code;
+	/** 特殊工位页面 */
+	@BeanField(title = "特殊工位页面", name = "special_page")
+	private String special_page;
+
+	/** 线内划分 */
+	@BeanField(title = "线内规划", name = "kind")
+	private String kind;
+
 	/** 最后更新人 */
 	@BeanField(title = "更新者", name = "updated_by")
 	private String updated_by;
@@ -39,6 +47,10 @@ public class PositionForm extends ActionForm {
 	/** 独立小修理工位标记 **/
 	@BeanField(title = "独立小修理工位标记", name = "light_division_flg", type = FieldType.Integer, length = 1)
 	private String light_division_flg;
+
+	/** 删除标记 **/
+	@BeanField(title = "删除标记", name = "delete_flg", type = FieldType.Integer, length = 1)
+	private String delete_flg;
 
 	/**
 	 * 取得工位 ID
@@ -187,6 +199,31 @@ public class PositionForm extends ActionForm {
 
 	public void setLight_division_flg(String light_division_flg) {
 		this.light_division_flg = light_division_flg;
+	}
+
+
+	public String getDelete_flg() {
+		return delete_flg;
+	}
+
+	public void setDelete_flg(String delete_flg) {
+		this.delete_flg = delete_flg;
+	}
+
+	public String getSpecial_page() {
+		return special_page;
+	}
+
+	public void setSpecial_page(String special_page) {
+		this.special_page = special_page;
+	}
+
+	public String getKind() {
+		return kind;
+	}
+
+	public void setKind(String kind) {
+		this.kind = kind;
 	}
 
 }

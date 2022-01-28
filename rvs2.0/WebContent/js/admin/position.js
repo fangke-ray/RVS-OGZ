@@ -163,7 +163,7 @@ var update_handleComplete = function(xhrobj, textStatus) {
 	var resInfo = null;
 	try {
 		// 以Object形式读取JSON
-		eval('resInfo =' + xhrobj.responseText);
+		resInfo = $.parseJSON(xhrobj.responseText);
 		if (resInfo.errors.length > 0) {
 			// 共通出错信息框
 			treatBackMessages("#editarea", resInfo.errors);
@@ -216,6 +216,10 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 			$("#input_line_id").val(resInfo.positionForm.line_id).trigger("change");
 			$("#label_edit_updated_by").text(resInfo.positionForm.updated_by);
 			$("#label_edit_updated_time").text(resInfo.positionForm.updated_time);
+
+			$("#input_special_page").val(resInfo.positionForm.special_page).trigger("change");
+			$("#input_kind").val(resInfo.positionForm.kind).trigger("change");
+
 			$("#input_light_worktime_rate").val(resInfo.positionForm.light_worktime_rate);
 			$("#input_light_division_flg").html("").html(light_division_flg_button);
 			$("#light_division_flg_all,label[for='light_division_flg_all']").remove();
@@ -252,8 +256,10 @@ var showedit_handleComplete = function(xhrobj, textStatus) {
 							"id" : $("#label_edit_id").text(),
 							"line_id" : $("#input_line_id").val(),
 							"name" : $("#input_name").val(),
-							"light_worktime_rate":$("#input_light_worktime_rate").val(),
-							"light_division_flg":$("#input_light_division_flg input[type='radio']:checked").val()
+							"special_page" : $("#input_special_page").val(),
+							"kind" : $("#input_kind").val(),
+							"light_worktime_rate" : $("#input_light_worktime_rate").val(),
+							"light_division_flg" : $("#input_light_division_flg input[type='radio']:checked").val()
 						}
 						// Ajax提交
 						$.ajax({
@@ -355,8 +361,9 @@ var showAdd = function() {
 				required : true
 			},
 			process_code : {
-				required : true,
-				number : true
+				required : true
+//				,
+//				number : true
 			},
 			light_worktime_rate:{
 				digits:true,
@@ -376,6 +383,8 @@ var showAdd = function() {
 				"name" : $("#input_name").val(),
 				"line_id" : $("#input_line_id").val(),
 				"process_code" : $("#input_process_code").val(),
+				"special_page" : $("#input_special_page").val(),
+				"kind" : $("#input_kind").val(),
 				"light_worktime_rate":$("#input_light_worktime_rate").val(),
 				"light_division_flg":$("#input_light_division_flg input[type='radio']:checked").val()
 			}
@@ -395,7 +404,41 @@ var showAdd = function() {
 				dataType : "json",
 				success : ajaxSuccessCheck,
 				error : ajaxError,
-				complete : update_handleComplete
+				complete : function(xhrobj){
+					var resInfo = $.parseJSON(xhrobj.responseText);
+					if (resInfo.errors.length > 0) {
+						// 编辑确认按钮重新有效
+						$("#editbutton").enable();
+						if (resInfo.errors.length === 1 && resInfo.errors[0].errcode === "info.master.position.columnNotUniqueSetTemp") {
+							warningConfirm(resInfo.errors[0].errmsg,
+								function() {
+									data["delete_flg"] = 2;
+									$.ajax({
+										beforeSend : ajaxRequestType,
+										async : true,
+										url : servicePath + '?method=doinsert',
+										cache : false,
+										data : data,
+										type : "post",
+										dataType : "json",
+										success : ajaxSuccessCheck,
+										error : ajaxError,
+										complete : update_handleComplete
+									});
+								}
+							);
+						} else {
+							// 共通出错信息框
+							treatBackMessages("#editarea", resInfo.errors);
+						}
+
+					} else {
+						// 重新查询
+						findit();
+						// 切回一览画面
+						showList();
+					}
+				}
 			});
 		};
 	});

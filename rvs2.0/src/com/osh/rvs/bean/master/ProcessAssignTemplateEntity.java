@@ -12,6 +12,8 @@ public class ProcessAssignTemplateEntity implements Serializable {
 	private String process_assign_template_id;
 	/** 修理流程模板名 */
 	private String name;
+	/** 修理流程类别 */
+	private Integer fix_type;
 	/** 删除类别 */
 	private boolean delete_flg = false;
 	/** 最后更新人 */
@@ -109,5 +111,13 @@ public class ProcessAssignTemplateEntity implements Serializable {
 		buffer.append(this.process_assign_template_id).append(", ");
 		buffer.append(this.name).append(". ");
 		return buffer.toString();
+	}
+
+	public Integer getFix_type() {
+		return fix_type;
+	}
+
+	public void setFix_type(Integer fix_type) {
+		this.fix_type = fix_type;
 	}
 }
