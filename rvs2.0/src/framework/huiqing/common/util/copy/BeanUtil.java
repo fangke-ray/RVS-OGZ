@@ -135,11 +135,14 @@ public class BeanUtil {
 			}
 
 			Converter<?> c = null;
+			Class<?> destType = null;
 			if (cos != null) {
 				c = cos.converterMap.get(srcPropertyName);
+				destType = getDestType(c);
 			}
 			if (c == null) {
 				c = getConverter(srcPropertyDesc.getType(), srcPropertyDesc.getScale());
+				destType = getDestType(srcPropertyDesc.getType());
 			}
 
 			Object beanValue;
@@ -151,7 +154,6 @@ public class BeanUtil {
 					beanValue = CryptTool.encrypttoStr(formValue);
 				}
 			}
-			Class<?> destType = getDestType(srcPropertyDesc.getType());
 
 			String destPropertyName = null;
 			if (cos != null && cos.renameMap.containsKey(srcPropertyName)) {
@@ -457,6 +459,12 @@ public class BeanUtil {
 		default:
 			return null;
 		}
+	}
+
+	private static Class<?> getDestType(Converter<?> c) {
+		if (c == null) return String.class;
+		if (c instanceof IntegerConverter) return Integer.class;
+		return String.class;
 	}
 
 	private static Class<?> getDestType(FieldType type) {

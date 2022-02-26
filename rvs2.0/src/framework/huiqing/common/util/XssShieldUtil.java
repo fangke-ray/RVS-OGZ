@@ -51,7 +51,7 @@ public class XssShieldUtil {
                 }
             }
 
-            value = value.replaceAll("<", "＜").replaceAll(">", "＞").replaceAll("&", "＆");
+            value = value.replaceAll("<", "＜").replaceAll(">", "＞").replaceAll("&", "＆").replaceAll("\\$[\\s]*\\{", "＄{");
         }
 
         return value;
