@@ -81,61 +81,79 @@ public class PartialOutStorageAction extends BaseAction {
 
 		// 进行中的作业信息
 		FactProductionFeatureForm factProductionFeature = factProductionFeatureService.searchUnFinishProduction(req, conn);
-		callbackResponse.put("unfinish", factProductionFeature);
 
 		if (factProductionFeature != null) {
 			String materialId = factProductionFeature.getMaterial_id();
-			FactProductionFeatureEntity factProductionFeatureEntity = partialOutStorageService.getMaterialPartial(materialId, conn, errors);
+			List<FactProductionFeatureEntity> factProductionFeatureEntities = partialOutStorageService.getMaterialPartial(materialId, conn, errors);
 
-			if (factProductionFeatureEntity != null) {
-				FactProductionFeatureForm materialPartial = new FactProductionFeatureForm();
-				BeanUtil.copyToForm(factProductionFeatureEntity, materialPartial, CopyOptions.COPYOPTIONS_NOEMPTY);
-				callbackResponse.put("materialPartial", materialPartial);
+			if (factProductionFeatureEntities != null && factProductionFeatureEntities.size() >= 1) {
 
-				// 工位代码
-				String processCode = factProductionFeatureEntity.getProcess_code();
-				// NS
-				if ("321".equals(processCode)) {
-					String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_NS", conn);
-					if(CommonStringUtil.isEmpty(code)){
-						code = "6";
-					}
-					callbackResponse.put("leagal_overline", code);
-				} else if("252".equals(processCode) || "504".equals(processCode)){
-					String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_DEC", conn);
-					if(CommonStringUtil.isEmpty(code)){
-						code = "9";
-					}
-					// 分解
-					callbackResponse.put("leagal_overline", code);
-				} else{
-					String code = "";
-					Integer level = factProductionFeatureEntity.getLevel();
-					Integer level10 = level / 10;
-					if(level10 == 5){//其他维修出库标准工时(周边维修工程)
-						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_PREI", conn);
-						if(CommonStringUtil.isEmpty(code)){
-							code = "0.84";
-						}
-					} else if (level10 == 9){//其他维修出库标准工时(中小修工程)
-						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_MLIT", conn);
-						if(CommonStringUtil.isEmpty(code)){
-							code = "0.93";
-						}
-					} else if (level10 == 0){//其他维修出库标准工时( 外科硬镜修理工程)
-						code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_ENDO", conn);
-						if(CommonStringUtil.isEmpty(code)){
-							code = "4.25";
+				FactProductionFeatureEntity factProductionFeatureEntity = null;
+				if (factProductionFeatureEntities.size() == 1) {
+					factProductionFeatureEntity = factProductionFeatureEntities.get(0);
+				} else {
+					LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
+
+					for (FactProductionFeatureEntity entity : factProductionFeatureEntities) {
+						if (user.getOperator_id().equals(entity.getOperator_id())) {
+							factProductionFeatureEntity = entity;
+							break;
 						}
 					}
-					
-					// 其他出库
-					callbackResponse.put("leagal_overline", code);
 				}
 
-				// 作业经过时间
-				String spent_mins = partialOutStorageService.getSpentTimes(factProductionFeature, conn);
-				callbackResponse.put("spent_mins", spent_mins);
+				if (factProductionFeatureEntity != null) {
+					FactProductionFeatureForm materialPartial = new FactProductionFeatureForm();
+					BeanUtil.copyToForm(factProductionFeatureEntity, materialPartial, CopyOptions.COPYOPTIONS_NOEMPTY);
+					callbackResponse.put("materialPartial", materialPartial);
+
+					// 工位代码
+					String processCode = factProductionFeatureEntity.getProcess_code();
+					// NS
+					if (processCode.startsWith("3")) {
+						String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_NS", conn);
+						if(CommonStringUtil.isEmpty(code)){
+							code = "6";
+						}
+						callbackResponse.put("leagal_overline", code);
+					} else if(processCode.startsWith("2") || processCode.startsWith("50")){
+						String code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_DEC", conn);
+						if(CommonStringUtil.isEmpty(code)){
+							code = "9";
+						}
+						// 分解
+						callbackResponse.put("leagal_overline", code);
+					} else{
+						String code = "";
+						Integer level = factProductionFeatureEntity.getLevel();
+						Integer level10 = level / 10;
+						if(level10 == 5){//其他维修出库标准工时(周边维修工程)
+							code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_PREI", conn);
+							if(CommonStringUtil.isEmpty(code)){
+								code = "0.84";
+							}
+						} else if (level10 == 9){//其他维修出库标准工时(中小修工程)
+							code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_MLIT", conn);
+							if(CommonStringUtil.isEmpty(code)){
+								code = "0.93";
+							}
+						} else if (level10 == 0){//其他维修出库标准工时( 外科硬镜修理工程)
+							code = userDefineCodesService.searchUserDefineCodesValueByCode("PARTIAL_OUTSTOR_ENDO", conn);
+							if(CommonStringUtil.isEmpty(code)){
+								code = "4.25";
+							}
+						}
+						
+						// 其他出库
+						callbackResponse.put("leagal_overline", code);
+					}
+
+					// 作业经过时间
+					String spent_mins = partialOutStorageService.getSpentTimes(factProductionFeature, conn);
+					callbackResponse.put("spent_mins", spent_mins);					
+
+					callbackResponse.put("unfinish", factProductionFeature);
+				}
 			}
 		}
 
@@ -176,8 +194,13 @@ public class PartialOutStorageAction extends BaseAction {
 		} else {
 			FactProductionFeatureForm factProductionFeatureForm = (FactProductionFeatureForm) form;
 
-			partialOutStorageService.scan(factProductionFeatureForm, conn, req, errors);
+			String trigger = partialOutStorageService.scan(factProductionFeatureForm, callbackResponse, conn, req, errors);
 
+			if (trigger!= null && errors.size() == 0) {
+				conn.commit();
+
+				RvsUtils.sendTrigger(trigger);
+			}
 		}
 
 		/* 检查错误时报告错误信息 */

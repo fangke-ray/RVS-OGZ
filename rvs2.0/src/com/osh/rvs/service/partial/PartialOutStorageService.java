@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ import com.osh.rvs.bean.LoginData;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.partial.FactProductionFeatureEntity;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.partial.FactProductionFeatureForm;
 import com.osh.rvs.mapper.partial.FactProductionFeatureMapper;
 import com.osh.rvs.service.ProductionFeatureService;
@@ -32,13 +32,40 @@ import framework.huiqing.common.util.validator.LongTypeValidator;
 public class PartialOutStorageService {
 	private final ProductionFeatureService pfService = new ProductionFeatureService();
 
-	public void scan(FactProductionFeatureForm form, SqlSessionManager conn, HttpServletRequest req, List<MsgInfo> errors) throws Exception {
+	public String scan(FactProductionFeatureForm form, Map<String, Object> callbackResponse, 
+			SqlSessionManager conn, HttpServletRequest req, List<MsgInfo> errors) throws Exception {
 		FactProductionFeatureMapper factProductionFeatureMapper = conn.getMapper(FactProductionFeatureMapper.class);
 
-		FactProductionFeatureEntity factProductionFeatureEntity = getMaterialPartial(form.getMaterial_id(), conn, errors);
+		List<FactProductionFeatureEntity> factProductionFeatureEntities = getMaterialPartial(form.getMaterial_id(), conn, errors);
 
 		if (errors.size() > 0)
-			return;
+			return null;
+
+		FactProductionFeatureEntity factProductionFeatureEntity = null;
+
+		if (factProductionFeatureEntities.size() == 1) {
+			factProductionFeatureEntity = factProductionFeatureEntities.get(0);
+		} else {
+			List<String> processCodes = new ArrayList<String>();
+			for (FactProductionFeatureEntity entity : factProductionFeatureEntities) {
+				processCodes.add(entity.getProcess_code());
+				if (form.getProcess_code() != null 
+						&& form.getProcess_code().equals(entity.getProcess_code())) {
+					factProductionFeatureEntity = entity;
+				}
+			}
+			if (factProductionFeatureEntity == null) {
+				callbackResponse.put("processCodes", processCodes);
+				return null;
+			}
+		}
+
+		if (factProductionFeatureEntity.getBo_flg() == 1) {
+			MsgInfo error = new MsgInfo();
+			error.setErrmsg("此维修对象零件目前有BO。");
+			errors.add(error);
+			return null;
+		}
 
 		// 当前登录者
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
@@ -47,9 +74,9 @@ public class PartialOutStorageService {
 		String processCode = factProductionFeatureEntity.getProcess_code();
 		Integer productionType = null;
 		// NS
-		if ("321".equals(processCode)) {
+		if (processCode.startsWith("3")) {
 			productionType = 50;
-		} else if("252".equals(processCode) || "504".equals(processCode)){
+		} else if(processCode.startsWith("2") || processCode.startsWith("50")){
 			// 分解
 			productionType = 51;
 		}else{
@@ -74,13 +101,8 @@ public class PartialOutStorageService {
 		// 开始作业
 		pfService.startProductionFeature(waitingPf, conn);
 
-		conn.commit();
-
-		List<String> triggerList = new ArrayList<String>();
-		triggerList.add("http://localhost:8080/rvspush/trigger/start/"
-        		+ waitingPf.getMaterial_id() + "/" + user.getPosition_id() + "/00000000001");
-		RvsUtils.sendTrigger(triggerList);
-
+		return "http://localhost:8080/rvspush/trigger/start/"
+        		+ waitingPf.getMaterial_id() + "/" + user.getPosition_id() + "/00000000001";
 	}
 
 	/**
@@ -91,7 +113,7 @@ public class PartialOutStorageService {
 	 * @param errors
 	 * @return
 	 */
-	public FactProductionFeatureEntity getMaterialPartial(String material_id, SqlSession conn, List<MsgInfo> errors) {
+	public List<FactProductionFeatureEntity> getMaterialPartial(String material_id, SqlSession conn, List<MsgInfo> errors) {
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("material_id", material_id);
 		if (CommonStringUtil.isEmpty(material_id)) {
@@ -127,6 +149,7 @@ public class PartialOutStorageService {
 
 		FactProductionFeatureEntity entity = new FactProductionFeatureEntity();
 		entity.setMaterial_id(material_id);
+		entity.setAction_time(new Date());
 
 		// 待出库零件
 		List<FactProductionFeatureEntity> list = dao.searchWaitOutStorage(entity);
@@ -138,26 +161,20 @@ public class PartialOutStorageService {
 			return null;
 		}
 
-		if (list.size() == 2) {
-			// 如何存在两条零件签收数据，则优先处理【NS工程】321工位
-			for (int i = 0; i < list.size(); i++) {
-				entity = list.get(i);
-				if ("321".equals(entity.getProcess_code())) {
-					break;
-				}
-			}
-		} else {
-			entity = list.get(0);
-		}
+//		if (list.size() > 1) {
+//			// 如何存在两条零件签收数据，则优先处理【NS工程】321工位
+//			for (int i = 0; i < list.size(); i++) {
+//				entity = list.get(i);
+//				if ("321".equals(entity.getProcess_code())) {
+//					break;
+//				}
+//			}
+//			return null;
+//		} else {
+//			entity = list.get(0);
+//		}
 
-		if (entity.getBo_flg() == 1) {
-			MsgInfo error = new MsgInfo();
-			error.setErrmsg("此维修对象零件目前有BO。");
-			errors.add(error);
-			return null;
-		}
-
-		return entity;
+		return list;
 	}
 
 	public String getSpentTimes(FactProductionFeatureForm form, SqlSession conn) {

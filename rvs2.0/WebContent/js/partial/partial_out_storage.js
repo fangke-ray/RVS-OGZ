@@ -40,16 +40,19 @@ function startScanner () {
 	if (!id) {
 		return;
 	}
-	var data = {
+	var postData = {
 		"material_id" : id
 	};
+	postScanner(postData);
+};
 
+function postScanner (postData) {
 	$.ajax({
 		beforeSend : ajaxRequestType,
 		async : false,
 		url : servicePath + '?method=doScan',
 		cache : false,
-		data : data,
+		data : postData,
 		type : "post",
 		dataType : "json",
 		success : ajaxSuccessCheck,
@@ -64,13 +67,35 @@ function startScanner () {
 					treatBackMessages(null, resInfo.errors);
 					$("#scanner_inputer").val("");
 				} else {
-					outInit();
+					if (resInfo.processCodes) {
+						if ($("#manualPosSel").length == 0) {
+							$("body").append("<div id='manualPosSel'><select></select></div>");
+							$("#manualPosSel > select")
+								.change(function(){
+									if (this.value) {
+										postData.process_code = this.value;
+										postScanner(postData);
+										$("#manualPosSel").dialog("close");
+									}
+								});
+						}
+						var opts = "<option value=''>选择：</option>";
+						for (var i in resInfo.processCodes) {
+							opts += "<option>" + resInfo.processCodes[i] + "</option>";
+						}
+						$("#manualPosSel > select").html(opts).select2Buttons();
+						$("#manualPosSel").dialog({
+							title : "选择作业的工程"
+						})
+					} else {
+						outInit();
+					}
 				}
 			} catch (e) {
 			}
 		}
 	});
-};
+}
 
 function doEnd(){
 	var data = {

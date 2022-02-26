@@ -135,6 +135,7 @@
 	    pf.pace,
 	    pf.rework,
 	    pf.position_id,
+	    pf.operator_id,
 		v_position.line_name,
 		v_position.process_code,
 		material.omr_notifi_no,
@@ -158,7 +159,13 @@
 	ON
 		material_partial.material_id = material.material_id AND material_partial.occur_times = 1
 	WHERE
-		v_position.process_code IN(252,321,504,570,802,401)
+		v_position.special_page = 'part_recieve'
+	]]>
+	<if test="action_time eq null">
+	AND
+		pf.action_time IS NULL
+	</if>
+	<![CDATA[
 	AND
 		pf.finish_time IS NULL
 	]]>
