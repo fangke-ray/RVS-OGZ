@@ -12,6 +12,7 @@ public interface LineLeaderMapper {
 
 	// 取得工程内各工位，及各工位的仕掛
 	public List<Map<String, String>> getWorkingOfPositions(@Param("section_id") String section_id, @Param("line_id") String line_id);
+	public List<Map<String, String>> getWorkingOfPositionsS1passed(@Param("section_id") String section_id, @Param("line_id") String line_id);
 
 	// 取得工程内全部
 	public List<LineLeaderEntity> getWorkingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("position_id") String position_id);

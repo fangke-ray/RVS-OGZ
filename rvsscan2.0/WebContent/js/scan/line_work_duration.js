@@ -20,9 +20,9 @@ var iamreadyLts = function() {
 		if (now > 0 && now < 690) {
 			$("#axis_base #now_period").css("height", now + "px");
 		}
-			if (now > 570) {
-				$("#axis_base").addClass("overwork");
-			}
+		if (now > 570) {
+			$("#axis_base").addClass("overwork");
+		}
 
 		$standard_columns.each(function(idx, ele) {
 			var bottom = parseInt(window.getComputedStyle(ele).bottom);
@@ -128,6 +128,18 @@ var iamreadyLts = function() {
 					$y_column.append($pitem);
 				}
 
+			}
+
+			if ($y_columns.children().length >= 12) {
+				$y_columns.css({
+					"transform": "scaleX(" + (12 / $y_columns.children().length) + ")",
+					"marginLeft": "10px"
+				});
+			} else {
+				$y_columns.css({
+					"transform": "none",
+					"marginLeft" : "0"
+				});
 			}
 
 			$y_columns.children().each(function(){

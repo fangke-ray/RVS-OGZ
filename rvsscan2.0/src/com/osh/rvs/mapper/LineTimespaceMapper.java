@@ -28,4 +28,6 @@ public interface LineTimespaceMapper {
 
 	public String getTodayManufatorModelName();
 
+	public List<String> getShowProcessCodes(String line_id);
+
 }

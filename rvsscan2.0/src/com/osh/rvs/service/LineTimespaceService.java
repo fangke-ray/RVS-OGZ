@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.ibatis.session.SqlSession;
 
 import com.osh.rvs.common.PathConsts;
@@ -23,7 +25,8 @@ public class LineTimespaceService {
 		TYPES.put("PCF", "CF");
 	}
 
-	public List<Map<String, String>> getProductionFeatures(String line_id, String px, SqlSession conn) {
+	public List<Map<String, String>> getProductionFeatures(String line_id, String px, 
+			String last_process_code, SqlSession conn) {
 		LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
 
 // 		Long now = (new Date().getTime() + 28800000) % 86400000 / 60000;
@@ -126,15 +129,6 @@ public class LineTimespaceService {
 					String level = "" + feature.get("level");
 					String sOvertime = null;
 					try {
-						retPf.put("use_seconds", "" + useSeconds);
-						sOvertime = RvsUtils.getLevelOverLine(modelName, categoryName, level, null, processCode);
-						Double dOverMinutes = Double.parseDouble(sOvertime);
-						boolean overtime = false;
-						if (dOverMinutes * 60 <= useSeconds) {
-							retPf.put("overtime",  "true");
-							overtime = true;
-						}
-
 						if (finishPos.containsKey(strPosMaterial)) {
 							Long thatFinishTime = Long.valueOf(finishPos.get(strPosMaterial).get("finish_time"));
 							if ((finishTime - 480 + 5) < thatFinishTime) {
@@ -148,6 +142,15 @@ public class LineTimespaceService {
 						} else {
 							retPf.put("finish",  "true");
 							finishPos.put(strPosMaterial, retPf);
+						}
+
+						retPf.put("use_seconds", "" + useSeconds);
+						sOvertime = RvsUtils.getLevelOverLine(modelName, categoryName, level, null, processCode);
+						Double dOverMinutes = Double.parseDouble(sOvertime);
+						boolean overtime = false;
+						if (dOverMinutes * 60 <= useSeconds) {
+							retPf.put("overtime",  "true");
+							overtime = true;
 						}
 
 						// 同一工位的前时段片也标上
@@ -169,9 +172,21 @@ public class LineTimespaceService {
 			ret.add(retPf);
 
 			Long operate_result = (Long) feature.get("operate_result");
-			if (processCode != null && ("471".equals(processCode) || "362".equals(processCode)
-					 || (processCode.startsWith("262")) || BX_END_POS.equals(processCode)) 
-					&& operate_result == 2) {
+			boolean isLast = false;
+			if (processCode != null && operate_result == 2) {
+				if (last_process_code != null) {
+					if (last_process_code.equals(processCode)) {
+						isLast = true;
+					}
+				} else {
+					if (processCode != null && ("471".equals(processCode) || "362".equals(processCode)
+							 || (processCode.startsWith("262")) || BX_END_POS.equals(processCode)) 
+							) {
+						isLast = true;
+					}
+				}
+			}
+			if (isLast) {
 				// 取得烘干时间
 				String categoryName = "" + feature.get("CATEGORY_NAME");
 				String lineName = "" + feature.get("line_name");
@@ -545,6 +560,68 @@ public class LineTimespaceService {
 				}
 			}
 		}
+	}
+
+	public List<String> getTargetPositions(String line_id, SqlSession conn) {
+		List<String> retList = new ArrayList<String>();
+		LineTimespaceMapper mapper = conn.getMapper(LineTimespaceMapper.class);
+		List<String> dvlist =  mapper.getShowProcessCodes(line_id);
+		Map<String, String> countIntoMap = new HashMap<String, String>();
+		for(String processCode : dvlist) {
+			String countIntoProcessCode = PathConsts.POSITION_SETTINGS.getProperty("timing.into." + processCode);
+			if (isEmpty(countIntoProcessCode)) {
+				retList.add(processCode);
+			} else {
+				countIntoMap.put(processCode, countIntoProcessCode);
+			}
+		}
+		if (!countIntoMap.isEmpty()) {
+			for (String processCode : countIntoMap.keySet()) {
+				for (int i=0; i < retList.size() ; i++) {
+					String target = retList.get(i);
+					if (target.indexOf(countIntoMap.get(processCode)) >= 0) {
+						retList.set(i, processCode + "/" + target);
+						break;
+					}
+				}
+			}
+		}
+
+		return retList;
+	}
+
+	public String getProcessCodeHtml(List<String> list) {
+
+		if (list == null) {
+			return null;
+		}
+
+		String ret = "";
+		for (String processCode :list) {
+			ret +=  "<div class=\"y_column\" for=\"" 
+				+ processCode.substring(processCode.length() - 3, processCode.length()) 
+				+ "\"><div class=\"position_intro\">" + processCode + "</div></div>";
+		}
+
+		return ret;
+	}
+
+	private static final int Y_COLUMNS_WIDTH = 700;
+
+	public String getProcessCodeCss(List<String> list) {
+		if (list == null) {
+			return null;
+		}
+		int pubWidth = Y_COLUMNS_WIDTH / (list.size() + 1);
+		int gapWidth = pubWidth / 6;
+		int actWidth = pubWidth - gapWidth;
+// 		74be9f432b97dd5d784500e5fc190e56
+		String ret = "#axis_base .y_column {width : " + actWidth + "px;}#axis_base .y_column:nth-child(1) {left:4px;}";
+		for (int i = 0; i < list.size(); i++) {
+			int left = Y_COLUMNS_WIDTH - (list.size() - i) * pubWidth;
+			ret += "\n#axis_base .y_column:nth-child(" + (i + 2) + ") {left:" + left + "px;}";
+		}
+		return ret;
 	}
 
 }

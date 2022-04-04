@@ -286,4 +286,16 @@ limit 1;
 		]]>
 	</select>
 
+	<select id="getShowProcessCodes" resultType="String" parameterType="String">
+		<![CDATA[
+SELECT process_code FROM position 
+where line_id = #{line_id}
+and delete_flg = 0
+and kind is null
+and (special_page IS NULL or special_page not in ('part_order','part_recieve'))
+order by process_code
+;
+		]]>
+	</select>
+
 </mapper>

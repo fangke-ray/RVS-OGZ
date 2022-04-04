@@ -10,33 +10,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <link rel="stylesheet" type="text/css" href="css/scan/lineTimespace.css">
 <style>
-#axis_base .y_column {
-	width : 80px;
-}
-#axis_base .y_column:nth-child(1) {
-	left:4px;
-}
-#axis_base .y_column:nth-child(2) {
-	left:110px;
-}
-#axis_base .y_column:nth-child(3) {
-	left:206px;
-}
-#axis_base .y_column:nth-child(4) {
-	left:302px;
-}
-#axis_base .y_column:nth-child(5) {
-	left:398px;
-}
-#axis_base .y_column:nth-child(6) {
-	left:494px;
-}
-#axis_base .y_column:nth-child(7) {
-	left:590px;
-}
-#axis_base .y_column:nth-child(8) {
-	left:686px;
-}
+${pocessCodeCss}
+
 ${standard_column.css}
 
 </style>
@@ -79,24 +54,7 @@ ${standard_column.divHtml}
 									</div> 
 									<div id="now_period"></div>
 								</div>
-								<div class="y_column" for="411">
-									<div class="position_intro">411</div>
-								</div>
-								<div class="y_column" for="421">
-									<div class="position_intro">421</div>
- 								</div>
-								<div class="y_column" for="431">
-									<div class="position_intro">431</div>
-								</div>
-								<div class="y_column" for="451">
-									<div class="position_intro">451</div>
-								</div>
-								<div class="y_column" for="461">
-									<div class="position_intro">461</div>
-								</div>
-								<div class="y_column" for="471">
-									<div class="position_intro">471</div>
-								</div>
+${pocessCodeHtml}
 								<div class="y_result_column">
 									<div class="position_intro">结果</div>
 								</div>
@@ -109,5 +67,7 @@ ${standard_column.divHtml}
 			<div class="clear"></div>
 		</div>
 	</div>
+<input type="hidden" id="line_id" value="${line_id}" />
+<input type="hidden" id="last_process_code" />
 </body>
 </html>

@@ -60,6 +60,15 @@ public class LineWorkDurationAction extends BaseAction {
 		} else if ("14".equals(line_id)){
 			lineName = "总组";
 			req.setAttribute("line_id", "00000000014");
+		} else if ("201".equals(line_id)) {
+			lineName = "290 拉 ";
+			req.setAttribute("line_id", "00000000201");
+		} else if ("202".equals(line_id)) {
+			lineName = "260 拉 ";
+			req.setAttribute("line_id", "00000000202");
+		} else if ("203".equals(line_id)) {
+			lineName = "细镜拉 ";
+			req.setAttribute("line_id", "00000000203");
 		}
 		req.setAttribute("line_name", lineName);
 		req.setAttribute("standard_column", service.getStandardColumn(null, conn));

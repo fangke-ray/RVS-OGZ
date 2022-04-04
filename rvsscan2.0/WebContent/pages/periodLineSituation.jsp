@@ -1,6 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false"%>
+<!DOCTYPE html><html>
 <head>
 <%
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
@@ -235,7 +234,7 @@ border-radius: 14px;display:none;">0%</div>
 <div id="storagearea" style="float:left;margin-left:16px;margin-bottom:16px;">
 	<div>
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
-			<span class="areatitle">${section_name} ${line_name}当前仕挂台数</span>
+			<span class="areatitle">${section_name} ${line_name} 当前仕挂台数</span>
 		</div>
 		<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
 			<span style="font-size:16px;"><label id="sikake"></label> 台<label id="sikake_in"></label></span>
@@ -245,7 +244,7 @@ border-radius: 14px;display:none;">0%</div>
 
 	<div>
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
-			<span class="areatitle">${section_name} ${line_name}当前仕挂分布</span>
+			<span class="areatitle">${section_name} ${line_name} 当前仕挂分布</span>
 		</div>
 		<div class="ui-widget-content dwidth-half">
 			<div id="processing_container"></div>

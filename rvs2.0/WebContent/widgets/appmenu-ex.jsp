@@ -180,19 +180,21 @@ var getPositionWork = function(position_id, px){
 		<a target="_parent" href="show.do#globalProgress">全工程</a><br>
 		<a target="_parent" href="show.do#acceptFact">受理报价展示</a><br>
 		<a target="_parent" href="show.do#wipProgress">WIP库位</a><br>
-		<a title="分解工程线长界面" target="_parent" href="show.do#lineSituationD1">分解</a>
-		<a title="NS工程线长界面" target="_parent" href="show.do#lineSituationS1">NS</a>
-		<a title="总组工程线长界面" target="_parent" href="show.do#lineSituationP1">总组</a>在线展示<br>
+		<a title="" target="_parent" href="show.do#lineSituationA1">290 拉在线</a>
+		<a title="" target="_parent" href="show.do#lineSituationA0">NS 再生</a><br>
+		<a title="" target="_parent" href="show.do#lineSituationB1">260 拉在线</a>
+		<a title="" target="_parent" href="show.do#lineSituationB0">NS 再生</a><br>
+		<a title="" target="_parent" href="show.do#lineSituationC1">细镜拉在线</a>
+		<a title="" target="_parent" href="show.do#lineSituationC0">NS 再生</a><br>
 		<a title="" target="_parent" href="show.do#lineSituationPeripheral">周边维修</a>
 		<a title="" target="_parent" href="show.do#lineSituationCell">单元拉</a>在线展示<br>
 		<a title="" target="_parent" href="show.do#allPositions">全工位状况展示</a><br>
-		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-12">分解</a>
-		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-13">NS</a>
-		<a title="" target="_parent" href="show.do#lineTimeSpace-px-A">总组A</a>
-		<a title="" target="_parent" href="show.do#lineTimeSpace-px-B">总组B</a>进度管理板<br>
-		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-12">分解</a>
-		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-13">NS</a>
-		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-14">总组</a>
+		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-201">290 拉</a>
+		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-202">260 拉</a>
+		<a title="" target="_parent" href="show.do#lineTimeSpace-line_id-203">细镜拉</a>进度管理板<br>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-201">290 拉</a>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-202">260 拉</a>
+		<a title="" target="_parent" href="show.do#lineWorkDuration-line_id-203">细镜拉</a>
 		<a title="" target="_parent" href="show.do#lineWorkDuration">单元拉</a>人员工时图<br>
 		<a title="" target="_parent" href="show.do#service_repair_manage">保内返品分析展示</a><br>
 		<a title="" target="_parent" href="show.do#finalCheck">最终检查展示</a><br>

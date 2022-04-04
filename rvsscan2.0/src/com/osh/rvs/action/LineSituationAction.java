@@ -50,6 +50,7 @@ public class LineSituationAction extends BaseAction {
 		log.info(subpath);
 
 		String forward = FW_INIT;
+		req.setAttribute("plan_name", "出货安排");
 		if (subpath.toLowerCase().startsWith("d")) {
 			req.setAttribute("line_id", "00000000012");
 			req.setAttribute("line_name", "分解工程");
@@ -60,6 +61,16 @@ public class LineSituationAction extends BaseAction {
 			req.setAttribute("line_name", "ＮＳ工程");
 			req.setAttribute("plan_name", "再生计划");
 			forward = "ns";
+		} else if (subpath.toLowerCase().startsWith("a")) {
+			req.setAttribute("line_id", "00000000201");
+			req.setAttribute("line_name", "290 拉");
+			forward = "period";
+		} else if (subpath.toLowerCase().startsWith("b")) {
+			req.setAttribute("line_id", "00000000202");
+			req.setAttribute("line_name", "260 拉");
+		} else if (subpath.toLowerCase().startsWith("c")) {
+			req.setAttribute("line_id", "00000000203");
+			req.setAttribute("line_name", "细镜拉");
 		} else { //  if (subpath.startsWith("c"))
 			req.setAttribute("line_id", "00000000014");
 			req.setAttribute("line_name", "总组工程");
@@ -69,6 +80,9 @@ public class LineSituationAction extends BaseAction {
 		if (subpath.endsWith("1")) {
 			req.setAttribute("section_id", "00000000001");
 			req.setAttribute("section_name", "修理生产G");
+		} else	if (subpath.endsWith("0")) {
+			req.setAttribute("section_id", "10000000001");
+			req.setAttribute("section_name", "修理生产G NS 再生");
 		} else {
 			req.setAttribute("section_id", "00000000003");
 			req.setAttribute("section_name", "维修２课");
@@ -95,6 +109,11 @@ public class LineSituationAction extends BaseAction {
 		Map<String, Object> callback = new HashMap<String, Object>();
 
 		String section_id = req.getParameter("section_id");
+		String s1pass = null;
+		if (section_id != null && section_id.startsWith("1")) {
+			section_id = "00000000001";
+			s1pass = "pass";
+		}
 		String line_id = req.getParameter("line_id");
 
 		LineLeaderService service = new LineLeaderService();
@@ -103,7 +122,7 @@ public class LineSituationAction extends BaseAction {
 		service.getSituation(section_id, line_id, callback, conn);
 
 		// 取得工位仕挂一览
-		service.getChartContent(section_id, line_id, conn, callback);
+		service.getChartContent(section_id, line_id, s1pass, conn, callback);
 
 		// 取得分解～NS
 //		if ("00000000012".equals(line_id) || "00000000013".equals(line_id)) {

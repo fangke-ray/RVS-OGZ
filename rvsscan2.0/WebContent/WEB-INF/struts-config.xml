@@ -184,6 +184,7 @@
 			<forward name="init_ns" path="/pages/lineTimeSpace_ns.jsp" />
 			<forward name="init_bx" path="/pages/lineTimeSpace_bx_8.jsp" />
 			<!--forward name="init_bx" path="/pages/lineTimeSpace_bx.jsp" /-->
+			<forward name="init_new" path="/pages/lineTimeSpace_new.jsp" />
 		</action>
 
 		<action path="/lineWorkDuration" type="com.osh.rvs.action.LineWorkDurationAction" parameter="method" validate="false">
@@ -209,6 +210,32 @@
 			<forward name="period" path="/pages/periodLineSituation.jsp" />
 		</action>
 		
+		<action path="/lineSituationA1" type="com.osh.rvs.action.LineSituationAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationB1" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationC1" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+
+		<action path="/lineSituationA0" type="com.osh.rvs.action.LineSituationAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationB0" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+		<action path="/lineSituationC0" type="com.osh.rvs.action.LineSituationCAction" parameter="method" validate="false">
+			<forward name="init" path="/pages/lineSituation.jsp" />
+			<forward name="period" path="/pages/periodLineSituation.jsp" />
+		</action>
+
 		<action path="/scheduledMaterial" type="com.osh.rvs.action.ScheduledMaterialAction" parameter="method" validate="false">
 			<forward name="init" path="/pages/scheduledMaterial.jsp" />
 		</action>

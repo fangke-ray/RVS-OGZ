@@ -133,15 +133,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		if (user.getDepartment() == 1) {
 %>
 									<input type="radio" name="line" value="00000000011" id="line_00000000011" <% if ("00000000011".equals(line_id)) { %>checked<% } %>><label for="line_00000000011"><span>受理报价</span></label>
-									<input type="radio" name="line" value="00000000012" id="line_00000000012" <% if ("00000000012".equals(line_id)) { %>checked<% } %>><label for="line_00000000012"><span>分解</span></label>
-									<input type="radio" name="line" value="00000000013" id="line_00000000013" <% if ("00000000013".equals(line_id)) { %>checked<% } %>><label for="line_00000000013"><span>ＮＳ</span></label>
-									<input type="radio" name="line" value="00000000014" id="line_00000000014" <% if ("00000000014".equals(line_id)) { %>checked<% } %>><label for="line_00000000014"><span>总组</span></label>
+									<input type="radio" name="line" value="00000000201" id="line_00000000201" <% if ("00000000201".equals(line_id)) { %>checked<% } %>><label for="line_00000000201"><span>290 拉</span></label>
+									<input type="radio" name="line" value="00000000202" id="line_00000000202" <% if ("00000000202".equals(line_id)) { %>checked<% } %>><label for="line_00000000202"><span>260 拉</span></label>
+									<input type="radio" name="line" value="00000000203" id="line_00000000203" <% if ("00000000203".equals(line_id)) { %>checked<% } %>><label for="line_00000000203"><span>细镜拉</span></label>
 									<input type="radio" name="line" value="00000000050" id="line_00000000050" <% if ("00000000050".equals(line_id)) { %>checked<% } %>><label for="line_00000000050"><span>外科硬镜修理</span></label>
 									<input type="radio" name="line" value="00000000060" id="line_00000000060" <% if ("00000000060".equals(line_id)) { %>checked<% } %>><label for="line_00000000060"><span>纤维镜分解</span></label>
 									<input type="radio" name="line" value="00000000061" id="line_00000000061" <% if ("00000000061".equals(line_id)) { %>checked<% } %>><label for="line_00000000061"><span>纤维镜总组</span></label>
 									<input type="radio" name="line" value="00000000070" id="line_00000000070" <% if ("00000000070".equals(line_id)) { %>checked<% } %>><label for="line_00000000070"><span>周边设备修理</span></label>
 									<input type="radio" name="line" value="00000000054" id="line_00000000054" <% if ("00000000054".equals(line_id)) { %>checked<% } %>><label for="line_00000000054"><span>中小修</span></label>
 									<input type="radio" name="line" value="00000000015" id="line_00000000015" <% if ("00000000015".equals(line_id)) { %>checked<% } %>><label for="line_00000000015"><span>品保</span></label>
+									<!--input type="radio" name="line" value="00000000012" id="line_00000000012" <% if ("00000000012".equals(line_id)) { %>checked<% } %>><label for="line_00000000012"><span>分解</span></label>
+									<input type="radio" name="line" value="00000000013" id="line_00000000013" <% if ("00000000013".equals(line_id)) { %>checked<% } %>><label for="line_00000000013"><span>ＮＳ</span></label>
+									<input type="radio" name="line" value="00000000014" id="line_00000000014" <% if ("00000000014".equals(line_id)) { %>checked<% } %>><label for="line_00000000014"><span>总组</span></label-->
 <%
 		} else if (user.getDepartment() == 2) {
 %>
@@ -200,16 +203,34 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.12.561</p>
+								<p id="nee">2.15.591</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2021年7月26日</p>
+								<p>2022年2月27日</p>
 							</div>
 						</div>
 <%
 	if ("00000000012".equals(role_id)) { 
 %>
 						<div class="ui-widget-content" id="system_verison_content">
+
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>22/3/16 2.15.592 更新</p>
+								<p>展示：新拉线对应展示</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>22/2/27 2.15.591 更新</p>
+								<p>物料：零件出库选择作业工位</p>
+								<p>在线作业/管理：新拉线岗位制定</p>
+							</div>
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>21/12/15 2.14.587 更新</p>
+								<p>受理/出货：日常受理/出货作业格式调整</p>
+								<p>在线作业/管理：作业监察上级确认</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>21/7/26 2.12.561 更新</p>

@@ -66,6 +66,19 @@ public class LineTimeSpaceAction extends BaseAction {
 			req.setAttribute("line_id", "00000000101");
 			actionForward = mapping.findForward(FW_INIT + "_bx");
 		}
+		if ("201".equals(line_id) || "202".equals(line_id) || "203".equals(line_id)) {
+			switch (line_id) {
+			case "201" : lineName = "290拉"; break;
+			case "202" : lineName = "260拉"; break;
+			case "203" : lineName = "细镜拉"; break;
+			}
+			List<String> list_codes = service.getTargetPositions(line_id, conn);
+			req.setAttribute("pocessCodeHtml", service.getProcessCodeHtml(list_codes));
+			req.setAttribute("pocessCodeCss", service.getProcessCodeCss(list_codes));
+		
+			req.setAttribute("line_id", "00000000" + line_id);
+			actionForward = mapping.findForward(FW_INIT + "_new");
+		}
 		req.setAttribute("line_name", lineName);
 		req.setAttribute("standard_column", service.getStandardColumn(lineName, conn));
 
@@ -95,11 +108,12 @@ public class LineTimeSpaceAction extends BaseAction {
 		}
 
 		String px = req.getParameter("px");
+		String last_process_code = req.getParameter("last_process_code");
 
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
 
-		listResponse.put("productionFeatures", service.getProductionFeatures(line_id, px, conn));
+		listResponse.put("productionFeatures", service.getProductionFeatures(line_id, px, last_process_code, conn));
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

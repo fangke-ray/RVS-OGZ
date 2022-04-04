@@ -55,6 +55,18 @@ public class LineSituationCAction extends BaseAction {
 			req.setAttribute("line_name", "分解工程");
 			req.setAttribute("plan_name", "再生计划");
 			forward = "decompose";
+		} else if (subpath.toLowerCase().startsWith("a")) {
+			req.setAttribute("line_id", "00000000201");
+			req.setAttribute("line_name", "290 拉");
+			forward = "period";
+		} else if (subpath.toLowerCase().startsWith("b")) {
+			req.setAttribute("line_id", "00000000202");
+			req.setAttribute("line_name", "260 拉");
+			forward = "period";
+		} else if (subpath.toLowerCase().startsWith("c")) {
+			req.setAttribute("line_id", "00000000203");
+			req.setAttribute("line_name", "细镜拉");
+			forward = "period";
 		} else if (subpath.toLowerCase().startsWith("n")) {
 			req.setAttribute("line_id", "00000000013");
 			req.setAttribute("line_name", "ＮＳ工程");
@@ -77,6 +89,9 @@ public class LineSituationCAction extends BaseAction {
 		if (subpath.endsWith("1")) {
 			req.setAttribute("section_id", "00000000001");
 			req.setAttribute("section_name", "修理生产G");
+		} else	if (subpath.endsWith("0")) {
+			req.setAttribute("section_id", "10000000001");
+			req.setAttribute("section_name", "修理生产G NS 再生");
 		} else {
 			req.setAttribute("section_id", "00000000003");
 			req.setAttribute("section_name", "维修２课");
@@ -105,6 +120,11 @@ public class LineSituationCAction extends BaseAction {
 		String section_id = req.getParameter("section_id");
 		String line_id = req.getParameter("line_id");
 		String isPeriod = req.getParameter("isPeriod");
+		String s1pass = null;
+		if (section_id != null && section_id.startsWith("1")) {
+			section_id = "00000000001";
+			s1pass = "pass";
+		}
 
 		LineLeaderService service = new LineLeaderService();
 
@@ -112,7 +132,7 @@ public class LineSituationCAction extends BaseAction {
 		service.getSituation(section_id, line_id, callback, isPeriod, conn);
 
 		// 取得工位仕挂一览
-		service.getChartContent(section_id, line_id, callback, isPeriod, conn);
+		service.getChartContent(section_id, line_id, callback, isPeriod, s1pass, conn);
 
 		// 取得分解～NS
 		if ("00000000012".equals(line_id) || "00000000013".equals(line_id)) {

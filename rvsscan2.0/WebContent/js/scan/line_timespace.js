@@ -58,6 +58,10 @@ var iamreadyLts = function() {
 		$('#performance_container').disableSelection();
 	}
 
+	if ($("#last_process_code").length == 1) {
+		$("#last_process_code").val($(".y_column").last().attr("for"));
+	}
+
 	var refresh = function() {
 		now = parseInt(((new Date().getTime() + 28800000) % 86400000) / 60000) - 480; // 美德UTC+8
 		var $standard_columns = $("#standard_column div").not(".position_intro, #now_period");
@@ -78,13 +82,20 @@ var iamreadyLts = function() {
 				ele.className = "exceed";
 		});
 
+		var postData = {line_id : $("#line_id").val(), px : qs_px};
+		if ($("#last_process_code").length == 1) {
+			if ($("#last_process_code").val()) {
+				postData.last_process_code = $("#last_process_code").val();
+			}
+		}
+
 		// Ajax提交
 		$.ajax({
 			beforeSend : ajaxRequestType,
 			async : true, // false
 			url : servicePath + '?method=refresh',
 			cache : false,
-			data : {line_id : $("#line_id").val(), px : qs_px},
+			data : postData,
 			type : "post",
 			dataType : "json",
 			success : ajaxSuccessCheck,

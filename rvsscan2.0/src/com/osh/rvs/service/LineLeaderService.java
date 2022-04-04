@@ -62,6 +62,17 @@ public class LineLeaderService {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		return dao.getWorkingOfPositions(section_id, line_id);
 	}
+	public List<Map<String, String>> getWorkingOfPositionsS1passed(String section_id, String line_id, SqlSession conn) { // NO_UCD (use private)
+		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
+		return dao.getWorkingOfPositionsS1passed(section_id, line_id);
+	}
+	public void getChartContent(String section_id, String line_id, String s1pass, SqlSession conn, Map<String, Object> responseMap) {
+		if (s1pass == null) {
+			getChartContent(section_id, line_id, conn, responseMap);
+		} else {
+			getChartContent(section_id, line_id, responseMap, null, conn,true,false);
+		}
+	}
 	public void getChartContent(String section_id, String line_id, SqlSession conn, Map<String, Object> responseMap) {
 		getChartContent(section_id, line_id, responseMap, null, conn);
 	}
@@ -69,8 +80,19 @@ public class LineLeaderService {
 		getChartContent(section_id, line_id, responseMap, isPeriod, conn,true);
 	}
 	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn, boolean delLast) {
+		getChartContent(section_id, line_id, responseMap, isPeriod, conn,false,delLast);
+	}
+	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, String s1pass, SqlSession conn) {
+		getChartContent(section_id, line_id, responseMap, isPeriod, conn, s1pass != null, true);
+	}
+	public void getChartContent(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn, boolean s1pass, boolean delLast) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
+		if (s1pass) {
+			workingOfPositions = getWorkingOfPositionsS1passed(section_id, line_id, conn);
+		} else {
+			workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
+		}
 
 		// 数据整合
 		List<Map<String, String>> newWorkingOfPositions = new ArrayList<Map<String, String>>();
@@ -351,21 +373,21 @@ public class LineLeaderService {
 
 				Integer plan1 = 0,plan2 = 0,plan3 = 0,plan4 = 0;
 				try {
-					if ("00000000014".equals(line_id)) {
-						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.总组工程"));
-						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.总组工程"));
-						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.总组工程"));
-						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.总组工程"));
-					} else if ("00000000013".equals(line_id)) {
-						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.NS 工程"));
-						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.NS 工程"));
-						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.NS 工程"));
-						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.NS 工程"));
-					} else if ("00000000012".equals(line_id)) {
-						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1.分解工程"));
-						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2.分解工程"));
-						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3.分解工程"));
-						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4.分解工程"));
+					if (line_id != null) {
+						String lineName = "";
+
+						switch(line_id) {
+						case "00000000014": lineName = "总组工程"; break;
+						case "00000000013": lineName = "NS 工程"; break;
+						case "00000000012": lineName = "分解工程"; break;
+						case "00000000201": lineName = "290拉线"; break;
+						case "00000000202": lineName = "260拉线"; break;
+						case "00000000203": lineName = "细镜拉线"; break;
+						}
+						plan1 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.1." + lineName));
+						plan2 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.2." + lineName));
+						plan3 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.3." + lineName));
+						plan4 = Integer.parseInt("" + PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.4." + lineName));
 					}
 				} catch (NumberFormatException e) {
 				}
@@ -441,9 +463,17 @@ public class LineLeaderService {
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));
 				responseMap.put("plan_complete", dao.getProduceActualOfNsByBoard(section_id));
 				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL"));
-			} else if ("00000000070".equals(line_id)) {
+			} else {
+				String lineName = "";
+				switch(line_id) {
+				case "00000000070": lineName = "周边维修工程"; break;
+				case "00000000201": lineName = "290拉工程"; break;
+				case "00000000202": lineName = "260拉工程"; break;
+				case "00000000203": lineName = "细镜拉工程"; break;
+				}
+
 				String sPlan = "0";
-				Object oPlan =PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.周边维修工程");
+				Object oPlan =PathConsts.SCHEDULE_SETTINGS.get("daily.schedule." + lineName);
 				if (oPlan != null) {
 					sPlan = oPlan.toString();
 				}

@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false"%>
+<!DOCTYPE html>
 <html>
 <head>
 <%
@@ -25,6 +25,7 @@ ${standard_column.css}
 	flex:10;
 	padding-left: 1em;
 	height:100%;
+	transform-origin: left;
 }
 
 #axis_base .operator_flex .y_column{
@@ -36,6 +37,7 @@ ${standard_column.css}
 #axis_base #standard_column {
 	position:relative;
 	flex : 1;
+	min-width : 36px;
 }
 /* Unknown */
 #axis_base .operator_flex .production_feature[d_type="9"] {

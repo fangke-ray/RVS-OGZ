@@ -68,11 +68,67 @@
 			    AND PROCESS_CODE like '4%'
 		]]>
 		</if>
+				AND (LINE_ID NOT in (201,202,203) OR p.kind IS NULL OR p.kind != 's1_pass')
 		<if test="line_id!= null and line_id== '00000000012' ">
 		<![CDATA[
 			    -- [AND p.process_code <> '211']
 		]]>
 		</if>
+			ORDER BY `p`.PROCESS_CODE, quotation_first;
+	</select>
+
+	<select id="getWorkingOfPositionsS1passed" resultType="map">
+		<![CDATA[
+			SELECT 
+			    CAST(`p`.POSITION_ID as char) as POSITION_ID,
+			    `p`.NAME,
+			    `p`.PROCESS_CODE,
+				CAST(`p`.LIGHT_DIVISION_FLG as char) as LIGHT_DIVISION_FLG,
+			    cast(coalesce(`pf`.material_count, 0) as char) as material_count,
+			    cast(coalesce(`pf2`.material_count, 0) as char) as light_fix_count,
+			    qf.quotation_first
+			FROM
+			    `position` p
+			JOIN
+				(Select 0 as quotation_first from dual union Select 1 as quotation_first from dual) qf
+	        LEFT JOIN
+			    (SELECT 
+			        count(p.material_id) as material_count, p.position_id, m.quotation_first
+			    FROM
+			        production_feature p
+			    join material m ON m.material_id = p.material_id
+			    WHERE
+			        p.finish_time IS NULL
+			            AND p.operate_result not in (5, 7)
+			            AND p.SECTION_ID = #{section_id}
+			            and m.level in (9 , 91, 92, 93, 96, 97, 98, 99)
+			    GROUP BY p.position_id, m.quotation_first) pf2 
+			    ON `p`.position_id = pf2.position_id
+			    AND qf.quotation_first = pf2.quotation_first
+			LEFT JOIN
+			    (SELECT 
+			        count(p.material_id) as material_count, p.position_id, m.quotation_first
+			    FROM
+			        production_feature p
+			    join material m ON m.material_id = p.material_id
+			    WHERE
+			        p.finish_time IS NULL
+			            AND p.operate_result not in (5, 7)
+			            AND p.SECTION_ID = #{section_id}
+			            and (m.level not in (9 , 91, 92, 93, 96, 97, 98, 99) or (p.position_id = 64 and m.level is null))
+						AND (p.position_id != 77 or (action_time is not null and finish_time is null))
+			    GROUP BY p.position_id, m.quotation_first) pf
+			    ON `p`.position_id = pf.position_id
+			    AND qf.quotation_first = pf.quotation_first
+		]]>
+			WHERE
+			    DELETE_FLG = 0
+		<if test="line_id!= null and line_id!= '' ">
+		<![CDATA[
+			    AND LINE_ID = #{line_id}
+		]]>
+		</if>
+				AND p.kind = 's1_pass'
 			ORDER BY `p`.PROCESS_CODE, quotation_first;
 	</select>
 

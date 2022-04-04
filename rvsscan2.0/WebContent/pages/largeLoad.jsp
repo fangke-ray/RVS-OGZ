@@ -41,6 +41,14 @@
 		-moz-animation: rotateSlideInR 1s ease both;
 		animation: rotateSlideInR 1s ease both;
 	}
+	.iframe-slider {
+		position : absolute;
+		width : 100%;
+		height : 100%;
+		z-index : 5;
+		top : 0;
+		background-color : transparent;
+	}
 /* slide */
 
 @-webkit-keyframes rotateSlideOutL {
@@ -121,15 +129,27 @@ $('*').disableSelection();
 $(function(){
 	var time_archer = (new Date()).getTime();
 
-	var pages = ["allPositions","lineTimeSpace"];
-	var moduleNames = ["全工程展示","总组工程进度管理板"]
+	var pages = ["allPositions","lineTimeSpaceA","lineTimeSpaceB","lineTimeSpaceC"];
+	var moduleNames = ["全工程展示","290 拉进度管理板","260 拉进度管理板","细镜拉进度管理板"]
 	var irefresh = 0;
 	$(".chart_page:gt(0)").hide();
 	
 	$("#allPositions").load("allPositions.scan",function(responseText, textStatus, XMLHttpRequest) {
+		var chart_page_width = $("#allPositions").width();
+		var chart_page_height = $("#allPositions").height();
+		$(".chart_page").each(function(idx, ele){
+			if (idx > 0) {
+				$(ele).children("iframe").width(chart_page_width);
+				$(ele).children("iframe").height(chart_page_height);
+			}
+		});
 	});
-	$("#lineTimeSpace").load("lineTimeSpace.scan",function(responseText, textStatus, XMLHttpRequest) {
-	});
+//	$("#lineTimeSpaceA").load("lineTimeSpace.scan?line_id=201",function(responseText, textStatus, XMLHttpRequest) {
+//	});
+//	$("#lineTimeSpaceB").load("lineTimeSpace.scan?line_id=202",function(responseText, textStatus, XMLHttpRequest) {
+//	});
+//	$("#lineTimeSpaceC").load("lineTimeSpace.scan?line_id=203",function(responseText, textStatus, XMLHttpRequest) {
+//	});
 	
 	$("#roller").hammer().on("swipeleft", goLeft).on("swiperight", goRight);
 	
@@ -198,7 +218,9 @@ $(function(){
 		
 		<div id="roller" class="width-full" style="overflow:hidden;min-height:500px;">
 			<div id="allPositions" class="chart_page pt-page-current" style="display: block;"></div>
-			<div id="lineTimeSpace" class="chart_page" style="display: none;"></div>
+			<div id="lineTimeSpaceA" class="chart_page" style="display: none;"><iframe src="lineTimeSpace.scan?line_id=201" frameborder=0 scrolling=no></iframe><div class="iframe-slider"></div></div>
+			<div id="lineTimeSpaceB" class="chart_page" style="display: none;"><iframe src="lineTimeSpace.scan?line_id=202" frameborder=0 scrolling=no></iframe><div class="iframe-slider"></div></div>
+			<div id="lineTimeSpaceC" class="chart_page" style="display: none;"><iframe src="lineTimeSpace.scan?line_id=203" frameborder=0 scrolling=no></iframe><div class="iframe-slider"></div></div>
 		</div>
 	</div>
 </body>

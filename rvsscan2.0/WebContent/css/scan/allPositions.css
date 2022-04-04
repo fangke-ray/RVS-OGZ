@@ -19,6 +19,11 @@
 .scrollline {
 	position: relative;
 }
+.scrollline[widthin] {
+	transform: scaleX(0.85);
+	transform-origin:left;
+	width: 118%;
+}
 .link {
 	position : absolute;
 	border-style : solid;
@@ -124,6 +129,9 @@
 	text-shadow : none;
 	color : black;
 	z-index: 22;
+}
+.position span.lines {
+	  line-height: 1.1em;
 }
 .banner {
 	position : absolute;
@@ -352,6 +360,8 @@ z-index:30;
 .gridX9 {left: 650px;}
 .gridX10 {left: 730px;}
 .gridX11 {left: 810px;}
+.gridX12 {left: 890px;}
+.gridX13 {left: 970px;}
 .gridY1 {top: 10px;}
 .gridY2 {top: 78px;}
 .gridY3 {top: 135px;}

@@ -22,18 +22,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<div class="width-full" style="align: center; margin: 0 auto; margin-top: 4px;">
 
 		<div id="wiparea" class="ui-widget-panel" style="width:100%;height:670px; position: relative;">
-			<div class="line choosed" style="height:150px;width:144px;left: 10px;top: 10px;" id="line_qf" beforeOf="line_dec" group="line_qf">
+			<div class="line choosed" style="height:150px;width:150px;left: 10px;top: 10px;" id="line_qf" beforeOf="line_div_a" group="line_qf">
 				<div class="posi" id="posi_111" style="left: 32px; top: 10px;">111</div>
 
 				<div class="posi" id="posi_121" style="left: 10px; top: 46px;">121</div>
 
 				<div class="posi" id="posi_131" style="left: 60px; top: 46px;">131</div>
 
-				<div class="posi" id="posi_151" style="left: 10px; top: 106px;">151</div>
-
-				<div class="posi" id="posi_568" style="left: 60px; top: 106px;">568</div>
-
-				<div class="posi" id="posi_181" style="left: 100px; top: 106px;">181</div>
+				<div class="posi" id="posi_150" style="left: 10px; top: 106px;">150</div>
+				<div class="posi" id="posi_151" style="left: 50px; top: 106px;">151</div>
+				<div class="posi" id="posi_152" style="left: 90px; top: 106px;">152</div>
 
 				<div class="posi" id="posi_171" style="left: 110px; top: 36px;">171</div>
 
@@ -51,75 +49,77 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line3" style="text-decoration: none; top:26px;width: 58px;text-align:center;font-size: 12px;" id="inlinesize">20台</div>
 			</div>
 
-			<div class="line" style="height:146px;width:274px;left: 192px;top: 52px;" id="line_dec" beforeOf="line_ns" group="line_dec">
+			<div class="line" style="height:86px;width:584px;left: 192px;top: 10px;" id="line_div_a" beforeOf="line_div_b" group="line_div_a">
+				<div class="posi" for="posi_210_1" style="top: 30px; left: 10px;">210</div>
+				<div class="posi" for="posi_220_1" style="top: 10px; left: 50px;">220</div>
+				<div class="posi" for="posi_230_1" style="top: 10px; left: 90px;">230</div>
+				<div class="posi" for="posi_240_1" style="top: 10px; left: 130px;">240</div>
+				<div class="posi" for="posi_250_1" style="top: 10px; left: 170px;">250</div>
+				<div class="posi" for="posi_260_1" style="top: 10px; left: 210px;">260</div>
+				<div class="posi" for="posi_270_1" style="top: 10px; left: 250px;">270</div>
+				<div class="posi" for="posi_310_1" style="top: 50px; left: 50px;">310</div>
+				<div class="posi" for="posi_320_1" style="top: 50px; left: 90px;">320</div>
+				<div class="posi" for="posi_330_1" style="top: 50px; left: 130px;">330</div>
+				<div class="posi" for="posi_340_1" style="top: 50px; left: 170px;">340</div>
+				<div class="posi" for="posi_350_1" style="top: 50px; left: 210px;">350</div>
+				<div class="posi" for="posi_360_1" style="top: 50px; left: 250px;">360</div>
+				<div class="posi" for="posi_370_1" style="top: 50px; left: 290px;">370</div>
+				<div class="posi" for="posi_410_1" style="top: 30px; left: 330px;">410</div>
+				<div class="posi" for="posi_420_1" style="top: 30px; left: 370px;">420</div>
+				<div class="posi" for="posi_430_1" style="top: 30px; left: 410px;">430</div>
+				<div class="posi" for="posi_440_1" style="top: 30px; left: 450px;">440</div>
+				<div class="posi" for="posi_450_1" style="top: 30px; left: 490px;">450</div>
+
+				<div class="banner" for="line_div_a">290 拉</div>
+
+			</div>
+
+			<div class="line" style="height:86px;width:584px;left: 192px;top: 100px;" id="line_div_b" beforeOf="line_div_c" group="line_div_b">
 				<div class="posi" for="posi_211_1" style="top: 10px; left: 10px;">211</div>
+				<div class="posi" for="posi_221_1" style="top: 10px; left: 50px;">221</div>
+				<div class="posi" for="posi_231_1" style="top: 10px; left: 90px;">231</div>
+				<div class="posi" for="posi_241_1" style="top: 10px; left: 130px;">241</div>
+				<div class="posi" for="posi_251_1" style="top: 10px; left: 170px;">251</div>
+				<div class="posi" for="posi_261_1" style="top: 10px; left: 210px;">261</div>
+				<div class="posi" for="posi_303_1" style="top: 50px; left: 10px;">303</div>
+				<div class="posi" for="posi_311_1" style="top: 50px; left: 50px;">311</div>
+				<div class="posi" for="posi_321_1" style="top: 50px; left: 90px;">321</div>
+				<div class="posi" for="posi_304_1" style="top: 50px; left: 130px;">304</div>
+				<div class="posi" for="posi_331_1" style="top: 50px; left: 170px;">331</div>
+				<div class="posi" for="posi_341_1" style="top: 50px; left: 210px;">341</div>
+				<div class="posi" for="posi_351_1" style="top: 50px; left: 250px;">351</div>
+				<div class="posi" for="posi_361_1" style="top: 50px; left: 290px;">361</div>
+				<div class="posi" for="posi_411_1" style="top: 10px; left: 330px;">411</div>
+				<div class="posi" for="posi_421_1" style="top: 10px; left: 370px;">421</div>
+				<div class="posi" for="posi_431_1" style="top: 10px; left: 410px;">431</div>
+				<div class="posi" for="posi_441_1" style="top: 10px; left: 450px;">441</div>
+				<div class="posi" for="posi_451_1" style="top: 10px; left: 490px;">451</div>
 
-				<div class="line line-addin" style="height: 50px; width: 70px; top: 80px; left: 30px;">
-					<div class="banner" for="line4">分解库位</div>
-					<div class="banner" for="line4" style="text-decoration: none; top:26px;width: 58px;text-align:center;font-size: 12px;" id="decsize">10台</div>
-				</div>
-
-				<div class="posi" for="posi_221_1" style="top: 64px; left: 108px;">221</div>
-				<div class="posi" for="posi_222_1" style="top: 64px; left: 148px;">222</div>
-				<div class="posi" for="posi_231_1" style="top: 106px; left: 108px;">231</div>
-				<div class="posi" for="posi_241_1" style="top: 106px; left: 148px;">241</div>
-
-				<div class="posi" for="posi_251_1" style="top: 10px; left: 122px;">251</div>
-				<div class="posi" for="posi_252_1" style="top: 10px; left: 162px;">252</div>
-
-				<div class="posi" for="posi_261_1" style="top: 50px; left: 202px;">261</div>
-				<div class="posi" for="posi_262_1" style="top: 90px; left: 232px;">262</div>
-				<div class="posi" for="posi_263_1" style="top: 130px; left: 262px;">263</div>
-
-				<div class="banner" for="line_dec">分解</div>
-
-			</div>
-
-			<div class="line" style="height:168px;width:248px;left: 202px;top: 214px;" id="line_ns" beforeOf="line_com" group="line_ns">
-				<div class="posi" for="posi_301_1" style="top: 130px; left: 10px;">301</div>
-				<div class="posi" for="posi_302_1" style="top: 130px; left: 50px;">302</div>
-				<div class="posi" for="posi_303_1" style="top: 130px; left: 90px;">303</div>
-				<div class="posi" for="posi_304_1" style="top: 130px; left: 130px;">304</div>
-
-				<div class="posi" for="posi_311_1" style="top: 28px; left: 10px;">311</div>
-				<div class="posi" for="posi_312_1" style="top: 82px; left: 10px;">312</div>
-
-				<div class="posi" for="posi_321_1" style="top: 54px; left: 50px;">321</div>
-
-				<div class="posi" for="posi_331_1" style="top: 28px; left: 90px;">331</div>
-				<div class="posi" for="posi_332_1" style="top: 82px; left: 90px;">332</div>
-
-				<div class="posi" for="posi_333_1" style="top: 28px; left: 130px;">333</div>
-				<div class="posi" for="posi_341_1" style="top: 82px; left: 130px;">341</div>
-
-				<div class="posi" for="posi_351_1" style="top: 54px; left: 170px;">351</div>
-
-				<div class="posi" for="posi_361_1" style="top: 28px; left: 210px;">361</div>
-				<div class="posi" for="posi_362_1" style="top: 82px; left: 210px;">362</div>
-
-				<div class="banner" for="line_ns">NS</div>
+				<div class="posi" for="posi_301_1" style="top: 50px; left: 370px;">301</div>
+				<div class="posi" for="posi_302_1" style="top: 50px; left: 410px;">302</div>
+				<div class="banner" for="line_div_a">260 拉</div>
 
 			</div>
 
-			<div class="line" style="height:80px;width:284px;left: 492px;top: 160px;" id="line_com" beforeOf="line_endoeye" group="line_com">
-				<div class="posi" for="posi_411_1" style="top: 25px; left: 10px;">411</div>
+			<div class="line" style="height:86px;width:584px;left: 192px;top: 190px;" id="line_div_c" beforeOf="line_endoeye" group="line_div_c">
+				<div class="posi" for="posi_212_1" style="top: 30px; left: 10px;">212</div>
+				<div class="posi" for="posi_222_1" style="top: 10px; left: 50px;">222</div>
+				<div class="posi" for="posi_232_1" style="top: 10px; left: 90px;">232</div>
+				<div class="posi" for="posi_242_1" style="top: 10px; left: 130px;">242</div>
+				<div class="posi" for="posi_252_1" style="top: 10px; left: 170px;">252</div>
+				<div class="posi" for="posi_262_1" style="top: 10px; left: 210px;">262</div>
+				<div class="posi" for="posi_312_1" style="top: 50px; left: 50px;">312</div>
+				<div class="posi" for="posi_322_1" style="top: 50px; left: 90px;">322</div>
+				<div class="posi" for="posi_332_1" style="top: 50px; left: 130px;">332</div>
+				<div class="posi" for="posi_412_1" style="top: 30px; left: 330px;">412</div>
+				<div class="posi" for="posi_422_1" style="top: 30px; left: 370px;">422</div>
+				<div class="posi" for="posi_432_1" style="top: 30px; left: 410px;">432</div>
 
-				<div class="posi" division="A" for="posi_421_1A" style="top: 5px; left: 50px;">421</div>
-				<div class="posi" division="A" for="posi_431_1A" style="top: 5px; left: 90px;">431</div>
-				<div class="posi" division="A" for="posi_451_1A" style="top: 5px; left: 130px;">451</div>
-				<div class="posi" division="A" for="posi_461_1A" style="top: 5px; left: 170px;">461</div>
-				<div class="posi" division="A" for="posi_471_1A" style="top: 5px; left: 210px;">471</div>
+				<div class="banner" for="line_div_a">细镜拉</div>
 
-				<div class="posi" division="B" for="posi_421_1B" style="top: 45px; left: 50px;">421</div>
-				<div class="posi" division="B" for="posi_431_1B" style="top: 45px; left: 90px;">431</div>
-				<div class="posi" division="B" for="posi_451_1B" style="top: 45px; left: 130px;">451</div>
-				<div class="posi" division="B" for="posi_461_1B" style="top: 45px; left: 170px;">461</div>
-				<div class="posi" division="B" for="posi_471_1B" style="top: 45px; left: 210px;">471</div>
-
-				<div class="banner" for="line_com">总组</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 80px;" id="line_endoeye" beforeOf="line_fs_dec" group="line_endoeye">
+			<div class="line" style="height:48px;width:284px;left: 192px;top: 280px;" id="line_endoeye" beforeOf="line_fs_dec" group="line_endoeye">
 				<div class="posi" for="posi_568_1" style="top: 10px; left: 10px;">568</div>
 
 				<div class="posi" for="posi_569_1" style="top: 10px; left: 50px;">569</div>
@@ -129,7 +129,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line_endoeye">外科镜维修</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 330px;" id="line_fs_dec" beforeOf="line_fs_com" group="line_fs_dec">
+			<div class="line" style="height:48px;width:284px;left: 492px;top: 332px;" id="line_fs_dec" beforeOf="line_fs_com" group="line_fs_dec">
 				<div class="posi" for="posi_501_1" style="top: 10px; left: 10px;">501</div>
 
 				<div class="posi" for="posi_502_1" style="top: 10px; left: 50px;">502</div>
@@ -140,7 +140,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line_fs_dec">纤维镜分解</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 260px;" id="line_fs_com" beforeOf="line_lm" group="line_fs_com">
+			<div class="line" style="height:48px;width:284px;left: 492px;top: 280px;" id="line_fs_com" beforeOf="line_lm" group="line_fs_com">
 				<div class="posi" for="posi_511_1" style="top: 10px; left: 10px;">511</div>
 
 				<div class="posi" for="posi_521_1" style="top: 10px; left: 50px;">521</div>
@@ -161,7 +161,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="banner" for="line_lm">中小修</div>
 			</div>
 
-			<div class="line" style="height:50px;width:284px;left: 492px;top: 10px;" id="line_peri" beforeOf="line_qa" group="line_peri">
+			<div class="line" style="height:48px;width:284px;left: 192px;top: 332px;" id="line_peri" beforeOf="line_qa" group="line_peri">
 				<div class="posi" for="posi_181" style="top: 10px; left: 10px;">181</div>
 
 				<div class="posi" for="posi_801_1" style="top: 10px; left: 50px;">801</div>
@@ -174,11 +174,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 
 			<div class="line" style="height:192px;width:144px;left: 810px;top: 10px;" id="line_qa" beforeOf="line_qf" group="line_qa">
-				<div class="posi" id="posi_613" style="left: 32px; top: 40px;">613</div>
-
 				<div class="posi" id="posi_601" style="left: 84px; top: 76px;">601</div>
 
-				<div class="posi" id="posi_611" style="left: 32px; top: 126px;">611</div>
+				<div class="posi" id="posi_610" style="left: 32px; top: 10px;">610</div>
+				<div class="posi" id="posi_611" style="left: 32px; top: 50px;">611</div>
+				<div class="posi" id="posi_612" style="left: 32px; top: 90px;">612</div>
+
+				<div class="posi" id="posi_613" style="left: 32px; top: 130px;">613</div>
 
 				<div class="banner" for="line_qa">品保</div>
 
@@ -190,145 +192,96 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 
 			<div id="showline" class="line choosed" style="left: 10px; top: 410px; width: 998px; height: 242px;overflow:hidden;">
-				<div class="scrollline" for="line_qf" style="position: relative;">
-					<div class="position gridX4 gridY2" for="posi_111">111<br>受理</div>
-					<div class="position-f gridX4 gridFY2" for="posi_111"></div>
+				<div class="scrollline" for="line_qf">
+					<div class="position gridX2 gridY2" for="posi_111">111<br>受理</div>
+					<div class="position-f gridX2 gridFY2" for="posi_111"></div>
 
-					<div class="position gridX5 gridY2" for="posi_121">121<br>消毒</div>
-					<div class="position-f gridX5 gridFY2" for="posi_121"></div>
+					<div class="position gridX3 gridY1" for="posi_121">121<br>消毒</div>
+					<div class="position-f gridX3 gridFY1" for="posi_121"></div>
 
-					<div class="position gridX6 gridY2" for="posi_131">131<br>灭菌</div>
-					<div class="position-f gridX6 gridFY2" for="posi_131"></div>
+					<div class="position gridX3 gridY3" for="posi_131">131<br>灭菌</div>
+					<div class="position-f gridX3 gridFY3" for="posi_131"></div>
 
-					<div class="position gridX7 gridY2" for="posi_151">151<br>报价确认</div>
-					<div class="position-f gridX7 gridFY2" for="posi_151"></div>
+					<div class="position gridX5 gridY2" for="posi_150">150<br>报价确认</div>
+					<div class="position-f gridX5 gridFY2" for="posi_150"></div>
 
-					<div class="position gridX8 gridY2" for="posi_171">171<br>画像检查</div>
-					<div class="position-f gridX8 gridFY2" for="posi_171"></div>
+					<div class="position gridX6 gridY2" for="posi_151">151<br>报价确认</div>
+					<div class="position-f gridX6 gridFY2" for="posi_151"></div>
+
+					<div class="position gridX7 gridY2" for="posi_152">152<br>报价确认</div>
+					<div class="position-f gridX7 gridFY2" for="posi_152"></div>
+
+					<div class="position gridX9 gridY2" for="posi_171">171<br>画像检查</div>
+					<div class="position-f gridX9 gridFY2" for="posi_171"></div>
 
 					<div class="banner" for="line_qf" style="font-size:18px;padding: 8px 10px;z-index:22;">受理报价状况</div>
 				</div>
-				<div class="scrollline" for="line_dec" style="position: relative;">
-					<div class="position gridX1 gridY2" for="posi_211_1">211<br>内镜分解</div>
-					<div class="position-f gridX1 gridFY2" for="posi_211_1"></div>
+				<div class="scrollline" for="line_div_a" widthin>
+					<div class="position gridX1 gridY2" for="posi_210_1">210<br><span>内镜分解</span></div><div class="position-f gridX1 gridFY2P" for="posi_210_1"></div>
+					<div class="position gridX2 gridY1" for="posi_220_1">220<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_220_1"></div>
+					<div class="position gridX3 gridY1" for="posi_230_1">230<br><span>操作部分解</span></div><div class="position-f gridX3 gridFY1P" for="posi_230_1"></div>
+					<div class="position gridX4 gridY1" for="posi_240_1">240<br><span>S连接座再生</span></div><div class="position-f gridX4 gridFY1P" for="posi_240_1"></div>
+					<div class="position gridX5 gridY1" for="posi_250_1">250<br><span>零件订购</span></div><div class="position-f gridX5 gridFY1P" for="posi_250_1"></div>
+					<div class="position gridX6 gridY1" for="posi_260_1">260<br><span>零件签收</span></div><div class="position-f gridX6 gridFY1P" for="posi_260_1"></div>
+					<div class="position gridX7 gridY1" for="posi_270_1">270<br><span>操作部再生</span></div><div class="position-f gridX7 gridFY1P" for="posi_270_1"></div>
+					<div class="position gridX2 gridY3" for="posi_310_1">310<br><span>先端分解</span></div><div class="position-f gridX2 gridFY3P" for="posi_310_1"></div>
+					<div class="position gridX3 gridY3" for="posi_320_1">320<br><span>先端再生</span></div><div class="position-f gridX3 gridFY3P" for="posi_320_1"></div>
+					<div class="position gridX4 gridY3" for="posi_330_1">330<br><span>零件签收</span></div><div class="position-f gridX4 gridFY3P" for="posi_330_1"></div>
+					<div class="position gridX5 gridY3" for="posi_340_1">340<br><span>先端 1 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_340_1"></div>
+					<div class="position gridX6 gridY3" for="posi_350_1">350<br><span>先端 2 工程</span></div><div class="position-f gridX6 gridFY3P" for="posi_350_1"></div>
+					<div class="position gridX7 gridY3" for="posi_360_1">360<br><span>NS组件穿束</span></div><div class="position-f gridX7 gridFY3P" for="posi_360_1"></div>
+					<div class="position gridX8 gridY3" for="posi_370_1">370<br><span>A橡皮涂胶</span></div><div class="position-f gridX8 gridFY3P" for="posi_370_1"></div>
+					<div class="position gridX9 gridY2" for="posi_410_1">410<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX9 gridFY2P" for="posi_410_1"></div>
+					<div class="position gridX10 gridY2" for="posi_420_1">420<br><span>LG穿束</span></div><div class="position-f gridX10 gridFY2P" for="posi_420_1"></div>
+					<div class="position gridX11 gridY2" for="posi_430_1">430<br><span>S连接座组装+EL焊接</span></div><div class="position-f gridX11 gridFY2P" for="posi_430_1"></div>
+					<div class="position gridX12 gridY2" for="posi_440_1">440<br><span>画像检查+护套安装</span></div><div class="position-f gridX12 gridFY2P" for="posi_440_1"></div>
+					<div class="position gridX13 gridY2" for="posi_450_1">450<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX13 gridFY2P" for="posi_450_1"></div>
 
-					<div class="line line-addin gridX2 gridY2" style="height: 50px; width: 70px;">
-						<div class="banner" for="line4">分解库位</div>
-						<div class="banner" for="line4" style="text-decoration: none; top:26px;width: 58px;text-align:center;font-size: 12px;" id="decsize">10台</div>
-					</div>
-
-					<div class="position gridX3 gridY1" for="posi_221_1">221<br>零件再生 1</div>
-					<div class="position-f gridX3 gridFY1" for="posi_221_1"></div>
-
-					<div class="position gridX3 gridY3" for="posi_222_1">222<br>零件再生 2</div>
-					<div class="position-f gridX3 gridFY3" for="posi_222_1"></div>
-
-					<div class="position gridX4 gridY1" for="posi_231_1">231<br>操作部分解</div>
-					<div class="position-f gridX4 gridFY1" for="posi_231_1"></div>
-
-					<div class="position gridX4 gridY3" for="posi_241_1">241<br>S 连接座<br>再生 1</div>
-					<div class="position-f gridX4 gridFY3P" for="posi_241_1"></div>
-
-					<div class="position gridX5 gridY2" for="posi_251_1">251<br>零件订购</div>
-					<div class="position-f gridX5 gridFY2" for="posi_251_1"></div>
-
-					<div class="position gridX6 gridY2" for="posi_252_1">252<br>零件签收</div>
-					<div class="position-f gridX6 gridFY2" for="posi_252_1"></div>
-
-					<div class="position gridX7 gridY2" for="posi_261_1">261<br>操作部再生</div>
-					<div class="position-f gridX7 gridFY2" for="posi_261_1"></div>
-
-					<div class="position gridX8 gridY2 gridWide" for="posi_262_1">262<br>S连接座再生+<br>操作部漏水检查</div>
-					<div class="position-f gridX8 gridFY2P" for="posi_262_1"></div>
-
-					<div class="position gridX10 gridY2" for="posi_263_1">263<br>配对成功</div>
-					<div class="position-f gridX10 gridFY2" for="posi_263_1"></div>
-
-					<div class="banner" for="line_dec" style="font-size:18px;padding: 8px 10px;z-index:22;">分解工程状况</div>
+					<div class="banner" for="line_div_a" style="font-size:18px;padding: 8px 10px;z-index:22;">290 拉状况</div>
 				</div>
-				<div class="scrollline" for="line_ns" style="position: relative;">
-					<div class="position gridX1 gridY1" for="posi_311_1">311<br>先端分解<br>再生</div>
-					<div class="position-f gridX1 gridFY1P" for="posi_311_1"></div>
+				<div class="scrollline" for="line_div_b" widthin>
+					<div class="position gridX1 gridY1" for="posi_211_1">211<br><span>内镜分解</span></div><div class="position-f gridX1 gridFY1P" for="posi_211_1"></div>
+					<div class="position gridX2 gridY1" for="posi_221_1">221<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_221_1"></div>
+					<div class="position gridX3 gridY1" for="posi_231_1">231<br><span class="lines">操作部分解+S连接座再生</span></div><div class="position-f gridX3 gridFY1P" for="posi_231_1"></div>
+					<div class="position gridX4 gridY1" for="posi_241_1">241<br><span>零件订购</span></div><div class="position-f gridX4 gridFY1P" for="posi_241_1"></div>
+					<div class="position gridX5 gridY1" for="posi_251_1">251<br><span>零件签收</span></div><div class="position-f gridX5 gridFY1P" for="posi_251_1"></div>
+					<div class="position gridX6 gridY1" for="posi_261_1">261<br><span>操作部再生</span></div><div class="position-f gridX6 gridFY1P" for="posi_261_1"></div>
+					<div class="position gridX1 gridY3" for="posi_303_1">303<br><span>LG玻璃更换</span></div><div class="position-f gridX1 gridFY3P" for="posi_303_1"></div>
+					<div class="position gridX2 gridY3" for="posi_311_1">311<br><span>先端分解</span></div><div class="position-f gridX2 gridFY3P" for="posi_311_1"></div>
+					<div class="position gridX3 gridY3" for="posi_321_1">321<br><span>零件签收</span></div><div class="position-f gridX3 gridFY3P" for="posi_321_1"></div>
+					<div class="position gridX4 gridY3" for="posi_304_1">304<br><span>CCD线更换</span></div><div class="position-f gridX4 gridFY3P" for="posi_304_1"></div>
+					<div class="position gridX5 gridY3" for="posi_331_1">331<br><span>先端 1 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_331_1"></div>
+					<div class="position gridX6 gridY3" for="posi_341_1">341<br><span>先端 2 工程</span></div><div class="position-f gridX6 gridFY3P" for="posi_341_1"></div>
+					<div class="position gridX7 gridY3" for="posi_351_1">351<br><span>NS 组件穿束</span></div><div class="position-f gridX7 gridFY3P" for="posi_351_1"></div>
+					<div class="position gridX8 gridY3" for="posi_361_1">361<br><span class="lines">A 橡皮涂胶+一次涂胶</span></div><div class="position-f gridX8 gridFY3P" for="posi_361_1"></div>
+					<div class="position gridX9 gridY1" for="posi_411_1">411<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX9 gridFY1P" for="posi_411_1"></div>
+					<div class="position gridX10 gridY1" for="posi_421_1">421<br><span>LG穿束+S连接座组装</span></div><div class="position-f gridX10 gridFY1P" for="posi_421_1"></div>
+					<div class="position gridX11 gridY1" for="posi_431_1">431<br><span>EL焊接</span></div><div class="position-f gridX11 gridFY1P" for="posi_431_1"></div>
+					<div class="position gridX12 gridY1" for="posi_441_1">441<br><span>画像检查+护套安装</span></div><div class="position-f gridX12 gridFY1P" for="posi_441_1"></div>
+					<div class="position gridX13 gridY1" for="posi_451_1">451<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX13 gridFY1P" for="posi_451_1"></div>
+					<div class="position gridX10 gridY3" for="posi_301_1">301<br><span>先端预置</span></div><div class="position-f gridX10 gridFY3P" for="posi_301_1"></div>
+					<div class="position gridX12 gridY3" for="posi_302_1">302<br><span>CCD 盖玻璃更换</span></div><div class="position-f gridX12 gridFY3P" for="posi_302_1"></div>
 
-					<div class="position gridX1 gridY3" for="posi_312_1">312<br>先端分解<br>再生</div>
-					<div class="position-f gridX1 gridFY3P" for="posi_312_1"></div>
-
-					<div class="position gridX2 gridY2" for="posi_321_1">321<br>零件签收</div>
-					<div class="position-f gridX2 gridFY2" for="posi_321_1"></div>
-
-					<div class="position gridX3 gridY1" for="posi_331_1">331<br>先端 1 <br>工程</div>
-					<div class="position-f gridX3 gridFY1P" for="posi_331_1"></div>
-
-					<div class="position gridX3 gridY3" for="posi_333_1">333<br>先端 1-3<br>工程</div>
-					<div class="position-f gridX3 gridFY3P" for="posi_333_1"></div>
-
-					<div class="position gridX4 gridY1" for="posi_332_1">332<br>先端 1-2<br>工程</div>
-					<div class="position-f gridX4 gridFY1P" for="posi_332_1"></div>
-
-					<div class="position gridX4 gridY3" for="posi_341_1">341<br>先端 2 <br>工程</div>
-					<div class="position-f gridX4 gridFY3P" for="posi_341_1"></div>
-
-					<div class="position gridX5 gridY2" for="posi_351_1">351<br>NS 组件<br>穿束</div>
-					<div class="position-f gridX5 gridFY2P" for="posi_351_1"></div>
-
-					<div class="position gridX6 gridY2" for="posi_361_1">361<br>A 橡皮涂胶+一次涂胶</div>
-					<div class="position-f gridX6 gridFY2P" for="posi_361_1"></div>
-
-					<div class="position gridX7 gridY2 gridWide" for="posi_362_1">362<br>A 橡皮涂二次胶<br>+外观检查</div>
-					<div class="position-f gridX7 gridFY2P" for="posi_362_1"></div>
-
-					<div class="position gridX10 gridY1" for="posi_301_1">301<br>先端预制</div>
-					<div class="position-f gridX10 gridFY1" for="posi_301_1"></div>
-
-					<div class="position gridX10 gridY3" for="posi_302_1">302<br>CCD <br>盖玻璃更换</div>
-					<div class="position-f gridX10 gridFY3P" for="posi_302_1"></div>
-
-					<div class="position gridX11 gridY1" for="posi_303_1">303<br>LG <br>玻璃更换</div>
-					<div class="position-f gridX11 gridFY1P" for="posi_303_1"></div>
-
-					<div class="position gridX11 gridY3" for="posi_304_1">304<br>LG 线更换</div>
-					<div class="position-f gridX11 gridFY3" for="posi_304_1"></div>
-
-					<div class="banner" for="line_ns" style="font-size:18px;padding: 8px 10px;z-index:22;">NS 工程状况</div>
+					<div class="banner" for="line_div_b" style="font-size:18px;padding: 8px 10px;z-index:22;">260 拉状况</div>
 				</div>
-				<div class="scrollline" for="line_com" style="position: relative;">
-					<div class="position gridX3 gridY2" for="posi_411_1">411<br>内镜对接<br>+钢丝焊接</div>
-					<div class="position-f gridX3 gridFY2P" for="posi_411_1"></div>
+				<div class="scrollline" for="line_div_c">
+					<div class="position gridX1 gridY2" for="posi_212_1">212<br><span>内镜分解</span></div><div class="position-f gridX1 gridFY2P" for="posi_212_1"></div>
+					<div class="position gridX2 gridY1" for="posi_222_1">222<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_222_1"></div>
+					<div class="position gridX3 gridY1" for="posi_232_1">232<br><span>S连接座再生</span></div><div class="position-f gridX3 gridFY1P" for="posi_232_1"></div>
+					<div class="position gridX4 gridY1" for="posi_242_1">242<br><span>零件订购</span></div><div class="position-f gridX4 gridFY1P" for="posi_242_1"></div>
+					<div class="position gridX5 gridY1" for="posi_252_1">252<br><span>零件签收</span></div><div class="position-f gridX5 gridFY1P" for="posi_252_1"></div>
+					<div class="position gridX6 gridY1" for="posi_262_1">262<br><span>操作部再生</span></div><div class="position-f gridX6 gridFY1P" for="posi_262_1"></div>
+					<div class="position gridX2 gridY3" for="posi_312_1">312<br><span class="lines">先端分解再生+先端组装工程</span></div><div class="position-f gridX2 gridFY3P" for="posi_312_1"></div>
+					<div class="position gridX3 gridY3" for="posi_322_1">322<br><span>零件签收</span></div><div class="position-f gridX3 gridFY3P" for="posi_322_1"></div>
+					<div class="position gridX4 gridY3" for="posi_332_1">332<br><span class="lines">NS组件穿束+A橡皮涂胶</span></div><div class="position-f gridX4 gridFY3P" for="posi_332_1"></div>
+					<div class="position gridX9 gridY2" for="posi_412_1">412<br><span>内镜对接+LG穿束</span></div><div class="position-f gridX9 gridFY2P" for="posi_412_1"></div>
+					<div class="position gridX10 gridY2" for="posi_422_1">422<br><span>S连接座组装+EL焊接</span></div><div class="position-f gridX10 gridFY2P" for="posi_422_1"></div>
+					<div class="position gridX11 gridY2" for="posi_432_1">432<br><span class="lines">画像检查+护套安装+测漏</span></div><div class="position-f gridX11 gridFY2P" for="posi_432_1"></div>
 
-					<div class="position gridX4 gridY1" for="posi_421_1A">421 A<br>软管对接<br>+LG穿束</div>
-					<div class="position-f gridX4 gridFY1P" for="posi_421_1A"></div>
-
-					<div class="position gridX5 gridY1" for="posi_431_1A">431 A<br>S 连接座<br>组装</div>
-					<div class="position-f gridX5 gridFY1P" for="posi_431_1A"></div>
-
-					<div class="position gridX6 gridY1" for="posi_451_1A">451 A<br>EL 焊接</div>
-					<div class="position-f gridX6 gridFY1" for="posi_451_1A"></div>
-
-					<div class="position gridX7 gridY1" for="posi_461_1A">461 A<br>画像检查<br>+护套安装</div>
-					<div class="position-f gridX7 gridFY1P" for="posi_461_1A"></div>
-
-					<div class="position gridX8 gridY1 gridWide" for="posi_471_1A">471 A<br>测漏，送气/送水量<br>最终检测</div>
-					<div class="position-f gridX8 gridFY1P" for="posi_471_1A"></div>
-
-					<div class="position gridX4 gridY3" for="posi_421_1B">421 B<br>软管对接<br>+LG穿束</div>
-					<div class="position-f gridX4 gridFY3P" for="posi_421_1B"></div>
-
-					<div class="position gridX5 gridY3" for="posi_431_1B">431 B<br>S 连接座<br>组装</div>
-					<div class="position-f gridX5 gridFY3P" for="posi_431_1B"></div>
-
-					<div class="position gridX6 gridY3" for="posi_451_1B">451 B<br>EL 焊接</div>
-					<div class="position-f gridX6 gridFY3" for="posi_451_1B"></div>
-
-					<div class="position gridX7 gridY3" for="posi_461_1B">461 B<br>画像检查<br>+护套安装</div>
-					<div class="position-f gridX7 gridFY3P" for="posi_461_1B"></div>
-
-					<div class="position gridX8 gridY3 gridWide" for="posi_471_1B">471 B<br>测漏，送气/送水量<br>最终检测</div>
-					<div class="position-f gridX8 gridFY3P" for="posi_471_1B"></div>
-
-					<div class="banner" for="line_com" style="font-size:18px;padding: 8px 10px;z-index:22;">总组工程状况</div>
+					<div class="banner" for="line_div_c" style="font-size:18px;padding: 8px 10px;z-index:22;">细镜拉状况</div>
 				</div>
 
-				<div class="scrollline" for="line_endoeye" style="position: relative;">
+				<div class="scrollline" for="line_endoeye">
 					<div class="position gridX2 gridY2" for="posi_568_1">568<br>外科硬镜<br>报价</div>
 					<div class="position-f gridX2 gridFY2P" for="posi_568_1"></div>
 
@@ -344,7 +297,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="banner" for="line_endoeye" style="font-size:18px;padding: 8px 10px;z-index:22;">外科硬镜修理状况</div>
 				</div>
 
-				<div class="scrollline" for="line_fs_dec" style="position: relative;">
+				<div class="scrollline" for="line_fs_dec">
 					<div class="position gridX2 gridY2" for="posi_501_1">501<br>内镜分解</div>
 					<div class="position-f gridX2 gridFY2" for="posi_501_1"></div>
 
@@ -363,7 +316,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="banner" for="line_fs_dec" style="font-size:18px;padding: 8px 10px;z-index:22;">纤维镜分解工程状况</div>
 				</div>
 
-				<div class="scrollline" for="line_fs_com" style="position: relative;">
+				<div class="scrollline" for="line_fs_com">
 					<div class="position gridX4 gridY2" for="posi_511_1">511<br>FS 对接</div>
 					<div class="position-f gridX4 gridFY2" for="posi_511_1"></div>
 
@@ -379,7 +332,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="banner" for="line_fs_com" style="font-size:18px;padding: 8px 10px;z-index:22;">纤维镜总组工程状况</div>
 				</div>
 
-				<div class="scrollline" for="line_lm" style="position: relative;">
+				<div class="scrollline" for="line_lm">
 
 					<div class="position gridX4 gridY2" for="posi_401_1">401<br>零件签收</div>
 					<div class="position-f gridX4 gridFY2" for="posi_401_1"></div>
@@ -396,7 +349,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="banner" for="line_lm" style="font-size:18px;padding: 8px 10px;z-index:22;">中小修状况</div>
 				</div>
 
-				<div class="scrollline" for="line_peri" style="position: relative;">
+				<div class="scrollline" for="line_peri">
 					<div class="position gridX2 gridY2" for="posi_181">181<br>周边报价</div>
 					<div class="position-f gridX2 gridFY2" for="posi_181"></div>
 
@@ -412,15 +365,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="banner" for="line_peri" style="font-size:18px;padding: 8px 10px;z-index:22;">周边维修状况</div>
 				</div>
 
-				<div class="scrollline" for="line_qa" style="position: relative;">
+				<div class="scrollline" for="line_qa">
 					<div class="position gridX2 gridY2" for="posi_601">601<br>返品解析</div>
 					<div class="position-f gridX2 gridFY2" for="posi_601"></div>
 
-					<div class="position gridX4 gridY2" for="posi_611">611<br>出检</div>
-					<div class="position-f gridX4 gridFY2" for="posi_611"></div>
+					<div class="position gridX4 gridY2" for="posi_610">610<br>出检</div>
+					<div class="position-f gridX4 gridFY2" for="posi_610"></div>
 
-					<div class="position gridX6 gridY2" for="posi_613">613<br>周边检查</div>
-					<div class="position-f gridX6 gridFY2" for="posi_613"></div>
+					<div class="position gridX5 gridY2" for="posi_611">611<br>出检</div>
+					<div class="position-f gridX5 gridFY2" for="posi_611"></div>
+
+					<div class="position gridX6 gridY2" for="posi_612">612<br>出检</div>
+					<div class="position-f gridX6 gridFY2" for="posi_612"></div>
+
+					<div class="position gridX8 gridY2" for="posi_613">613<br>周边检查</div>
+					<div class="position-f gridX8 gridFY2" for="posi_613"></div>
 
 					<div class="banner" for="line_qa" style="font-size:18px;padding: 8px 10px;z-index:22;">品保工程状况</div>
 				</div>
