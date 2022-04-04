@@ -101,13 +101,20 @@ public class DownloadService {
 			BaseFont bfChinese = BaseFont.createFont(PathConsts.BASE_PATH + "\\msyh.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 			BaseFont bfStencil = BaseFont.createFont(PathConsts.BASE_PATH + "\\BOOKOSB.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-			Font titleFont = new Font(bfChinese, 16, Font.BOLD);
-			Font boldFont = new Font(bfStencil, 30, Font.BOLD);
-			Font boldFontWhite = new Font(bfStencil, 30, Font.BOLD);
-			boldFontWhite.setColor(BaseColor.WHITE);
+//			Font titleFont = new Font(bfChinese, 16, Font.BOLD);
+//			Font boldFont = new Font(bfStencil, 30, Font.BOLD);
+//			Font boldFontWhite = new Font(bfStencil, 30, Font.BOLD);
+//			boldFontWhite.setColor(BaseColor.WHITE);
+//
+//			Font specialFont = new Font(bfChinese, 11, Font.BOLD);
+//			Font detailFont = new Font(bfChinese, 7, Font.BOLD);
 
-			Font specialFont = new Font(bfChinese, 11, Font.BOLD);
-			Font detailFont = new Font(bfChinese, 7, Font.BOLD);
+			Font titleFont = new Font(bfChinese, 11, Font.BOLD);
+			Font boldFont = new Font(bfChinese, 28, Font.BOLD);
+			Font boldFontWhite = new Font(bfChinese, 28, Font.BOLD);
+			boldFontWhite.setColor(BaseColor.WHITE);
+			Font specialFont = new Font(bfChinese, 8, Font.BOLD);
+			Font detailFont = new Font(bfChinese, 8, Font.BOLD);
 
 			addPage(pdfWriter, document, mBean, titleFont, specialFont, detailFont, boldFont, boldFontWhite, conn, operator);
 
@@ -148,12 +155,12 @@ public class DownloadService {
 			BaseFont bfChinese = BaseFont.createFont(PathConsts.BASE_PATH + "\\msyh.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 			BaseFont bfStencil = BaseFont.createFont(PathConsts.BASE_PATH + "\\BOOKOSB.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-			Font titleFont = new Font(bfChinese, 16, Font.BOLD);
-			Font boldFont = new Font(bfStencil, 30, Font.BOLD);
-			Font boldFontWhite = new Font(bfStencil, 30, Font.BOLD);
+			Font titleFont = new Font(bfChinese, 11, Font.BOLD);
+			Font boldFont = new Font(bfChinese, 28, Font.BOLD);
+			Font boldFontWhite = new Font(bfChinese, 28, Font.BOLD);
 			boldFontWhite.setColor(BaseColor.WHITE);
-			Font specialFont = new Font(bfChinese, 11, Font.BOLD);
-			Font detailFont = new Font(bfChinese, 7, Font.BOLD);
+			Font specialFont = new Font(bfChinese, 8, Font.BOLD);
+			Font detailFont = new Font(bfChinese, 8, Font.BOLD);
 
 			for (int i = 0; i < mBeans.size() - 1; i++) {
 				MaterialEntity mBean = mBeans.get(i);
@@ -211,8 +218,8 @@ public class DownloadService {
 		float chunkWidth = (c.getWidthPoint());
 		if (chunkWidth < 80) {
 			c.setHorizontalScaling(80 / chunkWidth);
-		} else if (chunkWidth > 158) {
-			c.setHorizontalScaling(158 / chunkWidth);
+		} else if (chunkWidth > 195) {
+			c.setHorizontalScaling(195 / chunkWidth);
 		}
 
 		// 图画对象
@@ -225,18 +232,19 @@ public class DownloadService {
 			mainTable.setLockedWidth(true);
 			mainTable.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
 
-			float[] topTable_widths = { 14, 14, 17, 19, 17, 19 };
+			// float[] topTable_widths = { 14, 14, 17, 19, 17, 19 };
+			float[] topTable_widths = { 17,	11,	13,	23,	13,	23 };
 			PdfPTable topTable = new PdfPTable(topTable_widths);
 			topTable.setHorizontalAlignment(Element.ALIGN_CENTER);
 
 			topTable.setTotalWidth(236);
 			topTable.setLockedWidth(true);
 
-			PdfPCell cell = new PdfPCell(new Paragraph("修 理 号", titleFont));
+			PdfPCell cell = new PdfPCell(new Paragraph("修理号", titleFont));
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-			cell.setPaddingBottom(8f);
-			cell.setColspan(2);
+			// cell.setColspan(2);
 			topTable.addCell(cell);
 
 			String sorc_no = CommonStringUtil.nullToAlter(mBean.getSorc_no(), " ");
@@ -244,54 +252,60 @@ public class DownloadService {
 //				sorc_no = "▼▼ " + sorc_no + " ▼▼";
 //			} else
 			cell = new PdfPCell(new Paragraph(sorc_no, boldFont));
-			cell.setFixedHeight(40);
+			cell.setFixedHeight(30);
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setPadding(0.0f);
-			cell.setColspan(4);
-			cell.setPaddingBottom(10f);
+			cell.setColspan(5);
+//			cell.setPaddingBottom(10f);
 			topTable.addCell(cell);
 
-			cell = new PdfPCell(new Paragraph("型 号", titleFont));
+			cell = new PdfPCell(new Paragraph("型号", titleFont));
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-			cell.setPaddingBottom(8f);
-			cell.setColspan(2);
+			// cell.setColspan(2);
 			topTable.addCell(cell);
 
 			cell = new PdfPCell();
 			cell.setPhrase(new Paragraph(c));
 
-			cell.setFixedHeight(40);
+			cell.setFixedHeight(30);
+			cell.setNoWrap(true);
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
-			cell.setVerticalAlignment(Element.ALIGN_TOP);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setPadding(0.0f);
-			cell.setPaddingTop(1f);
-			cell.setPaddingBottom(1f);
-			cell.setColspan(4);
+//			cell.setPaddingTop(1f);
+//			cell.setPaddingBottom(1f);
+			cell.setColspan(5);
 
 			topTable.addCell(cell);
 
-			cell = new PdfPCell(new Paragraph("机 身 号", titleFont));
+			cell = new PdfPCell(new Paragraph("机身号", titleFont));
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-			cell.setPaddingBottom(8f);
-			cell.setColspan(2);
+			// cell.setPaddingBottom(5f);
+			// cell.setColspan(2);
 			topTable.addCell(cell);
 
 			cell = new PdfPCell(new Paragraph(new Paragraph(mBean.getSerial_no(), boldFontWhite)));
-			cell.setFixedHeight(40);
+			cell.setFixedHeight(30);
+			cell.setUseAscender(true);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setPadding(0.0f);
-			cell.setPaddingBottom(10f);
-			cell.setColspan(4);
+//			cell.setPaddingBottom(10f);
+			cell.setColspan(5);
 			cell.setBackgroundColor(BaseColor.BLACK);
 			topTable.addCell(cell);
 
-			cell = new PdfPCell(new Paragraph("等 级", specialFont));
+			cell = new PdfPCell(new Paragraph("等级", specialFont));
+			cell.setFixedHeight(30);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			cell.setVerticalAlignment(Element.ALIGN_TOP);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			topTable.addCell(cell);
 
 			cell = new PdfPCell(new Paragraph(CodeListUtils.getValue("material_level", "" + mBean.getLevel()), specialFont));
@@ -301,7 +315,7 @@ public class DownloadService {
 
 			cell = new PdfPCell(new Paragraph("同意日", specialFont));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			cell.setVerticalAlignment(Element.ALIGN_TOP);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			topTable.addCell(cell);
 
 			cell = new PdfPCell(new Paragraph(DateUtil.toString(mBean.getAgreed_date(), DateUtil.ISO_DATE_PATTERN), detailFont));
@@ -312,7 +326,7 @@ public class DownloadService {
 
 			cell = new PdfPCell(new Paragraph("完成日", specialFont));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			cell.setVerticalAlignment(Element.ALIGN_TOP);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			topTable.addCell(cell);
 
 			String sSchedulePlan = "";
@@ -343,11 +357,13 @@ public class DownloadService {
 			PdfContentByte cd = pdfWriter.getDirectContent();
 			Barcode128 code128 = new Barcode128();
 			code128.setCode(mBean.getMaterial_id());
+			code128.setBarHeight(45); // 60 -> 80 45 -> 60?
+			code128.setX(1.4f); // 150 = 1
 			Image image128 = code128.createImageWithBarcode(cd, null, null);
 			PdfPCell barcodeCell = new PdfPCell(image128);
 			barcodeCell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			barcodeCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-			barcodeCell.setPaddingTop(1.8f);
+//			barcodeCell.setPaddingTop(1.8f);
 			barcodeCell.setBorder(PdfPCell.NO_BORDER);
 			bottomTable.addCell(barcodeCell);
 

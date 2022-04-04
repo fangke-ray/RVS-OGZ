@@ -70,7 +70,12 @@ public class DayWorkTotalToMonthJob implements Job {
 	private static final String C_SHEET_FDEC = "纤维镜分解";
 	private static final String C_SHEET_FCOM = "纤维镜总组";
 	private static final String C_SHEET_PERI = "周边维修";
+	
 	private static final String C_SHEET_LM = "中小修修理";
+
+	private static final String C_SHEET_290L = "290 拉线";
+	private static final String C_SHEET_260L = "260 拉线";
+	private static final String C_SHEET_THIN = "细镜拉线";
 
 	private static final String C_SHEET_LIST = "工作日报";
 
@@ -79,6 +84,10 @@ public class DayWorkTotalToMonthJob implements Job {
 	private static final int DETAIL_INDEX_COM = 3;
 	private static final int DETAIL_INDEX_QUOTE_TEAM = 0;
 	private static final int DETAIL_INDEX_SP_TEAM = 4;
+
+	private static final int DETAIL_INDEX_290L = 1;
+	private static final int DETAIL_INDEX_260L = 2;
+	private static final int DETAIL_INDEX_THIN = 3;
 
 	private static final int DETAIL_INDEX_FDEC = 5;
 	private static final int DETAIL_INDEX_FCOM = 6;
@@ -379,8 +388,7 @@ public class DayWorkTotalToMonthJob implements Job {
 			// 一览列表生成
 			int idxS = book.getSheetIndex(C_SHEET_LIST);
 			HSSFSheet listSheet = book.getSheetAt(idxS);
-			HSSFSheet listManufactSheet = book.cloneSheet(idxS);
-			book.setSheetName(idxS + 1, C_SHEET_LIST + "制造");
+			HSSFSheet listManufactSheet = null;
 
 			PositionMapper pdao = conn.getMapper(PositionMapper.class);
 			List<String> lSectionNames = pdao.getSectionNames(RvsConsts.DEPART_MANUFACT);
@@ -410,7 +418,6 @@ public class DayWorkTotalToMonthJob implements Job {
 
 			for (int ist = 0; ist < 14 ; ist++) {
 				listSheet.setDefaultColumnStyle(ist, defaultCell);
-				listManufactSheet.setDefaultColumnStyle(ist, defaultCell);
 			}
 
 			Map<String, String> readCursor = new HashMap<String, String>();
@@ -422,6 +429,13 @@ public class DayWorkTotalToMonthJob implements Job {
 				// _log.info(operatorProcess.get("action_date"));
 				String sname = "" + operatorProcess.get("sname");
 				if (lSectionNames.contains(sname)) {
+					if (listManufactSheet == null) {
+						listManufactSheet = book.cloneSheet(idxS);
+						book.setSheetName(idxS + 1, C_SHEET_LIST + "制造");
+						for (int ist = 0; ist < 14 ; ist++) {
+							listManufactSheet.setDefaultColumnStyle(ist, defaultCell);
+						}
+					}
 					iRowProduct ++;
 					row = listManufactSheet.createRow(iRowProduct);
 				} else {
@@ -515,6 +529,24 @@ public class DayWorkTotalToMonthJob implements Job {
 								dtlHealthWorks.get(DETAIL_INDEX_COM).set(i, dtlHealthWorks.get(DETAIL_INDEX_COM).get(i) + factWorkByWeek.get(i+1).Htime);
 								dtlOverWorks.get(DETAIL_INDEX_COM).set(i, dtlOverWorks.get(DETAIL_INDEX_COM).get(i) + factWorkByWeek.get(i+1).Otime);
 								dtlLaboryDays.get(DETAIL_INDEX_COM).set(i, dtlLaboryDays.get(DETAIL_INDEX_COM).get(i) + factWorkByWeek.get(i+1).Wdays);
+							} else if ("00000000201".equals(line_id)) {
+								dtlScanWorks.get(DETAIL_INDEX_290L).set(i, dtlScanWorks.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Wtime);
+								dtlManageWorks.get(DETAIL_INDEX_290L).set(i, dtlManageWorks.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Mtime);
+								dtlHealthWorks.get(DETAIL_INDEX_290L).set(i, dtlHealthWorks.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Htime);
+								dtlOverWorks.get(DETAIL_INDEX_290L).set(i, dtlOverWorks.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Otime);
+								dtlLaboryDays.get(DETAIL_INDEX_290L).set(i, dtlLaboryDays.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Wdays);
+							} else if ("00000000202".equals(line_id)) {
+								dtlScanWorks.get(DETAIL_INDEX_260L).set(i, dtlScanWorks.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Wtime);
+								dtlManageWorks.get(DETAIL_INDEX_260L).set(i, dtlManageWorks.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Mtime);
+								dtlHealthWorks.get(DETAIL_INDEX_260L).set(i, dtlHealthWorks.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Htime);
+								dtlOverWorks.get(DETAIL_INDEX_260L).set(i, dtlOverWorks.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Otime);
+								dtlLaboryDays.get(DETAIL_INDEX_260L).set(i, dtlLaboryDays.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Wdays);
+							} else if ("00000000203".equals(line_id)) {
+								dtlScanWorks.get(DETAIL_INDEX_THIN).set(i, dtlScanWorks.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Wtime);
+								dtlManageWorks.get(DETAIL_INDEX_THIN).set(i, dtlManageWorks.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Mtime);
+								dtlHealthWorks.get(DETAIL_INDEX_THIN).set(i, dtlHealthWorks.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Htime);
+								dtlOverWorks.get(DETAIL_INDEX_THIN).set(i, dtlOverWorks.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Otime);
+								dtlLaboryDays.get(DETAIL_INDEX_THIN).set(i, dtlLaboryDays.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Wdays);
 							} else if ("00000000011".equals(line_id)) {
 								dtlScanWorks.get(DETAIL_INDEX_QUOTE_TEAM).set(i, dtlScanWorks.get(DETAIL_INDEX_QUOTE_TEAM).get(i) + factWorkByWeek.get(i+1).Wtime);
 								dtlManageWorks.get(DETAIL_INDEX_QUOTE_TEAM).set(i, dtlManageWorks.get(DETAIL_INDEX_QUOTE_TEAM).get(i) + factWorkByWeek.get(i+1).Mtime);
@@ -561,6 +593,7 @@ public class DayWorkTotalToMonthJob implements Job {
 						}
 					}
 					gWorkers++;
+
 					if ("00000000001".equals(section_id)) {
 						if ("00000000012".equals(line_id)) {
 							dtlWorkers[DETAIL_INDEX_DEC]++;
@@ -568,6 +601,12 @@ public class DayWorkTotalToMonthJob implements Job {
 							dtlWorkers[DETAIL_INDEX_NS]++;
 						} else if ("00000000014".equals(line_id)) {
 							dtlWorkers[DETAIL_INDEX_COM]++;
+						} else if ("00000000201".equals(line_id)) {
+							dtlWorkers[DETAIL_INDEX_290L]++;
+						} else if ("00000000202".equals(line_id)) {
+							dtlWorkers[DETAIL_INDEX_260L]++;
+						} else if ("00000000203".equals(line_id)) {
+							dtlWorkers[DETAIL_INDEX_THIN]++;
 						} else if ("00000000011".equals(line_id)) {
 							dtlWorkers[DETAIL_INDEX_QUOTE_TEAM]++;
 						} else if ("00000000050".equals(line_id)) {
@@ -595,6 +634,12 @@ public class DayWorkTotalToMonthJob implements Job {
 								dtlLeaderWorks.get(DETAIL_INDEX_NS).set(i, dtlLeaderWorks.get(DETAIL_INDEX_NS).get(i) + factWorkByWeek.get(i+1).Wtime);
 							} else if ("00000000014".equals(line_id)) {
 								dtlLeaderWorks.get(DETAIL_INDEX_COM).set(i, dtlLeaderWorks.get(DETAIL_INDEX_COM).get(i) + factWorkByWeek.get(i+1).Wtime);
+							} else if ("00000000201".equals(line_id)) {
+								dtlLeaderWorks.get(DETAIL_INDEX_290L).set(i, dtlLeaderWorks.get(DETAIL_INDEX_290L).get(i) + factWorkByWeek.get(i+1).Wtime);
+							} else if ("00000000202".equals(line_id)) {
+								dtlLeaderWorks.get(DETAIL_INDEX_260L).set(i, dtlLeaderWorks.get(DETAIL_INDEX_260L).get(i) + factWorkByWeek.get(i+1).Wtime);
+							} else if ("00000000203".equals(line_id)) {
+								dtlLeaderWorks.get(DETAIL_INDEX_THIN).set(i, dtlLeaderWorks.get(DETAIL_INDEX_THIN).get(i) + factWorkByWeek.get(i+1).Wtime);
 							} else if ("00000000011".equals(line_id)) {
 								dtlLeaderWorks.get(DETAIL_INDEX_QUOTE_TEAM).set(i, dtlLeaderWorks.get(DETAIL_INDEX_QUOTE_TEAM).get(i) + factWorkByWeek.get(i+1).Wtime);
 							} else if ("00000000050".equals(line_id)) {
@@ -627,9 +672,9 @@ public class DayWorkTotalToMonthJob implements Job {
 			else { // 日报表只需要明细
 				book.removeSheetAt(0); // 汇总
 				book.removeSheetAt(0); // 报价组
-				book.removeSheetAt(0); // 分解工程
-				book.removeSheetAt(0); // NS 工程
-				book.removeSheetAt(0); // 总组工程
+				book.removeSheetAt(0); // 分解工程 -> 290 拉线
+				book.removeSheetAt(0); // NS 工程 -> 260 拉线
+				book.removeSheetAt(0); // 总组工程 -> 细镜拉线
 				book.removeSheetAt(0); // 外科镜维修
 				book.removeSheetAt(0); // 纤维镜分解
 				book.removeSheetAt(0); // 纤维镜总组
@@ -639,7 +684,9 @@ public class DayWorkTotalToMonthJob implements Job {
 			}
 
 			listSheet.createFreezePane(0, 1);
-			listManufactSheet.createFreezePane(0, 1);
+			if (listManufactSheet != null) {
+				listManufactSheet.createFreezePane(0, 1);
+			}
 
 			// 保存文件
 			FileOutputStream fileOut = new FileOutputStream(destPath);
@@ -669,6 +716,8 @@ public class DayWorkTotalToMonthJob implements Job {
 	private void insertIntoDetailFile(HSSFSheet globalSheet, List<WeekBean> weekBeans, List<Double> leaderWorks,
 			List<Double> overWorks, List<Double> scanWorks, List<Double> manageWorks, List<Double> healthWorks,
 			List<Double> laboryDays, Integer workers, List<Integer> gWipAgrees) {
+		if (globalSheet == null) return;
+
 		// 写入文档
 		HSSFRow weekTitleRow = globalSheet.getRow(0);
 		HSSFRow leaderRow = globalSheet.getRow(2);
@@ -722,6 +771,23 @@ public class DayWorkTotalToMonthJob implements Job {
 		insertIntoDetailFile(book_detail.getSheet(C_SHEET_COM), weekBeans, dtlLeaderWorks.get(DETAIL_INDEX_COM),
 				dtlOverWorks.get(DETAIL_INDEX_COM), dtlScanWorks.get(DETAIL_INDEX_COM), dtlManageWorks.get(DETAIL_INDEX_COM),
 				dtlHealthWorks.get(DETAIL_INDEX_COM), dtlLaboryDays.get(DETAIL_INDEX_COM), dtlWorkers[DETAIL_INDEX_COM],
+				gWipAgrees);
+
+		// 记入290 拉线 表
+		insertIntoDetailFile(book_detail.getSheet(C_SHEET_290L), weekBeans, dtlLeaderWorks.get(DETAIL_INDEX_290L),
+				dtlOverWorks.get(DETAIL_INDEX_290L), dtlScanWorks.get(DETAIL_INDEX_290L), dtlManageWorks.get(DETAIL_INDEX_290L),
+				dtlHealthWorks.get(DETAIL_INDEX_290L), dtlLaboryDays.get(DETAIL_INDEX_290L), dtlWorkers[DETAIL_INDEX_290L], gWipAgrees);
+
+		// 记入260 拉线表
+		insertIntoDetailFile(book_detail.getSheet(C_SHEET_260L), weekBeans, dtlLeaderWorks.get(DETAIL_INDEX_260L),
+				dtlOverWorks.get(DETAIL_INDEX_260L), dtlScanWorks.get(DETAIL_INDEX_260L), dtlManageWorks.get(DETAIL_INDEX_260L),
+				dtlHealthWorks.get(DETAIL_INDEX_260L), dtlLaboryDays.get(DETAIL_INDEX_260L), dtlWorkers[DETAIL_INDEX_260L],
+				gWipAgrees);
+
+		// 记入细镜拉线表
+		insertIntoDetailFile(book_detail.getSheet(C_SHEET_THIN), weekBeans, dtlLeaderWorks.get(DETAIL_INDEX_THIN),
+				dtlOverWorks.get(DETAIL_INDEX_THIN), dtlScanWorks.get(DETAIL_INDEX_THIN), dtlManageWorks.get(DETAIL_INDEX_THIN),
+				dtlHealthWorks.get(DETAIL_INDEX_THIN), dtlLaboryDays.get(DETAIL_INDEX_THIN), dtlWorkers[DETAIL_INDEX_THIN],
 				gWipAgrees);
 
 		// 记入外科镜维修表
@@ -1294,7 +1360,7 @@ public class DayWorkTotalToMonthJob implements Job {
 		Calendar today = Calendar.getInstance();
 
 //		today.set(Calendar.YEAR, 2019);
-		today.set(Calendar.MONTH, Calendar.JULY);
+		today.set(Calendar.MONTH, Calendar.FEBRUARY);
 		today.set(Calendar.DATE, 1);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);

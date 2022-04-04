@@ -46,8 +46,10 @@ public class RvsConsts extends BaseConst {
 	public static final Integer WARNING_REASON_NOT_REACH_LOAD_RATE = 11; // 负荷率未达成
 	public static final Integer WARNING_REASON_NOT_REACH_ENERGY_RATE = 12; // 能率未达成
 	public static final String ROLE_MANAGER = "00000000009";
+	public static final String ROLE_FACTINLINE = "00000000003";
 	public static final String ROLE_SCHEDULER = "00000000004";
 	public static final String ROLE_LINELEADER = "00000000005";
+	public static final String ROLE_OPERATOR = "00000000006";
 	public static final String ROLE_DEVICEMANAGER = "00000000019";
 
 	public static final Integer DEPART_REPAIR = 1;

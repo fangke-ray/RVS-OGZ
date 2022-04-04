@@ -3,6 +3,7 @@ package com.osh.rvs.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -27,6 +28,7 @@ import com.osh.rvs.form.master.DevicesManageForm;
 import com.osh.rvs.form.master.DevicesTypeForm;
 import com.osh.rvs.mapper.CommonMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
+import com.osh.rvs.mapper.master.JigManageMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.service.equipment.DeviceJigOrderService;
 
@@ -383,7 +385,7 @@ public class DevicesManageService {
 		List<String[]> lst = new ArrayList<String[]>();
 		
 		List<PositionEntity> allPosition = positionService.getAllPosition(conn);
-		
+
 		for (PositionEntity position: allPosition) {
 			String[] p = new String[3];
 			p[0] = position.getPosition_id();
@@ -391,10 +393,39 @@ public class DevicesManageService {
 			p[2] = position.getName();
 			lst.add(p);
 		}
-		
+
+		List<PositionEntity> remainPosition = this.getRemainPosition(conn);
+		for (PositionEntity position: remainPosition) {
+			String[] p = new String[3];
+			p[0] = position.getPosition_id();
+			p[1] = position.getProcess_code() + " x";
+			p[2] = position.getName() + "（已废止）";
+			lst.add(p);
+		}
+
 		String pReferChooser = CodeListUtils.getReferChooser(lst);
 		
 		return pReferChooser;
+	}
+
+	private List<PositionEntity> getRemainPosition(SqlSession conn) {
+		DevicesManageMapper dao = conn.getMapper(DevicesManageMapper.class);
+		JigManageMapper daoJig = conn.getMapper(JigManageMapper.class);
+		List<PositionEntity> lD = dao.getRemainPosition();
+		List<PositionEntity> lJ = daoJig.getRemainPosition();
+		HashSet<String> rcdPosition = new HashSet<String>();
+
+		for (PositionEntity entity : lD) {
+			rcdPosition.add(entity.getPosition_id());
+		}
+
+		for (PositionEntity entity : lJ) {
+			if (!rcdPosition.contains(entity.getPosition_id())) {
+				lD.add(entity);
+			}
+		}
+
+		return lD;
 	}
 
 	public void exchange(DevicesManageForm devicesManageForm,

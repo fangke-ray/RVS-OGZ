@@ -65,6 +65,10 @@
 			<if test="process_code!= null and process_code!= '' ">
 				AND PROCESS_CODE = #{process_code}
 			</if>
+			<if test="special_page!= null and special_page!= '' ">
+				AND SPECIAL_PAGE = #{special_page}
+			</if>
+			
 		</where> 
 		<![CDATA[ 
 		ORDER BY PROCESS_CODE, DELETE_FLG, UPDATED_TIME DESC;

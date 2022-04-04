@@ -113,56 +113,98 @@ public class ReverseResolution {
 		}
 	}
 
-	public static String getPositionByProcessCode(String process_code, SqlSession conn) {
+	public static String getPositionByProcessCode(String process_code, String line_id, SqlSession conn) {
 		if (CommonStringUtil.isEmpty(process_code)) return null;
 		boolean ownConn = false;
 		if (conn == null) {
 			conn = getTempConn();
 			ownConn = true;
 		}
-		if (!positionRever.containsKey(process_code)) {
+
+		try {
+			if (positionRever.containsKey(process_code)) {
+				return positionRever.get(process_code);
+			} else if (line_id != null && positionRever.containsKey(process_code + "_" + line_id)) {
+				return positionRever.get(process_code + "_" + line_id);
+			}
+
 			PositionEntity condition = new PositionEntity();
 			condition.setProcess_code(process_code);
 			PositionMapper dao = conn.getMapper(PositionMapper.class);
 			List<PositionEntity> position = dao.searchPosition(condition);
-			if (position.size() > 0) {
+			if (position.size() == 1) {
 				positionRever.put(process_code, position.get(0).getPosition_id());
 				positionEntityRever.put(process_code, position.get(0));
 				logger.info("Get " + process_code + " is :" + position.get(0).getPosition_id());
+				return position.get(0).getPosition_id();
+			}
+
+			if (line_id != null) {
+				condition.setLine_id(line_id);
+				position = dao.searchPosition(condition);
+				if (position.size() > 0) {
+					positionRever.put(process_code + "_" + line_id, position.get(0).getPosition_id());
+					positionEntityRever.put(process_code + "_" + line_id, position.get(0));
+					logger.info("Get " + process_code + "_" + line_id + " is :" + position.get(0).getPosition_id());
+					return position.get(0).getPosition_id();
+				}
+			}
+
+			return null;
+		} finally {
+			if (ownConn) {
+				logger.info("Connnection close");
+				conn.close();
+				conn = null;
 			}
 		}
-		if (ownConn) {
-			logger.info("Connnection close");
-			conn.close();
-			conn = null;
-		}
-		return positionRever.get(process_code);
 	}
 
-	public static PositionEntity getPositionEntityByProcessCode(String process_code, SqlSession conn) {
+	public static PositionEntity getPositionEntityByProcessCode(String process_code, String line_id, SqlSession conn) {
 		if (CommonStringUtil.isEmpty(process_code)) return null;
 		boolean ownConn = false;
 		if (conn == null) {
 			conn = getTempConn();
 			ownConn = true;
 		}
-		if (!positionEntityRever.containsKey(process_code)) {
+
+		try {
+			if (positionEntityRever.containsKey(process_code)) {
+				return positionEntityRever.get(process_code);
+			} else if (line_id != null && positionEntityRever.containsKey(process_code + "_" + line_id)) {
+				return positionEntityRever.get(process_code + "_" + line_id);
+			}
+
 			PositionEntity condition = new PositionEntity();
 			condition.setProcess_code(process_code);
 			PositionMapper dao = conn.getMapper(PositionMapper.class);
 			List<PositionEntity> position = dao.searchPosition(condition);
-			if (position.size() > 0) {
+			if (position.size() == 1) {
 				positionRever.put(process_code, position.get(0).getPosition_id());
 				positionEntityRever.put(process_code, position.get(0));
 				logger.info("Get " + process_code + " is :" + position.get(0).getPosition_id());
+				return position.get(0);
+			}
+
+			if (line_id != null) {
+				condition.setLine_id(line_id);
+				position = dao.searchPosition(condition);
+				if (position.size() > 0) {
+					positionRever.put(process_code + "_" + line_id, position.get(0).getPosition_id());
+					positionEntityRever.put(process_code + "_" + line_id, position.get(0));
+					logger.info("Get " + process_code + "_" + line_id + " is :" + position.get(0).getPosition_id());
+					return position.get(0);
+				}
+			}
+
+			return null;
+		} finally {
+			if (ownConn) {
+				logger.info("Connnection close");
+				conn.close();
+				conn = null;
 			}
 		}
-		if (ownConn) {
-			logger.info("Connnection close");
-			conn.close();
-			conn = null;
-		}
-		return positionEntityRever.get(process_code);
 	}
 
 	public static SqlSession getTempConn() {

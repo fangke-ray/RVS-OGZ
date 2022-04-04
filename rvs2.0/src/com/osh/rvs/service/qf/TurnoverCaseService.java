@@ -434,16 +434,16 @@ public class TurnoverCaseService {
 		}
 
 		if (kind == null || kind.equals("06")) {
-//			// 取得Endoeye
-//			String mostSpacialShelf = mapper.getMostSpacialShelf(06, null);
-//			String startLocation = null;
-//			if (mostSpacialShelf == null) {
-//				throw new Exception("通箱（Endoeye）库位满了！");
-//			} else {
-//				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
-//			}
-//			result.put(TYPE_SHELF, mostSpacialShelf);
-//			result.put(TYPE_LOCATION, startLocation);
+			// 取得Endoeye
+			String mostSpacialShelf = mapper.getMostSpacialShelf(06, null);
+			String startLocation = null;
+			if (mostSpacialShelf == null) {
+				throw new Exception("通箱（Endoeye）库位满了！");
+			} else {
+				startLocation = mapper.getFirstSpaceInShelf(mostSpacialShelf, null, null); // (mostSpacialShelf, "1", null)
+			}
+			result.put(TYPE_SHELF, mostSpacialShelf);
+			result.put(TYPE_LOCATION, startLocation);
 		}
 
 		return new ArrayList<TurnoverCaseEntity>();

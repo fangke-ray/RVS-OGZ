@@ -673,6 +673,7 @@ public class ScheduleProcessingAction extends BaseAction {
 		String levelName = req.getParameter("levelName");
 //		String processing_position = req.getParameter("processing_position");
 		String process_code = req.getParameter("process_code");
+		String line_id = req.getParameter("line_id"); // TODO s
 
 		// 检索条件表单合法性检查
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
@@ -691,7 +692,7 @@ public class ScheduleProcessingAction extends BaseAction {
 				mService.removeMaterial(material_id, move_reason, conn);
 			} else {
 				ScheduleService scheduleService = new ScheduleService();
-				String position_id = ReverseResolution.getPositionByProcessCode(process_code, conn);
+				String position_id = ReverseResolution.getPositionByProcessCode(process_code, line_id, conn);
 				scheduleService.updateToPuse(material_id, move_reason, position_id, conn);
 			}
 		}

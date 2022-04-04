@@ -502,6 +502,14 @@ and a.inline_time is null -- [SpeedUp]
 		]]>
 	</select>
 
+	<select id="checkS1PassedDid" resultType="boolean" parameterType="java.lang.String">
+		<![CDATA[ 
+		select exists(select 1 from PRODUCTION_FEATURE where MATERIAL_ID = 00000213618 and POSITION_ID IN 
+			(select POSITION_ID FROM POSITION WHERE kind = 's1_pass')
+			) from dual;
+		]]>
+	</select>
+
 	<update id="changeSection" parameterType="String">
 		<![CDATA[ 
 		UPDATE production_feature

@@ -243,7 +243,7 @@ public class SoloSnoutService {
 			}
 		}
 
-		Map<String, String> pcsHtmls = PcsUtils.toHtmlSnout(fileTemplSolo, model_name, serial_no, "301", "00000000013", conn);
+		Map<String, String> pcsHtmls = PcsUtils.toHtmlSnout(fileTemplSolo, model_name, serial_no, "301", "00000000202", conn);
 
 		return pcsHtmls.get("NS 工程-先端预制");
 	}
@@ -403,7 +403,7 @@ public class SoloSnoutService {
 				// 发送给NS线长人员
 				OperatorMapper oMapper = conn.getMapper(OperatorMapper.class);
 				OperatorEntity operator = new OperatorEntity();
-				operator.setLine_id("00000000013");
+				operator.setLine_id("00000000202");
 				operator.setRole_id(RvsConsts.ROLE_LINELEADER);
 
 				List<OperatorNamedEntity> leaders = oMapper.searchOperator(operator);

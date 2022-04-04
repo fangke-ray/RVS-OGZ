@@ -108,13 +108,13 @@ public class LineLeaderAction extends BaseAction {
 
 		// 线长处理接收工位
 		if ("00000000012".equals(line_id)) {
-			listResponse.put("receivePos" , "252");
+//			listResponse.put("receivePos" , "252");
 		}
 		else if ("00000000013".equals(line_id)) {
-			listResponse.put("receivePos" , "321");
+//			listResponse.put("receivePos" , "321");
 		}
 		else if ("00000000014".equals(line_id)) {
-			listResponse.put("receivePos" , "400");
+//			listResponse.put("receivePos" , "400");
 		}
 		else if ("00000000050".equals(line_id)) {
 			listResponse.put("orderPos" , "569");
@@ -123,6 +123,8 @@ public class LineLeaderAction extends BaseAction {
 		else if ("00000000060".equals(line_id)) {
 			listResponse.put("orderPos" , "503");
 			listResponse.put("receivePos" , "504");
+		} else {
+			listResponse.put("orderPos", service.getOrderPos(line_id, conn));
 		}
 
 		// 有分线
@@ -280,7 +282,7 @@ public class LineLeaderAction extends BaseAction {
 
 		LoginData loginData = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
-		if ("00000000020".equals(position_id)) {
+//		if ("00000000020".equals(position_id)) {
 			// “零件订购”工位线长处理
 			service.partialResolve(material_id, model_name, position_id, conn, loginData);
 			// 触发之后工位
@@ -293,11 +295,11 @@ public class LineLeaderAction extends BaseAction {
 			workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);
 			workingPf = pfService.searchProductionFeatureOne(workingPf, conn);
 			pfService.fingerNextPosition(material_id , workingPf, conn, triggerList);
-		} else if("00000000013".equals(loginData.getLine_id())) {
-
-		} else {
-			// 零件再订购
-		}
+//		} else if("00000000013".equals(loginData.getLine_id())) {
+//
+//		} else {
+//			// 零件再订购
+//		}
 
 		if (triggerList.size() > 0 && errors.size() == 0) {
 			conn.commit();

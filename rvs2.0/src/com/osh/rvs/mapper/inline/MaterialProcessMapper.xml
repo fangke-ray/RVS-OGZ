@@ -135,14 +135,17 @@
 		]]>
 		<if test="in_advance == '0'">
 		<![CDATA[
-			and in_advance = 0;
+			and in_advance = 0
 		]]>
 		</if>
 		<if test="in_advance != '0'">
 		<![CDATA[
-			and in_advance > 0 and l.line_id != 13;
+			and in_advance > 0 and l.line_id != 13
 		]]>
 		</if>
+		<![CDATA[
+			limit 1;
+		]]>
 	</select>
 
 </mapper>

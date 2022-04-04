@@ -108,6 +108,7 @@ public class MaterialProcessService {
 		materialProcess.setLine_id(line_id);
 		dao.finishMaterialProcess(materialProcess);
 	}
+
 	/**
 	 * 获取维修对象进展工程
 	 * @param material_id
@@ -222,7 +223,11 @@ public class MaterialProcessService {
 				insertBean.setScheduled_date(today);
 				insertBean.setScheduled_assign_date(today);
 			} else {
-				if (inAdvances.get(lineId) == 0) {
+				Integer inAdvance = inAdvances.get(lineId);
+				if (inAdvance == null) {
+					inAdvance = 0;
+				}
+				if (inAdvance == 0) {
 					insertBean.setScheduled_date(scheduleTimes[IDX_COM_FINISH]);
 					if (level == 1) {
 						insertBean.setScheduled_assign_date(scheduleAssignTimes[IDX_COM_FINISH_S1]);
@@ -262,6 +267,9 @@ public class MaterialProcessService {
 		toogles.put("00000000060", 0);
 		toogles.put("00000000061", 0);
 		toogles.put("00000000070", 0); // TODO inline
+		toogles.put("00000000201", 0);
+		toogles.put("00000000202", 0);
+		toogles.put("00000000203", 0);
 		Map<String, Integer> inAdvances = new HashMap<String, Integer>();
 		inAdvances.put("00000000012", 1);
 		inAdvances.put("00000000013", 1);
@@ -283,6 +291,11 @@ public class MaterialProcessService {
 		Date[] dSchedulePlans = null;
 
 		for (String lineId : toogles.keySet()) {
+			Integer inAdvance = inAdvances.get(lineId);
+			if (inAdvance == null) {
+				inAdvance = 0;
+			}
+
 			if (toogles.get(lineId) == 1) { // 新增工程
 				if (dSchedulePlans == null) {
 					MaterialService mService = new MaterialService();
@@ -293,7 +306,7 @@ public class MaterialProcessService {
 
 				MaterialProcessEntity insertBean = new MaterialProcessEntity();
 				insertBean.setMaterial_id(material_id);
-				if (inAdvances.get(lineId) == 0) {
+				if (inAdvance == 0) {
 					insertBean.setScheduled_date(dSchedulePlans[IDX_COM_FINISH]);
 				} else {
 					insertBean.setScheduled_date(dSchedulePlans[IDX_DEC_FINISH]);
@@ -303,7 +316,7 @@ public class MaterialProcessService {
 				insertMaterialProcess(insertBean, conn);
 			}
 			if (toogles.get(lineId) == -1) { // 结束工程
-				if (inAdvances.get(lineId) == 0) {
+				if (inAdvance == 0) {
 					MaterialProcessMapper mapper = conn.getMapper(MaterialProcessMapper.class);
 					mapper.removeMaterialProcessLine(material_id, lineId);
 				} else {

@@ -484,7 +484,7 @@ public class MaterialService {
 					ext = 0;
 				} else if ("00000000013".equals(sline_id)) {
 					ext = 1;
-				} else if ("00000000014".equals(sline_id)) {
+				} else if ("00000000014".equals(sline_id) || "00000000201".equals(sline_id)|| "00000000202".equals(sline_id)|| "00000000203".equals(sline_id)) {
 					ext = 2;
 				} else if ("00000000015".equals(sline_id)) {
 					ext = 3;
@@ -496,7 +496,7 @@ public class MaterialService {
 				showLines = new String[2];
 				showLines[0] = "NS 工程";
 				showLines[1] = "分解工程";
-			} else if ("00000000014".equals(sline_id)) {
+			} else if ("00000000014".equals(sline_id) || "00000000201".equals(sline_id)|| "00000000202".equals(sline_id)|| "00000000203".equals(sline_id)) {
 				showLines = new String[3];
 				showLines[0] = "总组工程";
 				showLines[1] = "分解工程";
@@ -585,7 +585,7 @@ public class MaterialService {
 		ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
 
 		if (level != null && level.charAt(0) == '9') {
-		} else if (!dao.checkLineDid(material_id, "00000000013")) {
+		} else if (!dao.checkS1PassedDid(material_id)) {
 			fileTempl.clear();
 			return;
 		}

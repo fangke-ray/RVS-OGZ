@@ -257,7 +257,7 @@ public class LoginAction extends BaseAction {
 				loginData.setSection_id(workingPf.getSection_id());
 				loginData.setSection_name(workingPf.getSection_name());
 			}
-		} else if (loginData.getLine_id() != null && loginData.getLine_id().equals("00000000013")) {
+		} else if (loginData.getLine_id() != null && loginData.getLine_id().equals("00000000202")) {
 			SoloSnoutService service = new SoloSnoutService();
 			SoloProductionFeatureEntity sworkingPf = service.checkWorkingPfServiceRepair(loginData.getOperator_id(), null, conn);
 			if (sworkingPf != null) {

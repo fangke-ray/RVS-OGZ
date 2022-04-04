@@ -369,9 +369,9 @@ public class OperatorProductionAction extends BaseAction {
 		form.setLine_id(loginData.getLine_id());
 		form.setAction_time_start(DateUtil.toString(new Date(), DateUtil.DATE_PATTERN));
 		listResponse.put("line_id", loginData.getLine_id());
-		if ("00000000012".equals(loginData.getLine_id())
-				|| "00000000013".equals(loginData.getLine_id())
-				|| "00000000014".equals(loginData.getLine_id()))
+		if ("00000000201".equals(loginData.getLine_id())
+				|| "00000000202".equals(loginData.getLine_id())
+				|| "00000000203".equals(loginData.getLine_id()))
 			listResponse.put("section_id", loginData.getSection_id());
 		
 		//List<OperatorProductionForm> lResultForm = operatorProductionService.searchByCondition(form, conn);

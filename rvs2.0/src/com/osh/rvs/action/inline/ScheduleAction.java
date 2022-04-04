@@ -410,6 +410,7 @@ public class ScheduleAction extends BaseAction {
 		String move_reason = req.getParameter("move_reason");
 //		String processing_position = req.getParameter("processing_position");
 		String process_code = req.getParameter("process_code");
+		String line_id = req.getParameter("line_id"); // TODO s
 
 		// 检索条件表单合法性检查
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
@@ -423,7 +424,7 @@ public class ScheduleAction extends BaseAction {
 			info.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.modify.stop.working"));
 			errors.add(info);
 		} else {
-			String position_id = ReverseResolution.getPositionByProcessCode(process_code, conn);
+			String position_id = ReverseResolution.getPositionByProcessCode(process_code, line_id, conn);
 			scheduleService.updateToPuse(material_id, move_reason, position_id, conn);
 		}
 

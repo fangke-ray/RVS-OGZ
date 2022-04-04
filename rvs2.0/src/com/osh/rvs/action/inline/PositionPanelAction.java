@@ -49,6 +49,8 @@ import com.osh.rvs.service.CheckResultPageService;
 import com.osh.rvs.service.DevicesManageService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.PauseFeatureService;
+import com.osh.rvs.service.PositionService;
+import com.osh.rvs.service.ProcessAssignService;
 import com.osh.rvs.service.ProductionFeatureService;
 import com.osh.rvs.service.QualityTipService;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
@@ -173,9 +175,9 @@ public class PositionPanelAction extends BaseAction {
 				String decom = matchforward(arrSpecialForward, "decom");
 				String skipPosition = decom.replaceAll(".*decom\\[(.*)\\].*", "$1");
 				req.setAttribute("skip_process_code", skipPosition);
-				req.setAttribute("skip_position", ReverseResolution.getPositionByProcessCode(skipPosition, conn));
-			}
-
+				req.setAttribute("skip_position", ReverseResolution.getPositionByProcessCode(skipPosition, user.getLine_id(), conn));
+				actionForward = mapping.findForward("decom");
+			} else 
 			if (matchforward(arrSpecialForward, "result") != null) {
 				actionForward = mapping.findForward("result");
 				req.setAttribute("oManageNo", service.getManageNo(position_id,conn));
@@ -305,8 +307,7 @@ public class PositionPanelAction extends BaseAction {
 
 			String breakOptions = "";
 			if ("121".equals(process_code) || "131".equals(process_code)
-					|| "171".equals(process_code) || "251".equals(process_code)
-					|| "252".equals(process_code)) { // TODO 正规化，不会中断的
+					|| "171".equals(process_code) || PositionService.getNoBreakPositions().contains(position_id)) { // TODO 正规化，不会中断的
 			} else {
 				// 设定异常中断选项
 				steps = PathConsts.POSITION_SETTINGS.getProperty("break." + process_code);
@@ -1017,12 +1018,12 @@ public class PositionPanelAction extends BaseAction {
 				conn.rollback();
 			}
 
-			if ("311".equals(process_code) 
-					|| "411".equals(process_code)) {
-				MaterialService ms = new MaterialService();
-				MaterialEntity mEntity = ms.loadSimpleMaterialDetailEntity(conn, workingPf.getMaterial_id());
-				service.updatePutinBalance(mEntity.getModel_name(), mEntity.getCategory_name(), mEntity.getPat_id(), user.getSection_id(), user.getLine_id(), user.getPosition_id(), conn);
-			}
+//			if ("311".equals(process_code) 
+//					|| "411".equals(process_code)) {
+//				MaterialService ms = new MaterialService();
+//				MaterialEntity mEntity = ms.loadSimpleMaterialDetailEntity(conn, workingPf.getMaterial_id());
+//				service.updatePutinBalance(mEntity.getModel_name(), mEntity.getCategory_name(), mEntity.getPat_id(), user.getSection_id(), user.getLine_id(), user.getPosition_id(), conn);
+//			}
 		}
 
 		if (infoes.size() == 0) {
@@ -1287,10 +1288,14 @@ public class PositionPanelAction extends BaseAction {
 		// 优先触发工位
 		ProductionFeatureEntity workingPf =  service.getProcessingPf(user, conn);
 
-		workingPf.setPosition_id(position_id);
+		ProcessAssignService mpas = new ProcessAssignService();
+		List<String> list = mpas.getPositionBySign(workingPf.getMaterial_id(), position_id, conn);
 		workingPf.setSection_id(user.getSection_id());
 
-		pfService.fingerSpecifyPosition(workingPf.getMaterial_id(), true, workingPf, triggerList, conn);
+		for (String ret_pos : list) {
+			workingPf.setPosition_id(ret_pos);
+			pfService.fingerSpecifyPosition(workingPf.getMaterial_id(), true, workingPf, triggerList, conn);
+		}
 
 		if (triggerList.size() > 0) {
 			conn.commit();

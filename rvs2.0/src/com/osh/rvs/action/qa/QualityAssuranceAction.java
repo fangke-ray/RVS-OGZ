@@ -204,9 +204,9 @@ public class QualityAssuranceAction extends BaseAction {
 				MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
 
 				// 小修理共用大修理表单
-				if ("612".equals(workingPf.getProcess_code())) {
-					workingPf.setProcess_code("611");
-				}
+//				if ("612".equals(workingPf.getProcess_code())) {
+//					workingPf.setProcess_code("611");
+//				}
 
 //				// 单元无工程检查票
 //				if (mBean.getFix_type() == 2) {
@@ -258,9 +258,9 @@ public class QualityAssuranceAction extends BaseAction {
 
 				if (pauseingPf != null) {
 					// 小修理共用大修理表单
-					if ("612".equals(pauseingPf.getProcess_code())) {
-						pauseingPf.setProcess_code("611");
-					}
+//					if ("612".equals(pauseingPf.getProcess_code())) {
+//						pauseingPf.setProcess_code("611");
+//					}
 
 					MaterialService msevice = new MaterialService();
 					MaterialEntity mBean = msevice.loadMaterialDetailBean(conn, pauseingPf.getMaterial_id());
@@ -494,9 +494,9 @@ public class QualityAssuranceAction extends BaseAction {
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 		String process_code = user.getProcess_code();
 		// 小修理共用大修理表单
-		if ("612".equals(process_code)) {
-			process_code = "611";
-		}
+//		if ("612".equals(process_code)) {
+//			process_code = "611";
+//		}
 
 		// 取得当前作业中作业信息
 		ProductionFeatureEntity workingPf = ppService.getWorkingPf(user, conn);
@@ -1078,7 +1078,7 @@ public class QualityAssuranceAction extends BaseAction {
 				if (spoEntity != null) {
 					SoloProductionFeatureEntity spfEntity = new SoloProductionFeatureEntity();
 					spfEntity.setSerial_no(spoEntity.getSerial_no());
-					spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", conn));
+					spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", null, conn));
 
 					List<SoloProductionFeatureEntity> l = spfMapper.searchSoloProductionFeature(spfEntity);
 

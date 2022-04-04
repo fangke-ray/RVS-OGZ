@@ -413,6 +413,15 @@ public class RvsUtils {
 				} else if ("CL".equals(rever)) {
 					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
 					cond.setLine_id("00000000014");
+				} else if ("aL".equals(rever)) {
+					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
+					cond.setLine_id("00000000201");
+				} else if ("bL".equals(rever)) {
+					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
+					cond.setLine_id("00000000202");
+				} else if ("cL".equals(rever)) {
+					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
+					cond.setLine_id("00000000203");
 				} else if ("EL".equals(rever)) {
 					cond.setRole_id(RvsConsts.ROLE_LINELEADER);
 					cond.setLine_id("00000000050");

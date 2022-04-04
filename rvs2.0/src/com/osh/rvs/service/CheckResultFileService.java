@@ -866,9 +866,11 @@ public class CheckResultFileService {
 				// 规格力矩值 BASE
 				cacheXls.SetValue("B" + insertRow, getNoScale(trTorsion.getRegular_torque()));
 				if (hpScale == 1) cacheXls.SetNumberFormatLocal("B" + insertRow, "0.00");
+				if (hpScale == 2) cacheXls.SetNumberFormatLocal("B" + insertRow, "0.000");
 				// 规格力矩值 DIFF
 				cacheXls.SetValue("D" + insertRow, getNoScale(trTorsion.getDeviation()));
 				if (hpScale == 1) cacheXls.SetNumberFormatLocal("D" + insertRow, "0.00");
+				if (hpScale == 2) cacheXls.SetNumberFormatLocal("D" + insertRow, "0.000");
 				// 使用的工程
 				cacheXls.SetValue("F" + insertRow, trTorsion.getUsage_point());
 				// HP-10 HP-100
@@ -876,9 +878,11 @@ public class CheckResultFileService {
 				// 点检力矩[N·m]下限
 				cacheXls.SetValue("H" + insertRow, trTorsion.getRegular_torque_lower_limit().toPlainString());
 				if (hpScale == 1) cacheXls.SetNumberFormatLocal("H" + insertRow, "0.00");
+				if (hpScale == 2) cacheXls.SetNumberFormatLocal("H" + insertRow, "0.000");
 				// 点检力矩[N·m]上限
 				cacheXls.SetValue("J" + insertRow, trTorsion.getRegular_torque_upper_limit().toPlainString());
 				if (hpScale == 1) cacheXls.SetNumberFormatLocal("J" + insertRow, "0.00");
+				if (hpScale == 2) cacheXls.SetNumberFormatLocal("J" + insertRow, "0.000");
 				// 管理编号
 				cacheXls.SetValue("A" + insertRow, trTorsion.getManage_code());
 
@@ -1181,8 +1185,9 @@ public class CheckResultFileService {
 						Date checkedDate = new Date(0);
 
 						// 预先全划掉
+						CheckPosBean checkPos = checkPosData.get(itemSeq);
+						if (checkPos == null) continue;
 						{
-							CheckPosBean checkPos = checkPosData.get(itemSeq);
 							int shift = iAxis;
 							cellName = XlsUtil.getExcelColCode(checkPos.startX + shift * checkPos.shiftX - 1)
 									+ (checkPos.startY + checkPos.shiftY * iDev);
@@ -1193,7 +1198,6 @@ public class CheckResultFileService {
 						// 取得已点检单元格信息
 						if (listCre != null && listCre.size() > 0) {
 							for (CheckResultEntity rCre : listCre) {
-								CheckPosBean checkPos = checkPosData.get(itemSeq);
 								int shift = iAxis;
 
 								cellName = XlsUtil.getExcelColCode(checkPos.startX + shift * checkPos.shiftX - 1)
@@ -1227,40 +1231,48 @@ public class CheckResultFileService {
 								} else if ("C".equalsIgnoreCase(cpd.content)) {
 									cacheXls.SetNumberFormatLocal(cell, "m月d日");
 								}
+							} else {
+								cacheXls.SetValue(cell, "/");
 							}
 						}
 
 						// 签章
-						if (!isEmpty(jobNo)) {
-							for (CheckPosBean cpn : checkPosName) {
-								if (1 < cpn.signType) { // 操作者
-									continue;
-								}
-								if (cpn.cycleType != itemType) { // 一致的周期
-									continue;
-								}
-								if (checkPosManageNo.shiftY > 0) { // 多对象
-									cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
-											+ (cpn.startY  + cpn.shiftY * iDev);
+//						if (!isEmpty(jobNo)) {
+						for (CheckPosBean cpn : checkPosName) {
+							if (1 < cpn.signType) { // 操作者
+								continue;
+							}
+							if (cpn.cycleType != itemType) { // 一致的周期
+								continue;
+							}
+							if (checkPosManageNo.shiftY > 0) { // 多对象
+								cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
+										+ (cpn.startY  + cpn.shiftY * iDev);
+							} else {
+								cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
+										+ cpn.startY;
+							}
+							cell = cacheXls.getRange(cellName);
+							String Taged = cacheXls.GetValue(cellName);
+							if (isEmpty(Taged) || "null".equals(Taged)) {
+								cacheXls.SetValue(cell, "/");
+							}
+							if ("已千千千千千千千".equals(Taged)) {
+								continue;
+							}
+							if (isEmpty(jobNo)) {
+								continue;
+							}
+							if (checkPosManageNo.shiftY > 0 || (iDev == 0)) {
+								if ("V".equals(cpn.content)) {
+									cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign_v\\" + jobNo.toUpperCase(), cell, pageZoom);
 								} else {
-									cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
-											+ cpn.startY;
+									cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell, pageZoom);
 								}
-								cell = cacheXls.getRange(cellName);
-								String Taged = cacheXls.GetValue(cellName);
-								if ("已千千千千千千千".equals(Taged)) {
-									continue;
-								}
-								if (checkPosManageNo.shiftY > 0 || (iDev == 0)) {
-									if ("V".equals(cpn.content)) {
-										cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign_v\\" + jobNo.toUpperCase(), cell, pageZoom);
-									} else {
-										cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell, pageZoom);
-									}
-									cacheXls.SetValue(cell, "已千千千千千千千");
-								}
+								cacheXls.SetValue(cell, "已千千千千千千千");
 							}
 						}
+//						}
 					} else {
 						// 不需要填写
 						CheckPosBean checkPos = checkPosData.get(itemSeq);

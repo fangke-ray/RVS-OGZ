@@ -38,12 +38,14 @@ import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.ForSolutionAreaMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
+import com.osh.rvs.mapper.inline.MaterialProcessMapper;
 import com.osh.rvs.mapper.inline.PauseFeatureMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ModelMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
+import com.osh.rvs.mapper.partial.MaterialPartialMapper;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -215,8 +217,13 @@ public class AlarmMesssageService {
 			condBean.setLine_id("00000000061");
 		} else if ("11".equals(mdBean.getKind())) { // 显微镜
 			condBean.setLine_id("00000000101");
+		} else if ("02".equals(mdBean.getKind()) || "2".equals(mdBean.getKind())) {
+			condBean.setLine_id("00000000203");
 		} else {
-			condBean.setLine_id("00000000014");
+			// 按维修品process工位
+			MaterialProcessMapper mpMapper = conn.getMapper(MaterialProcessMapper.class);
+			String ln = mpMapper.getMaterialProcessLine(material_id, "0");
+			condBean.setLine_id(ln);
 		}
 		condBean.setSection_id(section_id);
 		condBean.setRole_id(RvsConsts.ROLE_LINELEADER);

@@ -247,9 +247,9 @@ FROM `for_solution_area`
 			<if test="line_id!=null and line_id eq '00000000013'">
 			AND (`position_id` = #{position_id} OR `position_id` = 27)
 			</if>
-			<if test="line_id!=null and line_id eq '00000000014'">
+			<if test="line_id!=null and (line_id eq '00000000014' or line_id eq '00000000201' or line_id eq '00000000202' or line_id eq '00000000203')">
 			AND (`position_id` = #{position_id} OR `position_id` IS NULL
-			OR (`reason` = 4 AND `position_id` IN (select position_id from position where line_id = 14))
+			OR (`reason` = 4 AND `position_id` IN (select position_id from position where line_id = #{line_id}))
 			)
 			</if>
 			<if test="line_id!=null and line_id eq '00000000050'">

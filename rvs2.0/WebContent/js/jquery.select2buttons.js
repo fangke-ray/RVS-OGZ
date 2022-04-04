@@ -249,5 +249,7 @@ return this.each(function(){
 			}
 		}
     });
+
+    if (!formerCheckStatus && select.val()) formerCheckStatus = true;
   });
 }

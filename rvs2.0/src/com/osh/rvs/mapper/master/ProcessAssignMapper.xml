@@ -413,4 +413,11 @@ where refer_type = 1 and refer_id = #{process_assign_template_id};
 		]]>
 	</select>
 
+	<select id="getPositionBySign" resultType="String" parameterType="String">
+		<![CDATA[ 
+		SELECT POSITION_ID FROM process_assign where refer_id = #{refer_id} AND sign_position_id = #{sign_position_id};
+		]]>
+	</select>
+
+
 </mapper>

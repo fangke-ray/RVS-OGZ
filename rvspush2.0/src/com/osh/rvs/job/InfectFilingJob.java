@@ -107,9 +107,9 @@ public class InfectFilingJob implements Job {
 		// 作业时间
 		Calendar today = Calendar.getInstance();
 
-		today.set(Calendar.YEAR, 2021);
-		today.set(Calendar.MONTH, Calendar.MAY);
-		today.set(Calendar.DATE, 3);
+		today.set(Calendar.YEAR, 2022);
+		today.set(Calendar.MONTH, Calendar.FEBRUARY);
+		today.set(Calendar.DATE, 7);
 
 		today.set(Calendar.HOUR_OF_DAY, 0);
 		today.set(Calendar.MINUTE, 0);
@@ -404,6 +404,10 @@ public class InfectFilingJob implements Job {
 		for (Map<String, Object> ret : retSingle) {
 			CheckedFileStorageEntity checked_file_storage = new CheckedFileStorageEntity();
 			String check_file_manage_id = "" + ret.get("check_file_manage_id");
+			if (targetIds != null && !targetIds.contains(check_file_manage_id)) {
+				continue;
+			}
+
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 			checked_file_storage.setDevices_manage_id("" + ret.get("devices_manage_id"));
 
@@ -481,6 +485,10 @@ public class InfectFilingJob implements Job {
 			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
 
 			String check_file_manage_id = "" + cutter[2];
+			if (targetIds != null && !targetIds.contains(check_file_manage_id)) {
+				continue;
+			}
+
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
 			checked_file_storage.setStorage_file_name(storage_file_name);
@@ -544,6 +552,10 @@ public class InfectFilingJob implements Job {
 			if (cutter.length > 4) checked_file_storage.setSpecialized(cutter[4]);
 
 			String check_file_manage_id = "" + cutter[2];
+			if (targetIds != null && !targetIds.contains(check_file_manage_id)) {
+				continue;
+			}
+
 			checked_file_storage.setCheck_file_manage_id(check_file_manage_id);
 
 			checked_file_storage.setStorage_file_name(storage_file_name);
@@ -710,6 +722,8 @@ public class InfectFilingJob implements Job {
 	}
 
 	private static String MAKE_URL = "http://localhost:8080/rvs/filingdownload.do?method=make"; // rvsG2
+	private static Set<String> targetIds = null;
+
 	// 单独归档
 	@SuppressWarnings("static-access")
 	private void makeFileSingle(CheckedFileStorageEntity checked_file_storage) throws IOException {

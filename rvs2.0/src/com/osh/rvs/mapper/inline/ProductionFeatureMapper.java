@@ -111,6 +111,7 @@ public interface ProductionFeatureMapper {
 
 	public boolean checkLineDid(@Param("material_id") String material_id, @Param("line_id") String line_id);
 
+	public boolean checkS1PassedDid(@Param("material_id") String material_id);
 	/**
 	 * 取得现存工位上的维修对象
 	 * (目前消耗品申请用)

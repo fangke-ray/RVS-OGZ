@@ -134,7 +134,7 @@ public class ScheduleProcessService {
 
 				if (entity.getProcessing_position() != null) {
 					retForm.setProcess_code(entity.getProcessing_position());
-					PositionEntity pe = ReverseResolution.getPositionEntityByProcessCode(entity.getProcessing_position(), conn);
+					PositionEntity pe = ReverseResolution.getPositionEntityByProcessCode(entity.getProcessing_position(), null, conn);
 					if (pe != null) {
 						retForm.setProcessing_position(pe.getName());
 					}

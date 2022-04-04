@@ -598,6 +598,14 @@ VALUES
 				pf10.finish_time
 		]]>
 	</select>
-	
-	
+
+	<select id="getMaterialFinishLine" resultType="String">
+		select mp.line_id from material_process mp 
+		join line l on mp.line_id = l.line_id
+		where mp.material_id = #{material_id}
+		and l.in_advance = 0
+		order by mp.finish_date desc
+		limit 1
+	</select>
+
 </mapper>

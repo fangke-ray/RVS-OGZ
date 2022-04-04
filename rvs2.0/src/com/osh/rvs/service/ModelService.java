@@ -188,7 +188,7 @@ public class ModelService {
 	public void update(ActionForm form, HttpSession session, SqlSessionManager conn, List<MsgInfo> errors) throws Exception {
 		// 表单复制到数据对象
 		ModelEntity updateBean = new ModelEntity();
-		BeanUtil.copyToBean(form, updateBean, null);
+		BeanUtil.copyToBean(form, updateBean, CopyOptions.COPYOPTIONS_NOEMPTY);
 
 		// 脏数据检查
 

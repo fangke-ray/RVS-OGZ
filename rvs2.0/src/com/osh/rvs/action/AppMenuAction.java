@@ -43,6 +43,10 @@ public class AppMenuAction extends BaseAction {
 	private static final String LINE_PERI = "00000000070"; // 周边设备修理
 	private static final String LINE_LIGHTMED = "00000000054"; // 中小修
 
+	private static final String LINE_ENDO_A = "00000000201"; // 290
+	private static final String LINE_ENDO_B = "00000000202"; // 260
+	private static final String LINE_ENDO_C = "00000000203"; // 细镜
+
 	/**
 	 * 菜单初始表示处理
 	 *
@@ -217,6 +221,52 @@ public class AppMenuAction extends BaseAction {
 			}
 			if ("00000000001".equals(section_id)) {
 				menuLinks.put("composeStorage", true);
+			}
+		}
+
+		menuLinks.put("endoA_line", false);
+		menuLinks.put("endoB_line", false);
+		menuLinks.put("endoC_line", false);
+
+		// 290线
+		if (LINE_ENDO_A.equals(user.getLine_id())) {
+			bRepairLine = true;
+			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
+				menuLinks.put("endoA_line", true);
+				menuLinks.put("在线作业", true);
+				// 总组库位
+			}
+			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+				links = getLinksByPositions(userPositions, LINE_ENDO_A, section_id, px);
+				inlinePosition += links;
+			}
+		}
+
+		// 260线
+		if (LINE_ENDO_B.equals(user.getLine_id())) {
+			bRepairLine = true;
+			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
+				menuLinks.put("endoB_line", true);
+				menuLinks.put("在线作业", true);
+				// 总组库位
+			}
+			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+				links = getLinksByPositions(userPositions, LINE_ENDO_B, section_id, px);
+				inlinePosition += links;
+			}
+		}
+
+		// 细镜线
+		if (LINE_ENDO_C.equals(user.getLine_id())) {
+			bRepairLine = true;
+			if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
+				menuLinks.put("endoC_line", true);
+				menuLinks.put("在线作业", true);
+				// 总组库位
+			}
+			if (privacies.contains(RvsConsts.PRIVACY_POSITION)) {
+				links = getLinksByPositions(userPositions, LINE_ENDO_C, section_id, px);
+				inlinePosition += links;
 			}
 		}
 

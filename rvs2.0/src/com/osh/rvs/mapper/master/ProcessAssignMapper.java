@@ -84,4 +84,6 @@ public interface ProcessAssignMapper {
 
 	public List<PositionEntity> getAllPositionsOfPatInLine(@Param("pat_id") String pat_id,
 			@Param("line_id") String line_id);
+
+	public List<String> getPositionBySign(@Param("refer_id") String template_id, @Param("sign_position_id") String sign_position_id);
 }

@@ -534,7 +534,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 		String[] showLines = new String[1];
 		String processCode = null;
-		if ("00000000013".equals(sline_id)) {
+		if ("00000000013".equals(sline_id) || "00000000202".equals(sline_id)) {
 			showLines[0] = "NS 工程";
 			processCode = "301";
 		} else {
@@ -1011,7 +1011,7 @@ public class PositionPanelSnoutAction extends BaseAction {
 			infoes.add(msginfo);
 		}
 
-		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, conn);
+		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, user.getLine_id(), conn);
 
 		// 先端头线长确认
 //		ProductionFeatureService pfService = new ProductionFeatureService();
@@ -1145,15 +1145,16 @@ public class PositionPanelSnoutAction extends BaseAction {
 
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
+		// 取得用户信息
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
 		String serial_no = req.getParameter("serial_no");
 		String from_process_code = req.getParameter("process_code");
-		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, conn);
+		String from_position_id = ReverseResolution.getPositionByProcessCode(from_process_code, user.getLine_id(), conn);
 
 		if (errors.size() == 0) {
 
-			// 取得用户信息
-			HttpSession session = req.getSession();
-			LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 			String this_process_code = user.getProcess_code();
 	
 			// 取得工作中维修对象

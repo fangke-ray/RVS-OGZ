@@ -313,7 +313,7 @@ public class DefectiveAnalysisAction extends BaseAction {
 				errors.add(error);
 			}
 			if (errors.size() == 0) {
-				service.postMessage(alarm_message_id, step, conn);
+				service.postMessage(entity, step, powerId, user.getOperator_id(), conn);
 			}
 		}
 

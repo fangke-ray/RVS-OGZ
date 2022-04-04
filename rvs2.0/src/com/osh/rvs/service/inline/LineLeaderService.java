@@ -549,4 +549,14 @@ public class LineLeaderService {
 			}
 		}
 	}
+
+	public String getOrderPos(String line_id, SqlSession conn) {
+		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
+		PositionEntity position = new PositionEntity();
+		position.setLine_id(line_id);
+		position.setSpecial_page("part_order");
+		List<PositionEntity> l = pMapper.searchPosition(position);
+		if (l == null || l.size() == 0) return null;
+		return l.get(0).getProcess_code();
+	}
 }

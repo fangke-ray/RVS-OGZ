@@ -544,4 +544,15 @@
 		WHERE tm.delete_flg=0 and status in (1,4)
 		ORDER BY tm.manage_code;
     </select>
+
+	<select id="getRemainPosition" resultType="PositionEntity">
+		select distinct pos.position_id, pos.process_code, pos.name 
+		from jig_manage tm join position pos 
+		on tm.position_id = pos.position_id
+		where pos.delete_flg = 1
+		and tm.delete_flg = 0
+		and tm.status not in (2, 3)
+		ORDER BY process_code;
+    </select>
+
 </mapper>

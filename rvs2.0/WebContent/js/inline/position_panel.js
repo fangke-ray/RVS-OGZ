@@ -1091,7 +1091,7 @@ var doStart_ajaxSuccess = function(xhrobj, textStatus){
 			$("#hidden_workstauts").val(resInfo.workstauts);
 			if (resInfo.workstauts == 1 || resInfo.workstauts == 4) {
 				treatStart(resInfo);
-				if (typeof(operator_ws) === "object") operator_ws.send("callLight:");
+				// if (typeof(operator_ws) === "object") operator_ws.send("callLight:");
 				getJustWorkingFingers(resInfo.mform.material_id);
 			} else if (resInfo.workstauts == 3) {
 				showPartialRecept(resInfo);

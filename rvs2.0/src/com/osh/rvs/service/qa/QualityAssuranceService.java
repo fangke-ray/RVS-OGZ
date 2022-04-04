@@ -95,7 +95,7 @@ public class QualityAssuranceService {
 			if (spoEntity != null) {
 				SoloProductionFeatureEntity spfEntity = new SoloProductionFeatureEntity();
 				spfEntity.setSerial_no(spoEntity.getSerial_no());
-				spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", conn));
+				spfEntity.setPosition_id(ReverseResolution.getPositionByProcessCode("812", null, conn));
 
 				List<SoloProductionFeatureEntity> l = spfMapper.searchSoloProductionFeature(spfEntity);
 

@@ -87,8 +87,8 @@ public class ScheduleService {
 				if ("00000000001".equals(entity.getSection_id())) {
 					// 平行分线
 					Set<String> dividePositions = PositionService.getDividePositions(conn);
-					entity.setPosition_id(ReverseResolution.getPositionByProcessCode(entity.getProcessing_position(), conn));
-					entity.setPosition_id2(ReverseResolution.getPositionByProcessCode(entity.getNs_processing_position(), conn));
+					entity.setPosition_id(ReverseResolution.getPositionByProcessCode(entity.getProcessing_position(), null, conn));
+					entity.setPosition_id2(ReverseResolution.getPositionByProcessCode(entity.getNs_processing_position(), null, conn));
 					entity.getAgreed_date(); //
 					if (dividePositions.contains(entity.getPosition_id()) 
 							|| (dividePositions.contains(entity.getPosition_id2()) && entity.getNs_finish_date() == null)) {

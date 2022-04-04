@@ -645,7 +645,18 @@
 		LEFT JOIN position pos_n on dmr.new_position_id = pos_n.position_id
 		JOIN operator op on dmr.updated_by = op.operator_id
 		WHERE `manage_id` = #{devices_manage_id}
-		AND dmr.`updated_time` between #{provide_date_start} and #{provide_date_end}
+		AND dmr.`updated_time` between #{provide_date_start} and DATE_ADD(#{provide_date_end},INTERVAL 1 DAY)
 		ORDER BY dmr.updated_time;
     </select>
+
+	<select id="getRemainPosition" resultType="PositionEntity">
+		select distinct pos.position_id, pos.process_code, pos.name 
+		from devices_manage dm join position pos 
+		on dm.position_id = pos.position_id
+		where pos.delete_flg = 1
+		and dm.delete_flg = 0
+		and dm.status not in (2, 3)
+		ORDER BY process_code;
+    </select>
+
 </mapper>

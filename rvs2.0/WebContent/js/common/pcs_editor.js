@@ -233,7 +233,12 @@ var pcsO = {
 		});
 
 		// 常用备注信息{
-		this.$pcs_contents.find(".i_frequent").bind("keypress", function(){
+		this.$pcs_contents.find(".i_frequent").bind("keydown", function(evt){
+			switch (evt.keyCode) {
+				case 8: case 46:
+				$(this).attr("changed", true);
+			}
+		}).bind("keypress", function(evt){
 			$(this).attr("changed", true);
 		});
 

@@ -102,4 +102,7 @@ public interface MaterialMapper {
 
 	//受理消毒灭菌
 	public List<MaterialEntity> searchAcceptDisinfectSterilize(@Param("finish_time") String finish_time);
+
+	// 取得维修品完成维修的工程
+	public String getMaterialFinishLine(String material_id);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.osh.rvs.bean.master.JigManageEntity;
+import com.osh.rvs.bean.master.PositionEntity;
 
 public interface JigManageMapper {
 
@@ -54,4 +55,6 @@ public interface JigManageMapper {
 	public List<JigManageEntity> searchByJigNo(@Param("jig_no") String jig_no);
 
 	public List<JigManageEntity> getAllManageCode();
+
+	public List<PositionEntity> getRemainPosition();
 }

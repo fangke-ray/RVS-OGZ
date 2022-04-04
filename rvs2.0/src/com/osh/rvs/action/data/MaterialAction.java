@@ -1028,7 +1028,7 @@ public class MaterialAction extends BaseAction {
 		ProductionFeatureEntity workingPf = new ProductionFeatureEntity();
 		workingPf.setPosition_id("00000000025");
 		workingPf.setSection_id("00000000001"); // 暂时固定 TODO
-		workingPf.setRework(service.getReworkCountWithLine(material_id, "00000000013", conn));
+		workingPf.setRework(service.getReworkCountWithLine(material_id, null, conn));
 
 		// 检查本次返工中有没有做过CCD盖玻璃更换
 		if (service.checkPositionDid(material_id, "00000000025", null, "" + workingPf.getRework(), conn)) {

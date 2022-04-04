@@ -34,16 +34,20 @@ public class PositionService {
 	private static Set<String> dividePositions = null;
 	private static Map<String, PositionEntity> positionEntityCache = new HashMap<String, PositionEntity>();
 	private static Map<String, String> specialPagePositions = null;
+
 	public static void clearCaches() {
 		dividePositions = null;
 		specialPagePositions = null;
 		positionEntityCache.clear();
 		ReverseResolution.positionRever.clear();
 		S1PASSES = null;
+		noBreakPositions = null;
 	}
 
 	/** S1等级时越过的工位 */
 	private static String[] S1PASSES = null;
+	private static Set<String> noBreakPositions = null;
+
 	static {
 		resetS1Passes();
 	}
@@ -435,5 +439,10 @@ public class PositionService {
 		}
 		return false;
 	}
-
+	public static Set<String> getNoBreakPositions() {
+		if (noBreakPositions == null) {
+			noBreakPositions = new HashSet<String>();
+		}
+		return noBreakPositions;
+	}
 }

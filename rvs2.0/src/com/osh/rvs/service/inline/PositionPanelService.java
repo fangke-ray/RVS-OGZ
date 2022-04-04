@@ -471,19 +471,19 @@ public class PositionPanelService {
 		boolean todayRecommended = false;
 
 		int balancePos = 0;
-		if (process_code.equals("211") || process_code.equals("411")) { // 311 or 411
-			String ar_position_id = position_id;
-			if (process_code.equals("211")) {
-				ar_line_id = "00000000013";
-				ar_position_id = "00000000026";
-			}
-			if (!putinBalanceBounds.containsKey(ar_line_id)) {
-				createPutinBalanceBound(section_id, ar_position_id, ar_line_id, conn);	
-			}
-			putinBalanceBound = putinBalanceBounds.get(ar_line_id);
-
-			balancePos = putinBalanceBound.getBalancePos();
-		}
+//		if (process_code.equals("211") || process_code.equals("411")) { // 311 or 411
+//			String ar_position_id = position_id;
+//			if (process_code.equals("211")) {
+//				ar_line_id = "00000000013";
+//				ar_position_id = "00000000026";
+//			}
+//			if (!putinBalanceBounds.containsKey(ar_line_id)) {
+//				createPutinBalanceBound(section_id, ar_position_id, ar_line_id, conn);	
+//			}
+//			putinBalanceBound = putinBalanceBounds.get(ar_line_id);
+//
+//			balancePos = putinBalanceBound.getBalancePos();
+//		}
 
 		for (WaitingEntity we : ret) {
 			if ("0".equals(we.getWaitingat())) we.setWaitingat("未处理");
@@ -692,7 +692,7 @@ public class PositionPanelService {
 				showLines = new String[2];
 				showLines[0] = "NS 工程";
 				showLines[1] = "分解工程";
-			} else if ("00000000014".equals(sline_id)) {
+			} else if ("00000000014".equals(sline_id) || "00000000201".equals(sline_id)|| "00000000202".equals(sline_id)|| "00000000203".equals(sline_id)) {
 				showLines = new String[3];
 				showLines[0] = "总组工程";
 				showLines[1] = "分解工程";

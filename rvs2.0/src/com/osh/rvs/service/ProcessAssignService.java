@@ -16,15 +16,15 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.bean.master.ProcessAssignTemplateEntity;
-import com.osh.rvs.common.PathConsts;
-import com.osh.rvs.common.ReverseResolution;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.form.master.ProcessAssignTemplateForm;
 import com.osh.rvs.mapper.CommonMapper;
+import com.osh.rvs.mapper.inline.ProductionAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 
@@ -316,5 +316,18 @@ public class ProcessAssignService {
 			lines.remove("00000000013");
 		}
 		return lines;
+	}
+
+
+	public List<String> getPositionBySign(String material_id, String position_id, SqlSession conn) {
+		List<String> ret = new ArrayList<String>();
+		MaterialService mServ = new MaterialService();
+		MaterialEntity mEntity = mServ.loadSimpleMaterialDetailEntity(conn, material_id);
+
+		if (mEntity != null && mEntity.getPat_id() != null) {
+			ProcessAssignMapper mapper = conn.getMapper(ProcessAssignMapper.class);
+			ret = mapper.getPositionBySign(mEntity.getPat_id(), position_id);
+		}
+		return ret;
 	}
 }

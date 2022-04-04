@@ -63,12 +63,15 @@ public class PcsUtils {
 	private static final String QUALIFIED = "合格";
 	private static final String UNQUALIFIED = "不合格";
 
-	private static final String COMMENT_451 = "剥线长度\n总组CCD线长度"; 
-	private static final String COMMENT_461 = "剥线长度\n总组CCD线长度"; 
-	private static final String COMMENT_341 = "CCD有效长度"; 
-	private static final String COMMENT_231 = "报废操作部√×"; 
-	private static final String COMMENT_241 = "报废S 连接座√×"; 
+	private static final String COMMENT_431= "剥线长度\n总组CCD线长度"; 
+	private static final String COMMENT_422= "剥线长度\n总组CCD线长度"; 
+	private static final String COMMENT_351 = "CCD有效长度"; 
+	private static final String COMMENT_312 = "CCD有效长度"; 
+	private static final String COMMENT_231 = "报废操作部√×\n报废S 连接座√×"; 
 	private static final String COMMENT_261 = "无烘干√×"; 
+	private static final String COMMENT_230 = "报废操作部√×"; 
+	private static final String COMMENT_240 = "报废S 连接座√×"; 
+	private static final String COMMENT_270 = "无烘干√×"; 
 
 	public static final Integer PCS_INPUTS_SIZE = 512; 
 	public static final Integer PCS_COMMENTS_SIZE = 128; 
@@ -449,11 +452,11 @@ public class PcsUtils {
 		// 取得维修对象返工次数
 		int reworkCount;
 		// DUMMY 对应
-		if ((currentProcessCode != null && currentProcessCode.startsWith("3")) || "00000000013".equals(leaderLineId)) {
-			reworkCount = dao.getReworkCountWithLine(materialId, "00000000013"); // TODO FIXIT 关系到线长编辑的工程检查票
-		} else {
+//		if ((currentProcessCode != null && currentProcessCode.startsWith("3")) || "00000000013".equals(leaderLineId)) {
+//			reworkCount = dao.getReworkCountWithLine(materialId, "00000000013"); // TODO FIXIT 关系到线长编辑的工程检查票
+//		} else {
 			reworkCount = dao.getReworkCount(materialId);
-		}
+//		}
 		logger.info("reworkCount:"+ reworkCount);
 
 		Map<String, String> htmlPcses = new LinkedHashMap<String, String>();
@@ -677,7 +680,7 @@ public class PcsUtils {
 				for (ProductionFeatureEntity pf : pfEntities) {
 					// 工位代码
 					String processCode = pf.getProcess_code();
-					if ("612".equals(processCode)) processCode = "611";
+//					if ("612".equals(processCode)) processCode = "611";
 					String orgProcessCode = processCode;
 
 					boolean isCurrent = processCode.equals(currentProcessCode);
@@ -1528,7 +1531,7 @@ public class PcsUtils {
 				for (ProductionFeatureEntity pf : pfEntities) {
 					// 工位代码
 					String process_code = pf.getProcess_code();
-					if ("612".equals(process_code)) process_code = "611";
+//					if ("612".equals(process_code)) process_code = "611";
 					logger.info("process_code"+ process_code);
 
 					String jam_code = getJam_codeByPf(pf);
@@ -1739,12 +1742,19 @@ public class PcsUtils {
 
 	private static String staticContent(String currentProcessCode) {
 		String comment = null;
-		if ("451".equals(currentProcessCode)) comment = COMMENT_451;
-		if ("461".equals(currentProcessCode)) comment = COMMENT_461;
-		if ("341".equals(currentProcessCode)) comment = COMMENT_341;
-		if ("231".equals(currentProcessCode)) comment = COMMENT_231;
-		if ("241".equals(currentProcessCode)) comment = COMMENT_241;
-		if ("261".equals(currentProcessCode)) comment = COMMENT_261;
+		if (CommonStringUtil.isEmpty(currentProcessCode)) return "";
+
+		switch (currentProcessCode) {
+		case "431" : comment = COMMENT_431; break;
+		case "422" : comment = COMMENT_422; break;
+		case "351" : comment = COMMENT_351; break;
+		case "312" : comment = COMMENT_312; break;
+		case "231" : comment = COMMENT_231; break;
+		case "261" : comment = COMMENT_261; break;
+		case "230" : comment = COMMENT_230; break;
+		case "240" : comment = COMMENT_240; break;
+		case "270" : comment = COMMENT_270; break;
+		}
 
 		if (comment == null) {
 			return "";
@@ -2179,7 +2189,7 @@ public class PcsUtils {
 				for (ProductionFeatureEntity pf : pfEntities) {
 					// 工位号
 					String process_code = pf.getProcess_code();
-					if ("612".equals(process_code)) process_code = "611";
+//					if ("612".equals(process_code)) process_code = "611";
 					process_code = checkOverAllExcel(process_code);
 
 					// 判断有本工号的标签
@@ -2456,7 +2466,7 @@ public class PcsUtils {
 			material.mkdirs();
 		}
 
-		String positionId =  ReverseResolution.getPositionByProcessCode("812", conn);
+		String positionId =  ReverseResolution.getPositionByProcessCode("812", null, conn);
 
 		// 对于每次返工
 		for (int iRework = 0, factRework = 0; iRework <= reworkCount; iRework++) {
@@ -3520,8 +3530,14 @@ public class PcsUtils {
 		if (!tFile.exists()) {
 			return;
 		}
-		String xmlFilename = xlsFilename.replaceAll("\\.xls", ".xml");
-		String htmlFilename = xlsFilename.replaceAll("\\.xls", ext);
+		String targetPath = xlsFilename;
+		if (savePath != null) {
+			File fSavePath = new File(savePath);
+			if (!fSavePath.exists()) fSavePath.mkdirs();
+			targetPath = savePath + "\\" + targetPath.substring(targetPath.lastIndexOf("\\") + 1);
+		}
+		String xmlFilename = targetPath.replaceAll("\\.xls", ".xml");
+		String htmlFilename = targetPath.replaceAll("\\.xls", ext);
 		XlsUtil template = null;
 		try {
 			template = new XlsUtil(xlsFilename);

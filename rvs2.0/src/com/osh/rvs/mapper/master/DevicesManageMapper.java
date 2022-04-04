@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.osh.rvs.bean.master.DeviceTypeEntity;
 import com.osh.rvs.bean.master.DevicesManageEntity;
+import com.osh.rvs.bean.master.PositionEntity;
 
 
 public interface DevicesManageMapper {
@@ -51,4 +52,5 @@ public interface DevicesManageMapper {
 	public int insertDeviceManageRecord(DevicesManageEntity dme);
 
 	public List<DevicesManageEntity> getDeviceManageRecordInPeriod(DevicesManageEntity devicesManageEntity);
+	public List<PositionEntity> getRemainPosition();
 }

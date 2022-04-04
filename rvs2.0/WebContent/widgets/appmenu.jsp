@@ -110,6 +110,17 @@ $(function() {
 	<% if(links.get("lmline")) { %>
 		        <a href="lineLeader.do?line_no=54" title="中小修工程线长界面">中小修修理工程</a><br>
 	<% } %>
+
+	<% if(links.get("endoA_line")) { %>
+		        <a href="lineLeader.do?line_no=00000000201" title="290拉线长界面">290拉线</a><br>
+	<% } %>
+	<% if(links.get("endoB_line")) { %>
+		        <a href="lineLeader.do?line_no=00000000202" title="260拉线长界面">260拉线</a><br>
+	<% } %>
+	<% if(links.get("endoC_line")) { %>
+		        <a href="lineLeader.do?line_no=00000000203" title="细镜拉线长界面">细镜拉线</a><br>
+	<% } %>
+
 	<% if(links.get("inlinePosition")) { %>
 		        ${inlinePosition}
 	<% } %>

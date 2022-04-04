@@ -1,7 +1,7 @@
 package com.osh.rvs.service;
 
-import static framework.huiqing.common.util.CommonStringUtil.joinBy;
 import static framework.huiqing.common.util.CommonStringUtil.fillChar;
+import static framework.huiqing.common.util.CommonStringUtil.joinBy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +20,9 @@ import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.common.RvsConsts;
-import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.ProductionFeatureForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
-import com.osh.rvs.mapper.inline.DeposeStorageMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
 import com.osh.rvs.mapper.inline.ProductionAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
@@ -301,11 +299,11 @@ public class ProductionFeatureService {
 					entity.setRework(neoRework);
 					pfDao.insertProductionFeature(entity);
 
-					if (isFact && ("99".equals(position_id) || "00000000099".equals(position_id)
-							|| "27".equals(position_id) || "00000000027".equals(position_id))) {
-						MaterialPartialService mptlService = new MaterialPartialService();
-						mptlService.createMaterialPartialWithExistCheck(material_id, conn);
-					}
+//					if (isFact && ("99".equals(position_id) || "00000000099".equals(position_id)
+//							|| "27".equals(position_id) || "00000000027".equals(position_id))) {
+//						MaterialPartialService mptlService = new MaterialPartialService();
+//						mptlService.createMaterialPartialWithExistCheck(material_id, conn);
+//					}
 
 					if (isFact) {
 						// 通知
@@ -340,14 +338,14 @@ public class ProductionFeatureService {
 	}
 
 	private Integer getPutinOperateResult(String position_id) {
-		// 211 本线后续工位从分解库位取得 TODO 正式化
-		if (position_id.endsWith("17")
-				|| position_id.endsWith("18")
-				|| position_id.endsWith("19")) { // || position_id.endsWith("77")
-			return 7;
-		} else {
+		// 211 本线后续工位从分解库位取得 //  正式化 2022/2 废弃
+//		if (position_id.endsWith("17")
+//				|| position_id.endsWith("18")
+//				|| position_id.endsWith("19")) { // || position_id.endsWith("77")
+//			return 7;
+//		} else {
 			return 0;
-		}
+//		}
 	}
 
 	/** 判断线长点检 */
@@ -390,6 +388,7 @@ public class ProductionFeatureService {
 		
 		String position_id = workingPf.getPosition_id();
 		List<String> partOrderPoses  = PositionService.getPositionsBySpecialPage("part_order", conn);
+		List<String> dismantlePoses  = PositionService.getPositionsBySpecialPage("dismantle", conn);
 		List<String> qualityAssurancePoses  = PositionService.getPositionsBySpecialPage("qualityAssurance", conn);
 
 		// 发动工位
@@ -413,7 +412,6 @@ public class ProductionFeatureService {
 			}
 		}
 		
-		Integer level = mEntity.getLevel();
 		boolean isLightFix = false;
 		
 		String pat_id = mEntity.getPat_id(); // 维修流程主键
@@ -430,7 +428,10 @@ public class ProductionFeatureService {
 			String category_id = mEntity.getCategory_id();
 			CategoryService cService = new CategoryService();
 			String quote_pat_id = cService.getDetail(category_id, conn).getDefault_quote_pat_id();
-			paProxy = new ProcessAssignProxy(material_id, quote_pat_id, "00000000001", isLightFix, conn);
+			// paProxy = new ProcessAssignProxy(material_id, quote_pat_id, "00000000001", isLightFix, conn);
+			ProcessAssignService pas = new ProcessAssignService();
+			List<String> firstPositionIds = pas.getFirstPositionIds(quote_pat_id, conn);
+			nextPositions.addAll(firstPositionIds);
 		} else if (qualityAssurancePoses.contains(position_id)) { // 品保
 			if (RvsConsts.POSITION_PRODUCT_QA.equals(position_id)) { 
 				nextPositions.add(RvsConsts.POSITION_PRODUCT_SHIPPING);
@@ -461,35 +462,35 @@ public class ProductionFeatureService {
 			}
 		} else { // 维修流程上
 			if ("00000000016".equals(position_id)) { // 零件分解库位
-				DeposeStorageMapper dsMapper = conn.getMapper(DeposeStorageMapper.class);
-
-				// 返工等情况，判断已放入
-				Map<String, String> materiaIncase = dsMapper.getDeposeStorageByMaterial(material_id);
-				if (materiaIncase == null) {
-					String caseCode = null;
-					if (level == 1) {
-						caseCode = dsMapper.getNextEmptyStorage("S1");
-					} else {
-						String maxUsedCaseCode = dsMapper.getMaxStorage("S3");
-						caseCode = dsMapper.getNextEmptyStorage(maxUsedCaseCode);
-						if (caseCode == null) {
-							caseCode = dsMapper.getNextEmptyStorage("S3");
-						}
-					}
-					if (caseCode == null) {
-						if (isFact) {
-							throw new Exception(ApplicationMessage.WARNING_MESSAGES.getMessage("info.deposeStorage.full"));
-						} else {
-							ret.add("[" + ApplicationMessage.WARNING_MESSAGES.getMessage("info.deposeStorage.full") + "]");
-						}
-					} else {
-						dsMapper.putIntoStorage(material_id, caseCode);
-						Map<String, String> dsMap = dsMapper.getDeposeStorageByCode(caseCode);
-						ret.add("[内镜分解库位：" + dsMap.get("shelf_name") + "]");
-					}
-				} else {
-					ret.add("[内镜分解库位：" + materiaIncase.get("shelf_name") + "]");
-				}
+//				DeposeStorageMapper dsMapper = conn.getMapper(DeposeStorageMapper.class);
+//
+//				// 返工等情况，判断已放入
+//				Map<String, String> materiaIncase = dsMapper.getDeposeStorageByMaterial(material_id);
+//				if (materiaIncase == null) {
+//					String caseCode = null;
+//					if (level == 1) {
+//						caseCode = dsMapper.getNextEmptyStorage("S1");
+//					} else {
+//						String maxUsedCaseCode = dsMapper.getMaxStorage("S3");
+//						caseCode = dsMapper.getNextEmptyStorage(maxUsedCaseCode);
+//						if (caseCode == null) {
+//							caseCode = dsMapper.getNextEmptyStorage("S3");
+//						}
+//					}
+//					if (caseCode == null) {
+//						if (isFact) {
+//							throw new Exception(ApplicationMessage.WARNING_MESSAGES.getMessage("info.deposeStorage.full"));
+//						} else {
+//							ret.add("[" + ApplicationMessage.WARNING_MESSAGES.getMessage("info.deposeStorage.full") + "]");
+//						}
+//					} else {
+//						dsMapper.putIntoStorage(material_id, caseCode);
+//						Map<String, String> dsMap = dsMapper.getDeposeStorageByCode(caseCode);
+//						ret.add("[内镜分解库位：" + dsMap.get("shelf_name") + "]");
+//					}
+//				} else {
+//					ret.add("[内镜分解库位：" + materiaIncase.get("shelf_name") + "]");
+//				}
 			} else
 			if (partOrderPoses.contains(position_id)) { // 零件订购
 				// 2期进行后就取消 TODO
@@ -630,10 +631,20 @@ public class ProductionFeatureService {
 							}
 						}
 					}
+				} else {
+					nextPositions.add(qa_position_id);
+					PositionService posServ = new PositionService();
+					PositionEntity posEntity = posServ.getPositionEntityByKey(position_id, conn);
+					mpService.finishMaterialProcess(material_id, posEntity.getLine_id(), triggerList, conn);
 				}
 				fixed = true;
 			} else {
 				fixed = false;
+			}
+
+			if (isFact && dismantlePoses.contains(position_id)) {
+				MaterialPartialService mptlService = new MaterialPartialService();
+				mptlService.createMaterialPartialWithExistCheck(material_id, conn);
 			}
 
 //			 if (nextPositions.size() == 1 && RvsConsts.POSITION_QA.equals(nextPositions.get(0))) fixed = true;

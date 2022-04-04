@@ -275,9 +275,6 @@ public class UsageCheckAction extends BaseAction {
 		// 错误信息集合
 		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		// 返回Json格式响应信息
-		returnJsonResponse(response, callbackResponse);
-
 		CheckResultPageService service = new CheckResultPageService();
 
 		LoginData loginData=(LoginData)request.getSession().getAttribute(RvsConsts.SESSION_USER);

@@ -270,11 +270,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								var skipPosition = $("#skip_position").val(); // "00000000019";
 								$("#sendbutton").disable();
 								checkProcess(skipPosition);
-								if (skipPosition == "00000000019") {
-									$("#sendbutton").val("241工位开始");
-								} else if (skipPosition == "00000000023") {
-									$("#sendbutton").val("261工位开始");
-								}
+								$("#sendbutton").val("${skip_process_code} 工位准备作业");
 
 								$("#sendbutton").click(function(){
 									var data = {material_id: $("#pauseo_material_id").val(), position_id : skipPosition, fixed: true};
