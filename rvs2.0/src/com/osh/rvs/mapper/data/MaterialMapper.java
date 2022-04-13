@@ -94,6 +94,10 @@ public interface MaterialMapper {
 
 	public void updateMaterialPat(@Param("material_id") String material_id,@Param("pat_id") String pat_id) throws Exception;
 
+	/**
+	 * 更新计划出货日
+	 * @param material_id
+	 */
 	public void updateMaterialScheduledDate(MaterialEntity entity);
 
 	/**
@@ -122,11 +126,6 @@ public interface MaterialMapper {
 	 * @param material_id
 	 */
 	public List<MaterialEntity> getInlineScheduled();
-	/**
-	 * 更新计划出货日
-	 * @param material_id
-	 */
-	public void updateScheduledDate(MaterialEntity entity);
 	
 	/***更新完成时间*/
 	public void updateOutLineTime(@Param("material_id") String material_id);

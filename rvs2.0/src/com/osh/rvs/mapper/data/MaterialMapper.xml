@@ -823,7 +823,7 @@
 			</if>
 			<if test="scheduled_date!= null or agreed_date!= null">
 		<![CDATA[ 
-			,scheduled_date = CASE WHEN #{agreed_date} >= '2999/12/31' THEN null WHEN scheduled_expedited = 0 THEN #{scheduled_date} ELSE scheduled_date END
+			,scheduled_date = CASE WHEN #{agreed_date} >= '2999/12/31' THEN null WHEN scheduled_expedited = 0 AND scheduled_date IS NULL THEN #{scheduled_date} ELSE scheduled_date END
 		]]>
 			</if>
 			<if test="customer_id != null">
@@ -1053,14 +1053,6 @@
 		]]>
 	</select>
 
-	<update id="updateScheduledDate" parameterType="MaterialEntity">
-		<![CDATA[ 
-			UPDATE Material SET
-			scheduled_date = #{scheduled_date}
-			where material_id = #{material_id}
-		]]>
-	</update>
-	
 	<update id="updateOutLineTime" parameterType="String">
 	<![CDATA[ 
 		UPDATE Material SET

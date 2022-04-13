@@ -230,7 +230,7 @@ public class WidgetAction extends BaseAction {
 			req.setAttribute("level", "2");
 		} else if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
 			ProcessAssignService paService = new ProcessAssignService();
-			String patOptions = paService.getOptions(null, conn);
+			String patOptions = paService.getOptions(null, 1, conn);
 			req.setAttribute("patOptions", patOptions);
 			req.setAttribute("level", "1");
 		} else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
@@ -320,7 +320,7 @@ public class WidgetAction extends BaseAction {
 				SectionService sService = new SectionService();
 				req.setAttribute("sOptions", sService.getOptions(user.getDepartment(), conn, null));
 				ProcessAssignService paService = new ProcessAssignService();
-				String patOptions = paService.getOptions(null, conn);
+				String patOptions = paService.getOptions(null, 1, conn);
 				req.setAttribute("patOptions", patOptions);
 			}
 			if ("3".equals(editLevel)) {
