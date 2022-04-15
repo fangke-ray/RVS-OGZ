@@ -400,25 +400,33 @@ public class LoginAction extends BaseAction {
 		if (errors.isEmpty()) {
 			OperatorService oservice = new OperatorService();
 			Map<String, String> uRoles = oservice.getUserRoles(loginData.getOperator_id(), conn);
-			if (uRoles != null && uRoles.size() > 0
-					&& !RvsConsts.ROLE_FACTINLINE.equals(loginData.getRole_id())) {
+			if (uRoles != null && uRoles.size() > 0) {
 				// 判断是否有进行中工作，如果有则按工位直接决定角色
 				ProductionFeatureEntity workingPf = getWoringPf(loginData, conn);
 				if (workingPf != null) {
 					String now_position_id = workingPf.getPosition_id();
-					if (RvsConsts.POSITION_ACCEPTANCE.equals(now_position_id)) { // 受理
-						loginData.setWorking_role_id(RvsConsts.ROLE_ACCEPTOR);
-					} else if (RvsConsts.POSITION_QUOTATION_N.equals(now_position_id)
-								|| RvsConsts.POSITION_QUOTATION_E.equals(now_position_id)
-								|| RvsConsts.POSITION_QUOTATION_P.equals(now_position_id)) { // 报价
-						loginData.setWorking_role_id(RvsConsts.ROLE_QUOTATOR);
-					} else if (RvsConsts.POSITION_QA.equals(now_position_id)
-							|| RvsConsts.POSITION_PERI_QA.equals(now_position_id)) { // 出检
-						loginData.setWorking_role_id(RvsConsts.ROLE_QAER);
-					} else if (RvsConsts.POSITION_SHIPPING.equals(now_position_id)) { // 出货
-						loginData.setWorking_role_id(RvsConsts.ROLE_SHIPPPER);
-					} else {
+
+//					if ("acceptance".equals(specPage)) { // 受理
+//						loginData.setWorking_role_id(RvsConsts.ROLE_ACCEPTOR);
+//					} else if ("quotation".equals(specPage)) { // 报价
+//						loginData.setWorking_role_id(RvsConsts.ROLE_QUOTATOR);
+//					} else if ("serviceRepairReferee".equals(specPage)
+//							|| "qualityAssurance".equals(specPage)) { // 出检
+//						loginData.setWorking_role_id(RvsConsts.ROLE_QAER);
+//					} else if ("shipping".equals(specPage)) { // 出货
+//						loginData.setWorking_role_id(RvsConsts.ROLE_SHIPPPER);
+//					} else {
 						loginData.setWorking_role_id(RvsConsts.ROLE_OPERATOR);
+//					}
+
+					// 如果当前角色无权限进行工位作业，则强制切换成进行中角色
+					if (loginData.getWorking_role_id() != null) {
+						if (!getPrivacies(loginData.getRole_id(), conn).contains(RvsConsts.PRIVACY_POSITION)) {
+							loginData.setRole_id(loginData.getWorking_role_id());
+							RoleService rServ = new RoleService();
+
+							loginData.setRole_name(rServ.getRoleName(loginData.getWorking_role_id(), conn));
+						}
 					}
 
 					setDetail(loginData, conn, workingPf);
