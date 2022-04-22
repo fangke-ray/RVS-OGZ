@@ -398,13 +398,13 @@ public class LineLeaderService {
 				plans.add(null);
 
 				outs.add(null);
-				Integer out1 = dao.getOutPeriod(""+1, section_id, line_id);
+				Integer out1 = getOutPeriod(1, section_id, line_id, dao);
 				outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
-				Integer out2 = dao.getOutPeriod(""+2, section_id, line_id);
+				Integer out2 = getOutPeriod(2, section_id, line_id, dao);
 				outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
-				Integer out3 = dao.getOutPeriod(""+3, section_id, line_id);
+				Integer out3 = getOutPeriod(3, section_id, line_id, dao);
 				outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
-				Integer out4 = dao.getOutPeriod(""+4, section_id, line_id);
+				Integer out4 = getOutPeriod(4, section_id, line_id, dao);
 				outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
 
 				responseMap.put("plans", plans);
@@ -424,6 +424,14 @@ public class LineLeaderService {
 		}
 		return;
 	}
+	private Integer getOutPeriod(int i, String section_id, String line_id, LineLeaderMapper dao) {
+		int ret = dao.getOutPeriod("" + i, section_id, line_id);
+		if ("00000000203".equals(line_id)) {
+			ret += dao.getOutPeriod("" + i, section_id, "00000000061");
+		}
+		return ret;
+	}
+
 	public void getSimpleContent(String section_id, String line_id, Map<String, Object> responseMap, SqlSession conn) {
 		List<Map<String, String>> workingOfPositions = getWorkingOfPositions(section_id, line_id, conn);
 		int heap181 = 0;
@@ -441,12 +449,19 @@ public class LineLeaderService {
 	}
 
 	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, SqlSession conn) {
-		getSituation(section_id, line_id, responseMap, null, conn);
+		getSituation(section_id, line_id, responseMap, null, false, conn);
 	}
-	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, SqlSession conn) {
+	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, boolean s1pass, SqlSession conn) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
 		// 工程仕挂总数
-		responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null));
+		if ("00000000203".equals(line_id) && !s1pass) {
+			String sikakeText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, null);
+			sikakeText += "｜ 纤维镜分解：" + dao.getWorkingMaterialCounts(section_id, "00000000060", null);
+			sikakeText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", null);
+			responseMap.put("sikake", sikakeText);
+		} else {
+			responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null));
+		}
 
 		if ("00000000014".equals(line_id)) {
 			// 取得今日计划件数
@@ -478,7 +493,14 @@ public class LineLeaderService {
 					sPlan = oPlan.toString();
 				}
 				responseMap.put("plan", Integer.parseInt(sPlan));
-				responseMap.put("plan_complete", dao.getTodayCompleteMaterialCounts(section_id, line_id, ""));
+				if ("00000000203".equals(line_id)) {
+					long cnt = dao.getTodayCompleteMaterialCounts(section_id, line_id, "");
+					cnt += dao.getTodayCompleteMaterialCounts(section_id, "00000000061", "");
+					responseMap.put("plan_complete", cnt);
+				} else {
+					responseMap.put("plan_complete", 
+							dao.getTodayCompleteMaterialCounts(section_id, line_id, ""));
+				}
 			}
 		}
 

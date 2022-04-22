@@ -82,7 +82,7 @@ public class LineSituationPeripheralAction extends BaseAction {
 		callback.put("waiting_cast", afService.getInlineWaitingForPeripheral(conn));
 
 		// 取得今日计划暨作业对象一览
-		service.getSituation("00000000001", "00000000070", callback, "without", conn);
+		service.getSituation("00000000001", "00000000070", callback, "without", false, conn);
 		service.getSimpleContent("00000000001", "00000000070", callback, conn);
 		callback.put("waiting_parts", service.getPeriWaitingPart(conn));
 

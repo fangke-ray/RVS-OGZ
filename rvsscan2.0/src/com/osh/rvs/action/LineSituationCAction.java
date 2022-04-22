@@ -9,6 +9,7 @@ package com.osh.rvs.action;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -129,11 +130,48 @@ public class LineSituationCAction extends BaseAction {
 		LineLeaderService service = new LineLeaderService();
 
 		// 取得今日计划暨作业对象一览
-		service.getSituation(section_id, line_id, callback, isPeriod, conn);
+		service.getSituation(section_id, line_id, callback, isPeriod, s1pass != null, conn);
 
 		// 取得工位仕挂一览
-		service.getChartContent(section_id, line_id, callback, isPeriod, s1pass, conn);
+		if ("00000000203".equals(line_id) && s1pass == null) {
+			String[] arrLineIds = { "00000000203", "00000000061" };
+			for (int i = 0; i < arrLineIds.length; i++) {
+				Map<String, Object> map = new HashMap<String, Object>();
 
+				boolean delLast = false;
+				if (i == 1) {
+					delLast = true;
+				}
+
+				service.getChartContent(section_id, arrLineIds[i], map, "plus", conn, delLast);
+
+				if (!callback.containsKey("categories")) {
+					callback.putAll(map);
+				} else {
+					List<String> allPositions = (List<String>) callback.get("categories");
+					List<Object> allCounts = (List<Object>) callback.get("counts");
+					List<Integer> allOverlines = (List<Integer>) callback.get("overlines");
+					List<Object> allLightFixCounts = (List<Object>) callback.get("light_fix_counts");
+
+					List<String> positions = (List<String>) map.get("categories");
+					List<Object> counts = (List<Object>) map.get("counts");
+					List<Integer> overlines = (List<Integer>) map.get("overlines");
+					List<Object> lightFixCounts = (List<Object>) map.get("light_fix_counts");
+
+					allPositions.addAll(positions);
+					allCounts.addAll(counts);
+					allOverlines.addAll(overlines);
+					allLightFixCounts.addAll(lightFixCounts);
+
+					callback.put("categories", allPositions);
+					callback.put("counts", allCounts);
+					callback.put("overlines", allOverlines);
+					callback.put("light_fix_counts", allLightFixCounts);
+				}
+			}
+		} else {
+			service.getChartContent(section_id, line_id, callback, isPeriod, s1pass, conn);
+		}
 		// 取得分解～NS
 		if ("00000000012".equals(line_id) || "00000000013".equals(line_id)) {
 			service.getComAndNsMatch(section_id, line_id, conn, callback);
