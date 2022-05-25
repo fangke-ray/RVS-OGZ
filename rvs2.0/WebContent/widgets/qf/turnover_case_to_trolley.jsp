@@ -22,6 +22,7 @@
 	overflow-y : scroll;
 	width : 60%;
 	position:relative;
+	padding-left: 2px;
 }
 #tc2t_waitings .model_group {
 	clear: both;
@@ -43,12 +44,25 @@
 #tc2t_waitings .material {
 	float:left;
 }
-#turnover_case_to_trolley .material[model_kind="E"] {
+#turnover_case_to_trolley .material[model_kind="1"] {
 	background-color:lightgreen;
+}
+#turnover_case_to_trolley .material[model_kind="2"] {
+	background-color:#FFD280;
+}
+#turnover_case_to_trolley .material[model_kind="4"] {
+	background-color:#FFFF80;
+}
+#turnover_case_to_trolley .material[model_kind="6"] {
+	background-color:lightcyan;
 }
 #tc2t_waitings .material.warehouse {
 	background-color:gainsboro;
 }
+#turnover_case_to_trolley .material[agreed_date] {
+	outline : 2px solid darksalmon;
+}
+
 #turnover_case_to_trolley .material span {
 	background-color:darkcyan;
 	color:white;
@@ -75,7 +89,7 @@
 }
 #tc2t_trolleys #trolley_sel > span {
 	background: lightblue;
-	width: 3.5em;
+	width: 4.2em;
 	display: block;
 	float: left;
 	text-align: center;
@@ -83,9 +97,25 @@
 	border-top-right-radius: .5em;
 	cursor:pointer;
 }
+#tc2t_trolleys #trolley_sel > span[kind="1"] {
+	background-color:lightgreen;
+}
+#tc2t_trolleys #trolley_sel > span[kind="2"] {
+	background-color:#FFD280;
+}
+#tc2t_trolleys #trolley_sel > span[kind="4"] {
+	background-color:#FFFF80;
+}
+#tc2t_trolleys #trolley_sel > span[kind="6"] {
+	background-color:lightcyan;
+}
 #tc2t_trolleys #trolley_sel > .selected {
-	background: brown;
-	color:white;
+	font-weight: bolder;
+	color:brown;
+}
+#tc2t_trolleys #trolley_sel > .selected:before {
+	content: '★';
+	top:0;
 }
 #tc2t_trolleys #trolley_area {
 	clear:both;

@@ -29,7 +29,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <% 
 	String editor = (String) request.getAttribute("editor");
-	boolean isEditor = ("true").equals(editor);
+	boolean isAdmin = ("admin").equals(editor);
+	boolean isEditor = isAdmin || ("true").equals(editor);
 %>
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 
@@ -89,6 +90,23 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								</td>
 							</tr>
 							<tr>
+								<td class="ui-state-default td-title">库位设置机种</td>
+								<td class="td-content" colspan="3">
+									<select id="cond_kind">
+										${kindOptions}
+									</select>
+								</td>
+								<td class="ui-state-default td-title">已同意/未同意<br>库位</td>
+								<td class="td-content" id="cond_for_agreed">
+									<input type="radio" name="for_agreed" id="cond_for_agreed_a" value="" class="ui-widget-content ui-helper-hidden-accessible" checked>
+									<label for="cond_for_agreed_a" aria-pressed="false">全部</label>
+									<input type="radio" name="for_agreed" id="cond_for_agreed_d" value="1" class="ui-widget-content ui-helper-hidden-accessible">
+									<label for="cond_for_agreed_d" aria-pressed="false">已同意</label>
+									<input type="radio" name="for_agreed" id="cond_for_agreed_n" value="0" class="ui-widget-content ui-helper-hidden-accessible">
+									<label for="cond_for_agreed_n" aria-pressed="false">未同意</label>
+								</td>
+							</tr>
+							<tr>
 								<td class="ui-state-default td-title">发送地</td>
 								<td class="td-content" colspan="5">
 									<select id="cond_bound_out_ocm">
@@ -117,6 +135,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 
 		<div id="functionarea" class="dwidth-middleright">
+<% if (isAdmin) { %>
+			<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
+				<div id="admin_executes" style="margin-left: 4px; margin-top: 4px;">
+					<input type="button" id="createStorageButton" class="ui-button ui-widget ui-state-default ui-corner-all" value="建立库位" role="button">
+					<input type="button" id="changeStorageButton" class="ui-button ui-widget ui-state-default ui-corner-all" value="调整库位" role="button">
+					<input type="button" id="removeStorageButton" class="ui-button ui-widget ui-state-default ui-corner-all" value="删除库位" role="button">
+				</div>
+			</div>
+			<div class="clear"></div>
+<% } %>
 <% if (isEditor) { %>
 			<div class="ui-widget-header ui-corner-all ui-helper-clearfix areabase">
 				<div id="executes" style="margin-left: 4px; margin-top: 4px;">
@@ -164,5 +192,48 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 	</div>
 	<div id="confirmmessage"></div>
+
+<% if (isAdmin) { %>
+<div class="ui-widget-content" id="editarea" style="display:none;">
+	<form id="editform" method="POST">
+		<table class="condform">
+		<tbody>
+			<tr>
+				<td class="ui-state-default td-title">货架</td>
+				<td class="td-content">
+					<input type="text" name="shelf" id="edit_shelf" maxlength="2" class="ui-widget-content">
+				</td>
+			</tr>
+			<tr>
+				<td class="ui-state-default td-title">层数</td>
+				<td class="td-content">
+					<input type="text" name="layer" id="edit_layer" maxlength="1" class="ui-widget-content">
+				</td>
+			</tr>
+			<tr>
+				<td class="ui-state-default td-title">库位代码</td>
+				<td class="td-content">
+					<input type="hidden" name="key" id="edit_key">
+					<input type="text" name="location" id="edit_location" maxlength="4" class="ui-widget-content">
+				</td>
+			</tr>
+			<tr>
+				<td class="ui-state-default td-title">库位设置机种</td>
+				<td class="td-content"><select name="kind" id="edit_kind">${kindOptions}</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="ui-state-default td-title">已同意/未同意<br>库位</td>
+				<td class="td-content" id="edit_for_agreed">
+					<input type="radio" name="auto_arrange" id="edit_for_agreed_y" value="1" class="ui-widget-content"><label for="edit_for_agreed_y">已同意</label>
+					<input type="radio" name="auto_arrange" id="edit_for_agreed_n" value="0" class="ui-widget-content"><label for="edit_for_agreed_n">未同意</label>
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</form>
+</div>
+
+<% } %>
 </body>
 </html>

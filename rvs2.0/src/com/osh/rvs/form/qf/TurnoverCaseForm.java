@@ -19,13 +19,13 @@ public class TurnoverCaseForm extends ActionForm implements Serializable {
 	 */
 	private static final long serialVersionUID = -3025677849786124066L;
 
-	@BeanField(title = "KEY", name = "key", length = 5, notNull = true)
+	@BeanField(title = "KEY", name = "key", length = 5, primaryKey = true)
 	private String key;
 	@BeanField(title = "货架", name = "shelf", length = 3, notNull = true)
 	private String shelf;
 	@BeanField(title = "位置", name = "location", length = 6, notNull = true)
 	private String location;
-	@BeanField(title = "层", name = "layer", length = 2)
+	@BeanField(title = "层", name = "layer", type= FieldType.Integer, length = 1)
 	private String layer;
 	@BeanField(title = "维修对象ID", name = "material_id", length = 11)
 	private String material_id;// 维修对象ID
@@ -54,6 +54,11 @@ public class TurnoverCaseForm extends ActionForm implements Serializable {
 	private String direct_flg;
 	@BeanField(title = "维修状态", name = "break_back_flg", type = FieldType.Integer, length = 1)
 	private String break_back_flg;
+
+	@BeanField(title = "机种", name = "kind", type = FieldType.Integer, length = 1)
+	private String kind;
+	@BeanField(title = "已同意", name = "for_agreed", type = FieldType.Integer, length = 1)
+	private String for_agreed;
 
 	public String getMaterial_id() {
 		return material_id;
@@ -189,6 +194,22 @@ public class TurnoverCaseForm extends ActionForm implements Serializable {
 
 	public void setBreak_back_flg(String break_back_flg) {
 		this.break_back_flg = break_back_flg;
+	}
+
+	public String getKind() {
+		return kind;
+	}
+
+	public void setKind(String kind) {
+		this.kind = kind;
+	}
+
+	public String getFor_agreed() {
+		return for_agreed;
+	}
+
+	public void setFor_agreed(String for_agreed) {
+		this.for_agreed = for_agreed;
 	}
 
 }

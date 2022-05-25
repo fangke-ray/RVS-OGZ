@@ -47,4 +47,18 @@ public interface TurnoverCaseMapper {
 	public List<TurnoverCaseEntity> countNowStorageEmpty();
 
 	public List<String> getSpaceInShelf(String shelf);
+
+	public TurnoverCaseEntity getEntityByKey(String key);
+
+	public int create(TurnoverCaseEntity entity);
+
+	public void changeSetting(TurnoverCaseEntity entity);
+
+	public int remove(TurnoverCaseEntity entity);
+
+	public List<TurnoverCaseEntity> getStorageMap(TurnoverCaseEntity entity);
+
+	public List<TurnoverCaseEntity> getStartLocationsOnKindForAgreed();
+
+	public List<String> getNextLocationsOnKindForAgreed(TurnoverCaseEntity entity);
 }

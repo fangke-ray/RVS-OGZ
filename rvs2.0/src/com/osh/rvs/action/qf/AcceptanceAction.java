@@ -383,20 +383,28 @@ public class AcceptanceAction extends BaseAction {
 
 		// 查询预计的入库位信息
 		try {
-			List<String> nextLocations = new ArrayList<String>();
-			List<String> nextEndoeyeLocations = new ArrayList<String>();
+//			List<String> nextLocations = new ArrayList<String>();
+//			List<String> nextEndoeyeLocations = new ArrayList<String>();
 
-			service.getEmptyLocations("0", nextLocations, 10, false, conn, false);
-			// List<String> nextEndoeyeLocations = service.getEmptyLocations("06", 10, false, conn);
+//			service.getEmptyLocations("0", nextLocations, 10, false, conn, false);
+//			service.getEmptyLocations("06", nextEndoeyeLocations, 10, false, conn, false);
 
-			listResponse.put("nextLocations", nextLocations);
-			listResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);
+//			listResponse.put("nextLocations", nextLocations);
+//			listResponse.put("nextEndoeyeLocations", nextEndoeyeLocations);
+
+			listResponse.put("nextLocations", 
+					service.getKindAgreeEmptyLocations(10, conn));
 		} catch (Exception e) {
 			// if (e.getMessage().equals("递归安排也无法找到库位！")) {
 				MsgInfo error = new MsgInfo();
 				error.setComponentid("location");
-				error.setErrmsg("剩余空闲的通箱库位已经不足。请先处理出库。");
-				errors.add(error);
+				if (e.getMessage().indexOf("库位") >= 0) {
+					error.setErrmsg(e.getMessage());
+					errors.add(error);
+				} else {
+					throw e;
+					// error.setErrmsg("剩余空闲的通箱库位已经不足。请先处理出库。");
+				}
 			// }
 		}
 

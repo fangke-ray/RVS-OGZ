@@ -34,6 +34,9 @@ public class TurnoverCaseEntity implements Serializable {
 	private Integer break_back_flg;
 	private String trolley_code;
 
+	private Integer kind;
+	private Integer for_agreed;
+
 	public String getMaterial_id() {
 		return material_id;
 	}
@@ -176,6 +179,22 @@ public class TurnoverCaseEntity implements Serializable {
 
 	public void setTrolley_code(String trolley_code) {
 		this.trolley_code = trolley_code;
+	}
+
+	public Integer getKind() {
+		return kind;
+	}
+
+	public void setKind(Integer kind) {
+		this.kind = kind;
+	}
+
+	public Integer getFor_agreed() {
+		return for_agreed;
+	}
+
+	public void setFor_agreed(Integer for_agreed) {
+		this.for_agreed = for_agreed;
 	}
 
 }

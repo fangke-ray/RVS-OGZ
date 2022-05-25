@@ -66,14 +66,23 @@ var tcLoadShow = function(xhrObj) {
 				// event.dataTransfer.setData("Text", event.target.innerText);
 			})
 			.on("dblclick", ".material", function(evt){
+
 				var $source = $(evt.target);
 				if (evt.target.tagName == "SPAN") {
 					$source = $source.parent();
 				}
 				if ($source.hasClass("warehouse")) return;
-		
+
 				var stock = null;
 				var $trolley_cart = $("#trolley_area .trolley_cart.disp");
+				// find cart
+				var materialKind = $source.attr("model_kind");
+				var nowCartKind = $trolley_cart.attr("cart");
+				if (materialKind != nowCartKind) {
+					changeCart(materialKind);
+					$trolley_cart = $("#trolley_area .trolley_cart.disp");
+				}
+
 				$trolley_cart.children(".trolley_stock").each(function(idx, ele){
 					if ($(ele).children(".material").length == 0) {
 						stock = idx;
@@ -111,7 +120,7 @@ var tcReset = function($to_trolley, first, resInfo){
 	$to_trolley.find("#tc2t_waitings").html(getIdleMaterialList(resInfo.idleMaterialList));
 
 	tcCache.nextLocations = resInfo.nextLocations;
-	tcCache.nextEndoeyeLocations = resInfo.nextEndoeyeLocations;
+//	tcCache.nextEndoeyeLocations = resInfo.nextEndoeyeLocations;
 
 	setTrolleys($to_trolley.find("#tc2t_trolleys"), resInfo.trolleyStacks, first);
 }
@@ -163,7 +172,8 @@ var getIdleMaterialList = function(idleMaterialList){
 			for(j = 0, len=terminalArr.length; j < len; j++) {
     			var idleMaterial = terminalArr[j];
 
-				retHtml += "<div class='material' " + (idleMaterial.execute == 6 ? "model_kind='E' " : "")
+				retHtml += "<div class='material' " + getModelKind(idleMaterial.execute)
+					+ getAgreedDate(idleMaterial.storage_time_start)
 					+ "material_id='" + idleMaterial.material_id + "' draggable=true>" 
 					+ "<span class='serial_no'>" + idleMaterial.model_name + "</span><br>"
 					+ (idleMaterial.omr_notifi_no || "-") 
@@ -185,6 +195,25 @@ var getIdleMaterialList = function(idleMaterialList){
 	$("#tc2t_initials > .initial:eq(0)").addClass("checked");
 
 	return retHtml;
+}
+
+var getModelKind = function(kind) {
+//	switch(kind) {
+//		case "1" : return "model_kind='260' ";
+//		case "2" : return "model_kind='SF' ";
+//		case "4" : return "model_kind='290' ";
+//		case "6" : return "model_kind='E' ";
+//		default : return "model_kind='" + kind +"' ";
+//	}
+//	return "";
+	return "model_kind='" + kind +"' ";
+}
+
+var getAgreedDate = function(agreed_date) {
+	if (agreed_date) {
+		return "agreed_date='" + agreed_date + "' "
+	}
+	return "";
 }
 
 var changeInitial = function() {
@@ -234,6 +263,15 @@ var setTrolleys = function($trolleys, trolleyStacks, first) {
 					if (dragFrom == "waiting") {
 						var $source = $("#tc2t_waitings .material[material_id='" + dragMaterial + "']");
 						var stock = null;
+
+						// find cart
+						var materialKind = $source.attr("model_kind");
+						var nowCartKind = $trolley_cart.attr("cart");
+						if (materialKind != nowCartKind) {
+							changeCart(materialKind);
+							$trolley_cart = $("#trolley_area .trolley_cart.disp");
+						}
+		
 						$trolley_cart.children(".trolley_stock").each(function(idx, ele){
 							if ($(ele).children(".material").length == 0) {
 								stock = idx;
@@ -316,17 +354,13 @@ var setTrolleys = function($trolleys, trolleyStacks, first) {
 		});
 	}
 
-	var $troSelHtml = $("<div id='trolley_sel'><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>");
+	var $troSelHtml = $("<div id='trolley_sel'><span kind='1'>260</span><span kind='4'>290</span><span kind='2'>细/纤</span><span kind='6'>硬性</span></div>");
+//	var $troSelHtml = $("<div id='trolley_sel'><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>");
 	$trolleys.append($troSelHtml);
 	$troSelHtml.find("span").click(function(){
-		var cart = this.innerText;
-		$("#trolley_area .trolley_cart.disp").removeClass("disp");
-		$("#trolley_area .trolley_cart[cart='" + cart + "']").addClass("disp");
-
-		$troSelHtml.find("span").removeClass("selected");
-		$(this).addClass("selected");
-
-		setTcLocations();
+//		var cart = this.innerText;
+		var cart = this.getAttribute("kind");
+		changeCart(cart);
 	});
 
 	var trolleyStackDict = [];
@@ -340,7 +374,8 @@ var setTrolleys = function($trolleys, trolleyStacks, first) {
 	var $troAreaHtmll = $("<div id='trolley_area'/>");
 	var mostHeap = 0, mostHeapCnt = 0;
 
-	for (var i0 = 0; i0 < 5; i0++) {
+	for (var i0 = 0; i0 < 6; i0++) {
+		if (i0 == 2 || i0 == 4) continue;
 		var trolley = "<div class='trolley_cart' cart='" + (i0 + 1) + "'>";
 		var heapCnt = 0;
 		for (var i1 = 0; i1 < 10; i1++) {
@@ -367,20 +402,37 @@ var setTrolleys = function($trolleys, trolleyStacks, first) {
 	$troSelHtml.find("span:eq(" + mostHeap + ")").select().trigger("click");
 }
 
+var changeCart = function(cart){
+	$("#trolley_area .trolley_cart.disp").removeClass("disp");
+	$("#trolley_area .trolley_cart[cart='" + cart + "']").addClass("disp");
+
+	$("#trolley_sel > span").removeClass("selected");
+	$("#trolley_sel > span[kind=" + cart + "]").addClass("selected");
+
+	setTcLocations();
+}
+
 var setTcLocations = function() {
-	// tcCache.nextLocations
 	var $trolley_cart = $("#trolley_area .trolley_cart.disp");
-	var tempIdx = 0, tempEndoeyeIdx = 0;
+	var tempIdx = {
+		"1_1":0,"1_0":0,
+		"2_1":0,"2_0":0,
+		"4_1":0,"4_0":0,
+		"6_1":0,"6_0":0
+		};
 
 	$trolley_cart.children(".trolley_stock").each(function(idx, ele){
 		var $material = $(ele).children(".material");
 		var temp_stock = "";
 		if ($material.length > 0) {
-			if ($material.attr("model_kind")=="E") {
-				temp_stock = tcCache.nextEndoeyeLocations[tempEndoeyeIdx++];
-			} else {
-				temp_stock = tcCache.nextLocations[tempIdx++]; 
-			}
+			var kind_agreed_key = $material.attr("model_kind") + "_" + ($material.attr("agreed_date") ? "1" : "0");
+
+//			if ($material.attr("model_kind")=="E") {
+//				// temp_stock = tcCache.nextEndoeyeLocations[tempEndoeyeIdx++];
+//			} else {
+//				temp_stock = tcCache.nextLocations[tempIdx++]; 
+//			}
+			temp_stock = tcCache.nextLocations[kind_agreed_key][tempIdx[kind_agreed_key]++];
 		}
 		$("#tc2t_temp_location .location:eq(" + idx + ")").text(temp_stock);
 	});
@@ -399,6 +451,7 @@ var doAssignLocation = function() {
 		if ($material.length > 0) {
 			postData["assign_location.material_id[" + postIdx + "]"] = $material.attr("material_id");
 			postData["assign_location.location[" + postIdx + "]"] = $("#tc2t_temp_location .location:eq(" + idx + ")").text();
+			postData["assign_location.kind_key[" + postIdx + "]"] = $material.attr("model_kind") + "_" + ($material.attr("agreed_date") ? "1" : "0");
 			postIdx++;
 		}
 	});

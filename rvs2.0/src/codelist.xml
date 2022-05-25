@@ -983,4 +983,11 @@
 		<value code="6">流水线(生产)流程</value>
 	</codelist>
 
+	<codelist name="turnover_case_kind">
+		<value code="4">290机型</value>
+		<value code="1">260机型</value>
+		<value code="2">细镜+纤维镜</value>
+		<value code="6">硬性镜</value>
+	</codelist>
+
 </codelist-config>

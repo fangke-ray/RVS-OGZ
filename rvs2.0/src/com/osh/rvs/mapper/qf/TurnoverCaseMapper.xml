@@ -6,6 +6,7 @@
 		parameterType="TurnoverCaseEntity">
 		<![CDATA[
 		SELECT 
+		tcs.key,
 		ma.material_id,
 		ma.omr_notifi_no,
 		ma.model_id,
@@ -20,6 +21,8 @@
 		ELSE 0
 		END as `layer`,
 		tcs.`execute`,
+		tcs.kind,
+		tcs.for_agreed,
 		ma.direct_flg,
 		ma.break_back_flg,
 		tcs.location
@@ -78,6 +81,21 @@
 				AND tcs.material_id = #{material_id}
 			]]>
 			</if>
+			<if test="kind!=null and kind!=''">
+			<![CDATA[
+				AND tcs.kind = #{kind}
+			]]>
+			</if>
+			<if test="for_agreed == 1">
+			<![CDATA[
+				AND tcs.for_agreed = 1
+			]]>
+			</if>
+			<if test="direct_flg == 0">
+			<![CDATA[
+				AND tcs.for_agreed = 0
+			]]>
+			</if>
 		</where>
 		ORDER BY tcs.key
 		;
@@ -95,7 +113,7 @@
 	<select id="getEntityByLocation" resultType="TurnoverCaseEntity">
 		<![CDATA[ 
 			SELECT
-				shelf, location, `execute`, material_id
+				`key`, shelf, location, `execute`, material_id
 			FROM turnover_case_storage
 			WHERE location = #{location}
 		]]>
@@ -198,13 +216,23 @@ LIMIT 1;
 	<select id="getIdleMaterialList" resultType="TurnoverCaseEntity">
 		<![CDATA[ 
 	select ma.material_id, ma.omr_notifi_no, mdl.name as model_name, ma.serial_no,
-		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm, kind as execute
+		coalesce(ma.bound_out_ocm, ma.ocm) as bound_out_ocm, 
+        CASE 
+        WHEN kind = 02 then 2
+        WHEN kind = 03 then 2
+        WHEN kind = 06 then 6
+        WHEN pat.name like '%290%' THEN 4
+        ELSE 1
+        END as execute, 
+        agreed_date as storage_time_start
 	from material ma
-	JOIN v_model mdl ON ma.model_id = mdl.model_id
+	JOIN model mdl ON ma.model_id = mdl.model_id
+    JOIN category ctg ON mdl.category_id = ctg.CATEGORY_ID
+    JOIN process_assign_template pat on ctg.default_quote_pat_id = pat.process_assign_template_id
 	WHERE ma.outline_time is null
 		and break_back_flg = 0
-		and fix_type in (1, 2)
-		and kind < 6 -- [ < 7 ]
+		and ma.fix_type in (1, 2)
+		and kind < 7
 		and exists (select 1 from production_feature where material_id = ma.material_id)
 		and not exists
 		(
@@ -290,6 +318,118 @@ LIMIT 1;
 			order by base.shelf
 			;
 		]]>
+	</select>
+
+	<select id="getEntityByKey" resultType="TurnoverCaseEntity">
+		<![CDATA[ 
+			SELECT
+				`key`, shelf, location, layer, `kind`, for_agreed
+			FROM turnover_case_storage
+			WHERE `key` = #{key}
+		]]>
+	</select>
+
+	<insert id="create" parameterType="TurnoverCaseEntity">
+	INSERT INTO `turnover_case_storage`
+		(
+		`shelf`,
+		`location`,
+		`layer`,
+		`execute`,
+		`kind`,
+		`for_agreed`)
+	VALUES
+		(
+		#{shelf},
+		#{location},
+		#{layer},
+		0,
+		#{kind},
+		#{for_agreed});
+	</insert>
+
+	<update id="changeSetting" parameterType="TurnoverCaseEntity">
+		UPDATE `turnover_case_storage`
+		SET
+		`shelf` = #{shelf},
+		`location` = #{location},
+		`layer` = #{layer},
+		`kind` = #{kind},
+		`for_agreed` = #{for_agreed}
+		WHERE `key` = #{key}
+	</update>
+
+	<delete id="remove" parameterType="TurnoverCaseEntity">
+		DELETE FROM `turnover_case_storage`
+		WHERE
+			`key` = #{key}
+		;
+	</delete>
+
+	<select id="getStorageMap" resultType="TurnoverCaseEntity" parameterType="TurnoverCaseEntity">
+		<![CDATA[ 
+		SELECT shelf, layer, location, for_agreed, kind, material_id
+		FROM turnover_case_storage 
+		]]>
+		<where>
+			<if test="kind!=null and kind!=''">
+			<![CDATA[
+				AND kind = #{kind}
+			]]>
+			</if>
+			<if test="for_agreed!=null and for_agreed!=''">
+			<![CDATA[
+				AND for_agreed = #{for_agreed}
+			]]>
+			</if>
+		</where>
+		<![CDATA[ 
+		order by shelf, layer, location;
+		]]>
+	</select>
+
+	<select id="getStartLocationsOnKindForAgreed" resultType="TurnoverCaseEntity">
+		<![CDATA[ 
+		select kind, for_agreed, 
+		(select location from turnover_case_storage where material_id is null and shelf = t.shelf and kind = t.kind and for_agreed = t.for_agreed limit 1) as location 
+		from (
+		select shelf, kind, for_agreed, count(1) as cnt from turnover_case_storage 
+		where material_id is null and kind > 0
+		group by shelf, kind, for_agreed
+		order by cnt desc) t
+		group by kind, for_agreed;
+		]]>
+	</select>
+
+
+	<select id="getNextLocationsOnKindForAgreed" resultType="String" parameterType="TurnoverCaseEntity">
+		<![CDATA[ 
+		select tcs.location from turnover_case_storage bs join
+		turnover_case_storage tcs
+		on bs.kind = tcs.kind and bs.for_agreed = tcs.for_agreed
+		where bs.location = #{location}
+		and tcs.material_id is null
+		]]>
+		<if test="execute == 1">
+		<![CDATA[ 
+and tcs.location > #{location}
+		]]>
+		</if>
+
+		<if test="execute == 0">
+		<![CDATA[ 
+and tcs.location >= #{location}
+		]]>
+		</if>
+
+		<if test="execute == -1">
+		<![CDATA[ 
+and tcs.location < #{location}
+		]]>
+		</if>
+
+		order by tcs.shelf, tcs.layer, tcs.location
+		limit #{layer};
 	</select>
 
 </mapper>
