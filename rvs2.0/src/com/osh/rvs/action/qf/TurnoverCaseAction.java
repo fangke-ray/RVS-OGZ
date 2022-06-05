@@ -136,12 +136,17 @@ public class TurnoverCaseAction extends BaseAction {
 
 		// 执行检索
 		TurnoverCaseService service = new TurnoverCaseService();
-		List<String> wipHeaped = service.getStorageHeaped(form, conn);
+		String kind = null;
+		if (req.getParameter("material_id") != null) {
+			kind = service.getStorageKindByMaterial(req.getParameter("material_id"), conn);
+		}
+
+		List<String> wipHeaped = service.getStorageHeaped(kind, conn);
 
 		// 查询结果放入Ajax响应对象
 		calbackResponse.put("heaps", wipHeaped);
 
-		service.getLocationMap(form, calbackResponse, conn);
+		service.getLocationMap(kind, null, calbackResponse, conn);
 
 		// 检查发生错误时报告错误信息
 		calbackResponse.put("errors", new ArrayList<MsgInfo>());

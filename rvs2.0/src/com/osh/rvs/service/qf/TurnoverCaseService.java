@@ -51,9 +51,9 @@ public class TurnoverCaseService {
 		return lcf;
 	}
 
-	public List<String> getStorageHeaped(ActionForm form, SqlSession conn) {
+	public List<String> getStorageHeaped(String kind, SqlSession conn) {
 		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
-		return mapper.getStorageHeaped();
+		return mapper.getStorageHeaped(kind);
 	}
 
 	public void changelocation(SqlSessionManager conn, String material_id,
@@ -547,23 +547,27 @@ public class TurnoverCaseService {
 
 		for (TurnoverCaseEntity tcEntity : list) {
 			MaterialService mService = new MaterialService();
+			String shelfKind = tcEntity.getKey();
 
 			// 已经占用的重新分配并且加入提示
 			if (tcEntity.getExecute() == null) {
 				MaterialEntity mBean = mService.loadSimpleMaterialDetailEntity(conn, tcEntity.getMaterial_id());
 
+				String orgLocation = tcEntity.getLocation();
+
+				checkLocationInDailyPlanSet(todayString, shelfKind, tcEntity.getLocation(), conn);
+
 				Map<String, Set<String>> kindAgreeEmptyLocations = getKindAgreeEmptyLocations(1, conn);
-				Set<String> emptyLocations = kindAgreeEmptyLocations.get(tcEntity.getKey());
+				Set<String> emptyLocations = kindAgreeEmptyLocations.get(shelfKind);
 				if (emptyLocations.isEmpty()) {
-					throwLeakException(tcEntity.getKey());
+					throwLeakException(shelfKind);
 				}
 
 				tcEntity.setExecute(0);
-				String orgLocation = tcEntity.getLocation();
 				tcEntity.setLocation(emptyLocations.iterator().next());
 				mapper.putin(tcEntity);
 				//checkLocationInDailyPlan(todayString, tcEntity.getLocation(), conn);
-				checkLocationInDailyPlanSet(todayString, tcEntity.getKey(), tcEntity.getLocation(), conn);
+				checkLocationInDailyPlanSet(todayString, shelfKind, tcEntity.getLocation(), conn);
 
 				retMessage += "维修品" + (mBean.getSorc_no() == null ? "" : mBean.getSorc_no()) 
 						+ "(" + mBean.getModel_name() + " " + mBean.getSerial_no() + ")"
@@ -708,15 +712,19 @@ public class TurnoverCaseService {
 		}
 	}
 
-	public void getLocationMap(ActionForm form,
+	public void getLocationMap(String kind, String for_agreed,
 			Map<String, Object> lResponseResult, SqlSession conn) {
 
 		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
 
+		TurnoverCaseForm form = new TurnoverCaseForm();
+		form.setKind(kind);
+		form.setFor_agreed(for_agreed);
+
 		TurnoverCaseEntity entity = new TurnoverCaseEntity();
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
 
-		StringBuffer retSb = new StringBuffer("<style>.wip-table td.storage-empty {cursor :pointer;}#wip_pop .storage-table td[kind=\"1\"]{border-color: #92D050;outline:3px solid #92D050;}#wip_pop .storage-table td[kind=\"2\"]{border-color: #C4C400;outline:3px solid #C4C400;}#wip_pop .storage-table td[kind=\"4\"]{border-color: #FFC000;outline:3px solid yellow;}#wip_pop .storage-table td[kind=\"6\"]{border-color: #606060;outline:3px solid #D8D8D8;}#wip_pop .storage-table td[f_ag]{border-radius:8px;}</style>");
+		StringBuffer retSb = new StringBuffer("<style>.storage-table td.storage-empty {cursor :pointer;}#wip_pop .storage-table td[kind=\"1\"]{border-color: #92D050;outline:3px solid #92D050;}#wip_pop .storage-table td[kind=\"2\"]{border-color: #C4C400;outline:3px solid #C4C400;}#wip_pop .storage-table td[kind=\"4\"]{border-color: #FFC000;outline:3px solid yellow;}#wip_pop .storage-table td[kind=\"6\"]{border-color: #606060;outline:3px solid #D8D8D8;}#wip_pop .storage-table td[f_ag]{border-radius:8px;}</style>");
 		retSb.append("<div class=\"ui-widget-header ui-corner-top ui-helper-clearfix areaencloser\"><span class=\"areatitle\">通箱库位区域一览</span></div><div class=\"ui-widget-content\">");
 
 		List<TurnoverCaseEntity> storageMap = mapper.getStorageMap(entity);
@@ -760,9 +768,13 @@ public class TurnoverCaseService {
 					shelfSb.append("\"");
 				}
 				shelfSb.append(" location=\"");
+				String slimLocation = slimLocation(shelf, storage.getLocation());
 				shelfSb.append(storage.getLocation());
+				if (slimLocation.length() > 2) {
+					shelfSb.append("\" style=\"font-size:8px;");
+				}
 				shelfSb.append("\">");
-				shelfSb.append(slimLocation(shelf, storage.getLocation()));
+				shelfSb.append(slimLocation);
 				shelfSb.append("</td>");
 				lineCnt++;
 			}
@@ -791,10 +803,15 @@ public class TurnoverCaseService {
 			return "-";
 		}
 		if (location.startsWith(shelf)) {
-			location = location.substring(shelf.length());
-		}
-		if (location.length() > 2) {
+			location = location.substring(shelf.length()).trim();
+		} else 	if (location.length() > 2) {
 			location = location.substring(location.length() - 2);
+//			if (location.indexOf(" ") >= 0) {
+//				location = location.indexOf(" ") >= 0
+//			} else if (location.length() > 3) {
+//				location = location.substring(location.length() - 3);
+//			} else {
+//			}
 		}
 		return location;
 	}
@@ -851,7 +868,7 @@ public class TurnoverCaseService {
 		}
 
 		if (set.size() < (count / 2)) {
-			throwLeakException(kindAgreed);
+//			throwLeakException(kindAgreed);
 		}
 	}
 
@@ -921,5 +938,20 @@ public class TurnoverCaseService {
 		if (locations.contains(location)) {
 			locations.remove(location);
 		}
+	}
+
+	public String getStorageKindByMaterial(String material_id, SqlSession conn) {
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		return mapper.getStorageKindByMaterial(material_id);
+	}
+
+	public String getShelfOptions(String selectedShelf, SqlSession conn) {
+		TurnoverCaseMapper mapper = conn.getMapper(TurnoverCaseMapper.class);
+		List<String> allShelf = mapper.getAllShelf();
+		StringBuffer retOpts = new StringBuffer("");
+		for (String shelf : allShelf) {
+			retOpts.append("<option value='" + shelf + "'" + (selectedShelf.equals(shelf) ? " selected" : "") + " >" + shelf + " 货架</option>");
+		}
+		return retOpts.toString();
 	}
 }

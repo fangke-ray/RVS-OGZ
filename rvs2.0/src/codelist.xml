@@ -984,6 +984,7 @@
 	</codelist>
 
 	<codelist name="turnover_case_kind">
+		<value code="0">无所属</value>
 		<value code="4">290机型</value>
 		<value code="1">260机型</value>
 		<value code="2">细镜+纤维镜</value>

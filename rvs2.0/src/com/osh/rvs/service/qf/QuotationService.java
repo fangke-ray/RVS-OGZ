@@ -45,6 +45,12 @@ public class QuotationService {
 		Date workDate = workDates[0];
 		entity.setScheduled_date(workDate);
 
+		// 只有周边设备放WIP库位
+		if (entity.getWip_location() != null) {
+			if (!RvsUtils.isPeripheral(entity.getLevel())) {
+				entity.setWip_location(null);
+			}
+		}
 		dao.updateMaterial(entity);
 	}
 

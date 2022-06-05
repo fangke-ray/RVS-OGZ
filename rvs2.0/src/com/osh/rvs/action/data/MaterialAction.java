@@ -226,7 +226,7 @@ public class MaterialAction extends BaseAction {
 			materialForm = materialService.loadMaterialDetail(conn, id);
 
 			String location = materialForm.getWip_location();
-			if (location != null && !"".equals(location)) { //location不为空，设置当前状态WIP
+			if (location != null && !"".equals(location) && location.startsWith("WIP:")) { //location不为空，设置当前状态WIP
 				materialForm.setStatus("WIP");
 				materialForm.setProcessing_position(location);
 			} else { //否则，根据Operate_result查找状态
@@ -244,6 +244,11 @@ public class MaterialAction extends BaseAction {
 				}
 				materialForm.setProcessing_position(CommonStringUtil.joinBy("\n", locations));
 				materialForm.setStatus(CommonStringUtil.joinBy("\n", statuses));
+
+				if (location != null && !"".equals(location)) { //location不为空，设置当前状态WIP
+					materialForm.setProcessing_position("库位：" + location + "\n" + materialForm.getProcessing_position());
+				}
+
 //				String operateResult = materialForm.getOperate_result();
 //				if (operateResult != null) {
 //					String value = CodeListUtils.getValue("material_operate_result", operateResult);

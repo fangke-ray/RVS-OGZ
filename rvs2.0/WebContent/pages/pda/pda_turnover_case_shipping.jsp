@@ -118,31 +118,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					${(waitCount > 0) ? "<th class=\"td-title\" id=\"prev_shelf\">◢</th>" : ""}
 					<th class="td-title">
 					<select id="change_shelf" name="shelf">
-						<option value="A" ${(shelf eq 'A' ? 'selected' : '' )}>A 货架</option>
-						<option value="A2" ${(shelf eq 'A2' ? 'selected' : '' )}>A2 货架</option>
-						<option value="B" ${(shelf eq 'B' ? 'selected' : '' )}>B 货架</option>
-						<option value="C" ${(shelf eq 'C' ? 'selected' : '' )}>C 货架</option>
-						<option value="D" ${(shelf eq 'D' ? 'selected' : '' )}>D 货架</option>
-						<option value="E" ${(shelf eq 'E' ? 'selected' : '' )}>E 货架</option>
-						<option value="F" ${(shelf eq 'F' ? 'selected' : '' )}>F 货架</option>
-						<option value="G" ${(shelf eq 'G' ? 'selected' : '' )}>G 货架</option>
-						<option value="H" ${(shelf eq 'H' ? 'selected' : '' )}>H 货架</option>
-						<option value="H2" ${(shelf eq 'H2' ? 'selected' : '' )}>H2 货架</option>
-						<option value="I" ${(shelf eq 'I' ? 'selected' : '' )}>I 货架</option>
-						<option value="J" ${(shelf eq 'J' ? 'selected' : '' )}>J 货架</option>
-						<option value="K" ${(shelf eq 'K' ? 'selected' : '' )}>K 货架</option>
-						<option value="L" ${(shelf eq 'L' ? 'selected' : '' )}>L 货架</option>
-						<option value="M" ${(shelf eq 'M' ? 'selected' : '' )}>M 货架</option>
-						<option value="N" ${(shelf eq 'N' ? 'selected' : '' )}>N 货架</option>
-						<option value="O" ${(shelf eq 'O' ? 'selected' : '' )}>O 货架</option>
-						<option value="P" ${(shelf eq 'P' ? 'selected' : '' )}>P 货架</option>
+						${shelfOptions}
 					</select>
 					</th>
 					${(waitCount > 0) ? "<th class=\"td-title\" id=\"next_shelf\">◣</th>" : ""}
 				</tr>
 			</table>
 			<table class="storage_map">
-				${(shelf eq 'Z3' ? '' : shelfMap)}
+				${shelfMap}
 			</table>
 
 			<table class="plan_list" style="width:100%;">

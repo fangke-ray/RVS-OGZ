@@ -203,10 +203,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="ui-widget-content" id="system_verison" style="">
 							<div class="ui-widget-content">
 								<p>系统版本:</p>
-								<p id="nee">2.15.591</p>
+								<p id="nee">2.15.600</p>
 								<p>&nbsp;</p>
 								<p>发布时间:</p>
-								<p>2022年2月27日</p>
+								<p>2022年6月1日</p>
 							</div>
 						</div>
 <%
@@ -214,6 +214,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 %>
 						<div class="ui-widget-content" id="system_verison_content">
 
+							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
+								<p>--------------------------------------</p>
+								<p>22/6/1 2.15.600 更新</p>
+								<p>报价/投线：WIP在库与通箱库位合并。</p>
+								<p>受理/物料：通箱出入库管理按照机种及是否同意划分。</p>
+							</div>
 							<div class="ui-widget-content" style="max-height: 560px;overflow: auto;">
 								<p>--------------------------------------</p>
 								<p>22/3/16 2.15.592 更新</p>

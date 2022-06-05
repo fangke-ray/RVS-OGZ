@@ -11,6 +11,8 @@ var lOptions = {};
 var ocmOptions = {};
 var selwip = ""; 
 
+var $grid = null;
+
 var findit = function() {
 	var data = {
 		"omr_notifi_no" : $("#cond_omr_notifi_no").data("post"),
@@ -382,7 +384,7 @@ var fillList = function(){
 	} else {
 		lOptions = $("#lOptions").val();
 		ocmOptions = $("#ocmOptions").val();
-		$("#list").jqGrid({
+		$grid = $("#list").jqGrid({
 			toppager : true,
 			data : listdata,
 			height : 483,

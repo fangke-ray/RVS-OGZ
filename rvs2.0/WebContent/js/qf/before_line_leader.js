@@ -141,7 +141,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 					rowheight : 23,
 					datatype : "local",
 					colNames : ['修理单号', '型号', '机身号', '条码参照', '不良', '等级', '处理对策', '受理日期', '报价日期', '客户同意','agreed_date_org',
-						'零件订单', '优先报价', '位置', '状态', '备注',
+						'零件订单', '优先报价', '位置', '状态', '库位', '备注',
 						'position', 'direct_flg', 'fix_type', 'service_repair_flg', 'model_id', 'selectable', 'ts', '', '', '', '', '' ,'','','vip','scheduled_expedited', '返送地区',''],
 					colModel : [{
 								name : 'sorc_no',
@@ -150,7 +150,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							},{
 								name : 'model_name',
 								index : 'model_name',
-								width : 125
+								width : 120
 							},{
 								name : 'serial_no',
 								index : 'serial_no',
@@ -169,7 +169,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 								name : 'level',
 								index : 'level',
 								formatter: "select", editoptions:{value:resInfo.opt_level},
-								width : 35,
+								width : 30,
 								align : 'center'
 							}, 
 							{
@@ -180,17 +180,17 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							}, {
 								name : 'reception_time',
 								index : 'reception_time',
-								width : 50,
+								width : 45,
 								align : 'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}
 							}, {
 								name : 'quotation_time',
 								index : 'quotation_time',
-								width : 50,
+								width : 45,
 								align : 'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}
 							}, {
 								name : 'agreed_date',
 								index : 'agreed_date',
-								width : 50,
+								width : 45,
 								align : 'center', formatter:'date', formatoptions:{srcformat:'Y/m/d',newformat:'m-d'}
 							}, 
 							{name:'agreed_date_org',index:'agreed_date_org', formatter: function(value, options, rData){return rData["agreed_date"] || ""}, hidden:true},
@@ -213,12 +213,32 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 							}, {
 								name : 'processing_position',
 								index : 'processing_position',
-								width : 50
+								width : 45
 							}, {
 								name : 'operate_result',
 								index : 'operate_result',
 								formatter: "select", editoptions:{value:resInfo.opt_operate_result},
-								width : 50
+								width : 45
+							}, {
+								name : 'wip_location',
+								index : 'wip_location',
+								formatter : function(value, options, rData){
+									var wip_location = rData['wip_location'];
+									if (wip_location) {
+										var for_agreed = (rData['sterilized'] == "1");
+										var agreed_date = rData['agreed_date'];
+
+										if ((for_agreed && agreed_date) ||
+											(!for_agreed && !agreed_date)) {
+											return wip_location;
+										} else {
+											return "<span style='color:red'>" + wip_location + "</span>";							
+										}
+									} else {
+										return "";
+									}
+				   				},
+								width : 45
 							}, {name:'comment',index:'comment', width:105, formatter:function(value, options, rData){
 								var comment = " ";
 								if (rData["direct_flg"] == "1") {
@@ -279,7 +299,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 								name : 'bound_out_ocm',
 								index : 'bound_out_ocm',
 								formatter: "select", editoptions:{value:opt_bound_out_ocm},
-								width : 50,
+								width : 45,
 								align : 'center'
 							},
 							{name:'area',index:'area', hidden:true}
@@ -331,22 +351,40 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 						// 位置
 						var processing_position = rowdata["processing_position"];
 						var inQuote = processing_position.indexOf("报价");
+
 						var inWip = processing_position.indexOf("WIP");
-						if (inWip >= 0) {
-							$("#movebutton").enable();
-							$("#movebutton").val("移动库位");
-						} else {
-							// 同意日
-							var agreed_date = rowdata["agreed_date"];
-							var operate_result = rowdata["operate_result"];
-							if (operate_result != "2" || inQuote < 0) {
-								$("#movebutton").disable();
-							} else if (agreed_date.trim() == "") {
+						var inStor = rowdata["wip_location"].length;
+
+						if (f_isPeripheralFix(rowdata["level"])) {
+							$("#movebutton").show();
+							$("#movetcbutton").hide();
+
+							if (inWip >= 0) {
 								$("#movebutton").enable();
-								$("#movebutton").val("入库");
+								$("#movebutton").val("移动WIP库位");
 							} else {
-								$("#movebutton").enable();
-								$("#movebutton").val("再入库");
+								$("#movebutton").disable();
+								// 同意日
+								var agreed_date = rowdata["agreed_date"];
+								var operate_result = rowdata["operate_result"];
+								if (operate_result != "2" || inQuote < 0) {
+									$("#movebutton").disable();
+								} else if (agreed_date.trim() == "") {
+									$("#movebutton").enable();
+									$("#movebutton").val("入库");
+								} else {
+									$("#movebutton").enable();
+									$("#movebutton").val("再入库");
+								}
+							}
+						} else {
+							$("#movebutton").hide();
+							$("#movetcbutton").show();
+
+							if (inStor > 0) {
+								$("#movetcbutton").enable();
+							} else {
+								$("#movetcbutton").disable();
 							}
 						}
 
@@ -390,7 +428,7 @@ $(document).ready(function() {
 	$("#returnbutton").disable();
 	$("#printbutton").disable();
 	$("#printaddbutton").disable();
-	$("#movebutton").disable();
+	$("#movebutton, #movetcbutton").disable();
 	$("#sendbutton").disable();
 	$("#sendqabutton").disable();
 
@@ -405,6 +443,7 @@ $(document).ready(function() {
 	$("#printbutton").click(printTicket);
 	$("#printaddbutton").click(function(){printTicket(1)});
 	$("#movebutton").click(doMove);
+	$("#movetcbutton").click(doTcMove);
 	$("#sendqabutton").click(doJudge);
 	$("#sendccdbutton").click(doCcdChange);
 	$("#sendbutton, #returnbutton").hover(
@@ -714,6 +753,80 @@ var doChangeLocation = function(wip_location) {
 	});
 }
 
+var doTcMove = function() {
+	var this_dialog = $("#wip_pop");
+	if (this_dialog.length === 0) {
+		$("body.outer").append("<div id='wip_pop'/>");
+		this_dialog = $("#wip_pop");
+	}
+
+	var rowid = $("#performance_list").jqGrid("getGridParam", "selrow");
+	var rowdata = $("#performance_list").getRowData(rowid);
+
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : 'turnover_case.do?method=getStoargeEmpty',
+		cache : false,
+		data : {material_id : rowdata.material_id},
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj) {
+			// 以Object形式读取JSON
+			var resInfo = $.parseJSON(xhrobj.responseText);
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				this_dialog.hide();
+				//新增
+				this_dialog.dialog({
+					position : [ 800, 0 ],
+					title : "通箱库位选择",
+					width : 1200,
+					show: "blind",
+					resizable : false,
+					modal : true,
+					minHeight : 240,
+					buttons : {}
+				});
+
+				this_dialog.html(resInfo.storageHtml);
+
+				this_dialog.find(".ui-widget-content").click(function(e){
+					if ("TD" == e.target.tagName) {
+						if (!$(e.target).hasClass("storage-heaped")) {
+							doTcChangeLocation(rowdata.material_id, $(e.target).attr("location"));
+							this_dialog.dialog("close");
+						}
+					}
+				});
+		
+				this_dialog.show();
+			}
+		}
+	});
+}
+
+var doTcChangeLocation = function(material_id, location) {
+
+	var data = {material_id : material_id ,location : location};
+
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : false,
+		url : 'turnover_case.do?method=doChangeLocation',
+		cache : false,
+		data : data,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : findit
+	});
+}
 
 /**
  * 检索Ajax通信成功时的处理
@@ -747,19 +860,20 @@ var findit = function(xhrobj, textStatus) {
 	} catch (e) {
 		//TODO 
 	}
-	// Ajax提交
-	$.ajax({
-		beforeSend : ajaxRequestType,
-		async : false,
-		url : servicePath + '?method=refresh',
-		cache : false,
-		data : null,
-		type : "post",
-		dataType : "json",
-		success : ajaxSuccessCheck,
-		error : ajaxError,
-		complete : jsinit_ajaxSuccess
-	});
+	findits();
+//	// Ajax提交
+//	$.ajax({
+//		beforeSend : ajaxRequestType,
+//		async : false,
+//		url : servicePath + '?method=refresh',
+//		cache : false,
+//		data : null,
+//		type : "post",
+//		dataType : "json",
+//		success : ajaxSuccessCheck,
+//		error : ajaxError,
+//		complete : jsinit_ajaxSuccess
+//	});
 }
 
 var doStop=function(return_ocm) {

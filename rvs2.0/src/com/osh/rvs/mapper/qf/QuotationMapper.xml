@@ -11,7 +11,7 @@
 			  omr_notifi_no as sorc_no,
 			  `m`.model_id, `m`.serial_no, `m`.ocm,
 			  `m`.`level`, `m`.direct_flg, `m`.service_repair_flg, `m`.reception_time, `m`.fix_type,
-			  `m`.wip_location, `m`.agreed_date, `mdl`.name as model_name, `mdl`.kind,
+			  tcs.location as wip_location, `m`.agreed_date, `mdl`.name as model_name, `mdl`.kind,
 			  `pf`.operate_result, `m`.quotation_first,
 			  `m`.scheduled_expedited, `m`.scheduled_date
 			FROM material m
@@ -21,6 +21,8 @@
 			  AND `pf`.position_id = #{position_id}
 			  AND `pf`.operate_result = 0
 			  AND `pf`.action_time is null
+			LEFT JOIN turnover_case_storage tcs
+				ON `m`.material_id = tcs.material_id and tcs.execute = 1
 			ORDER BY agreed_date IS NULL, scheduled_date, reception_time
 		]]>
 	</select>
@@ -33,7 +35,7 @@
 			  `m`.`level`, `m`.direct_flg, 
 			  `m`.service_repair_flg + (qa_referee_time IS NOT NULL) * 10 as service_repair_flg, 
 			  `m`.reception_time, `m`.fix_type,
-			  `m`.wip_location, `m`.agreed_date, `mdl`.name as model_name, `pf`.operate_result as now_operate_result,
+			  tcs.location as wip_location, `m`.agreed_date, `mdl`.name as model_name, `pf`.operate_result as now_operate_result,
 			  `psf`.reason as now_pause_reason, `pf`.position_id as processing_position, 
 			  (current_timestamp - `wpf`.action_time) > 2000000 as quotation_first, `m`.scheduled_expedited
 			FROM material m
@@ -56,6 +58,8 @@
 			LEFT JOIN (select cast(material_id as unsigned) material_id, qa_referee_time 
 				from service_repair_manage where material_id like '0%') `srm`
 				ON `m`.material_id = `srm`.material_id
+			LEFT JOIN turnover_case_storage tcs
+				ON `m`.material_id = tcs.material_id and tcs.execute = 1
 			ORDER BY now_pause_reason DESC, qa_referee_time IS NULL, scheduled_date, now_operate_result DESC, reception_time
 		]]>
 	</select>
@@ -64,13 +68,16 @@
 		<![CDATA[
 			SELECT `m`.material_id, 
 			  omr_notifi_no as sorc_no,
-			  `m`.model_id, `m`.serial_no, `m`.ocm, COALESCE(`m`.wip_location, '同意') as wip_location,
+			  `m`.model_id, `m`.serial_no, `m`.ocm, 
 			  `m`.`level`, `m`.direct_flg, `m`.service_repair_flg, `m`.reception_time, `m`.fix_type,
 		]]>
 			<include refid="com.osh.rvs.mapper.CommonMapper.ticket_count"></include>  				
 		<![CDATA[
 				as quotation_first,
-			  `m`.wip_location, `m`.agreed_date, `mdl`.name as model_name, `m`.inline_time, pf.finish_time as quotation_time
+			  CASE `m`.wip_location IS NOT NULL THEN concat('WIP:', `m`.wip_location)
+			  ELSE tcs.location 
+			  END as wip_location, 
+			  `m`.agreed_date, `mdl`.name as model_name, `m`.inline_time, pf.finish_time as quotation_time
 			FROM material m
 			JOIN v_model mdl ON `m`.model_id = `mdl`.model_id
 			JOIN production_feature pf
@@ -81,6 +88,8 @@
 			  AND `m`.inline_time IS NULL
 			  AND `m`.outline_time IS NULL
 			  AND pf.finish_time > current_date
+			LEFT JOIN turnover_case_storage tcs
+				ON `m`.material_id = tcs.material_id and tcs.execute = 1
 			ORDER BY quotation_time DESC
 		]]>
 	</select>
@@ -106,7 +115,7 @@
 			`m`.service_repair_flg,
 			`m`.section_id,
 			`m`.reception_time,
-			`m`.wip_location,
+			coalecse(`m`.`wip_location`, tcs.location) as wip_location,
 			`m`.scheduled_manager_comment,
 			`m`.selectable,
 			`m`.agreed_date,
@@ -120,6 +129,8 @@
 		 	ON `mdl`.category_id = `ctg`.category_id
 		 LEFT JOIN customer cstm
 		 	ON `m`.customer_id = `cstm`.customer_id
+		LEFT JOIN turnover_case_storage tcs
+			ON `m`.material_id = tcs.material_id and tcs.execute = 1
 		 WHERE `m`.material_id = #{material_id};
 	]]>
 	</select>

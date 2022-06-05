@@ -44,14 +44,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<span class="areatitle">通箱库位区域一览</span>
 	</div>
 				<div style="float: left; width: 112%; margin-top: 297px; height: 390px; transform-origin: 0 0; transform: scale(0.9); overflow-y: hidden;" id="storages">
-					<div class="clear areacloser"></div>
+					${storageHtml}
 				</div>
 				<script type="text/javascript">
-					$("#storages").load("widgets/turnover_case_storage_map.jsp",
-						function(responseText, textStatus, XMLHttpRequest) {
+//					$("#storages").load("widgets/turnover_case_storage_map.jsp",
+//						function(responseText, textStatus, XMLHttpRequest) {
 						setTimeout(function(){stgHeight = $("#storages > div:eq(0)").height()
 								- $("#storages").height();}, 10);
-					});
+//					});
 				</script>
 				<style>
 				#listarea tr td:nth-child(1) {width:60px;}

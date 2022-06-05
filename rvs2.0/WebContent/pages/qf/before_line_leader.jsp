@@ -123,6 +123,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<input type="button" class="ui-button" value="发还给OSH" id="returnOSHbutton" />
 			</div>
 		</div>
+		<input type="button" class="ui-button" value="移动库位" id="movetcbutton" />
 		<input type="button" class="ui-button" value="移动库位" id="movebutton" />
 		<div class="ui-button" id="sendbutton" style="font-size:14px;">
 			转送
@@ -136,6 +137,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div>
 <% } else if (isEditor) { %>
 		<div style="padding:2px;padding-left:6px;padding-top:8px;height:36px;">
+		<input type="button" class="ui-button" value="移动库位" id="movetcbutton" />
 		<input type="button" class="ui-button" value="移动库位" id="movebutton" />
 		<div class="ui-button" id="returnbutton" style="font-size:14px;">
 			未修理返还

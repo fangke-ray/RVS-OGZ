@@ -46,6 +46,8 @@ public class TurnoverCaseScanAction extends BaseAction {
 
 		log.info("TurnoverCaseScanAction.init start");
 
+		req.setAttribute("storageHtml", service.getLocationMap(conn));
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

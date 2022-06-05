@@ -195,6 +195,8 @@
 				`srm`.countermeasures as storager,
 				case when `m`.wip_location IS NULL THEN `ppf1`.operate_result ELSE '-1' END as operate_result,
 				case when `m`.wip_location IS NULL THEN `ppf1`.name ELSE concat('WIP:', `m`.wip_location) END as processing_position,
+				tcs.location as wip_location,
+				tcs.for_agreed as sterilized,
 		]]>
 			<include refid="com.osh.rvs.mapper.CommonMapper.ticket_count"></include>  				
 		<![CDATA[
@@ -214,6 +216,8 @@
 				ON `pf111`.material_id = `m`.material_id AND `pf111`.position_id = 9 AND `pf111`.operate_result = 2
 			LEFT JOIN production_feature pf151
 				ON `pf151`.material_id = `m`.material_id AND `pf151`.position_id IN (select position_id from position where special_page = 'quotation') AND `pf151`.operate_result = 2
+			LEFT JOIN turnover_case_storage tcs
+				ON `m`.material_id = tcs.material_id and tcs.execute = 1
 			JOIN (SELECT `pfp`.material_id, `pfp`.position_id, `pfp`.name, `pfp`.process_code, `pfp`.operate_result FROM (
 					SELECT `pf`.material_id, `pf`.position_id, `p`.name, `p`.process_code, `pf`.operate_result
 					FROM production_feature pf
@@ -261,7 +265,7 @@
 				AND `m`.agreed_date IS NOT NULL
 			</if>
 			<if test="wip_location!= null and wip_location!= '' ">
-				AND `m`.wip_location LIKE CONCAT('%', #{wip_location}, '%')
+				AND (tcs.location LIKE CONCAT('%', #{wip_location}, '%') OR `m`.wip_location LIKE CONCAT('%', #{wip_location}, '%'))
 			</if>
 		<![CDATA[
 			ORDER BY `m`.scheduled_expedited DESC, reception_time, `ppf1`.PROCESS_CODE;

@@ -10,7 +10,7 @@ public interface TurnoverCaseMapper {
 
 	public List<TurnoverCaseEntity> searchTurnoverCase(TurnoverCaseEntity condition);
 
-	public List<String> getStorageHeaped();
+	public List<String> getStorageHeaped(@Param("kind")String kind);
 
 	public void putin(TurnoverCaseEntity condition);
 
@@ -25,6 +25,8 @@ public interface TurnoverCaseMapper {
 	public List<TurnoverCaseEntity> getWarehousingPlan();
 
 	public List<TurnoverCaseEntity> getListOnShelf(String shelf);
+
+	public List<String> getAllShelf();
 
 	public TurnoverCaseEntity getEntityByLocation(String location);
 
@@ -61,4 +63,6 @@ public interface TurnoverCaseMapper {
 	public List<TurnoverCaseEntity> getStartLocationsOnKindForAgreed();
 
 	public List<String> getNextLocationsOnKindForAgreed(TurnoverCaseEntity entity);
+
+	public String getStorageKindByMaterial(String material_id);
 }

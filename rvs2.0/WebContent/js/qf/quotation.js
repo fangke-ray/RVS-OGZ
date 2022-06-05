@@ -53,7 +53,6 @@ var showWipEmpty=function() {
 	});
 }
 
-
 /** 暂停信息弹出框 */
 var makePauseDialog = function(jBreakDialog) {
 	jBreakDialog.dialog({
@@ -140,7 +139,7 @@ var pop_wip = function(call_back, resInfo){
 		quotation_pop.show();
 
 		if ($("#devicearea").length > 0) {
-		setTimeout(function(){quotation_pop[0].scrollTop = 300}, 200);
+			setTimeout(function(){quotation_pop[0].scrollTop = 300}, 600);
 		}
 	});
 }
@@ -225,38 +224,42 @@ var makeBreakDialog = function(jBreakDialog) {
 
 					if (parseInt($("#break_reason").val()) > 70) {
 						if ($("#break_reason").val() == 73) {
-							if($("#edit_wip_location").val() != null && $("#edit_wip_location").val() != "") {
-								errorPop("已经放入WIP"+$("#edit_wip_location").val()+"了");
-								$(this).dialog("close");
-								return;
-							}
-							$.ajax({
-								beforeSend : ajaxRequestType,
-								async : true,
-								url : "wip.do" + '?method=getwipempty',
-								cache : false,
-								data : null,
-								type : "post",
-								dataType : "json",
-								success : ajaxSuccessCheck,
-								error : ajaxError,
-								complete : function(xhrobj) {
-									var resInfo = null;
-									try {
-										// 以Object形式读取JSON
-										eval('resInfo =' + xhrobj.responseText);
-										if (resInfo.errors.length > 0) {
-											// 共通出错信息框
-											treatBackMessages(null, resInfo.errors);
-										} else {
-											pop_wip(submitBreak, resInfo);
-										}
-									} catch (e) {
-										alert("name: " + e.name + " message: " + e.message + " lineNumber: "
-												+ e.lineNumber + " fileName: " + e.fileName);
-									};
+							if ($("#wipconfirmbutton").length == 0) {
+								submitBreak();
+							} else {
+								if($("#edit_wip_location").val() != null && $("#edit_wip_location").val() != "") {
+									errorPop("已经放入WIP"+$("#edit_wip_location").val()+"了");
+									$(this).dialog("close");
+									return;
 								}
-							});
+								$.ajax({
+									beforeSend : ajaxRequestType,
+									async : true,
+									url : "wip.do" + '?method=getwipempty',
+									cache : false,
+									data : null,
+									type : "post",
+									dataType : "json",
+									success : ajaxSuccessCheck,
+									error : ajaxError,
+									complete : function(xhrobj) {
+										var resInfo = null;
+										try {
+											// 以Object形式读取JSON
+											eval('resInfo =' + xhrobj.responseText);
+											if (resInfo.errors.length > 0) {
+												// 共通出错信息框
+												treatBackMessages(null, resInfo.errors);
+											} else {
+												pop_wip(submitBreak, resInfo);
+											}
+										} catch (e) {
+											alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+													+ e.lineNumber + " fileName: " + e.fileName);
+										};
+									}
+								});
+							}
 						} else {
 							submitBreak();
 						}
@@ -384,6 +387,7 @@ var paused_list = function(paused) {
 							(waiting.agreed_date ? 'tube-green' : 'tube-gray') +
 							'">' +
 								(waiting.sorc_no == null ? "" : waiting.sorc_no + ' | ') + waiting.model_name + ' | ' + waiting.serial_no +
+								(waiting.wip_location ? (' | 存放于：' + waiting.wip_location) : '') + 
 								getFlags(waiting.quotation_first, waiting.direct_flg, waiting.light_fix, waiting.service_repair_flg) +
 							'</div>' +
 						'</div>';
@@ -581,10 +585,12 @@ var getMaterialInfo = function(resInfo) {
 
 		leagal_overline = resInfo.leagal_overline;
 
-		if (resInfo.mform.wip_location != null) {
-			$("#wipconfirmbutton").val("放回WIP");
-		} else {
-			$("#wipconfirmbutton").val("放入WIP");
+		if ($("#wipconfirmbutton").length > 0) {
+			if (resInfo.mform.wip_location != null) {
+				$("#wipconfirmbutton").val("放回WIP");
+			} else {
+				$("#wipconfirmbutton").val("放入WIP");
+			}
 		}
 
 		if (resInfo.qa_rank || resInfo.qa_service_free) {
@@ -937,6 +943,7 @@ $(function() {
 			doFinish();
 		}
 	});
+	$("#edit_wip_location_button").click(doMoveLocation);
 
 	$("#body-mdl select").select2Buttons();
 	$("#edit_agreed_date, #edit_ocm_deliver_date, #edit_osh_deliver_date").datepicker({
@@ -1043,7 +1050,7 @@ function load_list(listdata){
 			width: 1248,
 			rowheight: 23,
 			datatype: "local",
-			colNames:['受理时间', '修理单号', '型号 ID', '型号' , '机身号','RC','同意日期', '优先报价','预定纳期', '等级', '备注'],
+			colNames:['受理时间', '修理单号', '型号 ID', '型号' , '机身号','RC','同意日期', '优先报价','预定纳期', '等级', '库位', '备注'],
 			colModel:[
 				{name:'reception_time',index:'reception_time', width:50, align:'center', 
 					sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d H:i:s', newformat: 'm-d'}},
@@ -1069,6 +1076,7 @@ function load_list(listdata){
 				{name:'scheduled_date',index:'scheduled_date', width:50, align:'center',
 					sorttype: 'date', formatter: 'date', formatoptions: {srcformat: 'Y/m/d', newformat: 'm-d'}},
 				{name:'level',index:'level', width:35, align:'center', formatter: 'select', editoptions:{value: lOptions}},
+				{name:'wip_location',index:'wip_location', width:40},
 				{name:'fix_type',index:'fix_type', width:120, formatter : function(value, options, rData){
 					return rData['remark'];
 				}}//formatter: 'select', editoptions:{value: tOptions}}
@@ -1132,5 +1140,82 @@ var showTips = function(quality_tip, material_comment) {
 		width : '576px',
 		title : "质量提示",
 		closeOnEscape: false
+	});
+}
+
+
+var doMoveLocation = function() {
+	var this_dialog = $("#wip_pop");
+	if (this_dialog.length === 0) {
+		$("body.outer").append("<div id='wip_pop'/>");
+		this_dialog = $("#wip_pop");
+	}
+
+	var hide_material_id = $("#hide_material_id").val();
+
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : true,
+		url : 'turnover_case.do?method=getStoargeEmpty',
+		cache : false,
+		data : {material_id : hide_material_id},
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(xhrobj) {
+			// 以Object形式读取JSON
+			var resInfo = $.parseJSON(xhrobj.responseText);
+			if (resInfo.errors.length > 0) {
+				// 共通出错信息框
+				treatBackMessages(null, resInfo.errors);
+			} else {
+				this_dialog.hide();
+				//新增
+				this_dialog.dialog({
+					position : [ 800, 0 ],
+					title : "通箱库位选择",
+					width : 1200,
+					show: "blind",
+					resizable : false,
+					modal : true,
+					minHeight : 240,
+					buttons : {}
+				});
+
+				this_dialog.html(resInfo.storageHtml);
+
+				this_dialog.find(".ui-widget-content").click(function(e){
+					if ("TD" == e.target.tagName) {
+						if (!$(e.target).hasClass("storage-heaped")) {
+							doChangeLocation(hide_material_id, $(e.target).attr("location"));
+							this_dialog.dialog("close");
+						}
+					}
+				});
+		
+				this_dialog.show();
+			}
+		}
+	});
+}
+
+var doChangeLocation = function(material_id, location) {
+
+	var data = {material_id : material_id ,location : location};
+
+	$.ajax({
+		beforeSend : ajaxRequestType,
+		async : false,
+		url : 'turnover_case.do?method=doChangeLocation',
+		cache : false,
+		data : data,
+		type : "post",
+		dataType : "json",
+		success : ajaxSuccessCheck,
+		error : ajaxError,
+		complete : function(){
+			$("#edit_wip_location").val(location);
+		}
 	});
 }

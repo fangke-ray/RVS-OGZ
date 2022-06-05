@@ -41,7 +41,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <title>报价</title>
 </head>
 <body class="outer">
-
+<%
+Boolean peripheral = (Boolean) request.getAttribute("peripheral");
+%>
 	<div class="width-full" style="align: center; margin: auto; margin-top: 16px;">
 
 		<div id="basearea" class="dwidth-full" style="margin: auto;">
@@ -83,7 +85,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 										<table class="condform">
 											<tbody>
 												<tr>
-													<td class="ui-state-default td-title">型号<input type="hidden" name="wip_location" id="edit_wip_location"/></td>
+													<td class="ui-state-default td-title">型号</td>
 													<td class="td-content"></td>
 												</tr>
 												<tr>
@@ -186,10 +188,24 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 														</select>
 													</td>
 												</tr>
+
+												<tr <%=(peripheral!=null && peripheral) ? "style='display:none;'" : ""%>>
+													<td class="ui-state-default td-title">库位</td>
+													<td class="td-content">
+														<input type="text" readonly style="width:4em;text-align: center;" name="wip_location" id="edit_wip_location"/>
+														<input type="button" value="更改" id="edit_wip_location_button" class="ui-button"/>
+													</td>
+												</tr>
 											</tbody>
 										</table>
 										<div style="height: 44px">
+<%
+if (peripheral!=null && peripheral) {
+%>
 											<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="wipconfirmbutton" value="放入WIP" role="button" aria-disabled="false" style="float: right; right: 2px">
+<%
+}
+%>
 											<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="confirmbutton" value="修理同意" role="button" aria-disabled="false" style="float: right; right: 2px">
 											<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="breakbutton" value="异常中断" role="button" aria-disabled="false" style="float: right; right: 2px">
 											<input type="button" class="ui-button-primary ui-button ui-widget ui-state-default ui-corner-all" id="stepbutton" value="正常中断" role="button" aria-disabled="false" style="float: right; right: 2px">
@@ -205,7 +221,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</div>
 
 <%
-Boolean peripheral = (Boolean) request.getAttribute("peripheral");
 if (peripheral!=null && peripheral) {
 %>
 <%@include file="/widgets/position_panel/device_infect.jsp"%>

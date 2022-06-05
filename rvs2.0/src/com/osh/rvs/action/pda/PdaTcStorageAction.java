@@ -89,6 +89,7 @@ public class PdaTcStorageAction extends PdaBaseAction {
 
 		req.setAttribute("waitCount", storagePlanList.size());
 		req.setAttribute("shelf", shelf);
+		req.setAttribute("shelfOptions", service.getShelfOptions(shelf, conn));
 		req.setAttribute("storagePlanListOnShelf", storagePlanListOnShelf);
 		req.setAttribute("shelfMap", service.getShelfMap(shelf, storagePlanListOnShelf, conn));
 

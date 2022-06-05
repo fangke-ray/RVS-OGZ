@@ -738,7 +738,9 @@
 				a.direct_flg, 
 				a.service_repair_flg,
 				a.fix_type,
-				a.wip_location,
+				CASE WHEN a.wip_location IS NOT NULL THEN concat("WIP:", a.wip_location)
+				ELSE (select location from turnover_case_storage where material_id = a.material_id)
+				END as wip_location,
 				a.pat_id,
 				(select Concat(p1.process_code," ",p1.name) from position p1 join production_feature p2 on p1.position_id = p2.position_id where p2.material_id = a.material_id and p1.line_id <>13 and p2.operate_result not in (5, 8) order by (1-ISNULL(p2.action_time)), p2.action_time desc limit 1) as processing_position,
 				date_format(a.reception_time, '%Y-%m-%d') as reception_time, 

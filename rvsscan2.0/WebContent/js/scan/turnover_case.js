@@ -51,7 +51,7 @@ function search_handleComplete(xhrobj, textStatus) {
 		var material = listdata[line];
 		stored_count++;
 
-		var $tdLocation = $(".wip-table td[location='" + material["wip_location"]+ "']");
+		var $tdLocation = $(".storage-table td[location='" + material["wip_location"]+ "']");
 		if (material.wip_overceed == 1) {
 			$tdLocation.addClass("wip-heaped").addClass("ui-state-error");
 			overceed_count++;

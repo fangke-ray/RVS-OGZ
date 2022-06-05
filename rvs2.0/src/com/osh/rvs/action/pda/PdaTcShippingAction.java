@@ -86,6 +86,7 @@ public class PdaTcShippingAction extends PdaBaseAction {
 
 		req.setAttribute("waitCount", shippingPlanList.size());
 		req.setAttribute("shelf", shelf);
+		req.setAttribute("shelfOptions", service.getShelfOptions(shelf, conn));
 		req.setAttribute("shippingPlanListOnShelf", shippingPlanListOnShelf);
 		req.setAttribute("shelfMap", service.getShelfMap(shelf, shippingPlanListOnShelf, conn));
 

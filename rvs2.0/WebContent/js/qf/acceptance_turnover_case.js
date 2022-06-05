@@ -2,6 +2,8 @@ var initials = [];
 
 var tcCache = {};
 
+var lastChangeCart = "1";
+
 var tcUpdate = function(){
 	var postData = {};
 	var $troAreaHtml = $("#trolley_area");
@@ -399,7 +401,10 @@ var setTrolleys = function($trolleys, trolleyStacks, first) {
 	}
 
 	$trolleys.append($troAreaHtmll);
-	$troSelHtml.find("span:eq(" + mostHeap + ")").select().trigger("click");
+	// $troSelHtml.find("span:eq(" + mostHeap + ")").select().trigger("click");
+
+	changeCart(lastChangeCart);
+	// setTcLocations();
 }
 
 var changeCart = function(cart){
@@ -409,6 +414,7 @@ var changeCart = function(cart){
 	$("#trolley_sel > span").removeClass("selected");
 	$("#trolley_sel > span[kind=" + cart + "]").addClass("selected");
 
+	lastChangeCart = cart;
 	setTcLocations();
 }
 
@@ -433,6 +439,9 @@ var setTcLocations = function() {
 //				temp_stock = tcCache.nextLocations[tempIdx++]; 
 //			}
 			temp_stock = tcCache.nextLocations[kind_agreed_key][tempIdx[kind_agreed_key]++];
+			if (!temp_stock) {
+				temp_stock = "X";
+			}
 		}
 		$("#tc2t_temp_location .location:eq(" + idx + ")").text(temp_stock);
 	});
@@ -445,12 +454,18 @@ var doAssignLocation = function() {
 	var postData = {};
 	var postIdx = 0;
 
+	var nospace = false;
+
 	$trolley_cart.children(".trolley_stock").each(function(idx, ele){
 		var $material = $(ele).children(".material");
 
 		if ($material.length > 0) {
+			var location = $("#tc2t_temp_location .location:eq(" + idx + ")").text();
+			if (location == 'X') {
+				nospace = true;
+			}
 			postData["assign_location.material_id[" + postIdx + "]"] = $material.attr("material_id");
-			postData["assign_location.location[" + postIdx + "]"] = $("#tc2t_temp_location .location:eq(" + idx + ")").text();
+			postData["assign_location.location[" + postIdx + "]"] = location;
 			postData["assign_location.kind_key[" + postIdx + "]"] = $material.attr("model_kind") + "_" + ($material.attr("agreed_date") ? "1" : "0");
 			postIdx++;
 		}
@@ -458,6 +473,10 @@ var doAssignLocation = function() {
 
 	if (!postData["assign_location.material_id[0]"]) {
 		errorPop("当前推车没有对方任何维修品。");
+		return;
+	}
+	if (nospace) {
+		errorPop("当前推车有维修品无法给予库位，请去除后提交。");
 		return;
 	}
 

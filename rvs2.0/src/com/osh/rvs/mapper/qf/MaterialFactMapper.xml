@@ -23,11 +23,11 @@
 			a.direct_flg,
 			a.fix_type,
 			CASE
-				WHEN a.wip_date <= date_add(current_date, interval -30 day)
-				THEN wip_date 
+				WHEN a.reception_time <= date_add(current_date, interval -30 day)
+				THEN reception_time 
 				ELSE NULL
 			END as inline_time, -- wip_date
-			a.wip_location,
+			coalesce(tcs.location, a.wip_location) as wip_location,
 			a.scheduled_expedited,
 			a.unrepair_flg,
 			a.service_repair_flg,
@@ -58,6 +58,8 @@
 			JOIN
 		v_model m
 			ON a.model_id = m.model_id
+		LEFT JOIN turnover_case_storage tcs
+			ON `a`.material_id = tcs.material_id and tcs.execute = 1
 		LEFT JOIN material_partial mp
 			ON `a`.material_id = `mp`.material_id
 			AND `mp`.occur_times = 1
@@ -117,7 +119,7 @@ on a.model_id = new_model.model_id
 				]]>
 			</if>
 			<if test="wip_location!= null and wip_location!= '' ">
-				and a.wip_location like CONCAT('%','${wip_location}','%')
+				AND (tcs.location LIKE CONCAT('%', #{wip_location}, '%') OR `m`.wip_location LIKE CONCAT('%', #{wip_location}, '%'))
 			</if>
 		</where>
 			order by a.agreed_date IS NULL, a.scheduled_expedited DESC, a.direct_flg desc, a.unrepair_flg desc
@@ -139,7 +141,7 @@ on a.model_id = new_model.model_id
 			a.wip_location,
 			(select count(1) from production_feature where material_id = a.material_id and position_id = 16) as unrepair_flg,
 			a.inline_time
-		 from material a where date(a.inline_time) = curdate()
+		 from material a where a.inline_time >= curdate()
 	]]>
 		
 	</select>
@@ -202,7 +204,7 @@ on a.model_id = new_model.model_id
 	<select id="getInlinePlan" parameterType="java.lang.String" resultType="MaterialEntity">
 		<![CDATA[ 			
 			select ma.inline_time, omr_notifi_no as sorc_no, ma.model_id, mdl.name as model_name, ma.serial_no, ma.agreed_date,
-				coalesce(ma.wip_location, ip.wip_location) as wip_location, ma.fix_type, ma.service_repair_flg, ip.section_id,
+				coalesce(tcs.location, ma.wip_location, ip.wip_location) as wip_location, ma.fix_type, ma.service_repair_flg, ip.section_id,
 				sec.name as section_name, ip.pat_id, pat.name as operator_name, ma.material_id,
 				case 
 				WHEN
@@ -221,7 +223,7 @@ on a.model_id = new_model.model_id
 				END	as quotation_first,
 				ma.level,
 				CASE
-					WHEN ma.wip_date <= date_add(current_date, interval -30 day)
+					WHEN ma.reception_time <= date_add(current_date, interval -30 day)
 					THEN 
 					(select operate_result from production_feature where material_id = ma.material_id and position_id = 15 and rework = 0 and operate_result not in (5, 8) order by (1-ISNULL(action_time)), action_time desc limit 1) 
 					ELSE 2
@@ -233,6 +235,8 @@ on a.model_id = new_model.model_id
 			join inline_plan ip on ma.material_id = ip.material_id
 			left join section sec on ip.section_id = sec.section_id
 			left join process_assign_template pat on ip.pat_id = pat.process_assign_template_id
+			LEFT JOIN turnover_case_storage tcs
+				ON `m`.material_id = tcs.material_id and tcs.execute = 1
 			where ip.plan_date = current_date
 			order by
 				inline_time IS NULL, 

@@ -33,4 +33,10 @@
 		]]>
 	</select>
 
+	<select id="getAllStorageMap" resultType="TurnoverCaseEntity">
+		SELECT shelf, layer, location, for_agreed, kind, material_id
+		FROM turnover_case_storage 
+		order by shelf, layer, location;
+	</select>
+
 </mapper>

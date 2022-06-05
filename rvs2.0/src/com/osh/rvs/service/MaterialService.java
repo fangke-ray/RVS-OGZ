@@ -732,7 +732,7 @@ public class MaterialService {
 //		v.add("osh_deliver_date", v.required("OSH 配送日"));
 		v.add("customer_name", v.required("顾客名"));
 		// v3 Add End
-		if (CommonStringUtil.isEmpty(materialForm.getWip_location())) {
+		if (CommonStringUtil.isEmpty(materialForm.getWip_location()) && RvsUtils.isPeripheral(materialForm.getLevel())) {
 			v.add("agreed_date", v.required("同意日"));
 		}
 		v.add("bound_out_ocm", v.required("返送地区"));

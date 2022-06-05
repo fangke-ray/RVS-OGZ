@@ -16,6 +16,7 @@
 		<typeAlias alias="ServiceRepairManageEntity" type="com.osh.rvs.bean.ServiceRepairManageEntity" />
 		<typeAlias alias="PartialWarehouseEntity" type="com.osh.rvs.bean.PartialWarehouseEntity" />
 		<typeAlias alias="MaterialEntity" type="com.osh.rvs.bean.MaterialEntity" />
+		<typeAlias alias="TurnoverCaseEntity" type="com.osh.rvs.bean.TurnoverCaseEntity" />
 	</typeAliases>
 	<typeHandlers />
 	<environments default="development">

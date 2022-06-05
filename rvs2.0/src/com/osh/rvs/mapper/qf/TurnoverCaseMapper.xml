@@ -81,6 +81,11 @@
 				AND tcs.material_id = #{material_id}
 			]]>
 			</if>
+			<if test="kind == 0">
+			<![CDATA[
+				AND tcs.kind = 0
+			]]>
+			</if>
 			<if test="kind!=null and kind!=''">
 			<![CDATA[
 				AND tcs.kind = #{kind}
@@ -91,23 +96,28 @@
 				AND tcs.for_agreed = 1
 			]]>
 			</if>
-			<if test="direct_flg == 0">
+			<if test="for_agreed == 0">
 			<![CDATA[
 				AND tcs.for_agreed = 0
 			]]>
 			</if>
 		</where>
-		ORDER BY tcs.key
+		ORDER BY shelf, layer
 		;
 	</select>
 
-	<select id="getStorageHeaped" resultType="String">
+	<select id="getStorageHeaped" resultType="String" parameterType="String">
 		<![CDATA[ 
 			SELECT
 				location
 			 FROM turnover_case_storage
 			 WHERE material_id IS NOT NULL
 		]]>
+		<if test="kind!=null and kind!=''">
+			<![CDATA[
+				AND kind = #{kind}
+			]]>
+		</if>
 	</select>
 
 	<select id="getEntityByLocation" resultType="TurnoverCaseEntity">
@@ -168,7 +178,15 @@ order by tcs.key;
 		FROM turnover_case_storage
 		JOIN (select date_sub(current_date, INTERVAL 2 MONTH) as overdue from dual) lever_date 
 		WHERE shelf = #{shelf}
-		order by `key`
+		order by layer, location
+		;
+	</select>
+
+	<select id="getAllShelf" resultType="String">
+		SELECT shelf
+		FROM turnover_case_storage
+		group by shelf
+		order by shelf
 		;
 	</select>
 
@@ -432,4 +450,19 @@ and tcs.location < #{location}
 		limit #{layer};
 	</select>
 
+	<select id="getStorageKindByMaterial" resultType="String" parameterType="String">
+		SELECT
+	        CASE 
+	        WHEN kind = 02 then 2
+	        WHEN kind = 03 then 2
+	        WHEN kind = 06 then 6
+	        WHEN pat.name like '%290%' THEN 4
+	        ELSE 1
+	        END as kind
+		from material ma
+		JOIN model mdl ON ma.model_id = mdl.model_id
+	    JOIN category ctg ON mdl.category_id = ctg.CATEGORY_ID
+	    JOIN process_assign_template pat on ctg.default_quote_pat_id = pat.process_assign_template_id
+		WHERE ma.material_id = #{material_id};
+	</select>
 </mapper>

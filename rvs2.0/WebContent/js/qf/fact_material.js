@@ -1100,10 +1100,10 @@ function initGrid() {
 			onSelectAll : enablebuttons,
 			gridComplete : function() {
 				enablebuttons();
-				$("#gbox_list tr td[aria\\-describedby='list_wip_location']").unbind("click");
-				$("#gbox_list tr td[aria\\-describedby='list_wip_location']").click(function() {
-					showLocate($(this).text());
-				});
+//				$("#gbox_list tr td[aria\\-describedby='list_wip_location']").unbind("click");
+//				$("#gbox_list tr td[aria\\-describedby='list_wip_location']").click(function() {
+//					showLocate($(this).text());
+//				});
 				var jthis = $("#list");
 
 				var srcData = jthis.jqGrid('getGridParam','data');
