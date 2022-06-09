@@ -67,7 +67,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<input id="receivebutton" class="ui-button" value="零件签收" type="button"/>
 		<input id="pcsbutton" class="ui-button" value="工程检查票查看" type="button"/>
 
-		<input id="reccdbutton" class="ui-button" value="重新更换CCD盖玻璃" ${userdata.line_id eq '00000000013' ? '' : 'style=\"display:none;\"'} type="button" />
+		<input id="reccdbutton" class="ui-button" value="重新更换CCD盖玻璃" ${(userdata.line_id eq '00000000201' or userdata.line_id eq '00000000202') ? '' : 'style=\"display:none;\"'} type="button" />
 		${userdata.line_id eq '00000000054' ? '<input type="hidden" id="lm_tag"/>' : ''}
 		<input id="pxbutton" type="button" value="切线" class="ui-button" style="display:none;"/>
 		</div>
