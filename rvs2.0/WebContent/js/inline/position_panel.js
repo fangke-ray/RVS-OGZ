@@ -1377,7 +1377,7 @@ var doStartForward=function(data){
 	if ($("#sendbutton").length > 0) {
 		try {
 			$("#pauseo_material_id").val(data.material_id);
-			checkProcess($("#skip_position").val());
+			if (typeof(checkProcess) === "function") checkProcess($("#skip_position").val());
 		}catch(e) {
 			infoPop("don't care");
 		}

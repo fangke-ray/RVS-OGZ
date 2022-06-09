@@ -105,9 +105,10 @@ public class XlsUtil {
 			workbook = Dispatch.invoke(workbooks, "Open", Dispatch.Method,
 					new Object[] { filename, new Variant(false), new Variant(readonly) },// 是否以只读方式打开
 					new int[1]).toDispatch();
-			logger.info(file + " Opened");
+//			logger.info(file + " Opened");
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			ComThread.Release();
 			throw e;
 		}
 	}
@@ -537,5 +538,25 @@ public class XlsUtil {
 			return 100;
 		}
 		return zoom;
+	}
+
+	/**
+	 * 页眉页脚设置
+	 * Sample
+	 * setPrintPageHeader("LeftHeader", null, "\pic\ym01.jpg")
+	 * 
+	 * @param area
+	 * @param text
+	 * @param picFile
+	 */
+	public void setPrintPageHeader(String area, String text, String picFile) {
+		Dispatch pageSetup = Dispatch.get(sheet, "PageSetup").toDispatch();
+		if (picFile != null) {
+			Dispatch.put(pageSetup, area, "&G");
+			Dispatch picture = Dispatch.get(pageSetup, area + "Picture").toDispatch();
+			Dispatch.put(picture, "FileName", picFile);
+		} else {
+			Dispatch.put(pageSetup, area, text);
+		}
 	}
 }

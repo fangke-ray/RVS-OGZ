@@ -116,11 +116,11 @@ public class HolidayService {
 			} else if (diff > 0) {
 				pushBackwardCount++;
 				me.setScheduled_date(newScheduleDate);
-				mMapper.updateScheduledDate(me);
+				mMapper.updateMaterialScheduledDate(me);
 			} else if (diff < 0) {
 				pushForwardCount++;
 				me.setScheduled_date(newScheduleDate);
-				mMapper.updateScheduledDate(me);
+				mMapper.updateMaterialScheduledDate(me);
 			}
 		}
 

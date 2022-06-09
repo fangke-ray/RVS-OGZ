@@ -174,6 +174,14 @@ public class InfectFilingJob implements Job {
 			packPath.mkdirs();
 		}
 
+		// Excel生成片，慢
+		try {
+			Thread.sleep(3000000l);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		for (String madeFile : madeSet) {
 			File srcFile = new File(PathConsts.BASE_PATH + PathConsts.INFECTIONS + "//" + bussinessYearString + "//" + madeFile + ".pdf");
 			if (srcFile.exists()) {
