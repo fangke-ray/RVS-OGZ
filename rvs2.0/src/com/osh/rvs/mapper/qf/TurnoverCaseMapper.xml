@@ -238,6 +238,7 @@ LIMIT 1;
         CASE 
         WHEN kind = 02 then 2
         WHEN kind = 03 then 2
+        WHEN kind = 04 then 2
         WHEN kind = 06 then 6
         WHEN pat.name like '%290%' THEN 4
         ELSE 1
@@ -455,6 +456,7 @@ and tcs.location < #{location}
 	        CASE 
 	        WHEN kind = 02 then 2
 	        WHEN kind = 03 then 2
+	        WHEN kind = 04 then 2
 	        WHEN kind = 06 then 6
 	        WHEN pat.name like '%290%' THEN 4
 	        ELSE 1

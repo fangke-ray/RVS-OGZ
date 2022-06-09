@@ -74,7 +74,7 @@
 			<include refid="com.osh.rvs.mapper.CommonMapper.ticket_count"></include>  				
 		<![CDATA[
 				as quotation_first,
-			  CASE `m`.wip_location IS NOT NULL THEN concat('WIP:', `m`.wip_location)
+			  CASE WHEN `m`.wip_location IS NOT NULL THEN concat('WIP:', `m`.wip_location)
 			  ELSE tcs.location 
 			  END as wip_location, 
 			  `m`.agreed_date, `mdl`.name as model_name, `m`.inline_time, pf.finish_time as quotation_time
@@ -115,7 +115,7 @@
 			`m`.service_repair_flg,
 			`m`.section_id,
 			`m`.reception_time,
-			coalecse(`m`.`wip_location`, tcs.location) as wip_location,
+			coalesce(`m`.`wip_location`, tcs.location) as wip_location,
 			`m`.scheduled_manager_comment,
 			`m`.selectable,
 			`m`.agreed_date,
