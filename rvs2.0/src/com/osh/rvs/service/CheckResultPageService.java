@@ -11,6 +11,9 @@ import static com.osh.rvs.service.CheckResultService.TORSION_FILE_E;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_F;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_G;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_H;
+import static com.osh.rvs.service.CheckResultService.TORSION_FILE_A_N;
+import static com.osh.rvs.service.CheckResultService.TORSION_FILE_B_N;
+import static com.osh.rvs.service.CheckResultService.TORSION_FILE_C_N;
 import static com.osh.rvs.service.CheckResultService.TYPE_FILED_MONTH;
 import static com.osh.rvs.service.CheckResultService.TYPE_FILED_WEEK_OF_MONTH;
 import static com.osh.rvs.service.CheckResultService.TYPE_FILED_YEAR;
@@ -145,6 +148,9 @@ public class CheckResultPageService {
 					|| TORSION_FILE_A.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_B.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_C.equals(entity.getDevice_type_id())
+					|| TORSION_FILE_A_N.equals(entity.getDevice_type_id())
+					|| TORSION_FILE_B_N.equals(entity.getDevice_type_id())
+					|| TORSION_FILE_C_N.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_D.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_E.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_F.equals(entity.getDevice_type_id())

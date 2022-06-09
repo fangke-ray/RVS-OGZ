@@ -18,12 +18,14 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
 import com.osh.rvs.bean.LoginData;
+import com.osh.rvs.bean.infect.CheckResultEntity;
 import com.osh.rvs.bean.master.CheckFileManageEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.ReadInfect;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.XlsUtil;
 import com.osh.rvs.form.master.CheckFileManageForm;
+import com.osh.rvs.mapper.infect.CheckResultMapper;
 import com.osh.rvs.mapper.master.CheckFileManageMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -247,8 +249,9 @@ public class CheckFileManageService {
 	 * @param form
 	 * @param request
 	 * @param conn
+	 * @throws Exception 
 	 */
-	public boolean update(ActionForm form, HttpServletRequest request, SqlSessionManager conn, String fileName){
+	public boolean update(ActionForm form, HttpServletRequest request, SqlSessionManager conn, String fileName) throws Exception{
 		CheckFileManageEntity entity = new CheckFileManageEntity();
 		// 复制表单数据到对象
 		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
@@ -281,6 +284,11 @@ public class CheckFileManageService {
 		entity.setSheet_file_name(fileName);
 		
 		mapper.update(entity);
+
+		CheckResultMapper crMapper = conn.getMapper(CheckResultMapper.class);
+		CheckResultEntity wait = new CheckResultEntity();
+		wait.setCheck_file_manage_id(entity.getCheck_file_manage_id());
+		crMapper.removeWaitDeviceCheck(wait);
 
 		// 清除工位待点检品判断
 		CheckResultPageService.todayCheckedMap.clear();

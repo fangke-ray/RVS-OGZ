@@ -24,7 +24,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/jquery-plus.js?v=1300"></script>
 	<script type="text/javascript" src="js/infect/usage_check.js"></script>
-	<script type="text/javascript" src="js/infect/infect_sheet.js"></script>
+	<script type="text/javascript" src="js/infect/infect_sheet.js?v=600"></script>
 <title>点检画面</title>
 </head>
 <body class="outer" style="align: center;">

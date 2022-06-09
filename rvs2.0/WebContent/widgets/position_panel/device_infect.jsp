@@ -18,7 +18,7 @@ table.condform .diGrp td[rowspan] {
 	border-bottom-width: 1px;
 }
 </style>
-<script type="text/javascript" src="js/infect/infect_sheet.js"></script>
+<script type="text/javascript" src="js/infect/infect_sheet.js?v=600"></script>
 <script>
 	var ppdiServicePath = "position_panel.do";
 

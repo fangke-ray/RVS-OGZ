@@ -247,6 +247,7 @@ public class CheckResultFileService {
 
 				CheckPosBean checkUseStart = new CheckPosBean();
 				CheckPosBean checkUseEnd = new CheckPosBean();
+				List<CheckPosBean> checkPosRemarks = new ArrayList<CheckPosBean>();
 
 				cell = cacheXls.Locate("#D");
 				String FoundValue = null;
@@ -474,6 +475,26 @@ public class CheckResultFileService {
 					cell = cacheXls.Locate("#N");
 				}
 
+				// 备注定位
+				cell = cacheXls.Locate("#REMARKS");
+				while (cell != null) {
+					FoundValue = Dispatch.get(cell, "Value").toString();
+					CheckPosBean aCheckPosRemarks = new CheckPosBean();
+					aCheckPosRemarks.startX = Integer.parseInt(XlsUtil.getExcelColNo(cell));
+					aCheckPosRemarks.startY = Integer.parseInt(XlsUtil.getExcelRowNo(cell));
+					String tagText = FoundValue.replaceAll("[^#]*#([^#]*)#[^#]*", "$1");
+					
+					aCheckPosRemarks.shiftY = 0;
+					if (tagText.indexOf("[U") > 0) {
+						aCheckPosRemarks.shiftY = Integer.parseInt(tagText.substring(tagText.indexOf("[U") + 2));
+					}
+					// TODO 把有备注的设备加入到content中，以便显示“参考附表”
+
+					checkPosRemarks.add(aCheckPosRemarks);
+					cacheXls.SetValue(cell, "");
+					cell = cacheXls.Locate("#REMARKS");
+				}
+
 				// 一般格式生成
 				if ("1".equals(cfsEntity.getSpecialized()) || "true".equals(cfsEntity.getSpecialized())) {
 				} else if ("2".equals(cfsEntity.getSpecialized())) {
@@ -483,8 +504,8 @@ public class CheckResultFileService {
 					// 取得点检项目
 					List<DeviceCheckItemEntity> dCsis = cfmMapper.getSeqItemsByFile(check_file_manage_id);
 					setDeviceNormal(cacheXls, pageEncodedDeviceList, checkPosData, checkPosNo, checkPosManageNo, checkPosModel,
-							checkDeviceName, checkUseStart, checkUseEnd, checkPosDate, checkPosName, fileAxisType,
-							cfmEntity, dCsis, pageZoom, crMapper, monCal, (linage != null ? iPage * linage : 0), conn);
+							checkDeviceName, checkUseStart, checkUseEnd, checkPosDate, checkPosName, checkPosRemarks, fileAxisType,
+							cfmEntity, dCsis, pageZoom, crMapper, monCal, linage, (linage != null ? iPage * linage : 0), conn);
 				}
 
 				setLeaderCheck(cacheXls, pageEncodedDeviceList, checkPosDate, checkPosName,
@@ -885,6 +906,8 @@ public class CheckResultFileService {
 				if (hpScale == 2) cacheXls.SetNumberFormatLocal("J" + insertRow, "0.000");
 				// 管理编号
 				cacheXls.SetValue("A" + insertRow, trTorsion.getManage_code());
+				// 备注 TODO 参考附表
+				cacheXls.SetValue("AA" + insertRow, "/");
 
 				// 每个单元格取值
 				for (int iAxis=0;iAxis<=maxAxis;iAxis++) {
@@ -1069,23 +1092,26 @@ public class CheckResultFileService {
 	 * @param checkUseEnd 使用结束定位
 	 * @param checkPosDate 点检日期定位
 	 * @param checkPosName 点检名字定位
+	 * @param checkPosRemarks 备注定位
 	 * @param fileAxisType 文档坐标类别
 	 * @param cfmEntity 点检表实体
 	 * @param dCsis 点检项目
 	 * @param crMapper
 	 * @param monCal
+	 * @param startNo 
 	 * @param conn
 	 */
 	private void setDeviceNormal(XlsUtil cacheXls, List<String> sEncodedDeviceList,
 			Map<String, CheckPosBean> checkPosData, CheckPosBean checkNo, CheckPosBean checkPosManageNo, CheckPosBean checkPosModel,
 			CheckPosBean checkDeviceName, CheckPosBean checkUseStart, CheckPosBean checkUseEnd,
-			List<CheckPosBean> checkPosDate, List<CheckPosBean> checkPosName, int fileAxisType,
+			List<CheckPosBean> checkPosDate, List<CheckPosBean> checkPosName, List<CheckPosBean> checkPosRemarks, int fileAxisType,
 			CheckFileManageEntity cfmEntity, List<DeviceCheckItemEntity> dCsis, int pageZoom,
-			CheckResultMapper crMapper, Calendar monCal, int startNo,
-			SqlSession conn) {
+			CheckResultMapper crMapper, Calendar monCal, Integer linage,
+			int startNo, SqlSession conn) {
 		DevicesManageMapper dmMapper = conn.getMapper(DevicesManageMapper.class);
 
-		for (int iDev = 0; iDev < sEncodedDeviceList.size(); iDev ++) {
+		int iDev = 0;
+		for (; iDev < sEncodedDeviceList.size(); iDev ++) {
 			// 取得管理设备信息
 			DevicesManageEntity dmEntity = dmMapper.getByKey(sEncodedDeviceList.get(iDev));
 
@@ -1272,6 +1298,17 @@ public class CheckResultFileService {
 								cacheXls.SetValue(cell, "已千千千千千千千");
 							}
 						}
+
+						// 备注
+						if (checkPosRemarks.size() > 0) {
+							for (CheckPosBean cpc : checkPosRemarks) {
+								cellName = XlsUtil.getExcelColCode(cpc.startX - 1)
+										+ (cpc.startY + cpc.shiftY * iDev);
+								cell = cacheXls.getRange(cellName);
+								cacheXls.SetValue(cell, "/");
+							}
+						}
+
 //						}
 					} else {
 						// 不需要填写
@@ -1286,6 +1323,131 @@ public class CheckResultFileService {
 				} // for Axis End
 			} // for ChecksheetItem End
 		} // for devices end
+
+		if (linage != null && iDev < linage - 1) {
+			// 补划线
+			for (; iDev < linage; iDev ++) {
+				// 取得管理设备信息
+				String cellName = null;
+				Dispatch cell = null;
+
+				// 序号
+				if (checkNo.startX > 0 && checkNo.shiftY > 0) {
+					cellName = XlsUtil.getExcelColCode(checkNo.startX - 1)
+							+ (checkNo.startY + checkNo.shiftY * iDev);
+					cell = cacheXls.getRange(cellName);
+					cacheXls.SetValue(cell, "" + (startNo + iDev + 1));
+				}
+
+				// 设备管理编号
+				if (checkPosManageNo.startX > 0 && checkPosManageNo.shiftY > 0) {
+					cellName = XlsUtil.getExcelColCode(checkPosManageNo.startX - 1)
+							+ (checkPosManageNo.startY + checkPosManageNo.shiftY * iDev);
+					cell = cacheXls.getRange(cellName);
+					cacheXls.SetValue(cell, "/");
+				}
+
+				// 型号
+				if (!isEmpty(checkPosModel.content) && checkPosModel.shiftY > 0) {
+					cellName = XlsUtil.getExcelColCode(checkPosModel.startX - 1)
+							+ (checkPosModel.startY + checkPosModel.shiftY * iDev);
+					cell = cacheXls.getRange(cellName);
+					cacheXls.SetValue(cell, "/");
+				}
+				// 名称
+				if (!isEmpty(checkDeviceName.content) && checkDeviceName.shiftY > 0) {
+					cellName = XlsUtil.getExcelColCode(checkDeviceName.startX - 1)
+							+ (checkDeviceName.startY + checkDeviceName.shiftY * iDev);
+					cell = cacheXls.getRange(cellName);
+					cacheXls.SetValue(cell, "/");
+				}
+
+				if (!isEmpty(checkUseStart.content) && checkUseStart.shiftY > 0) {
+
+					cellName = XlsUtil.getExcelColCode(checkUseStart.startX - 1)
+							+ (checkUseStart.startY + checkUseStart.shiftY * iDev);
+					cell = cacheXls.getRange(cellName);
+					cacheXls.SetValue(cell, "- 年 - 月 - 日");
+
+					if (!isEmpty(checkUseEnd.content)) {
+						int iExpiration = checkUseEnd.shiftX;
+						cellName = XlsUtil.getExcelColCode(checkUseEnd.startX - 1)
+								+ (checkUseEnd.startY + checkUseEnd.shiftY * iDev);
+						cell = cacheXls.getRange(cellName);
+						cacheXls.SetValue(cell, "- 年 - 月 - 日");
+					}
+				}
+
+				for (DeviceCheckItemEntity dCsi : dCsis) {
+
+					Integer itemType = dCsi.getCycle_type();
+					int axis = getMaxAxis(itemType, fileAxisType);
+					String itemSeq = dCsi.getItem_seq();
+
+					// 每个单元格取值
+					for (int iAxis=0;iAxis<=axis;iAxis++) {
+
+						// 全划掉
+						CheckPosBean checkPos = checkPosData.get(itemSeq);
+						if (checkPos == null) continue;
+						{
+							int shift = iAxis;
+							cellName = XlsUtil.getExcelColCode(checkPos.startX + shift * checkPos.shiftX - 1)
+									+ (checkPos.startY + checkPos.shiftY * iDev);
+							cell = cacheXls.getRange(cellName);
+							cacheXls.SetValue(cell, "/");
+						}
+
+						for (CheckPosBean cpd : checkPosDate) {
+							if (cpd.shiftY == 0) {
+								continue;
+							}
+							if (1 < cpd.signType) { // 操作者
+								continue;
+							}
+							if (cpd.cycleType != itemType) { // 一致的周期
+								continue;
+							}
+							cellName = XlsUtil.getExcelColCode(cpd.startX + iAxis * cpd.shiftX - 1)
+									+ (cpd.startY + cpd.shiftY * iDev);
+							cell = cacheXls.getRange(cellName);
+							cacheXls.SetValue(cell, "/");
+						}
+
+						// 签章
+						for (CheckPosBean cpn : checkPosName) {
+							if (1 < cpn.signType) { // 操作者
+								continue;
+							}
+							if (cpn.cycleType != itemType) { // 一致的周期
+								continue;
+							}
+							if (checkPosManageNo.shiftY > 0) { // 多对象
+								cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
+										+ (cpn.startY  + cpn.shiftY * iDev);
+							} else {
+								continue;
+							}
+							cell = cacheXls.getRange(cellName);
+							String Taged = cacheXls.GetValue(cellName);
+							if (isEmpty(Taged) || "null".equals(Taged)) {
+								cacheXls.SetValue(cell, "/");
+							}
+						}
+
+						// 备注
+						if (checkPosRemarks.size() > 0) {
+							for (CheckPosBean cpc : checkPosRemarks) {
+								cellName = XlsUtil.getExcelColCode(cpc.startX - 1)
+										+ (cpc.startY + cpc.shiftY * iDev);
+								cell = cacheXls.getRange(cellName);
+								cacheXls.SetValue(cell, "/");
+							}
+						}
+					} // for Axis End
+				} // for ChecksheetItem End
+			}
+		}
 		cacheXls.Replace("已千千千千千千千", "");
 	}
 
@@ -1370,6 +1532,17 @@ public class CheckResultFileService {
 							cacheXls.sign(PathConsts.BASE_PATH + PathConsts.IMAGES + "\\sign\\" + jobNo.toUpperCase(), cell, pageZoom);
 						}
 					}
+				}
+			} else {
+				for (CheckPosBean cpn : checkPosName) {
+					if (2 != cpn.signType) { // 确认者
+						continue;
+					}
+					String cellName = XlsUtil.getExcelColCode(cpn.startX + iAxis * cpn.shiftX - 1)
+							+ cpn.startY;
+					Dispatch cell = cacheXls.getRange(cellName);
+
+					cacheXls.SetValue(cell, "/");
 				}
 			}
 		}

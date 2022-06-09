@@ -39,6 +39,9 @@ public class CheckResultService {
 	static final String TORSION_FILE_F = "00000000110";
 	static final String TORSION_FILE_G = "00000000111";
 	static final String TORSION_FILE_H = "00000000112";
+	static final String TORSION_FILE_A_N = "00000000305";
+	static final String TORSION_FILE_B_N = "00000000306";
+	static final String TORSION_FILE_C_N = "00000000307";
 
 	private static Map<String, Date[][]> weekEndOfMonth = new HashMap<String, Date[][]>();
 	// 按照日期的所在点检周期信息

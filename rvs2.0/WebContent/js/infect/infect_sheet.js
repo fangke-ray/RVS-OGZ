@@ -5,6 +5,24 @@ $(function(){
 
 		$("body").append($tcs_sheet_container.html());
 	});
+
+	$("body").on("dragstart", ".ui-dialog", function(){
+		if ((".tcs_sheet").length <= 1) return;
+
+		var $uiDialog = $(this);
+		if ($uiDialog.find(".tcs_sheet").length > 0) {
+			var maZ = 0;
+			$(".tcs_sheet").each(function(){
+				var thisZ = parseInt($(this).closest(".ui-dialog").css("zIndex"));
+				if (thisZ > maZ) {
+					maZ = thisZ;
+				}
+			});
+			if (parseInt($uiDialog.css("zIndex")) <= maZ) {
+				$uiDialog.css("zIndex", maZ + 1);
+			}
+		}
+	})
 })
 /** 服务器处理路径 */
 var infectSheetServicePath = "usage_check.do";
@@ -32,7 +50,7 @@ var doExchange = function(){
 				var resInfo = $.parseJSON(xhrObj.responseText);
 				if (resInfo.errors.length == 0) {
 					$("#manage_replace_panel").dialog("close");
-					$("#check_sheet").dialog("close");
+					$(".tcs_sheet").dialog("close");
 					if (typeof findit === "function") findit();
 				}
 			}
@@ -51,9 +69,16 @@ var doExchange = function(){
 	check_file_manage_id : 点检票单 ID * 设备工具时必须
 	sheet_manage_no : 点检票单号 * 设备工具时必须
 	check_while_use : 使用前点检  * 周边维修对象点检时选择
+	select_date : 选择日期(yyyy/MM/dd) * 除系统管理员外，指定日期则变为表格只读
  */
 var showInfectSheet =function(infectDetailData, isLeader){
-	var $check_sheet = $("#check_sheet");
+	var $check_sheet = $(".tcs_sheet:hidden").eq(0);
+
+	if ($check_sheet.length == 0) {
+		var newTcsSheetId = "check_sheet" + new Date().getTime();
+		$("body").append('<div id="' + newTcsSheetId + '" class="tcs_sheet"></div>');
+		$check_sheet = $("#" + newTcsSheetId);
+	}
 	$check_sheet.hide();
 
 	var postData = {
@@ -62,7 +87,8 @@ var showInfectSheet =function(infectDetailData, isLeader){
 		operator_id : infectDetailData.operator_id,
 		manage_id : infectDetailData.manage_id,
 		check_file_manage_id : infectDetailData.check_file_manage_id,
-		object_type : infectDetailData.object_type
+		object_type : infectDetailData.object_type,
+		select_date : infectDetailData.select_date
 	}
 	$.ajax({
 		beforeSend : ajaxRequestType,
@@ -120,7 +146,9 @@ var showInfectSheet =function(infectDetailData, isLeader){
 			if(isLeader == "true") {
 				$check_sheet.find("input:radio, input:text").not(".t_comment").not(".input_type").click(function(idx, ele) {
 					$(this).parent().parent().attr("stat", "change");
-				});
+				}).filter(":text").bind("drop", function(idx, ele) {
+					return false;
+				});; // TODO drop?
 				$check_sheet.find("input:text").not(".t_comment").not(".input_type").keydown(function(event) {
 					$(this).parent().parent().attr("stat", "change");
 					if (event.keyCode==73) {
@@ -161,6 +189,12 @@ var showInfectSheet =function(infectDetailData, isLeader){
 			});
 			$("#upper_check").button();
 			$("input:checkbox[id=upper_check]").hide();
+
+			if ($(".tcs_sheet:visible").length == 0) {
+				$(window).overlay();
+				$("div.overlay").attr("id", "ifoverlay");
+			}
+
 			$check_sheet.show();
 
 			var okButton = (isLeader == "true" ? "再点检确认" : "点检完成" )
@@ -168,11 +202,16 @@ var showInfectSheet =function(infectDetailData, isLeader){
 				title : "进行点检： " + infectDetailData.manage_code + "  " + infectDetailData.sheet_manage_no,
 				width : 1136,
 				show: "blind",
-				height : 640 ,
+				height : 640,
+				position : [0 + $(".tcs_sheet:visible").length * 40, 40],
 				resizable : false,
-				modal : true,
+				modal : false,
 				minHeight : 200,
 				close : function(){
+					if ($(".tcs_sheet:visible").length <= 0) {
+						$("#ifoverlay").remove();
+						$("body").css('overflow', 'auto');
+					}
 					$check_sheet.html("");
 				},
 				buttons : {
@@ -182,7 +221,8 @@ var showInfectSheet =function(infectDetailData, isLeader){
 						var pCommentData = {
 							manage_id : infectDetailData.manage_id,
 							check_file_manage_id : infectDetailData.check_file_manage_id,
-							object_type : infectDetailData.object_type
+							object_type : infectDetailData.object_type,
+							select_date : infectDetailData.select_date
 						}
 						// 多个
 						if ($(".t_comment").length > 0) {
@@ -248,7 +288,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 						})
 					},
 					okButton:function(){
-						var noerror = true;
+						var noerror = true, noNan = true;
 						var postDataR = {section_id : infectDetailData.section_id,
 							position_id : infectDetailData.position_id, process_code : infectDetailData.process_code};
 
@@ -314,13 +354,20 @@ var showInfectSheet =function(infectDetailData, isLeader){
 
 									postDataR["submit.manage_id[" + ii + "]"] = msco[1];
 									postDataR["submit.item_seq[" + ii + "]"] = msco[2];
-									if ("∞" == inputVal) {
-										inputVal = 999999.999;
-									}
 									if (!inputVal) {
 										return;
 									}
-									if(typeof(inputVal) === "string") inputVal = parseFloat(inputVal.trim())
+									if ("∞" == inputVal) {
+										inputVal = 999999.999;
+									} else if(typeof(inputVal) === "string") {
+										inputVal = parseFloat(inputVal.trim());
+										if(!isNaN(inputVal)) ele.value = inputVal;
+									}
+									if (inputVal > 999999.999) {
+										inputVal = 999999.999; ele.value = "∞";
+									} else if (inputVal < -999999.999) {
+										inputVal = -999999.999; ele.value = "∞";
+									}
 									postDataR["submit.digit[" + ii + "]"] = inputVal;
 
 									var upper_limit = $ele.attr("upper_limit");
@@ -377,7 +424,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 									var status = 1;
 									if (isNaN(inputVal)) {
 										status = -1;
-										noerror = false;
+										noNan = false;
 									} else {
 										if (upper_limit && parseFloat(inputVal) > upper_limit) {
 											status = 2;
@@ -418,134 +465,150 @@ var showInfectSheet =function(infectDetailData, isLeader){
 						}
 
 						var $confirmmessage = $("#confirmmessage");
-						if (!noerror) {
+						if (!noNan) {
+							warningConfirm("请检查数值输入内容。");
+							return;
+						} else 	if (!noerror) {
 							// if(isLeader == "true") {
-								var $husei = $check_sheet.find("span:contains('×'), span:contains('△')").parent().filter(".ui-state-active").parent();
-								var batsu = $husei.length;
-								var $sankaku = $check_sheet.find("span:contains('△')").parent().filter(".ui-state-active").length;
-								var $batsu = $check_sheet.find("span:contains('×')").parent().filter(".ui-state-active").length;
+							var $husei = $check_sheet.find("span:contains('×'), span:contains('△')").parent().filter(".ui-state-active").parent();
+							var batsu = $husei.length;
+							var $sankaku = $check_sheet.find("span:contains('△')").parent().filter(".ui-state-active").length;
+							var $batsu = $check_sheet.find("span:contains('×')").parent().filter(".ui-state-active").length;
 
-								var $ttr = $husei.parent().filter("[stat=change]");
+							var $ttr = $husei.parent().filter("[stat=change]");
 
-								var nov = "<table id='coz' class='condform'><tr><th class='ui-state-default'>管理番号</th><th class='ui-state-default'>品名</th><th class='ui-state-default'>不合格项目</th><th class='ui-state-default'>不合格状况</th></tr>";
+							var nov = "<table id='coz' class='condform'><tr><th class='ui-state-default'>管理番号</th><th class='ui-state-default'>品名</th><th class='ui-state-default'>不合格项目</th><th class='ui-state-default'>不合格状况</th></tr>";
 
-								if (object_type == 2) {
-									$ttr.each(function(idx,ele){
+							if (object_type == 2) {
+								$ttr.each(function(idx,ele){
+									var $me = $(ele);
+									nov += "<tr manage_id='"+ $me.attr("manage_id") +"'><td>"+$me.find("td:eq(1)").text()+"</td><td>"+$me.find("td:eq(3)").text()+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+								});
+							} else if (object_type == 1) {
+								if (infectDetailData.check_file_manage_id == "00000000305"
+									|| infectDetailData.check_file_manage_id == "00000000306"
+									|| infectDetailData.check_file_manage_id == "00000000307"
+									|| infectDetailData.check_file_manage_id == "00000000108"
+									|| infectDetailData.check_file_manage_id == "00000000109"
+									|| infectDetailData.check_file_manage_id == "00000000110"
+									|| infectDetailData.check_file_manage_id == "00000000111"
+									|| infectDetailData.check_file_manage_id == "00000000112"
+									) {
+									$(".tcs_input[status=2]").each(function(idx,ele){
 										var $me = $(ele);
 										var $papa = $me.parent();
 										var tag = $me.find("input")[0].name;
 										nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(0)").text()+"</td><td>力矩工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 									});
-								} else if (object_type == 1) {
-									if (infectDetailData.check_file_manage_id == "00000000105"
-										|| infectDetailData.check_file_manage_id == "00000000106"
-										|| infectDetailData.check_file_manage_id == "00000000107"
-										|| infectDetailData.check_file_manage_id == "00000000108"
-										|| infectDetailData.check_file_manage_id == "00000000109"
-										|| infectDetailData.check_file_manage_id == "00000000110"
-										|| infectDetailData.check_file_manage_id == "00000000111"
-										|| infectDetailData.check_file_manage_id == "00000000112"
-										) {
-										$(".tcs_input[status=2]").each(function(idx,ele){
-											var $me = $(ele);
-											var $papa = $me.parent();
-											var tag = $me.find("input")[0].name;
-											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+$papa.find("td:eq(0)").text()+"</td><td>力矩工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
-										});
-									} else if (infectDetailData.check_file_manage_id == "00000000100"
-										|| infectDetailData.check_file_manage_id == "00000000101"
-										|| infectDetailData.check_file_manage_id == "00000000102") {
-										$(".tcs_input[status=2]").each(function(idx,ele){
-											var $me = $(ele);
-											var $papa = $me.parent();
-											var tag = $me.find("input")[0].name;
-											var $manage_code = $papa.find("td:eq(0)");
-											if (!$manage_code.attr("rowspan")) {
-												$manage_code = $papa.prev(".row_check_1").children("td:eq(0)");
+								} else if (infectDetailData.check_file_manage_id == "00000000100"
+									|| infectDetailData.check_file_manage_id == "00000000101"
+									|| infectDetailData.check_file_manage_id == "00000000102") {
+									$(".tcs_input[status=2]").each(function(idx,ele){
+										var $me = $(ele);
+										var $papa = $me.parent();
+										var tag = $me.find("input")[0].name;
+										var $manage_code = $papa.find("td:eq(0)");
+										if (!$manage_code.attr("rowspan")) {
+											$manage_code = $papa.prev(".row_check_1").children("td:eq(0)");
+										}
+										nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+ $manage_code.text() +"</td><td>电烙铁工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
+									});
+								} else {
+									var $dtag = $check_sheet.find("dtag");
+									if ($dtag.length > 1) {
+										var manageIdSet = {};
+										$check_sheet.find("tr[stat=change] td.tcs_input[status=2] input").each(function(){
+											var dManageId = this.name.split("_")[1];
+											if (!(dManageId in manageIdSet)) {
+												manageIdSet[dManageId] = "1";
 											}
-											nov += "<tr manage_id='"+ tag.split("_")[1] +"'><td>"+ $manage_code.text() +"</td><td>电烙铁工具</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 										});
 										for (var idx in manageIdSet) {
 											var $dtag_1 = $dtag.filter("[manage_id=" + idx + "]");
 											nov += "<tr manage_id='"+ $dtag_1.attr("manage_id") +"'><td>"+$dtag_1.attr("manage_code")+"</td><td>"+$dtag_1.attr("device_name")+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 										}
 									} else {
-										var $dtag = $check_sheet.find("dtag");
 										nov += "<tr manage_id='"+ $dtag.attr("manage_id") +"'><td>"+$dtag.attr("manage_code")+"</td><td>"+$dtag.attr("device_name")+"</td><td><input type='text'/></td><td><textarea></textarea></td></tr>";
 									}
-									$batsu = $check_sheet.find("tr[stat=change] td.tcs_input[status=2]").length;
 								}
+								$batsu = $check_sheet.find("tr[stat=change] td.tcs_input[status=2]").length;
+							}
 
-								nov += "</table>";
-								$confirmmessage.html("点检中有不合格项目" + $batsu + "件"+ ($sankaku > 0 ? "，遗失项目" + $sankaku + "件" : "") +"，是否关闭"+infectDetailData.process_code+"工位的作业并提交给上级？");
-								$confirmmessage.append(nov);
-								$confirmmessage.dialog({
-									title : "进行点检",
-									dialogClass : 'ui-error-dialog',
-									width : 'auto',
-									show: "blind",
-									height : 'auto' ,
-									resizable : false,
-									modal : true,
-									minHeight : 200,
-									close : function(){
-										$confirmmessage.html("");
-									},
-									buttons: {
-										"确认":function(){
-											var empty = false;
-											$coz = $("#coz");
-											$coz.find("input,textarea").each(function(){
-												if (!empty && $(this).val()) {
-												} else {
-													empty = true;
+							nov += "</table>";
+							$confirmmessage.html("点检中有不合格项目" + $batsu + "件"+ ($sankaku > 0 ? "，遗失项目" + $sankaku + "件" : "") +"，是否关闭"+infectDetailData.process_code+"工位的作业并提交给上级？");
+							$confirmmessage.append(nov);
+							$confirmmessage.dialog({
+								title : "进行点检",
+								dialogClass : 'ui-error-dialog',
+								width : 'auto',
+								show: "blind",
+								height : 'auto' ,
+								resizable : false,
+								modal : true,
+								minHeight : 200,
+								close : function(){
+									$confirmmessage.html("");
+								},
+								buttons: {
+									"确认":function(){
+										var empty = false;
+										$coz = $("#coz");
+										$coz.find("input,textarea").each(function(){
+											if (!empty && $(this).val()) {
+											} else {
+												empty = true;
+											}
+										})
+										if (empty) {
+											errorPop("请写全相关的信息！");
+										} else {
+											ii = 0;
+											// 加入不合格信息
+											$coz.find("tr").each(function(idx, ele){
+												var $ele = $(ele);
+												if ($ele.find("input").length > 0) {
+													postDataR["unqualified.manage_id[" + ii + "]"] = $ele.attr("manage_id");
+													postDataR["unqualified.object_type[" + ii + "]"] = 2;
+													postDataR["unqualified.check_item[" + ii + "]"] = $ele.find("input").val();
+													postDataR["unqualified.unqualified_status[" + ii + "]"] = $ele.find("textarea").val();
+													ii++;
 												}
 											})
-											if (empty) {
-												errorPop("请写全相关的信息！");
-											} else {
-												ii = 0;
-												// 加入不合格信息
-												$coz.find("tr").each(function(idx, ele){
-													var $ele = $(ele);
-													if ($ele.find("input").length > 0) {
-														postDataR["unqualified.manage_id[" + ii + "]"] = $ele.attr("manage_id");
-														postDataR["unqualified.object_type[" + ii + "]"] = 2;
-														postDataR["unqualified.check_item[" + ii + "]"] = $ele.find("input").val();
-														postDataR["unqualified.unqualified_status[" + ii + "]"] = $ele.find("textarea").val();
-														ii++;
-													}
-												})
-												if ($("#upper_check").length>0 && $("#upper_check").attr("checked")) {
-													postDataR.upper_check = infectDetailData.manage_id || 1;
-													if (infectDetailData.check_file_manage_id == "00000000105"
-														|| infectDetailData.check_file_manage_id == "00000000106"
-														|| infectDetailData.check_file_manage_id == "00000000107"
-														|| infectDetailData.check_file_manage_id == "00000000108"
-														|| infectDetailData.check_file_manage_id == "00000000109"
-														|| infectDetailData.check_file_manage_id == "00000000110"
-														|| infectDetailData.check_file_manage_id == "00000000111"
-														|| infectDetailData.check_file_manage_id == "00000000112"
-														) {
-														postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
-													}
-													if (infectDetailData.check_file_manage_id == "00000000100"
-														|| infectDetailData.check_file_manage_id == "00000000101"
-														|| infectDetailData.check_file_manage_id == "00000000102") {
-														postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
-													}
+											if ($("#upper_check").length>0 && $("#upper_check").attr("checked")) {
+												postDataR.upper_check = infectDetailData.manage_id || 1;
+												var $dtag = $check_sheet.find("dtag");
+												if ($dtag.length > 1) {
+													postDataR.upper_check = $dtag.map(function(){return $(this).attr("manage_id");}).get().join(";");
 												}
-												if(stopDblSubmit) return;
-												stopDblSubmit = true;
-												doCheckPoint(postDataR, $confirmmessage, $check_sheet);
-												if (infectDetailData.check_while_use) infectDetailData.check_while_use(false);
+												if (infectDetailData.check_file_manage_id == "00000000105"
+													|| infectDetailData.check_file_manage_id == "00000000106"
+													|| infectDetailData.check_file_manage_id == "00000000107"
+													|| infectDetailData.check_file_manage_id == "00000000108"
+													|| infectDetailData.check_file_manage_id == "00000000109"
+													|| infectDetailData.check_file_manage_id == "00000000110"
+													|| infectDetailData.check_file_manage_id == "00000000111"
+													|| infectDetailData.check_file_manage_id == "00000000112"
+													) {
+													postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+												}
+												if (infectDetailData.check_file_manage_id == "00000000100"
+													|| infectDetailData.check_file_manage_id == "00000000101"
+													|| infectDetailData.check_file_manage_id == "00000000102") {
+													postDataR.upper_check = $(".t_comment").map(function(){return this.value;}).get().join(";");
+												}
 											}
-										},
-										"取消":function(){
-											$confirmmessage.dialog("close");
+											
+											if(stopDblSubmit) return;
+											stopDblSubmit = true;
+											doCheckPoint(postDataR, $confirmmessage, $check_sheet);
+											if (infectDetailData.check_while_use) infectDetailData.check_while_use(false);
 										}
+									},
+									"取消":function(){
+										$confirmmessage.dialog("close");
 									}
-								})
+								}
+							})
 //							} else {
 //								$confirmmessage.text("点检中有不合格项目，是否关闭"+infectDetailData.process_code+"工位的作业并提交给上级？")
 //								$confirmmessage.dialog({

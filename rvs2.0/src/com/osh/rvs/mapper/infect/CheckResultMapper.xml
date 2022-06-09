@@ -307,7 +307,7 @@
 
 	<select id="searchToolUncheckedOnPosition"  parameterType="CheckResultEntity" resultType="CheckResultEntity">
 		<![CDATA[ 
-		select distinct tm.jig_manage_id, op.name as operator_name 
+		select distinct tm.jig_manage_id as manage_id, op.name as operator_name 
 		from jig_manage tm 
 		LEFT JOIN jig_check_result tcr 
 		ON tcr.manage_id = tm.jig_manage_id
@@ -588,11 +588,15 @@
 		<![CDATA[ 
 		DELETE FROM `device_check_result` 
 		WHERE 
-			manage_id = #{manage_id}
-			AND check_file_manage_id = #{check_file_manage_id}
-			AND item_seq = #{item_seq}
+			check_file_manage_id = #{check_file_manage_id}
 			AND checked_status = 0
 		]]>
+		<if test="manage_id!=null and manage_id!='' ">
+			AND manage_id = #{manage_id}
+		</if>	
+		<if test="item_seq!=null and item_seq!='' ">
+			AND item_seq = #{item_seq}
+		</if>	
 	</delete>
 
 	<select id="getEIDeviceCheckOfDate"  parameterType="CheckResultEntity" resultType="CheckResultEntity">

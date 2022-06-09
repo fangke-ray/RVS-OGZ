@@ -651,7 +651,9 @@ public class ReadInfect {
 			cellText = cellText.replaceAll("#G\\[PAGE#" , "１");
 			cellText = cellText.replaceAll("#G\\[PAGE\\[M#" , "１");
 		}
-		
+
+		cellText = cellText.replaceAll("#REMARKS#" , "");
+		cellText = cellText.replaceAll("#REMARKS\\[U\\d+#" , "");
 
 		// cellText = cellText.replaceAll("#.*#" , "");
 

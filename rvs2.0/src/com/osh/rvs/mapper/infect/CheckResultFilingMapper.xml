@@ -29,7 +29,7 @@
 		]]>
 		<where>
 			<![CDATA[
-				cfm.delete_flg <> 1
+				(cfm.delete_flg = 0 OR exists (select 1 from checked_file_storage rst where rst.check_file_manage_id = cfm.check_file_manage_id))
 			]]>
 			<if test="check_manage_code!=null and check_manage_code!=''">
 				<![CDATA[
