@@ -59,10 +59,10 @@ public class BaseAction extends DispatchAction {
 	protected ActionErrors errors = null;
 
 	protected static JSON json = new JSON();
+
 	static {
 		json.setSuppressNull(true);
 	}
-	
 
 	/**
 	 * 构造重定向路径
@@ -106,6 +106,9 @@ public class BaseAction extends DispatchAction {
 			}
 		}
 
+		// 读取提交的方式
+		String requestType = req.getHeader("RequestType");
+
 		// 得到Session
 		HttpSession session = req.getSession();
 
@@ -123,7 +126,7 @@ public class BaseAction extends DispatchAction {
 				Method objMethod = this.getClass().getMethod(strMethod, params);
 
 				if (!hasPrivacy(session, objMethod)) {
-					breakByPrivacy(mapping, strMethod, req, res);
+					breakByPrivacy(mapping, strMethod, "ajax".equals(requestType), req, res);
 				} else {
 					conn.startManagedSession(ExecutorType.BATCH, TransactionIsolationLevel.REPEATABLE_READ);
 
@@ -147,16 +150,19 @@ public class BaseAction extends DispatchAction {
 				req.setAttribute("errormessage", e.getMessage());
 				actionForward = mapping.findForward("error");
 				logger.error(this.getClass().getName() + " SecurityException:", e);
+			} catch (InvocationTargetException e) {
+				logger.error(this.getClass().getName() + " InvocationTargetException:", e);
+				sendBreakPage(mapping, getInvocationTargetMessage(e), strMethod, req, res);
 			} catch (Exception e) {
 				if (conn != null && conn.isManagedSessionStarted()) {
 					conn.rollback();
 					res.setStatus(503);
-					try {
-						res.getWriter().println("{}");
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+//					try {
+//						res.getWriter().println("{}");
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
 				}
 				if (e instanceof NoSuchMethodException) {
 					this.unspecified(mapping, form, req, res);
@@ -182,7 +188,7 @@ public class BaseAction extends DispatchAction {
 				Method objMethod = this.getClass().getMethod(strMethod, params);
 
 				if (!hasPrivacy(session, objMethod)) {
-					breakByPrivacy(mapping, strMethod, req, res);
+					breakByPrivacy(mapping, strMethod, "ajax".equals(requestType), req, res);
 				} else {
 					objMethod.invoke(this, new Object[] { mapping, form, req, res, conn });
 				}
@@ -200,6 +206,7 @@ public class BaseAction extends DispatchAction {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 				logger.error(this.getClass().getName() + " InvocationTargetException:", e);
+				sendBreakPage(mapping, getInvocationTargetMessage(e), strMethod, req, res);
 			} catch (Exception e) {
 				logger.error(this.getClass().getName() + " Exception:", e);
 				if (e instanceof NoSuchMethodException) {
@@ -219,10 +226,34 @@ public class BaseAction extends DispatchAction {
 
 
 		// }
+		if ("ajax".equals(requestType)) {
+			postJsonResponse(res);
+		}
 
 		saveErrors(req, errors);
 
 		return actionForward;
+	}
+
+	private static String getInvocationTargetMessage(InvocationTargetException e) {
+		if (e.getMessage() != null) {
+			return e.getMessage();
+		}
+		if (e.getTargetException() != null) {
+			String message = e.getTargetException().getMessage();
+			if (message != null) {
+				String[] messageLines = message.split("\r\n");
+				for (String messageLine : messageLines) {
+					if (messageLine.length() > 0) {
+						message = messageLine;
+						break;
+					}
+				}
+				return message;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -257,16 +288,14 @@ public class BaseAction extends DispatchAction {
 	 * @param req
 	 * @param res
 	 */
-	private void breakByPrivacy(ActionMapping mapping, String strMethod, HttpServletRequest req, HttpServletResponse res) {
+	private void breakByPrivacy(ActionMapping mapping, String strMethod, boolean isAjaxType, 
+			HttpServletRequest req, HttpServletResponse res) {
 		// 没有权限实行该方法的情况下
 		MsgInfo error = new MsgInfo();
 		error.setErrcode("privacy.noPrivacy");
 		error.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("privacy.noPrivacy"));
 		List<MsgInfo> msgInfos = new ArrayList<MsgInfo>();
 		msgInfos.add(error);
-
-		// 读取提交的方式
-		String requestType = req.getHeader("RequestType");
 
 		Map<String, Object> callBackResponse = new HashMap<String, Object>();
 		// 迁移画面设定为故障画面
@@ -277,7 +306,7 @@ public class BaseAction extends DispatchAction {
 		callBackResponse.put("occur_time", new Date().toString());
 		req.getSession().setAttribute("break_cb", callBackResponse);
 
-		if ("ajax".equals(requestType)) {
+		if (isAjaxType) {
 			// 如果是以AJAX方式提交
 
 			returnJsonResponse(res, callBackResponse);
@@ -293,6 +322,10 @@ public class BaseAction extends DispatchAction {
 
 	private void sendBreakPage(ActionMapping mapping, String exMessage, String strMethod,
 			HttpServletRequest req,	HttpServletResponse res) {
+		if (exMessage.contains("CommunicationsException")) {
+			return;
+		}
+
 		MsgInfo error = new MsgInfo();
 		error.setErrmsg(exMessage);
 		List<MsgInfo> msgInfos = new ArrayList<MsgInfo>();
@@ -309,7 +342,9 @@ public class BaseAction extends DispatchAction {
 			callBackResponse.put("errors", msgInfos);
 			callBackResponse.put("request_occur", req.getRequestURI());
 			callBackResponse.put("request_method", strMethod);
+			callBackResponse.put("occur_time", new Date().toString());
 			req.getSession().setAttribute("break_cb", callBackResponse);
+			res.setStatus(200);
 			returnJsonResponse(res, callBackResponse);
 		} else {
 			// 报告错误信息
@@ -365,8 +400,22 @@ public class BaseAction extends DispatchAction {
 		PrintWriter out;
 		try {
 			response.setCharacterEncoding("UTF-8");
+			response.resetBuffer();
 			out = response.getWriter();
 			out.print(json.format(result));
+		} catch (IOException e) {
+			// TODO 待处理
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 写一个JSON格式的反响
+	 */
+	private void postJsonResponse(HttpServletResponse response) {
+		PrintWriter out;
+		try {
+			out = response.getWriter();
 			out.flush();
 		} catch (IOException e) {
 			// TODO 待处理

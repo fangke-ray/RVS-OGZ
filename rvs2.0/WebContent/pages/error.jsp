@@ -78,7 +78,7 @@ RVS 服务端发现了错误。<br>本次操作不可继续。<br>您可以选�
 			<h2>错误信息</h2>
 			</div>
 
-			<pre style="background-color:#FFFFFF;padding:.5em 1em;">
+			<div style="background-color:#FFFFFF;padding:.5em 1em;">
 <%
 if (exception != null ) {
 	String exMessage = exception.getMessage();
@@ -89,12 +89,16 @@ if (exception != null ) {
 	}
 } else if (actionErrors.size() > 0) {
 	for (MsgInfo msgInfo : actionErrors) {
-		out.write(msgInfo.getErrmsg());
+		if (msgInfo.getErrmsg() == null) {
+			out.write("(无异常相关的情报，可能为空指针)");
+		} else {
+			out.write(msgInfo.getErrmsg());
+		}
 		out.write("\r\n");
 	}
 }
 %>
-			</pre>
+			</div>
 		</div>
 	</body>
 </html>
