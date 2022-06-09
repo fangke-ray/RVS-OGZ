@@ -336,12 +336,12 @@ var doForbid = function(type) {
 					$("#devicearea").hide();
 					$("#pcsarea").hide();
 
-					var resInfo = $.parseJSON(xhrobj.responseText);
-					if (resInfo.alarm_messsage_id) {
-						popDefectiveAnalysis(resInfo.alarm_messsage_id, true, doInit);
-					} else {
+//					var resInfo = $.parseJSON(xhrobj.responseText);
+//					if (resInfo.alarm_messsage_id) {
+//						popDefectiveAnalysis(resInfo.alarm_messsage_id, true, doInit);
+//					} else {
 						doInit();
-					}
+//					}
 				}
 			});
 		});
