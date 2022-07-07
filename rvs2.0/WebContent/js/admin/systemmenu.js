@@ -18,6 +18,7 @@ links['#partial']="partial.do";
 links['#pcsFixOrder']="pcsFixOrder.do";
 links['#customer'] = "customer.do";
 links['#system_image_manage'] = "system_image_manage.do";
+links['#light_fix'] = "light_fix.do";
 links['#quality_tip'] = "quality_tip.do";
 links['#user_define_codes'] = "user_define_codes.do";
 links['#procedure_step_count'] = "procedureStepCount.do";

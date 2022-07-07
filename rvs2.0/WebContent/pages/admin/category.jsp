@@ -97,7 +97,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">默认流程(中小修)</td>
-					<td class="td-content" style="width:660px;"><select name="default_cell_pat_id" alt="默认流程" id="input_default_cell_pat_id" class="ui-widget-content">${patOptions}</select></td>
+					<td class="td-content" style="width:660px;"><select name="default_cell_pat_id" alt="默认流程" id="input_default_cell_pat_id" class="ui-widget-content">${patMinorOptions}</select></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">最终检查工位</td>

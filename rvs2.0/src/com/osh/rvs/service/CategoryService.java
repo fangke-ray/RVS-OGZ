@@ -67,21 +67,22 @@ public class CategoryService {
 
 	/**
 	 * 取得内窥镜选择项标签集
+	 * @param String empty, 
 	 * @param conn 数据库连接
 	 * @return String 机种选择项标签集
 	 */
-	public String getEndoscopeOptions(SqlSession conn) {
+	public String getEndoscopeOptions(String empty, SqlSession conn) {
 		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
 		List<CategoryEntity> l = dao.getAllCategory();
 		
 		//内镜组
 		Map<String, String> codeMapEndoscope = new TreeMap<String, String>();
 		for (CategoryEntity bean : l) {
-			if (bean.getKind() != 7) {
+			if (bean.getKind() != 7 && bean.getKind() != 11) {
 				codeMapEndoscope.put(bean.getCategory_id(), bean.getName());
 			} 
 		}
-		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, null, false);
+		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, empty, false);
 	}
 
 	/**
@@ -126,6 +127,30 @@ public class CategoryService {
 			} 
 		}
 		return CodeListUtils.getSelectOptions(codeMapEndoscope, null, "", false);
+	}
+
+	/**
+	 * 取得内视镜全部型号(参照列表)
+	 * @param conn
+	 * @return
+	 */
+	public String getEndoscopeReferChooser(SqlSession conn) {
+		CategoryMapper dao = conn.getMapper(CategoryMapper.class);
+		List<String[]> cList = new ArrayList<String[]>();
+		List<CategoryEntity> l = dao.getAllCategory();
+		
+		for (CategoryEntity bean : l) {
+			if (bean.getKind() != 7 && bean.getKind() != 11) {
+				String[] mline = new String[2];
+				mline[0] = bean.getCategory_id();
+				mline[1] = bean.getName();
+				cList.add(mline);
+			}
+		}
+
+		String mReferChooser = CodeListUtils.getReferChooser(cList);
+		
+		return mReferChooser;
 	}
 
 	/**

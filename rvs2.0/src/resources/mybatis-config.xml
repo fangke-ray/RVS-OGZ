@@ -27,6 +27,7 @@
 		<typeAlias alias="ProcessAssignEntity" type="com.osh.rvs.bean.master.ProcessAssignEntity" />
 		<typeAlias alias="PcsFixOrderEntity" type="com.osh.rvs.bean.master.PcsFixOrderEntity"/>
 		<typeAlias alias="CustomerEntity" type="com.osh.rvs.bean.master.CustomerEntity" />
+		<typeAlias alias="LightFixEntity" type="com.osh.rvs.bean.master.LightFixEntity"/>
 		<typeAlias alias="QualityTipEntity" type="com.osh.rvs.bean.master.QualityTipEntity" />
 
 		<typeAlias alias="SystemImageManageEntity" type="com.osh.rvs.bean.master.SystemImageManageEntity"/>
@@ -160,6 +161,7 @@
 		<mapper resource="com/osh/rvs/mapper/master/JigManageMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/CheckFileManageMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/SystemImageManageMapper.xml"/>
+		<mapper resource="com/osh/rvs/mapper/master/LightFixMapper.xml"/>
 		<mapper resource="com/osh/rvs/mapper/master/QualityTipMapper.xml"/>
 
 		<mapper resource="com/osh/rvs/mapper/manage/PcsFixOrderMapper.xml"/>

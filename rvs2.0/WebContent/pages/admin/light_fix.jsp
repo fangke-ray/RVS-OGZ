@@ -39,25 +39,23 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<table class="condform">
 				<tbody>
 				<tr>
-					<td class="ui-state-default td-title">中小修理标准编制 ID</td>
-					<td class="td-content"><input type="text" name="light_fix_id" id="cond_light_fix_id" maxlength="11" class="ui-widget-content"></td>
-					<td class="ui-state-default td-title">名称</td>
+					<td class="ui-state-default td-title">修理代码</td>
+					<td class="td-content"><input type="text" name="activity_code" id="cond_activity_code" maxlength="4" class="ui-widget-content"></td>
+					<td class="ui-state-default td-title">中小修理标准名称</td>
 					<td class="td-content"><input type="text" name="description" id="cond_description" maxlength="64" class="ui-widget-content"></td>
 				</tr>
 				<tr>
-					<td class="ui-state-default td-title">修理代码</td>
-					<td class="td-content"><input type="text" name="activity_code" id="cond_activity_code" maxlength="4" class="ui-widget-content"></td>
 					<td class="ui-state-default td-title">修理等级</td>
 					<td class="td-content"><input type="text" name="rank" id="cond_rank" maxlength="10" class="ui-widget-content"></td>
-				</tr>
-				<tr>
-					<td class="ui-state-default td-title">机种分类</td>
-					<td class="td-content"><select name="kind" id="cond_kind" class="ui-widget-content">${kOptions}</select></td>
-					<td class="ui-state-default td-title">工位名称</td>
+					<td class="ui-state-default td-title">工位</td>
 					<td class="td-content">
 						<input type="text" name="position_name" id="cond_position_name" readonly="readonly" class="ui-widget-content">
 						<input type="hidden" id="cond_position_id">
 					</td>
+				</tr>
+				<tr>
+					<td class="ui-state-default td-title">机种</td>
+					<td class="td-content" colspan=3><select name="category_id" id="cond_category_id" class="ui-widget-content">${cOptions}</select></td>
 				</tr>
 				</tbody>
 			</table>
@@ -67,7 +65,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 		</form>
 	</div>
-	<div class="clear dwidth-middleright"></div>
+	<div class="clear dwidth-middleright areaencloser"></div>
 </div>
 
 <div id="listarea" class="width-middleright">
@@ -98,14 +96,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="ui-state-default td-title">修理等级</td>
 					<td class="td-content"><input type="text" id="add_rank" name="add_rank" alt="修理等级" maxlength="10" class="ui-widget-content"></td>
 				</tr>
+				<tr>
+					<td class="ui-state-default td-title">关联参考流程<br><br>优先等级 <input type="button" id="add_correlated_level" class="ui-button ui-state-active" value="1"></input></td>
+					<td class="td-content" style="width:384px"><select name="correlated_pat_id" id="add_correlated_pat_id" alt="关联参考流程" class="ui-widget-content">${patOptions}</select></td>
+				</tr>
 			</table>
 			</div>
 			<div style="float:left;max-width:620px;">
-				<table class="subform" id="grid_add_kinds">
+				<table class="subform" id="grid_add_categories">
 					<tr>
 						<th class="ui-state-default td-title" colspan="3" style="min-width:220px;">机种</th>
 					</tr>
-					<%=request.getAttribute("kReferChooser")%>
+					<%=request.getAttribute("cReferChooser")%>
 				</table>
 			</div>
 			<div style="float:left;max-width:620px;">
@@ -150,6 +152,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="td-content"><input type="text" id="edit_rank" name="edit_rank" alt="修理等级" maxlength="10" class="ui-widget-content"></td>
 				</tr>
 				<tr>
+					<td class="ui-state-default td-title">关联参考流程<br><br>优先等级 <input type="button" id="edit_correlated_level" class="ui-button ui-state-active" value="1"></input></td>
+					<td class="td-content" style="width:384px"><select name="correlated_pat_id" id="edit_correlated_pat_id" alt="关联参考流程" class="ui-widget-content">${patOptions}</select></td>
+				</tr>
+				<tr>
 					<td class="ui-state-default td-title">最后更新人</td>
 					<td class="td-content"><label id="label_edit_updated_by"></label></td>
 				</tr>
@@ -160,11 +166,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</table>
 			</div>
 			<div style="float:left;max-width:620px;">
-				<table class="subform" id="grid_edit_kinds">
+				<table class="subform" id="grid_edit_categories">
 					<tr>
 						<th class="ui-state-default td-title" colspan="3" style="min-width:220px;">机种</th>
 					</tr>
-					<%=request.getAttribute("kReferChooser")%>
+					<%=request.getAttribute("cReferChooser")%>
 				</table>
 			</div>
 			<div style="float:left;max-width:620px;">
@@ -183,8 +189,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div>
 	<div class="ui-state-default ui-corner-bottom areaencloser dwidth-middleright"></div>
 </div>
-
-<div id="confirmmessage"></div>
 
 <div class="clear areacloser"></div>
 <div class="referchooser ui-widget-content" id="position_refer" tabindex="-1">

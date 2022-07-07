@@ -814,6 +814,11 @@
 		<value code="9">重要工程日次</value>
 	</codelist>
 
+	<codelist name="process_assign_derive_kind">
+		<value code="1">单追组件</value>
+		<value code="2">S1 NS 补胶</value>
+	</codelist>
+
 	<codelist name="device_hazardous_classification">
 		<value code="1">机械</value>
 		<value code="2">电气</value>
@@ -980,6 +985,7 @@
 		<value code="3">报价流程</value>
 		<value code="1">流水线(维修)流程</value>
 		<value code="2">单元化流程</value>
+		<value code="4">中小修理参考流程</value>
 		<value code="6">流水线(生产)流程</value>
 	</codelist>
 

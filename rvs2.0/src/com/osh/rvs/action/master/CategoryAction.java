@@ -61,7 +61,8 @@ public class CategoryAction extends BaseAction {
 		req.setAttribute("kOptions", kOptions);
 
 		ProcessAssignService paSevice = new ProcessAssignService();
-		req.setAttribute("patOptions", paSevice.getOptions("(不选)", 9, conn));
+		req.setAttribute("patOptions", paSevice.getOptions("(不选)", 1, conn));
+		req.setAttribute("patMinorOptions", paSevice.getOptions("(不选)", 4, conn));
 		req.setAttribute("patQuoteOptions", paSevice.getOptions("(不选)", 3, conn));
 
 		String qaPositions = PositionService.getPositionOptionsBySpecialPage("qualityAssurance", conn);

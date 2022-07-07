@@ -70,7 +70,7 @@ public class ModelAction extends BaseAction {
 		req.setAttribute("cOptions", cOptions);
 
 		ProcessAssignService paSevice = new ProcessAssignService();
-		req.setAttribute("patOptions", paSevice.getOptions("(型号无特有流程)", 9, conn));
+		req.setAttribute("patOptions", paSevice.getOptions("(型号无特有流程)", 1, conn));
 
 		actionForward = mapping.findForward(FW_INIT);
 

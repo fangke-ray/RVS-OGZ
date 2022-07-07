@@ -2,6 +2,7 @@ package com.osh.rvs.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,7 +25,6 @@ import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.form.master.ProcessAssignTemplateForm;
 import com.osh.rvs.mapper.CommonMapper;
-import com.osh.rvs.mapper.inline.ProductionAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 
@@ -35,6 +35,9 @@ import framework.huiqing.common.util.copy.BeanUtil;
 
 public class ProcessAssignService {
 	private static Logger logger = Logger.getLogger(ProcessAssignService.class);
+
+	private static final int FIX_TYPE_FOR_REFER = 4;
+	private static final int FIX_TYPE_FOR_ALL_INLINE = 9;
 
 	private static Map<String, Boolean> hasNsMap = new HashMap<String, Boolean>(); 
 
@@ -70,6 +73,12 @@ public class ProcessAssignService {
 		BeanUtil.copyToForm(e, result, null);
 
 		return result;
+	}
+
+	public ProcessAssignTemplateEntity getDetail(String id, SqlSession conn) {
+		// 取得模板详细
+		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
+		return dao.getProcessAssignTemplateByID(id);
 	}
 
 	public void insert(ActionForm form, Map<String, String[]> parameterMap, HttpSession session,
@@ -245,11 +254,53 @@ public class ProcessAssignService {
 	public String getOptions(String empty, Integer fixType, SqlSession conn) {
 		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
 		List<ProcessAssignTemplateEntity> l = dao.getAllProcessAssignTemplate(fixType);
-		Map<String, String> codeMap = new TreeMap<String, String>();
+		Map<String, String> codeMap = new LinkedHashMap<String, String>();
 		for (ProcessAssignTemplateEntity bean : l) {
 			codeMap.put(bean.getProcess_assign_template_id(), bean.getName());
 		}
 		return CodeListUtils.getSelectOptions(codeMap, null, empty, false);
+	}
+
+	public String getGroupOptions(String empty, SqlSession conn) {
+		if (empty == null) empty = "";
+		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
+		List<ProcessAssignTemplateEntity> l = dao.getAllProcessAssignTemplate(FIX_TYPE_FOR_REFER);
+		Map<String, String> codeMapNormal = new LinkedHashMap<String, String>();
+		Map<String, String> codeMapRefer = new LinkedHashMap<String, String>();
+		for (ProcessAssignTemplateEntity bean : l) {
+			if (!bean.isDelete_flg())
+				if (bean.getFix_type() == 4) {
+					codeMapRefer.put(bean.getProcess_assign_template_id(), bean.getName());
+				} else {
+					codeMapNormal.put(bean.getProcess_assign_template_id(), bean.getName());
+				}
+		}
+		return "<optgroup label=\"\"><option value=\"\">" + empty + "</option></optgroup>" 
+		+ "<optgroup label=\"原形\">" + CodeListUtils.getSelectOptions(codeMapNormal, null, null, false) + "</optgroup>"
+		+ "<optgroup label=\"参考流程\">" + CodeListUtils.getSelectOptions(codeMapRefer, null, null, false) + "</optgroup>";
+	}
+
+	public String getAllGroupOptions(String empty, SqlSession conn) {
+		if (empty == null) empty = "";
+		ProcessAssignMapper dao = conn.getMapper(ProcessAssignMapper.class);
+		List<ProcessAssignTemplateEntity> l = dao.getAllProcessAssignTemplate(FIX_TYPE_FOR_ALL_INLINE);
+		Map<String, String> codeMapNormal = new TreeMap<String, String>();
+		Map<String, String> codeMapRefer = new TreeMap<String, String>();
+		Map<String, String> codeMapHistory = new TreeMap<String, String>();
+		for (ProcessAssignTemplateEntity bean : l) {
+			if (!bean.isDelete_flg())
+				if (bean.getFix_type() == 4) {
+					codeMapRefer.put(bean.getProcess_assign_template_id(), bean.getName());
+				} else {
+					codeMapNormal.put(bean.getProcess_assign_template_id(), bean.getName());
+				}
+			else
+				codeMapHistory.put(bean.getProcess_assign_template_id(), bean.getName());
+		}
+		return "<optgroup label=\"\"><option value=\"\">" + empty + "</option></optgroup>" 
+		+ "<optgroup label=\"原形\">" + CodeListUtils.getSelectOptions(codeMapNormal, null, null, false) + "</optgroup>"
+		+ "<optgroup label=\"参考流程\">" + CodeListUtils.getSelectOptions(codeMapRefer, null, null, false) + "</optgroup>"
+		+ "<optgroup label=\"停用\">" + CodeListUtils.getSelectOptions(codeMapHistory, null, null, false) + "</optgroup>";
 	}
 
 	/**
@@ -281,8 +332,7 @@ public class ProcessAssignService {
 	}
 
 	public boolean checkPatHasNs(String pat_id, SqlSession conn) {
-		if (pat_id == null ||"00000000008".equals(pat_id) || "0000000009".equals(pat_id)) {
-			// 补胶不排NS计划
+		if (pat_id == null) {
 			return false;
 		}
 		if (hasNsMap.containsKey(pat_id)) {
@@ -290,6 +340,16 @@ public class ProcessAssignService {
 		} else {
 			synchronized (hasNsMap) {
 				ProcessAssignMapper mapper = conn.getMapper(ProcessAssignMapper.class);
+				ProcessAssignTemplateEntity patEntity = mapper.getProcessAssignTemplateByID(pat_id);
+				if (patEntity == null) {
+					return false;
+				}
+				if (patEntity.getName() != null
+						&& patEntity.getName().indexOf("补胶") >= 0) {
+					// 补胶不排NS计划
+					hasNsMap.put(pat_id, false);
+					return false;
+				}
 
 				boolean has = mapper.checkHasLine(pat_id, "00000000013");
 				hasNsMap.put(pat_id, has);

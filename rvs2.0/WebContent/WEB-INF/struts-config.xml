@@ -78,6 +78,7 @@
 		<form-bean name="UsageCheckForm" type="com.osh.rvs.form.infect.UsageCheckForm"></form-bean>
 		<form-bean name="TorsionDeviceForm" type="com.osh.rvs.form.infect.TorsionDeviceForm"></form-bean>
 		<form-bean name="ElectricIronDeviceForm" type="com.osh.rvs.form.infect.ElectricIronDeviceForm"></form-bean>
+		<form-bean name="LightFixForm" type="com.osh.rvs.form.master.LightFixForm"></form-bean>
 		<form-bean name="TurnoverCaseForm" type="com.osh.rvs.form.qf.TurnoverCaseForm"></form-bean>
 		<form-bean name="PeripheralInfectDeviceForm" type="com.osh.rvs.form.infect.PeripheralInfectDeviceForm"></form-bean>
 		<form-bean name="WeeklyKpiDataForm" type="com.osh.rvs.form.report.WeeklyKpiDataForm"></form-bean>
@@ -824,6 +825,16 @@
 				scope="request"
 				parameter="method"
 				validate="false">
+		</action>
+
+		<!-- 中小修理标准编制管理 -->
+		<action path="/light_fix"
+				type="com.osh.rvs.action.master.LightFixAction"
+				name="LightFixForm"
+				parameter="method"
+		        validate="false" 
+				scope="request">
+				<forward name="init" path="/pages/admin/light_fix.jsp"></forward>
 		</action>
 
 		<action path="/quality_tip"
