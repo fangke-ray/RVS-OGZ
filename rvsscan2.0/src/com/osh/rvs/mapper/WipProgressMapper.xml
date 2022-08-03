@@ -17,4 +17,33 @@
 		]]>
 	</select>
 
+	<select id="countWipWaiting" resultType="WipEntity">
+		<![CDATA[ 
+		select m.serial_no, 
+		m.wip_date <= date_add(current_date, interval -30 day) as wip_overceed
+		from material m
+		join model mdl
+		  ON m.model_id = mdl.model_id
+		join category ctg
+          ON mdl.category_id = ctg.category_id
+		where wip_location Is Not Null and ctg.kind = 07
+        UNION
+		select m.serial_no, 
+ 			pf.action_time <= date_add(current_date, interval -30 day) as wip_overceed
+		from material m
+		join model mdl
+			ON m.model_id = mdl.model_id
+		join category ctg
+			ON mdl.category_id = ctg.category_id
+		join production_feature pf
+			ON m.material_id = pf.material_id
+            AND pace = 0 AND operate_result <> 0
+		join position pos
+			ON pf.position_id = pos.position_id
+            AND pos.special_page = 'quotation'
+		where inline_time Is Null and m.break_back_flg = 0 and not ctg.kind = 07
+        group by m.material_id;
+		]]>
+	</select>
+
 </mapper>

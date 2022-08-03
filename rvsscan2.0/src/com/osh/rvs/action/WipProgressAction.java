@@ -101,9 +101,9 @@ public class WipProgressAction extends BaseAction {
 		// 检查发生错误时报告错误信息
 		listResponse.put("errors", errors);
 
-		List<WipEntity> list = service.getWip(conn);
+//		List<WipEntity> list = service.getWip(conn);
 
-		listResponse.put("ogz", service.getWipCount(list));
+		listResponse.put("ogz", service.getWipCount(null, conn));
 
 		// 返回Json格式响应信息
 		if (callback != null) {

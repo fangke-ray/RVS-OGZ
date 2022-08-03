@@ -7,4 +7,6 @@ import com.osh.rvs.bean.WipEntity;
 public interface WipProgressMapper {
 
 	public List<WipEntity> getWipMaterials();
+
+	public List<WipEntity> countWipWaiting();
 }

@@ -16,9 +16,15 @@ public class WipProgressService {
 		return dao.getWipMaterials();
 	}
 
-	public Object getWipCount(List<WipEntity> list) {
+	public Object getWipCount(List<WipEntity> list, SqlSession conn) {
 		Map<String, Integer> info = new HashMap<String, Integer>();
 		int wipOvertimeCount = 0;
+
+		if (list == null) {
+			WipProgressMapper mapper = conn.getMapper(WipProgressMapper.class);
+			list = mapper.countWipWaiting();
+		}
+
 		for (WipEntity wipCase : list) {
 			if ("1".equals(wipCase.getWip_overceed())) {
 				wipOvertimeCount++;

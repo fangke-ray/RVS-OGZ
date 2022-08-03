@@ -100,7 +100,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1 })
+	@Privacies(permit = { 1, 106, 104, 113 })
 	public void doCreate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doCreate start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
@@ -163,7 +163,7 @@ public class PcsFixOrderAction extends BaseAction {
 	 * @param conn 数据库会话
 	 * @throws Exception
 	 */
-	@Privacies(permit = { 1 })
+	@Privacies(permit = { 1, 106, 104, 113 })
 	public void doPcCreate(ActionMapping mapping, ActionForm form, HttpServletRequest req, HttpServletResponse res, SqlSessionManager conn) throws Exception {
 		log.info("PcsFixOrderAction.doPcCreate start");
 		Map<String, Object> lResponseResult = new HashMap<String, Object>();
