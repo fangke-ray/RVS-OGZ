@@ -37,6 +37,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/qf/quotation.js?version=446"></script>
+<script type="text/javascript" src="js/qf/set_material_process_assign.js"></script>
 
 <title>报价</title>
 </head>
@@ -136,6 +137,12 @@ Boolean peripheral = (Boolean) request.getAttribute("peripheral");
 														<select name="edit_level" alt="等级" id="edit_level" class="ui-widget-content">
 															${edit_level}
 														</select>
+													</td>
+												</tr>
+												<tr style="display:none;">
+													<td class="ui-state-default td-title">中小修理维修内容流程</td>
+													<td class="td-content">
+														<input alt="中小修理维修流程" type="button" id="light_pat_button" class="ui-button" value="设定">
 													</td>
 												</tr>
 												<tr>

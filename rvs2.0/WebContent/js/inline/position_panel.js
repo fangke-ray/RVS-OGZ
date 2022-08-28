@@ -703,7 +703,7 @@ var showSidebar = function(material_comment) {
 //	}
 	if (material_comment) {
 		$ul.append("<li><input type='radio' id='st_material_comment' name='showTips'><label for='st_material_comment'>维修对象备注<label></li>");
-		$content.append("<div class='tip_page' for='st_material_comment'>" + material_comment + "</img>");
+		$content.append("<div class='tip_page' for='st_material_comment'>" + decodeText(material_comment) + "</img>");
 	}
 	if (device_safety_guide) {
 		for (var idsg in device_safety_guide) {

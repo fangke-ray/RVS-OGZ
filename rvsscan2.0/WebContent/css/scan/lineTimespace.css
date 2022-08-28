@@ -178,6 +178,17 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0c2c9', end
 	text-align:center;
 	border-bottom-right-radius: 0.5em;
 }
+.show_level {
+	width: 1em;
+	height: 1.5em;
+	text-align: center;
+	border-bottom-left-radius: 0.5em;
+	right: 0;
+	position: absolute;
+	top: 0;
+	background: purple;
+	color: white;
+}
 #standard_column > div > div > .count_no {
 	display : none;
 }

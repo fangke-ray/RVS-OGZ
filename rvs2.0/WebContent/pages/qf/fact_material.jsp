@@ -28,6 +28,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/qf/fact_material.js?version=259"></script>
 <script type="text/javascript" src="js/common/material_detail_ctrl.js"></script>
 <script type="text/javascript" src="js/qf/wip_locate.js"></script>
+<script type="text/javascript" src="js/qf/set_material_process_assign.js"></script>
 
 <style>
 div.bar_fixed {

@@ -158,43 +158,18 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 
 			// 小修理工位
 			if (resInfo.isLightFix) {
-				$("#light_fix_content").text(resInfo.light_fix_content).parent().show();
-				if (resInfo.isCcdModel)
-					// 增加302工位选择  
-					$("#pa_red").prepend('<div class="edgeposition"><div class="just"><div code="25" posid="25" nextcode="0" prevcode="0" class="pos"><span>302 CCD 盖玻璃更换</span></div></div>');
-				if (resInfo.isLgModel)
-					// 增加303工位选择  
-					$("#pa_red").prepend('<div class="edgeposition"><div class="just"><div code="60" posid="60" nextcode="0" prevcode="0" class="pos"><span>303 LG 玻璃更换</span></div></div>');
-
-				$("#pa_red div.pos").each(function(index,ele){
-					var $div = $(ele);
-					var code = $div.attr("code");
-					var $span = $div.find("span");
-					for(var i=0;i<resInfo.mProcessAssigns.length;i++){
-						var obj = resInfo.mProcessAssigns[i];
-						if(code == obj.position_id && !$span.hasClass("suceed")){
-							$span.addClass("point");
-							chosedPos[code]=1;
-						}
-					}
-				});
-
-				$("#ref_allpos").button().click(function(){
-					$(".pos span").each(function(idx, ele){
-						$span = $(ele);
-						var pos_id = $span.parent().attr("code");
-						if ($span.hasClass("rework")) {
-						} else {
-							$span.addClass("rework");
-							chosedPos[pos_id] = 1;
-						}
+				if (typeof  setMpaObj == "undefined" ) {
+					loadJs("js/qf/set_material_process_assign.js", function(){
+						lightFixFlow(resInfo);
 					});
-				});
+				} else {
+					lightFixFlow(resInfo);
+				}
 			} else {
 				$("#light_fix_content").text("").parent().hide();
 			}
 
-			$("#pa_red span:empty").parent().parent().parent().each(function(){
+			$("#pa_red span:empty").closest(".edgeposition").each(function(){
 				$(this).hide();
 				if ($(this).parent().hasClass("pos")) {
 					$(this).parent().hide();
@@ -258,8 +233,8 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 					var reworkPositions = $("#pa_red span.rework").parent();
 					if (reworkPositions.length > 0) {
 					for (var iReworkPositions = 0; iReworkPositions<reworkPositions.length; iReworkPositions++) {
-						var reworkPosition = reworkPositions[iReworkPositions];
-						data["rework.positions["+iReworkPositions+"]"] = $(reworkPosition).attr("code");
+						var $reworkPosition = $(reworkPositions[iReworkPositions]);
+						data["rework.positions["+iReworkPositions+"]"] = $reworkPosition.attr("code");
 					}
 					}
 
@@ -282,44 +257,14 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 						}
 					}
 
-					// 需要追加零件
-//					if ($("#flowcase input[name=append_parts]").length > 0) {
-//						if ($("#append_parts_y").attr("checked")) {
-//							data["append_parts"] = "true";
-//						}
-//					}
-
 					// 小修理修改过流程
-//					if ($("#flowcase div.pos span.rework").not(".point").length > 0) {
-//						var count=0;
-//						var chainHead = null;
-//						var chain = {};
-//						var total = $("#flowcase div.pos span").length;
-//
-//						$("#flowcase div.pos span").each(function(index,ele){
-//							var $span = $(ele);
-//							if($span.hasClass("point") || $span.hasClass("rework")){
-//								var $posData = $span.parent();
-//								var code = $posData.attr("code");
-//								if (code != "25") {
-//									var item = {code: code};
-//									if ($posData.attr("prevcode") == "0" && $posData.parents(".just-multi").length == 0) {
-//										chainHead = item;
-//									}
-//									item["prev"] = getPrevPos($posData);
-//									chain[code] = item;
-//								}
-//								data["material_process_assign.position_id[" + count + "]"] = code;
-//								if (count > 0) {
-//									data["material_process_assign.next_position_id[" + (count-1) + "]"] = code;
-//								}
-//								if (count < (total - 1)) {
-//									data["material_process_assign.prev_position_id[" + (count+1) + "]"] = code;
-//								}
-//								count++;
-//							}
-//						});
-//					}
+					if (data.pat_id || // 只是改过参考流程也需要重排
+						($("#flowcase div.pos span.point").length > 0
+						&& $("#flowcase div.pos span.rework").not(".point").length > 0)) {
+
+						setMpaObj.postData($("#pa_red"), data, true);
+						data["flow_str"] = setMpaObj.postSelText($("#pa_red"));
+					}
 
 					// Ajax提交
 					$.ajax({
@@ -359,6 +304,39 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
+}
+
+var lightFixFlow = function(resInfo){
+
+	$("#light_fix_content").text(resInfo.light_fix_content).parent().show();
+
+	setMpaObj.addCellPos($("#pa_red"), resInfo);
+
+	$("#pa_red div.pos").each(function(index,ele){
+		var $div = $(ele);
+		var code = $div.attr("code");
+		var $span = $div.find("span");
+		for(var i=0;i<resInfo.mProcessAssigns.length;i++){
+			var obj = resInfo.mProcessAssigns[i];
+			if(code == obj.position_id && !$span.hasClass("suceed")){
+				$span.addClass("point");
+				chosedPos[code]=1;
+			}
+		}
+	});
+
+	$("#ref_allpos").button().click(function(){
+		$(".pos span").each(function(idx, ele){
+			$span = $(ele);
+			var pos_id = $span.parent().attr("code");
+			if ($span.hasClass("rework")) {
+			} else {
+				$span.addClass("rework");
+				chosedPos[pos_id] = 1;
+			}
+		});
+	});
+
 }
 
 var process_resign = function() {

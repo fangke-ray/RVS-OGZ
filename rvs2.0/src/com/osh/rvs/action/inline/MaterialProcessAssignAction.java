@@ -15,15 +15,18 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
+import com.osh.rvs.bean.master.CategoryEntity;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.inline.MaterialProcessAssignForm;
+import com.osh.rvs.form.master.LightFixForm;
+import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.MaterialProcessAssignService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ProcessAssignService;
 
 import framework.huiqing.action.BaseAction;
 import framework.huiqing.bean.message.MsgInfo;
-import framework.huiqing.common.util.CodeListUtils;
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.validator.Validators;
 
@@ -60,39 +63,42 @@ public class MaterialProcessAssignAction extends BaseAction {
 
 		if(errors.size()==0){
 			MaterialProcessAssignService service = new MaterialProcessAssignService();
+			List<LightFixForm> lightFixs  = service.searchLightFixs(form, conn);
+			List<MaterialProcessAssignForm> materialLightFixs = service.searchMaterialLightFix(form, conn);
 			List<MaterialProcessAssignForm> processAssigns = service.searchMaterialProcessAssign(form, conn);
 
 			MaterialService materialService = new MaterialService();
 			MaterialProcessAssignForm materialProcessAssignForm = (MaterialProcessAssignForm)form;
+			String level = materialProcessAssignForm.getLevel();
 			MaterialForm materialForm = materialService.loadSimpleMaterialDetail(conn, materialProcessAssignForm.getMaterial_id());
 
+			callbackResponse.put("lightFixs", lightFixs);
+			callbackResponse.put("materialLightFixs", materialLightFixs);
 			callbackResponse.put("processAssigns", processAssigns);
 			callbackResponse.put("materialForm", materialForm);
-		}
-		
-		//在线工位
-		ProcessAssignService processAssignService = new ProcessAssignService();
-		List<Map<String, String>> positions = processAssignService.getExpandPositions(conn);
-		for (Map<String, String> position : positions) {
-			String process_code = position.get("process_code");
-			if (process_code != null) {
-				position.put("text",  process_code + "\n" + position.get("text"));
+
+			//在线工位
+			ProcessAssignService processAssignService = new ProcessAssignService();
+			List<Map<String, String>> positions = processAssignService.getExpandPositions(conn);
+			callbackResponse.put("list", positions);
+
+			if (materialForm.getPat_id() == null) { 
+				// 取得默认流程
+				CategoryService cService = new CategoryService();
+				CategoryEntity cEntity = cService.getDetail(materialForm.getCategory_id(), conn);
+
+				String defaultPatId = null;
+				if (level == null) level = materialForm.getLevel();
+
+				// 取得机种中小修参考流程
+				defaultPatId = cEntity.getDefault_cell_pat_id();
+
+				if (defaultPatId != null)
+					materialForm.setPat_id(CommonStringUtil.fillChar(defaultPatId, '0', 11, true));
 			}
 		}
-		
-		
-		String category_kind = CodeListUtils.getGridOptions("category_kind");//机种分类
-		String arr[]=category_kind.split(";");
-		Map<String,String> map = new HashMap<String,String>();
-		for(int i=0;i<arr.length;i++){
-			String [] value = arr[i].split(":");
-			map.put(value[0], value[1]);
-			
-		}
-		callbackResponse.put("categoryKindMap", map);
 
 		// 查询结果放入Ajax响应对象
-		callbackResponse.put("list", positions);
 
 		// 检查发生错误时报告错误信息
 		callbackResponse.put("errors", errors);
@@ -122,7 +128,7 @@ public class MaterialProcessAssignAction extends BaseAction {
 		// 返回Json格式回馈信息
 		returnJsonResponse(response, callbackResponse);
 
-		log.info("MaterialProcessAssignAction.doUpdateMaterialProcessAssign start");
+		log.info("MaterialProcessAssignAction.doUpdateMaterialProcessAssign end");
 	}
 
 }

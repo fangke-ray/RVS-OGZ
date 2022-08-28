@@ -1,5 +1,7 @@
 package com.osh.rvs.action.qf;
 
+import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +23,13 @@ import com.osh.rvs.bean.data.AlarmMesssageEntity;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.infect.PeripheralInfectDeviceEntity;
+import com.osh.rvs.bean.inline.MaterialProcessAssignEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
 import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
+import com.osh.rvs.mapper.inline.MaterialProcessAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultPageService;
@@ -102,7 +106,7 @@ public class QuotationAction extends BaseAction {
 		
 		// 获得维修流程选项
 		ProcessAssignService paService = new ProcessAssignService();
-		String paOptions = paService.getOptions("", 1, conn);
+		String paOptions = paService.getGroupOptions("", conn);
 		req.getSession().setAttribute("paOptions", paOptions);
 		
 		log.info("QuotationAction.init end");
@@ -749,10 +753,10 @@ public class QuotationAction extends BaseAction {
 			
 			qService.updateComment(materialForm, user, conn);
 			
-//			String level = materialForm.getLevel();//等级
-//			String fix_type = materialForm.getFix_type();//修理方式
-//			//小修理流水线
-//			boolean isLightFix = "9".equals(level.substring(0, 1)) && "1".equals(fix_type); 
+			String fix_type = materialForm.getFix_type();//修理方式
+			//小修理流水线
+			boolean isLightFix = RvsUtils.isLightFix(materialForm.getLevel())
+				&& "1".equals(fix_type); 
 
 			/// 取得本次工时
 			Integer use_seconds = ppService.getTotalTimeByRework(workingPf, conn);
@@ -771,24 +775,21 @@ public class QuotationAction extends BaseAction {
 			// 启动下个工位 报价不启动
 			// ppService.fingerNextPosition(materialId, workingPf, conn);
 
-//			if(!isLightFix){
-//				MaterialProcessAssignEntity entity = new MaterialProcessAssignEntity();
-//				BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
-//				MaterialProcessAssignMapper materialProcessAssignMapper = conn.getMapper(MaterialProcessAssignMapper.class);
-//				
-//				//删除维修对象独有修理流程
-//				materialProcessAssignMapper.deleteMaterialProcessAssign(entity.getMaterial_id());
-//			}
-//
-//			// 通知 TODO
-//
-//			// FSE 数据同步
-//			try{
-//				FseBridgeUtil.toUpdateMaterial(materialId, "qt" + workingPf.getProcess_code());
-//				FseBridgeUtil.toUpdateMaterialProcess(materialId, "qt" + workingPf.getProcess_code());
-//			} catch (Exception e) {
-//				log.error(e.getMessage(), e);
-//			}
+			if(!isLightFix){
+				MaterialProcessAssignEntity entity = new MaterialProcessAssignEntity();
+				BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+				MaterialProcessAssignMapper materialProcessAssignMapper = conn.getMapper(MaterialProcessAssignMapper.class);
+				
+				String lightFixes = materialProcessAssignMapper.getLightFixesByMaterial(entity.getMaterial_id(), null);
+				if (!isEmpty(lightFixes)) {
+					//删除维修对象选用小修理
+					materialProcessAssignMapper.deleteMaterialLightFix(entity.getMaterial_id());
+					//删除维修对象独有修理流程
+					materialProcessAssignMapper.deleteMaterialProcessAssign(entity.getMaterial_id());
+					// 删除小修理流程说明
+					mservice.removeComment(entity.getMaterial_id(), "00000000001", conn);
+				}
+			}
 		}
 
 		QuotationService qService = new QuotationService();

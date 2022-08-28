@@ -9,7 +9,7 @@ var drawer = {
 
 	options: {
 		selections : [
-			{plbl : "NS工程", value: 29, text: "先端预制"}
+			{}
 		],
 		editable : false,
 		groupcode : 9000000
@@ -104,10 +104,10 @@ var drawer = {
 			var tempoptions = inserter.find("select:last option[value='"+ep.attr("code")+"']").remove();
 			if (tempoptions.length == 0) {
 				tempoptions = $($.map(ep.find(".pos"), function(inpos, idx){
-                    var $opt = inserter.find("select:last option[value='"+$(inpos).attr("code")+"']");
-                    if ($opt.length == 0) return null;
-                    return $opt.remove();
-                }));
+					var $opt = inserter.find("select:last option[value='"+$(inpos).attr("code")+"']");
+					if ($opt.length == 0) return null;
+					return $opt.remove();
+				}));
 			}
 
 			// 
@@ -135,7 +135,6 @@ var drawer = {
 					inserter.find("select:first").append(tempoption);
 				})
 			}
-			console.log(inserter.find("select:first").html());
 			inserter.find("select:first").select2Buttons();
 			// 关闭工具框
 			this._closeOptions(this.thisid);
@@ -276,7 +275,7 @@ var flowchart_methods = {
 							});
 							drawer._closeOptions(thisid);
 						} else {
-							alert(null);
+							console.log(null);
 						}
 					});
 
@@ -416,6 +415,7 @@ var flowchart_methods = {
 		}
 		for (var ipos in data) {
 			var pos = data[ipos];
+
 			if (start) {
 				if ((parseInt(pos.sign_position_id) == pos.position_id)) {
 					if (pos.line_id != drawer.options.groupcode && content.find(".pos[code='"+pos.line_id+"']").length == 0) {

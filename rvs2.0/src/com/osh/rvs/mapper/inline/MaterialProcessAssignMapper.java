@@ -10,6 +10,14 @@ import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 
 public interface MaterialProcessAssignMapper {
+	//查询维修对象选用小修理
+	public List<MaterialProcessAssignEntity> searchMaterialLightFix(MaterialProcessAssignEntity entity);
+	
+	//删除维修对象选用小修理
+	public void deleteMaterialLightFix(String material_id)throws Exception;
+	
+	//新建维修对象选用小修理
+	public void insertMaterialLightFix(MaterialProcessAssignEntity entity)throws Exception;
 	
 	//查询维修对象独有修理流程
 	public List<MaterialProcessAssignEntity> searchMaterialProcessAssign(MaterialProcessAssignEntity entity);
@@ -20,10 +28,16 @@ public interface MaterialProcessAssignMapper {
 	//新建维修对象独有修理流程
 	public void insertMaterialProcessAssign(MaterialProcessAssignEntity entity)throws Exception;
 
+	// 维修对象已选择修理内容
+	public String getLightFixesByMaterial(@Param("material_id") String material_id, @Param("position_id") String position_id);
+
+	// 维修对象已选择修理内容的全工位
+	public List<String> getLightPositionsByMaterial(@Param("material_id") String material_id);
+
 	public List<ProcessAssignEntity> getProcessAssignByMaterialID(
 			String material_id);
 
-	public ProcessAssignEntity getFirstPosition(String material_id);
+	public List<ProcessAssignEntity> getFirstPositions(@Param("material_id") String material_id);
 
 	public boolean checkWorked(@Param("material_id") String material_id, @Param("position_id") String position_id);
 

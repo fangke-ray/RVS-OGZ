@@ -24,9 +24,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-plus.js"></script>
 <script type="text/javascript" src="js/jquery.select2buttons.js"></script>
 <script type="text/javascript" src="js/jquery.flowchart.js"></script>
-<script type="text/javascript" src="js/qf/before_line_leader.js?version=221.1"></script>
+<script type="text/javascript" src="js/qf/before_line_leader.js"></script>
 
-
+<script type="text/javascript" src="js/qf/set_material_process_assign.js"></script>
 <title>投线前维修对象</title>
 </head>
 <body class="outer">
@@ -72,8 +72,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td class="td-content"><input type="text" id="search_serialno" maxlength="20" class="ui-widget-content"></td>
 						</tr>
 						<tr>
-							<td class="ui-state-default td-title">等级</td>
-							<td class="td-content">
+							<td class="ui-state-default td-title" rowspan="2">等级</td>
+							<td class="td-content" rowspan="2" colspan="3">
 								<select id="search_level" class="ui-widget-content">
 									${lOptions};
 								</select>
@@ -86,6 +86,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 									<input type="radio" name="agreed" id="agreed_f" class="ui-widget-content ui-helper-hidden-accessible" value="0"><label for="agreed_f" aria-pressed="false">无同意日</label>
 								</div>
 							</td>
+						</tr>
+						<tr>
 							<td class="ui-state-default td-title">WIP位置</td>
 							<td class="td-content">
 								<input type="text" name="wip_location" id="search_wip_location" maxlength="5" class="ui-widget-content">

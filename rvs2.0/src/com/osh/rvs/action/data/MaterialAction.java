@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +38,9 @@ import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.data.MonthFilesDownloadForm;
 import com.osh.rvs.form.data.ProductionFeatureForm;
+import com.osh.rvs.form.inline.MaterialProcessAssignForm;
 import com.osh.rvs.form.inline.MaterialProcessForm;
+import com.osh.rvs.form.master.ModelForm;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.form.partial.MaterialPartialForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
@@ -45,6 +48,7 @@ import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.service.CategoryService;
 import com.osh.rvs.service.DownloadService;
+import com.osh.rvs.service.MaterialProcessAssignService;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ModelService;
@@ -226,10 +230,10 @@ public class MaterialAction extends BaseAction {
 			materialForm = materialService.loadMaterialDetail(conn, id);
 
 			String location = materialForm.getWip_location();
-			if (location != null && !"".equals(location) && location.startsWith("WIP:")) { //location不为空，设置当前状态WIP
-				materialForm.setStatus("WIP");
-				materialForm.setProcessing_position(location);
-			} else { //否则，根据Operate_result查找状态
+//			if (location != null && !"".equals(location) && location.startsWith("WIP:")) { //location不为空，设置当前状态WIP
+//				materialForm.setStatus("WIP");
+//				materialForm.setProcessing_position(location);
+//			} else { //否则，根据Operate_result查找状态
 				String position = materialForm.getProcessing_position();
 				materialForm.setWip_location(position);
 
@@ -254,7 +258,7 @@ public class MaterialAction extends BaseAction {
 //					String value = CodeListUtils.getValue("material_operate_result", operateResult);
 //					materialForm.setStatus(value);
 //				}
-			}
+//			}
 
 			@SuppressWarnings("unused")
 			Integer iOccur_times = null;
@@ -731,9 +735,8 @@ public class MaterialAction extends BaseAction {
 		if (pat_id == null) {
 			pat_id = mEntity.getPat_id();
 		}
-//		Integer level = mEntity.getLevel();
-//		boolean isLightFix = (level != null) &&
-//				(level == 9 || level== 91 || level == 92 || level == 93);
+
+		boolean isLightFix = RvsUtils.isLightFix(mEntity.getLevel());
 
 		// 取得流程-全在线
 		List<ProcessAssignEntity> seqlist = pamDao.getProcessAssignByTemplateID(pat_id);
@@ -752,6 +755,11 @@ public class MaterialAction extends BaseAction {
 
 			// 取得作业情报-工程部分
 			lEntities = pamDao.getFinishedPositionsInline(material_id);
+
+			for (Map<String, String> pMap : pMaps) {
+				pMap.put("text", pMap.get("process_code") + " " + pMap.get("text"));
+			}
+
 		} else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
 			String line_id = user.getLine_id();
 
@@ -772,6 +780,39 @@ public class MaterialAction extends BaseAction {
 		listResponse.put("result", lcf);
 		listResponse.put("pat_id", pat_id);
 
+		if (isLightFix) {
+			
+			listResponse.put("isLightFix", isLightFix);
+
+			MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+			String lightFixStr = mpas.getLightFixesByMaterial(material_id, null, conn);
+			if (!isEmpty(lightFixStr)) {
+				String light_fix_content = "中小修理的修理内容是：" + lightFixStr;
+				listResponse.put("light_fix_content", light_fix_content);
+			}
+
+			List<String> light_positions = mpas.getLightPositionsByMaterial(material_id, conn);
+			listResponse.put("light_positions", light_positions);
+
+			Set<String> ccdModels = RvsUtils.getCcdModels(conn);
+			if (ccdModels != null && ccdModels.contains(mEntity.getModel_id())) {
+				listResponse.put("isCcdModel", true);
+			}
+
+			// LG 目镜对应机型
+			ModelService ms = new ModelService();
+			ModelForm model = ms.getDetail(mEntity.getModel_id(), conn);
+			if (model.getKind().equals("01")) {
+				listResponse.put("isLgModel", true);
+			}
+			ccdModels = RvsUtils.getCcdLineModels(conn);
+			if (ccdModels != null && ccdModels.contains(mEntity.getModel_id())) {
+				listResponse.put("isCcdLineModel", true);
+			}
+
+			List<MaterialProcessAssignForm> processAssigns = mpas.searchMaterialProcessAssign(form, conn);
+			listResponse.put("mProcessAssigns", processAssigns);
+		}
 
 		// 返回Json格式响应信息
 		returnJsonResponse(res, listResponse);

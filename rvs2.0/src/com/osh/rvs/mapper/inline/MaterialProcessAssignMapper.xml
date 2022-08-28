@@ -5,6 +5,48 @@
 	<!-- cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"> 
 		</cache -->
 
+	<select id="searchMaterialLightFix" parameterType="MaterialProcessAssignEntity" resultType="MaterialProcessAssignEntity">
+		<![CDATA[
+			select material_id,light_fix_id from material_light_fix where material_id = #{material_id}
+		]]>
+	</select>
+	
+	<delete id="deleteMaterialLightFix" parameterType="String">
+		<![CDATA[
+			delete from material_light_fix where material_id = #{material_id}
+		]]>
+	</delete>
+	
+	<insert id="insertMaterialLightFix" parameterType="MaterialProcessAssignEntity">
+		<![CDATA[
+			insert material_light_fix(material_id,light_fix_id) values(#{material_id},#{light_fix_id})
+		]]>
+	</insert>
+	
+	<select id="getLightFixesByMaterial" parameterType="String" resultType="String">
+		<![CDATA[
+			select group_concat(description) from material_light_fix mlf
+			JOIN light_fix lf
+			ON mlf.light_fix_id = lf.light_fix_id
+			 where material_id = #{material_id}
+		]]>
+		<if test="not (position_id eq null)">
+			AND exists (SELECT 1 FROM position_of_light_fix where light_fix_id = mlf.light_fix_id and position_id = #{position_id})
+		</if>
+	</select>
+
+	<select id="getLightPositionsByMaterial" parameterType="String" resultType="String">
+		<![CDATA[
+			select distinct polf.position_id 
+            from material_light_fix mlf
+			JOIN light_fix lf
+			ON mlf.light_fix_id = lf.light_fix_id
+            join position_of_light_fix polf
+            on lf.light_fix_id = polf.light_fix_id
+			 where material_id = #{material_id}
+		]]>
+	</select>
+
 	<select id="searchMaterialProcessAssign" parameterType="MaterialProcessAssignEntity" resultType="MaterialProcessAssignEntity">
 		<![CDATA[
 			select
@@ -59,11 +101,12 @@
 			PREV_POSITION_ID, 
 			NEXT_POSITION_ID
 		FROM material_process_assign
-		WHERE material_id = #{material_id};
+		WHERE material_id = #{material_id}
+		AND NOT (PREV_POSITION_ID = 0 AND NEXT_POSITION_ID = 0);
 		]]>
 	</select>
 
-	<select id="getFirstPosition" parameterType="String" resultType="ProcessAssignEntity">
+	<select id="getFirstPositions" parameterType="String" resultType="ProcessAssignEntity">
 		<![CDATA[ 
 		SELECT 
 			mpa.POSITION_ID, mpa.NEXT_POSITION_ID, mpan.NEXT_POSITION_ID as SIGN_POSITION_ID
@@ -74,7 +117,8 @@
 			AND mpan.material_id = #{material_id}
 
 		WHERE mpa.material_id = #{material_id}
-		AND mpa.prev_position_id = 0;
+		AND mpa.prev_position_id = 0 AND mpa.next_position_id != 0
+		AND mpa.line_id = 9000000 AND mpan.line_id = 9000000;
 		]]>
 	</select>
 
@@ -145,14 +189,15 @@
 	<select id="getPartStart" resultType="String">
 		<![CDATA[ 
 		SELECT position_id FROM material_process_assign p
-		WHERE material_id = #{material_id} AND line_id = #{line_id} AND prev_position_id = 0;
+		WHERE material_id = #{material_id} AND line_id = #{line_id} AND prev_position_id = 0 AND next_position_id <> 0;
 		]]>
 	</select>
 
 	<select id="getPartAll" resultType="String">
 		<![CDATA[ 
 		SELECT position_id FROM material_process_assign p
-		WHERE material_id = #{material_id} AND line_id = #{line_id};
+		WHERE material_id = #{material_id} AND line_id = #{line_id}
+		AND NOT (PREV_POSITION_ID = 0 AND NEXT_POSITION_ID = 0);
 		]]>
 	</select>
 
@@ -160,10 +205,13 @@
 		<![CDATA[
 			select mpa.material_id, pos.line_id, 
 			count(mpa.position_id) = count(pf.position_id) as inline_flg,
-			mp.finish_date as name
+			mp.finish_date as name,
+            ln.in_advance
 			from material_process_assign mpa
 			join position pos
 			on mpa.position_id = pos.position_id
+            join line ln
+            on pos.line_id = ln.line_id
 			left join production_feature pf
 			on mpa.material_id = pf.material_id
 			and mpa.position_id = pf.position_id
@@ -172,6 +220,8 @@
 			on mpa.material_id = mp.material_id
 			and pos.line_id = mp.line_id
 			where mpa.material_id = #{material_id}
+			and not (mpa.prev_position_id = 0 AND mpa.next_position_id = 0)
+			AND process_code not in ('301','302','303')
 			group by pos.line_id
 			;
 		]]>

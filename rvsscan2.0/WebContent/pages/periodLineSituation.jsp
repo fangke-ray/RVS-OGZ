@@ -235,6 +235,7 @@ border-radius: 14px;display:none;">0%</div>
 	<div>
 		<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser dwidth-half">
 			<span class="areatitle">${section_name} ${line_name} 当前仕挂台数</span>
+			<input type="hidden" id="lm_tag" value="${lm_tag}"/>
 		</div>
 		<div class="ui-widget-content dwidth-half" style="text-align:center;padding-top:8px;padding-bottom:8px;cursor: pointer;">
 			<span style="font-size:16px;"><label id="sikake"></label> 台<label id="sikake_in"></label></span>

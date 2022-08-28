@@ -448,11 +448,16 @@ public class AlarmMessageAction extends BaseAction {
 //		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
 
 		// 检查发生错误时报告错误信息
-		listResponse.put("errors", new ArrayList<MsgInfo>());
+		List<MsgInfo> errors = new ArrayList<MsgInfo>();
 
-		// 收集更新流程信息(true的时候list.size==0时不处理)
-		MaterialProcessAssignService mpaService = new MaterialProcessAssignService();
-		mpaService.updateProcessAssign(req.getParameter("material_id"), req, conn, true);
+		String material_id =req.getParameter("material_id");
+		String testMps = req.getParameter("material_process_assign.position_id[0]");
+
+		if (testMps != null) {
+			// 收集更新流程信息(true的时候list.size==0时不处理)
+			MaterialProcessAssignService mpaService = new MaterialProcessAssignService();
+			mpaService.updateProcessAssign(material_id, req, conn, true);
+		}
 
 		// 中断再开处理
 		service.rework(req, triggerList, conn);

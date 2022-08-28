@@ -34,7 +34,7 @@ var line_expedite = function() {
 			
 				findit();
 			} catch (e) {
-				alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+				console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 						+ e.lineNumber + " fileName: " + e.fileName);
 			};
 		}
@@ -105,7 +105,7 @@ var treat_nogood = function() {
 					});
 					$("#pop_treat").show();
 				} catch (e) {
-					alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+					console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 							+ e.lineNumber + " fileName: " + e.fileName);
 				};
 			}
@@ -410,27 +410,25 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 					},
 					viewsortcols : [true, 'vertical', true],
 					gridComplete : function() {
+						disableButtons();
 					}
 				});
 			}
 		}
 	} catch (e) {
-		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
+};
+
+function disableButtons(){
+	$("#expeditebutton,#nogoodbutton,#returnbutton,#printbutton,#printaddbutton,#movebutton,#sendbutton,#sendqabutton,#movetcbutton").disable();
 };
 
 $(document).ready(function() {
 	$("div.ui-button").button();
 	$("input.ui-button").button();
-	$("#expeditebutton").disable();
-	$("#nogoodbutton").disable();
-	$("#returnbutton").disable();
-	$("#printbutton").disable();
-	$("#printaddbutton").disable();
-	$("#movebutton, #movetcbutton").disable();
-	$("#sendbutton").disable();
-	$("#sendqabutton").disable();
+	disableButtons();
 
 	$("#expeditebutton").click(line_expedite);
 	$("#nogoodbutton").click(treat_nogood);
@@ -646,7 +644,7 @@ var doCcdChange = function() {
 					treatBackMessages(null, resInfo.errors);
 				}
 			} catch (e) {
-				alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+				console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 						+ e.lineNumber + " fileName: " + e.fileName);
 			};
 		}
@@ -727,7 +725,8 @@ var doMove = function() {
 					});
 				}
 			} catch(e) {
-				
+		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
+				+ e.lineNumber + " fileName: " + e.fileName);
 			}
 		}
 	});
@@ -849,7 +848,7 @@ var search_handleComplete = function(xhrobj, textStatus) {
 			$("#performance_list").jqGrid('setGridParam', {data : listdata}).trigger("reloadGrid", [{current : false}]);
 		}
 	} catch (e) {
-		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+		console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
 };
@@ -998,6 +997,12 @@ var showDetail=function(rid, isManager) {
 		// 读取修改行
 		var rowData = $("#performance_list").getRowData(rid);
 
+		if (f_isLightFix(rowData.level)) { // && rowData.fix_type==1
+			$("#light_pat_button").closest("tr").show();
+		}else{
+			$("#light_pat_button").closest("tr").hide();
+		}
+		$("#light_pat_button").button();
 		// 数据取得
 		$("#material_id").val(rowData.material_id);
 		$("#edit_sorcno").val(rowData.sorc_no);
@@ -1036,9 +1041,15 @@ var showDetail=function(rid, isManager) {
 		});
 
 		$("#edit_level").change(function(){
-			if (f_isLightFix(this.value) || (this.value >=6 && this.value <= 8)) {
+			if (this.value >=6 && this.value <= 8) {
+				$("#light_pat_button").closest("tr").hide();
 				$("#edit_fix_type").val("2").trigger("change");
 			} else {
+				if (f_isLightFix(this.value)) {
+					$("#light_pat_button").closest("tr").show();
+				} else {
+					$("#light_pat_button").closest("tr").hide();
+				}
 				$("#edit_fix_type").val("1").trigger("change");
 			}
 		});
@@ -1079,6 +1090,10 @@ var showDetail=function(rid, isManager) {
 						"bound_out_ocm":$("#edit_bound_out_ocm").val(),
 						"area":$("#edit_area").val()
 					}
+
+					if (!$("#light_pat_button").is(":visible")) {
+						data.pat_id = "00000000000";
+					}
 					if ($("#edit_agreed_date").val() && !data.level) {
 						errorPop("维修对象同意修理时，需要设定修理等级。", $("#edit_level"));
 						return;
@@ -1110,7 +1125,7 @@ var showDetail=function(rid, isManager) {
 									findits();
 								}
 							} catch(e) {
-									alert("name: " + e.name + " message: " + e.message + " lineNumber: " + e.lineNumber + " fileName: " + e.fileName);
+									console.log("name: " + e.name + " message: " + e.message + " lineNumber: " + e.lineNumber + " fileName: " + e.fileName);
 							}
 						}
 					});
@@ -1118,5 +1133,10 @@ var showDetail=function(rid, isManager) {
 			}
 		});
 		jthis.show();
+		
+		//设定
+		$("#light_pat_button").click(function(){
+			setMpaObj.initDialog($("#light_fix_dialog"), $("#material_id").val(), $("#edit_level").val(), $("#edit_modelname").val(), true);
+		});
 	});
 };

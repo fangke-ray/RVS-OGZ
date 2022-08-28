@@ -205,6 +205,7 @@ var iamreadyLts = function() {
 					'>' + 
 					((pf.finish && pf.process_code == pf.o_process_code) ? "<div class='count_no'" +
 							(pf.use_seconds ? "minutes='" + minuteFormat(pf.use_seconds) + "'" : "") + ">" + getPositionCountNo(pf.process_code) + "</div>" : "") +
+					(pf.showLevel ? ("<div class='show_level'>" + pf.showLevel + "</div>") : "") +
 					'</div>');
 				$y_columns.filter(".y_column[for=" + pf.process_code + "]").append($item);
 

@@ -69,7 +69,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 		
 		// 获得维修流程选项
 		ProcessAssignService paService = new ProcessAssignService();
-		String paOptions = paService.getOptions("", 1, conn);
+		String paOptions = paService.getGroupOptions("", conn);
 		req.setAttribute("paOptions", paOptions);
 
 		// 取得登录用户权限
@@ -78,7 +78,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 		String loginLineId = user.getLine_id();
 
 		if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
-			req.setAttribute("manager", "manager");
+			req.setAttribute("manager", "true");
 		} else if ((LINE_QF.equals(loginLineId) && privacies.contains(RvsConsts.PRIVACY_LINE))) {
 			req.setAttribute("manager", "true");
 		} else {
@@ -87,7 +87,7 @@ public class BeforeLineLeaderAction extends BaseAction {
 
 		// 151工位作业者
 		PositionService pService = new PositionService();
-		if (pService.checkPositionKind("quotation", user.getPositions())) {
+		if (pService.checkPositionKind("quotation", user.getPositions(), conn)) {
 			req.setAttribute("editor", "true");
 		} else {
 			req.setAttribute("editor", "false");

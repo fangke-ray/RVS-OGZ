@@ -41,6 +41,7 @@ import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.manage.PcsRequestMapper;
 import com.osh.rvs.mapper.master.ModelMapper;
+import com.osh.rvs.service.MaterialProcessAssignService;
 
 import framework.huiqing.common.util.CodeListUtils;
 import framework.huiqing.common.util.CommonStringUtil;
@@ -464,9 +465,11 @@ public class PcsUtils {
 
 		if (srcPcses == null) return htmlPcses;
 
+		boolean isLightFix = RvsUtils.isLightFix(level);
 		boolean isPrepheral = RvsUtils.isPeripheral(level); 
 
 		currentProcessCode = checkOverAll(currentProcessCode);
+		boolean lineMatched = currentProcessCode.indexOf("\\d") >= 0;
 
 		Pattern pCurrentProcessCode = Pattern.compile("<pcinput.*?scope=\"E\".*?position=\""+currentProcessCode+"\".*?/>");
 
@@ -521,6 +524,22 @@ public class PcsUtils {
 				specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"G\" type=\"C\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", "<label>" + serialNo + "</label>");
 				// GR
 				specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"G\" type=\"R\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>", "<label>" + CodeListUtils.getValue("material_level", level) + "</label>");
+
+				// 处理多工位标签（保留第一个）
+				if (isLightFix && lineMatched) {
+					Pattern pMultiTags = Pattern.compile(
+							"(<pcinput pcid=\"@#(\\w{2}\\d{7})\" scope=\"[EL]\" type=\"\\w\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>){2,}");
+					Matcher mMultiTags = pMultiTags.matcher(specify);
+					StringBuffer sbRemoveMulti = new StringBuffer("");
+					while (mMultiTags.find()) {
+						String hitText = mMultiTags.group();
+						mMultiTags.appendReplacement(sbRemoveMulti, hitText.substring(0, hitText.indexOf("<pcinput pcid=", 1)));
+					}
+					if (sbRemoveMulti.length() > 0) {
+						mMultiTags.appendTail(sbRemoveMulti);
+						specify = sbRemoveMulti.toString();
+					}
+				}
 
 				// 本作业对象中有替换成功的项目
 				boolean hasCurrent = false;
@@ -997,12 +1016,10 @@ public class PcsUtils {
 						// 输入：I
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"I\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 								"<input type=\"text\" name=\"$1\" value=\"\"/>");
-//						if (isLightFix) {
-//							specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}311\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
-//									UNCHECKED);
-//							specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}331\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
-//									UNCHECKED);
-//						}
+						if (isLightFix) { // 等级选项删除
+							specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}3\\d{2}\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>S",
+									UNCHECKED + "S");
+						}
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
 								"<input type=\"radio\" name=\"$1\" value=\"$2\"/>");
 						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"M\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
@@ -1150,13 +1167,11 @@ public class PcsUtils {
 					// 输入：I
 					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"I\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"\\d{2}\"/>",
 							"<input type=\"text\" name=\"$1\" value=\"\"/>");
-					// process_code = 311 331 小修不单选
-//					if (isLightFix) {
-//						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}311\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
-//								UNCHECKED);
-//						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}331\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
-//								UNCHECKED);
-//					}
+					// 等级选项删除
+					if (isLightFix) {
+						specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}3\\d{2}\\d{2})\\d{2}\" scope=\"E\" type=\"R\" position=\"" + currentProcessCode + "\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>S",
+								UNCHECKED + "S");
+					}
 					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"R\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
 							"<input type=\"radio\" name=\"$1\" value=\"$2\"/>");
 					specify = specify.replaceAll("<pcinput pcid=\"@#(\\w{2}\\d{5})\\d{2}\" scope=\"E\" type=\"M\" position=\"\\d{3}\" name=\"\\d{2}\" sub=\"(\\d{2})\"/>",
@@ -1224,6 +1239,9 @@ public class PcsUtils {
 			return "2\\d\\d";
 		} else if ("812".equals(currentProcessCode)) {
 			return "(811|613|181)";
+//		} else if ("610".equals(currentProcessCode)
+//				|| "611".equals(currentProcessCode)) {
+//			return "(611|610)";
 		}
 		return currentProcessCode;
 	}
@@ -1894,6 +1912,7 @@ public class PcsUtils {
 
 		List<String> hasBlank = new ArrayList<String>();
 
+		boolean isLightFix = RvsUtils.isLightFix(level);
 		boolean isPrepheral = RvsUtils.isPeripheral(level); 
 
 		// 对于每次返工
@@ -1963,24 +1982,33 @@ public class PcsUtils {
 
 				Map<String, String> lineComments = new HashMap<String, String>();
 
-//				if (isLightFix 
-//						&& "总组工程".equals(pcsName)) {
-//
-//					Dispatch cell = xls.Locate("@#EC???????");
-//					String FoundValue = null;
-//					String firstFoundValue = null;
-//					if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
-//					if (FoundValue != null && !FoundValue.equals(firstFoundValue)) { // TODO while exchange
-//						if (firstFoundValue == null) firstFoundValue = FoundValue;
-//
-//						cell = xls.Locate("@#EC???????");
-//						if (cell == null) {
-//							FoundValue = null;
-//						} else {
-//							FoundValue = Dispatch.get(cell, "Value").toString();
-//						}
-//					}
-//				}
+				String additionalStr = null;
+				if (isLightFix 
+						&& "总组工程".equals(pcsName)) {
+					// 小修理流程
+					MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+					String lightFixStr = mpas.getLightFixesByMaterial(materialId, null, conn);
+
+					additionalStr = (lightFixStr == null ? "" : "修理内容为：" + lightFixStr + "\n");
+
+					Dispatch cell = xls.Locate("@#EC???????");
+					String FoundValue = null;
+					String firstFoundValue = null;
+					if (cell != null) FoundValue = Dispatch.get(cell, "Value").toString();
+					if (FoundValue != null && !FoundValue.equals(firstFoundValue)) { // TODO while exchange
+						if (firstFoundValue == null) firstFoundValue = FoundValue;
+
+						xls.SetValue(cell, 
+								FoundValue.replace("@#EC", additionalStr + "\n" + "@#EC"));
+
+						cell = xls.Locate("@#EC???????");
+						if (cell == null) {
+							FoundValue = null;
+						} else {
+							FoundValue = Dispatch.get(cell, "Value").toString();
+						}
+					}
+				}
 
 				if (isPrepheral 
 						&& "检查卡".equals(pcsName)) { // 周边维修显示点检用设备

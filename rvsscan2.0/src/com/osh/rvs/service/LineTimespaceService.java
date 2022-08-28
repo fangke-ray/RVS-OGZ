@@ -163,6 +163,20 @@ public class LineTimespaceService {
 								}
 							}
 						}
+						switch (level) {
+						case "9" :
+						case "91" :
+						case "92" :
+						case "93" :
+						case "99" :
+							retPf.put("showLevel",  "D");
+							break;
+						case "96" :
+						case "97" :
+						case "98" :
+							retPf.put("showLevel",  "M");
+							break;
+						}
 					} catch (Exception e) {
 						
 					}

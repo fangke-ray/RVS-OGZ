@@ -228,9 +228,12 @@ public class WidgetAction extends BaseAction {
 		List<Integer> privacies = user.getPrivacies();
 		if (privacies.contains(RvsConsts.PRIVACY_SCHEDULE)) {
 			req.setAttribute("level", "2");
+			ProcessAssignService paService = new ProcessAssignService();
+			String patOptions = paService.getGroupOptions(null, conn);
+			req.setAttribute("patOptions", patOptions);
 		} else if (privacies.contains(RvsConsts.PRIVACY_PROCESSING)) {
 			ProcessAssignService paService = new ProcessAssignService();
-			String patOptions = paService.getOptions(null, 1, conn);
+			String patOptions = paService.getGroupOptions(null, conn);
 			req.setAttribute("patOptions", patOptions);
 			req.setAttribute("level", "1");
 		} else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {

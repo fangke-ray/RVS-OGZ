@@ -1263,15 +1263,34 @@ public class MaterialService {
 		return monthFilesDownloadForms;
 	}
 
+	public void removeComment(String material_id, String operator_id, SqlSessionManager conn){
+		MaterialCommentMapper mapper = conn.getMapper(MaterialCommentMapper.class);
+
+		//查询维修对象备注是否存在
+		String dbComment = mapper.getMyMaterialComment(material_id, operator_id);
+		
+		//如果原来存在备注，则删除修对象备注
+		if(!CommonStringUtil.isEmpty(dbComment)){
+			mapper.deleteMaterialComment(material_id, operator_id);
+		}
+	}
+
 	public void updateMaterialComment(String material_id, String operator_id,
 			String comment, SqlSessionManager conn) {
 		MaterialCommentMapper mapper = conn.getMapper(MaterialCommentMapper.class);
+		
 		Map<String, Object> materialComment = new HashMap<String, Object>();
 		materialComment.put("material_id", material_id);
 		materialComment.put("operator_id", operator_id);
 		materialComment.put("comment", comment);
-		materialComment.put("create_datetime", new Date());
-		mapper.inputMaterialComment(materialComment);		
+		
+		String dbComment = mapper.getMyMaterialComment(material_id, operator_id);
+		if(dbComment == null){
+			materialComment.put("create_datetime", new Date());
+			mapper.inputMaterialComment(materialComment);
+		}else{
+			mapper.updateMaterialComment(materialComment);
+		}
 	}
 
 	public void getMaterialCommentEdit(String material_id, String operator_id,
@@ -1288,7 +1307,7 @@ public class MaterialService {
 	public void getMaterialComment(String material_id,
 			Map<String, Object> callbackResponse, SqlSession conn) {
 		MaterialCommentMapper mapper = conn.getMapper(MaterialCommentMapper.class);
-		callbackResponse.put("material_comment", mapper.getMaterialComments(material_id, null));
+		callbackResponse.put("material_comment", mapper.getMaterialComments(material_id, "00000000001"));
 	}
 
 	public void pxExchange(String material_id, SqlSessionManager conn) {

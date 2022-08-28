@@ -42,7 +42,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<td class="ui-state-default td-title">修理代码</td>
 					<td class="td-content"><input type="text" name="activity_code" id="cond_activity_code" maxlength="4" class="ui-widget-content"></td>
 					<td class="ui-state-default td-title">中小修理标准名称</td>
-					<td class="td-content"><input type="text" name="description" id="cond_description" maxlength="64" class="ui-widget-content"></td>
+					<td class="td-content"><input type="text" name="description" id="cond_description" maxlength="64" style="width: 20em;" class="ui-widget-content"></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">修理等级</td>
@@ -90,7 +90,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">名称</td>
-					<td class="td-content"><input type="text" id="add_description" name="add_description" alt="名称" maxlength="64" class="ui-widget-content"></td>
+					<td class="td-content"><input type="text" id="add_description" name="add_description" alt="名称" maxlength="64" class="ui-widget-content" style="width: 20em;"></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">修理等级</td>
@@ -145,7 +145,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">名称</td>
-					<td class="td-content"><input type="text" id="edit_description" name="edit_description" alt="名称" maxlength="64" class="ui-widget-content"></td>
+					<td class="td-content"><input type="text" id="edit_description" name="edit_description" alt="名称" maxlength="64" class="ui-widget-content" style="width: 20em;"></td>
 				</tr>
 				<tr>
 					<td class="ui-state-default td-title">修理等级</td>

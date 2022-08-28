@@ -77,7 +77,8 @@
 	-moz-border-radius: 0 !important;
 }
 
-.edgeposition:not(:first-child) .pos:last-child::before{
+.edgeposition .pos:last-child::before
+{
 	border-right: 1px solid #CCCCCC;
 	border-radius: 0 5px 0 0;
 	-webkit-border-radius: 0 5px 0 0;
@@ -104,30 +105,26 @@
 }
 
 .edgeposition .pos span.suceed {
-	background-color: #58B848;
+	background: #58B848;
 	color: black;
 }
 
 .edgeposition .pos span.nogood {
-	background-color: #B85848;
+	background: #B85848;
 	color: black;
 }
 
 .edgeposition .pos span.point {
-	background-color: #A5E6FF;
+	background: #A5E6FF;
 	color: black;
 	font-weight: bold;
 }
-
-/*
+.edgeposition .pos span.point.nogood {
+	background: linear-gradient(to bottom,  #A5E6FF 80%,#B85848 80%);
+}
 .edgeposition .pos span.suceed.point {
-	background: linear-gradient(to bottom,  #A5E6FF 25%,#58B848 35%);
+	background: linear-gradient(to bottom,  #A5E6FF 80%,#58B848 80%);
 }
-
-.edgeposition .pos span.nogood.point {
-	background: linear-gradient(to bottom,  #A5E6FF 25%,#B85848 35%);
-}
-*/
 
 .edgeposition .pos span.rework {
 	background: #B8B8B8!important;

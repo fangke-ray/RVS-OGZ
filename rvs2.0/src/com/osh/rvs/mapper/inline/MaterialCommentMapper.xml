@@ -27,18 +27,23 @@
 	]]>
 	</select>
 
-	<insert id="inputMaterialComment" parameterType="map">
-	<![CDATA[ 
-		REPLACE INTO `material_comment` 
-			(`material_id`, `operator_id`, `comment`, `create_datetime`) 
-		VALUES (#{material_id}, #{operator_id}, #{comment}, #{create_datetime});
-	]]>
-	</insert>
-	
 	<delete id="deleteMaterialComment" parameterType="String">
 		<![CDATA[
 			delete from material_comment where material_id = #{material_id} and operator_id = #{operator_id}
 		]]>
 	</delete>
 
+	<insert id="inputMaterialComment" parameterType="map">
+	<![CDATA[ 
+		INSERT INTO `material_comment` 
+			(`material_id`, `operator_id`, `comment`, `create_datetime`) 
+		VALUES (#{material_id}, #{operator_id}, #{comment}, #{create_datetime});
+	]]>
+	</insert>
+	
+	<update id="updateMaterialComment" parameterType="map">
+	<![CDATA[
+		update material_comment set comment = #{comment} where material_id = #{material_id} and  operator_id = #{operator_id}
+	]]> 
+	</update>
 </mapper>

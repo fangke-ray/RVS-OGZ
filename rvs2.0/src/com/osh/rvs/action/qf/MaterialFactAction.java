@@ -91,7 +91,7 @@ public class MaterialFactAction extends BaseAction {
 			req.setAttribute("editor", "true");
 		} else {
 			PositionService pService = new PositionService();
-			boolean isQuotator = pService.checkPositionKind("quotation", user.getPositions());
+			boolean isQuotator = pService.checkPositionKind("quotation", user.getPositions(), conn);
 			if (isQuotator) {
 				req.setAttribute("editor", "true");
 			} else {
@@ -374,7 +374,7 @@ public class MaterialFactAction extends BaseAction {
 		Map<String, Object> listResponse = new HashMap<String, Object>();
 
 		// 小修理报价时,取得CCD对象机型
-		String checkCcd = req.getParameter("lf_model_id");
+		String checkNsCellObject = req.getParameter("lf_model_id");
 
 		// 检索条件表单合法性检查
 		Validators v = BeanUtil.createBeanValidators(form, BeanUtil.CHECK_TYPE_ONLYKEY);
@@ -389,15 +389,20 @@ public class MaterialFactAction extends BaseAction {
 			// 查询结果放入Ajax响应对象
 			listResponse.put("processAssigns", l);
 
-			if (checkCcd != null) {
+			if (checkNsCellObject != null) {
 				Set<String> ccdModels = RvsUtils.getCcdModels(conn);
-				if (ccdModels != null && ccdModels.contains(checkCcd)) {
+				if (ccdModels != null && ccdModels.contains(checkNsCellObject)) {
 					listResponse.put("isCcdModel", true);
+				}
+
+				ccdModels = RvsUtils.getCcdLineModels(conn);
+				if (ccdModels != null && ccdModels.contains(checkNsCellObject)) {
+					listResponse.put("isCcdLineModel", true);
 				}
 
 				// LG 目镜对应机型
 				ModelService ms = new ModelService();
-				ModelForm model = ms.getDetail(checkCcd, conn);
+				ModelForm model = ms.getDetail(checkNsCellObject, conn);
 				if (model.getKind().equals("01")) {
 					listResponse.put("isLgModel", true);
 				}

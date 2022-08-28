@@ -15,6 +15,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <style>
 #processing_container .highcharts-axis-labels > text > tspan:nth-child(n+2) {
 	font-size : 12px;
+	fill: rgb(160,160,160);
 }
 </style>
 
@@ -68,7 +69,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<input id="pcsbutton" class="ui-button" value="工程检查票查看" type="button"/>
 
 		<input id="reccdbutton" class="ui-button" value="重新更换CCD盖玻璃" ${(userdata.line_id eq '00000000201' or userdata.line_id eq '00000000202') ? '' : 'style=\"display:none;\"'} type="button" />
-		${userdata.line_id eq '00000000054' ? '<input type="hidden" id="lm_tag"/>' : ''}
+		<input type="hidden" id="lm_tag" value="${lm_tag}"/>
 		<input id="pxbutton" type="button" value="切线" class="ui-button" style="display:none;"/>
 		</div>
 		<table id="performance_list" class="leader_grid"></table>

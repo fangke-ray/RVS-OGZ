@@ -29,6 +29,8 @@ var getfree = true;
 
 var time_archer = (new Date()).getTime();
 
+var lm_tag = $("#lm_tag").val();
+
 var chart3XCategories = [ '','','','08:00<br>~<br>10:00','','','','','','10:00<br>~<br>12:00','','','','','','13:00<br>~<br>15:00','','','','','','15:00<br>~<br>17:15','','',''];
 
 var jsinit_ajaxSuccess = function(xhrobj, textStatus){
@@ -50,9 +52,60 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 				$("#sikake_in").text("（其中CCD盖玻璃更换与LG玻璃更换 " + resInfo.sikake_in + " 台)");
 			}
 
+			lm_tag = $("#lm_tag").val();
+
 			if (chart2 == null) {
+
+			var vColors = ['#92D050', '#7faad4'];
+			var vSeries = [
+				{
+					type : 'bar',
+					name : '修理台数', // 大修理台数
+					data : resInfo.counts,
+					zIndex : 2
+				},{
+					type : 'area',
+					name : '警戒线',
+					data : resInfo.overlines
+				}];
+			if (lm_tag == 1) {
+				vColors = ['#cc76cc', '#7faad4'];
+				vSeries = [
+				{
+					type : 'bar',
+					name : '修理台数',
+					data : resInfo.light_fix_counts,
+					zIndex : 2
+				},
+				{
+					type : 'area',
+					name : '警戒线',
+					data : resInfo.overlines
+				}]
+			} else if (lm_tag == 2) {
+				vColors = ['#cc76cc', '#92D050', '#7faad4'];
+				vSeries = [
+				{
+					type : 'bar',
+					name : '中小修理台数',
+					data : resInfo.light_fix_counts,
+					zIndex : 2
+				},
+				{
+					type : 'bar',
+					name : '大修理台数', // 大修理台数
+					data : resInfo.counts,
+					zIndex : 2
+				},
+				{
+					type : 'area',
+					name : '警戒线',
+					data : resInfo.overlines
+				}]
+			}
+
 			chart2 = new Highcharts.Chart({
-				colors : ['#92D050', '#7faad4'],
+				colors :  vColors,
 				chart : {
 					renderTo : 'processing_container',
 					type : 'bar',
@@ -148,22 +201,21 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 				exporting : {
 					enabled : false
 				},
-				series : [{
-					type : 'bar',
-					name : '修理台数',
-					data : resInfo.counts,
-					zIndex : 2
-				}, {
-					type : 'area',
-					name : '警戒线',
-					data : resInfo.overlines
-				}]
+				series : vSeries
 			});
 			} else {
 				chart2.xAxis[0].setCategories(resInfo.categories, false);
-				// chart2.series[0].setData(resInfo.light_fix_counts, false);
-				chart2.series[0].setData(resInfo.counts, false);
-				chart2.series[1].setData(resInfo.overlines);
+				if (lm_tag == 1) {
+					chart2.series[0].setData(resInfo.light_fix_counts, false);
+					chart2.series[1].setData(resInfo.overlines);
+				} else if (lm_tag == 2) {
+					chart2.series[0].setData(resInfo.light_fix_counts, false);
+					chart2.series[1].setData(resInfo.counts, false);
+					chart2.series[2].setData(resInfo.overlines);
+				} else {
+					chart2.series[0].setData(resInfo.counts, false);
+					chart2.series[1].setData(resInfo.overlines);
+				}
 			}
 		}
 
@@ -516,6 +568,10 @@ $(document).ready(function() {
 		chart3XCategories = [ '','','','08:00<br>~<br>10:00','','','','','','10:00<br>~<br>11:30','','','','','','12:30<br>~<br>15:00','','','','','','15:00<br>~<br>17:20','','',''];
 
 	} else {
+		var locationPath = (window.location.pathname.split("/").pop());
+		if (locationPath && locationPath.endsWith(".scan")) {
+			servicePath = locationPath;
+		}
 		if ($("#plan_count").length > 0) {
 		$("#plan_count").flipCounter({numIntegralDigits:2,
 			digitHeight:124,

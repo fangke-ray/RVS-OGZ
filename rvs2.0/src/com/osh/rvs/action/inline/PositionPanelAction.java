@@ -1238,19 +1238,21 @@ public class PositionPanelAction extends BaseAction {
 
 		MaterialService mService = new MaterialService();
 		MaterialEntity mEntity = mService.loadMaterialDetailBean(conn, materialId);
-		// 小修理不得跳转
-		Integer level = mEntity.getLevel();
-		if ((level != null) &&
-				(level == 9 || level == 92 || level == 91 || level == 93)) {
-			listResponse.put("position_exist", "0");
-		} else {
-	
-			ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
-	
-			if (!dao.checkPositionDid(materialId, positionId, null, null)) {
-				listResponse.put("position_exist", "1");
-			} else {
+		if (mEntity != null) {
+			// 小修理不得跳转
+			Integer level = mEntity.getLevel();
+			if ((level != null) &&
+					(level == 9 || level == 92 || level == 91 || level == 93)) {
 				listResponse.put("position_exist", "0");
+			} else {
+		
+				ProductionFeatureMapper dao = conn.getMapper(ProductionFeatureMapper.class);
+		
+				if (!dao.checkPositionDid(materialId, positionId, null, null)) {
+					listResponse.put("position_exist", "1");
+				} else {
+					listResponse.put("position_exist", "0");
+				}
 			}
 		}
 
@@ -1337,24 +1339,29 @@ public class PositionPanelAction extends BaseAction {
 //		
 
 		if (workingPf != null) {
-//			MaterialService ms = new MaterialService();
-//			MaterialEntity mBean = ms.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
+			MaterialService ms = new MaterialService();
+			MaterialEntity mBean = ms.loadMaterialDetailBean(conn, workingPf.getMaterial_id());
 
-//			boolean isLightFix = (mBean.getLevel() != null) 
-//					&& (mBean.getLevel() == 9 || mBean.getLevel() == 91 || mBean.getLevel() == 92 || mBean.getLevel() == 93); 
-//			// 小修理 
-//			String lightFix = "";
-//			if (isLightFix) {
-//
-//				MaterialProcessAssignService mpas = new MaterialProcessAssignService();
-//				String fingers = "当前小修理的工位流程为：" + mpas.getLightFixFlowByMaterial(workingPf.getMaterial_id(), workingPf.getProcess_code(), conn);
-//
-//				if (!isEmpty(lightFix)) {
-//					fingers = lightFix + "<BR>" + fingers;
-//				}
-//
-//				jsonResponse.put("fingers", fingers);
-//			} else {
+			boolean isLightFix = RvsUtils.isLightFix(mBean.getLevel());
+
+			// 小修理 
+			String lightFix = "";
+			if (isLightFix && (mBean.getFix_type() != null && mBean.getFix_type() == 1)) {
+				MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+				String fingers = "当前修理品的工位流程为：" 
+						+ CommonStringUtil.nullToAlter(mpas.getLightFixFlowByMaterial(workingPf.getMaterial_id(), workingPf.getProcess_code(), conn), "(暂未设定)");
+
+				String lightFixStr = mpas.getLightFixesByMaterial(workingPf.getMaterial_id(), workingPf.getPosition_id(), conn);
+				if (!isEmpty(lightFixStr)) {
+					lightFix = "当前修理品的修理内容为：" + lightFixStr;
+				}
+
+				if (!isEmpty(lightFix)) {
+					fingers = lightFix + "<BR>" + fingers;
+				}
+
+				jsonResponse.put("fingers", fingers);
+			} else {
 
 				// 作业信息状态改为，作业完成
 				workingPf.setOperate_result(RvsConsts.OPERATE_RESULT_FINISH);

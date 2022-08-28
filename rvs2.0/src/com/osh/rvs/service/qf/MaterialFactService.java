@@ -30,15 +30,19 @@ import org.apache.struts.action.ActionForm;
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
+import com.osh.rvs.bean.inline.MaterialProcessEntity;
+import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.qf.MaterialFactForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
+import com.osh.rvs.mapper.inline.MaterialProcessAssignMapper;
+import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
-// import com.osh.rvs.service.MaterialProcessAssignService;
+import com.osh.rvs.service.MaterialProcessAssignService;
 import com.osh.rvs.service.MaterialProcessService;
 import com.osh.rvs.service.MaterialService;
 import com.osh.rvs.service.ProcessAssignService;
@@ -348,10 +352,12 @@ public class MaterialFactService {
 	}
 
 	public void updateInline(MaterialFactEntity entity, Date[] scheduleAssignTimes, SqlSessionManager conn) throws Exception {
-		Integer level = entity.getLevel();
-		// boolean lightFix = RvsUtils.isLightFix(level);
-		// lightFix = lightFix && (entity.getFix_type() == 1);
 
+		Integer level = entity.getLevel();
+		boolean lightFix = RvsUtils.isLightFix(level);
+		lightFix = lightFix && (entity.getFix_type() == 1);
+ 		boolean peripheral = RvsUtils.isPeripheral(level);
+ 
 		Date agreedDate = entity.getAgreed_date();
 
 		Date[] workDates = RvsUtils.getTimeLimit(agreedDate, level, null, conn, true);
@@ -364,43 +370,82 @@ public class MaterialFactService {
 		if ("".equals(entity.getPat_id())) {
 			entity.setPat_id(null); // TODO
 		}
+		if (lightFix) {
+			entity.setPat_id(null);
+		}
 		entity.setQuotation_first(0);
 
+		if (!peripheral) {
+			entity.setWip_location(null);
+		}
 		dao.updateInline(entity);
 
 		String materialId = entity.getMaterial_id();
+
+		// 删除302工位的等待作业(如果以中断完成的话) removeWaiting
+		ProductionFeatureMapper featureMapper = conn.getMapper(ProductionFeatureMapper.class);
+		featureMapper.removeWaiting(materialId, "00000000025");
 
 		{ // //如果是流水线增加进展记录
 			// 插入找到的记录到material_process
 			String patId = entity.getPat_id();
 
 			MaterialProcessService mps = new MaterialProcessService();
-			ProcessAssignService pas = new ProcessAssignService();
-			List<String> newHasLines = pas.checkPatHasLine(patId, "" + level, conn);
-			mps.setMaterialProcess(materialId, level, newHasLines, workDates, scheduleAssignTimes, conn);
 
 			// 插入作业
 			List<ProductionFeatureEntity> featureEntities = new ArrayList<ProductionFeatureEntity> ();
 
-			PositionPanelService pps = new PositionPanelService();
+			if (lightFix) {
+				// 中小修理流水线
+				MaterialProcessAssignMapper mpaMapper = conn.getMapper(MaterialProcessAssignMapper.class);
+				// 取得覆盖工程
+				List<LineEntity> lines = mpaMapper.getWorkedLines(materialId);
+				for (LineEntity line : lines) {
+					MaterialProcessEntity insertBean = new MaterialProcessEntity();
+					insertBean.setMaterial_id(materialId);
+					insertBean.setLine_id(line.getLine_id());
+					if (line.getIn_advance() == 0) {
+						insertBean.setScheduled_date(workDate);
+						insertBean.setScheduled_assign_date(workDate);
+					} else {
+						insertBean.setScheduled_date(workDates[1]);
+						insertBean.setScheduled_assign_date(workDates[1]);
+					}
+					mps.insertMaterialProcess(insertBean, conn);
+				}
 
-			// 302指定投线
-			if (entity.getCcd_change() != null && "true".equals(entity.getCcd_change()) ) {
-				addFeatureEntity(featureEntities, materialId, "00000000025", "00000000001"); // TODO CCD
+				// 取得首工位
+				MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+				List<String> firstPosition_ids = mpas.getFirstPositionId(materialId, conn);
+				for (String firstPosition_id : firstPosition_ids) {
+					addFeatureEntity(featureEntities, materialId, firstPosition_id, entity.getSection_id());
+				}
+
 			} else {
-				List<String> firstPositionIds = pas.getFirstPositionIds(patId, conn);
+				ProcessAssignService pas = new ProcessAssignService();
+				List<String> newHasLines = pas.checkPatHasLine(patId, "" + level, conn);
+				mps.setMaterialProcess(materialId, level, newHasLines, workDates, scheduleAssignTimes, conn);
 
-				if (firstPositionIds.size() > 0) {
-					for (String firstPositionId : firstPositionIds) {
+				PositionPanelService pps = new PositionPanelService();
+
+				// 302指定投线
+				if (entity.getCcd_change() != null && "true".equals(entity.getCcd_change()) ) {
+					addFeatureEntity(featureEntities, materialId, "00000000025", "00000000001"); // TODO CCD
+				} else {
+					List<String> firstPositionIds = pas.getFirstPositionIds(patId, conn);
+
+					if (firstPositionIds.size() > 0) {
+						for (String firstPositionId : firstPositionIds) {
+							addFeatureEntity(featureEntities, materialId, firstPositionId, entity.getSection_id());
+							pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId);
+						}
+					} else {
+						String firstPositionId = "00000000016";
 						addFeatureEntity(featureEntities, materialId, firstPositionId, entity.getSection_id());
 						pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId);
 					}
-				} else {
-					String firstPositionId = "00000000016";
-					addFeatureEntity(featureEntities, materialId, firstPositionId, entity.getSection_id());
-					pps.notifyPosition(entity.getSection_id(), firstPositionId, materialId);
-				}
 
+				}
 			}
 
 			ProductionFeatureService pfService = new ProductionFeatureService();
@@ -409,10 +454,28 @@ public class MaterialFactService {
 					MaterialPartialService mptlService = new MaterialPartialService();
 					mptlService.createMaterialPartialWithExistCheck(materialId, conn);
 				}
-				boolean fixed = 
+				boolean fixed = !lightFix &&
 						("25".equals(featureEntity.getPosition_id()) || "00000000025".equals(featureEntity.getPosition_id()));
 				pfService.fingerSpecifyPosition(materialId, fixed, featureEntity, new ArrayList<String>(), conn);
 			}
+		}
+
+		// 小修理流程写入维修对象备注
+		if (lightFix) {
+			MaterialService materialService = new MaterialService();
+
+			// 设定为系统
+			String operator_id = "00000000001";
+			// 得到小修理信息
+			MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+			String lightFixStr = mpas.getLightFixesByMaterial(materialId, null, conn);
+
+			String lightFlowStr = entity.getSection_name();
+			if (lightFlowStr == null) {
+				lightFlowStr = mpas.getLightFixFlowByMaterial(materialId, null, conn);
+			}
+			String comment = mpas.getLightStr(lightFixStr, lightFlowStr);
+			materialService.updateMaterialComment(materialId, operator_id, comment, conn);
 		}
 	}
 
@@ -538,7 +601,7 @@ public class MaterialFactService {
 		SimpleDateFormat agreeDateFormat=new SimpleDateFormat("MM-dd ");
 		MaterialFactMapper dao = conn.getMapper(MaterialFactMapper.class);
 		List<MaterialEntity> lResultBean = dao.getInlinePlan();
-//		MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+		MaterialProcessAssignService mpas = new MaterialProcessAssignService();
 		ProcessAssignService pas = new ProcessAssignService();
 		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
 
@@ -629,21 +692,23 @@ public class MaterialFactService {
 				
 				//投入工位
 				HSSFCell processCodesCell = row.createCell(8);
-//				if (materialEntity.getFix_type() == 1) {
-//					boolean isLightFix = RvsUtils.isLightFix(level);
-//					if (level == 9 || level == 91 || level == 92 || level == 93) {
-//						// 取得首工位
-//						String firstPosition_id = mpas.getFirstPositionId(materialEntity.getMaterial_id(), conn);
-//						String process_code = null;
-//						if (!processCodeMap.containsKey(firstPosition_id)) {
-//							PositionEntity pEntity = pMapper.getPositionByID(firstPosition_id);
-//							processCodeMap.put(firstPosition_id, pEntity.getProcess_code());
-//						}
-//						process_code = processCodeMap.get(firstPosition_id);
-//
-//						processCodesCell.setCellValue(process_code);
-//
-//					} else {
+				if (materialEntity.getFix_type() == 1) {
+					boolean isLightFix = RvsUtils.isLightFix(level);
+					if (isLightFix) {
+						// 取得首工位
+						List<String> firstPosition_ids = mpas.getFirstPositionId(materialEntity.getMaterial_id(), conn);
+						String process_code = "";
+						for (String firstPosition_id : firstPosition_ids) {
+							if (!processCodeMap.containsKey(firstPosition_id)) {
+								PositionEntity pEntity = pMapper.getPositionByID(firstPosition_id);
+								processCodeMap.put(firstPosition_id, pEntity.getProcess_code());
+							}
+							process_code += processCodeMap.get(firstPosition_id)+",";
+						}
+						if (process_code.length() > 0) process_code = process_code.substring(0, process_code.length() - 1);
+
+						processCodesCell.setCellValue(process_code);
+					} else {
 						if (materialEntity.getQuotation_first() == 9) {
 							processCodesCell.setCellValue("302");
 						} else {
@@ -664,8 +729,8 @@ public class MaterialFactService {
 
 							processCodesCell.setCellValue(CommonStringUtil.joinBy("", process_codes));
 						}
-//					}
-//				}
+					}
+				}
 				processCodesCell.setCellStyle(styleAlignCenter);
 			}
 			out = new FileOutputStream(cachePath);

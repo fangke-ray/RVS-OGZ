@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,14 +16,17 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.inline.MaterialProcessAssignEntity;
+import com.osh.rvs.bean.master.LightFixEntity;
 import com.osh.rvs.bean.master.LineEntity;
-import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.inline.MaterialProcessAssignForm;
+import com.osh.rvs.form.master.LightFixForm;
 import com.osh.rvs.form.master.ProcessAssignForm;
 import com.osh.rvs.mapper.data.MaterialMapper;
+import com.osh.rvs.mapper.inline.MaterialCommentMapper;
 import com.osh.rvs.mapper.inline.MaterialProcessAssignMapper;
-import com.osh.rvs.mapper.master.PositionMapper;
+import com.osh.rvs.mapper.master.LightFixMapper;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.AutofillArrayList;
@@ -38,11 +42,65 @@ import framework.huiqing.common.util.message.ApplicationMessage;
  * @Package com.osh.rvs.service
  * @ClassName: MaterialProcessAssignService
  * @Description: 维修对象独有修理流程
- * @author lxb
- * @date 2015-8-19 下午4:02:48
+ * @author gonglm
+ * @date 2021-6-19 下午4:02:48
  */
 public class MaterialProcessAssignService {
 	
+	/**
+	 * 小修理标准编制
+	 * @param form
+	 * @param conn
+	 * @return
+	 */
+	public List<LightFixForm> searchLightFixs(ActionForm form,SqlSession conn){
+		LightFixEntity lightFixEntity = new LightFixEntity();
+		//复制表单数据到对象
+		BeanUtil.copyToBean(form, lightFixEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		
+		//小修理标准编制
+		LightFixMapper lightFixMapper = conn.getMapper(LightFixMapper.class);
+		List<LightFixEntity> list = lightFixMapper.getLightFixByMaterialId(lightFixEntity);
+		List<LightFixForm> rList = new ArrayList<LightFixForm>();
+
+		CopyOptions include = new CopyOptions();
+		include.excludeEmptyString(); include.excludeNull();
+		include.exclude("category_id", "material_id");
+
+		//复制数据表单对象
+		BeanUtil.copyToFormList(list, rList, include, LightFixForm.class);
+
+		Map<String,LightFixForm> lightFixMap = new TreeMap<String,LightFixForm>();
+		for(int i=0;i<rList.size();i++){
+			LightFixForm lightFixForm = rList.get(i);
+			String activity_code = lightFixForm.getActivity_code();//code
+			
+			String position_id = lightFixForm.getPosition_id();//工位
+			if(position_id!=null){
+				position_id = position_id.replaceAll("^0*", "");
+			}
+
+			String key = activity_code;
+			if(lightFixMap.containsKey(key)){
+				if(position_id!=null) lightFixMap.get(key).getPosition_list().add(position_id);
+			}else{
+				if(position_id!=null){
+					lightFixForm.getPosition_list().add(position_id);
+					lightFixMap.put(key, lightFixForm);
+				}else{
+					lightFixMap.put(key, lightFixForm);
+				}
+			}
+		}
+		
+		rList = converMapToList(lightFixMap);
+		for (LightFixForm item : rList) {
+			item.setPosition_id(null);
+		}
+		
+		return rList;
+	}
+
 	public List<MaterialProcessAssignForm> searchMaterialProcessAssign(ActionForm form,SqlSession conn){
 		MaterialProcessAssignEntity entity = new MaterialProcessAssignEntity();
 		//复制表单数据到对象
@@ -65,13 +123,34 @@ public class MaterialProcessAssignService {
 		return rList;
 	}
 	
- 
+	
+	/**
+	 * 查询维修对象选用小修理
+	 * @param form
+	 * @param conn
+	 * @return
+	 */
+	public List<MaterialProcessAssignForm> searchMaterialLightFix(ActionForm form,SqlSession conn){
+		MaterialProcessAssignEntity entity = new MaterialProcessAssignEntity();
+		//复制表单数据到对象
+		BeanUtil.copyToBean(form, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+		MaterialProcessAssignMapper materialProcessAssignMapper = conn.getMapper(MaterialProcessAssignMapper.class);
+		List<MaterialProcessAssignEntity> list = materialProcessAssignMapper.searchMaterialLightFix(entity);
+		
+		
+		List<MaterialProcessAssignForm> rList = new ArrayList<MaterialProcessAssignForm>();
+		if(list.size()>0){
+			BeanUtil.copyToFormList(list, rList, CopyOptions.COPYOPTIONS_NOEMPTY, MaterialProcessAssignForm.class);
+		}
+		
+		return rList;
+	}
+	 
 	/**
 	 * Map集合转换List
 	 * @param map
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	private <T> List<T> converMapToList(Map<String,T> map){
 		Set<String> set = map.keySet();
 		Iterator<String> iter = set.iterator();
@@ -85,11 +164,11 @@ public class MaterialProcessAssignService {
 	}
 
 	/**
-	 * 更新维修对象流程与维修对象工程计划
+	 * 重新设定流程
 	 * @param material_id
 	 * @param request
 	 * @param conn
-	 * @param renew 流程已开始
+	 * @param renew 重新建立小修流程
 	 * @throws Exception
 	 */
 	public void updateProcessAssign(String material_id, HttpServletRequest request,SqlSessionManager conn, boolean renew) throws Exception {
@@ -118,16 +197,50 @@ public class MaterialProcessAssignService {
 					 String[] value = map.get(parameterKey);
 					 if ("position_id".equals(column)) {
 						 processAssignList.get(icounts).setPosition_id(value[0]);
+					 } else if ("line_id".equals(column)) {
+						 processAssignList.get(icounts).setLine_id(value[0]);
 					 } else if ("next_position_id".equals(column)) {
 						 processAssignList.get(icounts).setNext_position_id(value[0]);
 					 } else if ("prev_position_id".equals(column)) {
 						 processAssignList.get(icounts).setPrev_position_id(value[0]);
+					 } else if ("sign_position_id".equals(column)) {
+						 processAssignList.get(icounts).setSign_position_id(value[0]);
 					 }
 				 }
 			 }
 		}
-		
 
+		List<String> oldHasLines = null;
+
+		MaterialProcessService mpService = new MaterialProcessService();
+		if (processAssignList.size() > 0) {
+			oldHasLines = mpService.loadMaterialProcessLineIds(material_id, conn); // 取得已存在工程
+		}
+
+		if (renew) {
+			if (lighFixList.size() > 0) {
+				//删除维修对象选用小修理
+				materialProcessAssignMapper.deleteMaterialLightFix(material_id);
+			}
+			if (processAssignList.size() > 0) {
+				//删除维修对象独有修理流程
+				materialProcessAssignMapper.deleteMaterialProcessAssign(material_id);
+			}
+		} else {
+			//删除维修对象选用小修理
+			materialProcessAssignMapper.deleteMaterialLightFix(material_id);
+			//删除维修对象独有修理流程
+			materialProcessAssignMapper.deleteMaterialProcessAssign(material_id);
+		}
+
+		//新建维修对象选用小修理
+		for(MaterialProcessAssignForm connForm:lighFixList){
+			MaterialProcessAssignEntity entity = new MaterialProcessAssignEntity();
+			BeanUtil.copyToBean(connForm, entity, CopyOptions.COPYOPTIONS_NOEMPTY);
+			entity.setMaterial_id(material_id);
+			materialProcessAssignMapper.insertMaterialLightFix(entity);
+		}
+		
 		//新建维修对象独有修理流程
 		if (processAssignList.size() > 0) {
 
@@ -137,8 +250,9 @@ public class MaterialProcessAssignService {
 				String position_id = entity.getPosition_id();
 				if (position_id == null) continue;
 				entity.setMaterial_id(material_id);
-				entity.setLine_id("9000000");
-				entity.setSign_position_id(position_id);
+
+				if (entity.getSign_position_id() == null) 
+					entity.setSign_position_id(position_id);
 				if (entity.getPrev_position_id() == null)
 					entity.setPrev_position_id("0");
 				if (entity.getNext_position_id() == null)
@@ -146,8 +260,7 @@ public class MaterialProcessAssignService {
 				materialProcessAssignMapper.insertMaterialProcessAssign(entity);
 			}
 
-			MaterialProcessService mpService = new MaterialProcessService();
-			List<String> oldHasLines = mpService.loadMaterialProcessLineIds(material_id, conn); // 取得已存在工程
+			oldHasLines = mpService.loadMaterialProcessLineIds(material_id, conn); // 取得已存在工程
 
 			List<String> newHasLines = new ArrayList<String>();
 			if (renew && oldHasLines != null && oldHasLines.size() > 0) { // 未投线不需要
@@ -155,8 +268,38 @@ public class MaterialProcessAssignService {
 				mpService.resignMaterialProcess(material_id, oldHasLines, newHasLines, conn);
 			}
 		}
+
+		MaterialService materialService = new MaterialService();
+		// 设定为系统
+		String operator_id = "00000000001";
+		// 得到小修理信息
+		MaterialProcessAssignService mpas = new MaterialProcessAssignService();
+		String lightFixStr = mpas.getLightFixesByMaterial(material_id, null, conn);
+
+		String lightFlowStr = request.getParameter("flow_str");
+		if (lightFlowStr == null) {
+			lightFlowStr = mpas.getLightFixFlowByMaterial(material_id, null, conn);
+		}
+
+		String comment = getLightStr(lightFixStr, lightFlowStr);
+		materialService.updateMaterialComment(material_id, operator_id, comment, conn);
 	}
 
+	public String getLightStr(String lightFixStr, String lightFlowStr) {
+		String comment = (lightFixStr == null ? "" : "修理项目为：" + lightFixStr + "\n")
+				+ "修理工位流程为：" + lightFlowStr;
+		if (comment.length() > 500) {
+			if (lightFixStr == null) {
+				comment = lightFlowStr;
+			} else {
+				lightFixStr = lightFixStr.substring(0, 500 - "修理项目为：\n修理工位流程为：".length()
+						- lightFlowStr.length() - 2) + "…";
+				comment = (lightFixStr == null ? "" : "修理项目为：" + lightFixStr + "\n")
+						+ "修理工位流程为：" + lightFlowStr;
+			}
+		}
+		return comment;
+	}
 	/**
 	 * 查询流程包含工程
 	 * @param material_id
@@ -199,8 +342,9 @@ public class MaterialProcessAssignService {
 		String level = materialProcessAssignForm.getLevel();//等级
 		String fix_type = materialProcessAssignForm.getFix_type();//修理方式
 		String pat_id = materialProcessAssignForm.getPad_id();//维修流程
-		
-		if(("9".equals(level) || "91".equals(level) || "92".equals(level) || "93".equals(level)) && "1".equals(fix_type)){
+		boolean isLightFix = RvsUtils.isLightFix(level);
+
+		if (isLightFix && "1".equals(fix_type)) {
 			if(CommonStringUtil.isEmpty(pat_id)){
 				MsgInfo msgInfo = new MsgInfo();
 				msgInfo.setErrcode("validator.required");
@@ -229,7 +373,7 @@ public class MaterialProcessAssignService {
 			if(lighFixList.size()==0){
 				MsgInfo msgInfo = new MsgInfo();
 				msgInfo.setErrcode("validator.required.multidetail");
-				msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required.multidetail", "小修理流程"));
+				msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("validator.required.multidetail", "中小修理流程"));
 				errors.add(msgInfo);
 			}
 		}
@@ -244,44 +388,44 @@ public class MaterialProcessAssignService {
 		return result;
 	}
 
-	public String getFirstPositionId(String material_id, SqlSession conn) {
+	public List<String> getFirstPositionId(String material_id, SqlSession conn) {
 		MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
-		ProcessAssignEntity firstPosition = mapper.getFirstPosition(material_id);
+		List<ProcessAssignEntity> firstPositions = mapper.getFirstPositions(material_id);
+		List<String> ret = new ArrayList<String>();
 
-//		if ("25".equals(firstPosition.getPosition_id())
-//					|| "00000000025".equals(firstPosition.getPosition_id()))
-//			return firstPosition.getNext_position_id();
-//		else if ("60".equals(firstPosition.getPosition_id())
-//				|| "00000000060".equals(firstPosition.getPosition_id()))  {
-//			if ("25".equals(firstPosition.getNext_position_id())
-//					|| "00000000025".equals(firstPosition.getNext_position_id())) {
-//				return firstPosition.getSign_position_id();
-//			} else {
-//				return firstPosition.getNext_position_id();
-//			}
-//		}
-//		else 
-		return firstPosition.getPosition_id();
+		for (ProcessAssignEntity firstPosition : firstPositions) {
+			String posId = firstPosition.getPosition_id();
+			if (posId.length() > 6 && posId.startsWith("9")) {
+				List<String> partStart = mapper.getPartStart(material_id, posId);
+				ret.addAll(partStart);
+			} else {
+				ret.add(posId);
+			}
+		}
+
+		return ret;
 	}
 
-//	public String getBeforeInlinePositions(String material_id, SqlSession conn) {
-//		MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
-//		ProcessAssignEntity firstPosition = mapper.getFirstPosition(material_id);
-//
-//		if ("25".equals(firstPosition.getPosition_id())
-//			|| "00000000025".equals(firstPosition.getPosition_id()))
-//			return "CCD";
-//		else if ("60".equals(firstPosition.getPosition_id())
-//			|| "00000000060".equals(firstPosition.getPosition_id()))  {
-//			if ("25".equals(firstPosition.getNext_position_id())
-//					|| "00000000025".equals(firstPosition.getNext_position_id())) {
-//				return "LG+CCD";
-//			} else {
-//				return "LG";
-//			}
-//		}
-//		return "";
-//	}
+	public String getLightFixesByMaterial(String material_id, String position_id,
+			SqlSession conn) {
+		MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
+		return mapper.getLightFixesByMaterial(material_id, position_id);
+	}
+
+	/**
+	 * 取得维修对象已选择修理内容的全工位（包括当前流程用的和不用的），返工时切换参考流程用
+	 * 
+	 * @param material_id
+	 * @param conn
+	 * @return
+	 */
+	public List<String> getLightPositionsByMaterial(String material_id,
+			SqlSession conn) {
+		MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
+		return mapper.getLightPositionsByMaterial(material_id);
+	}
+
+	private static final String FROM_COMMET = "工位流程为：";
 
 	/**
 	 * 取得完整小修理流程
@@ -291,47 +435,31 @@ public class MaterialProcessAssignService {
 	 * @return
 	 */
 	public String getLightFixFlowByMaterial(String material_id,
-			String now_process_code, SqlSessionManager conn) {
-		MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
-		ProcessAssignEntity checkedPosition = mapper.getFirstPosition(material_id);
-		if (checkedPosition == null)
-			return null;
-
-		PositionMapper pMapper = conn.getMapper(PositionMapper.class);
-		String position_id = checkedPosition.getPosition_id();
-		String ret = getProcessInterf(pMapper.getPositionByID(position_id), now_process_code);
-		while (position_id != null) {
-			List<PositionEntity> nextPositions = mapper.getNextPositions(material_id, position_id);
-			if (nextPositions.size() > 0) {
-				for (PositionEntity nextPosition : nextPositions) {
-					ret += " -> " + getProcessInterf(nextPosition, now_process_code);
-					position_id = nextPosition.getPosition_id();
-				}
-			} else {
-				position_id = null;
-			}
-		}
-		return ret;
-	}
-
-	private String getProcessInterf(PositionEntity position,
-			String now_process_code) {
-		if (position == null)
+			String now_process_code, SqlSession conn) {
+		MaterialCommentMapper mcMapper = conn.getMapper(MaterialCommentMapper.class);
+		String cmt = mcMapper.getMyMaterialComment(material_id, "00000000001");
+		if (cmt == null) {
 			return "";
-		if (now_process_code == null || !now_process_code.equals(position.getProcess_code())) {
-			if (position.getLight_division_flg() == 1) {
-				return position.getProcess_code() + "B";
-			} else {
-				return position.getProcess_code();
-			}
 		}
-		else {
-			if (position.getLight_division_flg() != null && position.getLight_division_flg() == 1) {
-				return "<span style='font-weight:bold; text-decoration: underline;'>" + position.getProcess_code() + "B</span>";
-			} else {
-				return "<span style='font-weight:bold; text-decoration: underline;'>" + position.getProcess_code() + "</span>";
-			}
-		}
-	}
 
+		String flowText = cmt.substring(cmt.indexOf(FROM_COMMET) + 6);
+
+		Pattern pMultiTags = Pattern.compile("\\d{3}");
+		Matcher mMultiTags = pMultiTags.matcher(flowText);
+		StringBuffer sbRemoveMulti = new StringBuffer("");
+		while (mMultiTags.find()) {
+			String hitText = mMultiTags.group();
+			if (now_process_code.equals(hitText)) {
+				mMultiTags.appendReplacement(sbRemoveMulti, "<span style='font-weight:bold; text-decoration: underline;'>" + hitText + "</span>");
+			} else {
+				mMultiTags.appendReplacement(sbRemoveMulti, hitText);
+			}
+		}
+		if (sbRemoveMulti.length() > 0) {
+			mMultiTags.appendTail(sbRemoveMulti);
+			flowText = sbRemoveMulti.toString();
+		}
+
+		return flowText;
+	}
 }

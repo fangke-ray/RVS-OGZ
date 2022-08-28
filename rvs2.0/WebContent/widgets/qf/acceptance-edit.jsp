@@ -99,6 +99,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					</select>
 				</td>
 				</tr>
+				<tr style="display:none;">
+					<td class="ui-state-default td-title">中小修理维修内容流程</td>
+					<td class="td-content" colspan="3">
+						<input alt="中小修理维修流程" type="button" id="light_pat_button" class="ui-button" value="设定">
+					</td>
+				</tr>
 				<tr>
 				<td class="ui-state-default td-title">顾客名</td>
 				<td class="td-content" colspan="3">

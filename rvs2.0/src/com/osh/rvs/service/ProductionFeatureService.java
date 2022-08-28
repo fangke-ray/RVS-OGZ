@@ -17,13 +17,16 @@ import org.apache.struts.action.ActionForm;
 
 import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
+import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcessAssignEntity;
 import com.osh.rvs.common.RvsConsts;
+import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.ProductionFeatureForm;
 import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.LeaderPcsInputMapper;
+import com.osh.rvs.mapper.inline.MaterialProcessAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
@@ -31,6 +34,7 @@ import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.service.partial.MaterialPartialService;
 import com.osh.rvs.service.proxy.ProcessAssignProxy;
 
+import framework.huiqing.common.util.CommonStringUtil;
 import framework.huiqing.common.util.copy.BeanUtil;
 import framework.huiqing.common.util.message.ApplicationMessage;
 
@@ -385,7 +389,7 @@ public class ProductionFeatureService {
 	}
 	public List<String> fingerNextPosition(String material_id, ProductionFeatureEntity workingPf, SqlSessionManager conn, List<String> triggerList, boolean isFact) throws Exception {
 		MaterialProcessService mpService = new MaterialProcessService();
-		
+
 		String position_id = workingPf.getPosition_id();
 		List<String> partOrderPoses  = PositionService.getPositionsBySpecialPage("part_order", conn);
 		List<String> dismantlePoses  = PositionService.getPositionsBySpecialPage("dismantle", conn);
@@ -412,7 +416,8 @@ public class ProductionFeatureService {
 			}
 		}
 		
-		boolean isLightFix = false;
+		Integer level = mEntity.getLevel();
+		boolean isLightFix = RvsUtils.isLightFix(level) && mEntity.getFix_type() == 1;
 		
 		String pat_id = mEntity.getPat_id(); // 维修流程主键
 
@@ -444,7 +449,7 @@ public class ProductionFeatureService {
 			if (mEntity.getBreak_back_flg() != null && mEntity.getBreak_back_flg() == 2) { // 未修理返还
 				nextPositions.add("00000000047"); // 出货
 			}
-		} else if ( 
+		} else if ( !isLightFix &&
 				("00000000025".equals(position_id))) { //CCD or LG  || "00000000060".equals(position_id)
 			// 已投线
 			if (mEntity.getInline_time() != null) {
@@ -662,29 +667,20 @@ public class ProductionFeatureService {
 //			 }
 //			 else fixed = false;
 
-//			if (isLightFix && isFact) {
-//				// 小修理
-//				MaterialProcessAssignMapper mpaMapper = conn.getMapper(MaterialProcessAssignMapper.class);
-//				// 取得覆盖工程
-//				List<LineEntity> lines = mpaMapper.getWorkedLines(material_id);
-//
-//				for (LineEntity line : lines) {
-//					if (CommonStringUtil.isEmpty(line.getName())
-//							&& line.getInline_flg()) {
-//
-//						mpService.finishMaterialProcess(material_id, line.getLine_id(), triggerList, conn);
-//
-//						if ("00000000014".equals(line.getLine_id())) {
-//							// FSE 数据同步
-//							try{
-//								FseBridgeUtil.toUpdateMaterialProcess(material_id, "COM");
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//							}
-//						}
-//					}
-//				}
-//			}
+			if (isLightFix && isFact) {
+				// 小修理
+				MaterialProcessAssignMapper mpaMapper = conn.getMapper(MaterialProcessAssignMapper.class);
+				// 取得覆盖工程
+				List<LineEntity> lines = mpaMapper.getWorkedLines(material_id);
+
+				for (LineEntity line : lines) {
+					if (CommonStringUtil.isEmpty(line.getName())
+							&& line.getInline_flg()) {
+
+						mpService.finishMaterialProcess(material_id, line.getLine_id(), triggerList, conn);
+					}
+				}
+			}
 		}
 
 		ProductionFeatureEntity nPf = new ProductionFeatureEntity();
@@ -737,9 +733,9 @@ public class ProductionFeatureService {
 		MaterialEntity mEntity = mDao.getMaterialEntityByKey(material_id);
 
 		ProductionFeatureMapper pfDao = conn.getMapper(ProductionFeatureMapper.class);
-//		Integer level = mEntity.getLevel();//等级
+		Integer level = mEntity.getLevel();//等级
 
-		boolean isLightFix = false;
+		boolean isLightFix = RvsUtils.isLightFix(level) && mEntity.getFix_type() == 1;
 
 		ProcessAssignProxy paProxy = new ProcessAssignProxy(material_id, mEntity.getPat_id(), mEntity.getSection_id(), isLightFix, conn);
 
@@ -906,12 +902,11 @@ public class ProductionFeatureService {
 		MaterialEntity mEntity = mDao.getMaterialEntityByKey(material_id);
 
 		// 找到整个流程的起点，开始触发。
-//		Integer level = mEntity.getLevel();
-//		boolean isLightFix = (level != null) &&
-//				(level == 9 || level == 91 || level == 92 || level == 93);
+		Integer level = mEntity.getLevel();
+		boolean isLightFix = RvsUtils.isLightFix(level) && mEntity.getFix_type() == 1;
 
 		String pat_id = mEntity.getPat_id(); // 维修流程主键
-		ProcessAssignProxy paProxy = new ProcessAssignProxy(material_id, pat_id, mEntity.getSection_id(), false, conn);
+		ProcessAssignProxy paProxy = new ProcessAssignProxy(material_id, pat_id, mEntity.getSection_id(), isLightFix, conn);
 
 		List<String> startPositions = paProxy.getPartStart("" + RvsConsts.PROCESS_ASSIGN_LINE_BASE);
 		List<String> groupPositions = new ArrayList<String>(); // 作为大分支

@@ -695,6 +695,11 @@ public class AlarmMesssageService {
 			ppDao.reworkOperateResult(material_id, reworkPosition_id);
 		}
 
+		// 发生中断工位仕挂移出
+		if (reworkPositions.size() > 1) {
+			triggerList.add("http://localhost:8080/rvspush/trigger/out/" + position_id + "/" + user.getSection_id());
+		}
+
 		// 从开始重新指派
 		ProductionFeatureService pfService = new ProductionFeatureService();
 		pfService.reprocess(material_id, rework + 1, ppDao, triggerList, conn); // Rework 加 1
@@ -724,6 +729,8 @@ public class AlarmMesssageService {
 		List<String> reworkPositions = new AutofillArrayList<String>(String.class);
 		Pattern p = Pattern.compile("(\\w+).(\\w+)\\[(\\d+)\\]");
 
+		String material_id = req.getParameter("material_id");
+
 		// 整理提交数据
 		for (String parameterKey : parameterMap.keySet()) {
 			Matcher m = p.matcher(parameterKey);
@@ -743,7 +750,6 @@ public class AlarmMesssageService {
 		LoginData user = (LoginData) req.getSession().getAttribute(RvsConsts.SESSION_USER);
 
 		// Add in Rvs2 Start
-		String material_id = req.getParameter("material_id");
 		String pat_id = req.getParameter("pat_id");
 		String pcs_signed = req.getParameter("pcs_signed");
 		String append_parts = req.getParameter("append_parts");
@@ -754,13 +760,6 @@ public class AlarmMesssageService {
 			MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 			entity = mMapper.getMaterialNamedEntityByKey(material_id);
 			mMapper.updateMaterialPat(material_id, pat_id);
-//
-//			// FSE 数据同步
-//			try{
-//				FseBridgeUtil.toUpdateMaterial(material_id, "rework");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 
 			ProductionFeatureService featureService = new ProductionFeatureService();
 

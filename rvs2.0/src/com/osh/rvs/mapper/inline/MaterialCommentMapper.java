@@ -19,4 +19,6 @@ public interface MaterialCommentMapper {
 	public void inputMaterialComment(Map<String, Object> materialComment);
 	
 	public void deleteMaterialComment(@Param("material_id") String material_id, @Param("operator_id") String operator_id);
+
+	public void updateMaterialComment(Map<String, Object> materialComment);
 }

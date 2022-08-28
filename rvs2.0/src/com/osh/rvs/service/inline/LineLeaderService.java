@@ -1,5 +1,7 @@
 package com.osh.rvs.service.inline;
 
+import static framework.huiqing.common.util.CommonStringUtil.isEmpty;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ import com.osh.rvs.bean.data.MaterialEntity;
 import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.LineLeaderEntity;
 import com.osh.rvs.bean.inline.MaterialFactEntity;
+import com.osh.rvs.bean.inline.MaterialProcessAssignEntity;
 import com.osh.rvs.bean.inline.PauseFeatureEntity;
 import com.osh.rvs.bean.master.OperatorEntity;
 import com.osh.rvs.bean.master.OperatorNamedEntity;
@@ -35,12 +38,14 @@ import com.osh.rvs.mapper.data.AlarmMesssageMapper;
 import com.osh.rvs.mapper.data.MaterialMapper;
 import com.osh.rvs.mapper.inline.DeposeStorageMapper;
 import com.osh.rvs.mapper.inline.LineLeaderMapper;
+import com.osh.rvs.mapper.inline.MaterialProcessAssignMapper;
 import com.osh.rvs.mapper.inline.ProductionFeatureMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
 import com.osh.rvs.mapper.qf.MaterialFactMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CustomerService;
+import com.osh.rvs.service.MaterialService;
 
 import framework.huiqing.bean.message.MsgInfo;
 import framework.huiqing.common.util.CodeListUtils;
@@ -475,22 +480,30 @@ public class LineLeaderService {
 
 		dao.updateMaterial(entity);
 		
-//		MaterialForm materialForm = (MaterialForm)form;
+		MaterialForm materialForm = (MaterialForm)form;
 		
-//		String level = materialForm.getLevel();//等级
-//		String fix_type = materialForm.getFix_type();//修理方式
-//		//小修理流水线
-//		boolean isLightFix = (level != null) && 
-//				("9".equals(level) || "91".equals(level) || "92".equals(level) || "93".equals(level)) && "1".equals(fix_type); 
-//		if(!isLightFix){
-//			MaterialProcessAssignEntity materialProcessAssignEntity = new MaterialProcessAssignEntity();
-//			BeanUtil.copyToBean(form, materialProcessAssignEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
-//			MaterialProcessAssignMapper materialProcessAssignMapper = conn.getMapper(MaterialProcessAssignMapper.class);
-//
-//			//删除维修对象独有修理流程
-//			materialProcessAssignMapper.deleteMaterialProcessAssign(materialProcessAssignEntity.getMaterial_id());
-//		}
-//		
+		String level = materialForm.getLevel();//等级
+		String fix_type = materialForm.getFix_type();//修理方式
+
+		boolean isLightFix = RvsUtils.isLightFix(level) && "1".equals(fix_type);
+		if(!isLightFix){
+			MaterialProcessAssignEntity materialProcessAssignEntity = new MaterialProcessAssignEntity();
+			BeanUtil.copyToBean(form, materialProcessAssignEntity, CopyOptions.COPYOPTIONS_NOEMPTY);
+			MaterialProcessAssignMapper materialProcessAssignMapper = conn.getMapper(MaterialProcessAssignMapper.class);
+
+			String lightFixes = materialProcessAssignMapper.getLightFixesByMaterial(entity.getMaterial_id(), null);
+			if (!isEmpty(lightFixes)) {
+				//删除维修对象选用小修理
+				materialProcessAssignMapper.deleteMaterialLightFix(materialProcessAssignEntity.getMaterial_id());
+				//删除维修对象独有修理流程
+				materialProcessAssignMapper.deleteMaterialProcessAssign(materialProcessAssignEntity.getMaterial_id());
+
+				MaterialService mService = new MaterialService();
+				// 删除小修理流程说明
+				mService.removeComment(entity.getMaterial_id(), "00000000001", conn);
+			}
+		}
+		
 //		// FSE 数据同步
 //		try{
 //			FseBridgeUtil.toUpdateMaterial(entity.getMaterial_id(), "ll_update");

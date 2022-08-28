@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -453,14 +451,20 @@ public class LineLeaderService {
 	}
 	public void getSituation(String section_id, String line_id, Map<String, Object> responseMap, String isPeriod, boolean s1pass, SqlSession conn) {
 		LineLeaderMapper dao = conn.getMapper(LineLeaderMapper.class);
+
+		if (line_id == null) {
+			line_id = "00000000202";
+		}
+
 		// 工程仕挂总数
 		if ("00000000203".equals(line_id) && !s1pass) {
-			String sikakeText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, null);
-			sikakeText += "｜ 纤维镜分解：" + dao.getWorkingMaterialCounts(section_id, "00000000060", null);
-			sikakeText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", null);
+			String sikakeText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, null, null);
+//			sikakeText += "｜ 纤维镜分解：" + dao.getWorkingMaterialCounts(section_id, "00000000060", null);
+			sikakeText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", null, null);
 			responseMap.put("sikake", sikakeText);
 		} else {
-			responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null));
+			responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null
+					, (s1pass ?"s1_pass" : null)));
 		}
 
 		if ("00000000014".equals(line_id)) {
@@ -477,7 +481,7 @@ public class LineLeaderService {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));
 				responseMap.put("plan_complete", dao.getProduceActualOfNsByBoard(section_id));
-				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL"));
+				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL", null));
 			} else {
 				String lineName = "";
 				switch(line_id) {

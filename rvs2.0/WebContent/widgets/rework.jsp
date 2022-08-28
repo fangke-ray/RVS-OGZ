@@ -61,11 +61,10 @@ $(function() {
 
 	$("#pa_red .suceed").live("click", setRework);
 
-//	$("#pa_red .rework").length()
 });
 </script>
 <form>
-	<table class="condform" id="flowcase">
+	<table class="condform" id="flowcase" style="width: 960px;">
 		<tbody>
 			<tr>
 				<td class="ui-state-default td-title">修理单号</td>
@@ -118,7 +117,7 @@ $(function() {
 				$("#flowcase input[name=reworked]").button();
 				$("#flowcase input[name=pcs_signed]").button();
 				$("#flowcase input[name=append_parts]").button();
-				// $("#pa_red .rework").length()
+
 			</script>
 <% } %>
 			<tr style="min-height: 120px;">

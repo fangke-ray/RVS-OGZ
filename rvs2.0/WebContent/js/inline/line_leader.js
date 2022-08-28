@@ -6,7 +6,7 @@ var position_counts = {};
 var checked_position_id = "";
 var today_assigned = "";
 var chart2 = null;
-var lm_tag = $("#lm_tag").length;
+var lm_tag = $("#lm_tag").val();
 
 /*线长签收*/
 var leader_receive = function() {
@@ -210,11 +210,6 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 		} else {
 			receivePos = resInfo.receivePos;
 			if (resInfo.orderPos) orderPos = resInfo.orderPos;
-			if ("400" == receivePos) {
-				$("#receivebutton").val("总组接受");
-			} else {
-				$("#receivebutton").val("零件签收");
-			}
 
 			listdata = resInfo.performance;
 
@@ -444,7 +439,7 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 			}
 			$("#sikake").text(sikake);
 
-			lm_tag = $("#lm_tag").length;
+			lm_tag = $("#lm_tag").val();
 
 			setChart(resInfo);
 		}
@@ -498,13 +493,33 @@ var setChart = function(resInfo) {
 			name : '警戒线',
 			data : resInfo.overlines
 		}];
-	if (lm_tag) {
+	if (lm_tag == 1) {
 		vColors = ['#cc76cc', '#7faad4'];
 		vSeries = [
 		{
 			type : 'bar',
 			name : '修理台数',
 			data : resInfo.light_fix_counts,
+			zIndex : 2
+		},
+		{
+			type : 'area',
+			name : '警戒线',
+			data : resInfo.overlines
+		}]
+	} else if (lm_tag == 2) {
+		vColors = ['#cc76cc', '#92D050', '#7faad4'];
+		vSeries = [
+		{
+			type : 'bar',
+			name : '中小修理台数',
+			data : resInfo.light_fix_counts,
+			zIndex : 2
+		},
+		{
+			type : 'bar',
+			name : '大修理台数', // 大修理台数
+			data : resInfo.counts,
 			zIndex : 2
 		},
 		{
@@ -620,12 +635,17 @@ var setChart = function(resInfo) {
 
 	} else {
 		chart2.xAxis[0].setCategories(resInfo.categories, false);
-		if (lm_tag) {
+		if (lm_tag == 1) {
 			chart2.series[0].setData(resInfo.light_fix_counts, false);
+			chart2.series[1].setData(resInfo.overlines);
+		} else if (lm_tag == 2) {
+			chart2.series[0].setData(resInfo.light_fix_counts, false);
+			chart2.series[1].setData(resInfo.counts, false);
+			chart2.series[2].setData(resInfo.overlines);
 		} else {
 			chart2.series[0].setData(resInfo.counts, false);
+			chart2.series[1].setData(resInfo.overlines);
 		}
-		chart2.series[1].setData(resInfo.overlines);
 	}
 
 }

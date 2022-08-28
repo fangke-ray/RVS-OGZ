@@ -63,6 +63,20 @@ public class LineLeaderAction extends BaseAction {
 
 		log.info("LineLeaderAction.init start");
 
+		HttpSession session = req.getSession();
+		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+		String line_id = user.getLine_id();
+		switch (line_id) {
+		case "00000000054" : req.setAttribute("lm_tag", "1"); break;
+		case "00000000060" :
+		case "00000000061" : 
+		case "00000000201" : 
+		case "00000000202" : 
+		case "00000000203" : 
+			req.setAttribute("lm_tag", "2"); break;
+		}
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 

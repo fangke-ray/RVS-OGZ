@@ -8,7 +8,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="css/flowchart.css">
 
 <script type="text/javascript">
-function showedit_handleComplete(xhrobj, textStatus) {
+function inlinePa_handleComplete(xhrobj, textStatus, isLight) {
 	var resInfo = null;
 	try {
 		// 以Object形式读取JSON
@@ -18,25 +18,30 @@ function showedit_handleComplete(xhrobj, textStatus) {
 			treatBackMessages(null, resInfo.errors);
 		} else {
 			$("#pa_main").flowchart("fill", resInfo.processAssigns);
+			if (isLight) {
+				$("#pa_main").attr("postText", setMpaObj.postText($("#pa_main")));
+			}
 		}
 	} catch (e) {
 		alert("name: " + e.name + " message: " + e.message + " lineNumber: "
 				+ e.lineNumber + " fileName: " + e.fileName);
 	};
 }
+function inlinePaLight_handleComplete(xhrobj, textStatus) {
+	var resInfo = $.parseJSON(xhrobj.responseText);
+	if (resInfo.processAssigns && resInfo.processAssigns.length) {
+		$("#ref_template").closest("tr").hide();
+
+		inlinePa_handleComplete(xhrobj, textStatus, true);
+	} else {
+		errorPop("中小修理维修品没有选择自有流程，将进行单元流程修理。");
+		$("#ref_template").attr("forceCell", 1).val("00000000212").trigger("change");
+	}
+}
 
 	$(function() {
 		$("#search_section_id").select2Buttons();
 		$("#ref_template").select2Buttons();
-
-//		$("#s2b_search_section_id a:contains('2课')").click(function(){
-//			var thistr = $(this).parent().parent().parent().parent().parent();
-//			thistr.nextAll("tr").hide();
-//		});
-//		$("#s2b_search_section_id a:not(:contains('2课'))").click(function(){
-//			var thistr = $(this).parent().parent().parent().parent().parent();
-//			thistr.nextAll("tr").show();
-//		});
 		
 		$("#ref_template").change(function(){
 			if (this.value === "") {
@@ -45,7 +50,7 @@ function showedit_handleComplete(xhrobj, textStatus) {
 				var data = {
 					"id" : this.value
 				};
-			
+
 				// Ajax提交
 				$.ajax({
 					beforeSend : ajaxRequestType,
@@ -57,7 +62,7 @@ function showedit_handleComplete(xhrobj, textStatus) {
 					dataType : "json",
 					success : ajaxSuccessCheck,
 					error : ajaxError,
-					complete : showedit_handleComplete
+					complete : inlinePa_handleComplete
 				});				
 			}
 		});

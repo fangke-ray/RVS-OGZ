@@ -169,6 +169,9 @@ var makeBreakDialog = function(jBreakDialog) {
 		if (hasPcs) {
 			invalid = pcsO.valuePcs(b_request, true);
 		}
+		if (!$("#light_pat_button").is(":visible")) {
+			b_request.pat_id = "00000000000";
+		}
 		if (invalid) {
 			var $invalidInputs = $("#pcs_contents input:text.invalid");
 			if ($invalidInputs.length > 0) {
@@ -594,11 +597,11 @@ var getMaterialInfo = function(resInfo) {
 		}
 
 		if (resInfo.qa_rank || resInfo.qa_service_free) {
-			$(".qa_info").show();
+			$("#editform .qa_info").show();
 			$("#edit_qa_level").text(resInfo.qa_rank);
 			$("#edit_service_free").text(resInfo.qa_service_free);
 		} else {
-			$(".qa_info").hide();
+			$("#editform .qa_info").hide();
 		}
 
 	}
@@ -761,6 +764,10 @@ var doFinish=function(){
 			material_id :$("#hide_material_id").val(),
 			bound_out_ocm : $("#edit_bound_out_ocm option:selected").val(),
 			area : $("#edit_area option:selected").val()
+		}
+
+		if (!$("#light_pat_button").is(":visible")) {
+			data.pat_id = "00000000000";
 		}
 
 		if (hasPcs) {
@@ -970,11 +977,33 @@ $(function() {
 	});
 
 	$("#edit_level").change(function(){
-		if (f_isLightFix(this.value) || (this.value >=6 && this.value <= 8)) {
+		if (this.value >=6 && this.value <= 8) {
 			$("#edit_fix_type").val("2").trigger("change");
+			$("#light_pat_button").closest("tr").hide();
 		} else {
 			$("#edit_fix_type").val("1").trigger("change");
+
+
+			if (f_isLightFix(this.value) && $("#edit_fix_type").val()==2) {
+				$("#light_pat_button").parents("tr").hide();
+			}else if (f_isLightFix(this.value)) {
+				$("#light_pat_button").parents("tr").show();
+			}else {
+				$("#light_pat_button").parents("tr").hide();
+			}
 		}
+	});
+	$("#edit_fix_type").change(function(){
+		var edit_level = $("#edit_level")[0].value;
+		if (this.value==1) {
+			if (f_isLightFix(edit_level)) {
+				$("#light_pat_button").closest("tr").show();
+				return;
+			}
+		}
+
+		$("#light_pat_button").parents("tr").hide();
+
 	});
 
 	$("#modifybutton").disable();
@@ -1036,6 +1065,11 @@ $(function() {
 
 	doInit();
 
+	//设定
+	$("#light_pat_button").click(function(){
+		setMpaObj.initDialog($("#light_fix_dialog"), $("#hide_material_id").val(), $("#edit_level").val(), 
+			$("#material_details td:eq(1)").attr("model_id"), false);
+	});
 });
 
 function load_list(listdata){

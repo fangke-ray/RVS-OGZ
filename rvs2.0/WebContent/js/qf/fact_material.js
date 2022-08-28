@@ -102,7 +102,7 @@ var showWipEmpty=function(rid) {
 					});
 				}
 			} catch (e) {
-				alert("name: " + e.name + " message: " + e.message + " lineNumber: "
+				console.log("name: " + e.name + " message: " + e.message + " lineNumber: "
 						+ e.lineNumber + " fileName: " + e.fileName);
 			};
 		}
@@ -337,7 +337,7 @@ var process_set = function(rowdata) {
 			$("#pa_main").flowchart({},{editable:false, selections: flowSelections});
 			$("#pa_main").html("");
 
-//			if (level < 4) {// TODO 大修
+			if (level < 4 || f_isPeripheralFix(level)) {// TODO 大修
 				$("#ref_template").val(fillZero(category_kind, 11)).trigger("change");
 				process_dialog($process_dialog, rowdata);
 //			} else if (level > 50 && level < 60) {// 周边
@@ -366,61 +366,23 @@ var process_set = function(rowdata) {
 //					process_dialog($process_dialog, rowdata);
 //				}
 //
-//			} else { // 小修
-//				$("#ref_template").parent().parent().hide();
-//
-//				if (checkPart(material_id)) {
-//					if ($('div#errstring').length == 0) {
-//						$("body").append("<div id='errstring'/>");
-//					}
-//					$('div#errstring').show();
-//					$('div#errstring').dialog({
-//						dialogClass : 'ui-warn-dialog', modal : false, width : 450, title : "提示信息", 
-//						buttons : {
-//							"此次小修理不需要零件订购" : function() { 
-//								var data = {material_id: material_id}
-//								// Ajax提交
-//								$.ajax({
-//									beforeSend : ajaxRequestType,
-//									async : true,
-//									url : servicePath + '?method=getPaByMaterial',
-//									cache : false,
-//									data : data,
-//									type : "post",
-//									dataType : "json",
-//									success : ajaxSuccessCheck,
-//									error : ajaxError,
-//									complete : showedit_handleComplete
-//								});
-//								process_dialog($process_dialog, rowdata);
-//								$(this).dialog("close"); 
-//							}, 
-//							"去订购零件" : function() {
-//								$(this).dialog("close"); 
-//							}
-//						}
-//					});
-//					$('div#errstring').html("<span class='errorarea'>小修理应当在投线前订购零件，请确认！</span>");
-//				}
-//
-//				else {
-//					var data = {material_id: material_id}
-//					// Ajax提交
-//					$.ajax({
-//						beforeSend : ajaxRequestType,
-//						async : true,
-//						url : servicePath + '?method=getPaByMaterial',
-//						cache : false,
-//						data : data,
-//						type : "post",
-//						dataType : "json",
-//						success : ajaxSuccessCheck,
-//						error : ajaxError,
-//						complete : showedit_handleComplete
-//					});
-//					process_dialog($process_dialog, rowdata);
-//				}
-//			}
+			} else { // 小修
+				var data = {material_id: material_id}
+				// Ajax提交
+				$.ajax({
+					beforeSend : ajaxRequestType,
+					async : true,
+					url : servicePath + '?method=getPaByMaterial',
+					cache : false,
+					data : data,
+					type : "post",
+					dataType : "json",
+					success : ajaxSuccessCheck,
+					error : ajaxError,
+					complete : inlinePaLight_handleComplete
+				});
+				process_dialog($process_dialog, rowdata);
+			}
 //		} else {
 //			// 单元投线
 //			$("#search_section_id").parent().parent().hide();
@@ -458,10 +420,17 @@ function process_dialog($process_dialog, rowdata) {
 	var agreed_date = rowdata["agreed_date_hidden"];
 	var ccd_change = rowdata["ccd_change"];
 	var ccd_model = rowdata["ccd_model"];
-	var ref_change_flg = (ccd_model >= 2);
-	var scheduled_expedited = rowdata["scheduled_expedited"] || "0";
 	var level = rowdata["level"];
+	var ref_change_flg = (ccd_model >= 2);
+	if (f_isLightFix(level)) {
+		ref_change_flg = false;
+	}
+	var scheduled_expedited = rowdata["scheduled_expedited"] || "0";
 	var category_kind = rowdata["category_kind"];
+	var wip_location = null;
+	if (f_isPeripheralFix(level)) {
+		wip_location = rowdata["wip_location"];
+	}
 
 	if (ref_change_flg) {
 		var ref_template_rc = function() {
@@ -482,6 +451,8 @@ function process_dialog($process_dialog, rowdata) {
 		},
 		buttons : {
 			"投线":function(){
+				var postText = $("#pa_main").attr("postText");
+
 				if (ref_change_flg) {
 					ref_change_flg = false;
 					warningConfirm(rowdata["sorc_no"] + "是 CCD 线更换对象型号的维修对象，请确定是否需要选择带 CCD 线更换的流程？");
@@ -500,6 +471,11 @@ function process_dialog($process_dialog, rowdata) {
 						return;
 					}
 	//			}
+
+				if ($("#ref_template").attr("forceCell")) {
+					fix_type = 2;
+				}
+
 				var data = {
 					"material_id": material_id,
 					"pat_id" : ref_template_id,
@@ -508,12 +484,16 @@ function process_dialog($process_dialog, rowdata) {
 					"agreed_date": agreed_date,
 					ccd_change : ccd_change,
 					scheduled_expedited :  scheduled_expedited,
-					level : level
+					level : level,
+					wip_location : wip_location
 				}
 				// 指定投线后先进行CCD盖玻璃更换
 				if (rowdata["ccd_operate_result"] == "已指定"){
 					data.ccd_change = true;
 				}
+				// 中小修理文字
+				if (postText) data.section_name = postText;
+
 				doInline(data);
 			}, "关闭" : function(){ $(this).dialog("close"); }
 		}
@@ -856,7 +836,8 @@ $(function() {
 			return;
 		}
 
-		if ((rowdata["ccd_model"] == 1 || rowdata["ccd_model"] == 3) && rowdata["ccd_operate_result"] == "" && level != 1) {
+		if ((rowdata["ccd_model"] == 1 || rowdata["ccd_model"] == 3) && rowdata["ccd_operate_result"] == "" 
+			&& level != 1 && !f_isLightFix(level)) {
 			// "是CCD 盖玻璃对象型号的维修对象，请确定不需要做 CCD 盖玻璃更换即可投线？"
 			warningConfirm(rowdata["sorc_no"]+"是CCD 盖玻璃对象型号的维修对象，请确定投线后不需要做 CCD 盖玻璃更换？",
 				function(){
