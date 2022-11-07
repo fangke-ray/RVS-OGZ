@@ -469,7 +469,7 @@ public class PcsUtils {
 		boolean isPrepheral = RvsUtils.isPeripheral(level); 
 
 		currentProcessCode = checkOverAll(currentProcessCode);
-		boolean lineMatched = currentProcessCode.indexOf("\\d") >= 0;
+		boolean lineMatched = currentProcessCode != null && currentProcessCode.indexOf("\\d") >= 0;
 
 		Pattern pCurrentProcessCode = Pattern.compile("<pcinput.*?scope=\"E\".*?position=\""+currentProcessCode+"\".*?/>");
 

@@ -60,6 +60,9 @@ public class PositionProductionAction extends BaseAction {
 		
 		String pReferChooser = positionService.getOptions(conn);
 		req.setAttribute("pReferChooser", pReferChooser);
+
+		req.setAttribute("levelGridOptions", CodeListUtils.getGridOptions("material_level"));
+
 		// 迁移到页面
 		actionForward = mapping.findForward(FW_INIT);
 		

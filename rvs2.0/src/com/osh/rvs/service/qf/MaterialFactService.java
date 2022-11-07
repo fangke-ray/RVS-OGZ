@@ -400,13 +400,17 @@ public class MaterialFactService {
 				MaterialProcessAssignMapper mpaMapper = conn.getMapper(MaterialProcessAssignMapper.class);
 				// 取得覆盖工程
 				List<LineEntity> lines = mpaMapper.getWorkedLines(materialId);
+				boolean setFinLine = false;
 				for (LineEntity line : lines) {
 					MaterialProcessEntity insertBean = new MaterialProcessEntity();
 					insertBean.setMaterial_id(materialId);
 					insertBean.setLine_id(line.getLine_id());
 					if (line.getIn_advance() == 0) {
-						insertBean.setScheduled_date(workDate);
-						insertBean.setScheduled_assign_date(workDate);
+						if (!setFinLine) {
+							insertBean.setScheduled_date(workDate);
+							insertBean.setScheduled_assign_date(workDate);
+						}
+						setFinLine = true;
 					} else {
 						insertBean.setScheduled_date(workDates[1]);
 						insertBean.setScheduled_assign_date(workDates[1]);

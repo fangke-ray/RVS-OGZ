@@ -14,7 +14,7 @@ var popMessageDetail = function(message_id, is_modal){
 	// 导入详细画面
 	this_dialog.load("alarmMessage.do?method=detail&alarm_messsage_id=" + message_id , function(responseText, textStatus, XMLHttpRequest) {
 		this_dialog.dialog({
-			position : [400, 20],
+			position : [160, 20],
 			title : "警报详细画面",
 			width : 'auto',
 			show : "",
@@ -159,7 +159,7 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 			// 小修理工位
 			if (resInfo.isLightFix) {
 				if (typeof  setMpaObj == "undefined" ) {
-					loadJs("js/qf/set_material_process_assign.js", function(){
+					loadJs("js/qf/set_material_process_assign.js?version=605", function(){
 						lightFixFlow(resInfo);
 					});
 				} else {
@@ -167,33 +167,16 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 				}
 			} else {
 				$("#light_fix_content").text("").parent().hide();
-			}
 
-			$("#pa_red span:empty").closest(".edgeposition").each(function(){
-				$(this).hide();
-				if ($(this).parent().hasClass("pos")) {
-					$(this).parent().hide();
-				}
-			});
-			var resultlen = resInfo.result.length;
-			for (var iresult = 0 ; iresult < resultlen ; iresult++) {
-				var productionFeature = resInfo.result[iresult];
-				$("#pa_red div.pos[code="+ parseInt(productionFeature.position_id, 10) +"]").find("span").addClass("suceed")
-					.after("<div class=\"feature_result\">"+productionFeature.operator_name+"<br>"+productionFeature.finish_time+"</div>");
-			}
-			$("#pa_red div.pos[code="+ parseInt(selectedMaterial.position_id, 10) +"]").find("span").addClass("nogood");
-
-			if (resInfo.isLightFix) {
-				$("#pa_red span").click(function() {
-					var mespan = $(this);
-	
-					if (mespan.hasClass("rework")) {
-						mespan.removeClass("rework");
-					} else {
-						mespan.addClass("rework");
+				$("#pa_red span:empty").closest(".edgeposition").each(function(){
+					$(this).hide();
+					if ($(this).parent().hasClass("pos")) {
+						$(this).parent().hide();
 					}
 				});
-			} else {
+	
+				signProductionFeature(resInfo);
+
 				$("#pa_red span.suceed").click(function() {
 					var mespan = $(this);
 	
@@ -306,6 +289,16 @@ var getFlowchart_handleComplete = function(xhrobj, textStatus, callback) {
 	};
 }
 
+var signProductionFeature = function(resInfo){
+	var resultlen = resInfo.result.length;
+	for (var iresult = 0 ; iresult < resultlen ; iresult++) {
+		var productionFeature = resInfo.result[iresult];
+		$("#pa_red div.pos[code="+ parseInt(productionFeature.position_id, 10) +"]").find("span").addClass("suceed")
+			.after("<div class=\"feature_result\">"+productionFeature.operator_name+"<br>"+productionFeature.finish_time+"</div>");
+	}
+	$("#pa_red div.pos[code="+ parseInt(selectedMaterial.position_id, 10) +"]").find("span").addClass("nogood");
+}
+
 var lightFixFlow = function(resInfo){
 
 	$("#light_fix_content").text(resInfo.light_fix_content).parent().show();
@@ -316,11 +309,14 @@ var lightFixFlow = function(resInfo){
 		var $div = $(ele);
 		var code = $div.attr("code");
 		var $span = $div.find("span");
+
 		for(var i=0;i<resInfo.mProcessAssigns.length;i++){
 			var obj = resInfo.mProcessAssigns[i];
-			if(code == obj.position_id && !$span.hasClass("suceed")){
+
+			if(code == obj.position_id){ //  && !$span.hasClass("suceed")
 				$span.addClass("point");
 				chosedPos[code]=1;
+				break;
 			}
 		}
 	});
@@ -337,6 +333,17 @@ var lightFixFlow = function(resInfo){
 		});
 	});
 
+	signProductionFeature(resInfo);
+
+	$("#pa_red span").click(function() {
+		var mespan = $(this);
+
+		if (mespan.hasClass("rework")) {
+			mespan.removeClass("rework");
+		} else {
+			mespan.addClass("rework");
+		}
+	});
 }
 
 var process_resign = function() {

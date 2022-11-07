@@ -460,7 +460,8 @@ var getProcessPost = function($edgeposition, positionPost, rework) {
 		var $pos = $(ele).children(".just").children(".pos");
 
 		if ($pos.length == 1) {
-			if ($pos.children(".point,.suceed").length == 0) return;
+			if (!rework && $pos.children(".point,.suceed").length == 0) return;
+			if (rework && $pos.children(".point,.suceed,.rework").length == 0) return;
 			positionPost.push($pos);
 		} else if ($pos.length > 1) {
 			var multiPositionPost = [];
@@ -585,7 +586,7 @@ var setMpaData = function(code, line_id, count, rcd, checkSign, data) {
 
 var getProcessCodeFromPos = function($pos, allItem) {
 	if (!allItem &&
-		$pos.children(".point,.suceed").length == 0) return "";
+		$pos.children(".point,.suceed,.rework").length == 0) return "";
 
 	var posText = $pos.text();
 	if (posText.indexOf("\n") >= 0) posText = posText.split("\n")[0];

@@ -45,7 +45,9 @@ public class PositionProductionForm extends ActionForm {
 	private String sorc_no;
 	private String model_name;
 	private String operate_result;
-	
+	@BeanField(title="修理等级", name="level", type=FieldType.Integer)
+	private String level;
+
 	public String getIsToday() {
 		return isToday;
 	}
@@ -224,6 +226,14 @@ public class PositionProductionForm extends ActionForm {
 
 	public void setProcessed_count(String processed_count) {
 		this.processed_count = processed_count;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
 	}
 
 }

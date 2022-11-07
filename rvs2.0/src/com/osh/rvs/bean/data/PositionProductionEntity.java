@@ -36,6 +36,7 @@ public class PositionProductionEntity implements Serializable {
 	private String isToday;
 
 	private Integer department;
+	private Integer level;
 
 	public String getIsToday() {
 		if (action_time != null) {
@@ -232,6 +233,14 @@ public class PositionProductionEntity implements Serializable {
 
 	public void setDepartment(Integer department) {
 		this.department = department;
+	}
+
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
 	}
 	
 	

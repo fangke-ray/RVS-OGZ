@@ -41,11 +41,11 @@ $(function() {
 					width : 768,
 					rowheight : 23,
 					datatype : "local",
-					colNames : ['开始时间', '结束时间', '修理单号', '机型', '操作员', '结果'],
+					colNames : ['开始时间', '结束时间', '修理单号', '机型', '修理等级', '操作员', '结果'],
 					colModel : [{
 								name : 'action_time',
 								sortable : false,
-								width : 85,
+								width : 80,
 								align : 'center',
 								formatter : 'date',
 								formatoptions : {
@@ -55,7 +55,7 @@ $(function() {
 							}, {
 								name : 'finish_time',
 								sortable : false,
-								width : 85,
+								width : 80,
 								align : 'center',
 								formatter : 'date',
 								formatoptions : {
@@ -65,11 +65,18 @@ $(function() {
 							}, {
 								name : 'sorc_no',
 								sortable : false,
-								width : 120
+								width : 80
 							}, {
 								name : 'model_name',
 								sortable : false,
 								width : 120
+							}, {
+								name : 'level',
+								sortable : false,
+								align : 'center',
+								formatter:'select', 
+								editoptions:{value: $("#levelGridOptions").val()},
+								width : 40
 							}, {
 								name : 'operator_name',
 								sortable : false,

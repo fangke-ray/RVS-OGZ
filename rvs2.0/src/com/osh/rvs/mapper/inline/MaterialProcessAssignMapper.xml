@@ -221,10 +221,52 @@
 			and pos.line_id = mp.line_id
 			where mpa.material_id = #{material_id}
 			and not (mpa.prev_position_id = 0 AND mpa.next_position_id = 0)
-			AND process_code not in ('301','302','303')
+			AND process_code not in ('301','302','303','332')
 			group by pos.line_id
 			;
 		]]>
 	</select>
-	
+
+	<select id="getWorkedProcess" parameterType="String" resultType="ProductionFeatureEntity">
+		<![CDATA[
+			select pos.process_code, 
+				pf.material_id is not null as pace, 
+                sum(pf.operate_result = 2) as operate_result
+			from material_process_assign mpa
+			join position pos
+				on mpa.position_id = pos.position_id
+			left join production_feature pf
+				on mpa.material_id = pf.material_id
+			and mpa.position_id = pf.position_id
+			where mpa.material_id = #{material_id}
+				and not (mpa.prev_position_id = 0 AND mpa.next_position_id = 0)
+				and pf.operate_result != 0
+            group by pos.position_id
+			;
+		]]>
+	</select>
+
+	<select id="getFinishedByLine" resultType="boolean">
+		<![CDATA[ 
+		SELECT COUNT(1) = 0 FROM
+		(
+		SELECT 
+			`pf`.operate_result
+		FROM
+			material m
+	    JOIN material_process_assign pa 
+			ON `m`.material_id = `pa`.material_id
+			AND `pa`.line_id = 9000000
+			AND `pa`.line_id = #{line_id} AND `pa`.position_id < 9000000
+	    LEFT JOIN `production_feature` pf 
+			ON `m`.material_id = `pf`.material_id
+	        AND `pa`.position_id = `pf`.position_id
+	        AND `pf`.operate_result = 2
+	    WHERE
+	        `m`.material_id = #{material_id}) wk
+		WHERE operate_result IS NULL
+		;
+		]]>
+	</select>
+
 </mapper>

@@ -45,7 +45,6 @@ import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.ModelMapper;
 import com.osh.rvs.mapper.master.OperatorMapper;
 import com.osh.rvs.mapper.master.PositionMapper;
-import com.osh.rvs.mapper.partial.MaterialPartialMapper;
 import com.osh.rvs.service.inline.ForSolutionAreaService;
 
 import framework.huiqing.bean.message.MsgInfo;
@@ -756,7 +755,7 @@ public class AlarmMesssageService {
 //		String breakPositionId = req.getParameter("position_id");
 
 		MaterialEntity entity = null;
-		if (pat_id != null) {
+		if (pat_id != null && !"".equals(pat_id)) {
 			MaterialMapper mMapper = conn.getMapper(MaterialMapper.class);
 			entity = mMapper.getMaterialNamedEntityByKey(material_id);
 			mMapper.updateMaterialPat(material_id, pat_id);

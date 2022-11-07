@@ -1,6 +1,7 @@
 package com.osh.rvs.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.struts.action.ActionForm;
 
+import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialProcessAssignEntity;
 import com.osh.rvs.bean.master.LightFixEntity;
 import com.osh.rvs.bean.master.LineEntity;
@@ -285,17 +287,32 @@ public class MaterialProcessAssignService {
 		materialService.updateMaterialComment(material_id, operator_id, comment, conn);
 	}
 
+	private static final int COMMENT_MAX_WIDTH = 250; 
 	public String getLightStr(String lightFixStr, String lightFlowStr) {
 		String comment = (lightFixStr == null ? "" : "修理项目为：" + lightFixStr + "\n")
 				+ "修理工位流程为：" + lightFlowStr;
-		if (comment.length() > 500) {
+		if (comment.length() > COMMENT_MAX_WIDTH) {
 			if (lightFixStr == null) {
-				comment = lightFlowStr;
+				if (lightFlowStr.length() > COMMENT_MAX_WIDTH) {
+					comment = lightFlowStr.substring(0, COMMENT_MAX_WIDTH - 2) + "…";
+				} else {
+					comment = lightFlowStr;
+				}
 			} else {
-				lightFixStr = lightFixStr.substring(0, 500 - "修理项目为：\n修理工位流程为：".length()
-						- lightFlowStr.length() - 2) + "…";
-				comment = (lightFixStr == null ? "" : "修理项目为：" + lightFixStr + "\n")
-						+ "修理工位流程为：" + lightFlowStr;
+				int subend = COMMENT_MAX_WIDTH - "修理项目为：\n修理工位流程为：".length() - lightFlowStr.length() - 2;
+				if (subend > 0) {
+					lightFixStr = lightFixStr.substring(0, subend)
+							+ "…";
+					comment = (lightFixStr == null ? "" : "修理项目为：" + lightFixStr + "\n")
+							+ "修理工位流程为：" + lightFlowStr;
+				} else {
+					if (lightFlowStr.length() > COMMENT_MAX_WIDTH) {
+						
+						comment = lightFlowStr.substring(0, COMMENT_MAX_WIDTH); 
+					} else {
+						comment = lightFlowStr;
+					}
+				}
 			}
 		}
 		return comment;
@@ -444,6 +461,22 @@ public class MaterialProcessAssignService {
 
 		String flowText = cmt.substring(cmt.indexOf(FROM_COMMET) + 6);
 
+		if (now_process_code == null) return flowText;
+
+		Set<String> finishPos = new HashSet<String>();
+		Set<String> processedPos = new HashSet<String>();
+		if (flowText.indexOf("=") >= 0) {
+			MaterialProcessAssignMapper mapper = conn.getMapper(MaterialProcessAssignMapper.class);
+			List<ProductionFeatureEntity> pl = mapper.getWorkedProcess(material_id);
+			for (ProductionFeatureEntity pos : pl) {
+				if (pos.getOperate_result() == 1) {
+					finishPos.add(pos.getProcess_code());
+				} else if (pos.getPace() == 1) {
+					processedPos.add(pos.getProcess_code());
+				}
+			}
+		}
+
 		Pattern pMultiTags = Pattern.compile("\\d{3}");
 		Matcher mMultiTags = pMultiTags.matcher(flowText);
 		StringBuffer sbRemoveMulti = new StringBuffer("");
@@ -451,6 +484,10 @@ public class MaterialProcessAssignService {
 			String hitText = mMultiTags.group();
 			if (now_process_code.equals(hitText)) {
 				mMultiTags.appendReplacement(sbRemoveMulti, "<span style='font-weight:bold; text-decoration: underline;'>" + hitText + "</span>");
+			} else if (finishPos.contains(hitText)) {
+				mMultiTags.appendReplacement(sbRemoveMulti, "<span style='color:green; font-weight:bold;'>" + hitText + "</span>");
+			} else if (processedPos.contains(hitText)) {
+				mMultiTags.appendReplacement(sbRemoveMulti, "<span style='color:blue; font-style: italic;'>" + hitText + "</span>");
 			} else {
 				mMultiTags.appendReplacement(sbRemoveMulti, hitText);
 			}

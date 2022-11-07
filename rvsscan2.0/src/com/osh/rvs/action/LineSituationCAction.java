@@ -59,14 +59,17 @@ public class LineSituationCAction extends BaseAction {
 		} else if (subpath.toLowerCase().startsWith("a")) {
 			req.setAttribute("line_id", "00000000201");
 			req.setAttribute("line_name", "290 拉");
+			req.setAttribute("lm_tag", "2");
 			forward = "period";
 		} else if (subpath.toLowerCase().startsWith("b")) {
 			req.setAttribute("line_id", "00000000202");
 			req.setAttribute("line_name", "260 拉");
+			req.setAttribute("lm_tag", "2");
 			forward = "period";
 		} else if (subpath.toLowerCase().startsWith("c")) {
 			req.setAttribute("line_id", "00000000203");
 			req.setAttribute("line_name", "细镜拉");
+			req.setAttribute("lm_tag", "2");
 			forward = "period";
 		} else if (subpath.toLowerCase().startsWith("n")) {
 			req.setAttribute("line_id", "00000000013");

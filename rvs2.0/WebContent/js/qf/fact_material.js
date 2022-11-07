@@ -492,7 +492,10 @@ function process_dialog($process_dialog, rowdata) {
 					data.ccd_change = true;
 				}
 				// 中小修理文字
-				if (postText) data.section_name = postText;
+				if (postText) {
+					data.fix_type = 1;
+					data.section_name = postText;
+				}
 
 				doInline(data);
 			}, "关闭" : function(){ $(this).dialog("close"); }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.osh.rvs.bean.data.ProductionFeatureEntity;
 import com.osh.rvs.bean.inline.MaterialProcessAssignEntity;
 import com.osh.rvs.bean.master.LineEntity;
 import com.osh.rvs.bean.master.PositionEntity;
@@ -55,4 +56,8 @@ public interface MaterialProcessAssignMapper {
 	public List<String> getPartAll(@Param("material_id") String material_id, @Param("line_id") String line_id);
 
 	public List<LineEntity> getWorkedLines(String materialId);
+
+	public List<ProductionFeatureEntity> getWorkedProcess(String materialId);
+
+	public boolean getFinishedByLine(@Param("material_id") String material_id, @Param("line_id") String line_id);
 }

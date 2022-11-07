@@ -757,7 +757,7 @@ public class MaterialAction extends BaseAction {
 			lEntities = pamDao.getFinishedPositionsInline(material_id);
 
 			for (Map<String, String> pMap : pMaps) {
-				pMap.put("text", pMap.get("process_code") + " " + pMap.get("text"));
+				pMap.put("text", pMap.get("process_code") + "\n" + pMap.get("text"));
 			}
 
 		} else if (privacies.contains(RvsConsts.PRIVACY_LINE)) {
@@ -780,7 +780,7 @@ public class MaterialAction extends BaseAction {
 		listResponse.put("result", lcf);
 		listResponse.put("pat_id", pat_id);
 
-		if (isLightFix) {
+		if (isLightFix && mEntity.getFix_type() == 1) {
 			
 			listResponse.put("isLightFix", isLightFix);
 

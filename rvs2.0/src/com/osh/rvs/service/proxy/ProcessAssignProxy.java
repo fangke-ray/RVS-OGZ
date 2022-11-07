@@ -81,7 +81,11 @@ public class ProcessAssignProxy {
 	}
 
 	public boolean getFinishedByLine(String line_id) {
-		return heavyMapper.getFinishedByLine(material_id, line_id);
+		if (isLightFix) {
+			return lightMapper.getFinishedByLine(material_id, line_id);
+		} else {
+			return heavyMapper.getFinishedByLine(material_id, line_id);
+		}
 	}
 
 	public List<String> getPartStart(String line_id) {

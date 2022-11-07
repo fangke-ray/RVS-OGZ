@@ -1045,13 +1045,26 @@ var showDetail=function(rid, isManager) {
 				$("#light_pat_button").closest("tr").hide();
 				$("#edit_fix_type").val("2").trigger("change");
 			} else {
-				if (f_isLightFix(this.value)) {
+				if (f_isLightFix(this.value) && $("#edit_fix_type").val()==2) {
+					$("#light_pat_button").parents("tr").hide();
+				} else if (f_isLightFix(this.value)) {
 					$("#light_pat_button").closest("tr").show();
 				} else {
 					$("#light_pat_button").closest("tr").hide();
 				}
 				$("#edit_fix_type").val("1").trigger("change");
 			}
+		});
+		$("#edit_fix_type").change(function(){
+			var edit_level = $("#edit_level")[0].value;
+			if (this.value==1) {
+				if (f_isLightFix(edit_level)) {
+					$("#light_pat_button").closest("tr").show();
+					return;
+				}
+			}
+
+			$("#light_pat_button").parents("tr").hide();
 		});
 
 		$("#edit_sorcno,#inp_modelname,#edit_serialno").change(function(){
