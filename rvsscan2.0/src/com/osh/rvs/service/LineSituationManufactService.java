@@ -17,7 +17,7 @@ public class LineSituationManufactService {
 		LineLeaderMapper mapper = conn.getMapper(LineLeaderMapper.class);
 
 		// 工程仕挂总数
-		responseMap.put("sikake", mapper.getWorkingMaterialCounts(sectionId, "101", null));
+		responseMap.put("sikake", mapper.getWorkingMaterialCounts(sectionId, "101", null, null, null));
 
 		responseMap.put("linePlanList", mapper.getTodayProductPlan(sectionId)); // TODO sectionId
 

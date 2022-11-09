@@ -18,10 +18,10 @@ public interface LineLeaderMapper {
 	public List<LineLeaderEntity> getWorkingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("position_id") String position_id);
 
 	// 取得工程内全部件数
-	public long getWorkingMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("cell") String cell);
+	public long getWorkingMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("rank") String rank, @Param("cell") String cell, @Param("s1_pass") String s1_pass);
 
 	// 当日计划件数
-	public long getTodayCompleteMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("kind") String kind);
+	public long getTodayCompleteMaterialCounts(@Param("section_id") String section_id, @Param("line_id") String line_id, @Param("rank") String rank, @Param("kind") String kind);
 	public List<LineLeaderEntity> getBreakingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id);
 	public List<LineLeaderEntity> getExpeditingMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id);
 	public List<LineLeaderEntity> getPlanOutlineMaterials(@Param("section_id") String section_id, @Param("line_id") String line_id);
@@ -29,7 +29,7 @@ public interface LineLeaderMapper {
 	public List<Map<String, String>> getComAndNsMatch(@Param("section_id") String section_id);
 	public List<Map<String, String>> getNsAndComMatch(@Param("section_id") String section_id);
 
-	public Integer getOutPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id, @Param("line_id") String line_id);
+	public Integer getOutPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id, @Param("line_id") String line_id, @Param("rank") String rank);
 
 //	public Integer getPlanPeriod(@Param("out_period") String out_period, @Param("section_id") String section_id);
 

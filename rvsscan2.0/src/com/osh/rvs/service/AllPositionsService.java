@@ -353,8 +353,8 @@ public class AllPositionsService {
 		int boMaterialsAll = mapper.getBoMaterialsAll();
 		listResponse.put("boMaterialsAll", boMaterialsAll);
 
-		int decomStorageCount = mapper.getDecomStorageCount();
-		listResponse.put("decomStorageCount", decomStorageCount);
+//		int decomStorageCount = mapper.getDecomStorageCount();
+//		listResponse.put("decomStorageCount", decomStorageCount);
 	}
 
 	public List<Map<String, Object>> getErrorAlarms(HttpServletRequest req, SqlSession conn) {

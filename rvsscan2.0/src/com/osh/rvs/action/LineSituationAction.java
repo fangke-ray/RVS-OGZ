@@ -114,6 +114,7 @@ public class LineSituationAction extends BaseAction {
 		Map<String, Object> callback = new HashMap<String, Object>();
 
 		String section_id = req.getParameter("section_id");
+		String isPeriod = req.getParameter("isPeriod");
 		String s1pass = null;
 		if (section_id != null && section_id.startsWith("1")) {
 			section_id = "00000000001";
@@ -124,10 +125,14 @@ public class LineSituationAction extends BaseAction {
 		LineLeaderService service = new LineLeaderService();
 
 		// 取得今日计划暨作业对象一览
-		service.getSituation(section_id, line_id, callback, conn);
+		service.getSituation(section_id, line_id, callback, isPeriod, s1pass != null, conn);
 
 		// 取得工位仕挂一览
-		service.getChartContent(section_id, line_id, s1pass, conn, callback);
+		if ("00000000201".equals(line_id)) {
+			service.getChartContent(section_id, line_id, callback, isPeriod, s1pass, conn);
+		} else {
+			service.getChartContent(section_id, line_id, s1pass, conn, callback);
+		}
 
 		// 取得分解～NS
 //		if ("00000000012".equals(line_id) || "00000000013".equals(line_id)) {

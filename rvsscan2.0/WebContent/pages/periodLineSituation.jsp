@@ -70,6 +70,14 @@ td.low {
 #processing_container .highcharts-axis-labels > text > tspan:nth-child(2) {
 	font-size : 12px;
 }
+span.out_major {
+	background-color: rgb(0, 128, 192);
+	padding: 0 4px;
+}
+span.out_minor {
+	background-color: rgb(204, 118, 204);
+	padding: 0 4px;
+}
 </style>
 
 <title>${section_name} ${line_name}</title>
@@ -130,7 +138,11 @@ border-radius: 14px;display:none;">0%</div>
 			<div class="ui-widget-header ui-corner-top ui-helper-clearfix areaencloser" style="width : 148px;margin-left : 8px;">
 				<span class="areatitle">今日产出台数</span>
 			</div>
-			<div id="plan_finish_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0080C0; margin-left : 8px;-webkit-box-shadow: 0 -1px 2px #292929;">
+			<div id="plan_finish" style="height: 148px;transform-origin: top;">
+				<div id="plan_finish_count" style="width : 126px;height : 126px; background-color:white; border: 12px solid #0080C0; margin-left : 8px;-webkit-box-shadow: 0 -1px 2px #292929;">
+				</div>
+				<div id="plan_finish_dm_count" style="display:none; width : 126px;height : 126px; background-color:white; border: 12px solid #cc76cc; margin-left : 8px;-webkit-box-shadow: 0 -1px 2px #292929;">
+				</div>
 			</div>
 			<div class="clear"></div>
 		</div>

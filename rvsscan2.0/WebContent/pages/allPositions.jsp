@@ -55,11 +55,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="posi" for="posi_230_1" style="top: 10px; left: 90px;">230</div>
 				<div class="posi" for="posi_240_1" style="top: 10px; left: 130px;">240</div>
 				<div class="posi" for="posi_250_1" style="top: 10px; left: 170px;">250</div>
-				<div class="posi" for="posi_260_1" style="top: 10px; left: 210px;">260</div>
 				<div class="posi" for="posi_270_1" style="top: 10px; left: 250px;">270</div>
 				<div class="posi" for="posi_310_1" style="top: 50px; left: 50px;">310</div>
 				<div class="posi" for="posi_320_1" style="top: 50px; left: 90px;">320</div>
-				<div class="posi" for="posi_330_1" style="top: 50px; left: 130px;">330</div>
 				<div class="posi" for="posi_340_1" style="top: 50px; left: 170px;">340</div>
 				<div class="posi" for="posi_350_1" style="top: 50px; left: 210px;">350</div>
 				<div class="posi" for="posi_360_1" style="top: 50px; left: 250px;">360</div>
@@ -79,11 +77,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="posi" for="posi_221_1" style="top: 10px; left: 50px;">221</div>
 				<div class="posi" for="posi_231_1" style="top: 10px; left: 90px;">231</div>
 				<div class="posi" for="posi_241_1" style="top: 10px; left: 130px;">241</div>
-				<div class="posi" for="posi_251_1" style="top: 10px; left: 170px;">251</div>
 				<div class="posi" for="posi_261_1" style="top: 10px; left: 210px;">261</div>
 				<div class="posi" for="posi_303_1" style="top: 50px; left: 10px;">303</div>
 				<div class="posi" for="posi_311_1" style="top: 50px; left: 50px;">311</div>
-				<div class="posi" for="posi_321_1" style="top: 50px; left: 90px;">321</div>
 				<div class="posi" for="posi_304_1" style="top: 50px; left: 130px;">304</div>
 				<div class="posi" for="posi_331_1" style="top: 50px; left: 170px;">331</div>
 				<div class="posi" for="posi_341_1" style="top: 50px; left: 210px;">341</div>
@@ -106,10 +102,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="posi" for="posi_222_1" style="top: 10px; left: 50px;">222</div>
 				<div class="posi" for="posi_232_1" style="top: 10px; left: 90px;">232</div>
 				<div class="posi" for="posi_242_1" style="top: 10px; left: 130px;">242</div>
-				<div class="posi" for="posi_252_1" style="top: 10px; left: 170px;">252</div>
 				<div class="posi" for="posi_262_1" style="top: 10px; left: 210px;">262</div>
 				<div class="posi" for="posi_312_1" style="top: 50px; left: 50px;">312</div>
-				<div class="posi" for="posi_322_1" style="top: 50px; left: 90px;">322</div>
 				<div class="posi" for="posi_332_1" style="top: 50px; left: 130px;">332</div>
 				<div class="posi" for="posi_412_1" style="top: 30px; left: 330px;">412</div>
 				<div class="posi" for="posi_422_1" style="top: 30px; left: 370px;">422</div>
@@ -123,7 +117,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="posi" for="posi_568_1" style="top: 10px; left: 10px;">568</div>
 
 				<div class="posi" for="posi_569_1" style="top: 10px; left: 50px;">569</div>
-				<div class="posi" for="posi_570_1" style="top: 10px; left: 90px;">570</div>
 				<div class="posi" for="posi_571_1" style="top: 10px; left: 130px;">571</div>
 
 				<div class="banner" for="line_endoeye">外科镜维修</div>
@@ -134,7 +127,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 				<div class="posi" for="posi_502_1" style="top: 10px; left: 50px;">502</div>
 				<div class="posi" for="posi_503_1" style="top: 10px; left: 90px;">503</div>
-				<div class="posi" for="posi_504_1" style="top: 10px; left: 130px;">504</div>
 				<div class="posi" for="posi_505_1" style="top: 10px; left: 170px;">505</div>
 
 				<div class="banner" for="line_fs_dec">纤维镜分解</div>
@@ -153,7 +145,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="line" style="height:100px;width:124px;left: 46px;top: 282px;" id="line_lm" beforeOf="line_peri" group="line_lm">
 				<div class="posi" for="posi_300_1" style="top: 24px; left: 50px;">300</div>
 
-				<div class="posi" for="posi_401_1" style="top: 64px; left: 10px;">401</div>
 				<div class="posi" for="posi_400_1" style="top: 64px; left: 50px;">400</div>
 
 				<div class="posi" for="posi_500_1" style="top: 24px; left: 90px;">500</div>
@@ -216,51 +207,47 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 					<div class="banner" for="line_qf" style="font-size:18px;padding: 8px 10px;z-index:22;">受理报价状况</div>
 				</div>
-				<div class="scrollline" for="line_div_a" widthin>
+				<div class="scrollline" for="line_div_a">
 					<div class="position gridX1 gridY2" for="posi_210_1">210<br><span>内镜分解</span></div><div class="position-f gridX1 gridFY2P" for="posi_210_1"></div>
 					<div class="position gridX2 gridY1" for="posi_220_1">220<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_220_1"></div>
 					<div class="position gridX3 gridY1" for="posi_230_1">230<br><span>操作部分解</span></div><div class="position-f gridX3 gridFY1P" for="posi_230_1"></div>
 					<div class="position gridX4 gridY1" for="posi_240_1">240<br><span>S连接座再生</span></div><div class="position-f gridX4 gridFY1P" for="posi_240_1"></div>
 					<div class="position gridX5 gridY1" for="posi_250_1">250<br><span>零件订购</span></div><div class="position-f gridX5 gridFY1P" for="posi_250_1"></div>
-					<div class="position gridX6 gridY1" for="posi_260_1">260<br><span>零件签收</span></div><div class="position-f gridX6 gridFY1P" for="posi_260_1"></div>
-					<div class="position gridX7 gridY1" for="posi_270_1">270<br><span>操作部再生</span></div><div class="position-f gridX7 gridFY1P" for="posi_270_1"></div>
+					<div class="position gridX6 gridY1" for="posi_270_1">270<br><span>操作部再生</span></div><div class="position-f gridX6 gridFY1P" for="posi_270_1"></div>
 					<div class="position gridX2 gridY3" for="posi_310_1">310<br><span>先端分解</span></div><div class="position-f gridX2 gridFY3P" for="posi_310_1"></div>
 					<div class="position gridX3 gridY3" for="posi_320_1">320<br><span>先端再生</span></div><div class="position-f gridX3 gridFY3P" for="posi_320_1"></div>
-					<div class="position gridX4 gridY3" for="posi_330_1">330<br><span>零件签收</span></div><div class="position-f gridX4 gridFY3P" for="posi_330_1"></div>
-					<div class="position gridX5 gridY3" for="posi_340_1">340<br><span>先端 1 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_340_1"></div>
-					<div class="position gridX6 gridY3" for="posi_350_1">350<br><span>先端 2 工程</span></div><div class="position-f gridX6 gridFY3P" for="posi_350_1"></div>
-					<div class="position gridX7 gridY3" for="posi_360_1">360<br><span>NS组件穿束</span></div><div class="position-f gridX7 gridFY3P" for="posi_360_1"></div>
-					<div class="position gridX8 gridY3" for="posi_370_1">370<br><span>A橡皮涂胶</span></div><div class="position-f gridX8 gridFY3P" for="posi_370_1"></div>
-					<div class="position gridX9 gridY2" for="posi_410_1">410<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX9 gridFY2P" for="posi_410_1"></div>
-					<div class="position gridX10 gridY2" for="posi_420_1">420<br><span>LG穿束</span></div><div class="position-f gridX10 gridFY2P" for="posi_420_1"></div>
-					<div class="position gridX11 gridY2" for="posi_430_1">430<br><span>S连接座组装+EL焊接</span></div><div class="position-f gridX11 gridFY2P" for="posi_430_1"></div>
-					<div class="position gridX12 gridY2" for="posi_440_1">440<br><span>画像检查+护套安装</span></div><div class="position-f gridX12 gridFY2P" for="posi_440_1"></div>
-					<div class="position gridX13 gridY2" for="posi_450_1">450<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX13 gridFY2P" for="posi_450_1"></div>
+					<div class="position gridX4 gridY3" for="posi_340_1">340<br><span>先端 1 工程</span></div><div class="position-f gridX4 gridFY3P" for="posi_340_1"></div>
+					<div class="position gridX5 gridY3" for="posi_350_1">350<br><span>先端 2 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_350_1"></div>
+					<div class="position gridX6 gridY3" for="posi_360_1">360<br><span>NS组件穿束</span></div><div class="position-f gridX6 gridFY3P" for="posi_360_1"></div>
+					<div class="position gridX7 gridY3" for="posi_370_1">370<br><span>A橡皮涂胶</span></div><div class="position-f gridX7 gridFY3P" for="posi_370_1"></div>
+					<div class="position gridX8 gridY2" for="posi_410_1">410<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX8 gridFY2P" for="posi_410_1"></div>
+					<div class="position gridX9 gridY2" for="posi_420_1">420<br><span>LG穿束</span></div><div class="position-f gridX9 gridFY2P" for="posi_420_1"></div>
+					<div class="position gridX10 gridY2" for="posi_430_1">430<br><span>S连接座组装+EL焊接</span></div><div class="position-f gridX10 gridFY2P" for="posi_430_1"></div>
+					<div class="position gridX11 gridY2" for="posi_440_1">440<br><span>画像检查+护套安装</span></div><div class="position-f gridX11 gridFY2P" for="posi_440_1"></div>
+					<div class="position gridX12 gridY2" for="posi_450_1">450<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX12 gridFY2P" for="posi_450_1"></div>
 
 					<div class="banner" for="line_div_a" style="font-size:18px;padding: 8px 10px;z-index:22;">290 拉状况</div>
 				</div>
-				<div class="scrollline" for="line_div_b" widthin>
+				<div class="scrollline" for="line_div_b" not-widthin>
 					<div class="position gridX1 gridY1" for="posi_211_1">211<br><span>内镜分解</span></div><div class="position-f gridX1 gridFY1P" for="posi_211_1"></div>
 					<div class="position gridX2 gridY1" for="posi_221_1">221<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_221_1"></div>
 					<div class="position gridX3 gridY1" for="posi_231_1">231<br><span class="lines">操作部分解+S连接座再生</span></div><div class="position-f gridX3 gridFY1P" for="posi_231_1"></div>
 					<div class="position gridX4 gridY1" for="posi_241_1">241<br><span>零件订购</span></div><div class="position-f gridX4 gridFY1P" for="posi_241_1"></div>
-					<div class="position gridX5 gridY1" for="posi_251_1">251<br><span>零件签收</span></div><div class="position-f gridX5 gridFY1P" for="posi_251_1"></div>
-					<div class="position gridX6 gridY1" for="posi_261_1">261<br><span>操作部再生</span></div><div class="position-f gridX6 gridFY1P" for="posi_261_1"></div>
+					<div class="position gridX5 gridY1" for="posi_261_1">261<br><span>操作部再生</span></div><div class="position-f gridX5 gridFY1P" for="posi_261_1"></div>
 					<div class="position gridX1 gridY3" for="posi_303_1">303<br><span>LG玻璃更换</span></div><div class="position-f gridX1 gridFY3P" for="posi_303_1"></div>
 					<div class="position gridX2 gridY3" for="posi_311_1">311<br><span>先端分解</span></div><div class="position-f gridX2 gridFY3P" for="posi_311_1"></div>
-					<div class="position gridX3 gridY3" for="posi_321_1">321<br><span>零件签收</span></div><div class="position-f gridX3 gridFY3P" for="posi_321_1"></div>
-					<div class="position gridX4 gridY3" for="posi_304_1">304<br><span>CCD线更换</span></div><div class="position-f gridX4 gridFY3P" for="posi_304_1"></div>
-					<div class="position gridX5 gridY3" for="posi_331_1">331<br><span>先端 1 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_331_1"></div>
-					<div class="position gridX6 gridY3" for="posi_341_1">341<br><span>先端 2 工程</span></div><div class="position-f gridX6 gridFY3P" for="posi_341_1"></div>
-					<div class="position gridX7 gridY3" for="posi_351_1">351<br><span>NS 组件穿束</span></div><div class="position-f gridX7 gridFY3P" for="posi_351_1"></div>
-					<div class="position gridX8 gridY3" for="posi_361_1">361<br><span class="lines">A 橡皮涂胶+一次涂胶</span></div><div class="position-f gridX8 gridFY3P" for="posi_361_1"></div>
-					<div class="position gridX9 gridY1" for="posi_411_1">411<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX9 gridFY1P" for="posi_411_1"></div>
-					<div class="position gridX10 gridY1" for="posi_421_1">421<br><span>LG穿束+S连接座组装</span></div><div class="position-f gridX10 gridFY1P" for="posi_421_1"></div>
-					<div class="position gridX11 gridY1" for="posi_431_1">431<br><span>EL焊接</span></div><div class="position-f gridX11 gridFY1P" for="posi_431_1"></div>
-					<div class="position gridX12 gridY1" for="posi_441_1">441<br><span>画像检查+护套安装</span></div><div class="position-f gridX12 gridFY1P" for="posi_441_1"></div>
-					<div class="position gridX13 gridY1" for="posi_451_1">451<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX13 gridFY1P" for="posi_451_1"></div>
-					<div class="position gridX10 gridY3" for="posi_301_1">301<br><span>先端预置</span></div><div class="position-f gridX10 gridFY3P" for="posi_301_1"></div>
-					<div class="position gridX12 gridY3" for="posi_302_1">302<br><span>CCD 盖玻璃更换</span></div><div class="position-f gridX12 gridFY3P" for="posi_302_1"></div>
+					<div class="position gridX3 gridY3" for="posi_304_1">304<br><span>CCD线更换</span></div><div class="position-f gridX3 gridFY3P" for="posi_304_1"></div>
+					<div class="position gridX4 gridY3" for="posi_331_1">331<br><span>先端 1 工程</span></div><div class="position-f gridX4 gridFY3P" for="posi_331_1"></div>
+					<div class="position gridX5 gridY3" for="posi_341_1">341<br><span>先端 2 工程</span></div><div class="position-f gridX5 gridFY3P" for="posi_341_1"></div>
+					<div class="position gridX6 gridY3" for="posi_351_1">351<br><span>NS 组件穿束</span></div><div class="position-f gridX6 gridFY3P" for="posi_351_1"></div>
+					<div class="position gridX7 gridY3" for="posi_361_1">361<br><span class="lines">A 橡皮涂胶+一次涂胶</span></div><div class="position-f gridX7 gridFY3P" for="posi_361_1"></div>
+					<div class="position gridX7 gridY1" for="posi_411_1">411<br><span>内镜对接+钢丝焊接</span></div><div class="position-f gridX7 gridFY1P" for="posi_411_1"></div>
+					<div class="position gridX8 gridY1" for="posi_421_1">421<br><span>LG穿束+S连接座组装</span></div><div class="position-f gridX8 gridFY1P" for="posi_421_1"></div>
+					<div class="position gridX9 gridY1" for="posi_431_1">431<br><span>EL焊接</span></div><div class="position-f gridX9 gridFY1P" for="posi_431_1"></div>
+					<div class="position gridX10 gridY1" for="posi_441_1">441<br><span>画像检查+护套安装</span></div><div class="position-f gridX10 gridFY1P" for="posi_441_1"></div>
+					<div class="position gridX11 gridY1" for="posi_451_1">451<br><span class="lines">测漏，送气/送水量最终检测</span></div><div class="position-f gridX11 gridFY1P" for="posi_451_1"></div>
+					<div class="position gridX9 gridY3" for="posi_301_1">301<br><span>先端预置</span></div><div class="position-f gridX9 gridFY3P" for="posi_301_1"></div>
+					<div class="position gridX11 gridY3" for="posi_302_1">302<br><span>CCD 盖玻璃更换</span></div><div class="position-f gridX11 gridFY3P" for="posi_302_1"></div>
 
 					<div class="banner" for="line_div_b" style="font-size:18px;padding: 8px 10px;z-index:22;">260 拉状况</div>
 				</div>
@@ -269,10 +256,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="position gridX2 gridY1" for="posi_222_1">222<br><span>零件再生</span></div><div class="position-f gridX2 gridFY1P" for="posi_222_1"></div>
 					<div class="position gridX3 gridY1" for="posi_232_1">232<br><span>S连接座再生</span></div><div class="position-f gridX3 gridFY1P" for="posi_232_1"></div>
 					<div class="position gridX4 gridY1" for="posi_242_1">242<br><span>零件订购</span></div><div class="position-f gridX4 gridFY1P" for="posi_242_1"></div>
-					<div class="position gridX5 gridY1" for="posi_252_1">252<br><span>零件签收</span></div><div class="position-f gridX5 gridFY1P" for="posi_252_1"></div>
 					<div class="position gridX6 gridY1" for="posi_262_1">262<br><span>操作部再生</span></div><div class="position-f gridX6 gridFY1P" for="posi_262_1"></div>
 					<div class="position gridX2 gridY3" for="posi_312_1">312<br><span class="lines">先端分解再生+先端组装工程</span></div><div class="position-f gridX2 gridFY3P" for="posi_312_1"></div>
-					<div class="position gridX3 gridY3" for="posi_322_1">322<br><span>零件签收</span></div><div class="position-f gridX3 gridFY3P" for="posi_322_1"></div>
 					<div class="position gridX4 gridY3" for="posi_332_1">332<br><span class="lines">NS组件穿束+A橡皮涂胶</span></div><div class="position-f gridX4 gridFY3P" for="posi_332_1"></div>
 					<div class="position gridX9 gridY2" for="posi_412_1">412<br><span>内镜对接+LG穿束</span></div><div class="position-f gridX9 gridFY2P" for="posi_412_1"></div>
 					<div class="position gridX10 gridY2" for="posi_422_1">422<br><span>S连接座组装+EL焊接</span></div><div class="position-f gridX10 gridFY2P" for="posi_422_1"></div>
@@ -288,9 +273,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<div class="position gridX4 gridY2" for="posi_569_1">569<br>零件订购</div>
 					<div class="position-f gridX4 gridFY2" for="posi_569_1"></div>
 
-					<div class="position gridX5 gridY2" for="posi_570_1">570<br>零件签收</div>
-					<div class="position-f gridX5 gridFY2" for="posi_570_1"></div>
-
 					<div class="position gridX7 gridY2" for="posi_571_1">571<br>外科硬镜<br>修理</div>
 					<div class="position-f gridX7 gridFY2P" for="posi_571_1"></div>
 
@@ -298,17 +280,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 
 				<div class="scrollline" for="line_fs_dec">
-					<div class="position gridX2 gridY2" for="posi_501_1">501<br>内镜分解</div>
-					<div class="position-f gridX2 gridFY2" for="posi_501_1"></div>
+					<div class="position gridX3 gridY2" for="posi_501_1">501<br>内镜分解</div>
+					<div class="position-f gridX3 gridFY2" for="posi_501_1"></div>
 
-					<div class="position gridX3 gridY2" for="posi_502_1">502<br>零件再生</div>
-					<div class="position-f gridX3 gridFY2" for="posi_502_1"></div>
+					<div class="position gridX4 gridY2" for="posi_502_1">502<br>零件再生</div>
+					<div class="position-f gridX4 gridFY2" for="posi_502_1"></div>
 
-					<div class="position gridX5 gridY2" for="posi_503_1">503<br>零件订购</div>
-					<div class="position-f gridX5 gridFY2" for="posi_503_1"></div>
-
-					<div class="position gridX6 gridY2" for="posi_504_1">504<br>零件签收</div>
-					<div class="position-f gridX6 gridFY2" for="posi_504_1"></div>
+					<div class="position gridX6 gridY2" for="posi_503_1">503<br>零件订购</div>
+					<div class="position-f gridX6 gridFY2" for="posi_503_1"></div>
 
 					<div class="position gridX8 gridY2" for="posi_505_1">505<br>操作部组装</div>
 					<div class="position-f gridX8 gridFY2" for="posi_505_1"></div>
@@ -333,9 +312,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 
 				<div class="scrollline" for="line_lm">
-
-					<div class="position gridX4 gridY2" for="posi_401_1">401<br>零件签收</div>
-					<div class="position-f gridX4 gridFY2" for="posi_401_1"></div>
 
 					<div class="position gridX6 gridY1" for="posi_300_1">300<br>NS<br>全岗位</div>
 					<div class="position-f gridX6 gridFY1P" for="posi_300_1"></div>

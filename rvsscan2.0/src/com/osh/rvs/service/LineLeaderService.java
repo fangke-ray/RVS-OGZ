@@ -342,13 +342,13 @@ public class LineLeaderService {
 				List<Integer> outs = new ArrayList<Integer>();
 
 				outs.add(null);
-				Integer out1 = dao.getOutPeriod(""+1, section_id, line_id);
+				Integer out1 = dao.getOutPeriod(""+1, section_id, line_id, null);
 				outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
-				Integer out2 = dao.getOutPeriod(""+2.6, section_id, line_id);
+				Integer out2 = dao.getOutPeriod(""+2.6, section_id, line_id, null);
 				outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
-				Integer out3 = dao.getOutPeriod(""+3.6, section_id, line_id);
+				Integer out3 = dao.getOutPeriod(""+3.6, section_id, line_id, null);
 				outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
-				Integer out4 = dao.getOutPeriod(""+4, section_id, line_id);
+				Integer out4 = dao.getOutPeriod(""+4, section_id, line_id, null);
 				outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
 
 				responseMap.put("plans", plans);
@@ -368,6 +368,7 @@ public class LineLeaderService {
 			} else {
 				List<Integer> plans = new ArrayList<Integer>();
 				List<Integer> outs = new ArrayList<Integer>();
+				List<Integer> outMinors = new ArrayList<Integer>();
 
 				Integer plan1 = 0,plan2 = 0,plan3 = 0,plan4 = 0;
 				try {
@@ -395,18 +396,44 @@ public class LineLeaderService {
 				plans.add(null);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(plan4);plans.add(null);
 				plans.add(null);
 
-				outs.add(null);
-				Integer out1 = getOutPeriod(1, section_id, line_id, dao);
-				outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
-				Integer out2 = getOutPeriod(2, section_id, line_id, dao);
-				outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
-				Integer out3 = getOutPeriod(3, section_id, line_id, dao);
-				outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
-				Integer out4 = getOutPeriod(4, section_id, line_id, dao);
-				outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
+				String rank = null;
+				if (line_id != null) {
+					switch(line_id) {
+					case "00000000201": 
+					case "00000000202": 
+					case "00000000203": rank = "1"; break;
+					}
+				}
+
+				{
+					outs.add(null);
+					Integer out1 = getOutPeriod(1, section_id, line_id, rank, dao);
+					outs.add(null);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(out1);outs.add(null);
+					Integer out2 = getOutPeriod(2, section_id, line_id, rank, dao);
+					outs.add(null);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(out2);outs.add(null);
+					Integer out3 = getOutPeriod(3, section_id, line_id, rank, dao);
+					outs.add(null);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(out3);outs.add(null);
+					Integer out4 = getOutPeriod(4, section_id, line_id, rank, dao);
+					outs.add(null);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(out4);outs.add(null);
+				}
 
 				responseMap.put("plans", plans);
 				responseMap.put("outs", outs);
+
+				if (rank != null) {
+					rank = "9";
+					outMinors.add(null);
+					Integer out1 = getOutPeriod(1, section_id, line_id, rank, dao);
+					outMinors.add(null);outMinors.add(out1);outMinors.add(out1);outMinors.add(out1);outMinors.add(out1);outMinors.add(null);
+					Integer out2 = getOutPeriod(2, section_id, line_id, rank, dao);
+					outMinors.add(null);outMinors.add(out2);outMinors.add(out2);outMinors.add(out2);outMinors.add(out2);outMinors.add(null);
+					Integer out3 = getOutPeriod(3, section_id, line_id, rank, dao);
+					outMinors.add(null);outMinors.add(out3);outMinors.add(out3);outMinors.add(out3);outMinors.add(out3);outMinors.add(null);
+					Integer out4 = getOutPeriod(4, section_id, line_id, rank, dao);
+					outMinors.add(null);outMinors.add(out4);outMinors.add(out4);outMinors.add(out4);outMinors.add(out4);outMinors.add(null);
+					responseMap.put("outMinors", outMinors);
+				}
+
 				Calendar now = Calendar.getInstance();
 				int hour = now.get(Calendar.HOUR_OF_DAY);
 				if (hour < 10) {
@@ -422,10 +449,10 @@ public class LineLeaderService {
 		}
 		return;
 	}
-	private Integer getOutPeriod(int i, String section_id, String line_id, LineLeaderMapper dao) {
-		int ret = dao.getOutPeriod("" + i, section_id, line_id);
+	private Integer getOutPeriod(int i, String section_id, String line_id, String rank, LineLeaderMapper dao) {
+		int ret = dao.getOutPeriod("" + i, section_id, line_id, rank);
 		if ("00000000203".equals(line_id)) {
-			ret += dao.getOutPeriod("" + i, section_id, "00000000061");
+			ret += dao.getOutPeriod("" + i, section_id, "00000000061", rank);
 		}
 		return ret;
 	}
@@ -456,22 +483,42 @@ public class LineLeaderService {
 			line_id = "00000000202";
 		}
 
+		String rank = null;
+		String rankMinor = "9";
+		if (line_id != null) {
+			switch(line_id) {
+			case "00000000201": 
+			case "00000000202": 
+			case "00000000203": rank = "1"; break;
+			}
+		}
+
 		// 工程仕挂总数
 		if ("00000000203".equals(line_id) && !s1pass) {
-			String sikakeText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, null, null);
+			String sikakeText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, rank, null, null);
 //			sikakeText += "｜ 纤维镜分解：" + dao.getWorkingMaterialCounts(section_id, "00000000060", null);
-			sikakeText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", null, null);
+			sikakeText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", rank, null, null);
 			responseMap.put("sikake", sikakeText);
+
+			if (rank != null) {
+				String sikakeMinorText = "细镜：" + dao.getWorkingMaterialCounts(section_id, line_id, rankMinor, null, null);
+				sikakeMinorText += "｜ 纤维镜总组：" + dao.getWorkingMaterialCounts(section_id, "00000000061", rankMinor, null, null);
+				responseMap.put("sikakeMinor", sikakeMinorText);
+			}
 		} else {
-			responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, null
+			responseMap.put("sikake", dao.getWorkingMaterialCounts(section_id, line_id, rank, null
 					, (s1pass ?"s1_pass" : null)));
+			if (rank != null) {
+				responseMap.put("sikakeMinor", dao.getWorkingMaterialCounts(section_id, line_id, rankMinor, null
+						, (s1pass ?"s1_pass" : null)));
+			}
 		}
 
 		if ("00000000014".equals(line_id)) {
 			// 取得今日计划件数
 			responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.总组工程"));
 			// 取得今日计划内完成件数
-			responseMap.put("plan_complete", dao.getTodayCompleteMaterialCounts(section_id, line_id, ""));
+			responseMap.put("plan_complete", dao.getTodayCompleteMaterialCounts(section_id, line_id, rank, ""));
 		} else {
 			if ("00000000012".equals(line_id)) {
 				// 总组以外暂且取白板数字
@@ -481,7 +528,7 @@ public class LineLeaderService {
 				// 总组以外暂且取白板数字
 				responseMap.put("plan", PathConsts.SCHEDULE_SETTINGS.get("daily.schedule.NS 工程"));
 				responseMap.put("plan_complete", dao.getProduceActualOfNsByBoard(section_id));
-				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL", null));
+				responseMap.put("sikake_in", dao.getWorkingMaterialCounts(section_id, line_id, "NS CELL", rank, null));
 			} else {
 				String lineName = "";
 				switch(line_id) {
@@ -498,12 +545,23 @@ public class LineLeaderService {
 				}
 				responseMap.put("plan", Integer.parseInt(sPlan));
 				if ("00000000203".equals(line_id)) {
-					long cnt = dao.getTodayCompleteMaterialCounts(section_id, line_id, "");
-					cnt += dao.getTodayCompleteMaterialCounts(section_id, "00000000061", "");
+					{
+					long cnt = dao.getTodayCompleteMaterialCounts(section_id, line_id, rank, "");
+					cnt += dao.getTodayCompleteMaterialCounts(section_id, "00000000061", rank, "");
 					responseMap.put("plan_complete", cnt);
+					}
+					if (rank != null) {
+						long cnt = dao.getTodayCompleteMaterialCounts(section_id, line_id, rankMinor, "");
+						cnt += dao.getTodayCompleteMaterialCounts(section_id, "00000000061", rankMinor, "");
+						responseMap.put("plan_minor_complete", cnt);
+					}
 				} else {
 					responseMap.put("plan_complete", 
-							dao.getTodayCompleteMaterialCounts(section_id, line_id, ""));
+							dao.getTodayCompleteMaterialCounts(section_id, line_id, rank, ""));
+					if (rank != null) {
+						responseMap.put("plan_minor_complete", 
+								dao.getTodayCompleteMaterialCounts(section_id, line_id, rankMinor, ""));
+					}
 				}
 			}
 		}

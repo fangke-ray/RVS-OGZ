@@ -120,6 +120,9 @@
 			    GROUP BY p.position_id, m.quotation_first) pf
 			    ON `p`.position_id = pf.position_id
 			    AND qf.quotation_first = pf.quotation_first
+			JOIN
+				position_of_section pos ON p.position_id = pos.position_id
+		        AND pos.SECTION_ID = #{section_id}
 		]]>
 			WHERE
 			    DELETE_FLG = 0
@@ -129,6 +132,7 @@
 		]]>
 		</if>
 				AND p.kind = 's1_pass'
+				AND p.process_code not in ('302', '303')
 			ORDER BY `p`.PROCESS_CODE, quotation_first;
 	</select>
 
@@ -209,10 +213,22 @@
 			AND pf.position_id in (25, 60)
 		]]>
 		</if>
+		<if test="cell eq null or cell eq '' ">
+		<![CDATA[
+			AND pf.position_id not in (25, 60)
+		]]>
+		</if>
 		<![CDATA[
 			JOIN
 				`position` p
 				ON pf.position_id = p.position_id
+		]]>
+		<if test="s1_pass neq null and s1_pass neq '' ">
+		<![CDATA[
+                and p.kind = 's1_pass'
+		]]>
+		</if>
+		<![CDATA[
 			WHERE `m`.section_id = #{section_id}
 			AND `m`.outline_time IS NULL
 			AND (`mp`.`finish_date` IS NULL OR (`mp`.`rework_trigger_position_id` IS NOT NULL and operate_result != 2))
@@ -225,6 +241,16 @@
 		<if test="line_id!= null and line_id== '00000000014' ">
 		<![CDATA[
 			    AND m.model_id not in (select model_id from v_model where kind = '03')
+		]]>
+		</if>
+		<if test="rank eq 1 ">
+		<![CDATA[
+			AND `m`.level in (1, 2, 3)
+		]]>
+		</if>
+		<if test="rank eq 9 ">
+		<![CDATA[
+			AND `m`.level in (9 , 91, 92, 93, 96, 97, 98, 99)
 		]]>
 		</if>
 			;
@@ -269,6 +295,16 @@
 			    AND m.model_id not in (select model_id from v_model where kind = '03')
 		]]>
 		</if>
+		<if test="rank eq 1 ">
+		<![CDATA[
+			AND `m`.level in (1, 2, 3)
+		]]>
+		</if>
+		<if test="rank eq 9 ">
+		<![CDATA[
+			AND `m`.level in (9 , 91, 92, 93, 96, 97, 98, 99)
+		]]>
+		</if>
 	</select>
 
 	<select id="getBreakingMaterials" resultType="LineLeaderEntity">
@@ -286,6 +322,7 @@
 					ON `pf`.position_id = `p`.position_id
 					  AND `p`.line_id = #{line_id}
 					WHERE operate_result not in (5, 8)
+					  AND (pf.finish_time is null OR pf.finish_time > current_date)
 					  AND `pf`.section_id = #{section_id}
 					ORDER BY (1-ISNULL(`pf`.action_time)) ,
 					`pf`.action_time DESC, `pf`.operate_result DESC
@@ -495,6 +532,16 @@
 		<if test="line_id!= null and line_id== '00000000014' ">
 		<![CDATA[
 			    AND ma.model_id not in (select model_id from v_model where kind = '03')
+		]]>
+		</if>
+		<if test="rank eq 1 ">
+		<![CDATA[
+			AND `ma`.level in (1, 2, 3)
+		]]>
+		</if>
+		<if test="rank eq 9 ">
+		<![CDATA[
+			AND `ma`.level in (9 , 91, 92, 93, 96, 97, 98, 99)
 		]]>
 		</if>
 		    group by ma.material_id

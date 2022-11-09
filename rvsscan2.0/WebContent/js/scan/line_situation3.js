@@ -8,6 +8,7 @@ var hexaPlan;
 var hexaPlanFinish;
 var plan_value = 0;
 var plan_complete_value = 0;
+var plan_complete_dm_value = 0;
 
 var now_nogood_listsize = 0;
 var now_nogood_currentPos = 0;
@@ -46,7 +47,11 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 
 			position_counts = resInfo.counts;
 
-			$("#sikake").text(resInfo.sikake); // TODO real sikake
+			var sikakeText = resInfo.sikake;
+			if (resInfo.sikakeMinor) {
+				sikakeText = "大修理：" + sikakeText + " ＆ 中小修理：" + resInfo.sikakeMinor;
+			}
+			$("#sikake").text(sikakeText); // TODO real sikake
 
 			if (resInfo.sikake_in || resInfo.sikake_in == 0) {
 				$("#sikake_in").text("（其中CCD盖玻璃更换与LG玻璃更换 " + resInfo.sikake_in + " 台)");
@@ -219,198 +224,253 @@ var jsinit_ajaxSuccess = function(xhrobj, textStatus){
 			}
 		}
 
-if (chart3== null) {
-chart3 = new Highcharts.Chart({
-colors : ['rgba(146, 208, 80,0.8)', 'rgba(0, 128, 192,0.65)' ],
-chart : {
-	renderTo : 'step_process',
-	type : 'area',
-	marginRight : 10,
-	backgroundColor : {
-		linearGradient : [ 0, 0, 0, 0 ],
-		stops : [
-				[ 0, 'rgba(0, 0, 0, 0)' ],
-				[ 1, 'rgba(0, 0, 0, 0)' ] ]
-		},
-	events : {
-		load : function() {
+		var tColors = ['rgba(146, 208, 80,0.8)', 'rgba(0, 128, 192,0.65)' ];
+		var tSeries = [ {
+				name : '计划台数',
+				data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+			},{
+				name : '产出台数',
+				data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+			} ];
+		if (lm_tag == 2) {
+			tColors = [ 'rgba(146, 208, 80,0.8)','rgba(204, 118, 204,0.8)', 'rgba(0, 128, 192,0.65)' ];
+			tSeries = [ {
+				name : '计划台数',
+				data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+			},{
+				name : '中小修理产出',
+				data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+				stacking : 'normal'
+			},{
+				name : '大修理产出',
+				data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+				stacking : 'normal'
+			} ]
 		}
-	}
-},
-credits : {
-	enabled : false
-},
-title : {
-	text : ''
-},
-xAxis : {
-	categories : chart3XCategories,
-	labels : {
-		style : {
-			fontWeight : 'bold',
-			fontSize : '14px',
-			color : 'black'
-		},
-		y:26
-	}
-},
-yAxis : {
-	tickInterval:1,
-	title : {
-		text : '台数',
-		style : {
-			fontWeight : 'bold',
-			fontSize : '16px'
-		}
-	}
-},
-tooltip : {
-	animation : false,
-	formatter : function() {
-		return '<b>' + this.series.name
-				+ '</b><br/>' + this.y
-				+ '台<br/>';
-	},
-	style : {
-		fontWeight : 'bold',
-		fontSize : '12px'
-	},
-	labels : {
-		style : {
-			fontWeight : 'bold',
-			fontSize : '16px'
-		}
-	}
-},
-plotOptions : {
-	series : {
-		animation: {
-			duration: 300
-		},
-		cursor : 'pointer',
-		point : {
-			events : {
-				click : function() {
-				}
-			}
-		}
-	},
-	area : {
-		borderWidth :0,
-		marker : {
-			enabled : false,
-			states: {
-				hover: {
-					enabled: false
-				}
-			}
-		}
-	}
-},
-legend : {
-	enabled : true,floating : true,
-			align: 'left',
-		valign:'top',	y : -166,
-			x : 60
 
-},
-exporting : {
-	enabled : false
-},
-series : [ {
-	name : '计划台数',
-	data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
-},{
-	name : '产出台数',
-	data : [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
-} ]
+		if (chart3== null) {
+			chart3 = new Highcharts.Chart({
+			colors : tColors,
+			chart : {
+				renderTo : 'step_process',
+				type : 'area',
+				marginRight : 10,
+				backgroundColor : {
+					linearGradient : [ 0, 0, 0, 0 ],
+					stops : [
+							[ 0, 'rgba(0, 0, 0, 0)' ],
+							[ 1, 'rgba(0, 0, 0, 0)' ] ]
+					},
+				events : {
+					load : function() {
+					}
+				}
+			},
+			credits : {
+				enabled : false
+			},
+			title : {
+				text : ''
+			},
+			xAxis : {
+				categories : chart3XCategories,
+				labels : {
+					style : {
+						fontWeight : 'bold',
+						fontSize : '14px',
+						color : 'black'
+					},
+					y:26
+				}
+			},
+			yAxis : {
+				tickInterval:1,
+				title : {
+					text : '台数',
+					style : {
+						fontWeight : 'bold',
+						fontSize : '16px'
+					}
+				}
+			},
+			tooltip : {
+				animation : false,
+				formatter : function() {
+					return '<b>' + this.series.name
+							+ '</b><br/>' + this.y
+							+ '台<br/>';
+				},
+				style : {
+					fontWeight : 'bold',
+					fontSize : '12px'
+				},
+				labels : {
+					style : {
+						fontWeight : 'bold',
+						fontSize : '16px'
+					}
+				}
+			},
+			plotOptions : {
+				series : {
+					animation: {
+						duration: 300
+					},
+					cursor : 'pointer',
+					point : {
+						events : {
+							click : function() {
+							}
+						}
+					}
+				},
+				area : {
+					borderWidth :0,
+					marker : {
+						enabled : false,
+						states: {
+							hover: {
+								enabled: false
+							}
+						}
+					}
+				}
+			},
+			legend : {
+				enabled : true,floating : true,
+						align: 'left',
+					valign:'top',	y : -166,
+						x : 60
+			
+			},
+			exporting : {
+				enabled : false
+			},
+			series : tSeries
 			});
-			} else if (resInfo.plans) {
-				var plans = resInfo.plans;
-				var outs = resInfo.outs;
-				var now_period = resInfo.now_period;
+		} else if (resInfo.plans) {
+			var plans = resInfo.plans;
+			var outs = resInfo.outs;
+			var outMinors = resInfo.outMinors;
+			var now_period = resInfo.now_period;
+
+			if (lm_tag == 2) {
+				chart3.series[0].setData(plans, false);
+				chart3.series[1].setData(outMinors, false);
+				chart3.series[2].setData(outs);
+			} else {
 				chart3.series[0].setData(plans, false);
 				chart3.series[1].setData(outs);
-				var tlt_plan = 0;
-				var tlt_out = 0;
-
-				var $today_plan_outline = $("#today_plan_outline tbody");
-				var $today_plan_outline_tr = $today_plan_outline.find("tr:eq(0)");
-				var plan = plans[2];
-				tlt_plan += plan;
-				var out = outs[2];
-				tlt_out += out;
-				if (plan>0) {
-					$today_plan_outline_tr.find("td:eq(1)").text(plan);
-					var rate = parseInt(out * 100 / plan);
-					$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
-					if (rate<100 && now_period > 1) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
-				}
-				if (tlt_plan>0) {
-					var rate = parseInt(tlt_out * 100 / tlt_plan);
-					$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
-					if (rate<100 && now_period > 1) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
-				}
-				$today_plan_outline_tr.find("td:eq(2)").text(out);
-				if (now_period > 1) $today_plan_outline_tr.css("background-color","lightgray");
-				if (now_period == 1) $today_plan_outline_tr.css("background-color","lightblue");
-
-				$today_plan_outline_tr = $today_plan_outline.find("tr:eq(1)");
-				plan = plans[8];
-				out = outs[8];
-				tlt_plan += plan;
-				tlt_out += out;
-				if (plan>0) {
-					$today_plan_outline_tr.find("td:eq(1)").text(plan);
-					var rate = parseInt(out * 100 / plan);
-					$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
-					if (rate<100 && now_period > 2) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
-				}
-				if (tlt_plan>0 && now_period >= 2) {
-					var rate = parseInt(tlt_out * 100 / tlt_plan);
-					$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
-					if (rate<100 && now_period > 2) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
-				}
-				$today_plan_outline_tr.find("td:eq(2)").text(out);
-				if (now_period > 2) $today_plan_outline_tr.css("background-color","lightgray");
-				if (now_period == 2) $today_plan_outline_tr.css("background-color","lightblue");
-
-				$today_plan_outline_tr = $today_plan_outline.find("tr:eq(2)");
-				plan = plans[14];
-				out = outs[14];
-				tlt_plan += plan;
-				tlt_out += out;
-				if (plan>0) {
-					$today_plan_outline_tr.find("td:eq(1)").text(plan);
-					var rate = parseInt(out * 100 / plan);
-					$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
-					if (rate<100 && now_period > 3) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
-				}
-				if (tlt_plan>0 && now_period >= 3) {
-					var rate = parseInt(tlt_out * 100 / tlt_plan);
-					$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
-					if (rate<100 && now_period > 3) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
-				}
-				$today_plan_outline_tr.find("td:eq(2)").text(out);
-				if (now_period > 3) $today_plan_outline_tr.css("background-color","lightgray");
-				if (now_period == 3) $today_plan_outline_tr.css("background-color","lightblue");
-
-				$today_plan_outline_tr = $today_plan_outline.find("tr:eq(3)");
-				plan = plans[22];
-				out = outs[22];
-				tlt_plan += plan;
-				tlt_out += out;
-				if (plan>0) {
-					$today_plan_outline_tr.find("td:eq(1)").text(plan);
-					var rate = parseInt(out * 100 / plan);
-					$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
-				}
-				if (tlt_plan>0 && now_period == 4) {
-					$today_plan_outline_tr.find("td:eq(4)").text(parseInt(tlt_out * 100 / tlt_plan) + " %");
-				}
-				$today_plan_outline_tr.find("td:eq(2)").text(out);
-				if (now_period == 4) $today_plan_outline_tr.css("background-color","lightblue");
 			}
+
+			var tlt_plan = 0;
+			var tlt_out = 0;
+
+			var $today_plan_outline = $("#today_plan_outline tbody");
+			var $today_plan_outline_tr = $today_plan_outline.find("tr:eq(0)");
+			var plan = plans[2];
+			tlt_plan += plan;
+			var out = outs[2];
+			tlt_out += out;
+			if (outMinors) {
+				tlt_out += outMinors[2];
+			}
+			if (plan>0) {
+				$today_plan_outline_tr.find("td:eq(1)").text(plan);
+				var rate = parseInt((out + (outMinors ? outMinors[2] : 0)) * 100 / plan);
+				$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
+				if (rate<100 && now_period > 1) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
+			}
+			if (tlt_plan>0) {
+				var rate = parseInt(tlt_out * 100 / tlt_plan);
+				$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
+				if (rate<100 && now_period > 1) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
+			}
+			if (lm_tag == 2) {
+				$today_plan_outline_tr.find("td:eq(2)").html("<span class='out_major'>"+out+"</span> <span class='out_minor'>"+outMinors[2]+"</span>");
+			} else {
+				$today_plan_outline_tr.find("td:eq(2)").text(out);
+			}
+			if (now_period > 1) $today_plan_outline_tr.css("background-color","lightgray");
+			if (now_period == 1) $today_plan_outline_tr.css("background-color","lightblue");
+
+			$today_plan_outline_tr = $today_plan_outline.find("tr:eq(1)");
+			plan = plans[8];
+			out = outs[8];
+			if (outMinors) {
+				tlt_out += outMinors[8];
+			}
+			tlt_plan += plan;
+			tlt_out += out;
+			if (plan>0) {
+				$today_plan_outline_tr.find("td:eq(1)").text(plan);
+				var rate = parseInt((out + (outMinors ? outMinors[8] : 0)) * 100 / plan);
+				$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
+				if (rate<100 && now_period > 2) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
+			}
+			if (tlt_plan>0 && now_period >= 2) {
+				var rate = parseInt(tlt_out * 100 / tlt_plan);
+				$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
+				if (rate<100 && now_period > 2) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
+			}
+			if (lm_tag == 2) {
+				$today_plan_outline_tr.find("td:eq(2)").html("<span class='out_major'>"+out+"</span> <span class='out_minor'>"+outMinors[8]+"</span>");
+			} else {
+				$today_plan_outline_tr.find("td:eq(2)").text(out);
+			}
+			if (now_period > 2) $today_plan_outline_tr.css("background-color","lightgray");
+			if (now_period == 2) $today_plan_outline_tr.css("background-color","lightblue");
+
+			$today_plan_outline_tr = $today_plan_outline.find("tr:eq(2)");
+			plan = plans[14];
+			out = outs[14];
+			tlt_plan += plan;
+			tlt_out += out;
+			if (outMinors) {
+				tlt_out += outMinors[14];
+			}
+			if (plan>0) {
+				$today_plan_outline_tr.find("td:eq(1)").text(plan);
+				var rate = parseInt((out + (outMinors ? outMinors[14] : 0)) * 100 / plan);
+				$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
+				if (rate<100 && now_period > 3) $today_plan_outline_tr.find("td:eq(3)").addClass("low");
+			}
+			if (tlt_plan>0 && now_period >= 3) {
+				var rate = parseInt(tlt_out * 100 / tlt_plan);
+				$today_plan_outline_tr.find("td:eq(4)").text(rate + " %");
+				if (rate<100 && now_period > 3) $today_plan_outline_tr.find("td:eq(4)").addClass("low");
+			}
+			if (lm_tag == 2) {
+				$today_plan_outline_tr.find("td:eq(2)").html("<span class='out_major'>"+out+"</span> <span class='out_minor'>"+outMinors[14]+"</span>");
+			} else {
+				$today_plan_outline_tr.find("td:eq(2)").text(out);
+			}
+			if (now_period > 3) $today_plan_outline_tr.css("background-color","lightgray");
+			if (now_period == 3) $today_plan_outline_tr.css("background-color","lightblue");
+
+			$today_plan_outline_tr = $today_plan_outline.find("tr:eq(3)");
+			plan = plans[22];
+			out = outs[22];
+			tlt_plan += plan;
+			tlt_out += out;
+			if (outMinors) {
+				tlt_out += outMinors[22];
+			}
+			if (plan>0) {
+				$today_plan_outline_tr.find("td:eq(1)").text(plan);
+				var rate = parseInt((out + (outMinors ? outMinors[22] : 0)) * 100 / plan);
+				$today_plan_outline_tr.find("td:eq(3)").text(rate + " %");
+			}
+			if (tlt_plan>0 && now_period == 4) {
+				$today_plan_outline_tr.find("td:eq(4)").text(parseInt(tlt_out * 100 / tlt_plan) + " %");
+			}
+			if (lm_tag == 2) {
+				$today_plan_outline_tr.find("td:eq(2)").html("<span class='out_major'>"+out+"</span> <span class='out_minor'>"+outMinors[22]+"</span>");
+			} else {
+				$today_plan_outline_tr.find("td:eq(2)").text(out);
+			}
+			if (now_period == 4) $today_plan_outline_tr.css("background-color","lightblue");
+		}
 
 		$("tspan").hover(
 			function() {
@@ -446,7 +506,7 @@ series : [ {
 							pauseOnCycle: true,
 							duration : 2020
 						});
-						$("#plan_count .js-marquee-wrapper").css("transform", "translateY(0)");
+						$("#plan_count .js-marquee-wrapper").css({"transform": "translateY(0)", "WebkitTransform": "translateY(0)"});
 					}
 				} else {
 					if (marqueued) {
@@ -486,7 +546,7 @@ series : [ {
 							startVisible: true,
 							duration : 2020
 						});
-						$("#plan_finish_count .js-marquee-wrapper").css("transform", "translateY(0)");
+						$("#plan_finish_count .js-marquee-wrapper").css({"transform": "translateY(0)", "WebkitTransform": "translateY(0)"});
 					}
 				} else {
 					if (marqueued) {
@@ -514,13 +574,24 @@ series : [ {
 
 				plan_complete_value = resInfo.plan_complete;
 
+				if (lm_tag == 2) {
+					$("#plan_finish_dm_count").flipCounter(
+						"startAnimation", // scroll counter from the current number to the specified number
+						{
+							number: plan_complete_dm_value, // the number we want to scroll from
+							end_number: resInfo.plan_minor_complete, // the number we want the counter to scroll to
+							duration: 1000 // number of ms animation should take to complete
+						});
+	
+					plan_complete_dm_value = resInfo.plan_minor_complete;
+				}
 			}
 		}
 
 		var com_rate = 0;
 
 		if (plan_value > 0) {
-			com_rate = Math.floor(plan_complete_value / plan_value * 100);
+			com_rate = Math.floor((plan_complete_value + plan_complete_dm_value) / plan_value * 100);
 		}
 
 		$('.donut-arrow').trigger('updatePercentage', com_rate);
@@ -573,16 +644,24 @@ $(document).ready(function() {
 			servicePath = locationPath;
 		}
 		if ($("#plan_count").length > 0) {
-		$("#plan_count").flipCounter({numIntegralDigits:2,
-			digitHeight:124,
-			digitWidth:62,
-			imagePath:"images/white_counter.png"
-		});
-		$("#plan_finish_count").flipCounter({numIntegralDigits:2,
-			digitHeight:124,
-			digitWidth:62,
-			imagePath:"images/white_counter.png"
-		});
+			$("#plan_count").flipCounter({numIntegralDigits:2,
+				digitHeight:124,
+				digitWidth:62,
+				imagePath:"images/white_counter.png"
+			});
+			$("#plan_finish_count").flipCounter({numIntegralDigits:2,
+				digitHeight:124,
+				digitWidth:62,
+				imagePath:"images/white_counter.png"
+			});
+			if ($("#lm_tag").val() == "2") {
+				$("#plan_finish_dm_count").show().flipCounter({numIntegralDigits:2,
+					digitHeight:124,
+					digitWidth:62,
+					imagePath:"images/white_counter.png"
+				});
+				$("#plan_finish").css({"transform": "scaleY(50%)", "WebkitTransform": "scaleY(50%)"});
+			}
 		}
 	}
 
