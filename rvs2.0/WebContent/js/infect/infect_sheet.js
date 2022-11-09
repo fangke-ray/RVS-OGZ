@@ -488,6 +488,7 @@ var showInfectSheet =function(infectDetailData, isLeader){
 								if (infectDetailData.check_file_manage_id == "00000000305"
 									|| infectDetailData.check_file_manage_id == "00000000306"
 									|| infectDetailData.check_file_manage_id == "00000000307"
+									|| infectDetailData.check_file_manage_id == "00000000317"
 									|| infectDetailData.check_file_manage_id == "00000000108"
 									|| infectDetailData.check_file_manage_id == "00000000109"
 									|| infectDetailData.check_file_manage_id == "00000000110"

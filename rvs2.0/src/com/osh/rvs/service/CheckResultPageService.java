@@ -11,6 +11,7 @@ import static com.osh.rvs.service.CheckResultService.TORSION_FILE_E;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_F;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_G;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_H;
+import static com.osh.rvs.service.CheckResultService.TORSION_FILE_QA;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_A_N;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_B_N;
 import static com.osh.rvs.service.CheckResultService.TORSION_FILE_C_N;
@@ -155,7 +156,8 @@ public class CheckResultPageService {
 					|| TORSION_FILE_E.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_F.equals(entity.getDevice_type_id())
 					|| TORSION_FILE_G.equals(entity.getDevice_type_id())
-					|| TORSION_FILE_H.equals(entity.getDevice_type_id()))
+					|| TORSION_FILE_H.equals(entity.getDevice_type_id())
+					|| TORSION_FILE_QA.equals(entity.getDevice_type_id()))
 				getTorsionDevices(ucList, section_id, operator_id, position_id, positionList, entityConditionForTorsion, periodsEntity, conn, crMapper, isLeader);
 			if (entity.getDevice_type_id() == null 
 					|| ELECTRIC_IRON_FILE_A.equals(entity.getDevice_type_id())

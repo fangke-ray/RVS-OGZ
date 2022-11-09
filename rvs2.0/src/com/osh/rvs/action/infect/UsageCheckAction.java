@@ -215,7 +215,7 @@ public class UsageCheckAction extends BaseAction {
 			String check_file_manage_id = request.getParameter("check_file_manage_id");
 			if ("00000000105".equals(check_file_manage_id) || "00000000106".equals(check_file_manage_id) ||
 					"00000000107".equals(check_file_manage_id) || "00000000305".equals(check_file_manage_id) || "00000000306".equals(check_file_manage_id) ||
-					"00000000307".equals(check_file_manage_id) || "00000000108".equals(check_file_manage_id) || "00000000109".equals(check_file_manage_id) ||
+					"00000000307".equals(check_file_manage_id) || "00000000317".equals(check_file_manage_id) || "00000000108".equals(check_file_manage_id) || "00000000109".equals(check_file_manage_id) ||
 					"00000000110".equals(check_file_manage_id) || "00000000111".equals(check_file_manage_id) || "00000000112".equals(check_file_manage_id)) {
 				// 力矩工具
 				content = service.getTorsionDeviceCheckSheet(request.getParameter("section_id"), request.getParameter("position_id"),
