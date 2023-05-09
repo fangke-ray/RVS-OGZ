@@ -45,6 +45,7 @@ import com.osh.rvs.bean.master.PositionEntity;
 import com.osh.rvs.bean.master.ProcedureStepCountEntity;
 import com.osh.rvs.common.PathConsts;
 import com.osh.rvs.common.PcsUtils;
+import com.osh.rvs.common.RvsConsts;
 import com.osh.rvs.common.RvsUtils;
 import com.osh.rvs.form.data.MaterialForm;
 import com.osh.rvs.form.master.ProcedureStepCountForm;
@@ -59,6 +60,7 @@ import com.osh.rvs.mapper.inline.SoloProductionFeatureMapper;
 import com.osh.rvs.mapper.master.DevicesManageMapper;
 import com.osh.rvs.mapper.master.ProcessAssignMapper;
 import com.osh.rvs.mapper.qf.QuotationMapper;
+import com.osh.rvs.mapper.qf.WipMapper;
 import com.osh.rvs.service.AlarmMesssageService;
 import com.osh.rvs.service.CheckResultService;
 import com.osh.rvs.service.MaterialService;
@@ -1144,13 +1146,28 @@ public class PositionPanelService {
 	 * 执行工位扫描后的特殊事件
 	 * @param waitingPf
 	 * @param conn
+	 * @throws Exception 
 	 */
-	public void executeActionByPosition(ProductionFeatureEntity waitingPf, SqlSessionManager conn) {
+	public void executeActionByPosition(ProductionFeatureEntity waitingPf, SqlSessionManager conn) throws Exception {
 		String positionId = waitingPf.getPosition_id();
+		String processCode = waitingPf.getProcess_code();
 
 		if (waitingPf.getOperate_result() == 0 
 				&& ("00000000033".equals(positionId) || "00000000042".equals(positionId) 
 						|| "00000000048".equals(positionId) || "00000000050".equals(positionId))) {
+		}
+
+
+		// 周边设备WIP出库
+		if ("811".equals(processCode) && waitingPf.getOperate_result() == RvsConsts.OPERATE_RESULT_NOWORK_WAITING) {
+			MaterialService mService = new MaterialService();
+			MaterialEntity mBean = mService.loadSimpleMaterialDetailEntity(conn, waitingPf.getMaterial_id());
+
+			if (mBean.getWip_location() != null) {
+				mBean.setWip_location(null);
+				WipMapper wMapper = conn.getMapper(WipMapper.class);
+				wMapper.warehousing(mBean);
+			}
 		}
 	}
 

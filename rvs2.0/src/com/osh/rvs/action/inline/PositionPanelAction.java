@@ -481,6 +481,9 @@ public class PositionPanelAction extends BaseAction {
 		// 取得用户信息
 		HttpSession session = req.getSession();
 		LoginData user = (LoginData) session.getAttribute(RvsConsts.SESSION_USER);
+
+		String scan_part = req.getParameter("scan_part");
+
 		String process_code = user.getProcess_code();
 
 		// 判断维修对象在等待区，并返回这一条作业信息
@@ -496,6 +499,17 @@ public class PositionPanelAction extends BaseAction {
 			}
 		} else {
 			waitingPf = service.checkMaterialId(material_id, user, errors, conn);
+		}
+
+		if (errors.size() == 0 && "1".equals(scan_part)) {
+			MsgInfo msgInfo = new MsgInfo();
+			msgInfo.setComponentid("material_id");
+			msgInfo.setErrcode("info.scanner.secondaryConfirm");
+			msgInfo.setErrmsg(ApplicationMessage.WARNING_MESSAGES.getMessage("info.scanner.secondaryConfirm"));
+			errors.add(msgInfo);
+
+			MaterialService ms = new MaterialService();
+			listResponse.put("mform", ms.loadSimpleMaterialDetail(conn, material_id));
 		}
 
 		// 2点后锁
