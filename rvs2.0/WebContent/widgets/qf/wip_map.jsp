@@ -1032,6 +1032,8 @@ font-size:15px;
 <td wipid="13-A3">3</td>
 <td wipid="13-A4">4</td>
 <td wipid="13-A5">5</td>
+<td wipid="13-A6">6</td>
+<td wipid="13-A7">7</td>
 				</tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
@@ -1040,6 +1042,8 @@ font-size:15px;
 <td wipid="13-B3">3</td>
 <td wipid="13-B4">4</td>
 <td wipid="13-B5">5</td>
+<td wipid="13-B6">6</td>
+<td wipid="13-B7">7</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
@@ -1047,7 +1051,6 @@ font-size:15px;
 <td wipid="13-C2">2</td>
 <td wipid="13-C3">3</td>
 <td wipid="13-C4">4</td>
-<td wipid="13-C5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
@@ -1055,7 +1058,6 @@ font-size:15px;
 <td wipid="13-D2">2</td>
 <td wipid="13-D3">3</td>
 <td wipid="13-D4">4</td>
-<td wipid="13-D5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
@@ -1063,7 +1065,6 @@ font-size:15px;
 <td wipid="13-E2">2</td>
 <td wipid="13-E3">3</td>
 <td wipid="13-E4">4</td>
-<td wipid="13-E5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
@@ -1071,7 +1072,6 @@ font-size:15px;
 <td wipid="13-F2">2</td>
 <td wipid="13-F3">3</td>
 <td wipid="13-F4">4</td>
-<td wipid="13-F5">5</td>
 </tr>
 			</table>
 		</div>
@@ -1085,6 +1085,8 @@ font-size:15px;
 <td wipid="14-A3">3</td>
 <td wipid="14-A4">4</td>
 <td wipid="14-A5">5</td>
+<td wipid="14-A6">6</td>
+<td wipid="14-A7">7</td>
 				</tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
@@ -1093,6 +1095,8 @@ font-size:15px;
 <td wipid="14-B3">3</td>
 <td wipid="14-B4">4</td>
 <td wipid="14-B5">5</td>
+<td wipid="14-B6">6</td>
+<td wipid="14-B7">7</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
@@ -1100,7 +1104,6 @@ font-size:15px;
 <td wipid="14-C2">2</td>
 <td wipid="14-C3">3</td>
 <td wipid="14-C4">4</td>
-<td wipid="14-C5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
@@ -1108,7 +1111,6 @@ font-size:15px;
 <td wipid="14-D2">2</td>
 <td wipid="14-D3">3</td>
 <td wipid="14-D4">4</td>
-<td wipid="14-D5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
@@ -1116,7 +1118,6 @@ font-size:15px;
 <td wipid="14-E2">2</td>
 <td wipid="14-E3">3</td>
 <td wipid="14-E4">4</td>
-<td wipid="14-E5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
@@ -1124,7 +1125,6 @@ font-size:15px;
 <td wipid="14-F2">2</td>
 <td wipid="14-F3">3</td>
 <td wipid="14-F4">4</td>
-<td wipid="14-F5">5</td>
 </tr>
 			</table>
 		</div>
@@ -1138,6 +1138,8 @@ font-size:15px;
 <td wipid="15-A3">3</td>
 <td wipid="15-A4">4</td>
 <td wipid="15-A5">5</td>
+<td wipid="15-A6">6</td>
+<td wipid="15-A7">7</td>
 				</tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｂ</th>
@@ -1146,6 +1148,8 @@ font-size:15px;
 <td wipid="15-B3">3</td>
 <td wipid="15-B4">4</td>
 <td wipid="15-B5">5</td>
+<td wipid="15-B6">6</td>
+<td wipid="15-B7">7</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｃ</th>
@@ -1153,7 +1157,6 @@ font-size:15px;
 <td wipid="15-C2">2</td>
 <td wipid="15-C3">3</td>
 <td wipid="15-C4">4</td>
-<td wipid="15-C5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｄ</th>
@@ -1161,7 +1164,6 @@ font-size:15px;
 <td wipid="15-D2">2</td>
 <td wipid="15-D3">3</td>
 <td wipid="15-D4">4</td>
-<td wipid="15-D5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｅ</th>
@@ -1169,7 +1171,6 @@ font-size:15px;
 <td wipid="15-E2">2</td>
 <td wipid="15-E3">3</td>
 <td wipid="15-E4">4</td>
-<td wipid="15-E5">5</td>
 </tr>
 <tr>
 					<th class="ui-state-default" style="width: 14px;">Ｆ</th>
@@ -1177,7 +1178,6 @@ font-size:15px;
 <td wipid="15-F2">2</td>
 <td wipid="15-F3">3</td>
 <td wipid="15-F4">4</td>
-<td wipid="15-F5">5</td>
 </tr>
 			</table>
 		</div>
